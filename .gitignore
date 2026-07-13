@@ -21,3 +21,5 @@ vendors/
 videos/*
 public_docs/*
 public_img/*
+/.idea/
+/.vscode/
