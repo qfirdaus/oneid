@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# 1) Paksa HTTPS kalau masih HTTP
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://oneid.local%{REQUEST_URI} [L,R=301]
+
+# 2) Auto-append .php kalau file tu wujud
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php [NC,L]

@@ -1,0 +1,23 @@
+# Database
+*.sql
+
+# Config sensitif
+lib/config.php
+
+# Logs
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Node
+node_modules/
+
+# Vendor (jika boleh install semula)
+vendors/
+
+# Upload
+videos/*
+public_docs/*
+public_img/*

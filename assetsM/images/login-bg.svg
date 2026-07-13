@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <clipPath id="clip-Web_1920_2">
+      <rect width="1920" height="1080"/>
+    </clipPath>
+  </defs>
+  <g id="Web_1920_2" data-name="Web 1920 – 2" clip-path="url(#clip-Web_1920_2)">
+    <rect width="1920" height="1080" fill="#fff"/>
+    <g id="Group_113" data-name="Group 113">
+      <circle id="Ellipse_8" data-name="Ellipse 8" cx="750" cy="750" r="750" transform="translate(210 -210)" fill="#dbe3fa"/>
+      <circle id="Ellipse_9" data-name="Ellipse 9" cx="1307" cy="1307" r="1307" transform="translate(-347 -767)" fill="#edf1fc"/>
+      <rect id="Rectangle_6" data-name="Rectangle 6" width="1920" height="1080" fill="#edf1fc"/>
+      <circle id="Ellipse_10" data-name="Ellipse 10" cx="780" cy="780" r="780" transform="translate(180 -240)" fill="#dbe3fa"/>
+      <circle id="Ellipse_7" data-name="Ellipse 7" cx="600" cy="600" r="600" transform="translate(360 -60)" fill="#c8d5f7"/>
+      <circle id="Ellipse_6" data-name="Ellipse 6" cx="450" cy="450" r="450" transform="translate(510 90)" fill="#b6c7f5"/>
+      <circle id="Ellipse_5" data-name="Ellipse 5" cx="340" cy="340" r="340" transform="translate(620 200)" fill="#a4b9f2"/>
+      <circle id="Ellipse_4" data-name="Ellipse 4" cx="250" cy="250" r="250" transform="translate(710 290)" fill="#92aaef"/>
+      <circle id="Ellipse_3" data-name="Ellipse 3" cx="175" cy="175" r="175" transform="translate(785 365)" fill="#809ced"/>
+      <circle id="Ellipse_2" data-name="Ellipse 2" cx="120" cy="120" r="120" transform="translate(840 420)" fill="#5b80e8"/>
+      <circle id="Ellipse_1" data-name="Ellipse 1" cx="75" cy="75" r="75" transform="translate(885 465)" fill="#4972e5"/>
+    </g>
+  </g>
+</svg>
