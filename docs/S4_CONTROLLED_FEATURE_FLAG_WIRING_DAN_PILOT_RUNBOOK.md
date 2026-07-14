@@ -3,7 +3,7 @@
 Tarikh pelan: 14 Julai 2026
 Change owner: Pemilik sistem OneID
 Rollback owner: Pemilik sistem OneID
-Status: **S4A DORMANT SIAP — S4B–S4E BELUM, NO-GO UNTUK APPLY**
+Status: **S4A–S4B DORMANT SIAP — S4C–S4E BELUM, NO-GO UNTUK APPLY**
 Baseline code: commit `243ff2c`
 
 ## 1. Objektif dan Boundary
@@ -121,9 +121,10 @@ runtime caller dan tiada deployment flag diubah.
 
 ### S4B — Approval contract dan test
 
-- tambah preview approval server-side;
-- selaraskan preview dengan `SyncSafetyPolicy` dan canonical plan fingerprint
-  yang turut digunakan oleh Apply;
+- **Selesai pada domain/test level:** tambah one-time approval server-side dan
+  canonical plan fingerprint;
+- runtime alignment preview dengan `SyncSafetyPolicy` dan Apply kekal untuk
+  S4C;
 - tambah endpoint Apply admin-only dengan CSRF dan exactly-one-action guard;
 - response browser hanya generic status, correlation ID, header ID dan counts;
 - test missing/invalid/disabled/safe flag matrix;
@@ -131,8 +132,16 @@ runtime caller dan tiada deployment flag diubah.
 - buktikan semua rejection path mempunyai zero mutation;
 - buktikan success path menggunakan satu snapshot dan satu writer sahaja.
 
-### S4C — Dormant deployment/soak
+Approval/rejection contract dirujuk dalam
+`docs/S4B_SERVER_BOUND_APPROVAL_DAN_ZERO_MUTATION_REJECTIONS.md`. Endpoint,
+factory dan orchestrator masih tidak menggunakan approval service.
 
+### S4C — Approval-aware coordinator dan dormant deployment/soak
+
+- bina coordinator yang menghasilkan plan sekali, validate/consume approval,
+  kemudian menyerahkan plan object sama kepada writer;
+- buktikan mismatch/expiry/replay berhenti sebelum `BEGIN`;
+- wire dependency secara dormant tanpa endpoint/UI Apply;
 - deploy code dengan Apply masih `false/disabled`;
 - jalankan S1, S2, S3, auth dan public-root regression;
 - sahkan preview browser kekal read-only;
@@ -316,6 +325,6 @@ Register pelaksanaan: `docs/S4_PILOT_GATE_REGISTER.tsv`.
 
 ## 13. Exit Pelan
 
-Dokumentasi S4 lengkap dan S4A dormant tidak bermaksud pilot mendapat GO.
-Langkah berikutnya ialah **S4B server-bound approval dan zero-mutation rejection
-contracts**, masih tanpa butang Apply, runtime endpoint atau live sync.
+Dokumentasi S4 serta S4A–S4B dormant tidak bermaksud pilot mendapat GO. Langkah
+berikutnya ialah **S4C approval-aware single-snapshot coordinator**, masih tanpa
+butang Apply, runtime endpoint atau live sync.

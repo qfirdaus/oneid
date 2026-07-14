@@ -3,7 +3,7 @@
 Tarikh: 14 Julai 2026  
 Owner perubahan: Pemilik sistem OneID  
 Owner rollback: Pemilik sistem OneID  
-Status: **AKTIF — S0–S3 SELESAI; S4A DORMANT SIAP; S4B–S4E BELUM**
+Status: **AKTIF — S0–S3 SELESAI; S4A–S4B DORMANT SIAP; S4C–S4E BELUM**
 
 ## 1. Objektif
 
@@ -205,5 +205,6 @@ Kemaskini S4 pada 14 Julai 2026: controlled wiring design, preview-to-Apply
 binding, backup, pilot, monitoring, reconciliation dan rollback runbook telah
 didokumenkan. Tiada runtime code, Nginx flag, UI Apply atau live sync diubah.
 S4A dormant factory/strict flag contract kini siap dengan state kekal
-`false/disabled` dan tanpa production caller. Langkah berikutnya ialah S4B
-server-bound approval secara test-only/dormant.
+`false/disabled` dan tanpa production caller. S4B canonical fingerprint,
+server-bound approval serta zero-mutation rejection contracts juga siap secara
+dormant. Langkah berikutnya ialah S4C approval-aware single-snapshot coordinator.

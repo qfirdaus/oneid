@@ -35,3 +35,8 @@ S4A menambah pure `SyncRuntimeConfig.php` dan dormant `SyncEngineFactory.php`.
 Hanya exact `false/disabled` atau `true/safe` diterima; legacy tidak boleh
 dipilih. Factory hanya membina dependency graph dan tidak melakukan I/O. Kedua-
 dua class belum direquire atau dipanggil oleh runtime production.
+
+S4B menambah canonical `SyncPlanFingerprinter`, one-time `SyncApprovalService`
+dan dormant server-side session store. Approval ID, admin, expiry, plan counts
+dan accepted baseline kini mempunyai contract, tetapi belum diwiring kepada
+preview, factory, orchestrator, endpoint atau UI.
