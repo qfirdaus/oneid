@@ -23,3 +23,13 @@ public_docs/*
 public_img/*
 /.idea/
 /.vscode/
+
+# Runtime data selepas migrasi ke public root
+/public/public_img/*
+!/public/public_img/.htaccess
+/public/public_docs/*
+/public/videos/*
+
+# Local rollback evidence dan quarantine payload
+/storage/quarantine/*
+!/storage/quarantine/.gitkeep
