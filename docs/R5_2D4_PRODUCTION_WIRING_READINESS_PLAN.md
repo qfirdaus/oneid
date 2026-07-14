@@ -10,6 +10,14 @@ Rollback owner: Pemilik sistem OneID
 
 Status: **SELESAI — DESIGN/RUNBOOK SAHAJA, TIADA PRODUCTION WIRING**
 
+> **Nota supersession S4 (14 Julai 2026):** Dokumen ini ialah readiness record
+> sejarah sebelum S3 safety core siap. Cadangan compatibility-first dan
+> `ONEID_SYNC_ENGINE=legacy` di bawah tidak lagi menjadi keputusan cutover.
+> Untuk implementasi semasa, rujuk
+> `docs/S4_CONTROLLED_FEATURE_FLAG_WIRING_DAN_PILOT_RUNBOOK.md`, yang menetapkan
+> default `false/disabled`, hanya engine `safe`, dan rollback dengan mematikan
+> Apply. Register S4 menggantikan gate cutover D4 yang masih pending.
+
 ## 1. Objektif dan Batas
 
 Dokumen ini menetapkan keputusan dan gate sebelum orchestration berasaskan

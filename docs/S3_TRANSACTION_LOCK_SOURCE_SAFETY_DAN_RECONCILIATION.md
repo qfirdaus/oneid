@@ -172,3 +172,8 @@ Langkah selepas itu ialah **S4 — controlled feature-flag wiring dan pilot
 runbook**. S4 tidak boleh terus menjalankan Apply: ia perlu menetapkan baseline,
 backup, observation window, owner approval, monitoring dan rollback rehearsal
 terlebih dahulu.
+
+Runbook tersebut kini tersedia di
+`docs/S4_CONTROLLED_FEATURE_FLAG_WIRING_DAN_PILOT_RUNBOOK.md`. Status kekal
+NO-GO sehingga semua gate S4 yang wajib mempunyai evidence dan arahan GO baharu
+diberikan oleh change owner.

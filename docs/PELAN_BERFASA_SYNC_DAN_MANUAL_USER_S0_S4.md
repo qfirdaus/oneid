@@ -3,7 +3,7 @@
 Tarikh: 14 Julai 2026  
 Owner perubahan: Pemilik sistem OneID  
 Owner rollback: Pemilik sistem OneID  
-Status: **AKTIF — S0–S2 SELESAI; S3 SAFETY CORE DORMANT DIIMPLEMENTASIKAN; S4 BELUM**
+Status: **AKTIF — S0–S3 SELESAI; S4 DESIGN/RUNBOOK SIAP, IMPLEMENTASI BELUM**
 
 ## 1. Objektif
 
@@ -142,14 +142,21 @@ Exit gate S3:
 
 ## 7. S4 — Controlled Cutover dan Verification
 
-Perubahan dirancang:
+Design/runbook telah disediakan; production wiring belum dibuat. Keputusan S4
+menggunakan dua gate server-side yang default `false/disabled`, hanya safe
+writer boleh dipilih, dan rollback ialah mematikan Apply—bukan kembali
+menjalankan legacy writer.
 
-- strict server-side feature flag, default `legacy`;
+Perubahan implementasi yang dirancang:
+
+- strict server-side master flag dan engine flag, default `false/disabled`;
+- server-bound preview approval dengan expiry, admin binding dan replay guard;
+- exact plan hash validation dalam snapshot/run yang sama sebelum transaction;
 - shadow comparison hanya antara pure planner, bukan dua writer;
 - satu controlled pilot melalui manual admin sync;
 - scheduled sync kekal retired dan di luar skop;
 - semak count/status/audit sebelum dan selepas pilot;
-- kekalkan rollback kepada legacy sepanjang observation window;
+- rollback kepada `false/disabled`; jangan auto-rerun legacy writer;
 - retirement legacy hanya selepas parity, monitoring dan owner acceptance.
 
 Exit gate S4:
@@ -159,6 +166,9 @@ Exit gate S4:
 - monitoring stabil dalam tempoh pemerhatian;
 - rollback rehearsal lulus;
 - owner memberi keputusan GO untuk retirement legacy.
+
+Rujuk `docs/S4_CONTROLLED_FEATURE_FLAG_WIRING_DAN_PILOT_RUNBOOK.md` dan
+`docs/S4_PILOT_GATE_REGISTER.tsv`. Status semasa kekal NO-GO untuk Apply.
 
 ## 8. Peraturan Keselamatan Merentas Semua Fasa
 
@@ -190,3 +200,9 @@ transaction boundary, source-completeness thresholds dan exact reconciliation
 telah diimplementasikan tanpa production caller wiring atau live sync. Rujuk
 `docs/S3_TRANSACTION_LOCK_SOURCE_SAFETY_DAN_RECONCILIATION.md`. S3 hanya boleh
 bergerak ke live pilot melalui runbook dan feature flag S4.
+
+Kemaskini S4 pada 14 Julai 2026: controlled wiring design, preview-to-Apply
+binding, backup, pilot, monitoring, reconciliation dan rollback runbook telah
+didokumenkan. Tiada runtime code, Nginx flag, UI Apply atau live sync diubah.
+Langkah implementation pertama kelak ialah S4A dormant factory/flag contract
+dengan effective state kekal `false/disabled`.
