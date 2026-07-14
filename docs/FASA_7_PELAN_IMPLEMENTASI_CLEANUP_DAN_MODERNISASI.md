@@ -659,3 +659,56 @@ cleanup, kedua-dua hostname lulus smoke 10/10 dan characterization 70/70;
 sync regression D0–D8 lulus 166/166 serta 63 fail PHP aktif lulus lint. Dokumen
 pelaksanaan dan rollback ialah
 `docs/R5_3_LEGACY_ROOT_QUARANTINE_CLEANUP_DAN_ROLLBACK.md`.
+
+Keputusan R5.4A: build dan dependency path diselaraskan dengan public-root.
+Grunt kini hanya menulis ke `public/dist`, development server berakar pada
+`public/`, task yang merujuk source tidak wujud dikeluarkan dan default build
+menjadi finite. Bower target kini `public/vendors/bower_components`; migration
+Fasa 5 sanitised dibenarkan masuk Git tanpa membenarkan `sso_db.sql`. Dependency
+register dan structure guard ditambah. Structure contract lulus 31/31, smoke
+dua hostname lulus 10/10 setiap satu dan characterization lulus 70/70 setiap
+host. Build compiler sebenar belum dijalankan kerana Node/npm/Grunt/Sass tiada
+pada host; status ialah PASS_WITH_BUILD_ENV_GATE. Rujuk
+`docs/R5_4A_BUILD_DAN_DEPENDENCY_REPRODUCIBILITY.md`.
+
+Keputusan R5.4B: caller/access inventory bagi tujuh public asset root telah
+direkodkan. Broken `/app-assets` hanya digunakan oleh dead export JavaScript
+dalam `admin/user_list.php`; dua script 404 dan handler tanpa butang dibuang
+tanpa mencipta compatibility directory palsu. Windows `Thumbs.db` dipindahkan
+ke quarantine dengan checksum. Tiada vendor, upload icon, manual atau video
+dibuang kerana caller/database/retention evidence belum mencukupi. Asset
+contract lulus 27/27 selepas URL routing guard, dashboard characterization 21/21, structure regression
+31/31, full characterization 70/70 dan smoke dua hostname 10/10 setiap satu.
+Status ialah PASS_WITH_MANUAL_ADMIN_PAGE_GATE kerana visual authenticated user
+list masih perlu disahkan oleh owner. Rujuk
+`docs/R5_4B_PUBLIC_ASSET_CLEANUP_DAN_ROLLBACK.md`.
+
+Manual gate pertama R5.4B menemui caller URL `user_list.php/?...` yang salah.
+Slash selepas `.php` menyebabkan fallback routing dan asset relatif dicari di
+`/admin/user_list.php/assetsM/...`. Caller dibetulkan kepada
+`user_list.php?category_id=...` dan category name kini URL-encoded. Contract
+tambahan mencegah PATH_INFO route tersebut kembali; visual gate perlu diulang.
+
+Manual gate kedua R5.4B lulus selepas PHP-FPM direstart dan URL baharu dimuatkan;
+page serta data dipaparkan tanpa nested asset errors atau `$ is not defined`.
+Warning Firefox bagi CSP Report-Only tanpa reporting endpoint tidak menyekat
+resource dan direkodkan sebagai security-header backlog berasingan. Status akhir
+R5.4B ialah PASS.
+
+Keputusan R5.4C: dua implementation logout yang byte-identical telah digabungkan
+ke `app/Auth/LogoutEndpoint.php`. URL awam `/admin/logout.php` dan
+`/page/logout.php` dikekalkan sebagai thin compatibility wrapper, manakala dua
+implementation root lama dipindahkan ke quarantine
+`storage/quarantine/R5-4C-20260714-104304`. Sepuluh compatibility wrapper lain
+tidak dipindahkan dalam slice ini. Compatibility contract lulus 24/24, asset
+regression 27/27, structure regression 31/31, dashboard regression 21/21 dan
+full characterization kedua-dua hostname lulus 69/69. Pengurangan kiraan
+characterization daripada 70 kepada 69 berlaku kerana shared target dilint
+sekali; kedua-dua URL logout masih diuji. Status sementara ialah
+PASS_WITH_AUTHENTICATED_LOGOUT_GATE sehingga authenticated admin logout mendapat
+14/14 pada `oneid.local` dan `oneid-next.local`. Rujuk
+`docs/R5_4C_COMPATIBILITY_IMPLEMENTATION_CLEANUP_DAN_ROLLBACK.md`.
+
+Closure gate R5.4C kemudian lulus pada 14 Julai 2026. Authenticated admin logout
+mendapat 14/14 pada kedua-dua hostname, termasuk cookie clearing dan session
+replay rejection. Status akhir R5.4C ialah PASS.

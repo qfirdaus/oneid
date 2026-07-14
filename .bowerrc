@@ -1,3 +1,3 @@
 {
-  "directory": "../vendors/bower_components"
+  "directory": "public/vendors/bower_components"
 }

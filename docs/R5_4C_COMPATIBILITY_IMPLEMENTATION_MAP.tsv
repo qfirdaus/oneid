@@ -1,0 +1,13 @@
+public_url	public_wrapper	implementation_before	implementation_after	risk	decision
+/	public/index.php	index.php	index.php	HIGH	KEEP; monolithic login/reset/OTP page
+/api.php	public/api.php	api.php	api.php	HIGH	KEEP; external integration contract
+/idms.php	public/idms.php	idms.php	idms.php	HIGH	KEEP; live credential integration
+/skp_api.php	public/skp_api.php	skp_api.php	skp_api.php	HIGH	KEEP; live credential integration
+/admin/dashboard.php	public/admin/dashboard.php	admin/dashboard.php	admin/dashboard.php	HIGH	KEEP; 3905-line dashboard and AJAX orchestration
+/admin/logout.php	public/admin/logout.php	admin/logout.php	app/Auth/LogoutEndpoint.php	LOW	MIGRATE_SHARED
+/admin/user_list.php	public/admin/user_list.php	admin/user_list.php	admin/user_list.php	MEDIUM	KEEP; database page and manual gate
+/page/dashboard.php	public/page/dashboard.php	page/dashboard.php	page/dashboard.php	HIGH	KEEP; authenticated dashboard and AJAX
+/page/logout.php	public/page/logout.php	page/logout.php	app/Auth/LogoutEndpoint.php	LOW	MIGRATE_SHARED
+/lib/q_func.php	public/lib/q_func.php	lib/q_func.php	lib/q_func.php	CRITICAL	KEEP; large multi-action AJAX endpoint
+/lib/sso_IDP_index.php	public/lib/sso_IDP_index.php	lib/sso_IDP_index.php	lib/sso_IDP_index.php	CRITICAL	KEEP_COMPATIBILITY; external consumer risk
+/lib/sso_IDP_sub.php	public/lib/sso_IDP_sub.php	lib/sso_IDP_sub.php	lib/sso_IDP_sub.php	CRITICAL	KEEP_COMPATIBILITY; external consumer risk

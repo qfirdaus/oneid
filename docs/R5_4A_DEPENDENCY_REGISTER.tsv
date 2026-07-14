@@ -1,0 +1,8 @@
+layer	location	manager_or_source	current_evidence	git_policy	decision
+frontend	public/vendors/bower_components	Bower; bower.json	59 declared; 76 physical; 53 contain .bower.json resolution metadata	ignored	REBUILDABLE_WITH_VERSION_GAP
+frontend-custom	public/vendors/vectormap	legacy project bundle	8 physical files	ignored	KEEP_AND_BACKUP_UNTIL_R5_4B
+frontend-custom	public/vendors/typeahead.js	legacy project bundle	98,718-byte custom file	ignored	KEEP_AND_BACKUP_UNTIL_R5_4B
+frontend-ui	public/assetsM/vendor	tracked UI bundle	138 physical files	tracked	KEEP_ACTIVE
+server	vendors/device-detector-master	matomo/device-detector	DeviceDetector::VERSION 5.0.1; autoload sha256 56bc6a4b3720491dc5fc1f2e4b49a161580b2c815e56ba97e54c970648f118f9	ignored	REQUIRED_RUNTIME_EXTERNAL_BACKUP
+server	vendors/spyc-master	mustangostang/spyc	Spyc version 0.6.2; Spyc.php sha256 6925d685a59ca4bd6703e390749feea350a0359fb254e740f9d1c64d18b49b22	ignored	REQUIRED_RUNTIME_EXTERNAL_BACKUP
+database-migration	docs/migrations/FASA_5_AUTH_HARDENING.sql	project migration	sha256 1559e54a92ba8fe4826787211f443f2523b2b2966e8f5f5104677abd08390449	tracked via explicit allowlist	TRACK

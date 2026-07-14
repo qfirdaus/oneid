@@ -3228,7 +3228,7 @@
          }
          
          function view_category_user_list(cat_id,cat_name){
-         window.open("./user_list.php/?category_id="+cat_id+"&category_name="+cat_name, '_blank');
+         window.open("./user_list.php?category_id="+cat_id+"&category_name="+encodeURIComponent(cat_name), '_blank');
          }
          
          function modal_user_profile_resync(){

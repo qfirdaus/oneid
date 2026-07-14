@@ -1,5 +1,6 @@
 # Database
 *.sql
+!/docs/migrations/*.sql
 
 # Config sensitif
 lib/config.php

@@ -36,11 +36,6 @@ $userlist = $operation->admin_get_specific_category_user_listing($categoryId);
 </head>
 <body class="blank tooltip-demo">
 
-<div class="tooltip-demo">
-    <!-- <button id="export" data-export="export">Export</button> -->
-</div>
-
-
 <div class="row" id="printThis">
         <div class="col-lg-12 main_recipt_body" > <!-- Hidden -->
             <div class="hpanel">
@@ -114,31 +109,12 @@ $userlist = $operation->admin_get_specific_category_user_listing($categoryId);
     </div>
 
 
-<!-- Vendor scripts -->
-
-  <script src="../../app-assets/vendors/js/vendors.min.js" type="text/javascript"></script>
-  <script src="../../app-assets/vendors/js/tables/jquery.tabletoCSV.js" type="text/javascript"></script>
-<script>
-
-var filename = "Watchbill Transaction Report";
-$("#export").click(function(){
-  $("#export_this").tableToCSV();
-});
-
-</script>
-
 <style>
  body {counter-reset:section;}
 .count:before
 {
 counter-increment:section;
 content:counter(section);
-}
-
-@media print {
-  #export {
-    visibility:hidden;
-  }
 }
 
 .my-background {
