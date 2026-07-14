@@ -74,7 +74,7 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
         <!-- New version row -->
         <div class="row mt-3 justify-content-center">
           <div class="col-auto" style="font-size: 11px; color: #b0b0b0;" align="center">
-            <b>2025</b> © BTMK.UPNM Version 1.0.3
+            <?php echo htmlspecialchars(oneid_application_footer(), ENT_QUOTES, 'UTF-8'); ?>
           </div>
         </div>
     </div>

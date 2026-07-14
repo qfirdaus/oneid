@@ -61,8 +61,8 @@
                         <!-- Row -->
                         <div class="row">
                            <div class="col-lg-12">
-						   <button type="button" class="btn  btn-danger btn-outline btn-rounded btn-xs pull-right" onclick="modal_user_profile_resetPwd()"><i class="fa  fa-refresh"></i> Reset Password</button>
-                              <button type="button" class="btn  btn-primary btn-outline btn-rounded btn-xs pull-right" onclick="modal_user_profile_resync()" id="btn_close_"><i class="fa  fa-refresh"></i> Resync User Info</button>
+						   <button type="button" class="btn  btn-danger btn-outline btn-rounded btn-xs pull-right" onclick="modal_user_profile_resetPwd()" id="btn_user_profile_reset_password"><i class="fa  fa-refresh"></i> Reset Password</button>
+                              <button type="button" class="btn btn-primary btn-outline btn-rounded btn-xs pull-right" onclick="modal_user_profile_resync()" id="btn_user_profile_resync"><i class="fa fa-refresh"></i> Resync User Info</button>
                               <span class="text_primary txt-grey font-12 ">User info last sync:  <small id="modal_user_profile_lastupdate_text"></small></span>
                               <!-- <span class="block txt-grey font-12 capitalize-font">yesterday</span> -->
                               <div class="panel-wrapper collapse in">
@@ -155,8 +155,8 @@
                      </div>
                      <input type="hidden" id="modal_user_profile_user_id" name="modal_user_profile_user_id">
                      <div class="modal-footer">
-                        <button type="button" class="btn btn-danger waves-effect user_info_btn" onclick="user_info_deactivate_user();">Remove User</button>
-                        <button type="button" class="btn btn-primary waves-effect user_info_btn_reactivate" onclick="user_info_reactivate_user();">Reactivate User</button>
+                        <button type="button" class="btn btn-danger waves-effect user_info_btn" onclick="user_info_deactivate_user();" id="btn_user_profile_deactivate">Remove User</button>
+                        <button type="button" class="btn btn-primary waves-effect user_info_btn_reactivate" onclick="user_info_reactivate_user();" id="btn_user_profile_reactivate">Reactivate User</button>
                         <button type="button" class="btn btn-primary waves-effect user_info_btn" onclick="">Save</button>
                         <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
                      </div>
@@ -956,198 +956,274 @@
                                           <div  id="follo_8" class="tab-pane fade active in" role="tabpanel">
                                              <div class="row">
                                                 <div class="col-lg-12">
-                                                   <div class="panel-heading">
-                                                      <div class="pull-left">
-                                                         <h6 class="panel-title txt-dark">List of available apps</h6>
-                                                      </div>
-                                                      <div class="pull-right">
-                                                         <button class="btn btn-xs btn-primary btn-outline btn-rounded " type="button" onclick="open_remove_webapp_category();">Remove Category</button>
-                                                         <button class="btn btn-xs btn-primary btn-outline btn-rounded " type="button" onclick="open_add_new_webapp_category();">Add Category</button>
-                                                         <button class="btn btn-xs btn-primary btn-outline btn-rounded " type="button" onclick="open_add_new_webapp();">Add App</button>
-                                                         <button class="btn btn-xs btn-primary btn-outline btn-rounded " type="button" onclick="get_service_provider_list();"><i class="zmdi zmdi-replay text-primary"></i></button>
-                                                         
-                                                      </div>
-                                                      <div class="clearfix"></div>
-                                                   </div>
-
-                                                   <div class="row">
-                                                      <div class="col-lg-12">
-                                                         <div  class="pills-struct mt-20 pl-20">
-                                                            <ul role="tablist" class="nav nav-pills nav-pills-rounded" id="WebAppsTabsHeader">
-                                                            </ul>
-                                                            <div class="tab-content" id="WebAppsTabsContent">
-                                                            </div>
+                                                   <div class="web-app-panel">
+                                                      <div class="web-app-header">
+                                                         <div>
+                                                            <span class="web-app-eyebrow">Application directory</span>
+                                                            <h4 class="web-app-title">Web Apps</h4>
+                                                            <p class="web-app-intro">Urus aplikasi berdaftar, kategori dan konfigurasi sambungan SSO.</p>
+                                                         </div>
+                                                         <div class="web-app-count" aria-live="polite">
+                                                            <span>Applications</span>
+                                                            <strong id="web_app_count">&mdash;</strong>
                                                          </div>
                                                       </div>
-                                                   </div>
-                                                   <div class="followers-wrap">
-                                                      <ul class="followers-list-wrap">
-                                                         <li class="follow-list" id="tab_available_apps_list_loading">
-                                                            <div class="col-lg-12">
-                                                               <div class="progress progress-lg">
-                                                                  <div class="progress-bar progress-bar-primary active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%" role="progressbar"> Loading App list.. Wait a moment..</div>
-                                                               </div>
-                                                            </div>
-                                                         </li>
-                                                         <li class="follow-list" id="tab_available_apps_list">
-                                                            <div class="follo-body" id="follo_data_list">
-                                                            </div>
-                                                         </li>
-                                                      </ul>
+
+                                                      <div class="web-app-toolbar">
+                                                         <div>
+                                                            <h5>Application categories</h5>
+                                                            <p>Pilih kategori untuk melihat aplikasi yang berkaitan.</p>
+                                                         </div>
+                                                         <div class="web-app-actions">
+                                                            <button class="web-app-action is-danger" type="button" onclick="open_remove_webapp_category();">
+                                                               <i class="fa fa-folder-open-o" aria-hidden="true"></i>
+                                                               <span>Remove category</span>
+                                                            </button>
+                                                            <button class="web-app-action" type="button" onclick="open_add_new_webapp_category();">
+                                                               <i class="fa fa-folder-o" aria-hidden="true"></i>
+                                                               <span>Add category</span>
+                                                            </button>
+                                                            <button class="web-app-action is-primary" type="button" onclick="open_add_new_webapp();">
+                                                               <i class="fa fa-plus" aria-hidden="true"></i>
+                                                               <span>Add app</span>
+                                                            </button>
+                                                            <button class="web-app-refresh" type="button" onclick="get_service_provider_list();" title="Refresh web apps" aria-label="Refresh web apps">
+                                                               <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                            </button>
+                                                         </div>
+                                                      </div>
+
+                                                      <div class="web-app-category-nav">
+                                                         <ul role="tablist" class="nav" id="WebAppsTabsHeader"></ul>
+                                                      </div>
+
+                                                      <div id="tab_available_apps_list_loading" class="web-app-state is-loading">
+                                                         <span><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>
+                                                         <strong>Loading web applications</strong>
+                                                         <small>Please wait while application data is retrieved.</small>
+                                                      </div>
+                                                      <div id="tab_available_apps_list" class="web-app-directory">
+                                                         <div class="tab-content" id="WebAppsTabsContent"></div>
+                                                         <div id="follo_data_list"></div>
+                                                      </div>
+                                                      </div>
                                                    </div>
                                                 </div>
                                              </div>
-                                          </div>
                                           <div  id="tab_user" class="tab-pane fade in" role="tabpanel">
                                              <div class="row">
                                                 <div class="col-lg-12">
-                                                   <div class="panel-heading">
-                                                      <div class="input-group">
-                                                         <div id="the-basics">
-                                                            <input class="typeahead form-control" id="search_user_input" type="text" placeholder="Search by Name, Staff/Student ID, or NIRC">
+                                                   <div class="user-account-panel">
+                                                      <div class="user-account-header">
+                                                         <div>
+                                                            <span class="user-account-eyebrow">Identity management</span>
+                                                            <h4 class="user-account-title">User Accounts</h4>
+                                                            <p class="user-account-intro">Cari akaun, semak kategori pengguna dan urus akses sistem dari satu paparan.</p>
                                                          </div>
-                                                         <span class="input-group-btn">
-                                                         <button type="button" class="btn  btn-primary" onclick="clear_search();" data-toggle="collapse" aria-label="Close" aria-expanded="true">Clear</button>
-                                                         </span>
+                                                         <div class="user-category-count" aria-live="polite">
+                                                            <span>Categories</span>
+                                                            <strong id="user_category_count">&mdash;</strong>
+                                                         </div>
                                                       </div>
-                                                      <img class="Typeahead-spinner" src="../img/Spinner-1s-51px.gif" hidden>
-                                                      <blockquote id="search_user_account_main_progress_bar">
-                                                         <div class="col-lg-12">
-                                                            <br/>
-                                                            <div class="progress progress-lg">
-                                                               <div class="progress-bar progress-bar-primary active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%" role="progressbar"> Searching... Please Wait...</div>
+
+                                                      <div class="user-search-card">
+                                                         <div class="user-search-copy">
+                                                            <span class="user-search-icon" aria-hidden="true"><i class="fa fa-search"></i></span>
+                                                            <div>
+                                                               <h5>Find user account</h5>
+                                                               <p>Search by name, staff or student ID, or identity number.</p>
                                                             </div>
                                                          </div>
-                                                      </blockquote>
-                                                      <blockquote id="search_user_account_main_search_result">
-                                                         <p>Search Result.</p>
-                                                         <hr class="light-grey-hr">
-                                                         <div class="label-chatrs">
-                                                            <div id="search_user_account_main_result_data">
-                                                               <span class="clabels-text font-12 inline-block txt-dark capitalize-font pull-left">
-                                                               <span class="block font-15 weight-500 mb-5">Nurul Farhana Haron</span>
-                                                               <span class="block txt-grey">Category: Staff Akademik</span>
-                                                               <span class="badge transparent-badge badge-success capitalize-font">Registered</span>
-                                                               </span>
-                                                               <button class="btn btn-primary pull-right btn-xs fixed-btn"><span class="btn-text">View</span></button>
-                                                               <div class="clearfix"></div>
+                                                         <div class="user-search-controls">
+                                                            <div id="the-basics" class="user-search-input-wrap">
+                                                               <i class="fa fa-user-o" aria-hidden="true"></i>
+                                                               <input class="typeahead form-control" id="search_user_input" type="text" placeholder="Name, Staff/Student ID, or NIRC" aria-label="Search user account">
+                                                            </div>
+                                                            <button type="button" class="user-search-clear" onclick="clear_search();" title="Clear search" aria-label="Clear search">
+                                                               <i class="fa fa-times" aria-hidden="true"></i>
+                                                            </button>
+                                                            <img class="Typeahead-spinner" src="../img/Spinner-1s-51px.gif" alt="Searching" hidden>
+                                                         </div>
+
+                                                         <div id="search_user_account_main_progress_bar" class="user-search-state is-loading">
+                                                            <span><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>
+                                                            <strong>Searching user account</strong>
+                                                            <small>Please wait while the directory is searched.</small>
+                                                         </div>
+                                                         <div id="search_user_account_main_search_result" class="user-search-result">
+                                                            <div class="user-search-result-heading">
+                                                               <span>Search result</span>
+                                                            </div>
+                                                            <div id="search_user_account_main_result_data"></div>
+                                                         </div>
+                                                      </div>
+
+                                                      <div class="user-category-card">
+                                                         <div class="user-category-header">
+                                                            <div>
+                                                               <h5>User categories</h5>
+                                                               <p>Semak jumlah akaun dan aplikasi yang diberikan kepada setiap kategori.</p>
+                                                            </div>
+                                                            <div class="user-category-actions">
+                                                               <button class="user-category-action" type="button" onclick="add_new_category();">
+                                                                  <i class="fa fa-folder-o" aria-hidden="true"></i>
+                                                                  <span>New category</span>
+                                                               </button>
+                                                               <button class="user-category-action is-primary" type="button" onclick="add_new_user_option();">
+                                                                  <i class="fa fa-user-plus" aria-hidden="true"></i>
+                                                                  <span>Add user</span>
+                                                               </button>
+                                                               <button class="user-category-refresh" type="button" onclick="admin_get_all_user_category(0);" title="Refresh user categories" aria-label="Refresh user categories">
+                                                                  <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                               </button>
                                                             </div>
                                                          </div>
-                                                      </blockquote>
-                                                   </div>
-                                                </div>
-                                             </div>
-                                             <div class="row">
-                                                <div class="col-lg-12">
-                                                   <hr class="light-grey-hr">
-                                                   <div class="panel-heading">
-                                                      <div class="pull-left">
-                                                         <h6 class="panel-title txt-dark">User Category</h6>
-                                                      </div>
-                                                      <div class="pull-right">
-                                                         <a href="#" class="pull-left inline-block mr-15">
-                                                            <!-- <i class="fa fa-plus-square text-primary"></i> -->
-                                                            <button class="btn btn-xs btn-primary btn-outline btn-rounded" type="button" onclick="add_new_category();">New User Category</button>
-                                                            <button class="btn btn-xs btn-primary btn-outline btn-rounded" type="button" onclick="add_new_user_option();">Add User</button>
-                                                            <button class="btn btn-xs btn-primary btn-outline btn-rounded " type="button" onclick="admin_get_all_user_category(0);"><i class="zmdi zmdi-replay text-primary"></i></button>
-                                                         </a>
-                                                      </div>
-                                                      <div class="clearfix"></div>
-                                                   </div>
-                                                   <div class="followers-wrap">
-                                                      <ul class="followers-list-wrap">
-                                                         <li class="follow-list">
-                                                            <div class="follo-body" id="user_account_type_list">
+                                                         <div id="user_account_type_list" class="user-category-list">
+                                                            <div class="user-category-state is-loading">
+                                                               <span><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>
+                                                               <strong>Loading user categories</strong>
+                                                               <small>Please wait while category data is retrieved.</small>
                                                             </div>
-                                                         </li>
-                                                      </ul>
+                                                         </div>
+                                                      </div>
                                                    </div>
                                                 </div>
                                              </div>
                                           </div>
                                           <div  id="tab_active_sessions" class="tab-pane fade in" role="tabpanel">
-                                             <div  id="follo_8" class="tab-pane fade active in" role="tabpanel">
+                                             <div class="admin-section-inner">
                                                 <div class="row">
                                                    <div class="col-lg-12">
-                                                      <div class="panel-heading">
-                                                         <div class="pull-left">
-                                                            <h6 class="panel-title txt-dark">List of active sessions</h6>
+                                                      <div class="active-session-panel">
+                                                         <div class="active-session-header">
+                                                            <div>
+                                                               <span class="active-session-eyebrow">Access &amp; security</span>
+                                                               <h4 class="active-session-title">Active Sessions</h4>
+                                                               <p class="active-session-intro">Pantau sesi pengguna yang masih aktif, masa token dan peranti yang digunakan.</p>
+                                                            </div>
+                                                            <div class="active-session-actions">
+                                                               <div class="active-session-count" aria-live="polite">
+                                                                  <span>Active</span>
+                                                                  <strong id="active_session_count">&mdash;</strong>
+                                                               </div>
+                                                               <button type="button" class="active-session-refresh" onclick="get_all_user_activ_session();" title="Refresh active sessions" aria-label="Refresh active sessions">
+                                                                  <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                               </button>
+                                                            </div>
                                                          </div>
-                                                         <div class="pull-right">                              
-                                                            <a href="#" class="pull-left inline-block refresh mr-15" onclick="get_all_user_activ_session()">
-                                                            <i class="zmdi zmdi-replay text-primary"></i>
-                                                            </a>  
+
+                                                         <div class="active-session-card" id="app_security_session_list">
+                                                            <div class="active-session-card-heading">
+                                                               <div>
+                                                                  <h5>Session list</h5>
+                                                                  <p>Senarai ini hanya untuk pemantauan dan tidak menamatkan sesi pengguna.</p>
+                                                               </div>
+                                                            </div>
+                                                            <div class="active-session-table-wrap">
+                                                               <table class="table active-session-table mb-0">
+                                                                  <colgroup>
+                                                                     <col class="active-col-time">
+                                                                     <col class="active-col-user">
+                                                                     <col class="active-col-device">
+                                                                     <col class="active-col-status">
+                                                                  </colgroup>
+                                                                  <thead>
+                                                                     <tr>
+                                                                        <th scope="col">Token Date / Time</th>
+                                                                        <th scope="col">User</th>
+                                                                        <th scope="col">Device</th>
+                                                                        <th scope="col">Status</th>
+                                                                     </tr>
+                                                                  </thead>
+                                                                  <tbody id="security_tab_session">
+                                                                     <tr class="active-session-state-row is-loading">
+                                                                        <td colspan="4">
+                                                                           <span class="active-session-state-icon"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>
+                                                                           <strong>Loading active sessions</strong>
+                                                                           <small>Please wait while session data is retrieved.</small>
+                                                                        </td>
+                                                                     </tr>
+                                                                  </tbody>
+                                                               </table>
+                                                            </div>
                                                          </div>
-                                                         <div class="clearfix"></div>
-                                                      </div>
-                                                      <div class="followers-wrap" id="app_security_session_list">
-                                                        <table class="table table-sm mb-0">
-    <thead>
-        <tr>
-            <th class="p-0"><small>Session</small></th>
-        </tr>
-    </thead>
-    <tbody id="security_tab_session">
-        <!-- rows injected here -->
-    </tbody>
-</table>
-
-
                                                       </div>
                                                    </div>
                                                 </div>
                                              </div>
                                           </div>
                                           <div  id="tab_auditlog" class="tab-pane fade in" role="tabpanel">
-                                             <div  id="follo_8" class="tab-pane fade active in" role="tabpanel">
+                                             <div class="admin-section-inner">
                                                 <div class="row">
-
                                                    <div class="col-lg-12">
-                                                      <div class="panel-heading">
-                                                                        <label class="control-label mb-10 text-left">Pick Start and End Date</label>
-                                                                  <form class="form-inline">
-                                                                     <div class="form-group">
-                                                                        <input class="form-control input-daterange-datepicker" type="text" id="audit_search_daterange" name="audit_search_daterange" value="01/01/2016 - 01/31/2016" style="width: 200px;"/>
-                                                                     </div>
-                                                                     <button type="button" class="btn btn-orange " onclick="search_audit_date_range()"><span class="btn-text">Search</span></button>
-                                                                  </form>
-                                                                  
-                                                      </div>
-                                                   </div>
-
-
-                                                   <div class="col-lg-12">
-                                                      <div class="panel-heading">
-                                                         <div class="pull-left">
-                                                            <h6 class="panel-title txt-dark">Logs Result</h6>
+                                                      <div class="audit-log-panel">
+                                                         <div class="audit-log-header">
+                                                            <div>
+                                                               <span class="audit-log-eyebrow">Security &amp; activity</span>
+                                                               <h4 class="audit-log-title">Audit Log</h4>
+                                                               <p class="audit-log-intro">Semak rekod aktiviti sistem mengikut julat tarikh, jenis log dan alamat IP.</p>
+                                                            </div>
+                                                            <div class="audit-result-count" aria-live="polite">
+                                                               <span>Results</span>
+                                                               <strong id="audit_result_count">&mdash;</strong>
+                                                            </div>
                                                          </div>
-                                                         <div class="clearfix"></div>
-                                                         <div class="panel-wrapper collapse in">
-                                                            <div class="panel-body row pa-0">
-                                                               <div class="table-wrap">
-                                                                  <div class="table-responsive">
-                                                                     <table class="table table-hover mb-0">
-                                                                        <thead>
-                                                                           <tr>
-                                                                              <th>Date Time</th>
-                                                                              <th>Log Type</th>
-                                                                              <th>Log Details</th>
-                                                                              <th>IP Address</th>
-                                                                           </tr>
-                                                                        </thead>
-                                                                        <tbody id="audit_search_result_tbody">
-                                                                           <tr>
-                                                                              <td colspan="4">Start searching to get results</td>
-                                                                           </tr>
-                                                                        </tbody>
-                                                                     </table>
-                                                                  </div>
-                                                               </div>   
-                                                            </div>   
+
+                                                         <div class="audit-filter-card">
+                                                            <div class="audit-filter-copy">
+                                                               <span class="audit-filter-icon" aria-hidden="true"><i class="fa fa-calendar"></i></span>
+                                                               <div>
+                                                                  <label for="audit_search_daterange">Date range</label>
+                                                                  <p>Pilih julat tarikh.</p>
+                                                               </div>
+                                                            </div>
+                                                            <form class="audit-filter-form" onsubmit="search_audit_date_range(); return false;">
+                                                               <div class="audit-date-input-wrap">
+                                                                  <i class="fa fa-calendar-o" aria-hidden="true"></i>
+                                                                  <input class="form-control input-daterange-datepicker" type="text" id="audit_search_daterange" name="audit_search_daterange" value="01/01/2016 - 01/31/2016" aria-label="Audit log date range"/>
+                                                               </div>
+                                                               <button type="submit" class="audit-search-button" aria-label="Search audit logs" title="Search audit logs">
+                                                                  <i class="fa fa-search" aria-hidden="true"></i>
+                                                               </button>
+                                                            </form>
+                                                         </div>
+
+                                                         <div class="audit-results-card">
+                                                            <div class="audit-results-heading">
+                                                               <div>
+                                                                  <h5>Log results</h5>
+                                                                  <p>Semua data disusun dari bahagian kiri dan atas untuk bacaan yang lebih jelas.</p>
+                                                               </div>
+                                                            </div>
+                                                            <div class="audit-table-wrap">
+                                                               <table class="table audit-log-table mb-0">
+                                                                  <colgroup>
+                                                                     <col class="audit-col-datetime">
+                                                                     <col class="audit-col-type">
+                                                                     <col class="audit-col-details">
+                                                                     <col class="audit-col-ip">
+                                                                  </colgroup>
+                                                                  <thead>
+                                                                     <tr>
+                                                                        <th scope="col">Date / Time</th>
+                                                                        <th scope="col">Log Type</th>
+                                                                        <th scope="col">Activity Details</th>
+                                                                        <th scope="col">IP Address</th>
+                                                                     </tr>
+                                                                  </thead>
+                                                                  <tbody id="audit_search_result_tbody">
+                                                                     <tr class="audit-state-row">
+                                                                        <td colspan="4">
+                                                                           <span class="audit-state-icon"><i class="fa fa-search" aria-hidden="true"></i></span>
+                                                                           <strong>Ready to search</strong>
+                                                                           <small>Select a date range to display audit records.</small>
+                                                                        </td>
+                                                                     </tr>
+                                                                  </tbody>
+                                                               </table>
+                                                            </div>
                                                          </div>
                                                       </div>
-
-
                                                    </div>
                                                 </div>
                                              </div>
@@ -1156,78 +1232,89 @@
                                              <div class="tab-pane fade active in" role="tabpanel">
                                                 <div class="row">
                                                    <div class="col-lg-12" id="sync_session_panel">
-                                                      <div class="panel-heading">
-                                                         <div class="pull-left">
-                                                            <h6 class="panel-title txt-dark">Sync Sessions</h6>
+                                                      <div class="sync-log-panel">
+                                                         <div class="sync-log-header">
+                                                            <div>
+                                                               <span class="sync-log-eyebrow">External data activity</span>
+                                                               <h4 class="sync-log-title">Sync Sessions</h4>
+                                                               <p class="sync-log-intro">Semak sejarah setiap sesi, jumlah perubahan dan status pemprosesan external sync.</p>
+                                                            </div>
+                                                            <button type="button" class="sync-log-refresh" onclick="load_sync_sessions();">
+                                                               <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                               <span>Refresh data</span>
+                                                            </button>
                                                          </div>
-                                                         <div class="pull-right">
-                                                            <button type="button" class="btn btn-xs btn-default btn-outline btn-rounded" onclick="load_sync_sessions();"><i class="fa fa-refresh"></i> Refresh</button>
+                                                         <div class="sync-log-summary" aria-label="Sync session summary">
+                                                            <div class="sync-summary-item">
+                                                               <span>Sessions shown</span>
+                                                               <strong id="sync_summary_total">—</strong>
+                                                            </div>
+                                                            <div class="sync-summary-item">
+                                                               <span>Completed</span>
+                                                               <strong id="sync_summary_complete">—</strong>
+                                                            </div>
+                                                            <div class="sync-summary-item">
+                                                               <span>Recorded changes</span>
+                                                               <strong id="sync_summary_changes">—</strong>
+                                                            </div>
                                                          </div>
-                                                         <div class="clearfix"></div>
-                                                         <div class="panel-wrapper collapse in">
-                                                            <div class="panel-body row pa-0">
-                                                               <div class="table-wrap">
-                                                                  <div class="table-responsive">
-                                                                     <table class="table table-hover mb-0">
+                                                         <div class="sync-log-table-card">
+                                                            <div class="sync-table-wrap">
+                                                                     <table class="table sync-log-table mb-0">
                                                                         <thead>
                                                                            <tr>
-                                                                              <th>Session ID</th>
+                                                                              <th class="sync-col-session">Session</th>
                                                                               <th>Date/Time</th>
                                                                               <th>Triggered By</th>
-                                                                              <th>New</th>
-                                                                              <th>Updated</th>
-                                                                              <th>Deactivated</th>
-                                                                              <th>Reactivated</th>
+                                                                              <th>Changes</th>
                                                                               <th>Status</th>
                                                                               <th>Action</th>
                                                                            </tr>
                                                                         </thead>
                                                                         <tbody id="sync_session_tbody">
-                                                                           <tr>
-                                                                              <td colspan="9">Loading...</td>
+                                                                           <tr class="sync-empty-row">
+                                                                              <td colspan="6"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> Loading sessions...</td>
                                                                            </tr>
                                                                         </tbody>
                                                                      </table>
-                                                                  </div>
-                                                                  <div id="sync_session_pagination" class="text-center mt-10" style="padding:10px 0;"></div>
-                                                               </div>
                                                             </div>
+                                                            <div id="sync_session_pagination" class="sync-log-pagination text-center"></div>
                                                          </div>
                                                       </div>
                                                    </div>
                                                    <div class="col-lg-12" id="sync_detail_panel" style="display:none;">
-                                                      <div class="panel-heading">
-                                                         <div class="pull-left">
-                                                            <button type="button" class="btn btn-xs btn-default btn-outline btn-rounded mr-15" onclick="show_sync_session_list();"><span class="btn-text">&larr; Back</span></button>
-                                                            <h6 class="panel-title txt-dark inline-block" id="sync_detail_header">Changes in Session</h6>
+                                                      <div class="sync-log-panel sync-detail-view">
+                                                         <div class="sync-log-header sync-detail-header">
+                                                            <div>
+                                                               <button type="button" class="sync-log-back" onclick="show_sync_session_list();">
+                                                                  <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                                                                  <span>Back to sessions</span>
+                                                               </button>
+                                                               <span class="sync-log-eyebrow">Session audit trail</span>
+                                                               <h4 class="sync-log-title" id="sync_detail_header">Changes in Session</h4>
+                                                               <p class="sync-log-intro">Butiran perubahan yang direkodkan untuk sesi sync terpilih.</p>
+                                                            </div>
                                                          </div>
-                                                         <div class="clearfix"></div>
-                                                         <div class="panel-wrapper collapse in">
-                                                            <div class="panel-body row pa-0">
-                                                               <div class="table-wrap">
-                                                                  <div class="table-responsive">
-                                                                     <table class="table table-hover mb-0">
+                                                         <div class="sync-log-table-card">
+                                                            <div class="sync-table-wrap">
+                                                                     <table class="table sync-log-table sync-detail-table mb-0">
                                                                         <thead>
                                                                            <tr>
                                                                               <th>#</th>
                                                                               <th>User ID</th>
                                                                               <th>Action</th>
-                                                                              <th>Changed Fields</th>
-                                                                              <th>Old Data</th>
-                                                                              <th>New Data</th>
+                                                                              <th>Change Details</th>
                                                                               <th>Time</th>
                                                                            </tr>
                                                                         </thead>
                                                                         <tbody id="sync_detail_tbody">
-                                                                           <tr>
-                                                                              <td colspan="7">No changes recorded</td>
+                                                                           <tr class="sync-empty-row">
+                                                                              <td colspan="5">No changes recorded for this session.</td>
                                                                            </tr>
                                                                         </tbody>
                                                                      </table>
-                                                                  </div>
-                                                                  <div id="sync_detail_pagination" class="text-center mt-10" style="padding:10px 0;"></div>
-                                                               </div>
                                                             </div>
+                                                            <div id="sync_detail_pagination" class="sync-log-pagination text-center"></div>
                                                          </div>
                                                       </div>
                                                    </div>
@@ -1235,102 +1322,102 @@
                                              </div>
                                           </div>
 										  <div  id="tab_versioning" class="tab-pane fade in" role="tabpanel">
-                                             <div  id="follo_8" class="tab-pane fade active in" role="tabpanel">
+                                             <div class="admin-section-inner">
                                                 <div class="row">
-
-
                                                    <div class="col-lg-12">
-                                                      <div class="panel-heading">
-                                                         <div class="pull-left">
-                                                            <h6 class="panel-title txt-dark">Version</h6>
+                                                      <div class="version-release-panel">
+                                                         <div class="version-release-header">
+                                                            <div>
+                                                               <span class="version-release-eyebrow">Release history</span>
+                                                               <h4 class="version-release-title">Version Releases</h4>
+                                                               <p class="version-release-intro">Ringkasan perubahan, pembaikan dan penambahbaikan yang telah dikeluarkan untuk OneID.</p>
+                                                            </div>
+                                                            <div id="current_release_badge" class="version-current-release" aria-label="Current release"></div>
                                                          </div>
-                                                         <div class="clearfix"></div>
-                                                         <div class="panel-wrapper collapse in">
-                                                            <div class="panel-body row pa-0">
-                                                               <div class="table-wrap">
-  <div class="table-responsive">
-    <table class="table table-hover mb-0">
-      <thead>
-        <tr>
-          <th>Release Version</th>
-          <th>Change Log</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody id="release_notes_tbody">
-        <!-- JS will render rows here -->
-      </tbody>
-    </table>
-  </div>
-</div>
-  
-                                                            </div>   
+                                                         <div id="release_notes_list" class="version-release-list" aria-live="polite">
+                                                            <!-- Release cards are rendered from the static release notes below. -->
                                                          </div>
                                                       </div>
-
-
                                                    </div>
                                                 </div>
                                              </div>
                                           </div>
                                           <div  id="tab_settings" class="tab-pane fade in" role="tabpanel">
-                                             <div  id="follo_8" class="tab-pane fade active in" role="tabpanel">
+                                             <div class="admin-section-inner">
                                                 <div class="row">
                                                    <div class="col-lg-12">
-                                                      <div class="panel-heading">
-                                                         <div class="pull-left">
-                                                            <h6 class="panel-title txt-dark">SSO Configuration</h6>
-                                                         </div>
-                                                         <div class="pull-right">
-                                                            <a href="#" class="pull-left inline-block mr-15">
-                                                               <!-- <i class="fa fa-plus-square text-primary"></i> -->
-                                                               <button class="btn btn-xs btn-primary btn-outline btn-rounded " type="button" onclick="update_configuration();">Update</button>
-                                                            </a>
-                                                         </div>
-                                                         <div class="clearfix"></div>
-                                                         <br/>
-                                                         <br/>
-                                                         <div class="form-group mb-0">
-                                                            <div class="col-sm-2">
-                                                               <label class="control-label mb-10 " for="example-input1-group2">Token Session Timeout</label>
+                                                      <div class="sso-config-panel">
+                                                         <div class="sso-config-header">
+                                                            <div>
+                                                               <span class="sso-config-eyebrow">Identity &amp; session</span>
+                                                               <h4 class="sso-config-title">SSO Configuration</h4>
+                                                               <p class="sso-config-intro">Urus tempoh sesi, akses berbilang peranti dan penghantaran OTP untuk pengguna OneID.</p>
                                                             </div>
-                                                            <div class="col-sm-10 mb-20">
-                                                               <div class="form-group mb-15">
+                                                            <button class="sso-config-save" type="button" onclick="update_configuration();">
+                                                               <i class="fa fa-check" aria-hidden="true"></i>
+                                                               <span>Save changes</span>
+                                                            </button>
+                                                         </div>
+                                                         <div class="sso-config-body">
+                                                            <div class="sso-config-row">
+                                                               <div class="sso-config-copy">
+                                                                  <span class="sso-config-index">01</span>
+                                                                  <div>
+                                                                     <label for="sso_settings_token_session_timeout">Session timeout</label>
+                                                                     <p>Tempoh sah sesi sebelum pengguna perlu membuat pengesahan semula.</p>
+                                                                  </div>
+                                                               </div>
+                                                               <div class="sso-config-control sso-config-select-wrap">
                                                                   <select class="form-control" id="sso_settings_token_session_timeout">
-                                                                     <option value="0.5">30 Minute</option>
-                                                                     <option value="1">1 hour</option>
-                                                                     <option value="2">2 hour</option>
-                                                                     <option value="12">1/2 Day</option>
-                                                                     <option value="24">1 Day</option>
-                                                                     <option value="48">2 Days</option>
-                                                                     <option value="72">3 Days</option>
-                                                                     <option value="168">1 Week</option>
+                                                                     <option value="0.5">30 minit</option>
+                                                                     <option value="1">1 jam</option>
+                                                                     <option value="2">2 jam</option>
+                                                                     <option value="12">12 jam</option>
+                                                                     <option value="24">1 hari</option>
+                                                                     <option value="48">2 hari</option>
+                                                                     <option value="72">3 hari</option>
+                                                                     <option value="168">1 minggu</option>
                                                                   </select>
                                                                </div>
                                                             </div>
-                                                         </div>
-                                                         <div class="form-group mb-0">
-                                                            <div class="col-sm-2">
-                                                               <label class="control-label mb-10 " for="example-input1-group2">Allow Multiple Session</label>
-                                                            </div>
-                                                            <div class="col-sm-10 mb-20">
-                                                               <div class="form-group mb-15">
-                                                                  No 
-                                                                  <input type="checkbox"  class="js-switch js-switch-1" id="sso_settings_multi_session" style="margin-right: 0px !important;" data-color="#0092ee" data-size=""/>   
-                                                                  Yes
+
+                                                            <div class="sso-config-row">
+                                                               <div class="sso-config-copy">
+                                                                  <span class="sso-config-index">02</span>
+                                                                  <div>
+                                                                     <label for="sso_settings_multi_session">Multiple sessions</label>
+                                                                     <p>Benarkan akaun yang sama mempunyai lebih daripada satu sesi aktif.</p>
+                                                                  </div>
+                                                               </div>
+                                                               <div class="sso-config-control">
+                                                                  <div class="sso-config-switch" aria-label="Allow multiple sessions">
+                                                                     <span>Disabled</span>
+                                                                     <input type="checkbox" class="js-switch js-switch-1" id="sso_settings_multi_session" data-color="#11a8df" data-size="small"/>
+                                                                     <span>Enabled</span>
+                                                                  </div>
                                                                </div>
                                                             </div>
-                                                         </div>
-                                                         <div class="form-group mb-0">
-                                                            <div class="col-sm-2">
-                                                               <label class="control-label mb-10 " >OTP Email to User</label>
-                                                            </div>
-                                                            <div class="col-sm-10 mb-20">
-                                                               <div class="form-group mb-15">
-                                                                  No 
-                                                                  <input type="checkbox"  class="js-switch js-switch-1" id="sso_settings_otp_email" style="margin-right: 0px !important;" data-color="#0092ee" data-size=""/>   
-                                                                  Yes
+
+                                                            <div class="sso-config-row">
+                                                               <div class="sso-config-copy">
+                                                                  <span class="sso-config-index">03</span>
+                                                                  <div>
+                                                                     <label for="sso_settings_otp_email">OTP email delivery</label>
+                                                                     <p>Hantar kod OTP ke alamat e-mel pengguna bagi proses pengesahan berkaitan.</p>
+                                                                  </div>
                                                                </div>
+                                                               <div class="sso-config-control">
+                                                                  <div class="sso-config-switch" aria-label="Send OTP email to user">
+                                                                     <span>Disabled</span>
+                                                                     <input type="checkbox" class="js-switch js-switch-1" id="sso_settings_otp_email" data-color="#11a8df" data-size="small"/>
+                                                                     <span>Enabled</span>
+                                                                  </div>
+                                                               </div>
+                                                            </div>
+
+                                                            <div class="sso-config-note">
+                                                               <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                                               <p>Perubahan konfigurasi memberi kesan kepada flow authentication dan sesi pengguna. Semak pilihan sebelum menyimpan.</p>
                                                             </div>
                                                          </div>
                                                       </div>
@@ -1359,7 +1446,7 @@
                <div class="container">
                   <div class="row">
                      <div class="col-sm-6">
-                        <p>2022 &copy; BTMK. Version 1.0.3</p>
+                        <p><?php echo htmlspecialchars(oneid_application_footer(), ENT_QUOTES, 'UTF-8'); ?></p>
                      </div>
                      <!-- <div class="col-sm-6 text-right">
                         <p>Follow Us</p>
@@ -1516,131 +1603,99 @@
            		dataType: "json",
            		data: {admin_get_all_service_provider:""},
            		beforeSend: function(){
+						$('#web_app_count').text('\u2014');
            			$('#tab_available_apps_list_loading').show();
            			$('#tab_available_apps_list').hide();
                         $('#WebAppsTabsHeader').html('');
                         $('#WebAppsTabsContent').html('');
+						$('#follo_data_list').html('');
            		},
            		success: function (response) {
            			$('#tab_available_apps_list_loading').hide();
            			$('#tab_available_apps_list').show();
-         
-           			
-           			var list_count = 0;
-                       	var tr ='';
-                       	var li = '';
-                       	var div = '';
-                       	$('#WebAppsTabsHeader').html('');
-                       	$('#WebAppsTabsContent').html('');
-         
-                           //generate tabs
-                           $.each( response, function( i, value ) {
-         
-                           	if(i == 0){
-                           		li += '<li class="active" role="presentation"><a aria-expanded="true"  data-toggle="tab" role="tab" href="#'+response[i]['tabname']+'">'+response[i]['sp_group_name']+' <span class="label label-warning">'+response[i]['data'].length+'</span>'+'</a></li>';
-                           	}else{
-                           		li += '<li role="presentation"><a aria-expanded="true"  data-toggle="tab" role="tab" href="#'+response[i]['tabname']+'">'+response[i]['sp_group_name']+' <span class="label label-warning">'+response[i]['data'].length+'</span>'+'</a></li>';
-                           	}
-         
-         
-                           	if(i == 0){
-                           		div += '<div  id="'+response[i]['tabname']+'" class="tab-pane fade active in" role="tabpanel">';
-                           		div += '<div class="followers-wrap">';
-                           		div += '<ul class="followers-list-wrap">';
-                           		div += '<li class="follow-list" style="display: list-item;">';
-                           		div += '<div class="follo-body">';
-         
-         
-                           		$.each( response[i]['data'], function( k, value ) {
-                           			list_count++;
-                                    var img_sp = "";
-                                    if(response[i]['data'][k]['sp_image']==""){
-                                       img_sp = '<div class="user-data ml-5" style="padding-right: 15px;"><img src="../img/thumb-1.jpg" alt="thumbnail" style="width: 65px; height: 65px; object-fit: cover;"></div>';
-                                    }else{
-                                       img_sp = '<div class="user-data ml-5" style="padding-right: 15px;"><img src="../public_img/'+response[i]['data'][k]['sp_image']+'" alt="thumbnail" style="width: 65px; height: 65px; object-fit: cover;"></div>';
-                                    }
-                           			div += '<div class="follo-data">';
-                           			if(response[i]['data'][k]['sp_sso_support']=="0"){
-                           				div += img_sp+'<div class="user-data"><span class="name block capitalize-font"><span class="label label-primary">'+(k+1)+'</span> <b>'+response[i]['data'][k]['sp_name']+'</b></span><span class="time  txt-grey">'+response[i]['data'][k]['sp_description']+'</span><br/><span class="time  txt-primary">URL : '+response[i]['data'][k]['sp_domain']+'</span></div>';
-                           			}else{
-                           				div += img_sp+'<div class="user-data"><span class="name block capitalize-font"><span class="label label-primary">'+(k+1)+'</span> <b>'+response[i]['data'][k]['sp_name']+' <span class="label label-warning">SSO Not Supported</span></b></span><span class="time  txt-grey">'+response[i]['data'][k]['sp_description']+'</span><br/><span class="time  txt-primary">URL : '+response[i]['data'][k]['sp_domain']+'</span></div>';
-                           			}
-                           			
-                           			div += '<button class="btn btn-primary pull-right btn-xs fixed-btn  x" onclick="open_edit_webapp(&quot;'+response[i]['data'][k]['sp_id']+'&quot;);"><span class="btn-text">View</span></button>';
-                           			div += '<div class="clearfix"></div>';
-                           			div += '</div>';
-                           		});
-                           		
-         
-         
-         
-                           		div += '</div>';
-                           		div += '</li>';
-                           		div += '</ul>';
-                           		div += '</div>';
-                           		div += '</div>';
-                           	}else{
-                           		
-                           		div += '<div  id="'+response[i]['tabname']+'" class="tab-pane fade" role="tabpanel">';
-                           		div += '<div class="followers-wrap">';
-                           		div += '<ul class="followers-list-wrap">';
-                           		div += '<li class="follow-list" style="display: list-item;">';
-                           		div += '<div class="follo-body">';
-         
-         
-                           		$.each( response[i]['data'], function( k, value ) {
-                           			list_count++;
-                                    var img_sp = "";
-                                    if(response[i]['data'][k]['sp_image']==""){
-                                       img_sp = '<div class="user-data ml-5" style="padding-right: 15px;"><img src="../img/thumb-1.jpg" alt="thumbnail" style="width: 65px; height: 65px; object-fit: cover;"></div>';
-                                    }else{
-                                       img_sp = '<div class="user-data ml-5" style="padding-right: 15px;"><img src="../public_img/'+response[i]['data'][k]['sp_image']+'" alt="thumbnail" style="width: 65px; height: 65px; object-fit: cover;"></div>';
-                                    }
-                           			div += '<div class="follo-data">';
-                           			if(response[i]['data'][k]['sp_sso_support']=="0"){
-                           				div += img_sp+'<div class="user-data"><span class="name block capitalize-font"><span class="label label-primary">'+(k+1)+'</span> <b>'+response[i]['data'][k]['sp_name']+'</b></span><span class="time  txt-grey">'+response[i]['data'][k]['sp_description']+'</span><br/><span class="time  txt-primary">URL : '+response[i]['data'][k]['sp_domain']+'</span></div>';
-                           			}else{
-                           				div += img_sp+'<div class="user-data"><span class="name block capitalize-font"><span class="label label-primary">'+(k+1)+'</span> <b>'+response[i]['data'][k]['sp_name']+' <span class="label label-warning">SSO Not Supported</span></b></span><span class="time  txt-grey">'+response[i]['data'][k]['sp_description']+'</span><br/><span class="time  txt-primary">URL : '+response[i]['data'][k]['sp_domain']+'</span></div>';
-                           			}
-                           			
-                           			div += '<button class="btn btn-primary pull-right btn-xs fixed-btn  " onclick="open_edit_webapp(&quot;'+response[i]['data'][k]['sp_id']+'&quot;);"><span class="btn-text">View</span></button>';
-                           			div += '<div class="clearfix"></div>';
-                           			div += '</div>';
-                           		});
-                           		
-         
-         
-         
-                           		div += '</div>';
-                           		div += '</li>';
-                           		div += '</ul>';
-                           		div += '</div>';
-                           		div += '</div>';
-                           	}
-         
-                           	
-         
-                           });
-         
-         
-         if(response.length == 0){
-         // $('#follo_data_list_count_text').html('');
-         $('#follo_data_list').html('<div class="follo-data"><div class="user-data"><span class="time  txt-grey">No apps available.</span></div><div class="clearfix"></div></div>');
-         return;
-         }else{                		
-         // $('#follo_data_list_count_text').html('('+list_count+')');
-         }
-         
-         
-         $('#WebAppsTabsHeader').html(li);
-         $('#WebAppsTabsContent').html(div);
-         if(href!="undefined"){
-            $('a[href="'+href+'"]').tab('show');
-         }
-         
-         },
-         error: function (xhr, error, thrown) {
-         }
+
+						var appText = function(value){
+							return $('<div>').text(value == null ? '' : value).html();
+						};
+						var listCount = 0;
+						var tabs = '';
+						var panes = '';
+
+						if (!Array.isArray(response) || response.length === 0) {
+							$('#web_app_count').text('0');
+							$('#follo_data_list').html(
+								'<div class="web-app-state">' +
+								'<span><i class="fa fa-th-large" aria-hidden="true"></i></span>' +
+								'<strong>No applications available</strong>' +
+								'<small>Add an application to begin building the directory.</small>' +
+								'</div>'
+							);
+							return;
+						}
+
+						$.each(response, function(i, group) {
+							var tabName = appText(group['tabname']);
+							var groupName = appText(group['sp_group_name']);
+							var applications = Array.isArray(group['data']) ? group['data'] : [];
+							var activeClass = i === 0 ? 'active' : '';
+							var paneClass = i === 0 ? 'tab-pane fade active in' : 'tab-pane fade';
+
+							tabs += '<li class="'+activeClass+'" role="presentation">';
+							tabs += '<a aria-expanded="'+(i === 0 ? 'true' : 'false')+'" data-toggle="tab" role="tab" href="#'+tabName+'"><span>'+groupName+'</span><strong>'+applications.length+'</strong></a>';
+							tabs += '</li>';
+
+							panes += '<div id="'+tabName+'" class="'+paneClass+'" role="tabpanel">';
+							panes += '<div class="web-app-card-list">';
+
+							if (applications.length === 0) {
+								panes += '<div class="web-app-category-empty"><i class="fa fa-inbox" aria-hidden="true"></i><span>No applications in this category.</span></div>';
+							}
+
+							$.each(applications, function(k, application) {
+								listCount++;
+								var appId = appText(application['sp_id']);
+								var appName = appText(application['sp_name']);
+								var appDescription = appText(application['sp_description']);
+								var appDomain = appText(application['sp_domain']);
+								var appImage = appText(application['sp_image']);
+								var imageSource = appImage === '' ? '../img/thumb-1.jpg' : '../public_img/' + appImage;
+								var ssoUnsupported = application['sp_sso_support'] !== "0";
+
+								panes += '<article class="web-app-card">';
+								panes += '<div class="web-app-card-index">'+(k + 1)+'</div>';
+								panes += '<div class="web-app-card-image"><img src="'+imageSource+'" alt="" loading="lazy"></div>';
+								panes += '<div class="web-app-card-content">';
+								panes += '<div class="web-app-card-name"><strong title="'+appName+'">'+appName+'</strong>'+(ssoUnsupported ? '<span class="web-app-sso-badge">Direct link</span>' : '<span class="web-app-sso-badge is-enabled">SSO</span>')+'</div>';
+								panes += '<p title="'+appDescription+'">'+appDescription+'</p>';
+								panes += '<span class="web-app-domain" title="'+appDomain+'"><i class="fa fa-link" aria-hidden="true"></i>'+appDomain+'</span>';
+								panes += '</div>';
+								panes += '<button type="button" class="web-app-view" data-app-id="'+appId+'" onclick="open_edit_webapp(this.dataset.appId);" title="View application" aria-label="View application"><i class="fa fa-eye" aria-hidden="true"></i></button>';
+								panes += '</article>';
+							});
+
+							panes += '</div></div>';
+						});
+
+						$('#web_app_count').text(listCount);
+						$('#WebAppsTabsHeader').html(tabs);
+						$('#WebAppsTabsContent').html(panes);
+						if (href && $('#WebAppsTabsHeader a[href="'+href+'"]').length) {
+							$('#WebAppsTabsHeader a[href="'+href+'"]').tab('show');
+						}
+
+					},
+					error: function (xhr, error, thrown) {
+						$('#web_app_count').text('\u2014');
+						$('#tab_available_apps_list_loading').hide();
+						$('#tab_available_apps_list').show();
+						$('#follo_data_list').html(
+							'<div class="web-app-state is-error">' +
+							'<span><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>' +
+							'<strong>Unable to load web applications</strong>' +
+							'<small>Please retry or check the application log.</small>' +
+							'</div>'
+						);
+					}
          });
          }
          
@@ -1652,35 +1707,70 @@
          dataType: "json",
          data: {admin_get_all_user_category:""},
          beforeSend: function(){
-                         // $('#login_status').html('<div class="alert alert-info alert-dismissable alert-style-1"><i class="zmdi zmdi-info-outline"></i>Signing on. Checking info. Wait a moment.</div>');
+						$('#user_category_count').text('\u2014');
+						$('#user_account_type_list').html(
+							'<div class="user-category-state is-loading">' +
+							'<span><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>' +
+							'<strong>Loading user categories</strong>' +
+							'<small>Please wait while category data is retrieved.</small>' +
+							'</div>'
+						);
                      },
                      success: function (response) {
-                     	var list_count = 0;
-                     	var tr ='';
-                     	var select_opt = "";
-                     	$('#user_account_type_list').html('');
-                     	select_opt = '<option value="">Choose Category</option>';
-                     	$.each( response, function( i, value ) {
-                     		tr += '<div class="follo-data">';
-                     		tr += '<div class="user-data"><span class="name block capitalize-font">'+response[i]['uc_name']+'</span></div>';
-                     		tr += '<button class="btn btn-primary pull-right btn-xs fixed-btn" onclick="view_category_user_list(&quot;'+response[i]['uc_id']+'&quot;,&quot;'+response[i]['uc_name']+'&quot;);"><span class="btn-text">User ('+response[i]['total']+')</span></button><button class="btn btn-primary pull-right btn-xs fixed-btn" onclick="open_category_listing(&quot;'+response[i]['uc_id']+'&quot;,&quot;'+response[i]['uc_name']+'&quot;);"><span class="btn-text">App List ('+response[i]['site_count']+')</span></button>';
-                     		tr += '<div class="clearfix"></div>';
-                     		tr += '</div>';
-                     		if(response[i]['uc_id']!="0"){
-                     			select_opt += '<option value="'+response[i]['uc_id']+'">'+response[i]['uc_name']+'</option>';
-                     		}
-                     	});
-         
-                           $('#user_account_type_list').html(tr);
-                           $('#add_new_manual_user_category').html(select_opt);
-                           if(type == 0){                    	
-                           	$('#modal_user_profile_category').html(select_opt);
-                           	$('#add_new_single_user_category').html(select_opt);
-                           }
-         
-         
+						var tr = '';
+						var select_opt = '<option value="">Choose Category</option>';
+						var categoryText = function(value){
+							return $('<div>').text(value == null ? '' : value).html();
+						};
+
+						if (!Array.isArray(response) || response.length === 0) {
+							$('#user_category_count').text('0');
+							$('#user_account_type_list').html(
+								'<div class="user-category-state">' +
+								'<span><i class="fa fa-folder-open-o" aria-hidden="true"></i></span>' +
+								'<strong>No user categories</strong>' +
+								'<small>Create a category to begin organising user access.</small>' +
+								'</div>'
+							);
+							return;
+						}
+
+						$.each(response, function(i, value) {
+							var categoryId = categoryText(value['uc_id']);
+							var categoryName = categoryText(value['uc_name']);
+							var userTotal = categoryText(value['total']);
+							var siteTotal = categoryText(value['site_count']);
+							tr += '<div class="user-category-row">';
+							tr += '<div class="user-category-identity"><span class="user-category-avatar"><i class="fa fa-users" aria-hidden="true"></i></span><div><strong title="'+categoryName+'">'+categoryName+'</strong><small>Access group</small></div></div>';
+							tr += '<div class="user-category-metrics"><span><strong>'+userTotal+'</strong><small>Users</small></span><span><strong>'+siteTotal+'</strong><small>Apps</small></span></div>';
+							tr += '<div class="user-category-row-actions">';
+							tr += '<button type="button" class="user-category-row-button" data-category-id="'+categoryId+'" data-category-name="'+categoryName+'" onclick="view_category_user_list(this.dataset.categoryId, this.dataset.categoryName);" title="View users"><i class="fa fa-users" aria-hidden="true"></i><span>Users</span></button>';
+							tr += '<button type="button" class="user-category-row-button" data-category-id="'+categoryId+'" data-category-name="'+categoryName+'" onclick="open_category_listing(this.dataset.categoryId, this.dataset.categoryName);" title="View application access"><i class="fa fa-th-large" aria-hidden="true"></i><span>Apps</span></button>';
+							tr += '</div>';
+							tr += '</div>';
+							if(value['uc_id'] != "0"){
+								select_opt += '<option value="'+categoryId+'">'+categoryName+'</option>';
+							}
+						});
+
+						$('#user_category_count').text(response.length);
+						$('#user_account_type_list').html(tr);
+						$('#add_new_manual_user_category').html(select_opt);
+						if(type == 0){
+							$('#modal_user_profile_category').html(select_opt);
+							$('#add_new_single_user_category').html(select_opt);
+						}
+
                        },
                        error: function (xhr, error, thrown) {
+						$('#user_category_count').text('\u2014');
+						$('#user_account_type_list').html(
+							'<div class="user-category-state is-error">' +
+							'<span><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>' +
+							'<strong>Unable to load user categories</strong>' +
+							'<small>Please retry or check the application log.</small>' +
+							'</div>'
+						);
                        }
                    });
          }
@@ -2089,34 +2179,37 @@
            		},
            		success: function (response) {
            			var tr = "";
+						var searchText = function(value){
+							return $('<div>').text(value == null ? '' : value).html();
+						};
            			$('#search_user_account_main_progress_bar').hide();
            			$('#search_user_account_main_search_result').show();
            			if(response.length==0){            
-           				tr += '<span class="clabels-text font-12 inline-block txt-dark capitalize-font pull-left">';
-           				tr += '<span class="block txt-danger">Sorry, Unable to find any record matches your search</span>';
-           				tr += '<div class="clearfix"></div>';
+							tr += '<div class="user-result-empty"><i class="fa fa-user-times" aria-hidden="true"></i><div><strong>No matching account</strong><small>Try another name or identification number.</small></div></div>';
            				$('#search_user_account_main_result_data').html(tr);
            				return;
            			}
-           			tr += '<span class="clabels-text font-12 inline-block txt-dark capitalize-font pull-left">';
-           			tr += '<span class="block font-15 weight-500 mb-5">'+response['data1']+'</span>';
-           			tr += '<span class="block txt-grey">Category: '+response['uc_name']+'</span>';
+						var resultName = searchText(response['data1']);
+						var resultCategory = searchText(response['uc_name']);
+						var resultUserId = searchText(response['u_id']);
+						var resultSource = searchText(response['source']);
+						tr += '<div class="user-result-card"><div class="user-result-profile"><span class="user-result-avatar"><i class="fa fa-user" aria-hidden="true"></i></span><div><strong title="'+resultName+'">'+resultName+'</strong><small>Category: '+resultCategory+'</small>';
            			switch(response['source']){
          				case "1": //reg
          				if(response['avail_status']=="0"){
-         					tr += '<span class="badge transparent-badge badge-danger capitalize-font">Removed</span>';
+							tr += '<span class="user-result-status is-removed">Removed</span>';
          
          				}else{
-         					tr += '<span class="badge transparent-badge badge-success capitalize-font">Registered</span>';
+							tr += '<span class="user-result-status is-registered">Registered</span>';
          				}
          				break;
          				case "2": //unreg
-         				tr += '<span class="badge transparent-badge badge-danger capitalize-font">Unregistered</span>';
+						tr += '<span class="user-result-status is-unregistered">Unregistered</span>';
          				break;
          			}
-         			tr += '</span>';
-         			tr += '<button class="btn btn-primary pull-right btn-xs fixed-btn" onclick="view_user_profile(&quot;'+response['u_id']+'&quot;,&quot;'+response['source']+'&quot;)"><span class="btn-text">View</span></button>';
-         			tr += '<div class="clearfix"></div>';
+						tr += '</div></div>';
+						tr += '<button type="button" class="user-result-view" data-user-id="'+resultUserId+'" data-user-source="'+resultSource+'" onclick="view_user_profile(this.dataset.userId, this.dataset.userSource);" title="View user profile" aria-label="View user profile"><i class="fa fa-eye" aria-hidden="true"></i></button>';
+						tr += '</div>';
          			$('#search_user_account_main_result_data').html(tr);
          			$('#modal_user_profile_lastupdate_text').text(response['u_update_datetime']);
          
@@ -3173,80 +3266,86 @@
          
          
          
+         function m2SecurityFailureText(response, fallback){
+         var code = response && response.code ? response.code : 'M2_REQUEST_FAILED';
+         var reference = response && response.correlation_id ? '\nReference: ' + response.correlation_id : '';
+         var messages = {
+            M2_SELF_ACTION_FORBIDDEN: 'Use your own account security workflow instead of this administrator action.',
+            M2_USER_NOT_FOUND: 'The selected OneID account no longer exists.',
+            M2_USER_INACTIVE: 'Reactivate the account before forcing a password reset.',
+            M2_ALREADY_INACTIVE: 'The account is already inactive. No changes were made.',
+            M2_ALREADY_ACTIVE: 'The account is already active. No changes were made.',
+            M2_PASSWORD_NOT_RESET: 'The password row was not changed. No success has been assumed.',
+            M2_STATUS_NOT_CHANGED: 'The account status row was not changed. No success has been assumed.',
+            M2_AUDIT_NOT_WRITTEN: 'The audit event could not be written, so the whole action was rolled back.',
+            M2_OPERATION_FAILED: 'The operation failed and was rolled back.'
+         };
+         return (messages[code] || fallback) + '\nCode: ' + code + reference;
+         }
+
          function user_info_reactivate_user(){
          var user_info_id = $('#modal_user_profile_user_id').val();
-         // return;
-         swal({   
-         	title: "Reactivate user",   
-         	text: "Are you sure you want to reactivate this user?",   
-         	type: "warning",   
-         	showCancelButton: true,   
-         	confirmButtonColor: "#DD6B55",   
-         	confirmButtonText: "Yes!",   
-         	closeOnConfirm: false 
-         }, function(){   
-         
-         	$.ajax({
-         		type: 'POST',
-         		url: '../lib/q_func',
-         		dataType: "json",
-         		data: {admin_reactivate_user_record:'',user_info_id:user_info_id},     
-         		beforeSend: function(){
-         		},
-         		success: function (response) {
-         			if (response['status'] == 1){
-         				get_specific_user_profile_info(user_info_id,response['source_status']);
-         				get_specific_user_sp_access_list(user_info_id);
-         				swal("Reactivate", "Success", "success");                                 
-         				get_service_provider_list();
-         				admin_get_all_user_category(1);		
-         			}else{
-         				swal("Reactivate", "Error", "error"); 
-         			}
-         
-         		},
-         		error: function (xhr, error, thrown) {
-         		}
-         	});
+         var $button = $('#btn_user_profile_reactivate');
+         swal({
+            title: 'Reactivate user',
+            text: 'Reactivate this account? Existing sessions and active OTP will remain revoked.',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#DD6B55',
+            confirmButtonText: 'Reactivate',
+            closeOnConfirm: false
+         }, function(){
+            $.ajax({
+               type: 'POST', url: '../lib/q_func', dataType: 'json',
+               data: {admin_reactivate_user_record:'',user_info_id:user_info_id},
+               beforeSend: function(){ $button.prop('disabled', true); },
+               success: function(response){
+                  if (response && Number(response.status) === 1) {
+                     get_specific_user_profile_info(user_info_id,response.source_status);
+                     get_specific_user_sp_access_list(user_info_id);
+                     get_service_provider_list();
+                     admin_get_all_user_category(1);
+                     swal('User reactivated', 'Sessions and active OTP were revoked.\nReference: ' + response.correlation_id, 'success');
+                  } else {
+                     swal('Reactivate failed', m2SecurityFailureText(response, 'The account was not reactivated.'), 'error');
+                  }
+               },
+               error: function(xhr){ swal('Reactivate failed', 'No success has been assumed.\nHTTP status: ' + xhr.status, 'error'); },
+               complete: function(){ $button.prop('disabled', false); }
+            });
          });
          }
-         
-         
+
          function user_info_deactivate_user(){
          var user_info_id = $('#modal_user_profile_user_id').val();
-         // return;
-         swal({   
-         	title: "Remove user",   
-         	text: "Are you sure you want to remove this user?",   
-         	type: "warning",   
-         	showCancelButton: true,   
-         	confirmButtonColor: "#DD6B55",   
-         	confirmButtonText: "Yes!",   
-         	closeOnConfirm: false 
-         }, function(){   
-         
-         	$.ajax({
-         		type: 'POST',
-         		url: '../lib/q_func',
-         		dataType: "json",
-         		data: {admin_deactivate_user_record:'',user_info_id:user_info_id},     
-         		beforeSend: function(){
-         		},
-         		success: function (response) {
-         			if (response['status'] == 1){
-         				get_specific_user_profile_info(user_info_id,response['source_status']);
-         				get_specific_user_sp_access_list(user_info_id);
-         				swal("Remove", "Success", "success");                                 
-         				get_service_provider_list();
-         				admin_get_all_user_category(1);		
-         			}else{
-         				swal("Reactivate", "Error", "error"); 
-         			}
-         
-         		},
-         		error: function (xhr, error, thrown) {
-         		}
-         	});
+         var $button = $('#btn_user_profile_deactivate');
+         swal({
+            title: 'Remove user',
+            text: 'Deactivate this account and revoke every active session and OTP?',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#DD6B55',
+            confirmButtonText: 'Remove access',
+            closeOnConfirm: false
+         }, function(){
+            $.ajax({
+               type: 'POST', url: '../lib/q_func', dataType: 'json',
+               data: {admin_deactivate_user_record:'',user_info_id:user_info_id},
+               beforeSend: function(){ $button.prop('disabled', true); },
+               success: function(response){
+                  if (response && Number(response.status) === 1) {
+                     get_specific_user_profile_info(user_info_id,response.source_status);
+                     get_specific_user_sp_access_list(user_info_id);
+                     get_service_provider_list();
+                     admin_get_all_user_category(1);
+                     swal('User removed', 'Account access, sessions and active OTP were revoked.\nReference: ' + response.correlation_id, 'success');
+                  } else {
+                     swal('Remove failed', m2SecurityFailureText(response, 'The account was not deactivated.'), 'error');
+                  }
+               },
+               error: function(xhr){ swal('Remove failed', 'No success has been assumed.\nHTTP status: ' + xhr.status, 'error'); },
+               complete: function(){ $button.prop('disabled', false); }
+            });
          });
          }
          
@@ -3255,43 +3354,102 @@
          }
          
          function modal_user_profile_resync(){
-         var user_id = 	$('#modal_user_profile_user_id').val();
+         var user_id = $('#modal_user_profile_user_id').val();
+         var $button = $('#btn_user_profile_resync');
+         var resyncFailureText = function(response, fallback){
+            var code = response && response.code ? response.code : 'RESYNC_REQUEST_FAILED';
+            var reference = response && response.correlation_id
+               ? '\nReference: ' + response.correlation_id
+               : '';
+            var messages = {
+               RESYNC_MANUAL_PROTECTED: 'This is a protected manual account and cannot be overwritten from the external source.',
+               RESYNC_ACCOUNT_SOURCE_NOT_EXTERNAL: 'Only externally managed accounts can use Resync.',
+               RESYNC_USER_INACTIVE: 'Reactivate the account before running Resync.',
+               RESYNC_EXTERNAL_USER_NOT_FOUND: 'No matching active record was found in the external source.',
+               RESYNC_EXTERNAL_USER_AMBIGUOUS: 'More than one external record matched this identity. No data was changed.',
+               RESYNC_EXTERNAL_IDENTITY_MISMATCH: 'The external identity did not match this OneID account.',
+               RESYNC_SOURCE_IDENTITY_UNDETERMINED: 'The account does not contain enough identity information to select its authoritative external source.',
+               RESYNC_SOURCE_UNAVAILABLE: 'The external source is currently unavailable.',
+               RESYNC_APPROVAL_EXPIRED: 'The preview has expired. Run Resync again to generate a fresh preview.',
+               RESYNC_PREVIEW_MISMATCH: 'The account or external record changed after preview. Generate a fresh preview.',
+               RESYNC_APPROVAL_NOT_AVAILABLE: 'This preview has already been used or is no longer available.'
+            };
+            return (messages[code] || fallback) + '\nCode: ' + code + reference;
+         };
+         var applyApprovedResync = function(approvalId){
+            $.ajax({
+               type: 'POST',
+               url: '../lib/q_func',
+               dataType: 'json',
+               data: {admin_apply_specific_user_resync:'', approval_id:approvalId},
+               beforeSend: function(){
+                  $button.prop('disabled', true);
+               },
+               success: function(response){
+                  if (!response || Number(response.status) !== 1) {
+                     swal('Resync not applied', resyncFailureText(response, 'The approved resync could not be applied.'), 'error');
+                     return;
+                  }
+                  get_specific_user_profile_info(user_id, 1);
+                  get_specific_user_sp_access_list(user_id);
+                  swal('Resync complete', 'The approved fields were updated and the action was recorded in the audit log.\nReference: ' + response.correlation_id, 'success');
+               },
+               error: function(xhr){
+                  swal('Resync not applied', 'The server rejected or could not complete the request. No success has been assumed.\nHTTP status: ' + xhr.status, 'error');
+               },
+               complete: function(){
+                  $button.prop('disabled', false);
+               }
+            });
+         };
+
          $.ajax({
-         	type: 'POST',
-         	url: '../lib/q_func',
-         	dataType: "json",
-         	data: {admin_resync_specific_user:'',user_id:user_id},     
-         	beforeSend: function(){
-         	},
-         	success: function (response) {
-         		if(response['status']==0){
-         			$.toast().reset('all');            
-         			$.toast({
-         				heading: '',
-         				text: "Data already sync",
-         				position: 'bottom-center',
-         				loaderBg:'#fec107',
-         				icon: 'warning',
-         				hideAfter: 3500, 
-         				stack: 6
-         			});  
-         		}else{
-         			$.toast().reset('all');            
-         			$.toast({
-         				heading: '',
-         				text: "Sync Success",
-         				position: 'bottom-center',
-         				loaderBg:'#fec107',
-         				icon: 'success',
-         				hideAfter: 3500, 
-         				stack: 6
-         			});  
-         			get_specific_user_profile_info(user_id,1);
-         		}
-         
-         	},
-         	error: function (xhr, error, thrown) {
-         	}
+            type: 'POST',
+            url: '../lib/q_func',
+            dataType: 'json',
+            data: {admin_preview_specific_user_resync:'', user_id:user_id},
+            beforeSend: function(){
+               $button.prop('disabled', true);
+            },
+            success: function(response){
+               if (!response || Number(response.status) !== 1) {
+                  swal('Preview unavailable', resyncFailureText(response, 'A safe resync preview could not be prepared.'), 'error');
+                  return;
+               }
+               if (!response.can_apply || !Array.isArray(response.changes) || response.changes.length === 0) {
+                  swal('No changes', 'The OneID profile already matches the external source. No data was changed.\nReference: ' + response.correlation_id, 'info');
+                  return;
+               }
+
+               var lines = response.changes.map(function(change){
+                  var oldValue = String(change.old || '(empty)').replace(/\s+/g, ' ').substring(0, 90);
+                  var newValue = String(change.new || '(empty)').replace(/\s+/g, ' ').substring(0, 90);
+                  return '• ' + change.label + ': ' + oldValue + ' → ' + newValue;
+               });
+               var previewText = 'Review the proposed external-source changes:\n\n'
+                  + lines.join('\n')
+                  + '\n\nOnly these fields will be updated. Continue?';
+               swal({
+                  title: 'Apply resync preview?',
+                  text: previewText,
+                  type: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: '#DD6B55',
+                  confirmButtonText: 'Apply changes',
+                  cancelButtonText: 'Cancel',
+                  closeOnConfirm: true
+               }, function(confirmed){
+                  if (confirmed === true) {
+                     applyApprovedResync(response.approval_id);
+                  }
+               });
+            },
+            error: function(xhr){
+               swal('Preview unavailable', 'The external preview request failed. No data was changed.\nHTTP status: ' + xhr.status, 'error');
+            },
+            complete: function(){
+               $button.prop('disabled', false);
+            }
          });
          }
          
@@ -3301,54 +3459,66 @@
          	type: 'POST',
          	url: '../lib/q_func',
          	dataType: "json",
-         	data: {admin_get_all_token_for_all_active_user:""},
-         	beforeSend: function(){
-         		$('#app_security_session_loading').fadeIn();
-         		$('#app_security_session_list').hide();                 
-         	},
-         	success: function (response) {
-         		
-				
-$('#app_security_session_loading').hide();
-$('#app_security_session_list').fadeIn();
+          data: {admin_get_all_token_for_all_active_user:""},
+          beforeSend: function(){
+				$('#active_session_count').text('\u2014');
+				$('#app_security_session_list').show();
+				$('#security_tab_session').html(
+					'<tr class="active-session-state-row is-loading"><td colspan="4">' +
+					'<span class="active-session-state-icon"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>' +
+					'<strong>Loading active sessions</strong>' +
+					'<small>Please wait while session data is retrieved.</small>' +
+					'</td></tr>'
+				);
+          },
+          success: function (response) {
+				var $tbody = $('#security_tab_session');
+				var sessionText = function(value){
+					return $('<div>').text(value == null ? '' : value).html();
+				};
 
+				if (!Array.isArray(response) || response.length === 0) {
+					$('#active_session_count').text('0');
+					$tbody.html(
+						'<tr class="active-session-state-row"><td colspan="4">' +
+						'<span class="active-session-state-icon"><i class="fa fa-user-times" aria-hidden="true"></i></span>' +
+						'<strong>No active sessions</strong>' +
+						'<small>No user session is currently available.</small>' +
+						'</td></tr>'
+					);
+				} else {
+					var rows = '';
+					$.each(response, function (i, session) {
+						var isCurrent = session.current_token === "1";
+						var tokenDateTime = sessionText(session.token_datetime);
+						var userName = sessionText(session.name);
+						var deviceInfo = sessionText(session.device_info);
+						var statusText = isCurrent ? 'Current' : 'Active';
 
-var $tbody = $('#security_tab_session');
-$tbody.empty();
+						rows += '<tr>';
+						rows += '<td data-label="Token Date / Time"><span class="active-session-cell active-session-time" title="'+tokenDateTime+'">'+tokenDateTime+'</span></td>';
+						rows += '<td data-label="User"><span class="active-session-cell active-session-user" title="'+userName+'"><i class="fa fa-user-circle-o" aria-hidden="true"></i>'+userName+'</span></td>';
+						rows += '<td data-label="Device"><span class="active-session-cell active-session-device" title="'+deviceInfo+'"><i class="fa fa-desktop" aria-hidden="true"></i>'+deviceInfo+'</span></td>';
+						rows += '<td data-label="Status"><span class="active-session-status '+(isCurrent ? 'is-current' : '')+'"><i class="fa '+(isCurrent ? 'fa-check-circle' : 'fa-circle')+'" aria-hidden="true"></i>'+statusText+'</span></td>';
+						rows += '</tr>';
+					});
 
-if (!Array.isArray(response) || response.length === 0) {
-    $tbody.append(
-        '<tr><td class="text-muted p-1"><small>No active sessions.</small></td></tr>'
-    );
-} else {
-    $.each(response, function (i, session) {
-        var isCurrent   = session.current_token === "1";
-        var currentIcon = isCurrent
-            ? '<i class="fa fa-check-circle text-primary ms-1"></i>'
-            : '';
-        var label = isCurrent ? 'currently on' : 'on';
-
-        var cellText =
-            (i + 1) + '. [' + session.token_datetime + '] ' +
-            session.name + ' ' + label + ' : ' +
-            session.device_info;
-
-        var rowHtml =
-            '<tr>' +
-                '<td class="p-0 align-middle" style="padding:0px;">' +
-                    '<small class="text-muted">' + cellText + '</small>' +
-                    currentIcon +
-                '</td>' +
-            '</tr>';
-
-        $tbody.append(rowHtml);
-    });
-}
+					$('#active_session_count').text(response.length);
+					$tbody.html(rows);
+				}
 
 
          
                        },
                        error: function (xhr, error, thrown) {
+						$('#active_session_count').text('\u2014');
+						$('#security_tab_session').html(
+							'<tr class="active-session-state-row is-error"><td colspan="4">' +
+							'<span class="active-session-state-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>' +
+							'<strong>Unable to load active sessions</strong>' +
+							'<small>Please retry or check the application log.</small>' +
+							'</td></tr>'
+						);
                        }
                    });
          }
@@ -3362,9 +3532,17 @@ if (!Array.isArray(response) || response.length === 0) {
             dataType: "json",
             data: {admin_get_audit_range:'',audit_search_daterange:$('#audit_search_daterange').val()},     
             beforeSend: function(){
+               $('#audit_result_count').text('\u2014');
+               $('#audit_search_result_tbody').html(
+                  '<tr class="audit-state-row is-loading"><td colspan="4">' +
+                  '<span class="audit-state-icon"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>' +
+                  '<strong>Searching audit records</strong>' +
+                  '<small>Please wait while the selected date range is processed.</small>' +
+                  '</td></tr>'
+               );
             },
             success: function (response) {
-               if(response.length == 0){
+               if(!Array.isArray(response) || response.length == 0){
                   $.toast().reset('all');            
                   $.toast({
                      heading: '',
@@ -3375,7 +3553,14 @@ if (!Array.isArray(response) || response.length === 0) {
                      hideAfter: 3500, 
                      stack: 6
                   });  
-                  $('#audit_search_result_tbody').html('<tr><td col="4">No result found</td></tr>');
+                  $('#audit_result_count').text('0');
+                  $('#audit_search_result_tbody').html(
+                     '<tr class="audit-state-row"><td colspan="4">' +
+                     '<span class="audit-state-icon"><i class="fa fa-folder-open-o" aria-hidden="true"></i></span>' +
+                     '<strong>No records found</strong>' +
+                     '<small>Try selecting a different date range.</small>' +
+                     '</td></tr>'
+                  );
                }else{
                   $.toast().reset('all');            
                   $.toast({
@@ -3388,34 +3573,50 @@ if (!Array.isArray(response) || response.length === 0) {
                      stack: 6
                   });  
                   var tr="";
+                  var auditText = function(value){
+                     return $('<div>').text(value == null ? '' : value).html();
+                  };
                   $.each( response, function( i, value ) {
+                           var auditDateTime = auditText(value['datetime']);
+                           var auditLogType = auditText(value['log_type']);
+                           var auditLogDetail = auditText(value['log_detail']);
+                           var auditIpAddress = auditText(value['ip_addr']);
                            tr += '<tr>';
-                           tr += '<td>'+response[i]['datetime']+'</td>';
-                           tr += '<td>'+response[i]['log_type']+'</td>';
-                           tr += '<td>'+response[i]['log_detail']+'</td>';
-                           tr += '<td>'+response[i]['ip_addr']+'</td>';
+                           tr += '<td data-label="Date / Time"><span class="audit-cell-text audit-log-time" title="'+auditDateTime+'">'+auditDateTime+'</span></td>';
+                           tr += '<td data-label="Log Type"><span class="audit-cell-text audit-type-badge" title="'+auditLogType+'">'+auditLogType+'</span></td>';
+                           tr += '<td data-label="Activity Details"><span class="audit-cell-text audit-log-details" title="'+auditLogDetail+'">'+auditLogDetail+'</span></td>';
+                           tr += '<td data-label="IP Address"><code class="audit-cell-text audit-ip-address" title="'+auditIpAddress+'">'+auditIpAddress+'</code></td>';
                            tr += '</tr>';
                         });
+                  $('#audit_result_count').text(response.length);
                   $('#audit_search_result_tbody').html(tr);
 
                }
          
             },
             error: function (xhr, error, thrown) {
+               $('#audit_result_count').text('\u2014');
+               $('#audit_search_result_tbody').html(
+                  '<tr class="audit-state-row is-error"><td colspan="4">' +
+                  '<span class="audit-state-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>' +
+                  '<strong>Unable to load audit records</strong>' +
+                  '<small>Please retry the search or check the application log.</small>' +
+                  '</td></tr>'
+               );
             }
          });
          }
 
          function sync_status_badge(status){
             var labels = {
-               '0': ['In Progress', 'badge-warning'],
-               '1': ['Temp Only', 'badge-info'],
-               '2': ['Complete', 'badge-success'],
-               '3': ['No Data', 'badge-default'],
-               '4': ['No Changes', 'badge-default']
+               '0': ['In Progress', 'sync-status-progress'],
+               '1': ['Temp Only', 'sync-status-temp'],
+               '2': ['Complete', 'sync-status-complete'],
+               '3': ['No Data', 'sync-status-empty'],
+               '4': ['No Changes', 'sync-status-unchanged']
             };
-            var info = labels[String(status)] || ['Unknown', 'badge-default'];
-            return '<span class="badge ' + info[1] + '">' + info[0] + '</span>';
+            var info = labels[String(status)] || ['Unknown', 'sync-status-unknown'];
+            return '<span class="sync-status-badge ' + info[1] + '">' + info[0] + '</span>';
          }
 
          function sync_format_triggered_by(row){
@@ -3428,13 +3629,13 @@ if (!Array.isArray(response) || response.length === 0) {
 
          function sync_action_badge(action){
             var classes = {
-               'NEW': 'badge-success',
-               'UPDATE': 'badge-warning',
-               'DEACTIVATE': 'badge-danger',
-               'REACTIVATE': 'badge-info'
+               'NEW': 'sync-action-new',
+               'UPDATE': 'sync-action-update',
+               'DEACTIVATE': 'sync-action-deactivate',
+               'REACTIVATE': 'sync-action-reactivate'
             };
-            var cls = classes[action] || 'badge-default';
-            return '<span class="badge ' + cls + '">' + action + '</span>';
+            var cls = classes[action] || 'sync-status-unknown';
+            return '<span class="sync-action-badge ' + cls + '">' + action + '</span>';
          }
 
          function sync_format_json_cell(value){
@@ -3468,6 +3669,27 @@ if (!Array.isArray(response) || response.length === 0) {
          var SYNC_SESSIONS_PAGE_SIZE = 10;
          var syncLogDetailData = [];
          var SYNC_DETAIL_PAGE_SIZE = 10;
+
+         function sync_update_summary(rows){
+            if(!Array.isArray(rows)){
+               $('#sync_summary_total, #sync_summary_complete, #sync_summary_changes').text('—');
+               return;
+            }
+            var completed = 0;
+            var changes = 0;
+            $.each(rows, function(i, row){
+               if(String(row.ext_head_status) === '2'){
+                  completed++;
+               }
+               changes += parseInt(row.total_new || 0, 10);
+               changes += parseInt(row.total_updated || 0, 10);
+               changes += parseInt(row.total_deactivated || 0, 10);
+               changes += parseInt(row.total_reactivated || 0, 10);
+            });
+            $('#sync_summary_total').text(rows.length);
+            $('#sync_summary_complete').text(completed);
+            $('#sync_summary_changes').text(changes);
+         }
 
          function render_sync_pagination(currentPage, totalPages){
             if(totalPages <= 1){
@@ -3509,19 +3731,21 @@ if (!Array.isArray(response) || response.length === 0) {
             $.each(rows, function(i, row){
                var dtStart = row.ext_head_dt_start || '-';
                var dtEnd = row.ext_head_dt_end ? ' — ' + row.ext_head_dt_end : '';
-               tr += '<tr>';
-               tr += '<td>' + row.ext_head_id + '</td>';
-               tr += '<td>' + dtStart + dtEnd + '</td>';
-               tr += '<td>' + sync_format_triggered_by(row) + '</td>';
-               tr += '<td>' + (row.total_new || 0) + '</td>';
-               tr += '<td>' + (row.total_updated || 0) + '</td>';
-               tr += '<td>' + (row.total_deactivated || 0) + '</td>';
-               tr += '<td>' + (row.total_reactivated || 0) + '</td>';
-               tr += '<td>' + sync_status_badge(row.ext_head_status) + '</td>';
-               tr += '<td><button type="button" class="btn btn-xs btn-primary btn-outline btn-rounded" onclick="load_sync_log_detail(' + row.ext_head_id + ', \'' + String(dtStart).replace(/'/g, "\\'") + '\');"><span class="btn-text">View</span></button></td>';
+               tr += '<tr class="sync-session-row">';
+               tr += '<td data-label="Session"><span class="sync-session-id">#' + row.ext_head_id + '</span></td>';
+               tr += '<td data-label="Date / Time"><span class="sync-session-time">' + dtStart + dtEnd + '</span></td>';
+               tr += '<td data-label="Triggered By"><span class="sync-session-trigger">' + sync_format_triggered_by(row) + '</span></td>';
+               tr += '<td data-label="Changes"><div class="sync-change-metrics">';
+               tr += '<span><small>New</small><strong>' + (row.total_new || 0) + '</strong></span>';
+               tr += '<span><small>Updated</small><strong>' + (row.total_updated || 0) + '</strong></span>';
+               tr += '<span><small>Deactivated</small><strong>' + (row.total_deactivated || 0) + '</strong></span>';
+               tr += '<span><small>Reactivated</small><strong>' + (row.total_reactivated || 0) + '</strong></span>';
+               tr += '</div></td>';
+               tr += '<td data-label="Status">' + sync_status_badge(row.ext_head_status) + '</td>';
+               tr += '<td data-label="Action"><button type="button" class="sync-view-button" title="View session details" aria-label="View session details" onclick="load_sync_log_detail(' + row.ext_head_id + ', \'' + String(dtStart).replace(/'/g, "\\'") + '\');"><i class="fa fa-eye" aria-hidden="true"></i><span class="sr-only">View session details</span></button></td>';
                tr += '</tr>';
             });
-            $('#sync_session_tbody').html(tr || '<tr><td colspan="9">No sync sessions found</td></tr>');
+            $('#sync_session_tbody').html(tr || '<tr class="sync-empty-row"><td colspan="6">No sync sessions found.</td></tr>');
             render_sync_pagination(page, totalPages);
          }
 
@@ -3564,16 +3788,18 @@ if (!Array.isArray(response) || response.length === 0) {
             var tr = '';
             $.each(rows, function(i, row){
                tr += '<tr>';
-               tr += '<td>' + (start + i + 1) + '. </td>';
-               tr += '<td>' + row.u_id + '</td>';
-               tr += '<td>' + sync_action_badge(row.action) + '</td>';
-               tr += '<td>' + sync_format_json_cell(row.changed_fields) + '</td>';
-               tr += '<td>' + sync_format_json_cell(row.old_data) + '</td>';
-               tr += '<td>' + sync_format_json_cell(row.new_data) + '</td>';
-               tr += '<td>' + (row.logged_at || '-') + '</td>';
+               tr += '<td data-label="#"><span class="sync-row-number">' + (start + i + 1) + '</span></td>';
+               tr += '<td data-label="User ID"><span class="sync-detail-user">' + row.u_id + '</span></td>';
+               tr += '<td data-label="Action">' + sync_action_badge(row.action) + '</td>';
+               tr += '<td data-label="Change Details"><div class="sync-detail-data">';
+               tr += '<div><span>Changed fields</span><p>' + sync_format_json_cell(row.changed_fields) + '</p></div>';
+               tr += '<div><span>Old data</span><p>' + sync_format_json_cell(row.old_data) + '</p></div>';
+               tr += '<div><span>New data</span><p>' + sync_format_json_cell(row.new_data) + '</p></div>';
+               tr += '</div></td>';
+               tr += '<td data-label="Time"><span class="sync-session-time">' + (row.logged_at || '-') + '</span></td>';
                tr += '</tr>';
             });
-            $('#sync_detail_tbody').html(tr || '<tr><td colspan="7">No changes recorded for this session</td></tr>');
+            $('#sync_detail_tbody').html(tr || '<tr class="sync-empty-row"><td colspan="5">No changes recorded for this session.</td></tr>');
             render_sync_detail_pagination(page, totalPages);
          }
 
@@ -3584,22 +3810,26 @@ if (!Array.isArray(response) || response.length === 0) {
                dataType: 'json',
                data: { admin_get_sync_sessions: '' },
                beforeSend: function(){
-                  $('#sync_session_tbody').html('<tr><td colspan="9">Loading...</td></tr>');
+                  sync_update_summary(null);
+                  $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> Loading sessions...</td></tr>');
                   $('#sync_session_pagination').html('');
                },
                success: function(response){
                   if(!response || response.length === 0){
                      syncSessionsData = [];
-                     $('#sync_session_tbody').html('<tr><td colspan="9">No sync sessions found</td></tr>');
+                     sync_update_summary([]);
+                     $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6">No sync sessions found.</td></tr>');
                      $('#sync_session_pagination').html('');
                      return;
                   }
                   syncSessionsData = response;
+                  sync_update_summary(syncSessionsData);
                   render_sync_sessions_page(1);
                },
                error: function(xhr){
                   syncSessionsData = [];
-                  $('#sync_session_tbody').html('<tr><td colspan="9">Failed to load sync sessions</td></tr>');
+                  sync_update_summary([]);
+                  $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6">Failed to load sync sessions.</td></tr>');
                   $('#sync_session_pagination').html('');
                }
             });
@@ -3613,7 +3843,7 @@ if (!Array.isArray(response) || response.length === 0) {
                data: { admin_get_sync_log_detail: '', ext_head_id: ext_head_id },
                beforeSend: function(){
                   syncLogDetailData = [];
-                  $('#sync_detail_tbody').html('<tr><td colspan="7">Loading...</td></tr>');
+                  $('#sync_detail_tbody').html('<tr class="sync-empty-row"><td colspan="5"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> Loading session details...</td></tr>');
                   $('#sync_detail_pagination').html('');
                   $('#sync_detail_header').text('Changes in Session #' + ext_head_id + (sessionDate ? ' — ' + sessionDate : ''));
                   $('#sync_session_panel').hide();
@@ -3622,7 +3852,7 @@ if (!Array.isArray(response) || response.length === 0) {
                success: function(response){
                   if(!response || response.length === 0){
                      syncLogDetailData = [];
-                     $('#sync_detail_tbody').html('<tr><td colspan="7">No changes recorded for this session</td></tr>');
+                     $('#sync_detail_tbody').html('<tr class="sync-empty-row"><td colspan="5">No changes recorded for this session.</td></tr>');
                      $('#sync_detail_pagination').html('');
                      return;
                   }
@@ -3631,7 +3861,7 @@ if (!Array.isArray(response) || response.length === 0) {
                },
                error: function(xhr){
                   syncLogDetailData = [];
-                  $('#sync_detail_tbody').html('<tr><td colspan="7">Failed to load session details</td></tr>');
+                  $('#sync_detail_tbody').html('<tr class="sync-empty-row"><td colspan="5">Failed to load session details.</td></tr>');
                   $('#sync_detail_pagination').html('');
                }
             });
@@ -3720,41 +3950,99 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
           });
       }
 	  
-	  function modal_user_profile_resetPwd(){
-		  var user_id = 	$('#modal_user_profile_user_id').val();
-		  swal({   
-           		title: "Force Reset Password",   
-           		text: "Are you sure you want to Force Reset Password?",   
-           		type: "warning",   
-           		confirmButtonColor: "#DD6B55",   
-           		confirmButtonText: "Yes!",   
-           		showCancelButton: true,   
-           		closeOnConfirm: false 
-           	}, function(){   
-         
-           		$.ajax({
-           			type: 'POST',
-           			url: '../lib/q_func',
-           			dataType: "json",
-           			data: {admin_reset_password_user:'',user_id:user_id},     
-           			beforeSend: function(){
-           			},
-           			success: function (response) {
-           				if (response == 1){
-           					
-					swal("Password Reset", "Sessions revoked. User must use Forgot Password to set a new password.", "success");
-           				}else{
-           					swal("Password Reset", "Password had already been reset.", "error"); 
-           				}
-         
-           			},
-           			error: function (xhr, error, thrown) {
-           			}
-           		});
-           	});
-	  }
+      function modal_user_profile_resetPwd(){
+         var user_id = $('#modal_user_profile_user_id').val();
+         var $button = $('#btn_user_profile_reset_password');
+         swal({
+            title: 'Force Reset Password',
+            text: 'Replace the current password, require Forgot Password, and revoke every active session and OTP?',
+            type: 'warning',
+            confirmButtonColor: '#DD6B55',
+            confirmButtonText: 'Force reset',
+            showCancelButton: true,
+            closeOnConfirm: false
+         }, function(){
+            $.ajax({
+               type: 'POST',
+               url: '../lib/q_func',
+               dataType: 'json',
+               data: {admin_reset_password_user:'', user_id:user_id},
+               beforeSend: function(){ $button.prop('disabled', true); },
+               success: function(response){
+                  if (response && Number(response.status) === 1) {
+                     swal('Password reset', 'Password reset requirement recorded. Sessions and active OTP were revoked. The user must use Forgot Password.\nReference: ' + response.correlation_id, 'success');
+                  } else {
+                     swal('Password reset failed', m2SecurityFailureText(response, 'The password was not reset.'), 'error');
+                  }
+               },
+               error: function(xhr){
+                  swal('Password reset failed', 'No success has been assumed.\nHTTP status: ' + xhr.status, 'error');
+               },
+               complete: function(){ $button.prop('disabled', false); }
+            });
+         });
+      }
 	  
 	   const releaseNotes = [
+    {
+      version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-14",
+      changes: [
+        "Menyelaraskan identiti release kepada <b>Version 2.0.2</b> melalui satu source metadata untuk login, dashboard pengguna, dashboard admin, footer dan latest release badge.",
+        "Copyright aplikasi distandardkan kepada <b>2026 © PTMK | Aplikasi Digital</b> pada semua paparan utama.",
+        "UI <b>Version Releases</b> dibina semula menggunakan release cards, metadata release dan changelog yang lebih tersusun serta responsive.",
+        "UI <b>SSO Configuration</b> dikemas kini dengan hierarchy, form controls, status penerangan dan action simpan yang lebih jelas.",
+        "UI <b>Sync Log</b> dikemas kini kepada jadual compact tanpa horizontal scroll, top/left alignment, status badge, pagination dan action ikon.",
+        "UI <b>Audit Log</b> ditambah filter card, result counter, loading/empty/error state, jadual compact satu baris dan tooltip untuk teks penuh.",
+        "UI <b>Active Sessions</b> ditambah kiraan sesi, kolum masa/pengguna/peranti/status, current-session badge dan state pemantauan yang lebih jelas.",
+        "UI <b>User Accounts</b> dikemas kini untuk carian akaun, result card, category metrics serta action Users dan Apps yang lebih tersusun.",
+        "UI <b>Web Apps admin</b> dibina semula dengan application counter, category navigation, application cards, SSO/direct-link badge dan action ikon.",
+        "UI <b>dashboard pengguna</b> dibina semula dengan application directory, category tabs, access badge serta butang Open/Login yang konsisten.",
+        "Struktur tab admin diperbetulkan dengan menutup container Web Apps yang tertinggal dan membuang ID inner wrapper yang berulang.",
+        "Maklumat peranti sesi diperbetulkan: kurungan brand kosong dibuang dan login baharu merekod jenis peranti, browser serta sistem operasi yang boleh dikenal pasti daripada User-Agent.",
+        "Single-user <b>Resync User Info</b> diperkukuh dengan external SELECT-only lookup, provenance protection, preview perubahan, one-time approval, confirmation, transaction, rollback dan correlated audit trail.",
+        "Action modal <b>Force Reset Password, Remove User dan Reactivate User</b> diperkukuh dengan row lock, verified mutation, session/OTP revocation, mandatory correlated audit, transaction rollback dan perlindungan self-lockout."
+      ]
+    },
+    {
+      version: "2.0.1",
+      date: "2026-07-14",
+      changes: [
+        "Memperkenalkan <b>External Sync Preview</b> yang read-only — memaparkan jumlah sumber, cadangan akaun baharu/kemas kini, deactivate/reactivate, perlindungan akaun manual, collision, plan hash dan tempoh sah tanpa mengubah database.",
+        "Menambah lapisan keselamatan sync merangkumi <b>single-run lock, transaction boundary, source completeness, blast-radius policy</b> dan reconciliation sebelum commit.",
+        "Preview dan Apply kini direka dengan <b>server-bound approval</b>, strict feature flags dan perlindungan replay; Apply kekal disabled sehingga semua gate operasi mendapat kelulusan.",
+        "Akaun yang ditambah secara manual mempunyai <b>provenance</b> dan perlindungan supaya external sync tidak menimpa akaun manual secara tidak sengaja.",
+        "Verification sync diperkukuh dengan regression contracts, external SELECT-only evidence, backup penuh dan isolated restore rehearsal.",
+        "Flow admin preview diperbetulkan supaya menggunakan token CSRF baharu selepas login dan session rotation.",
+        "Paparan <b>Version Releases</b> direka semula menggunakan release cards yang lebih kemas, mudah dibaca dan responsive."
+      ]
+    },
+    {
+      version: "2.0.0",
+      date: "2026-07-14",
+      changes: [
+        "<b>Major security hardening</b> untuk authentication dan authorization: server-side admin guard, default-deny action mapping, CSRF protection dan session regeneration.",
+        "Password legacy dimigrasikan secara terkawal kepada hash moden; reset password, OTP, rate limiting, session cookie dan token SSO diperkukuh.",
+        "Secrets database, SMTP dan integrasi dipindahkan daripada source code kepada runtime secret configuration dengan permission yang lebih ketat.",
+        "Upload icon diperketat menggunakan validation MIME/kandungan, allowlist format, nama rawak dan larangan script execution dalam direktori upload.",
+        "Endpoint API, IDMS dan SKP diperkukuh melalui validation, parameterized query, TLS verification, response yang lebih selamat dan kawalan akses integrasi.",
+        "Document root dimigrasikan sepenuhnya ke <b>public/</b>; source aplikasi, konfigurasi, docs, storage, tools dan database dump tidak lagi terdedah melalui web.",
+        "Struktur projek disusun semula kepada boundary <b>app/, bootstrap/, config/, public/, resources/, storage/, tests/ dan tools/</b> dengan compatibility wrapper untuk URL legacy yang masih sah.",
+        "Fail lama, diagnostic endpoint, duplicate implementation dan aset transitional melalui inventori, quarantine dan cleanup terkawal tanpa memutuskan login, API atau SSO consumer.",
+        "Kod application layer mula diekstrak kepada service, adapter, planner dan orchestrator yang boleh diuji tanpa mengubah caller production secara terus.",
+        "Manual Add User diperkukuh dengan validation, transaction, audit, provenance dan perlindungan collision dengan external source.",
+        "Automated characterization, contract tests, smoke tests, rollback runbook dan dokumentasi berfasa ditambah untuk menyokong deployment serta audit yang boleh diulang."
+      ]
+    },
+    {
+      version: "1.0.4",
+      date: "2026-07-13",
+      changes: [
+        "Release penyelenggaraan terakhir untuk siri <b>1.x.x</b> dan baseline sebelum program security hardening serta restructuring bermula.",
+        "Tiada patch baharu akan dikeluarkan untuk siri <b>1.x.x</b>; versi ini dikekalkan sebagai rujukan legacy sahaja.",
+        "Semua pembangunan seterusnya diteruskan melalui major upgrade <b>v2.0.0</b>."
+      ]
+    },
     {
       version: "1.0.3",
       date: "2026-06-17",
@@ -3807,17 +4095,38 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
     }
   ];
 
-  const tbody = document.getElementById("release_notes_tbody");
-  tbody.innerHTML = releaseNotes.map(r => `
-    <tr>
-      <td><b>v${r.version}</b></td>
-      <td>
-        <ul class="mb-0" style="list-style:none;padding-left:0;">
-          ${r.changes.map((item, i) => `<li>${i + 1}. ${item}</li>`).join("")}
-        </ul>
-      </td>
-      <td>${r.date}</td>
-    </tr>
+  const releaseList = document.getElementById("release_notes_list");
+  const currentReleaseBadge = document.getElementById("current_release_badge");
+  const formatReleaseDate = date => {
+    const parsedDate = new Date(`${date}T00:00:00`);
+    return new Intl.DateTimeFormat('ms-MY', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).format(parsedDate);
+  };
+
+  if (releaseNotes.length > 0) {
+    currentReleaseBadge.innerHTML = `
+      <span>Current release</span>
+      <strong>v${releaseNotes[0].version}</strong>
+    `;
+  }
+
+  releaseList.innerHTML = releaseNotes.map((release, releaseIndex) => `
+    <article class="version-release-card${releaseIndex === 0 ? ' is-current' : ''}">
+      <div class="version-release-meta">
+        ${releaseIndex === 0 ? '<span class="version-latest-label">Latest</span>' : ''}
+        <span class="version-number">v${release.version}</span>
+        <time class="version-release-date" datetime="${release.date}">${formatReleaseDate(release.date)}</time>
+      </div>
+      <div class="version-release-content">
+        <h5>${releaseIndex === 0 ? 'Latest updates' : `Release ${release.version}`}</h5>
+        <ol class="version-change-list">
+          ${release.changes.map(item => `<li>${item}</li>`).join("")}
+        </ol>
+      </div>
+    </article>
   `).join("");
       </script>
       <style>
@@ -3826,6 +4135,2749 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          overflow-y: auto;
          }
          .modal { overflow-y: auto !important; }
+
+      #follo_8 .web-app-panel {
+        min-height: 620px;
+        padding: 30px;
+        background: #f7f9fc;
+      }
+
+      #follo_8 .web-app-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        padding-bottom: 22px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid #e3e8ef;
+      }
+
+      #follo_8 .web-app-eyebrow {
+        display: block;
+        margin-bottom: 5px;
+        color: #168fcb;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+      }
+
+      #follo_8 .web-app-title {
+        margin: 0 0 7px;
+        color: #1f2937;
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.25;
+      }
+
+      #follo_8 .web-app-intro {
+        max-width: 620px;
+        margin: 0;
+        color: #687386;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      #follo_8 .web-app-count {
+        flex: 0 0 auto;
+        min-width: 112px;
+        padding: 10px 14px;
+        border: 1px solid #cfe8f6;
+        border-radius: 7px;
+        background: #eef8fd;
+        text-align: right;
+      }
+
+      #follo_8 .web-app-count span,
+      #follo_8 .web-app-count strong {
+        display: block;
+      }
+
+      #follo_8 .web-app-count span {
+        margin-bottom: 2px;
+        color: #627386;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+      }
+
+      #follo_8 .web-app-count strong {
+        color: #087eaf;
+        font-size: 17px;
+        font-weight: 700;
+      }
+
+      #follo_8 .web-app-toolbar,
+      #follo_8 .web-app-category-nav,
+      #follo_8 .web-app-directory,
+      #follo_8 .web-app-state {
+        border: 1px solid #e1e6ed;
+        background: #fff;
+        box-shadow: 0 2px 7px rgba(31, 41, 55, .04);
+      }
+
+      #follo_8 .web-app-toolbar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 18px 20px;
+        border-radius: 8px 8px 0 0;
+      }
+
+      #follo_8 .web-app-toolbar h5 {
+        margin: 0 0 4px;
+        color: #29384b;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      #follo_8 .web-app-toolbar p {
+        margin: 0;
+        color: #7a8696;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      #follo_8 .web-app-actions {
+        display: flex;
+        align-items: center;
+        flex: 0 0 auto;
+        gap: 8px;
+      }
+
+      #follo_8 .web-app-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 36px;
+        padding: 0 13px;
+        border: 1px solid #b9ddeb;
+        border-radius: 6px;
+        background: #fff;
+        color: #168fcb;
+        font-size: 11px;
+        font-weight: 600;
+        gap: 7px;
+      }
+
+      #follo_8 .web-app-action:hover,
+      #follo_8 .web-app-action:focus {
+        background: #eef8fd;
+        color: #087eaf;
+      }
+
+      #follo_8 .web-app-action.is-primary {
+        border-color: #11a8df;
+        background: #11a8df;
+        color: #fff;
+      }
+
+      #follo_8 .web-app-action.is-primary:hover,
+      #follo_8 .web-app-action.is-primary:focus {
+        border-color: #0c91c2;
+        background: #0c91c2;
+      }
+
+      #follo_8 .web-app-action.is-danger {
+        border-color: #e8c7c4;
+        color: #b85b53;
+      }
+
+      #follo_8 .web-app-action.is-danger:hover,
+      #follo_8 .web-app-action.is-danger:focus {
+        background: #fdf3f2;
+        color: #a44b44;
+      }
+
+      #follo_8 .web-app-refresh,
+      #follo_8 .web-app-view {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border: 1px solid #dce4ec;
+        border-radius: 7px;
+        background: #fff;
+        color: #168fcb;
+        transition: background .18s ease, border-color .18s ease;
+      }
+
+      #follo_8 .web-app-refresh:hover,
+      #follo_8 .web-app-refresh:focus,
+      #follo_8 .web-app-view:hover,
+      #follo_8 .web-app-view:focus {
+        border-color: #b9ddeb;
+        background: #eef8fd;
+        color: #087eaf;
+      }
+
+      #follo_8 .web-app-category-nav {
+        padding: 13px 14px;
+        border-top: 0;
+        border-bottom-color: #dfe5ec;
+        box-shadow: none;
+      }
+
+      #follo_8 #WebAppsTabsHeader {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+
+      #follo_8 #WebAppsTabsHeader > li {
+        float: none;
+        margin: 0;
+      }
+
+      #follo_8 #WebAppsTabsHeader > li > a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        padding: 7px 11px;
+        border: 1px solid #e2e7ed;
+        border-radius: 20px;
+        background: #f7f9fb;
+        color: #657286;
+        font-size: 11px;
+        font-weight: 500;
+        gap: 7px;
+        line-height: 1.2;
+      }
+
+      #follo_8 #WebAppsTabsHeader > li > a strong {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 5px;
+        border-radius: 10px;
+        background: #e7edf3;
+        color: #667589;
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      #follo_8 #WebAppsTabsHeader > li.active > a,
+      #follo_8 #WebAppsTabsHeader > li.active > a:hover,
+      #follo_8 #WebAppsTabsHeader > li.active > a:focus {
+        border-color: #11a8df;
+        background: #11a8df;
+        color: #fff;
+      }
+
+      #follo_8 #WebAppsTabsHeader > li.active > a strong {
+        background: rgba(255, 255, 255, .22);
+        color: #fff;
+      }
+
+      #follo_8 .web-app-directory {
+        overflow: hidden;
+        border-top: 0;
+        border-radius: 0 0 8px 8px;
+      }
+
+      #follo_8 .web-app-card-list {
+        padding: 0;
+      }
+
+      #follo_8 .web-app-card {
+        display: grid;
+        grid-template-columns: 26px 52px minmax(0, 1fr) 36px;
+        align-items: start;
+        gap: 13px;
+        padding: 16px 20px;
+        border-bottom: 1px solid #edf0f4;
+        background: #fff;
+      }
+
+      #follo_8 .web-app-card:last-child {
+        border-bottom: 0;
+      }
+
+      #follo_8 .web-app-card:hover {
+        background: #fbfdff;
+      }
+
+      #follo_8 .web-app-card-index {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        margin-top: 15px;
+        border-radius: 50%;
+        background: #eaf6fc;
+        color: #168fcb;
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      #follo_8 .web-app-card-image {
+        width: 52px;
+        height: 52px;
+        overflow: hidden;
+        border: 1px solid #e1e6eb;
+        border-radius: 10px;
+        background: #f4f6f8;
+      }
+
+      #follo_8 .web-app-card-image img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      #follo_8 .web-app-card-content {
+        min-width: 0;
+        padding-top: 1px;
+      }
+
+      #follo_8 .web-app-card-name {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+
+      #follo_8 .web-app-card-name strong {
+        min-width: 0;
+        overflow: hidden;
+        color: #2f3e52;
+        font-size: 13px;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      #follo_8 .web-app-sso-badge {
+        flex: 0 0 auto;
+        padding: 3px 7px;
+        border-radius: 20px;
+        background: #fff3df;
+        color: #a86c15;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: .035em;
+        line-height: 1.35;
+        text-transform: uppercase;
+      }
+
+      #follo_8 .web-app-sso-badge.is-enabled {
+        background: #e7f7ee;
+        color: #22844f;
+      }
+
+      #follo_8 .web-app-card-content p,
+      #follo_8 .web-app-domain {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      #follo_8 .web-app-card-content p {
+        margin: 0 0 4px;
+        color: #758193;
+        font-size: 11px;
+      }
+
+      #follo_8 .web-app-domain {
+        color: #168fcb;
+        font-size: 10px;
+      }
+
+      #follo_8 .web-app-domain i {
+        width: 14px;
+        margin-right: 4px;
+        color: #8ab9cb;
+      }
+
+      #follo_8 .web-app-view {
+        margin-top: 8px;
+      }
+
+      #follo_8 .web-app-state,
+      #follo_8 .web-app-category-empty {
+        padding: 38px 20px;
+        color: #6f7c8c;
+        text-align: center;
+      }
+
+      #follo_8 .web-app-state {
+        border-radius: 0 0 8px 8px;
+        border-top: 0;
+      }
+
+      #follo_8 .web-app-state span,
+      #follo_8 .web-app-state strong,
+      #follo_8 .web-app-state small {
+        display: block;
+      }
+
+      #follo_8 .web-app-state > span {
+        margin-bottom: 9px;
+        color: #27a8d8;
+        font-size: 18px;
+      }
+
+      #follo_8 .web-app-state strong {
+        margin-bottom: 4px;
+        color: #425166;
+        font-size: 13px;
+      }
+
+      #follo_8 .web-app-state small {
+        color: #8994a2;
+        font-size: 11px;
+      }
+
+      #follo_8 .web-app-state.is-error > span {
+        color: #d46b62;
+      }
+
+      #follo_8 .web-app-category-empty {
+        border-bottom: 0;
+        font-size: 11px;
+      }
+
+      #follo_8 .web-app-category-empty i,
+      #follo_8 .web-app-category-empty span {
+        display: block;
+      }
+
+      #follo_8 .web-app-category-empty i {
+        margin-bottom: 8px;
+        color: #91a0b1;
+        font-size: 18px;
+      }
+
+      @media (max-width: 900px) {
+        #follo_8 .web-app-toolbar {
+          display: block;
+        }
+
+        #follo_8 .web-app-actions {
+          flex-wrap: wrap;
+          margin-top: 16px;
+        }
+      }
+
+      @media (max-width: 767px) {
+        #follo_8 .web-app-panel {
+          padding: 20px 15px;
+        }
+
+        #follo_8 .web-app-header {
+          display: block;
+        }
+
+        #follo_8 .web-app-count {
+          width: max-content;
+          margin-top: 16px;
+          text-align: left;
+        }
+
+        #follo_8 .web-app-action span {
+          display: none;
+        }
+
+        #follo_8 .web-app-action {
+          width: 36px;
+          padding: 0;
+        }
+
+        #follo_8 .web-app-card {
+          grid-template-columns: 22px 46px minmax(0, 1fr) 36px;
+          gap: 10px;
+          padding: 14px;
+        }
+
+        #follo_8 .web-app-card-image {
+          width: 46px;
+          height: 46px;
+        }
+
+        #follo_8 .web-app-card-name {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        #follo_8 .web-app-card-index {
+          margin-top: 12px;
+        }
+
+        #follo_8 .web-app-view {
+          margin-top: 5px;
+        }
+      }
+
+      #tab_user .user-account-panel {
+        min-height: 620px;
+        padding: 30px;
+        background: #f7f9fc;
+      }
+
+      #tab_user .user-account-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        padding-bottom: 22px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid #e3e8ef;
+      }
+
+      #tab_user .user-account-eyebrow {
+        display: block;
+        margin-bottom: 5px;
+        color: #168fcb;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+      }
+
+      #tab_user .user-account-title {
+        margin: 0 0 7px;
+        color: #1f2937;
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.25;
+      }
+
+      #tab_user .user-account-intro {
+        max-width: 620px;
+        margin: 0;
+        color: #687386;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      #tab_user .user-category-count {
+        flex: 0 0 auto;
+        min-width: 108px;
+        padding: 10px 14px;
+        border: 1px solid #cfe8f6;
+        border-radius: 7px;
+        background: #eef8fd;
+        text-align: right;
+      }
+
+      #tab_user .user-category-count span,
+      #tab_user .user-category-count strong {
+        display: block;
+      }
+
+      #tab_user .user-category-count span {
+        margin-bottom: 2px;
+        color: #627386;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+      }
+
+      #tab_user .user-category-count strong {
+        color: #087eaf;
+        font-size: 17px;
+        font-weight: 700;
+      }
+
+      #tab_user .user-search-card,
+      #tab_user .user-category-card {
+        border: 1px solid #e1e6ed;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 2px 7px rgba(31, 41, 55, .04);
+      }
+
+      #tab_user .user-search-card {
+        padding: 19px 20px;
+        margin-bottom: 18px;
+      }
+
+      #tab_user .user-search-copy {
+        display: flex;
+        align-items: flex-start;
+        gap: 13px;
+        margin-bottom: 15px;
+      }
+
+      #tab_user .user-search-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 38px;
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        background: #eaf6fc;
+        color: #149dce;
+        font-size: 15px;
+      }
+
+      #tab_user .user-search-copy h5,
+      #tab_user .user-category-header h5 {
+        margin: 0 0 4px;
+        color: #29384b;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      #tab_user .user-search-copy p,
+      #tab_user .user-category-header p {
+        margin: 0;
+        color: #7a8696;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      #tab_user .user-search-controls {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+      }
+
+      #tab_user .user-search-input-wrap {
+        position: relative;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      #tab_user .user-search-input-wrap > i {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        z-index: 4;
+        color: #8995a4;
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+
+      #tab_user .user-search-input-wrap .twitter-typeahead,
+      #tab_user .user-search-input-wrap .typeahead {
+        width: 100%;
+      }
+
+      #tab_user .user-search-input-wrap .tt-dropdown-menu,
+      #tab_user .user-search-input-wrap .tt-menu {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+      }
+
+      #tab_user .user-search-input-wrap .tt-suggestion {
+        width: 100%;
+        box-sizing: border-box;
+        overflow-wrap: anywhere;
+        white-space: normal;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      #tab_user #search_user_input {
+        height: 42px;
+        padding: 9px 14px 9px 39px;
+        border: 1px solid #dce2e9;
+        border-radius: 6px;
+        background: #fff;
+        color: #344256;
+        box-shadow: none;
+      }
+
+      #tab_user #search_user_input:focus {
+        border-color: #58b9e4;
+        box-shadow: 0 0 0 3px rgba(17, 168, 223, .11);
+      }
+
+      #tab_user .user-search-clear,
+      #tab_user .user-category-refresh,
+      #tab_user .user-result-view {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 42px;
+        width: 42px;
+        height: 42px;
+        padding: 0;
+        border: 1px solid #dce4ec;
+        border-radius: 7px;
+        background: #fff;
+        color: #168fcb;
+        transition: background .18s ease, border-color .18s ease;
+      }
+
+      #tab_user .user-search-clear:hover,
+      #tab_user .user-search-clear:focus,
+      #tab_user .user-category-refresh:hover,
+      #tab_user .user-category-refresh:focus,
+      #tab_user .user-result-view:hover,
+      #tab_user .user-result-view:focus {
+        border-color: #b9ddeb;
+        background: #eef8fd;
+        color: #087eaf;
+      }
+
+      #tab_user .Typeahead-spinner {
+        position: absolute;
+        top: 8px;
+        right: 55px;
+        z-index: 5;
+        width: 26px;
+        height: 26px;
+      }
+
+      #tab_user .user-search-state,
+      #tab_user .user-search-result {
+        margin: 15px 0 0;
+        padding: 0;
+        border: 1px solid #e7ebf0;
+        border-radius: 7px;
+        background: #fbfcfd;
+      }
+
+      #tab_user .user-search-state {
+        padding: 25px 18px;
+        text-align: center;
+      }
+
+      #tab_user .user-search-state span,
+      #tab_user .user-search-state strong,
+      #tab_user .user-search-state small {
+        display: block;
+      }
+
+      #tab_user .user-search-state span {
+        margin-bottom: 8px;
+        color: #27a8d8;
+        font-size: 17px;
+      }
+
+      #tab_user .user-search-state strong {
+        margin-bottom: 3px;
+        color: #425166;
+        font-size: 13px;
+      }
+
+      #tab_user .user-search-state small {
+        color: #8994a2;
+        font-size: 11px;
+      }
+
+      #tab_user .user-search-result-heading {
+        padding: 10px 14px;
+        border-bottom: 1px solid #e7ebf0;
+        color: #788597;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+      }
+
+      #tab_user .user-result-card,
+      #tab_user .user-result-empty {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px;
+      }
+
+      #tab_user .user-result-profile,
+      #tab_user .user-result-empty {
+        min-width: 0;
+      }
+
+      #tab_user .user-result-profile {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+      }
+
+      #tab_user .user-result-avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 38px;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #eef4f8;
+        color: #52849b;
+      }
+
+      #tab_user .user-result-profile > div {
+        min-width: 0;
+      }
+
+      #tab_user .user-result-profile strong,
+      #tab_user .user-result-profile small {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      #tab_user .user-result-profile strong {
+        color: #344256;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      #tab_user .user-result-profile small {
+        margin: 2px 0 6px;
+        color: #7a8696;
+        font-size: 11px;
+      }
+
+      #tab_user .user-result-status {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: .035em;
+        line-height: 1.4;
+        text-transform: uppercase;
+      }
+
+      #tab_user .user-result-status.is-registered {
+        background: #e7f7ee;
+        color: #22844f;
+      }
+
+      #tab_user .user-result-status.is-removed,
+      #tab_user .user-result-status.is-unregistered {
+        background: #fceceb;
+        color: #b34d45;
+      }
+
+      #tab_user .user-result-empty {
+        justify-content: flex-start;
+        color: #d46b62;
+      }
+
+      #tab_user .user-result-empty > i {
+        font-size: 18px;
+      }
+
+      #tab_user .user-result-empty strong,
+      #tab_user .user-result-empty small {
+        display: block;
+      }
+
+      #tab_user .user-result-empty strong {
+        color: #4d5b6e;
+        font-size: 12px;
+      }
+
+      #tab_user .user-result-empty small {
+        margin-top: 2px;
+        color: #8994a2;
+        font-size: 11px;
+      }
+
+      #tab_user .user-category-card {
+        overflow: hidden;
+      }
+
+      #tab_user .user-category-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 18px 20px;
+        border-bottom: 1px solid #e8ecf1;
+      }
+
+      #tab_user .user-category-actions {
+        display: flex;
+        align-items: center;
+        flex: 0 0 auto;
+        gap: 8px;
+      }
+
+      #tab_user .user-category-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 36px;
+        padding: 0 13px;
+        border: 1px solid #b9ddeb;
+        border-radius: 6px;
+        background: #fff;
+        color: #168fcb;
+        font-size: 11px;
+        font-weight: 600;
+        gap: 7px;
+      }
+
+      #tab_user .user-category-action:hover,
+      #tab_user .user-category-action:focus {
+        background: #eef8fd;
+        color: #087eaf;
+      }
+
+      #tab_user .user-category-action.is-primary {
+        border-color: #11a8df;
+        background: #11a8df;
+        color: #fff;
+      }
+
+      #tab_user .user-category-action.is-primary:hover,
+      #tab_user .user-category-action.is-primary:focus {
+        border-color: #0c91c2;
+        background: #0c91c2;
+      }
+
+      #tab_user .user-category-refresh {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+      }
+
+      #tab_user .user-category-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 180px 150px;
+        align-items: center;
+        gap: 20px;
+        padding: 14px 20px;
+        border-bottom: 1px solid #edf0f4;
+      }
+
+      #tab_user .user-category-row:last-child {
+        border-bottom: 0;
+      }
+
+      #tab_user .user-category-row:hover {
+        background: #fbfdff;
+      }
+
+      #tab_user .user-category-identity {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+        gap: 11px;
+      }
+
+      #tab_user .user-category-avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: #eef6fb;
+        color: #258fba;
+      }
+
+      #tab_user .user-category-identity > div {
+        min-width: 0;
+      }
+
+      #tab_user .user-category-identity strong,
+      #tab_user .user-category-identity small {
+        display: block;
+      }
+
+      #tab_user .user-category-identity strong {
+        overflow: hidden;
+        color: #344256;
+        font-size: 13px;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      #tab_user .user-category-identity small {
+        margin-top: 2px;
+        color: #8994a2;
+        font-size: 10px;
+      }
+
+      #tab_user .user-category-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      #tab_user .user-category-metrics > span {
+        padding: 6px 9px;
+        border-radius: 6px;
+        background: #f5f7fa;
+        text-align: left;
+      }
+
+      #tab_user .user-category-metrics strong,
+      #tab_user .user-category-metrics small {
+        display: block;
+      }
+
+      #tab_user .user-category-metrics strong {
+        color: #344256;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      #tab_user .user-category-metrics small {
+        color: #8994a2;
+        font-size: 9px;
+        text-transform: uppercase;
+      }
+
+      #tab_user .user-category-row-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 7px;
+      }
+
+      #tab_user .user-category-row-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 32px;
+        padding: 0 10px;
+        border: 1px solid #d5e6ee;
+        border-radius: 6px;
+        background: #fff;
+        color: #248bb5;
+        font-size: 10px;
+        font-weight: 600;
+        gap: 6px;
+      }
+
+      #tab_user .user-category-row-button:hover,
+      #tab_user .user-category-row-button:focus {
+        border-color: #aad6e8;
+        background: #eef8fd;
+      }
+
+      #tab_user .user-category-state {
+        padding: 34px 20px;
+        color: #6f7c8c;
+        text-align: center;
+      }
+
+      #tab_user .user-category-state span,
+      #tab_user .user-category-state strong,
+      #tab_user .user-category-state small {
+        display: block;
+      }
+
+      #tab_user .user-category-state span {
+        margin-bottom: 9px;
+        color: #27a8d8;
+        font-size: 18px;
+      }
+
+      #tab_user .user-category-state strong {
+        margin-bottom: 4px;
+        color: #425166;
+        font-size: 13px;
+      }
+
+      #tab_user .user-category-state small {
+        color: #8994a2;
+        font-size: 11px;
+      }
+
+      #tab_user .user-category-state.is-error span {
+        color: #d46b62;
+      }
+
+      @media (max-width: 900px) {
+        #tab_user .user-category-row {
+          grid-template-columns: minmax(0, 1fr) 150px;
+        }
+
+        #tab_user .user-category-row-actions {
+          grid-column: 1 / -1;
+          justify-content: flex-start;
+          padding-left: 47px;
+        }
+      }
+
+      @media (max-width: 767px) {
+        #tab_user .user-account-panel {
+          padding: 20px 15px;
+        }
+
+        #tab_user .user-account-header,
+        #tab_user .user-category-header {
+          display: block;
+        }
+
+        #tab_user .user-category-count {
+          width: max-content;
+          margin-top: 16px;
+          text-align: left;
+        }
+
+        #tab_user .user-category-actions {
+          flex-wrap: wrap;
+          margin-top: 16px;
+        }
+
+        #tab_user .user-category-row {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+
+        #tab_user .user-category-row-actions {
+          grid-column: auto;
+          padding-left: 0;
+        }
+
+        #tab_user .user-category-metrics {
+          max-width: 180px;
+        }
+      }
+
+      #tab_active_sessions .active-session-panel {
+        min-height: 560px;
+        padding: 30px;
+        background: #f7f9fc;
+      }
+
+      #tab_active_sessions .active-session-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        padding-bottom: 22px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid #e3e8ef;
+      }
+
+      #tab_active_sessions .active-session-eyebrow {
+        display: block;
+        margin-bottom: 5px;
+        color: #168fcb;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+      }
+
+      #tab_active_sessions .active-session-title {
+        margin: 0 0 7px;
+        color: #1f2937;
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.25;
+      }
+
+      #tab_active_sessions .active-session-intro {
+        max-width: 620px;
+        margin: 0;
+        color: #687386;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      #tab_active_sessions .active-session-actions {
+        display: flex;
+        align-items: stretch;
+        flex: 0 0 auto;
+        gap: 9px;
+      }
+
+      #tab_active_sessions .active-session-count {
+        min-width: 96px;
+        padding: 10px 14px;
+        border: 1px solid #cfe8f6;
+        border-radius: 7px;
+        background: #eef8fd;
+        text-align: right;
+      }
+
+      #tab_active_sessions .active-session-count span,
+      #tab_active_sessions .active-session-count strong {
+        display: block;
+      }
+
+      #tab_active_sessions .active-session-count span {
+        margin-bottom: 2px;
+        color: #627386;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+      }
+
+      #tab_active_sessions .active-session-count strong {
+        color: #087eaf;
+        font-size: 17px;
+        font-weight: 700;
+      }
+
+      #tab_active_sessions .active-session-refresh {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        border: 1px solid #dce4ec;
+        border-radius: 7px;
+        background: #fff;
+        color: #168fcb;
+        font-size: 14px;
+        transition: background .18s ease, border-color .18s ease;
+      }
+
+      #tab_active_sessions .active-session-refresh:hover,
+      #tab_active_sessions .active-session-refresh:focus {
+        border-color: #b9ddeb;
+        background: #eef8fd;
+        color: #087eaf;
+      }
+
+      #tab_active_sessions .active-session-card {
+        overflow: hidden;
+        border: 1px solid #e1e6ed;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 2px 7px rgba(31, 41, 55, .04);
+      }
+
+      #tab_active_sessions .active-session-card-heading {
+        padding: 18px 20px 15px;
+        border-bottom: 1px solid #e8ecf1;
+      }
+
+      #tab_active_sessions .active-session-card-heading h5 {
+        margin: 0 0 4px;
+        color: #29384b;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      #tab_active_sessions .active-session-card-heading p {
+        margin: 0;
+        color: #7a8696;
+        font-size: 12px;
+      }
+
+      #tab_active_sessions .active-session-table-wrap {
+        width: 100%;
+        overflow: visible;
+      }
+
+      #tab_active_sessions .active-session-table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+      }
+
+      #tab_active_sessions .active-col-time { width: 22%; }
+      #tab_active_sessions .active-col-user { width: 28%; }
+      #tab_active_sessions .active-col-device { width: 34%; }
+      #tab_active_sessions .active-col-status { width: 16%; }
+
+      #tab_active_sessions .active-session-table thead th {
+        padding: 13px 15px;
+        border: 0;
+        border-bottom: 1px solid #e8ecf1;
+        background: #f8fafc;
+        color: #657286;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .055em;
+        line-height: 1.4;
+        text-align: left;
+        text-transform: uppercase;
+        vertical-align: top;
+      }
+
+      #tab_active_sessions .active-session-table tbody td {
+        padding: 16px 15px;
+        overflow: hidden;
+        border: 0;
+        border-bottom: 1px solid #edf0f4;
+        color: #596678;
+        font-size: 12px;
+        line-height: 1.5;
+        text-align: left;
+        vertical-align: top;
+        white-space: nowrap;
+      }
+
+      #tab_active_sessions .active-session-table tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      #tab_active_sessions .active-session-table tbody tr:not(.active-session-state-row):hover td {
+        background: #fbfdff;
+      }
+
+      #tab_active_sessions .active-session-cell {
+        display: block;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      #tab_active_sessions .active-session-cell i {
+        width: 16px;
+        margin-right: 5px;
+        color: #8b98a8;
+        text-align: center;
+      }
+
+      #tab_active_sessions .active-session-time,
+      #tab_active_sessions .active-session-user {
+        color: #405066;
+        font-weight: 500;
+      }
+
+      #tab_active_sessions .active-session-status {
+        display: inline-flex;
+        align-items: center;
+        max-width: 100%;
+        padding: 4px 9px;
+        overflow: hidden;
+        border-radius: 20px;
+        background: #eef2f6;
+        color: #657286;
+        font-size: 10px;
+        font-weight: 700;
+        gap: 5px;
+        line-height: 1.3;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      #tab_active_sessions .active-session-status.is-current {
+        background: #e7f7ee;
+        color: #22844f;
+      }
+
+      #tab_active_sessions .active-session-status .fa-circle {
+        font-size: 6px;
+      }
+
+      #tab_active_sessions .active-session-state-row td {
+        padding: 34px 20px !important;
+        background: #fff !important;
+        color: #6f7c8c;
+        text-align: center !important;
+      }
+
+      #tab_active_sessions .active-session-state-icon,
+      #tab_active_sessions .active-session-state-row strong,
+      #tab_active_sessions .active-session-state-row small {
+        display: block;
+      }
+
+      #tab_active_sessions .active-session-state-icon {
+        margin-bottom: 9px;
+        color: #27a8d8;
+        font-size: 18px;
+      }
+
+      #tab_active_sessions .active-session-state-row strong {
+        margin-bottom: 4px;
+        color: #425166;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      #tab_active_sessions .active-session-state-row small {
+        color: #8994a2;
+        font-size: 11px;
+      }
+
+      #tab_active_sessions .active-session-state-row.is-error .active-session-state-icon {
+        color: #d46b62;
+      }
+
+      @media (max-width: 767px) {
+        #tab_active_sessions .active-session-panel {
+          padding: 20px 15px;
+        }
+
+        #tab_active_sessions .active-session-header {
+          display: block;
+        }
+
+        #tab_active_sessions .active-session-actions {
+          width: max-content;
+          margin-top: 16px;
+        }
+
+        #tab_active_sessions .active-session-count {
+          text-align: left;
+        }
+
+        #tab_active_sessions .active-session-card-heading p {
+          line-height: 1.5;
+        }
+
+        #tab_active_sessions .active-session-table,
+        #tab_active_sessions .active-session-table tbody,
+        #tab_active_sessions .active-session-table tr,
+        #tab_active_sessions .active-session-table td {
+          display: block;
+          width: 100%;
+        }
+
+        #tab_active_sessions .active-session-table colgroup,
+        #tab_active_sessions .active-session-table thead {
+          display: none;
+        }
+
+        #tab_active_sessions .active-session-table tbody tr:not(.active-session-state-row) {
+          padding: 10px 15px;
+          border-bottom: 1px solid #e8ecf1;
+        }
+
+        #tab_active_sessions .active-session-table tbody tr:not(.active-session-state-row) td {
+          display: grid;
+          grid-template-columns: 112px minmax(0, 1fr);
+          gap: 12px;
+          padding: 8px 0;
+          border: 0;
+        }
+
+        #tab_active_sessions .active-session-table tbody tr:not(.active-session-state-row) td::before {
+          content: attr(data-label);
+          color: #7b8797;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: .05em;
+          text-transform: uppercase;
+        }
+      }
+
+      #tab_auditlog .audit-log-panel {
+        min-height: 560px;
+        padding: 30px;
+        background: #f7f9fc;
+      }
+
+      #tab_auditlog .audit-log-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        padding-bottom: 22px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid #e3e8ef;
+      }
+
+      #tab_auditlog .audit-log-eyebrow {
+        display: block;
+        margin-bottom: 5px;
+        color: #168fcb;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+      }
+
+      #tab_auditlog .audit-log-title {
+        margin: 0 0 7px;
+        color: #1f2937;
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.25;
+      }
+
+      #tab_auditlog .audit-log-intro {
+        max-width: 620px;
+        margin: 0;
+        color: #687386;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      #tab_auditlog .audit-result-count {
+        flex: 0 0 auto;
+        min-width: 104px;
+        padding: 10px 14px;
+        border: 1px solid #cfe8f6;
+        border-radius: 7px;
+        background: #eef8fd;
+        text-align: right;
+      }
+
+      #tab_auditlog .audit-result-count span,
+      #tab_auditlog .audit-result-count strong {
+        display: block;
+      }
+
+      #tab_auditlog .audit-result-count span {
+        margin-bottom: 2px;
+        color: #627386;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+      }
+
+      #tab_auditlog .audit-result-count strong {
+        color: #087eaf;
+        font-size: 17px;
+        font-weight: 700;
+      }
+
+      #tab_auditlog .audit-filter-card,
+      #tab_auditlog .audit-results-card {
+        border: 1px solid #e1e6ed;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 2px 7px rgba(31, 41, 55, .04);
+      }
+
+      #tab_auditlog .audit-filter-card {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 18px 20px;
+        margin-bottom: 18px;
+      }
+
+      #tab_auditlog .audit-filter-copy {
+        display: flex;
+        align-items: flex-start;
+        min-width: 220px;
+        gap: 13px;
+      }
+
+      #tab_auditlog .audit-filter-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 38px;
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        background: #eaf6fc;
+        color: #149dce;
+        font-size: 15px;
+      }
+
+      #tab_auditlog .audit-filter-copy label {
+        display: block;
+        margin: 0 0 3px;
+        color: #29384b;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      #tab_auditlog .audit-filter-copy p {
+        margin: 0;
+        color: #7a8696;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      #tab_auditlog .audit-filter-form {
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-end;
+        flex: 1 1 auto;
+        gap: 10px;
+        margin: 0;
+      }
+
+      #tab_auditlog .audit-date-input-wrap {
+        position: relative;
+        flex: 0 1 300px;
+        min-width: 240px;
+      }
+
+      #tab_auditlog .audit-date-input-wrap > i {
+        position: absolute;
+        top: 50%;
+        left: 13px;
+        z-index: 2;
+        color: #7d8998;
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+
+      #tab_auditlog #audit_search_daterange {
+        width: 100%;
+        height: 40px;
+        padding: 8px 12px 8px 37px;
+        border: 1px solid #dce2e9;
+        border-radius: 6px;
+        background: #fff;
+        color: #344256;
+        box-shadow: none;
+      }
+
+      #tab_auditlog #audit_search_daterange:focus {
+        border-color: #58b9e4;
+        box-shadow: 0 0 0 3px rgba(17, 168, 223, .11);
+      }
+
+      #tab_auditlog .audit-search-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 40px;
+        flex: 0 0 40px;
+        width: 40px;
+        padding: 0;
+        border: 1px solid #11a8df;
+        border-radius: 6px;
+        background: #11a8df;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        transition: background .18s ease, border-color .18s ease;
+      }
+
+      #tab_auditlog .audit-search-button:hover,
+      #tab_auditlog .audit-search-button:focus {
+        border-color: #0c91c2;
+        background: #0c91c2;
+        color: #fff;
+      }
+
+      #tab_auditlog .audit-results-card {
+        overflow: hidden;
+      }
+
+      #tab_auditlog .audit-results-heading {
+        padding: 18px 20px 15px;
+        border-bottom: 1px solid #e8ecf1;
+      }
+
+      #tab_auditlog .audit-results-heading h5 {
+        margin: 0 0 4px;
+        color: #29384b;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      #tab_auditlog .audit-results-heading p {
+        margin: 0;
+        color: #7a8696;
+        font-size: 12px;
+      }
+
+      #tab_auditlog .audit-table-wrap {
+        width: 100%;
+        overflow: visible;
+      }
+
+      #tab_auditlog .audit-log-table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+      }
+
+      #tab_auditlog .audit-col-datetime { width: 20%; }
+      #tab_auditlog .audit-col-type { width: 18%; }
+      #tab_auditlog .audit-col-details { width: 44%; }
+      #tab_auditlog .audit-col-ip { width: 18%; }
+
+      #tab_auditlog .audit-log-table thead th {
+        padding: 13px 15px;
+        border: 0;
+        border-bottom: 1px solid #e8ecf1;
+        background: #f8fafc;
+        color: #657286;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .055em;
+        line-height: 1.4;
+        text-align: left;
+        text-transform: uppercase;
+        vertical-align: top;
+      }
+
+      #tab_auditlog .audit-log-table tbody td {
+        padding: 16px 15px;
+        border: 0;
+        border-bottom: 1px solid #edf0f4;
+        color: #596678;
+        font-size: 12px;
+        line-height: 1.5;
+        text-align: left;
+        vertical-align: top;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      #tab_auditlog .audit-log-table tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      #tab_auditlog .audit-log-table tbody tr:not(.audit-state-row):hover td {
+        background: #fbfdff;
+      }
+
+      #tab_auditlog .audit-log-time {
+        color: #405066;
+        font-weight: 500;
+      }
+
+      #tab_auditlog .audit-cell-text {
+        display: block;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      #tab_auditlog .audit-type-badge {
+        width: fit-content;
+        max-width: 100%;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: #edf6fb;
+        color: #197fa8;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .025em;
+        line-height: 1.35;
+        text-transform: uppercase;
+      }
+
+      #tab_auditlog .audit-log-details {
+        display: block;
+        color: #536174;
+      }
+
+      #tab_auditlog .audit-ip-address {
+        padding: 0;
+        background: transparent;
+        color: #3f5066;
+        font-family: Consolas, Monaco, monospace;
+        font-size: 11px;
+      }
+
+      #tab_auditlog .audit-state-row td {
+        padding: 34px 20px !important;
+        background: #fff !important;
+        color: #6f7c8c;
+        text-align: center !important;
+      }
+
+      #tab_auditlog .audit-state-icon,
+      #tab_auditlog .audit-state-row strong,
+      #tab_auditlog .audit-state-row small {
+        display: block;
+      }
+
+      #tab_auditlog .audit-state-icon {
+        margin-bottom: 9px;
+        color: #27a8d8;
+        font-size: 18px;
+      }
+
+      #tab_auditlog .audit-state-row strong {
+        margin-bottom: 4px;
+        color: #425166;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      #tab_auditlog .audit-state-row small {
+        color: #8994a2;
+        font-size: 11px;
+      }
+
+      #tab_auditlog .audit-state-row.is-error .audit-state-icon {
+        color: #d46b62;
+      }
+
+      @media (max-width: 767px) {
+        #tab_auditlog .audit-log-panel {
+          padding: 20px 15px;
+        }
+
+        #tab_auditlog .audit-log-header,
+        #tab_auditlog .audit-filter-card {
+          display: block;
+        }
+
+        #tab_auditlog .audit-result-count {
+          width: max-content;
+          margin-top: 16px;
+          text-align: left;
+        }
+
+        #tab_auditlog .audit-filter-form {
+          display: block;
+          margin-top: 16px;
+        }
+
+        #tab_auditlog .audit-date-input-wrap {
+          width: 100%;
+          min-width: 0;
+          margin-bottom: 10px;
+        }
+
+        #tab_auditlog .audit-search-button {
+          width: 40px;
+        }
+
+        #tab_auditlog .audit-results-heading p {
+          line-height: 1.5;
+        }
+
+        #tab_auditlog .audit-log-table,
+        #tab_auditlog .audit-log-table tbody,
+        #tab_auditlog .audit-log-table tr,
+        #tab_auditlog .audit-log-table td {
+          display: block;
+          width: 100%;
+        }
+
+        #tab_auditlog .audit-log-table colgroup,
+        #tab_auditlog .audit-log-table thead {
+          display: none;
+        }
+
+        #tab_auditlog .audit-log-table tbody tr:not(.audit-state-row) {
+          padding: 10px 15px;
+          border-bottom: 1px solid #e8ecf1;
+        }
+
+        #tab_auditlog .audit-log-table tbody tr:not(.audit-state-row) td {
+          display: grid;
+          grid-template-columns: 112px minmax(0, 1fr);
+          gap: 12px;
+          padding: 8px 0;
+          border: 0;
+          white-space: nowrap;
+        }
+
+        #tab_auditlog .audit-log-table tbody tr:not(.audit-state-row) td::before {
+          content: attr(data-label);
+          color: #7b8797;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: .05em;
+          text-transform: uppercase;
+        }
+      }
+
+      #tab_synclog .sync-log-panel {
+        background: #f7f9fc;
+        padding: 30px;
+        min-height: 560px;
+      }
+
+      #tab_synclog .sync-log-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        padding-bottom: 22px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid #e3e8ef;
+      }
+
+      #tab_synclog .sync-log-eyebrow {
+        display: block;
+        margin-bottom: 5px;
+        color: #168fcb;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+      }
+
+      #tab_synclog .sync-log-title {
+        margin: 0 0 8px;
+        color: #1f2937;
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.25;
+      }
+
+      #tab_synclog .sync-log-intro {
+        max-width: 640px;
+        margin: 0;
+        color: #687386;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      #tab_synclog .sync-log-refresh,
+      #tab_synclog .sync-log-back {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+        transition: background .18s ease, border-color .18s ease, color .18s ease;
+      }
+
+      #tab_synclog .sync-log-refresh {
+        flex: 0 0 auto;
+        min-height: 40px;
+        padding: 9px 17px;
+        border: 1px solid #d5dde7;
+        background: #fff;
+        color: #415066;
+      }
+
+      #tab_synclog .sync-log-refresh:hover,
+      #tab_synclog .sync-log-refresh:focus {
+        border-color: #54b9df;
+        background: #eef8fd;
+        color: #087eaf;
+        outline: none;
+      }
+
+      #tab_synclog .sync-log-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      #tab_synclog .sync-summary-item {
+        padding: 15px 18px;
+        border: 1px solid #e1e6ed;
+        border-radius: 7px;
+        background: #fff;
+        box-shadow: 0 2px 7px rgba(31, 41, 55, .03);
+      }
+
+      #tab_synclog .sync-summary-item span,
+      #tab_synclog .sync-summary-item strong {
+        display: block;
+      }
+
+      #tab_synclog .sync-summary-item span {
+        margin-bottom: 5px;
+        color: #7a8797;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+      }
+
+      #tab_synclog .sync-summary-item strong {
+        color: #263447;
+        font-size: 21px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      #tab_synclog .sync-summary-item:first-child {
+        border-top: 3px solid #11a8df;
+      }
+
+      #tab_synclog .sync-summary-item:nth-child(2) {
+        border-top: 3px solid #34a853;
+      }
+
+      #tab_synclog .sync-summary-item:nth-child(3) {
+        border-top: 3px solid #f2a93b;
+      }
+
+      #tab_synclog .sync-log-table-card {
+        overflow: hidden;
+        border: 1px solid #e1e6ed;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 2px 7px rgba(31, 41, 55, .04);
+      }
+
+      #tab_synclog .sync-table-wrap {
+        width: 100%;
+        overflow: visible;
+      }
+
+      #tab_synclog .sync-log-table {
+        width: 100%;
+        table-layout: fixed;
+      }
+
+      #tab_synclog .sync-log-table thead th {
+        padding: 14px 13px;
+        border-bottom: 1px solid #dde3ea;
+        background: #f8fafc;
+        color: #667386;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .045em;
+        line-height: 1.35;
+        text-transform: uppercase;
+        text-align: left !important;
+        vertical-align: top;
+        white-space: normal;
+      }
+
+      #tab_synclog .sync-log-table tbody td {
+        padding: 16px 13px;
+        border-top: 1px solid #edf0f4;
+        color: #5f6c7c;
+        font-size: 12px;
+        line-height: 1.45;
+        text-align: left !important;
+        vertical-align: top;
+        overflow-wrap: anywhere;
+      }
+
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(1) { width: 9%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(2) { width: 20%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(3) { width: 16%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(4) { width: 34%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(5) { width: 14%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(6) { width: 7%; }
+
+      #tab_synclog .sync-log-table tbody tr:first-child td {
+        border-top: 0;
+      }
+
+      #tab_synclog .sync-log-table tbody tr:hover td {
+        background: #fbfdfe;
+      }
+
+      #tab_synclog .sync-session-id {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 42px;
+        padding: 5px 9px;
+        border-radius: 5px;
+        background: #eef8fd;
+        color: #087eaf;
+        font-weight: 700;
+      }
+
+      #tab_synclog .sync-session-time,
+      #tab_synclog .sync-session-trigger {
+        display: block;
+        color: #4f5e70;
+      }
+
+      #tab_synclog .sync-session-time {
+        min-width: 155px;
+      }
+
+      #tab_synclog .sync-metric-value {
+        display: inline-block;
+        min-width: 24px;
+        color: #3e4b5d;
+        font-weight: 600;
+        text-align: center;
+      }
+
+      #tab_synclog .sync-change-metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      #tab_synclog .sync-change-metrics > span {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 5px;
+        min-width: 0;
+        padding: 6px 7px;
+        border-radius: 5px;
+        background: #f5f7f9;
+      }
+
+      #tab_synclog .sync-change-metrics small {
+        overflow: hidden;
+        color: #7b8796;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: .025em;
+        line-height: 1.25;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      #tab_synclog .sync-change-metrics strong {
+        flex: 0 0 auto;
+        color: #354357;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      #tab_synclog .sync-status-badge,
+      #tab_synclog .sync-action-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 78px;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+
+      #tab_synclog .sync-status-progress,
+      #tab_synclog .sync-action-update {
+        background: #fff5df;
+        color: #9a6710;
+      }
+
+      #tab_synclog .sync-status-temp,
+      #tab_synclog .sync-action-reactivate {
+        background: #eaf7fc;
+        color: #087eaf;
+      }
+
+      #tab_synclog .sync-status-complete,
+      #tab_synclog .sync-action-new {
+        background: #eaf7ee;
+        color: #247a3d;
+      }
+
+      #tab_synclog .sync-status-empty,
+      #tab_synclog .sync-status-unchanged,
+      #tab_synclog .sync-status-unknown {
+        background: #eef1f4;
+        color: #687486;
+      }
+
+      #tab_synclog .sync-action-deactivate {
+        background: #fceced;
+        color: #ad3540;
+      }
+
+      #tab_synclog .sync-view-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        border: 1px solid #b8dff0;
+        border-radius: 5px;
+        background: #fff;
+        color: #087eaf;
+        font-size: 13px;
+      }
+
+      #tab_synclog .sync-view-button:hover,
+      #tab_synclog .sync-view-button:focus {
+        border-color: #159bce;
+        background: #eef8fd;
+        color: #087eaf;
+        outline: none;
+      }
+
+      #tab_synclog .sync-empty-row td {
+        padding: 36px 20px !important;
+        color: #8a95a3 !important;
+        text-align: center;
+      }
+
+      #tab_synclog .sync-empty-row i {
+        margin-right: 6px;
+        color: #159bce;
+      }
+
+      #tab_synclog .sync-log-pagination {
+        min-height: 16px;
+        padding: 12px 16px;
+        border-top: 1px solid #edf0f4;
+        background: #fbfcfd;
+      }
+
+      #tab_synclog .sync-log-pagination:empty {
+        display: none;
+      }
+
+      #tab_synclog .sync-log-pagination .pagination {
+        margin: 0;
+      }
+
+      #tab_synclog .sync-detail-header {
+        display: block;
+      }
+
+      #tab_synclog .sync-log-back {
+        margin-bottom: 20px;
+        padding: 7px 11px;
+        border: 1px solid #d7dee7;
+        background: #fff;
+        color: #556477;
+      }
+
+      #tab_synclog .sync-log-back:hover,
+      #tab_synclog .sync-log-back:focus {
+        border-color: #b8dff0;
+        background: #eef8fd;
+        color: #087eaf;
+        outline: none;
+      }
+
+      #tab_synclog .sync-detail-table th:nth-child(1) { width: 5%; }
+      #tab_synclog .sync-detail-table th:nth-child(2) { width: 14%; }
+      #tab_synclog .sync-detail-table th:nth-child(3) { width: 13%; }
+      #tab_synclog .sync-detail-table th:nth-child(4) { width: 49%; }
+      #tab_synclog .sync-detail-table th:nth-child(5) { width: 19%; }
+
+      #tab_synclog .sync-row-number,
+      #tab_synclog .sync-detail-user {
+        color: #3f4d60;
+        font-weight: 600;
+      }
+
+      #tab_synclog .sync-detail-data {
+        display: grid;
+        gap: 8px;
+      }
+
+      #tab_synclog .sync-detail-data > div {
+        min-width: 0;
+        padding: 8px 9px;
+        border-left: 2px solid #d8e7ef;
+        background: #f8fafc;
+      }
+
+      #tab_synclog .sync-detail-data span {
+        display: block;
+        margin-bottom: 3px;
+        color: #7a8797;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+      }
+
+      #tab_synclog .sync-detail-data p {
+        margin: 0;
+        color: #536174;
+        font-size: 10px;
+        line-height: 1.45;
+        overflow-wrap: anywhere;
+      }
+
+      @media (max-width: 767px) {
+        #tab_synclog .sync-log-panel {
+          padding: 20px 15px;
+        }
+
+        #tab_synclog .sync-log-header {
+          display: block;
+        }
+
+        #tab_synclog .sync-log-refresh {
+          width: 100%;
+          margin-top: 16px;
+        }
+
+        #tab_synclog .sync-log-summary {
+          grid-template-columns: 1fr;
+        }
+
+        #tab_synclog .sync-summary-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        #tab_synclog .sync-summary-item span {
+          margin-bottom: 0;
+        }
+
+        #tab_synclog .sync-log-table,
+        #tab_synclog .sync-log-table tbody,
+        #tab_synclog .sync-log-table tr,
+        #tab_synclog .sync-log-table td {
+          display: block;
+          width: 100%;
+        }
+
+        #tab_synclog .sync-log-table thead {
+          display: none;
+        }
+
+        #tab_synclog .sync-log-table tbody {
+          padding: 10px;
+          background: #f7f9fc;
+        }
+
+        #tab_synclog .sync-log-table tbody tr {
+          margin-bottom: 10px;
+          overflow: hidden;
+          border: 1px solid #e1e6ed;
+          border-radius: 7px;
+          background: #fff;
+        }
+
+        #tab_synclog .sync-log-table tbody tr:last-child {
+          margin-bottom: 0;
+        }
+
+        #tab_synclog .sync-log-table tbody td {
+          position: relative;
+          min-height: 42px;
+          padding: 11px 12px 11px 112px;
+          border-top: 1px solid #edf0f4;
+        }
+
+        #tab_synclog .sync-log-table tbody td::before {
+          content: attr(data-label);
+          position: absolute;
+          top: 12px;
+          left: 12px;
+          width: 88px;
+          color: #7a8797;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: .04em;
+          line-height: 1.35;
+          text-transform: uppercase;
+        }
+
+        #tab_synclog .sync-log-table .sync-empty-row td {
+          padding: 28px 16px !important;
+        }
+
+        #tab_synclog .sync-log-table .sync-empty-row td::before {
+          display: none;
+        }
+
+        #tab_synclog .sync-change-metrics {
+          max-width: 280px;
+        }
+      }
+
+      #tab_settings .sso-config-panel {
+        background: #f7f9fc;
+        padding: 30px;
+        min-height: 560px;
+      }
+
+      #tab_settings .sso-config-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        padding-bottom: 22px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #e3e8ef;
+      }
+
+      #tab_settings .sso-config-eyebrow {
+        display: block;
+        margin-bottom: 5px;
+        color: #168fcb;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+      }
+
+      #tab_settings .sso-config-title {
+        margin: 0 0 8px;
+        color: #1f2937;
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.25;
+      }
+
+      #tab_settings .sso-config-intro {
+        max-width: 610px;
+        margin: 0;
+        color: #687386;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      #tab_settings .sso-config-save {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex: 0 0 auto;
+        min-height: 40px;
+        padding: 9px 18px;
+        border: 1px solid #0d95ca;
+        border-radius: 6px;
+        background: #11a8df;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+        transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
+      }
+
+      #tab_settings .sso-config-save:hover,
+      #tab_settings .sso-config-save:focus {
+        border-color: #087eaf;
+        background: #087eaf;
+        color: #fff;
+        box-shadow: 0 3px 9px rgba(8, 126, 175, .18);
+        outline: none;
+      }
+
+      #tab_settings .sso-config-body {
+        overflow: hidden;
+        border: 1px solid #e1e6ed;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 2px 7px rgba(31, 41, 55, .04);
+      }
+
+      #tab_settings .sso-config-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 260px;
+        align-items: center;
+        gap: 30px;
+        min-height: 112px;
+        padding: 22px 26px;
+        border-bottom: 1px solid #edf0f4;
+      }
+
+      #tab_settings .sso-config-copy {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      #tab_settings .sso-config-index {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 34px;
+        width: 34px;
+        height: 34px;
+        border-radius: 7px;
+        background: #eef8fd;
+        color: #138dbd;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      #tab_settings .sso-config-copy label {
+        display: block;
+        margin: 1px 0 5px;
+        color: #273548;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.35;
+      }
+
+      #tab_settings .sso-config-copy p {
+        max-width: 540px;
+        margin: 0;
+        color: #788495;
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      #tab_settings .sso-config-control {
+        justify-self: stretch;
+      }
+
+      #tab_settings .sso-config-select-wrap {
+        position: relative;
+      }
+
+      #tab_settings .sso-config-select-wrap .form-control {
+        height: 42px;
+        border-color: #dce2e9;
+        border-radius: 6px;
+        background-color: #fbfcfd;
+        color: #364356;
+        font-size: 13px;
+        box-shadow: none;
+      }
+
+      #tab_settings .sso-config-select-wrap .form-control:focus {
+        border-color: #54b9df;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(17, 168, 223, .08);
+      }
+
+      #tab_settings .sso-config-switch {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 11px;
+        color: #748092;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      #tab_settings .sso-config-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 15px 26px;
+        background: #fbfcfd;
+        color: #657386;
+      }
+
+      #tab_settings .sso-config-note i {
+        margin-top: 2px;
+        color: #159bce;
+      }
+
+      #tab_settings .sso-config-note p {
+        margin: 0;
+        font-size: 11px;
+        line-height: 1.55;
+      }
+
+      @media (max-width: 767px) {
+        #tab_settings .sso-config-panel {
+          padding: 20px 15px;
+        }
+
+        #tab_settings .sso-config-header {
+          display: block;
+        }
+
+        #tab_settings .sso-config-save {
+          width: 100%;
+          margin-top: 16px;
+        }
+
+        #tab_settings .sso-config-row {
+          grid-template-columns: 1fr;
+          gap: 18px;
+          padding: 20px;
+        }
+
+        #tab_settings .sso-config-control {
+          justify-self: stretch;
+        }
+
+        #tab_settings .sso-config-switch {
+          justify-content: flex-start;
+          padding-left: 50px;
+        }
+
+        #tab_settings .sso-config-note {
+          padding: 15px 20px;
+        }
+      }
+
+      #tab_versioning .version-release-panel {
+        background: #f7f9fc;
+        padding: 30px;
+        min-height: 560px;
+      }
+
+      #tab_versioning .version-release-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        padding-bottom: 22px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #e3e8ef;
+      }
+
+      #tab_versioning .version-release-eyebrow {
+        display: block;
+        margin-bottom: 5px;
+        color: #168fcb;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+      }
+
+      #tab_versioning .version-release-title {
+        margin: 0 0 8px;
+        color: #1f2937;
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.25;
+      }
+
+      #tab_versioning .version-release-intro {
+        max-width: 620px;
+        margin: 0;
+        color: #687386;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      #tab_versioning .version-current-release {
+        flex: 0 0 auto;
+        min-width: 132px;
+        padding: 10px 14px;
+        border: 1px solid #cfe8f6;
+        border-radius: 7px;
+        background: #eef8fd;
+        text-align: right;
+      }
+
+      #tab_versioning .version-current-release span,
+      #tab_versioning .version-current-release strong {
+        display: block;
+      }
+
+      #tab_versioning .version-current-release span {
+        margin-bottom: 2px;
+        color: #627386;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+      }
+
+      #tab_versioning .version-current-release strong {
+        color: #087eaf;
+        font-size: 17px;
+        font-weight: 700;
+      }
+
+      #tab_versioning .version-release-card {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        margin-bottom: 14px;
+        overflow: hidden;
+        border: 1px solid #e1e6ed;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 2px 7px rgba(31, 41, 55, .04);
+      }
+
+      #tab_versioning .version-release-card.is-current {
+        border-left: 4px solid #11a8df;
+      }
+
+      #tab_versioning .version-release-meta {
+        padding: 22px 20px;
+        border-right: 1px solid #edf0f4;
+        background: #fbfcfd;
+      }
+
+      #tab_versioning .version-latest-label {
+        display: inline-block;
+        margin-bottom: 12px;
+        padding: 4px 9px;
+        border-radius: 20px;
+        background: #11a8df;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        line-height: 1.2;
+        text-transform: uppercase;
+      }
+
+      #tab_versioning .version-number,
+      #tab_versioning .version-release-date {
+        display: block;
+      }
+
+      #tab_versioning .version-number {
+        margin-bottom: 7px;
+        color: #263447;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      #tab_versioning .version-release-date {
+        color: #7b8797;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      #tab_versioning .version-release-content {
+        padding: 22px 26px 24px;
+      }
+
+      #tab_versioning .version-release-content h5 {
+        margin: 0 0 13px;
+        color: #273548;
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      #tab_versioning .version-change-list {
+        margin: 0;
+        padding-left: 20px;
+        color: #5e6a79;
+      }
+
+      #tab_versioning .version-change-list li {
+        padding-left: 5px;
+        margin-bottom: 8px;
+        line-height: 1.55;
+      }
+
+      #tab_versioning .version-change-list li:last-child {
+        margin-bottom: 0;
+      }
+
+      #tab_versioning .version-change-list li::marker {
+        color: #139dce;
+        font-weight: 700;
+      }
+
+      #tab_versioning .version-change-list b {
+        color: #37465a;
+        font-weight: 600;
+      }
+
+      @media (max-width: 767px) {
+        #tab_versioning .version-release-panel {
+          padding: 20px 15px;
+        }
+
+        #tab_versioning .version-release-header {
+          display: block;
+        }
+
+        #tab_versioning .version-current-release {
+          width: max-content;
+          margin-top: 16px;
+          text-align: left;
+        }
+
+        #tab_versioning .version-release-card {
+          grid-template-columns: 1fr;
+        }
+
+        #tab_versioning .version-release-meta {
+          padding: 16px 18px;
+          border-right: 0;
+          border-bottom: 1px solid #edf0f4;
+        }
+
+        #tab_versioning .version-latest-label,
+        #tab_versioning .version-number,
+        #tab_versioning .version-release-date {
+          display: inline-block;
+          margin: 0 10px 0 0;
+          vertical-align: middle;
+        }
+
+        #tab_versioning .version-release-content {
+          padding: 19px 20px 22px;
+        }
+      }
 
 
 

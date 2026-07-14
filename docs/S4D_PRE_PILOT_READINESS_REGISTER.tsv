@@ -6,13 +6,13 @@ S4D-04	approval	Preview uses completed-header baseline and full S3 policy	Develo
 S4D-05	security	Apply is admin-only CSRF exactly-one-action and approval-bound	Developer	pass	request_security plus S4D endpoint contract
 S4D-06	ui	Dashboard contains preview only and no Apply bearer/control	Developer	pass	S4D static UI contract
 S4D-07	session	Single-node file session topology suitable for pilot	Operations	pass	Nginx local PHP-FPM socket and /var/lib/php/sessions
-S4D-08	scheduler	All user root system and project schedulers retired	Operations	pending	Project/current-user/system refs clean; confirm root crontab
-S4D-09	external	Staff and student production credentials are SELECT-only	DBA	pending	SELECT-only runtime evidence passed 1062+5423=6485 rows; metadata grants unavailable, DBA exclusivity evidence required
+S4D-08	scheduler	All user root system and project schedulers retired	Operations	pending	Complete root cron timer and queued-job inventory using S4E_BAKI_GATE_DAN_HANDOFF section 5
+S4D-09	external	Staff and student production credentials are SELECT-only	DBA	pending	Runtime SELECT passed 1062+5423=6485; obtain sanitized DBA grant evidence using handoff section 4
 S4D-10	backup	OneID UAT backup exists outside document root with checksum	DBA	pass	storage/backups/S4D-20260714-160232; 73881422 bytes; SHA-256 3f9efeae73079169cc5df825797badbeab79572b7d6007f99ed7b9dba7ec4794
 S4D-11	restore	Backup restore rehearsal passes on separate database	DBA	pass	15 tables exact row-count digest match; rehearsal target dropped; see private EVIDENCE.txt
 S4D-12	browser	Admin auth logout and fresh preview pass	Tester	pass	16/16 on 2026-07-14; authenticated CSRF rotated; preview status 200; no Apply executed
 S4D-13	public	Public-root HTTP smoke passes	Tester	pass	2026-07-14 restructure smoke 10/10 on https://oneid.local
 S4D-14	sso	At least one SSO consumer passes	Tester	pass	iqs-framework.local login return no redirect loop or 5xx and logout confirmed 2026-07-14
-S4D-15	monitor	Nginx PHP-FPM and sync log paths are readable and stable	Operations	pending	Confirm PHP-FPM log and inspect marker during observation
-S4D-16	pilot	Maintenance window pilot admin and owners assigned	Change owner	pending	Required before S4E
+S4D-15	monitor	Nginx PHP-FPM and sync log paths are readable and stable	Operations	pending	Complete log privacy ownership and observation checklist using handoff section 6
+S4D-16	pilot	Maintenance window pilot admin and owners assigned	Change owner	pending	Complete window ownership freeze and abort template using handoff section 7
 S4D-17	preview	Fresh normal preview counts and baseline accepted	Change owner	pass	6485 source; new 71 update 7 deactivate 0 reactivate 0 protected 1 collisions 0; plan hash 6f0010cb7e6a; approval ready

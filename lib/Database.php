@@ -76,11 +76,11 @@ class Database {
         $Q = "UPDATE user_tbl SET u_password=:password, password_change_required=:required WHERE u_id=:user_id";
         $R = $this->pdo->prepare($Q);
         $R->execute([':password'=>$hash, ':required'=>$changeRequired, ':user_id'=>$userId]);
+        return $R->rowCount();
     }
 
     public function set_user_password($userId,$password,$changeRequired=0){
-        $this->updatePasswordHash($userId, oneid_password_hash($password), (int) $changeRequired);
-        return 1;
+        return $this->updatePasswordHash($userId, oneid_password_hash($password), (int) $changeRequired);
     }
 
     public function setPasswordChangeRequired($userId,$required){
@@ -552,7 +552,7 @@ class Database {
 
 
     //Source 1 = SSO DB (registered) , 2 = externad DB (ureg yet)
-    public function admin_search_user_account($u_id){
+   public function admin_search_user_account($u_id){
         $Q = "SELECT A.u_id,A.data1,A.data2,A.data3,A.data4,A.u_category,A.u_type,'1' as source,A.avail_status,B.uc_name,A.u_update_datetime,A.u_changes_hash,A.data5,A.data6,A.data7
                 FROM user_tbl A 
                 LEFT JOIN user_category B ON B.uc_id=A.u_category
@@ -562,6 +562,41 @@ class Database {
         $R->execute();
         $result = $R->fetch(PDO::FETCH_ASSOC);
         return $result;
+    }
+
+    /**
+     * Read the complete row required by the M1 single-user resync planner.
+     * FOR UPDATE is permitted only inside the short apply transaction; the
+     * external SELECT snapshot is obtained before that transaction starts.
+     */
+    public function admin_get_user_for_resync(string $u_id, bool $forUpdate = false){
+        $provenanceFields = $this->supportsUserProvenance()
+            ? ', account_source, sync_protected'
+            : ", 'legacy' AS account_source, 0 AS sync_protected";
+        $Q = "SELECT u_id,u_category,u_type,avail_status,u_changes_hash,
+                     data1,data2,data3,data4,data5,data6,data7,data8,data9,
+                     data10,data11,data12" . $provenanceFields . "
+              FROM user_tbl WHERE u_id=:u_id";
+        if ($forUpdate) {
+            $Q .= ' LIMIT 1 FOR UPDATE';
+        } else {
+            $Q .= ' LIMIT 1';
+        }
+        $R = $this->pdo->prepare($Q);
+        $R->bindParam(':u_id', $u_id);
+        $R->execute();
+        return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /** Read and optionally lock the minimum row required by M2 actions. */
+    public function admin_get_user_for_security_action(string $u_id, bool $forUpdate = false){
+        $Q = "SELECT u_id,avail_status,password_change_required FROM user_tbl WHERE u_id=:u_id LIMIT 1";
+        if ($forUpdate) {
+            $Q .= ' FOR UPDATE';
+        }
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':u_id' => $u_id]);
+        return $R->fetch(PDO::FETCH_ASSOC);
     }
 
 

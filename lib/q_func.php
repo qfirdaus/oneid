@@ -8,6 +8,7 @@ require __DIR__ . '/src/PHPMailer.php';
 require __DIR__ . '/src/SMTP.php';
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/upload_security.php';
+require_once __DIR__ . '/device_info.php';
 include_once dirname(__DIR__) . '/vendors/spyc-master/Spyc.php';
 require_once dirname(__DIR__) . '/vendors/device-detector-master/autoload.php';
 require_once __DIR__ . '/external_data_source_API.php';
@@ -15,6 +16,12 @@ require_once __DIR__ . '/sync_user_runner.php';
 require_once dirname(__DIR__) . '/bootstrap/sync_runtime.php';
 require_once dirname(__DIR__) . '/app/User/ManualUserInput.php';
 require_once dirname(__DIR__) . '/app/User/ManualUserCreator.php';
+require_once dirname(__DIR__) . '/app/User/Contracts/UserResyncApprovalStoreInterface.php';
+require_once dirname(__DIR__) . '/app/User/Adapters/SessionUserResyncApprovalStore.php';
+require_once dirname(__DIR__) . '/app/User/UserResyncException.php';
+require_once dirname(__DIR__) . '/app/User/UserResyncService.php';
+require_once dirname(__DIR__) . '/app/User/UserSecurityActionException.php';
+require_once dirname(__DIR__) . '/app/User/UserSecurityActionService.php';
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
 
@@ -25,9 +32,16 @@ $sys_config = $operation->get_system_config();
 $token_timeout = $sys_config['token_timeout'];//24 means 1 day
 $sys_config_multisession = $sys_config['multi_session']; //Multi Session
 $sys_config_OTP_email = $sys_config['email_OTP']; //Multi Session
-$userAgent = $_SERVER['HTTP_USER_AGENT']; // change this to the useragent you want to parse
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $dd = new DeviceDetector($userAgent);
 $dd->parse();
+$detectedDeviceInfo = oneid_format_device_info(
+    $dd->getDeviceName(),
+    $dd->getBrandName(),
+    $dd->getModel(),
+    $dd->getClient('name'),
+    $dd->getOs('name')
+);
 // echo $userAgent;
 // echo json_encode($dd);s
 // return;
@@ -149,9 +163,7 @@ function string_sanitize($s) {
             //
             //Add new token to DB
 
-            $detector_brand = $dd->getBrandName();
-            $detector_device = $dd->getDeviceName();
-            $operation->add_new_token($new_refresh_token,$results['u_id'],$detector_device . ' ('.$detector_brand.')');
+            $operation->add_new_token($new_refresh_token, $results['u_id'], $detectedDeviceInfo);
 
             $user_info = $operation->get_specific_user_info($results['u_id']);
             oneid_set_sso_cookie($new_refresh_token);
@@ -346,7 +358,7 @@ function string_sanitize($s) {
             $_SESSION['password_change_required'] = 0;
             $operation->update_whole_token_status($_SESSION['login_user'], 0);
             $rotatedToken = generate_token();
-            $operation->add_new_token($rotatedToken, $_SESSION['login_user'], 'Password change');
+            $operation->add_new_token($rotatedToken, $_SESSION['login_user'], $detectedDeviceInfo);
             oneid_set_sso_cookie($rotatedToken);
             $operation->syslog_record(21,$_SESSION['login_user'],getUserIP());
             echo json_encode(array( 'msg' => "Password successfully changed",
@@ -547,40 +559,103 @@ function string_sanitize($s) {
         }
       }
 
-      if(isset( $_POST['admin_resync_specific_user'])){
-        $user_info = $operation->admin_search_user_account($_POST['user_id']);
-        $results = SAMPLE_DATA_SOURCE_GET_SPECIFIC_USER($_POST['user_id']);
-        // $results = EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER($_POST['user_id'])[0];
-        $operation->syslog_record(24,$_SESSION['login_user']." -> ".$_POST['user_id'],getUserIP());
+      if(isset( $_POST['admin_preview_specific_user_resync'])){
+        try {
+          $resyncService = new \OneId\App\User\UserResyncService(
+            $operation,
+            'EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER',
+            new \OneId\App\User\Adapters\SessionUserResyncApprovalStore()
+          );
+          echo json_encode($resyncService->preview(
+            (string) ($_POST['user_id'] ?? ''),
+            (string) ($_SESSION['login_user'] ?? '')
+          ));
+        } catch (\OneId\App\User\UserResyncException $exception) {
+          echo json_encode([
+            'status' => 0,
+            'code' => $exception->reason,
+            'msg' => 'User resync preview was not prepared.',
+            'correlation_id' => $exception->correlationId,
+          ]);
+        } catch (Throwable $exception) {
+          $correlationId = bin2hex(random_bytes(8));
+          error_log('User resync preview failed correlation_id=' . $correlationId
+            . ' exception=' . get_class($exception));
+          echo json_encode([
+            'status' => 0,
+            'code' => 'RESYNC_PREVIEW_FAILED',
+            'msg' => 'User resync preview was not prepared.',
+            'correlation_id' => $correlationId,
+          ]);
+        }
+      }
 
-
-        $new_data_hash = hash('sha256',$results['data1'].$results['data2'].$results['data3'].$results['data4'].$results['data5'].$results['data6'].$results['data7'].$results['data8'].$results['data9'].$results['data10'].$results['data11'].$results['data12']);
-
-        if($user_info['u_changes_hash']!=$new_data_hash){
-          $operation->admin_update_specific_user_info_all_data($_POST['user_id'],$results['data1'],$results['data2'],$results['data3'],$results['data4'],$results['data5'],$results['data6'],$results['data7'],$results['data8'],$results['data9'],$results['data10'],$results['data11'],$results['data12'],$new_data_hash);
-          echo json_encode(array('status' => 1));
-        }else{
-          echo json_encode(array('status' => 0));
+      if(isset( $_POST['admin_apply_specific_user_resync'])){
+        try {
+          $resyncService = new \OneId\App\User\UserResyncService(
+            $operation,
+            'EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER',
+            new \OneId\App\User\Adapters\SessionUserResyncApprovalStore()
+          );
+          echo json_encode($resyncService->apply(
+            (string) ($_POST['approval_id'] ?? ''),
+            (string) ($_SESSION['login_user'] ?? ''),
+            (string) getUserIP()
+          ));
+        } catch (\OneId\App\User\UserResyncException $exception) {
+          echo json_encode([
+            'status' => 0,
+            'code' => $exception->reason,
+            'msg' => 'User resync was not applied.',
+            'correlation_id' => $exception->correlationId,
+          ]);
+        } catch (Throwable $exception) {
+          $correlationId = bin2hex(random_bytes(8));
+          error_log('User resync apply failed correlation_id=' . $correlationId
+            . ' exception=' . get_class($exception));
+          echo json_encode([
+            'status' => 0,
+            'code' => 'RESYNC_APPLY_FAILED',
+            'msg' => 'User resync was not applied.',
+            'correlation_id' => $correlationId,
+          ]);
         }
       }
 
       if(isset( $_POST['admin_reactivate_user_record'])){
-        $user_info = $operation->admin_search_user_account($_POST['user_info_id']);
-        $results = $operation->admin_update_user_status($_POST['user_info_id'],1);
-
-        $operation->syslog_record(26,$_SESSION['login_user']." -> ".$_POST['user_info_id'],getUserIP());
-        echo json_encode(array( 'source_status' => 1, //1-sso, 2-external
-                          'status' => 1));
+        try {
+          $service = new \OneId\App\User\UserSecurityActionService($operation);
+          echo json_encode($service->reactivate(
+            (string) ($_POST['user_info_id'] ?? ''),
+            (string) $_SESSION['login_user'],
+            getUserIP()
+          ));
+        } catch (\OneId\App\User\UserSecurityActionException $exception) {
+          echo json_encode([
+            'status' => 0,
+            'code' => $exception->reason,
+            'msg' => 'User was not reactivated.',
+            'correlation_id' => $exception->correlationId,
+          ]);
+        }
       }
 
       if(isset( $_POST['admin_deactivate_user_record'])){
-        $user_info = $operation->admin_search_user_account($_POST['user_info_id']);
-        $results = $operation->admin_update_user_status($_POST['user_info_id'],0);
-        $operation->update_whole_token_status($_POST['user_info_id'], 0);
-
-        $operation->syslog_record(25,$_SESSION['login_user']." -> ".$_POST['user_info_id'],getUserIP());
-        echo json_encode(array( 'source_status' => 1, //1-sso, 2-external
-                          'status' => 1));
+        try {
+          $service = new \OneId\App\User\UserSecurityActionService($operation);
+          echo json_encode($service->deactivate(
+            (string) ($_POST['user_info_id'] ?? ''),
+            (string) $_SESSION['login_user'],
+            getUserIP()
+          ));
+        } catch (\OneId\App\User\UserSecurityActionException $exception) {
+          echo json_encode([
+            'status' => 0,
+            'code' => $exception->reason,
+            'msg' => 'User was not deactivated.',
+            'correlation_id' => $exception->correlationId,
+          ]);
+        }
       }
 
       if(isset( $_POST['action_add_new_category'])){
@@ -709,6 +784,7 @@ function string_sanitize($s) {
         $results = $operation->get_all_token_for_specific_user($_SESSION['login_user']);
         $unset_flag = 0;
         foreach ($results as $i => $ii) {
+          $results[$i]['device_info'] = oneid_normalize_device_info($results[$i]['device_info'] ?? '');
           //Here will check with the system settings for token timeout
           $hour_diff = get_hour_diff($results[$i]['token_datetime'],date("Y-m-d H:i:s"));
           // echo $results[$i]['token_datetime'].'#'.date("Y-m-d H:i:s").'<br/>';
@@ -755,6 +831,7 @@ function string_sanitize($s) {
         $results = $operation->get_all_token_for_all_active_user();
         $unset_flag = 0;
          foreach ($results as $i => $ii) {
+          $results[$i]['device_info'] = oneid_normalize_device_info($results[$i]['device_info'] ?? '');
           //Here will check with the system settings for token timeout
           $hour_diff = get_hour_diff($results[$i]['token_datetime'],date("Y-m-d H:i:s"));
           // echo $results[$i]['token_datetime'].'#'.date("Y-m-d H:i:s").'<br/>';
@@ -1212,15 +1289,21 @@ function string_sanitize($s) {
 	  
 	  
 	   if(isset( $_POST['admin_reset_password_user'])){
-        $user_info = $operation->get_specific_user_info($_POST['user_id']);
-        if (!$user_info) {
-          echo json_encode(0);
-          return;
+        try {
+          $service = new \OneId\App\User\UserSecurityActionService($operation);
+          echo json_encode($service->resetPassword(
+            (string) ($_POST['user_id'] ?? ''),
+            (string) $_SESSION['login_user'],
+            getUserIP()
+          ));
+        } catch (\OneId\App\User\UserSecurityActionException $exception) {
+          echo json_encode([
+            'status' => 0,
+            'code' => $exception->reason,
+            'msg' => 'Password was not reset.',
+            'correlation_id' => $exception->correlationId,
+          ]);
         }
-        $operation->set_user_password($_POST['user_id'], bin2hex(random_bytes(32)), 1);
-        $operation->update_whole_token_status($_POST['user_id'], 0);
-        $results = 1;
-        echo json_encode($results);
       }
 
 ?>

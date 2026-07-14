@@ -163,3 +163,6 @@ login/fresh preview/logout dan satu SSO consumer telah lulus. Langkah seterusnya
 ialah DBA mengesahkan privilege external benar-benar SELECT-only dan owner
 melengkapkan baki gate pre-pilot. S4E hanya boleh dimulakan selepas semua gate
 wajib lengkap dan arahan GO baharu diberikan.
+
+Dokumen handoff untuk menyambung empat baki gate tersedia dalam
+`docs/S4E_BAKI_GATE_DAN_HANDOFF.md`.

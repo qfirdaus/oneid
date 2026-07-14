@@ -162,8 +162,10 @@ preview runtime dan UI masih tidak menggunakan approval service.
 Implementation/evidence S4D dirujuk dalam
 `docs/S4D_DORMANT_DEPLOYMENT_DAN_PRE_PILOT_READINESS.md` dan
 `docs/S4D_PRE_PILOT_READINESS_REGISTER.tsv`. Backup, restore, external
-SELECT-only evidence, browser/SSO verification dan owner acceptance masih
-pending; oleh itu status kekal NO-GO.
+SELECT runtime evidence dan browser/SSO verification telah lulus. Bukti DBA
+bahawa credential tiada write privilege, scheduler inventory, monitoring dan
+maintenance ownership masih pending; oleh itu status kekal NO-GO. Handoff
+terperinci tersedia dalam `docs/S4E_BAKI_GATE_DAN_HANDOFF.md`.
 
 ### S4E — Satu controlled pilot
 
@@ -311,10 +313,10 @@ S4 pilot kekal NO-GO jika mana-mana keadaan berlaku:
 | Maintenance window | Belum ditetapkan |
 | Pilot admin | Belum ditetapkan |
 | DBA/backup operator | Belum ditetapkan |
-| Backup location/checksum | Belum ditetapkan |
-| Restore rehearsal evidence | Belum ditetapkan |
-| Accepted fresh source baseline | Belum ditetapkan |
-| Accepted action counts | Belum ditetapkan |
+| Backup location/checksum | `storage/backups/S4D-20260714-160232`; SHA-256 direkod |
+| Restore rehearsal evidence | Lulus; 15 jadual, exact row-count digest sama, rehearsal DB dibuang |
+| Accepted fresh source baseline | 6,485 pada 14 Julai 2026; fresh preview masih wajib dalam window |
+| Accepted action counts | 71 new, 7 update, 0 deactivate/reactivate, protected 1, collision 0 |
 | Observation window | Cadangan minimum 60 minit; belum diterima |
 | Final GO authority | Pemilik sistem OneID |
 
@@ -333,6 +335,7 @@ Register pelaksanaan: `docs/S4_PILOT_GATE_REGISTER.tsv`.
 
 ## 13. Exit Pelan
 
-Dokumentasi S4 serta S4A–S4B dormant tidak bermaksud pilot mendapat GO. Langkah
-berikutnya ialah **S4C approval-aware single-snapshot coordinator**, masih tanpa
-butang Apply, runtime endpoint atau live sync.
+Dokumentasi dan dormant runtime S4A–S4D tidak bermaksud pilot mendapat GO.
+Langkah berikutnya ialah menutup gate dalam
+`docs/S4E_BAKI_GATE_DAN_HANDOFF.md`. S4E controlled Apply kekal NO-GO sehingga
+semua gate lulus dan arahan GO baharu direkod.

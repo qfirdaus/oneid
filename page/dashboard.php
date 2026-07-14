@@ -452,46 +452,42 @@
 
                                      <!-- Applications -->
                                      <div id="follo_8" class="tab-pane fade active in" role="tabpanel">
-                                       <div class="panel-heading">
-                                         <div class="pull-left">
-                                           <h6 class="panel-title txt-dark">Senarai Sistem Aplikasi</h6>
-                                           <!-- <span class="block txt-primary font-12 pt-5 capitalize-font">
-                                             Your session will expire in <span id="demo">- - -</span>
-                                           </span> -->
-                                         </div>
-                                         <div class="pull-right">
-                                           <a href="#" class="pull-left inline-block refresh mr-15" onclick="get_specific_user_app_list()">
-                                             <i class="zmdi zmdi-replay text-primary"></i>
-                                           </a>
-                                         </div>
-                                         <div class="clearfix"></div>
-                                       </div>
-
-                                       <div class="pills-struct mt-20 pl-20">
-                                         <ul role="tablist" class="nav nav-pills nav-pills-rounded" id="WebAppsTabsHeader"></ul>
-                                         <div class="tab-content" id="WebAppsTabsContent"></div>
-                                       </div>
-
-                                       <div id="app_list_loading" style="display:none;">
-                                         <br/>
-                                         <div class="col-lg-12">
-                                           <div class="progress progress-lg">
-                                             <div class="progress-bar progress-bar-primary active progress-bar-striped"
-                                                  aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
-                                                  style="width: 100%" role="progressbar">
-                                               Loading App.. Wait a moment..
+                                       <div class="user-app-panel">
+                                          <div class="user-app-header">
+                                             <div>
+                                                <span class="user-app-eyebrow">My application directory</span>
+                                                <h4 class="user-app-title">Sistem Aplikasi</h4>
+                                                <p class="user-app-intro">Akses semua sistem yang telah diberikan kepada akaun anda.</p>
                                              </div>
-                                           </div>
-                                         </div>
-                                         <br/><br/>
-                                       </div>
+                                             <div class="user-app-header-actions">
+                                                <div class="user-app-count" aria-live="polite">
+                                                   <span>Available</span>
+                                                   <strong id="user_app_count">&mdash;</strong>
+                                                </div>
+                                                <button type="button" class="user-app-refresh" onclick="get_specific_user_app_list();" title="Refresh applications" aria-label="Refresh applications">
+                                                   <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                </button>
+                                             </div>
+                                          </div>
 
-                                       <div class="followers-wrap" id="app_list">
-                                         <ul class="followers-list-wrap">
-                                           <li class="follow-list">
-                                             <div class="follo-body" id="follo_data_list"></div>
-                                           </li>
-                                         </ul>
+                                          <div class="user-app-category-card">
+                                             <div>
+                                                <h5>Application categories</h5>
+                                                <p>Pilih kategori untuk memaparkan sistem yang berkaitan.</p>
+                                             </div>
+                                             <ul role="tablist" class="nav" id="WebAppsTabsHeader"></ul>
+                                          </div>
+
+                                          <div id="app_list_loading" class="user-app-state is-loading" style="display:none;">
+                                             <span><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>
+                                             <strong>Loading applications</strong>
+                                             <small>Please wait while your access list is retrieved.</small>
+                                          </div>
+
+                                          <div id="app_list" class="user-app-directory">
+                                             <div class="tab-content" id="WebAppsTabsContent"></div>
+                                             <div id="follo_data_list"></div>
+                                          </div>
                                        </div>
                                      </div>
 
@@ -548,7 +544,7 @@
                <div class="container">
                   <div class="row">
                      <div class="col-sm-6">
-                        <p><b>2025</b> © BTMK.UPNM Version 1.0.3</p>
+                        <p><?php echo htmlspecialchars(oneid_application_footer(), ENT_QUOTES, 'UTF-8'); ?></p>
                      </div>
                      <!-- <div class="col-sm-6 text-right">
                         <p>Follow Us</p>
@@ -665,154 +661,95 @@
                  dataType: "json",
                  data: {get_specific_user_app_list:""},
                  beforeSend: function(){
+				   $('#user_app_count').text('\u2014');
                    $('#app_list_loading').fadeIn();
                    $('#app_list').hide();
-
-                     $('#WebAppsTabsHeader').html('');
-                     $('#WebAppsTabsContent').html('');
+				   $('#WebAppsTabsHeader').html('');
+				   $('#WebAppsTabsContent').html('');
+				   $('#follo_data_list').html('');
                  },
                  success: function (response) {
-         
-                   var tr ='';
-                   $('#WebAppsTabsHeader').html('');
-                   var li = '';
-                   var div = '';
-
-
                    $('#app_list_loading').hide();
                    $('#app_list').fadeIn();
-                 	var list_count = 0;
-                 	if(response.length == 0){
-                 		$('#follo_data_list_count_text').html('');
-         
-                tr += '<div class="follo-data">';
-                // tr += '<img class="user-img img-circle"  src="../img/user.png" alt="user"/>';
-         
-                tr += '<div class="user-data"><span class="name block capitalize-font"></span><span class="time  txt-grey">You do not have any accessible apps at the moment. Please contact BTMK for further assistance.</span></div>';
-         
-                tr += '<div class="clearfix"></div>';
-                tr += '</div>';
-                         $('#follo_data_list').html(tr);
-                 		return;
-                 	}else{                		
-                 		$('#follo_data_list_count_text').html('('+response.length+')');
-                 	}
-                     $('#follo_data_list').html('');
-                     var count = 0;
 
+				   var appText = function(value){
+					  return $('<div>').text(value == null ? '' : value).html();
+				   };
+				   var listCount = 0;
+				   var tabs = '';
+				   var panes = '';
 
+				   if (!Array.isArray(response) || response.length === 0) {
+					  $('#user_app_count').text('0');
+					  $('#follo_data_list_count_text').html('');
+					  $('#follo_data_list').html(
+						 '<div class="user-app-state">' +
+						 '<span><i class="fa fa-th-large" aria-hidden="true"></i></span>' +
+						 '<strong>No accessible applications</strong>' +
+						 '<small>Please contact BTMK if you require access to a system.</small>' +
+						 '</div>'
+					  );
+					  return;
+				   }
 
-            $.each( response, function( i, value ) {
-               if(i == 0){
-                  li += '<li class="active" role="presentation"><a aria-expanded="true"  data-toggle="tab" role="tab" href="#'+response[i]['tabname']+'">'+response[i]['sp_group_name']+' <span class="label label-warning">'+response[i]['data'].length+'</span>'+'</a></li>';
-               }else{
-                  li += '<li role="presentation"><a aria-expanded="true"  data-toggle="tab" role="tab" href="#'+response[i]['tabname']+'">'+response[i]['sp_group_name']+' <span class="label label-warning">'+response[i]['data'].length+'</span>'+'</a></li>';
-               }
+				   $.each(response, function(i, group) {
+					  var tabName = appText(group['tabname']);
+					  var groupName = appText(group['sp_group_name']);
+					  var applications = Array.isArray(group['data']) ? group['data'] : [];
+					  var activeClass = i === 0 ? 'active' : '';
+					  var paneClass = i === 0 ? 'tab-pane fade active in' : 'tab-pane fade';
 
-               if(i == 0){
-                                 div += '<div  id="'+response[i]['tabname']+'" class="tab-pane fade active in" role="tabpanel">';
-                                 div += '<div class="followers-wrap">';
-                                 div += '<ul class="followers-list-wrap">';
-                                 div += '<li class="follow-list" style="display: list-item;">';
-                                 div += '<div class="follo-body">';
-         
-         
-                                 $.each( response[i]['data'], function( k, value ) {
-                                    list_count++;
-                                    var img_sp = "";
-                                    if(response[i]['data'][k]['sp_image']==""){
-                                       img_sp = '<div class="user-data ml-5" style="padding-right: 15px;"><img src="../img/thumb-1.jpg" alt="thumbnail" style="width: 65px; height: 65px; object-fit: cover;"></div>';
-                                    }else{
-                                       img_sp = '<div class="user-data ml-5" style="padding-right: 15px;"><img src="../public_img/'+response[i]['data'][k]['sp_image']+'" alt="thumbnail" style="width: 65px; height: 65px; object-fit: cover;"></div>';
-                                    }
-                                    div += '<div class="follo-data">';
-                                    if(response[i]['data'][k]['sp_sso_support']=="0"){
-                                       div += img_sp+
-                                          '<div class="user-data"><span class="name block capitalize-font"><span class="label label-primary">'+(k+1)+'</span> <b>'+response[i]['data'][k]['sp_name']+'</b></span><span class="time  txt-grey">'+response[i]['data'][k]['sp_description']+'</span></div>';
-                                       div += '<button class="btn btn-primary pull-right btn-xs fixed-btn  " onclick="go_to_service_provider(&quot;'+response[i]['data'][k]['sp_id']+'&quot;);"><span class="btn-text">Go</span></button>';
-                                    }else{
-                                       div += img_sp+'<div class="user-data"><span class="name block capitalize-font"><span class="label label-primary">'+(k+1)+'</span> <b>'+response[i]['data'][k]['sp_name']+' <span class="label label-warning">SSO Not Supported</span></b></span><span class="time  txt-grey">'+response[i]['data'][k]['sp_description']+'</span></div>';
-                                       div += '<button class="btn btn-warning pull-right btn-xs fixed-btn  " onclick="go_to_service_provider(&quot;'+response[i]['data'][k]['sp_id']+'&quot;);"><span class="btn-text">Login</span></button>';
-                                    }
-                                    
-                                    
-                                    div += '<div class="clearfix"></div>';
-                                    div += '</div>';
-                                 });
-                                 
-         
-         
-         
-                                 div += '</div>';
-                                 div += '</li>';
-                                 div += '</ul>';
-                                 div += '</div>';
-                                 div += '</div>';
-                              }else{
-                                 
-                                 div += '<div  id="'+response[i]['tabname']+'" class="tab-pane fade" role="tabpanel">';
-                                 div += '<div class="followers-wrap">';
-                                 div += '<ul class="followers-list-wrap">';
-                                 div += '<li class="follow-list" style="display: list-item;">';
-                                 div += '<div class="follo-body">';
-         
-         
-                                 $.each( response[i]['data'], function( k, value ) {
-                                    list_count++;
-                                    var img_sp = "";
-                                    if(response[i]['data'][k]['sp_image']==""){
-                                       img_sp = '<div class="user-data ml-5" style="padding-right: 15px;"><img src="../img/thumb-1.jpg" alt="thumbnail" style="width: 65px; height: 65px; object-fit: cover;"></div>';
-                                    }else{
-                                       img_sp = '<div class="user-data ml-5" style="padding-right: 15px;"><img src="../public_img/'+response[i]['data'][k]['sp_image']+'" alt="thumbnail" style="width: 65px; height: 65px; object-fit: cover;"></div>';
-                                    }
-                                    div += '<div class="follo-data">';
-                                    if(response[i]['data'][k]['sp_sso_support']=="0"){
-                                       div += img_sp+'<div class="user-data"><span class="name block capitalize-font"><span class="label label-primary">'+(k+1)+'</span> <b>'+response[i]['data'][k]['sp_name']+'</b></span><span class="time  txt-grey">'+response[i]['data'][k]['sp_description']+'</span></div>';
-                                       div += '<button class="btn btn-primary pull-right btn-xs fixed-btn  " onclick="go_to_service_provider(&quot;'+response[i]['data'][k]['sp_id']+'&quot;);"><span class="btn-text">Go</span></button>';
-                                    }else{
-                                       div += img_sp+'<div class="user-data"><span class="name block capitalize-font"><span class="label label-primary">'+(k+1)+'</span> <b>'+response[i]['data'][k]['sp_name']+' <span class="label label-warning">SSO Not Supported</span></b></span><span class="time  txt-grey">'+response[i]['data'][k]['sp_description']+'</span></div>';
-                                       div += '<button class="btn btn-warning pull-right btn-xs fixed-btn  " onclick="go_to_service_provider(&quot;'+response[i]['data'][k]['sp_id']+'&quot;);"><span class="btn-text">Login</span></button>';
-                                    }
-                                    
-                                    
-                                    div += '<div class="clearfix"></div>';
-                                    div += '</div>';
-                                 });
-                                 
-         
-         
-         
-                                 div += '</div>';
-                                 div += '</li>';
-                                 div += '</ul>';
-                                 div += '</div>';
-                                 div += '</div>';
-                              }
+					  tabs += '<li class="'+activeClass+'" role="presentation">';
+					  tabs += '<a aria-expanded="'+(i === 0 ? 'true' : 'false')+'" data-toggle="tab" role="tab" href="#'+tabName+'"><span>'+groupName+'</span><strong>'+applications.length+'</strong></a>';
+					  tabs += '</li>';
 
+					  panes += '<div id="'+tabName+'" class="'+paneClass+'" role="tabpanel"><div class="user-app-list">';
+					  if (applications.length === 0) {
+						 panes += '<div class="user-app-category-empty"><i class="fa fa-inbox" aria-hidden="true"></i><span>No applications in this category.</span></div>';
+					  }
 
+					  $.each(applications, function(k, application) {
+						 listCount++;
+						 var appId = appText(application['sp_id']);
+						 var appName = appText(application['sp_name']);
+						 var appDescription = appText(application['sp_description']);
+						 var appImage = appText(application['sp_image']);
+						 var imageSource = appImage === '' ? '../img/thumb-1.jpg' : '../public_img/' + appImage;
+						 var directLogin = application['sp_sso_support'] !== "0";
 
-                
-            });
+						 panes += '<article class="user-app-card">';
+						 panes += '<div class="user-app-index">'+(k + 1)+'</div>';
+						 panes += '<div class="user-app-image"><img src="'+imageSource+'" alt="" loading="lazy"></div>';
+						 panes += '<div class="user-app-content"><div class="user-app-name"><strong title="'+appName+'">'+appName+'</strong><span class="user-app-access '+(directLogin ? 'is-direct' : '')+'">'+(directLogin ? 'Direct login' : 'SSO')+'</span></div>';
+						 panes += '<p title="'+appDescription+'">'+appDescription+'</p></div>';
+						 panes += '<button type="button" class="user-app-open '+(directLogin ? 'is-direct' : '')+'" data-app-id="'+appId+'" onclick="go_to_service_provider(this.dataset.appId);" title="'+(directLogin ? 'Login to application' : 'Open application')+'"><i class="fa '+(directLogin ? 'fa-sign-in' : 'fa-external-link')+'" aria-hidden="true"></i><span>'+(directLogin ? 'Login' : 'Open')+'</span></button>';
+						 panes += '</article>';
+					  });
 
+					  panes += '</div></div>';
+				   });
 
-            if(response.length == 0){
-            $('#follo_data_list_count_text').html('');
-            $('#follo_data_list').html('<div class="follo-data"><div class="user-data"><span class="time  txt-grey">No apps available.</span></div><div class="clearfix"></div></div>');
-            return;
-            }else{                     
-            $('#follo_data_list_count_text').html('('+list_count+')');
-            }
-            
-                     $('#WebAppsTabsHeader').html(li);
-                     $('#WebAppsTabsContent').html(div);
-                     if(href!="undefined"){
-                        $('a[href="'+href+'"]').tab('show');
-                     }
-                     // $('#follo_data_list').html(tr);
-         
-             },
-             error: function (xhr, error, thrown) {
-             }
+				   $('#user_app_count').text(listCount);
+				   $('#follo_data_list_count_text').html('(' + listCount + ')');
+				   $('#WebAppsTabsHeader').html(tabs);
+				   $('#WebAppsTabsContent').html(panes);
+				   if (href && $('#WebAppsTabsHeader a[href="'+href+'"]').length) {
+					  $('#WebAppsTabsHeader a[href="'+href+'"]').tab('show');
+				   }
+
+				},
+				error: function (xhr, error, thrown) {
+				   $('#user_app_count').text('\u2014');
+				   $('#app_list_loading').hide();
+				   $('#app_list').show();
+				   $('#follo_data_list').html(
+					  '<div class="user-app-state is-error">' +
+					  '<span><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>' +
+					  '<strong>Unable to load applications</strong>' +
+					  '<small>Please retry or contact BTMK if the issue continues.</small>' +
+					  '</div>'
+				   );
+				}
          });
          }
          
@@ -1138,6 +1075,438 @@
       }
       </script>
       <style>
+      .user-app-panel {
+        min-height: 620px;
+        padding: 30px;
+        background: #f7f9fc;
+      }
+
+      .user-app-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        padding-bottom: 22px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid #e3e8ef;
+      }
+
+      .user-app-eyebrow {
+        display: block;
+        margin-bottom: 5px;
+        color: #168fcb;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+      }
+
+      .user-app-title {
+        margin: 0 0 7px;
+        color: #1f2937;
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.25;
+      }
+
+      .user-app-intro {
+        max-width: 620px;
+        margin: 0;
+        color: #687386;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .user-app-header-actions {
+        display: flex;
+        align-items: stretch;
+        flex: 0 0 auto;
+        gap: 9px;
+      }
+
+      .user-app-count {
+        min-width: 102px;
+        padding: 10px 14px;
+        border: 1px solid #cfe8f6;
+        border-radius: 7px;
+        background: #eef8fd;
+        text-align: right;
+      }
+
+      .user-app-count span,
+      .user-app-count strong {
+        display: block;
+      }
+
+      .user-app-count span {
+        margin-bottom: 2px;
+        color: #627386;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+      }
+
+      .user-app-count strong {
+        color: #087eaf;
+        font-size: 17px;
+        font-weight: 700;
+      }
+
+      .user-app-refresh {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        padding: 0;
+        border: 1px solid #dce4ec;
+        border-radius: 7px;
+        background: #fff;
+        color: #168fcb;
+        font-size: 14px;
+        transition: background .18s ease, border-color .18s ease;
+      }
+
+      .user-app-refresh:hover,
+      .user-app-refresh:focus {
+        border-color: #b9ddeb;
+        background: #eef8fd;
+        color: #087eaf;
+      }
+
+      .user-app-category-card,
+      .user-app-directory,
+      .user-app-state {
+        border: 1px solid #e1e6ed;
+        background: #fff;
+        box-shadow: 0 2px 7px rgba(31, 41, 55, .04);
+      }
+
+      .user-app-category-card {
+        padding: 18px 20px 14px;
+        border-radius: 8px 8px 0 0;
+      }
+
+      .user-app-category-card h5 {
+        margin: 0 0 4px;
+        color: #29384b;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .user-app-category-card p {
+        margin: 0 0 15px;
+        color: #7a8696;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      #WebAppsTabsHeader {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+
+      #WebAppsTabsHeader > li {
+        float: none;
+        margin: 0;
+      }
+
+      #WebAppsTabsHeader > li > a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        padding: 7px 11px;
+        border: 1px solid #e2e7ed;
+        border-radius: 20px;
+        background: #f7f9fb;
+        color: #657286;
+        font-size: 11px;
+        font-weight: 500;
+        gap: 7px;
+        line-height: 1.2;
+      }
+
+      #WebAppsTabsHeader > li > a strong {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 5px;
+        border-radius: 10px;
+        background: #e7edf3;
+        color: #667589;
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      #WebAppsTabsHeader > li.active > a,
+      #WebAppsTabsHeader > li.active > a:hover,
+      #WebAppsTabsHeader > li.active > a:focus {
+        border-color: #11a8df;
+        background: #11a8df;
+        color: #fff;
+      }
+
+      #WebAppsTabsHeader > li.active > a strong {
+        background: rgba(255, 255, 255, .22);
+        color: #fff;
+      }
+
+      .user-app-directory {
+        overflow: hidden;
+        border-top: 0;
+        border-radius: 0 0 8px 8px;
+      }
+
+      .user-app-list {
+        padding: 0;
+      }
+
+      .user-app-card {
+        display: grid;
+        grid-template-columns: 26px 54px minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 13px;
+        padding: 16px 20px;
+        border-bottom: 1px solid #edf0f4;
+        background: #fff;
+      }
+
+      .user-app-card:last-child {
+        border-bottom: 0;
+      }
+
+      .user-app-card:hover {
+        background: #fbfdff;
+      }
+
+      .user-app-index {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        margin-top: 16px;
+        border-radius: 50%;
+        background: #eaf6fc;
+        color: #168fcb;
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      .user-app-image {
+        width: 54px;
+        height: 54px;
+        overflow: hidden;
+        border: 1px solid #e1e6eb;
+        border-radius: 10px;
+        background: #f4f6f8;
+      }
+
+      .user-app-image img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .user-app-content {
+        min-width: 0;
+        padding-top: 3px;
+      }
+
+      .user-app-name {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+        gap: 8px;
+        margin-bottom: 7px;
+      }
+
+      .user-app-name strong {
+        min-width: 0;
+        overflow: hidden;
+        color: #2f3e52;
+        font-size: 13px;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .user-app-access {
+        flex: 0 0 auto;
+        padding: 3px 7px;
+        border-radius: 20px;
+        background: #e7f7ee;
+        color: #22844f;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: .035em;
+        line-height: 1.35;
+        text-transform: uppercase;
+      }
+
+      .user-app-access.is-direct {
+        background: #fff3df;
+        color: #a86c15;
+      }
+
+      .user-app-content p {
+        display: block;
+        margin: 0;
+        overflow: hidden;
+        color: #758193;
+        font-size: 11px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .user-app-open {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 74px;
+        height: 34px;
+        margin-top: 10px;
+        padding: 0 12px;
+        border: 1px solid #11a8df;
+        border-radius: 6px;
+        background: #11a8df;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 600;
+        gap: 7px;
+      }
+
+      .user-app-open:hover,
+      .user-app-open:focus {
+        border-color: #0c91c2;
+        background: #0c91c2;
+        color: #fff;
+      }
+
+      .user-app-open.is-direct {
+        border-color: #e0a74e;
+        background: #fff;
+        color: #a86c15;
+      }
+
+      .user-app-open.is-direct:hover,
+      .user-app-open.is-direct:focus {
+        background: #fff6e8;
+        color: #8d5a0f;
+      }
+
+      .user-app-state,
+      .user-app-category-empty {
+        padding: 38px 20px;
+        color: #6f7c8c;
+        text-align: center;
+      }
+
+      .user-app-state {
+        border-top: 0;
+        border-radius: 0 0 8px 8px;
+      }
+
+      .user-app-state span,
+      .user-app-state strong,
+      .user-app-state small {
+        display: block;
+      }
+
+      .user-app-state > span {
+        margin-bottom: 9px;
+        color: #27a8d8;
+        font-size: 18px;
+      }
+
+      .user-app-state strong {
+        margin-bottom: 4px;
+        color: #425166;
+        font-size: 13px;
+      }
+
+      .user-app-state small {
+        color: #8994a2;
+        font-size: 11px;
+      }
+
+      .user-app-state.is-error > span {
+        color: #d46b62;
+      }
+
+      .user-app-category-empty {
+        font-size: 11px;
+      }
+
+      .user-app-category-empty i,
+      .user-app-category-empty span {
+        display: block;
+      }
+
+      .user-app-category-empty i {
+        margin-bottom: 8px;
+        color: #91a0b1;
+        font-size: 18px;
+      }
+
+      @media (max-width: 767px) {
+        .user-app-panel {
+          padding: 20px 15px;
+        }
+
+        .user-app-header {
+          display: block;
+        }
+
+        .user-app-header-actions {
+          width: max-content;
+          margin-top: 16px;
+        }
+
+        .user-app-count {
+          text-align: left;
+        }
+
+        .user-app-card {
+          grid-template-columns: 22px 46px minmax(0, 1fr) 36px;
+          gap: 9px;
+          padding: 14px;
+        }
+
+        .user-app-image {
+          width: 46px;
+          height: 46px;
+        }
+
+        .user-app-name {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .user-app-index {
+          margin-top: 12px;
+        }
+
+        .user-app-open {
+          min-width: 36px;
+          width: 36px;
+          padding: 0;
+          margin-top: 6px;
+        }
+
+        .user-app-open span {
+          display: none;
+        }
+      }
+
       .pills-struct.vertical-pills { display:flex; gap:20px; }
       .pills-struct.vertical-pills > .nav { flex: 0 0 100%; }
 .pills-struct.vertical-pills > .tab-content { flex: 1 1 75%; }
