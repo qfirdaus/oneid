@@ -1,6 +1,6 @@
 gate_id	stage	gate	owner	status	evidence_or_decision
 S4-G01	baseline	S3 checkpoint exists	Change owner	pass	commit 243ff2c
-S4-G02	baseline	Working tree/release commit identified	Change owner	pending	Record exact S4 release commit before pilot
+S4-G02	baseline	Working tree/release commit identified	Change owner	pass	S4D release commit 68f10ff
 S4-G03	wiring	Master Apply flag defaults false	Developer	pass	S4A pure contract plus read-only environment inspection
 S4-G04	wiring	Engine flag defaults disabled and strict allowlist disabled|safe	Developer	pass	Missing invalid and partial combinations fail closed in S4A fixture
 S4-G05	wiring	Legacy writer cannot be selected by normal S4 flag	Developer	pass	S4A config factory and static caller contract
@@ -15,12 +15,12 @@ S4-G13	safety	Source completeness and blast-radius policy passes	Developer	pass	
 S4-G14	safety	Planned executed audited reconciliation occurs before commit	Developer	pass	S3 contract at checkpoint
 S4-G15	regression	S1 provisioning regression passes	Tester	pass	39/39 at checkpoint
 S4-G16	regression	S2 preview regression passes	Tester	pass	29/29 at checkpoint
-S4-G17	regression	S3 safety regression passes on release commit	Tester	pending	Repeat after S4 wiring
-S4-G18	regression	Admin auth logout public-root and SSO smoke pass	Tester	pending	Repeat after dormant deployment and pilot
-S4-G19	external	Staff and student production credentials verified read-only	DBA	pending	Privilege evidence without exposing credentials
+S4-G17	regression	S3 safety regression passes on release commit	Tester	pass	2026-07-14 S3 26/26; full S1-S4D contract chain passed
+S4-G18	regression	Admin auth logout public-root and SSO smoke pass	Tester	pass	Public-root 10/10 plus admin preview/logout and iqs-framework.local SSO confirmed 2026-07-14
+S4-G19	external	Staff and student production credentials verified read-only	DBA	pending	SELECT queries passed 1062 staff + 5423 student; DBA must prove write grants absent
 S4-G20	scheduler	Cron and all schedulers remain retired	Operations	pending	Scheduler inventory evidence
-S4-G21	backup	OneID UAT backup completed outside document root	DBA	pending	Path timestamp permissions and checksum
-S4-G22	backup	Restore rehearsal succeeds to separate database	DBA	pending	Restore/reconciliation evidence
+S4-G21	backup	OneID UAT backup completed outside document root	DBA	pass	storage/backups/S4D-20260714-160232; 73881422 bytes; SHA-256 recorded
+S4-G22	backup	Restore rehearsal succeeds to separate database	DBA	pass	15-table exact row-count digest match; separate target dropped
 S4-G23	pilot	Maintenance window and pilot admin assigned	Change owner	pending	Record approved window and identity
 S4-G24	pilot	Fresh preview is normal and counts accepted	Change owner	pending	Record approval ID hash prefix baseline and counts
 S4-G25	pilot	Effective flags false|disabled proven before window	Operations	pass	No flags in enabled Nginx FPM systemd or shell; strict runtime defaults false/disabled on 2026-07-14

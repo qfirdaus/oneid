@@ -11,10 +11,10 @@ S4D menyambungkan preview, approval dan safe coordinator kepada runtime dalam
 keadaan fail-closed. Nginx dan PHP-FPM tidak menetapkan Apply flags, maka
 effective state kekal `false/disabled`. Dashboard masih tiada butang Apply.
 
-Tiada live preview, ODBC query, database transaction, backup, restore atau live
-sync dijalankan oleh implementasi/ujian S4D ini. External production source
-kekal read-only dari sudut aplikasi; privilege read-only sebenar masih perlu
-evidence DBA.
+Selepas checkpoint S4D, verifikasi operasi berasingan telah menjalankan ODBC
+SELECT, backup dan isolated restore rehearsal. Tiada Apply atau live sync
+dijalankan. External production source hanya dibaca oleh tool verification;
+privilege read-only sebenar masih memerlukan evidence DBA.
 
 ## 2. Perubahan Runtime Dormant
 
@@ -67,7 +67,7 @@ Pemeriksaan 14 Julai 2026 mendapati:
 
 | Item | Evidence | Keputusan |
 | --- | --- | --- |
-| Release sebelum S4D | commit `9b58b33` | S4D checkpoint masih perlu dibuat |
+| Release S4D | commit `68f10ff` | Lulus |
 | Nginx site | `local-projects` enabled; root `/var/www/app/oneid-uat/public` | Lulus |
 | Apply flags Nginx | tiada `ONEID_SYNC_APPLY_ENABLED`/`ONEID_SYNC_ENGINE` | Default disabled |
 | Apply flags FPM/systemd | tiada flag ditemui | Default disabled |
@@ -75,11 +75,11 @@ Pemeriksaan 14 Julai 2026 mendapati:
 | Session | PHP `files`, path `/var/lib/php/sessions` | Sesuai untuk single-node semasa |
 | Scheduler project/user/system refs | tiada OneID/run_sync ref ditemui | Perlu sahkan root crontab secara operasi |
 | Project cron artifact | tiada `cron/run_sync.php` | Retired |
-| Backup S4D | tiada fail ditemui di `/var/backups/oneid` | Belum dibuat |
-| Restore rehearsal | tiada evidence | Belum dibuat |
+| Backup S4D | `storage/backups/S4D-20260714-160232`, 73,881,422 bait, SHA-256 direkod | Lulus |
+| Restore rehearsal | 15 jadual, exact row-count digest sama, rehearsal DB dibuang | Lulus |
 | OneID error log | boleh dibaca; satu sync marker dalam 500 baris terakhir | Perlu review semasa window |
 | PHP-FPM log | path biasa tidak boleh dibaca/tiada | Operations perlu sahkan lokasi sebenar |
-| ODBC topology | production DSN `172.16.2.14:5004`; student `asisdb`, staff query fully-qualified `ehrmdb` | Connectivity sahaja; privilege belum dibuktikan |
+| ODBC source read | staff 1,062 + student 5,423 = 6,485 melalui SELECT sahaja | Lulus untuk runtime read; grant exclusivity belum dibuktikan DBA |
 
 Tiada credential atau raw PII direkodkan dalam evidence.
 
@@ -114,15 +114,11 @@ Semua ujian menggunakan fake/in-memory dan tidak menyentuh live source/database.
 
 S4E kekal NO-GO sehingga sekurang-kurangnya:
 
-1. checkpoint/release commit S4D direkod;
-2. admin login/logout, preview browser, public-root dan SSO smoke disahkan;
-3. root/system scheduler inventory disahkan tiada job OneID;
-4. DBA membuktikan external staff/student credential ialah SELECT-only;
-5. backup OneID UAT dibuat di luar document root dengan permission dan SHA-256;
-6. restore rehearsal berjaya ke database berasingan;
-7. maintenance window dan pilot admin ditetapkan;
-8. fresh preview normal diterima oleh change owner;
-9. log path/monitoring serta observation owner disahkan.
+1. root/system scheduler inventory disahkan tiada job OneID;
+2. DBA membuktikan external staff/student credential ialah SELECT-only;
+3. maintenance window dan pilot admin ditetapkan;
+4. fresh preview counts/hash direkod dan diterima oleh change owner;
+5. log path/monitoring serta observation owner disahkan.
 
 ## 7. Backup dan Restore Evidence Template
 
@@ -163,6 +159,8 @@ legacy writer.
 
 ## 9. Langkah Berikutnya
 
-Langkah selamat berikutnya ialah review diff dan checkpoint Git S4D, kemudian
-owner menjalankan verification browser/operations di Seksyen 6. S4E hanya boleh
-dimulakan selepas semua gate wajib lengkap dan arahan GO baharu diberikan.
+Rujuk `docs/S4D_VERIFIKASI_OPERASI_SEBELUM_S4E.md`. Admin
+login/fresh preview/logout dan satu SSO consumer telah lulus. Langkah seterusnya
+ialah DBA mengesahkan privilege external benar-benar SELECT-only dan owner
+melengkapkan baki gate pre-pilot. S4E hanya boleh dimulakan selepas semua gate
+wajib lengkap dan arahan GO baharu diberikan.

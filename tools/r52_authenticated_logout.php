@@ -10,6 +10,7 @@
  * Usage:
  *   php tools/r52_authenticated_logout.php https://oneid.local user --insecure
  *   php tools/r52_authenticated_logout.php https://oneid.local admin --insecure
+ *   php tools/r52_authenticated_logout.php https://oneid.local admin --preview --insecure
  */
 
 if (PHP_SAPI !== 'cli') {
@@ -22,9 +23,15 @@ $contracts = require $projectRoot . '/tests/characterization/r52_authenticated_l
 $baseUrl = rtrim((string) ($argv[1] ?? ''), '/');
 $role = strtolower((string) ($argv[2] ?? ''));
 $insecure = in_array('--insecure', $argv, true);
+$preview = in_array('--preview', $argv, true);
 
 if ($baseUrl === '' || filter_var($baseUrl, FILTER_VALIDATE_URL) === false || !isset($contracts[$role])) {
-    fwrite(STDERR, "Usage: php tools/r52_authenticated_logout.php <base-url> <user|admin> [--insecure]\n");
+    fwrite(STDERR, "Usage: php tools/r52_authenticated_logout.php <base-url> <user|admin> [--preview] [--insecure]\n");
+    exit(2);
+}
+
+if ($preview && $role !== 'admin') {
+    fwrite(STDERR, "The read-only sync preview check is available only for the admin role.\n");
     exit(2);
 }
 
@@ -251,6 +258,46 @@ $report(
     'role authorization contract',
     'status=' . $adminDashboard['status'] . ' expected=' . $contract['admin_status']
 );
+
+if ($preview) {
+    // Deliberately sends only the preview action. This verifier has no Apply
+    // field, approval ID handling or call to the mutating sync action.
+    $previewResponse = $request(
+        $baseUrl . '/lib/q_func.php',
+        'POST',
+        ['admin_preview_sync_user' => ''],
+        ['Accept: application/json', 'X-CSRF-Token: ' . $csrfToken],
+        $cookieJar
+    );
+    $previewJson = json_decode($previewResponse['body'], true);
+    $previewOk = $previewResponse['error'] === ''
+        && $previewResponse['status'] === 200
+        && is_array($previewJson)
+        && (int) ($previewJson['status'] ?? 0) === 1
+        && (string) ($previewJson['mode'] ?? '') === 'preview'
+        && ($previewJson['can_apply'] ?? null) === false;
+    $report(
+        $previewOk,
+        'fresh external sync preview (no Apply)',
+        'status=' . $previewResponse['status']
+    );
+
+    if ($previewOk) {
+        $counts = is_array($previewJson['counts'] ?? null) ? $previewJson['counts'] : [];
+        printf(
+            "EVIDENCE preview source=%d new=%d update=%d deactivate=%d reactivate=%d protected=%d collisions=%d hash=%s... approval_ready=%s\n",
+            (int) ($previewJson['source_rows'] ?? 0),
+            (int) ($counts['New'] ?? 0),
+            (int) ($counts['Update'] ?? 0),
+            (int) ($counts['Deactivate'] ?? 0),
+            (int) ($counts['Reactivate'] ?? 0),
+            (int) ($previewJson['protected_manual_users'] ?? 0),
+            (int) ($previewJson['discarded_protected_collisions'] ?? 0),
+            substr((string) ($previewJson['plan_hash'] ?? ''), 0, 12),
+            !empty($previewJson['approval_ready']) ? 'yes' : 'no'
+        );
+    }
+}
 
 $logout = $request($baseUrl . $contract['logout'], 'GET', [], [], $cookieJar);
 $report(
