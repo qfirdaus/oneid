@@ -23,3 +23,10 @@ belum menggunakannya.
 
 R5.2D8 menambah dormant `SyncOrchestrator.php`. Full production-adapter parity
 dengan legacy lulus, tetapi tiada runtime require/factory/caller wiring.
+
+S3 menambah `SafeSyncOrchestrator.php` sebagai writer safety core yang masih
+dormant. Ia mengambil advisory lock, menyiapkan snapshot/planning sebelum
+transaction, menjalankan source/blast-radius gate, dan memerlukan exact parity
+antara planned, executed dan audited counts sebelum commit. Adapter lock dan
+reconciliation juga belum mempunyai production caller; Apply kekal disabled
+sehingga controlled S4 wiring.

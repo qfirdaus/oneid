@@ -347,6 +347,70 @@ class Database {
         return $this->pdo->rollBack();
     }
 
+    /**
+     * Acquire a connection-scoped MySQL advisory lock for a sync run.
+     * Dormant until the S4 feature-flagged orchestrator wiring is enabled.
+     */
+    public function sync_acquire_lock(string $lockName, int $waitSeconds = 0): bool{
+        if (!preg_match('/^[A-Za-z0-9:_-]{1,64}$/', $lockName)) {
+            throw new InvalidArgumentException('Invalid sync lock name');
+        }
+
+        $Q = "SELECT GET_LOCK(:lock_name, :wait_seconds)";
+        $R = $this->pdo->prepare($Q);
+        $R->bindValue(':lock_name', $lockName, PDO::PARAM_STR);
+        $R->bindValue(':wait_seconds', max(0, $waitSeconds), PDO::PARAM_INT);
+        $R->execute();
+        return (int) $R->fetchColumn() === 1;
+    }
+
+    /** Release a connection-scoped advisory lock held by this connection. */
+    public function sync_release_lock(string $lockName): void{
+        if (!preg_match('/^[A-Za-z0-9:_-]{1,64}$/', $lockName)) {
+            throw new InvalidArgumentException('Invalid sync lock name');
+        }
+
+        $Q = "SELECT RELEASE_LOCK(:lock_name)";
+        $R = $this->pdo->prepare($Q);
+        $R->bindValue(':lock_name', $lockName, PDO::PARAM_STR);
+        $R->execute();
+    }
+
+    /**
+     * Read the durable change-log totals used by the S3 reconciliation gate.
+     *
+     * @return array{New:int,Update:int,Deactivate:int,Reactivate:int}
+     */
+    public function sync_reconciliation_counts(int $headerId): array{
+        $counts = [
+            'New' => 0,
+            'Update' => 0,
+            'Deactivate' => 0,
+            'Reactivate' => 0,
+        ];
+        $Q = "SELECT action, COUNT(*) AS total
+              FROM sync_change_log
+              WHERE ext_head_id = :ext_head_id
+              GROUP BY action";
+        $R = $this->pdo->prepare($Q);
+        $R->bindValue(':ext_head_id', $headerId, PDO::PARAM_INT);
+        $R->execute();
+
+        $mapping = [
+            'NEW' => 'New',
+            'UPDATE' => 'Update',
+            'DEACTIVATE' => 'Deactivate',
+            'REACTIVATE' => 'Reactivate',
+        ];
+        foreach ($R->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $key = $mapping[strtoupper((string) ($row['action'] ?? ''))] ?? null;
+            if ($key !== null) {
+                $counts[$key] = (int) ($row['total'] ?? 0);
+            }
+        }
+        return $counts;
+    }
+
     public function supportsUserProvenance(): bool{
         if ($this->userProvenanceSupported !== null) {
             return $this->userProvenanceSupported;

@@ -28,7 +28,11 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
 
     public function createHeader(int $type): int
     {
-        return $this->operation->action_add_new_ext_header($type);
+        $headerId = (int) $this->operation->action_add_new_ext_header($type);
+        if ($headerId < 1) {
+            throw new \RuntimeException('SYNC_HEADER_CREATE_FAILED');
+        }
+        return $headerId;
     }
 
     public function activeUsers(): array
@@ -43,12 +47,13 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
 
     public function deactivateUser(string $userId): void
     {
-        $this->operation->admin_update_user_status($userId, 0);
+        $result = $this->operation->admin_update_user_status($userId, 0);
+        $this->assertAffected($result, 'SYNC_DEACTIVATE_NOT_APPLIED');
     }
 
     public function updateUser(string $userId, array $row, string $changeHash): void
     {
-        $this->operation->admin_update_specific_user_info_all_data(
+        $result = $this->operation->admin_update_specific_user_info_all_data(
             $userId,
             $row['data1'],
             $row['data2'],
@@ -64,6 +69,7 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
             $row['data12'],
             $changeHash
         );
+        $this->assertAffected($result, 'SYNC_UPDATE_NOT_APPLIED');
     }
 
     public function updateHeaderStatus(int $headerId, int $status, string $field, int $count): void
@@ -73,7 +79,7 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
 
     public function stageExternalUser(int $headerId, array $row): int
     {
-        return $this->operation->action_add_external_temp_body(
+        $bodyId = (int) $this->operation->action_add_external_temp_body(
             $headerId,
             $row['data1'],
             $row['data2'],
@@ -88,6 +94,10 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
             $row['data11'],
             $row['data12']
         );
+        if ($bodyId < 1) {
+            throw new \RuntimeException('SYNC_STAGE_CREATE_FAILED');
+        }
+        return $bodyId;
     }
 
     public function insertExternalUser(
@@ -96,7 +106,7 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
         string $passwordHash,
         string $changeHash
     ): void {
-        $this->operation->action_add_new_user_from_external_source(
+        $result = $this->operation->action_add_new_user_from_external_source(
             $row['data4'],
             $categoryId,
             $passwordHash,
@@ -114,16 +124,21 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
             $row['data12'],
             $changeHash
         );
+        $this->assertAffected($result, 'SYNC_INSERT_NOT_APPLIED');
     }
 
     public function markStagedUser(int $headerId, int $bodyId, int $status): void
     {
-        $this->operation->admin_update_ext_body_status($headerId, $bodyId, $status);
+        $result = $this->operation->admin_update_ext_body_status($headerId, $bodyId, $status);
+        $this->assertAffected($result, 'SYNC_STAGE_STATUS_NOT_APPLIED');
     }
 
     public function appendChanges(array $changes): void
     {
-        $this->operation->sync_log_change_batch($changes);
+        $result = $this->operation->sync_log_change_batch($changes);
+        if ($result !== null && (int) $result !== count($changes)) {
+            throw new \RuntimeException('SYNC_AUDIT_WRITE_MISMATCH');
+        }
     }
 
     public function updateSummary(
@@ -147,5 +162,16 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
     public function header(int $headerId): array
     {
         return $this->operation->action_get_ext_header($headerId);
+    }
+
+    /**
+     * Legacy test spies historically returned void. Real Database methods
+     * return rowCount, which the safe writer must not silently ignore.
+     */
+    private function assertAffected(mixed $result, string $failureCode): void
+    {
+        if ($result !== null && (int) $result < 1) {
+            throw new \RuntimeException($failureCode);
+        }
     }
 }

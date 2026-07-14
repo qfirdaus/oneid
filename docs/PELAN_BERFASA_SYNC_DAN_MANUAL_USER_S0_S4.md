@@ -3,7 +3,7 @@
 Tarikh: 14 Julai 2026  
 Owner perubahan: Pemilik sistem OneID  
 Owner rollback: Pemilik sistem OneID  
-Status: **AKTIF — S0, S1 DAN S2 SELESAI; S3–S4 BELUM DILAKSANAKAN**
+Status: **AKTIF — S0–S2 SELESAI; S3 SAFETY CORE DORMANT DIIMPLEMENTASIKAN; S4 BELUM**
 
 ## 1. Objektif
 
@@ -25,7 +25,7 @@ polisi provenance yang jelas.
 | S0 | Baseline, characterization dan keputusan polisi | Sangat rendah | Tiada |
 | S1 | Hardening Manual Add User dan provenance | Rendah–sederhana | Ya, terkawal |
 | S2 | Preview/dry-run external sync | Sederhana | Preview mesti zero mutation |
-| S3 | Transaction, lock, threshold dan operational safety | Sederhana–tinggi | Ya |
+| S3 | Transaction, lock, threshold dan operational safety | Sederhana–tinggi | Tiada semasa dormant implementation |
 | S4 | Feature-flag cutover orchestrator dan verification | Tinggi | Ya, terkawal |
 
 ## 3. S0 — Baseline dan Characterization
@@ -113,18 +113,24 @@ read-only disahkan lulus oleh owner. Rujuk
 
 ## 6. S3 — External Sync Operational Safety
 
-Perubahan dirancang:
+Safety core yang telah diimplementasikan secara dormant:
 
-- server-side single-run lock dengan owner dan TTL;
-- transaction bermula hanya selepas snapshot/preprocessing selamat atau semua
-  kegagalan upstream ditutup dengan rollback;
+- server-side connection-scoped single-run advisory lock;
+- transaction bermula hanya selepas snapshot/preprocessing selamat dan semua
+  kegagalan selepas `BEGIN` ditutup dengan rollback;
 - ODBC/API failure menggunakan exception terkawal, bukan `echo/exit`;
 - threshold hard-stop untuk mass deactivation dan perubahan luar biasa;
 - provenance/sync protection dipatuhi oleh planner dan writer;
-- job/correlation ID, structured log dan reconciliation report;
+- exact reconciliation bagi planned, executed dan durable audit count sebelum
+  commit.
+
+Gate operational yang kekal untuk S4 sebelum live run:
+
+- job/correlation ID dan structured monitoring;
 - response generik kepada browser; detail teknikal hanya dalam log selamat;
-- status jelas: planned, running, completed, failed atau rolled_back;
-- backup dan rollback data diuji sebelum live run.
+- status operational yang jelas untuk completed, failed dan rolled-back;
+- authoritative previous-source baseline;
+- backup serta rollback rehearsal sebelum pilot.
 
 Exit gate S3:
 
@@ -178,3 +184,9 @@ Rujuk `docs/S1_MANUAL_USER_HARDENING_DAN_PROVENANCE.md`.
 
 S2 telah melepasi exit gate. Langkah berikutnya ialah checkpoint Git S2 sebelum
 memulakan S3 transaction, lock, source-completeness dan reconciliation safety.
+
+Kemaskini S3 pada 14 Julai 2026: safety core dormant, advisory lock,
+transaction boundary, source-completeness thresholds dan exact reconciliation
+telah diimplementasikan tanpa production caller wiring atau live sync. Rujuk
+`docs/S3_TRANSACTION_LOCK_SOURCE_SAFETY_DAN_RECONCILIATION.md`. S3 hanya boleh
+bergerak ke live pilot melalui runbook dan feature flag S4.
