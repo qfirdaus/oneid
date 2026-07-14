@@ -10,6 +10,7 @@ if (PHP_SAPI !== 'cli') {
 $root = dirname(__DIR__, 2);
 foreach ([
     'app/Sync/Contracts/SyncApprovalStoreInterface.php',
+    'app/Sync/Contracts/SyncPlanApprovalGateInterface.php',
     'app/Sync/DTO/SyncPlan.php',
     'app/Sync/DTO/SyncApproval.php',
     'app/Sync/DTO/SyncApprovalReceipt.php',

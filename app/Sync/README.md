@@ -38,5 +38,10 @@ dua class belum direquire atau dipanggil oleh runtime production.
 
 S4B menambah canonical `SyncPlanFingerprinter`, one-time `SyncApprovalService`
 dan dormant server-side session store. Approval ID, admin, expiry, plan counts
-dan accepted baseline kini mempunyai contract, tetapi belum diwiring kepada
-preview, factory, orchestrator, endpoint atau UI.
+dan accepted baseline kini mempunyai contract.
+
+S4C menambah `ApprovedSyncCoordinator` dan approval gate pada
+`SafeSyncOrchestrator`. External/internal snapshot dibaca sekali, satu plan
+divalidasi sebelum transaction dan plan object sama diserahkan kepada writer.
+Factory hanya mendedahkan coordinator approval-aware. Semua ini masih dormant:
+preview runtime, endpoint, UI Apply, cron dan live sync belum diwiring.

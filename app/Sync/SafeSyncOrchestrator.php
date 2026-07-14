@@ -7,6 +7,8 @@ use OneId\App\Sync\Contracts\InitialPasswordFactoryInterface;
 use OneId\App\Sync\Contracts\SyncPersistenceInterface;
 use OneId\App\Sync\Contracts\SyncReconciliationReaderInterface;
 use OneId\App\Sync\Contracts\SyncRunLockInterface;
+use OneId\App\Sync\Contracts\SyncPlanApprovalGateInterface;
+use OneId\App\Sync\DTO\SyncApproval;
 use OneId\App\Sync\DTO\SyncPlan;
 use OneId\App\Sync\DTO\SyncRunSummary;
 use RuntimeException;
@@ -32,6 +34,45 @@ final class SafeSyncOrchestrator
         ?int $previousSourceRows = null,
         int $lockWaitSeconds = 0
     ): SyncRunSummary {
+        return $this->runInternal(
+            $triggeredBy,
+            $previousSourceRows,
+            $lockWaitSeconds,
+            null,
+            null,
+            null,
+            null
+        );
+    }
+
+    public function runApproved(
+        string $triggeredBy,
+        string $approvalId,
+        string $adminId,
+        SyncPlanApprovalGateInterface $approvalGate,
+        int $lockWaitSeconds = 0,
+        ?int $now = null
+    ): SyncRunSummary {
+        return $this->runInternal(
+            $triggeredBy,
+            null,
+            $lockWaitSeconds,
+            $approvalGate,
+            $approvalId,
+            $adminId,
+            $now
+        );
+    }
+
+    private function runInternal(
+        string $triggeredBy,
+        ?int $previousSourceRows,
+        int $lockWaitSeconds,
+        ?SyncPlanApprovalGateInterface $approvalGate,
+        ?string $approvalId,
+        ?string $adminId,
+        ?int $now
+    ): SyncRunSummary {
         if (!$this->lock->acquire($lockWaitSeconds)) {
             throw new RuntimeException('SYNC_ALREADY_RUNNING');
         }
@@ -53,11 +94,25 @@ final class SafeSyncOrchestrator
             $activeUsers = $this->persistence->activeUsers();
             $inactiveUserIds = $this->persistence->inactiveUserIds();
             $plan = $this->planner->plan($externalRows, $activeUsers, $inactiveUserIds);
+
+            $approval = null;
+            if ($approvalGate !== null) {
+                if ($approvalId === null || $adminId === null) {
+                    throw new RuntimeException('SYNC_APPROVAL_CONTEXT_MISSING');
+                }
+                $approval = $approvalGate->consumeAndValidate(
+                    $approvalId,
+                    $adminId,
+                    $plan,
+                    $now
+                );
+            }
+
             $decision = $this->safetyPolicy->assess(
                 $externalRows,
                 $activeUsers,
                 $plan,
-                $previousSourceRows
+                $approval instanceof SyncApproval ? $approval->acceptedBaseline : $previousSourceRows
             );
             if (!$decision->allowed) {
                 throw new SyncSafetyViolation($decision);

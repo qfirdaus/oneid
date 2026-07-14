@@ -40,8 +40,8 @@ $report(str_contains($config, "['false', 'true']") && str_contains($config, "['d
 $report(!str_contains($config, 'FILTER_VALIDATE_BOOLEAN') && !str_contains($config, 'strtolower('), 'loose boolean and case coercion are absent');
 $report(str_contains($config, 'SYNC_APPLY_FLAG_INVALID') && str_contains($config, 'SYNC_ENGINE_INVALID') && str_contains($config, 'SYNC_FLAG_COMBINATION_INVALID'), 'invalid states have stable fail-closed codes');
 $report(!str_contains($config, "'legacy'") && !str_contains($factory, 'run_admin_sync_user'), 'legacy writer is not selectable by S4A components');
-$report(str_contains($factory, 'SYNC_APPLY_DISABLED') && str_contains($factory, 'createSafeOrchestrator'), 'factory blocks disabled configuration');
-$report(str_contains($factory, 'new SafeSyncOrchestrator('), 'factory creates safe orchestrator only');
+$report(str_contains($factory, 'SYNC_APPLY_DISABLED') && str_contains($factory, 'createApprovedCoordinator'), 'factory blocks disabled configuration');
+$report(str_contains($factory, 'new ApprovedSyncCoordinator(') && str_contains($factory, 'new SafeSyncOrchestrator('), 'factory creates approval-aware safe coordinator only');
 $report(!str_contains($factory, 'fetchAll(') && !str_contains($factory, 'begin(') && !str_contains($factory, 'run('), 'factory construction contains no source/transaction/run call');
 $report(!str_contains($qFunc, 'SyncEngineFactory') && !str_contains($qFunc, 'SyncRuntimeConfig'), 'q_func has no S4A runtime wiring');
 $report(!str_contains($legacyRunner, 'SyncEngineFactory') && !str_contains($legacyRunner, 'SyncRuntimeConfig'), 'legacy runner has no S4A runtime wiring');

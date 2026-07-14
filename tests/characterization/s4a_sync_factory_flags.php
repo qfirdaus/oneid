@@ -15,15 +15,22 @@ foreach ([
     'app/Sync/Contracts/SyncPolicyInterface.php',
     'app/Sync/Contracts/SyncReconciliationReaderInterface.php',
     'app/Sync/Contracts/SyncRunLockInterface.php',
+    'app/Sync/Contracts/SyncApprovalStoreInterface.php',
+    'app/Sync/Contracts/SyncPlanApprovalGateInterface.php',
     'app/Sync/DTO/SyncPlan.php',
     'app/Sync/DTO/SyncRunSummary.php',
     'app/Sync/DTO/SyncSafetyDecision.php',
+    'app/Sync/DTO/SyncApproval.php',
+    'app/Sync/DTO/SyncApprovalReceipt.php',
     'app/Sync/SyncDataTransformer.php',
     'app/Sync/SyncPlanner.php',
     'app/Sync/SyncReconciler.php',
     'app/Sync/SyncSafetyPolicy.php',
     'app/Sync/SyncSafetyViolation.php',
     'app/Sync/SafeSyncOrchestrator.php',
+    'app/Sync/ApprovedSyncCoordinator.php',
+    'app/Sync/SyncPlanFingerprinter.php',
+    'app/Sync/SyncApprovalService.php',
     'app/Sync/SyncRuntimeConfig.php',
     'app/Sync/Adapters/DatabaseSyncPersistenceAdapter.php',
     'app/Sync/Adapters/DatabaseSyncReconciliationReader.php',
@@ -36,7 +43,9 @@ foreach ([
     require_once $root . '/' . $file;
 }
 
-use OneId\App\Sync\SafeSyncOrchestrator;
+use OneId\App\Sync\ApprovedSyncCoordinator;
+use OneId\App\Sync\Contracts\SyncApprovalStoreInterface;
+use OneId\App\Sync\DTO\SyncApproval;
 use OneId\App\Sync\SyncEngineFactory;
 use OneId\App\Sync\SyncRuntimeConfig;
 
@@ -49,6 +58,12 @@ final class S4AOperationTrap
         $this->calls++;
         throw new LogicException('S4A factory performed operation I/O: ' . $name);
     }
+}
+
+final class S4AApprovalStore implements SyncApprovalStoreInterface
+{
+    public function save(SyncApproval $approval): void {}
+    public function consume(string $approvalId): ?SyncApproval { return null; }
 }
 
 $checks = 0;
@@ -88,7 +103,7 @@ foreach ($invalidCases as [$apply, $engine, $expected]) {
 
 $disabledOperation = new S4AOperationTrap();
 try {
-    (new SyncEngineFactory($disabledOperation, $default))->createSafeOrchestrator();
+    (new SyncEngineFactory($disabledOperation, $default))->createApprovedCoordinator(new S4AApprovalStore());
     $factoryBlocked = false;
 } catch (RuntimeException $exception) {
     $factoryBlocked = $exception->getMessage() === 'SYNC_APPLY_DISABLED';
@@ -97,8 +112,8 @@ $report($factoryBlocked, 'disabled factory refuses to create writer');
 $report($disabledOperation->calls === 0, 'disabled factory performs zero operation I/O');
 
 $safeOperation = new S4AOperationTrap();
-$orchestrator = (new SyncEngineFactory($safeOperation, $safe))->createSafeOrchestrator();
-$report($orchestrator instanceof SafeSyncOrchestrator, 'true/safe factory creates safe orchestrator only');
+$coordinator = (new SyncEngineFactory($safeOperation, $safe))->createApprovedCoordinator(new S4AApprovalStore());
+$report($coordinator instanceof ApprovedSyncCoordinator, 'true/safe factory creates approval-aware coordinator only');
 $report($safeOperation->calls === 0, 'safe factory construction performs zero operation I/O');
 
 printf("RESULT checks=%d failed=%d\n", $checks, $failed);

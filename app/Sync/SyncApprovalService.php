@@ -3,13 +3,14 @@
 namespace OneId\App\Sync;
 
 use OneId\App\Sync\Contracts\SyncApprovalStoreInterface;
+use OneId\App\Sync\Contracts\SyncPlanApprovalGateInterface;
 use OneId\App\Sync\DTO\SyncApproval;
 use OneId\App\Sync\DTO\SyncApprovalReceipt;
 use OneId\App\Sync\DTO\SyncPlan;
 use RuntimeException;
 
 /** Dormant S4B one-time approval service. Contains no persistence writer. */
-final class SyncApprovalService
+final class SyncApprovalService implements SyncPlanApprovalGateInterface
 {
     public function __construct(
         private SyncApprovalStoreInterface $store,

@@ -53,7 +53,7 @@ $report(!str_contains($service, 'SyncPersistenceInterface') && !str_contains($se
 $report(str_contains($sessionStore, 'PHP_SESSION_ACTIVE') && str_contains($sessionStore, 'unset($records[$approvalId])'), 'server-side session store requires active session and one-time consume');
 $report(!str_contains($qFunc, 'SyncApprovalService') && !str_contains($qFunc, 'SessionSyncApprovalStore'), 'q_func has no S4B endpoint wiring');
 $report(!str_contains($dashboard, 'approval_id') && !str_contains($dashboard, 'admin_apply_sync_user'), 'dashboard has no approval or Apply UI wiring');
-$report(!str_contains($factory, 'SyncApprovalService') && !str_contains($factory, 'SessionSyncApprovalStore'), 'S4A factory remains approval-unwired');
+$report(str_contains($factory, 'SyncApprovalService') && !str_contains($factory, 'SessionSyncApprovalStore'), 'S4C factory uses injected approval store without session coupling');
 
 $output = [];
 $code = 1;

@@ -5,8 +5,8 @@ S4-G03	wiring	Master Apply flag defaults false	Developer	pass	S4A pure contract 
 S4-G04	wiring	Engine flag defaults disabled and strict allowlist disabled|safe	Developer	pass	Missing invalid and partial combinations fail closed in S4A fixture
 S4-G05	wiring	Legacy writer cannot be selected by normal S4 flag	Developer	pass	S4A config factory and static caller contract
 S4-G06	wiring	Factory construction performs no fetch or transaction	Developer	pass	S4A operation trap records zero calls
-S4-G07	approval	Approval is bound server-side to admin canonical hash counts and expiry	Developer	pending	S4B domain contract passes; preview and Apply runtime policy binding remains S4C
-S4-G08	approval	Apply uses the same fetched snapshot and validated canonical plan	Developer	pending	No second fetch TOCTOU or dependency on unstable ODBC row order
+S4-G07	approval	Approval is bound server-side to admin canonical hash counts and expiry	Developer	pending	S4B domain contract passes; preview runtime issuance and full policy binding remain S4D
+S4-G08	approval	Apply uses the same fetched snapshot and validated canonical plan	Developer	pass	S4C in-memory coordinator and static contract prove one fetch one plan before transaction; runtime remains dormant
 S4-G09	approval	Expired wrong-admin mismatch and replay paths have zero mutation	Developer	pass	S4B in-memory fixture 26/26; approval state only, no application persistence capability
 S4-G10	security	Apply endpoint is admin-only CSRF protected and exactly one action	Developer	pending	Authorization contract required
 S4-G11	privacy	Logs and responses contain no raw PII token or credential	Security reviewer	pending	Log/output inspection required

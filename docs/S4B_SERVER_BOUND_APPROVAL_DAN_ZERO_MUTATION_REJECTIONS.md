@@ -140,6 +140,11 @@ consume-on-failure tanpa database capability.
 
 ## 10. Baseline Checksum
 
+Checksum di bawah ialah baseline tepat pada checkpoint S4B `a565c99`. Fail
+`SyncApprovalService.php` dan `SyncEngineFactory.php` kemudiannya berubah dalam
+S4C untuk interface/coordinator wiring dormant; nilai ini tidak mendakwa sebagai
+checksum working tree selepas S4C.
+
 | Fail | SHA-256 |
 | --- | --- |
 | `SyncApprovalStoreInterface.php` | `cbf031e9c9accf7aefce46985bfcfa41fa57d1a3298a339f340159844af47804` |
@@ -154,12 +159,12 @@ consume-on-failure tanpa database capability.
 
 ## 11. Limitasi dan NO-GO
 
-S4B belum membuktikan bahawa validated approval dan writer menggunakan satu
-snapshot/plan object yang sama. Approval service masih tidak mempunyai runtime
-caller dan factory tidak mempunyai approval dependency. Oleh itu:
+Limitasi same-snapshot/factory ini telah diselesaikan secara dormant oleh S4C.
+Preview runtime masih belum menerbitkan approval dan endpoint Apply masih tidak
+wujud. Oleh itu:
 
 - G07 kekal pending untuk full preview-policy/runtime binding;
-- G08 same-snapshot/TOCTOU kekal pending;
+- G08 lulus pada coordinator/domain level melalui S4C;
 - endpoint, UI Apply dan live pilot kekal NO-GO.
 
 ## 12. Rollback
@@ -170,7 +175,6 @@ diperlukan kerana tiada runtime caller atau environment change.
 
 ## 13. Langkah Berikutnya
 
-Langkah berikutnya ialah **S4C — approval-aware single-snapshot coordinator
-secara dormant**. Coordinator mesti menggunakan plan yang sama untuk validation
-dan writer serta membuktikan semua rejection berlaku sebelum `BEGIN`. Endpoint,
-UI Apply dan live sync masih tidak boleh diaktifkan.
+S4C telah dilaksanakan secara dormant. Langkah berikutnya ialah **S4D — dormant
+deployment dan pre-pilot readiness**. Endpoint, UI Apply dan live sync masih
+tidak boleh diaktifkan.

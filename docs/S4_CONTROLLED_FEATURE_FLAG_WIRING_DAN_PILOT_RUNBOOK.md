@@ -3,7 +3,7 @@
 Tarikh pelan: 14 Julai 2026
 Change owner: Pemilik sistem OneID
 Rollback owner: Pemilik sistem OneID
-Status: **S4A–S4B DORMANT SIAP — S4C–S4E BELUM, NO-GO UNTUK APPLY**
+Status: **S4A–S4C DORMANT SIAP — S4D–S4E BELUM, NO-GO UNTUK APPLY**
 Baseline code: commit `243ff2c`
 
 ## 1. Objektif dan Boundary
@@ -28,7 +28,7 @@ pilot hanya boleh berlaku pada database OneID UAT selepas GO eksplisit.
 | Preview | Aktif, admin-only, read-only, `can_apply=false` |
 | Apply action legacy | Masih wujud tetapi master flag default `false` |
 | Dashboard | Hanya menghantar `admin_preview_sync_user` |
-| Safe orchestrator | Dormant; tiada runtime caller |
+| Approval-aware coordinator | Dormant; satu snapshot/plan contract lulus, tiada runtime caller |
 | Single-run lock/reconciliation | Dormant; lulus contract S3 |
 | Cron | Retired; kekal di luar S4 |
 | S2 preview terakhir | 6,485 rows; 71 New; 4 Update; 0 Deactivate; 0 Reactivate |
@@ -123,33 +123,33 @@ runtime caller dan tiada deployment flag diubah.
 
 - **Selesai pada domain/test level:** tambah one-time approval server-side dan
   canonical plan fingerprint;
-- runtime alignment preview dengan `SyncSafetyPolicy` dan Apply kekal untuk
-  S4C;
-- tambah endpoint Apply admin-only dengan CSRF dan exactly-one-action guard;
-- response browser hanya generic status, correlation ID, header ID dan counts;
+- runtime alignment preview dengan `SyncSafetyPolicy` dan Apply kekal belum
+  dibuat;
 - test missing/invalid/disabled/safe flag matrix;
 - test hash mismatch, expiry, wrong admin, replay dan double-click;
 - buktikan semua rejection path mempunyai zero mutation;
-- buktikan success path menggunakan satu snapshot dan satu writer sahaja.
+- success-path single-snapshot binding diselesaikan dalam S4C.
 
 Approval/rejection contract dirujuk dalam
 `docs/S4B_SERVER_BOUND_APPROVAL_DAN_ZERO_MUTATION_REJECTIONS.md`. Endpoint,
-factory dan orchestrator masih tidak menggunakan approval service.
+preview runtime dan UI masih tidak menggunakan approval service.
 
-### S4C — Approval-aware coordinator dan dormant deployment/soak
+### S4C — Approval-aware coordinator
 
-- bina coordinator yang menghasilkan plan sekali, validate/consume approval,
+- **Selesai secara dormant:** coordinator menghasilkan plan sekali, validate/consume approval,
   kemudian menyerahkan plan object sama kepada writer;
-- buktikan mismatch/expiry/replay berhenti sebelum `BEGIN`;
-- wire dependency secara dormant tanpa endpoint/UI Apply;
+- mismatch/expiry/replay dibuktikan berhenti sebelum `BEGIN`;
+- factory hanya mendedahkan approval-aware coordinator dan tiada endpoint/UI
+  Apply;
+- rujuk `docs/S4C_APPROVAL_AWARE_SINGLE_SNAPSHOT_COORDINATOR.md`.
+
+### S4D — Dormant deployment dan pre-pilot readiness
+
 - deploy code dengan Apply masih `false/disabled`;
 - jalankan S1, S2, S3, auth dan public-root regression;
 - sahkan preview browser kekal read-only;
 - perhatikan Nginx/PHP-FPM log tanpa mengaktifkan Apply;
 - cron kekal retired.
-
-### S4D — Pre-pilot readiness
-
 - tetapkan maintenance window, pilot admin dan DBA/backup owner;
 - ambil backup OneID UAT dan rehearsal restore ke lokasi berasingan;
 - jana preview baharu dan terima counts/baseline secara rasmi;
