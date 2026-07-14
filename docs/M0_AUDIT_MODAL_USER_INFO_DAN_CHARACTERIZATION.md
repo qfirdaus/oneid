@@ -3,7 +3,7 @@
 Tarikh: 14 Julai 2026
 Owner perubahan: Pemilik sistem OneID
 Owner rollback: Pemilik sistem OneID
-Status: **SELESAI — SUPERSEDED BY M1 SAFE USER RESYNC**
+Status: **SELESAI — FINDING DITUTUP BERFASA OLEH M1, M2 DAN M3**
 
 ## 1. Objektif dan batas
 
@@ -52,15 +52,15 @@ POST, exactly-one recognized action, CSRF, authenticated session dan role admin.
 | M0-F01 | Kritikal | Resync | Handler masih menggunakan sample localhost, bukan authoritative external lookup | Disable/replace dalam M1 |
 | M0-F02 | Kritikal | Resync | Empty result tidak ditolak sebelum `data1..data12` digunakan dan ditulis | Fail-closed dalam M1 |
 | M0-F03 | Tinggi | Resync | Tiada provenance protection, preview, confirmation, transaction atau rollback | Bina service terkawal dalam M1 |
-| M0-F04 | Tinggi | Profile | Nama kelihatan editable tetapi tiada persistence handler | Polisi manual/external dalam M3 |
-| M0-F05 | Tinggi | Profile | Butang Save mempunyai handler kosong | Ganti dengan workflow jelas dalam M3 |
-| M0-F06 | Sederhana | Category | Dropdown terus mutate sebelum Save; category `9` di-hardcode sebagai admin | Validasi dan role mapping dalam M3 |
+| M0-F04 | Tinggi | Profile | Nama kelihatan editable tetapi tiada persistence handler | Ditutup M3: manual editable, external read-only |
+| M0-F05 | Tinggi | Profile | Butang Save mempunyai handler kosong | Ditutup M3: explicit Save + confirmation |
+| M0-F06 | Sederhana | Category | Dropdown terus mutate sebelum Save; category `9` di-hardcode sebagai admin | Ditutup M3: staged save, active category validation, role preserved |
 | M0-F07 | Tinggi | Reset password | Password rawak + token revocation baik, tetapi tiada audit event, transaction, result verification atau explicit OTP invalidation | Hardening dalam M2 |
 | M0-F08 | Tinggi | Status | Remove/Reactivate memulangkan success walaupun row mungkin tidak berubah | Verify row/result dalam M2 |
 | M0-F09 | Tinggi | Status | Status, token dan audit bukan satu atomic transaction | Transaction dalam M2 |
-| M0-F10 | Sederhana | ACL | Add/Deny/Uplift tiada audit event, duplicate/resource validation dan error feedback yang cukup | Hardening dalam M3 |
-| M0-F11 | Tinggi | Output | Nama aplikasi dibina terus sebagai HTML dalam modal | Contextual encoding dalam M3 |
-| M0-F12 | Sederhana | UI | Banyak AJAX error callback kosong dan state gagal tidak diterangkan | Standard error state M1–M3 |
+| M0-F10 | Sederhana | ACL | Add/Deny/Uplift tiada audit event, duplicate/resource validation dan error feedback yang cukup | Ditutup M3: atomic service, validation, audit dan correlated response |
+| M0-F11 | Tinggi | Output | Nama aplikasi dibina terus sebagai HTML dalam modal | Ditutup M3: DOM output encoding |
+| M0-F12 | Sederhana | UI | Banyak AJAX error callback kosong dan state gagal tidak diterangkan | Ditutup bagi flow modal M1–M3 |
 
 ## 4. Penilaian setiap fungsi
 

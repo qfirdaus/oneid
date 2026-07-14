@@ -157,7 +157,7 @@
                      <div class="modal-footer">
                         <button type="button" class="btn btn-danger waves-effect user_info_btn" onclick="user_info_deactivate_user();" id="btn_user_profile_deactivate">Remove User</button>
                         <button type="button" class="btn btn-primary waves-effect user_info_btn_reactivate" onclick="user_info_reactivate_user();" id="btn_user_profile_reactivate">Reactivate User</button>
-                        <button type="button" class="btn btn-primary waves-effect user_info_btn" onclick="">Save</button>
+                        <button type="button" class="btn btn-primary waves-effect user_info_btn" onclick="modal_user_profile_save();" id="btn_user_profile_save"><i class="fa fa-save"></i> Save Profile</button>
                         <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
                      </div>
                   </form>
@@ -2642,316 +2642,378 @@
          
          
            var temp_prev_category = "";
+           var m3ProfileSource = "legacy";
+
+           function m3EscapeHtml(value){
+            return $('<div>').text(value == null ? '' : String(value)).html();
+           }
+
+           function m3FailureText(response, fallback){
+            var code = response && response.code ? String(response.code) : 'M3_REQUEST_FAILED';
+            var reference = response && response.correlation_id ? String(response.correlation_id) : '';
+            return (fallback || 'The request was not completed.') + '\nCode: ' + code + (reference ? '\nReference: ' + reference : '');
+           }
+
+           function m3TransportFailure(xhr, fallback){
+            var detail = xhr && xhr.status ? ' HTTP ' + xhr.status + '.' : '';
+            swal('Request failed', (fallback || 'The server could not complete the request.') + detail, 'error');
+           }
+
+           function modal_user_profile_save(){
+            var userId = $('#modal_user_profile_user_id').val();
+            var categoryId = $('#modal_user_profile_category').val();
+            var name = $('#modal_user_profile_name').val();
+            if(!userId || categoryId === ''){
+              swal('Profile not ready', 'Select an active category before saving.', 'warning');
+              return;
+            }
+            swal({
+              title: 'Save profile?',
+              text: 'This saves the validated profile and category. Administrator role is not changed by category.',
+              type: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Save profile',
+              closeOnConfirm: false
+            }, function(){
+              $.ajax({
+                type: 'POST',
+                url: '../lib/q_func',
+                dataType: 'json',
+                data: {admin_save_user_profile:'', user_id:userId, name:name, category_id:categoryId},
+                beforeSend: function(){ $('#btn_user_profile_save').prop('disabled', true); },
+                complete: function(){ $('#btn_user_profile_save').prop('disabled', false); },
+                success: function(response){
+                  if(Number(response.status) === 1){
+                    temp_prev_category = categoryId;
+                    $('#btn_user_profile_save').addClass('btn-primary').removeClass('btn-warning');
+                    get_specific_user_sp_access_list(userId);
+                    admin_get_all_user_category(1);
+                    var unchanged = response.code === 'M3_PROFILE_UNCHANGED';
+                    swal(unchanged ? 'No changes' : 'Profile saved', (unchanged ? 'The profile already matches the saved values.' : 'Profile and category policy were applied.') + '\nReference: ' + response.correlation_id, 'success');
+                  }else{
+                    swal('Profile not saved', m3FailureText(response, 'The profile failed validation or policy checks.'), 'error');
+                  }
+                },
+                error: function(xhr){ m3TransportFailure(xhr, 'The profile was not saved.'); }
+              });
+            });
+           }
            function get_specific_user_profile_info(user_id,status){
-           	$.ajax({
-           		type: 'POST',
-           		url: '../lib/q_func',
-           		dataType: "json",
-           		data: {admin_get_get_specific_user_profile_info:"",user_id,source:status},
-           		beforeSend: function(){
-           			$('.modal_user_profile_loading_text').show();
-           			$('.modal_user_profile_input').hide();
-         
-           			$('#modal_user_profile_name').val('');
-           			$('#modal_user_profile_id').val('');
-           			$('#modal_user_profile_status').html('-');
-           		},
-           		success: function (response) {       
-         
-           			$('.modal_user_profile_loading_text').hide();
-           			$('.modal_user_profile_input').show();
-           			switch(response['source']){
-         				case "1": //reg
+              $.ajax({
+                 type: 'POST',
+                 url: '../lib/q_func',
+                 dataType: "json",
+                 data: {admin_get_get_specific_user_profile_info:"",user_id,source:status},
+                 beforeSend: function(){
+                    $('.modal_user_profile_loading_text').show();
+                    $('.modal_user_profile_input').hide();
+
+                    $('#modal_user_profile_name').val('');
+                    $('#modal_user_profile_id').val('');
+                    $('#modal_user_profile_status').html('-');
+                 },
+                 success: function (response) {
+
+                    $('.modal_user_profile_loading_text').hide();
+                    $('.modal_user_profile_input').show();
+                    $('#btn_user_profile_save').addClass('btn-primary').removeClass('btn-warning');
+                    switch(response['source']){
+                     case "1": //reg
                      var u_id_text= "";
                      if(response['data3'] != " "){
                         u_id_text = response['data3'];
                      }else{
                         u_id_text = response['data4'];
                      }
-         				$('#modal_user_profile_name').val(response['data1']);
-         				$('#modal_user_profile_id').val(u_id_text);
-         				if(response['u_category'] == "0"){
-         					$('#modal_user_profile_category').val('');
-         					temp_prev_category = '';
-         				}else{
-         					$('#modal_user_profile_category').val(response['u_category']);
-         					temp_prev_category = response['u_category'];
-         				}
-         				$('#modal_user_profile_user_id').val(response['u_id']);
-         				if(response['avail_status']=="0"){
-         					$('#modal_user_profile_status').html('<div class="alert alert-danger alert-dismissable mt-10">Status : Removed</div></div>');	
-         					$('.user_info_btn').hide();
-         					$('.user_info_btn_reactivate').show();                				
-         					$(".modal_user_profile_input_enable").prop('disabled', true);
-         				}else{
-         					$('#modal_user_profile_status').html('<div class="alert alert-success alert-dismissable mt-10">Status : Registered</div></div>');
-         					$('.user_info_btn').show();	                		
-         					$('.user_info_btn_reactivate').hide();	
-         					$(".modal_user_profile_input_enable").prop('disabled', false);
-         					$('#modal_user_profile_lastupdate_text').text(response['u_update_datetime']);
-         				}
-         				break;
-         				case "2": //unreg
-         				$('#modal_user_profile_status').html('<div class="alert alert-danger alert-dismissable mt-10">Status: Unregistered</div></div>');
-         				$('#modal_user_profile_name').val(response['data1']);
-         				$('#modal_user_profile_id').val(u_id_text);
-         				$('#modal_user_profile_category').val('');
-         				$('#modal_user_profile_user_id').val(response['u_id']);
-         				temp_prev_category = '';
-         				break;
-         			}
-         		},
-         		error: function (xhr, error, thrown) {
-         		}
-         	});
+                      $('#modal_user_profile_name').val(response['data1']);
+                        m3ProfileSource = String(response['account_source'] || 'legacy').toLowerCase();
+                     $('#modal_user_profile_id').val(u_id_text);
+                     if(response['u_category'] == "0"){
+                        $('#modal_user_profile_category').val('');
+                        temp_prev_category = '';
+                      }else{
+                        $('#modal_user_profile_category').val(response['u_category']);
+                        temp_prev_category = response['u_category'];
+                     }
+                     $('#modal_user_profile_user_id').val(response['u_id']);
+                     if(response['avail_status']=="0"){
+                        $('#modal_user_profile_status').html('<div class="alert alert-danger alert-dismissable mt-10">Status : Removed</div></div>');
+                        $('.user_info_btn').hide();
+                        $('.user_info_btn_reactivate').show();
+                        $(".modal_user_profile_input_enable").prop('disabled', true);
+                     }else{
+                        $('#modal_user_profile_status').html('<div class="alert alert-success alert-dismissable mt-10">Status : Registered</div></div>');
+                        $('.user_info_btn').show();
+                        $('.user_info_btn_reactivate').hide();
+                        $('#modal_user_profile_category').prop('disabled', false);
+                              $('#modal_user_profile_name').prop('disabled', m3ProfileSource !== 'manual')
+                                .attr('title', m3ProfileSource === 'manual' ? 'Manual account name may be edited.' : 'External account name is maintained through Safe Resync.');
+                        $('#modal_user_profile_lastupdate_text').text(response['u_update_datetime']);
+                     }
+                     break;
+                     case "2": //unreg
+                     $('#modal_user_profile_status').html('<div class="alert alert-danger alert-dismissable mt-10">Status: Unregistered</div></div>');
+                     $('#modal_user_profile_name').val(response['data1']);
+                     $('#modal_user_profile_id').val(u_id_text);
+                     $('#modal_user_profile_category').val('');
+                     $('#modal_user_profile_user_id').val(response['u_id']);
+                     temp_prev_category = '';
+                     break;
+                  }
+               },
+                  error: function (xhr, error, thrown) {
+                              m3TransportFailure(xhr, 'The user profile could not be loaded.');
+                  }
+            });
            }
-         
+
            function get_specific_user_sp_access_list(user_id){
-           	$.ajax({
-           		type: 'POST',
-           		url: '../lib/q_func',
-           		dataType: "json",
-           		data: {get_specific_user_sp_access_list:"",u_id:user_id},
-           		beforeSend: function(){
-           			$('#modal_user_profile_sp_list_loading').show();
-           			$('#modal_user_profile_sp_list').html('');
+              $.ajax({
+                 type: 'POST',
+                 url: '../lib/q_func',
+                 dataType: "json",
+                 data: {get_specific_user_sp_access_list:"",u_id:user_id},
+                 beforeSend: function(){
+                    $('#modal_user_profile_sp_list_loading').show();
+                    $('#modal_user_profile_sp_list').html('');
                          // $('#login_status').html('<div class="alert alert-info alert-dismissable alert-style-1"><i class="zmdi zmdi-info-outline"></i>Signing on. Checking info. Wait a moment.</div>');
                      },
                      success: function (response) {
-         
-                     	var tr = '';
-                     	$.each( response, function( i, value ) {
-                     		var checked = '';
-                     		var disable_label = "";
-         	        	if(response[i]['status']!=1){ //blockedv
-         	        		tr += '<a href="#" class="list-group-item" onclick="uplift_blacklist(&quot;'+response[i]['aclblk_id']+'&quot;)">';
-         	        		tr += '<span class="badge transparent-badge badge-success capitalize-font"><span class="label label-danger">Denied</span></span>';
-         	        		tr += '<p class=" pull-left">'+(Number(i)+Number(1))+'. '+response[i]['sp_name']+'</p>';
-         	        		tr += '<div class="clearfix"></div>';
-         	        		tr += '</a>';
-         	        	}else{
-         	        		tr += '<a href="#" class="list-group-item" onclick="deny_access(&quot;'+response[i]['sp_id']+'&quot;)">';
-         	        		tr += '<span class="badge transparent-badge badge-success capitalize-font"><span class="label label-success">Allowed</span></span>';
-         	        		tr += '<p class=" pull-left">'+(Number(i)+Number(1))+'. '+response[i]['sp_name']+'</p>';
-         	        		tr += '<div class="clearfix"></div>';
-         	        		tr += '</a>';			        		
-         	        	}
-         	        });
-         
-                     	$('#modal_user_profile_sp_list_loading').hide();
-                     	$('#modal_user_profile_sp_list').html(tr);
-         
+
+                        var tr = '';
+                        $.each( response, function( i, value ) {
+                           var checked = '';
+                           var disable_label = "";
+                       var safeName = m3EscapeHtml(response[i]['sp_name']);
+                       if(response[i]['status']!=1){ //blockedv
+                          tr += '<a href="#" class="list-group-item" onclick="uplift_blacklist(&quot;'+response[i]['aclblk_id']+'&quot;)">';
+                          tr += '<span class="badge transparent-badge badge-success capitalize-font"><span class="label label-danger">Denied</span></span>';
+                          tr += '<p class=" pull-left">'+(Number(i)+Number(1))+'. '+safeName+'</p>';
+                          tr += '<div class="clearfix"></div>';
+                          tr += '</a>';
+                       }else{
+                          tr += '<a href="#" class="list-group-item" onclick="deny_access(&quot;'+response[i]['sp_id']+'&quot;)">';
+                          tr += '<span class="badge transparent-badge badge-success capitalize-font"><span class="label label-success">Allowed</span></span>';
+                          tr += '<p class=" pull-left">'+(Number(i)+Number(1))+'. '+safeName+'</p>';
+                          tr += '<div class="clearfix"></div>';
+                          tr += '</a>';
+                       }
+                    });
+
+                        $('#modal_user_profile_sp_list_loading').hide();
+                        $('#modal_user_profile_sp_list').html(tr);
+
                      },
                      error: function (xhr, error, thrown) {
+                        $('#modal_user_profile_sp_list_loading').hide();
+                        m3TransportFailure(xhr, 'Application access could not be loaded.');
                      }
                  });
            }
-         
-         
+
+
            function add_new_specific_apps_to_accessible(){
-         
-           	$('#text_lst_of_accible_app').text('Add new app access');
-           	get_add_new_specific_apps_to_accissible_list();
-           	$('#btn_add_new_specific_apps_to_accessible').hide();
-           	$('#btn_close_add_new_specific_apps_to_accessible').show();
-           	$('#modal_user_profile_sp_list_div').fadeOut();
-           	$('#modal_user_profile_sp_add_new_list_div').fadeIn();
+
+              $('#text_lst_of_accible_app').text('Add new app access');
+              get_add_new_specific_apps_to_accissible_list();
+              $('#btn_add_new_specific_apps_to_accessible').hide();
+              $('#btn_close_add_new_specific_apps_to_accessible').show();
+              $('#modal_user_profile_sp_list_div').fadeOut();
+              $('#modal_user_profile_sp_add_new_list_div').fadeIn();
            }
-         
+
            function close_add_new_specific_apps_to_accessible(){
-           	$('#text_lst_of_accible_app').text('LIST OF ACCESSIBLE APPS');
-           	$('#btn_add_new_specific_apps_to_accessible').show();
-           	$('#btn_close_add_new_specific_apps_to_accessible').hide();
-           	$('#modal_user_profile_sp_list_div').fadeIn();
-           	$('#modal_user_profile_sp_add_new_list_div').fadeOut();
+              $('#text_lst_of_accible_app').text('LIST OF ACCESSIBLE APPS');
+              $('#btn_add_new_specific_apps_to_accessible').show();
+              $('#btn_close_add_new_specific_apps_to_accessible').hide();
+              $('#modal_user_profile_sp_list_div').fadeIn();
+              $('#modal_user_profile_sp_add_new_list_div').fadeOut();
            }
-         
-         
+
+
            function get_add_new_specific_apps_to_accissible_list(){
-           	$.ajax({
-           		type: 'POST',
-           		url: '../lib/q_func',
-           		dataType: "json",
-           		data:{get_add_new_specific_apps_to_accissible_list:"",u_id:$('#modal_user_profile_user_id').val()},
-           		beforeSend: function(){
-           			$('#modal_user_profile_sp_list_loading').show();
-           		},
-           		success: function (response) {
-           			var tr = '';
-           			if(response.length == 0){
-         
-           				$('#modal_user_profile_sp_add_new_list_div').html('No Available Apps');
-           				$('#modal_user_profile_sp_list_loading').hide();
-           				return;
-           			}
-           			$.each( response, function( i, value ) {
-           				tr += '<a href="#" class="list-group-item" onclick="add_new_specific_apps_to_user(&quot;'+response[i]['sp_id']+'&quot;)">';
-           				tr += '<span class="badge transparent-badge badge-success capitalize-font"><span class="label label-success">+ Add</span></span>';
-           				tr += '<p class=" pull-left">'+(i+1)+'. '+response[i]['sp_name']+'</p>';
-           				tr += '<div class="clearfix"></div>';
-           				tr += '</a>';		
-           			});
-           			$('#modal_user_profile_sp_list_loading').hide();
-           			$('#modal_user_profile_sp_add_new_list_div').html(tr);
-         
-           		},
-           		error: function (xhr, error, thrown) {
-           		}
-           	});
+              $.ajax({
+                 type: 'POST',
+                 url: '../lib/q_func',
+                 dataType: "json",
+                 data:{get_add_new_specific_apps_to_accissible_list:"",u_id:$('#modal_user_profile_user_id').val()},
+                 beforeSend: function(){
+                    $('#modal_user_profile_sp_list_loading').show();
+                 },
+                 success: function (response) {
+                    var tr = '';
+                    if(response.length == 0){
+
+                       $('#modal_user_profile_sp_add_new_list_div').html('No Available Apps');
+                       $('#modal_user_profile_sp_list_loading').hide();
+                       return;
+                    }
+                    $.each( response, function( i, value ) {
+                       tr += '<a href="#" class="list-group-item" onclick="add_new_specific_apps_to_user(&quot;'+response[i]['sp_id']+'&quot;)">';
+                       tr += '<span class="badge transparent-badge badge-success capitalize-font"><span class="label label-success">+ Add</span></span>';
+                     tr += '<p class=" pull-left">'+(i+1)+'. '+m3EscapeHtml(response[i]['sp_name'])+'</p>';
+                       tr += '<div class="clearfix"></div>';
+                       tr += '</a>';
+                    });
+                    $('#modal_user_profile_sp_list_loading').hide();
+                    $('#modal_user_profile_sp_add_new_list_div').html(tr);
+
+                 },
+                  error: function (xhr, error, thrown) {
+                              $('#modal_user_profile_sp_list_loading').hide();
+                              m3TransportFailure(xhr, 'Available applications could not be loaded.');
+                  }
+              });
            }
-         
-         
+
+
            function add_new_specific_apps_to_user(sp_id){
-           	swal({   
-           		title: "Add Access",   
-           		text: "Are you sure you want to add access to this user?",   
-           		type: "warning",   
-           		showCancelButton: true,   
-           		confirmButtonColor: "#DD6B55",   
-           		confirmButtonText: "Yes!",   
-           		closeOnConfirm: false 
-           	}, function(){   
-         
-           		$.ajax({
-           			type: 'POST',
-           			url: '../lib/q_func',
-           			dataType: "json",
-           			data: {add_new_specific_apps_to_user:'',sp_id:sp_id,u_id:$('#modal_user_profile_user_id').val()},     
-           			beforeSend: function(){
-           			},
-           			success: function (response) {
-           				if (response == 1){
-           					get_specific_user_sp_access_list($('#modal_user_profile_user_id').val());
-           					$('#text_lst_of_accible_app').text('LIST OF ACCESSIBLE APPS');
-           					$('#btn_add_new_specific_apps_to_accessible').show();
-           					$('#btn_close_add_new_specific_apps_to_accessible').hide();
-           					$('#modal_user_profile_sp_list_div').fadeIn();
-           					$('#modal_user_profile_sp_add_new_list_div').fadeOut();
-           					swal("Add Access", "Success", "success"); 
-           				}else{
-           					swal("Add Access", "Error", "error"); 
-           				}
-         
-           			},
-           			error: function (xhr, error, thrown) {
-           			}
-           		});
-           	});
+              swal({
+                 title: "Add Access",
+                 text: "Are you sure you want to add access to this user?",
+                 type: "warning",
+                 showCancelButton: true,
+                 confirmButtonColor: "#DD6B55",
+                 confirmButtonText: "Yes!",
+                 closeOnConfirm: false
+              }, function(){
+
+                 $.ajax({
+                    type: 'POST',
+                    url: '../lib/q_func',
+                    dataType: "json",
+                    data: {add_new_specific_apps_to_user:'',sp_id:sp_id,u_id:$('#modal_user_profile_user_id').val()},
+                  beforeSend: function(){ $('#btn_add_new_specific_apps_to_accessible').prop('disabled', true); },
+                              complete: function(){ $('#btn_add_new_specific_apps_to_accessible').prop('disabled', false); },
+                  success: function (response) {
+                     if (Number(response.status) === 1){
+                          get_specific_user_sp_access_list($('#modal_user_profile_user_id').val());
+                          $('#text_lst_of_accible_app').text('LIST OF ACCESSIBLE APPS');
+                          $('#btn_add_new_specific_apps_to_accessible').show();
+                          $('#btn_close_add_new_specific_apps_to_accessible').hide();
+                          $('#modal_user_profile_sp_list_div').fadeIn();
+                          $('#modal_user_profile_sp_add_new_list_div').fadeOut();
+                        swal("Access added", "The user sessions were revoked so the ACL takes effect immediately.\nReference: " + response.correlation_id, "success");
+                     }else{
+                        swal("Access not added", m3FailureText(response, "The ACL change was rejected."), "error");
+                       }
+
+                    },
+                  error: function (xhr, error, thrown) { m3TransportFailure(xhr, 'Application access was not added.'); }
+                 });
+              });
            }
-         
-         
+
+
            function open_blacklist_modal(){
-           	admin_get_all_blacklist_record();
-           	$('#modal_acl_blacklist').modal('show');
+              admin_get_all_blacklist_record();
+              $('#modal_acl_blacklist').modal('show');
            }
-         
-         
-         
+
+
+
            function admin_get_all_blacklist_record(){
-           	$.ajax({
-           		type: 'POST',
-           		url: '../lib/q_func',
-           		dataType: "json",
-           		data: {admin_get_all_blacklist_record:""},
-           		beforeSend: function(){
+              $.ajax({
+                 type: 'POST',
+                 url: '../lib/q_func',
+                 dataType: "json",
+                 data: {admin_get_all_blacklist_record:""},
+                 beforeSend: function(){
                          // $('#login_status').html('<div class="alert alert-info alert-dismissable alert-style-1"><i class="zmdi zmdi-info-outline"></i>Signing on. Checking info. Wait a moment.</div>');
                      },
-                     success: function (response) {       
-                     	var tr = '';
-                     	if(response.length == 0){
-                     		$('#tbody_blacklist_record').html('<tr><td colspan="4">No record yet</td></tr>');
-                     		return;
-                     	}else{
-         
-                     	}
-                     	$.each( response, function( i, value ) {
-                     		tr += '<tr>';
-                     		tr += '<td>'+(i+1)+'</td>';
-                     		tr += '<td>'+response[i]['data1']+'</td>';
-                     		tr += '<td>'+response[i]['sp_name']+'</td>';
-                     		tr += '<td><button type="button" class="btn btn-danger btn-rounded btn-xs" onclick=uplift_blacklist(&quot;'+response[i]['aclblk_id']+'&quot;)>Uplift</button></td>';
-                     		tr += '</tr>';
-                     	});
-                     	$('#tbody_blacklist_record').html(tr);
-         
+                     success: function (response) {
+                        var tr = '';
+                        if(response.length == 0){
+                           $('#tbody_blacklist_record').html('<tr><td colspan="4">No record yet</td></tr>');
+                           return;
+                        }else{
+
+                        }
+                        $.each( response, function( i, value ) {
+                           tr += '<tr>';
+                           tr += '<td>'+(i+1)+'</td>';
+                           tr += '<td>'+m3EscapeHtml(response[i]['data1'])+'</td>';
+                           tr += '<td>'+m3EscapeHtml(response[i]['sp_name'])+'</td>';
+                           tr += '<td><button type="button" class="btn btn-danger btn-rounded btn-xs" onclick="uplift_blacklist(&quot;'+response[i]['aclblk_id']+'&quot;,&quot;'+response[i]['u_id']+'&quot;)">Uplift</button></td>';
+                           tr += '</tr>';
+                        });
+                        $('#tbody_blacklist_record').html(tr);
+
                      },
                      error: function (xhr, error, thrown) {
                      }
                  });
            }
-         
-         
+
+
            function deny_access(sp_id,user_id){
-           	swal({   
-           		title: "Deny Access",   
-           		text: "Are you sure you want to deny this user from accessing this apps?",   
-           		type: "warning",   
-           		showCancelButton: true,   
-           		confirmButtonColor: "#DD6B55",   
-           		confirmButtonText: "Yes!",   
-           		closeOnConfirm: false 
-           	}, function(){   
-         
-           		$.ajax({
-           			type: 'POST',
-           			url: '../lib/q_func',
-           			dataType: "json",
-           			data: {admin_set_deny_access_record:'',sp_id:sp_id, user_id:$('#modal_user_profile_user_id').val()},     
-           			beforeSend: function(){
-           			},
-           			success: function (response) {
-           				if (response == 1){
-           					get_specific_user_sp_access_list($('#modal_user_profile_user_id').val());
-           					swal("Deny Access", "Success", "success"); 
-           				}else{
-           					swal("Deny Access", "Error", "error"); 
-           				}
-         
-           			},
-           			error: function (xhr, error, thrown) {
-           			}
-           		});
-           	});
+              swal({
+                 title: "Deny Access",
+                 text: "Are you sure you want to deny this user from accessing this apps?",
+                 type: "warning",
+                 showCancelButton: true,
+                 confirmButtonColor: "#DD6B55",
+                 confirmButtonText: "Yes!",
+                 closeOnConfirm: false
+              }, function(){
+
+                 $.ajax({
+                    type: 'POST',
+                    url: '../lib/q_func',
+                    dataType: "json",
+                    data: {admin_set_deny_access_record:'',sp_id:sp_id, user_id:$('#modal_user_profile_user_id').val()},
+                     beforeSend: function(){},
+                     success: function (response) {
+                        if (Number(response.status) === 1){
+                           get_specific_user_sp_access_list($('#modal_user_profile_user_id').val());
+                           swal("Access denied", "The user sessions were revoked so the deny takes effect immediately.\nReference: " + response.correlation_id, "success");
+                        }else{
+                           swal("Access not denied", m3FailureText(response, "The ACL change was rejected."), "error");
+                       }
+
+                    },
+                     error: function (xhr, error, thrown) { m3TransportFailure(xhr, 'Application access was not denied.'); }
+                 });
+              });
            }
-         
-         
-           function uplift_blacklist(aclblk_id){
-           	swal({   
-           		title: "Uplift Deny Access",   
-           		text: "Are you sure you want to uplift this user access record?",   
-           		type: "warning",   
-           		showCancelButton: true,   
-           		confirmButtonColor: "#DD6B55",   
-           		confirmButtonText: "Yes!",   
-           		closeOnConfirm: false 
-           	}, function(){   
-         
-           		$.ajax({
-           			type: 'POST',
-           			url: '../lib/q_func',
-           			dataType: "json",
-           			data: {admin_uplift_blacklist_record:'',aclblk_id:aclblk_id},     
-           			beforeSend: function(){
-           			},
-           			success: function (response) {
-           				if (response == 1){
-           					admin_get_all_blacklist_record();
-           					get_specific_user_sp_access_list($('#modal_user_profile_user_id').val());
-           					swal("Uplift", "Success", "success"); 
-           				}else{
-           					swal("Uplift", "Error", "error"); 
-           				}
-         
-           			},
-           			error: function (xhr, error, thrown) {
-           			}
-           		});
-           	});
+
+
+           function uplift_blacklist(aclblk_id,user_id){
+              swal({
+                 title: "Uplift Deny Access",
+                 text: "Are you sure you want to uplift this user access record?",
+                 type: "warning",
+                 showCancelButton: true,
+                 confirmButtonColor: "#DD6B55",
+                 confirmButtonText: "Yes!",
+                 closeOnConfirm: false
+              }, function(){
+
+                 $.ajax({
+                    type: 'POST',
+                    url: '../lib/q_func',
+                    dataType: "json",
+                     data: {admin_uplift_blacklist_record:'',aclblk_id:aclblk_id,user_id:user_id || $('#modal_user_profile_user_id').val()},
+                    beforeSend: function(){
+                    },
+                    success: function (response) {
+                        if (Number(response.status) === 1){
+                          admin_get_all_blacklist_record();
+                          get_specific_user_sp_access_list($('#modal_user_profile_user_id').val());
+                           swal("Deny uplifted", "Access policy was updated and existing sessions were revoked.\nReference: " + response.correlation_id, "success");
+                        }else{
+                           swal("Deny not uplifted", m3FailureText(response, "The ACL change was rejected."), "error");
+                       }
+
+                    },
+                     error: function (xhr, error, thrown) { m3TransportFailure(xhr, 'The deny record was not uplifted.'); }
+                 });
+              });
            }
-         
+
            function open_add_blacklist(){
-           	$('#modal_acl_blacklist').modal('hide');
-           	$('#modal_acl_add_blacklist').modal('show');
+              $('#modal_acl_blacklist').modal('hide');
+              $('#modal_acl_add_blacklist').modal('show');
            }
          
          
@@ -3005,58 +3067,10 @@
          
          
          
-         $('body').on('change', '#modal_user_profile_category', function (event) {
-         var curr_selected_val = this.value;
-         switch(this.value){
-                 case "": //back
-                 // get_recipient_type_list();
-                 // alert();
-                 return;
-                 break;
-                 default:			
-                 swal({   
-                 	title: "Change Category",   
-                 	text: "Are you sure you want to change this user category?",   
-                 	type: "warning",   
-                 	showCancelButton: true,   
-                 	confirmButtonColor: "#DD6B55",   
-                 	confirmButtonText: "Yes!",   
-                 	closeOnConfirm: true,
-                 	closeOnCancel: true
-                 }, function(inputValue){   
-                 	//Use the "Strict Equality Comparison" to accept the user's input "false" as string)
-                 	if (inputValue===false) {
-                 		$('#modal_user_profile_category').val(temp_prev_category);
-                 	} else {
-                 		temp_prev_category = curr_selected_val;
-                 		$.ajax({
-                 			type: 'POST',
-                 			url: '../lib/q_func',
-                 			dataType: "json",
-                 			data: {admin_change_user_category:'',category_id:curr_selected_val,user_id:$('#modal_user_profile_user_id').val()},     
-                 			beforeSend: function(){
-                 			},
-                 			success: function (response) {
-                 				if (response == 1){
-                 					get_specific_user_sp_access_list($('#modal_user_profile_user_id').val());
-                 					admin_get_all_user_category(1);
-                 					swal("Category Changed", "Success", "success"); 
-                 				}else{
-                 					swal("Category Changed", "Error", "error"); 
-                 				}
-         
-                 			},
-                 			error: function (xhr, error, thrown) {
-                 			}
-                 		});
-         
-                 	}
-         
-         
-                 	
-                 });
-                 break;
-             }        
+         // M3 stages category edits locally. Persistence occurs only through
+         // the explicit Save Profile confirmation above.
+         $('body').on('change input', '#modal_user_profile_category, #modal_user_profile_name', function () {
+            $('#btn_user_profile_save').addClass('btn-warning').removeClass('btn-primary');
          });
          
          
@@ -3988,18 +4002,26 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
       date: "2026-07-14",
       changes: [
+        "<b>Profile Save, category policy dan ACL hardening</b> disiapkan melalui fasa M3 dengan validation, explicit confirmation, transaction, rollback dan correlated audit trail.",
+        "Butang <b>Save Profile</b> kini menjadi satu-satunya laluan menyimpan nama dan kategori; perubahan dropdown tidak lagi terus mengubah database.",
+        "Nama akaun external-managed dijadikan read-only dan hanya boleh dikemas kini melalui Safe Resync, manakala nama akaun manual boleh disimpan selepas validation.",
+        "Kategori pengguna dipisahkan daripada role administrator; hardcoded category ID 9 dan mutator category/role legacy telah dibuang supaya <b>u_type</b> sentiasa dikekalkan.",
+        "ACL khusus pengguna untuk <b>Allow, Deny dan Uplift</b> kini mengesahkan user, aplikasi, duplicate state dan ownership deny record sebelum mutation.",
+        "Perubahan kategori dan ACL membatalkan sesi aktif pengguna supaya policy baharu berkuat kuasa serta-merta.",
+        "Nama aplikasi dinyahkod secara selamat sebelum dimasukkan ke DOM dan kegagalan AJAX kini memaparkan code serta correlation reference.",
+        "Manual UAT profile/category, Forbidden admin route, ACL allow/deny/uplift, session revocation dan Audit Log telah disahkan lulus menggunakan akaun ujian terkawal.",
+        "Defense-in-depth consumer turut disahkan: direct allow OneID tidak memintas authorization dalaman aplikasi sasaran."
+      ]
+    },
+    {
+      version: "2.0.2",
+      date: "2026-07-14",
+      changes: [
         "Menyelaraskan identiti release kepada <b>Version 2.0.2</b> melalui satu source metadata untuk login, dashboard pengguna, dashboard admin, footer dan latest release badge.",
         "Copyright aplikasi distandardkan kepada <b>2026 © PTMK | Aplikasi Digital</b> pada semua paparan utama.",
         "UI <b>Version Releases</b> dibina semula menggunakan release cards, metadata release dan changelog yang lebih tersusun serta responsive.",
-        "UI <b>SSO Configuration</b> dikemas kini dengan hierarchy, form controls, status penerangan dan action simpan yang lebih jelas.",
-        "UI <b>Sync Log</b> dikemas kini kepada jadual compact tanpa horizontal scroll, top/left alignment, status badge, pagination dan action ikon.",
-        "UI <b>Audit Log</b> ditambah filter card, result counter, loading/empty/error state, jadual compact satu baris dan tooltip untuk teks penuh.",
-        "UI <b>Active Sessions</b> ditambah kiraan sesi, kolum masa/pengguna/peranti/status, current-session badge dan state pemantauan yang lebih jelas.",
-        "UI <b>User Accounts</b> dikemas kini untuk carian akaun, result card, category metrics serta action Users dan Apps yang lebih tersusun.",
-        "UI <b>Web Apps admin</b> dibina semula dengan application counter, category navigation, application cards, SSO/direct-link badge dan action ikon.",
-        "UI <b>dashboard pengguna</b> dibina semula dengan application directory, category tabs, access badge serta butang Open/Login yang konsisten.",
-        "Struktur tab admin diperbetulkan dengan menutup container Web Apps yang tertinggal dan membuang ID inner wrapper yang berulang.",
-        "Maklumat peranti sesi diperbetulkan: kurungan brand kosong dibuang dan login baharu merekod jenis peranti, browser serta sistem operasi yang boleh dikenal pasti daripada User-Agent.",
+        "UI <b>SSO Configuration</b>, <b>Sync Log</b>, <b>Audit Log</b>, <b>Active Sessions</b>, <b>User Accounts</b>, <b>Web Apps</b> dan dashboard pengguna disusun semula dengan hierarchy, compact table/card serta responsive state yang konsisten.",
+        "Maklumat peranti sesi diperbetulkan: kurungan brand kosong dibuang dan login baharu merekod jenis peranti, browser serta sistem operasi daripada User-Agent.",
         "Single-user <b>Resync User Info</b> diperkukuh dengan external SELECT-only lookup, provenance protection, preview perubahan, one-time approval, confirmation, transaction, rollback dan correlated audit trail.",
         "Action modal <b>Force Reset Password, Remove User dan Reactivate User</b> diperkukuh dengan row lock, verified mutation, session/OTP revocation, mandatory correlated audit, transaction rollback dan perlindungan self-lockout."
       ]

@@ -553,7 +553,10 @@ class Database {
 
     //Source 1 = SSO DB (registered) , 2 = externad DB (ureg yet)
    public function admin_search_user_account($u_id){
-        $Q = "SELECT A.u_id,A.data1,A.data2,A.data3,A.data4,A.u_category,A.u_type,'1' as source,A.avail_status,B.uc_name,A.u_update_datetime,A.u_changes_hash,A.data5,A.data6,A.data7
+        $provenanceFields = $this->supportsUserProvenance()
+            ? ',A.account_source,A.sync_protected'
+            : ",'legacy' AS account_source,1 AS sync_protected";
+        $Q = "SELECT A.u_id,A.data1,A.data2,A.data3,A.data4,A.u_category,A.u_type,'1' as source,A.avail_status,B.uc_name,A.u_update_datetime,A.u_changes_hash,A.data5,A.data6,A.data7" . $provenanceFields . "
                 FROM user_tbl A 
                 LEFT JOIN user_category B ON B.uc_id=A.u_category
                 WHERE A.u_id=:u_id";
@@ -596,6 +599,83 @@ class Database {
         }
         $R = $this->pdo->prepare($Q);
         $R->execute([':u_id' => $u_id]);
+        return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /** Read and optionally lock the account fields governed by M3. */
+    public function admin_get_user_for_profile_action(string $u_id, bool $forUpdate = false){
+        $provenanceFields = $this->supportsUserProvenance()
+            ? ', account_source, sync_protected'
+            : ", 'legacy' AS account_source, 1 AS sync_protected";
+        $Q = "SELECT u_id,u_category,u_type,avail_status,data1" . $provenanceFields . "
+              FROM user_tbl WHERE u_id=:u_id LIMIT 1";
+        if ($forUpdate) {
+            $Q .= ' FOR UPDATE';
+        }
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':u_id' => $u_id]);
+        return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /** M3 deliberately preserves u_type; role changes are not category changes. */
+    public function admin_update_user_profile_category(string $u_id, string $name, int $categoryId): int{
+        $Q = "UPDATE user_tbl
+              SET data1=:name, u_category=:category_id, u_update_datetime=NOW()
+              WHERE u_id=:u_id";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([
+            ':name' => $name,
+            ':category_id' => $categoryId,
+            ':u_id' => $u_id,
+        ]);
+        return $R->rowCount();
+    }
+
+    public function admin_get_active_user_category(int $categoryId){
+        $Q = "SELECT uc_id,uc_name FROM user_category
+              WHERE uc_id=:category_id AND avail_status=1 LIMIT 1";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':category_id' => $categoryId]);
+        return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_get_active_service_provider_for_acl(string $spId){
+        $Q = "SELECT sp_id,sp_name FROM sp_list
+              WHERE sp_id=:sp_id AND avail_status=1 LIMIT 1";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':sp_id' => $spId]);
+        return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_get_user_acl_state(string $uId, string $spId): array{
+        $Q = "SELECT
+                EXISTS(SELECT 1 FROM acl_single WHERE u_id=:u_id_1 AND sp_id=:sp_id_1) AS direct_allow,
+                EXISTS(SELECT 1 FROM acl_group g
+                       INNER JOIN user_tbl u ON u.u_category=g.uc_id
+                       WHERE u.u_id=:u_id_2 AND g.sp_id=:sp_id_2) AS category_allow,
+                EXISTS(SELECT 1 FROM acl_blacklist WHERE u_id=:u_id_3 AND sp_id=:sp_id_3) AS denied";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([
+            ':u_id_1' => $uId, ':sp_id_1' => $spId,
+            ':u_id_2' => $uId, ':sp_id_2' => $spId,
+            ':u_id_3' => $uId, ':sp_id_3' => $spId,
+        ]);
+        $row = $R->fetch(PDO::FETCH_ASSOC) ?: [];
+        return [
+            'direct_allow' => (int) ($row['direct_allow'] ?? 0),
+            'category_allow' => (int) ($row['category_allow'] ?? 0),
+            'denied' => (int) ($row['denied'] ?? 0),
+        ];
+    }
+
+    public function admin_get_blacklist_record_for_action(int $blacklistId, bool $forUpdate = false){
+        $Q = "SELECT aclblk_id,u_id,sp_id FROM acl_blacklist
+              WHERE aclblk_id=:blacklist_id LIMIT 1";
+        if ($forUpdate) {
+            $Q .= ' FOR UPDATE';
+        }
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':blacklist_id' => $blacklistId]);
         return $R->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -797,7 +877,7 @@ class Database {
 
 
     public function admin_get_all_blacklist_record(){
-        $Q = "SELECT A.aclblk_id,B.data1,C.sp_name
+        $Q = "SELECT A.aclblk_id,A.u_id,B.data1,C.sp_name
                 FROM acl_blacklist A
                 LEFT JOIN user_tbl B ON B.u_id = A.u_id
                 LEFT JOIN sp_list C ON C.sp_id = A.sp_id
@@ -861,17 +941,6 @@ class Database {
         $R->bindParam(':uc_id', $uc_id);
         $R->execute();
         $result = $R->fetchAll(PDO::FETCH_ASSOC);
-        return $result;
-    }
-
-    public function admin_change_user_category($u_id,$u_category,$u_type){
-            $Q = "UPDATE user_tbl SET u_category = :u_category,u_type = :u_type WHERE u_id = :u_id";
-            $R = $this->pdo->prepare($Q);
-        $R->bindParam(':u_id', $u_id);
-        $R->bindParam(':u_category', $u_category);
-        $R->bindParam(':u_type', $u_type);
-        $R->execute();
-        $result = $R->rowCount();
         return $result;
     }
 

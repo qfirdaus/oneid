@@ -22,6 +22,9 @@ require_once dirname(__DIR__) . '/app/User/UserResyncException.php';
 require_once dirname(__DIR__) . '/app/User/UserResyncService.php';
 require_once dirname(__DIR__) . '/app/User/UserSecurityActionException.php';
 require_once dirname(__DIR__) . '/app/User/UserSecurityActionService.php';
+require_once dirname(__DIR__) . '/app/User/UserManagementException.php';
+require_once dirname(__DIR__) . '/app/User/UserProfilePolicyService.php';
+require_once dirname(__DIR__) . '/app/User/UserAclManagementService.php';
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
 
@@ -714,34 +717,39 @@ function string_sanitize($s) {
 
 
 
-      if(isset( $_POST['admin_change_user_category'])){
-        // $user_info = $operation->get_specific_user_info('90');/
-        $user_info = $operation->get_specific_user_info($_POST['user_id']);
-        if(!empty($user_info)){
-
-          if($_POST['category_id'] == 9){
-            $results = $operation->admin_change_user_category($_POST['user_id'],$_POST['category_id'],1);
-
-            $operation->update_whole_token_status($_POST['user_id'], 0);
-
-            $operation->syslog_record(18,$_SESSION['login_user']." -> Grant Admin To -> ".$_POST['user_id'] . " " . $user_info['data1'],getUserIP());
-            echo json_encode($results);
-          }else{
-            $results = $operation->admin_change_user_category($_POST['user_id'],$_POST['category_id'],0);
-            $operation->update_whole_token_status($_POST['user_id'], 0);
-            $operation->syslog_record(18,$_SESSION['login_user']." -> Change User Category -> ".$_POST['user_id'] . " " . $user_info['data1'],getUserIP());
-            echo json_encode($results);
-          }
-        }else{
-          //Get info from external source
-          echo json_encode($results);
+      if(isset( $_POST['admin_save_user_profile'])){
+        try {
+          $service = new \OneId\App\User\UserProfilePolicyService($operation);
+          echo json_encode($service->save(
+            (string) ($_POST['user_id'] ?? ''),
+            (string) ($_POST['name'] ?? ''),
+            (string) ($_POST['category_id'] ?? ''),
+            (string) $_SESSION['login_user'],
+            getUserIP()
+          ));
+        } catch (\OneId\App\User\UserManagementException $exception) {
+          echo json_encode([
+            'status' => 0,
+            'code' => $exception->reason,
+            'msg' => 'User profile was not saved.',
+            'correlation_id' => $exception->correlationId,
+          ]);
         }
       }
 
 
       if(isset( $_POST['add_new_specific_apps_to_user'])){
-        $results = $operation->add_new_specific_apps_to_user($_POST['u_id'],$_POST['sp_id']);
-        echo json_encode($results);
+        try {
+          $service = new \OneId\App\User\UserAclManagementService($operation);
+          echo json_encode($service->allow(
+            (string) ($_POST['u_id'] ?? ''),
+            (string) ($_POST['sp_id'] ?? ''),
+            (string) $_SESSION['login_user'],
+            getUserIP()
+          ));
+        } catch (\OneId\App\User\UserManagementException $exception) {
+          echo json_encode(['status'=>0,'code'=>$exception->reason,'msg'=>'Application access was not added.','correlation_id'=>$exception->correlationId]);
+        }
       }
 
       if(isset( $_POST['admin_get_specific_service_provider'])){
@@ -758,13 +766,22 @@ function string_sanitize($s) {
       }
 
       if(isset( $_POST['admin_get_all_blacklist_record'])){
-        $results = $operation->admin_get_all_blacklist_record($_POST['sp_id']);
+        $results = $operation->admin_get_all_blacklist_record();
         echo json_encode($results);
       }
 
       if(isset( $_POST['admin_set_deny_access_record'])){
-        $results = $operation->admin_set_deny_access_record($_POST['sp_id'],$_POST['user_id']);
-        echo json_encode($results);
+        try {
+          $service = new \OneId\App\User\UserAclManagementService($operation);
+          echo json_encode($service->deny(
+            (string) ($_POST['user_id'] ?? ''),
+            (string) ($_POST['sp_id'] ?? ''),
+            (string) $_SESSION['login_user'],
+            getUserIP()
+          ));
+        } catch (\OneId\App\User\UserManagementException $exception) {
+          echo json_encode(['status'=>0,'code'=>$exception->reason,'msg'=>'Application access was not denied.','correlation_id'=>$exception->correlationId]);
+        }
       }
 
       
@@ -776,8 +793,17 @@ function string_sanitize($s) {
       
 
       if(isset( $_POST['admin_uplift_blacklist_record'])){
-        $results = $operation->admin_uplift_blacklist_record($_POST['aclblk_id']);
-        echo json_encode($results);
+        try {
+          $service = new \OneId\App\User\UserAclManagementService($operation);
+          echo json_encode($service->uplift(
+            (string) ($_POST['user_id'] ?? ''),
+            (string) ($_POST['aclblk_id'] ?? ''),
+            (string) $_SESSION['login_user'],
+            getUserIP()
+          ));
+        } catch (\OneId\App\User\UserManagementException $exception) {
+          echo json_encode(['status'=>0,'code'=>$exception->reason,'msg'=>'Application deny was not uplifted.','correlation_id'=>$exception->correlationId]);
+        }
       }
 
       if(isset( $_POST['admin_get_all_token_for_specific_user'])){

@@ -109,7 +109,7 @@ function oneid_q_func_action_map(): array
             'add_acl_category',
             'remove_acl_category',
             'admin_remove_category',
-            'admin_change_user_category',
+            'admin_save_user_profile',
             'add_new_specific_apps_to_user',
             'admin_get_specific_service_provider',
             'action_remove_app',
