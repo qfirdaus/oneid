@@ -1333,10 +1333,13 @@ class Database {
     }
 
     public function admin_get_audit_range($date_start,$date_end){
-        $Q = "SELECT A.log_detail,A.ip_addr,A.datetime,B.syslog_event_name as log_type
+        $Q = "SELECT A.id AS audit_id,A.log_detail,A.ip_addr,A.datetime,B.syslog_event_name as log_type
                 FROM syslog A
                 LEFT JOIN syslog_event_conf B ON B.syslog_event_id = A.log_type 
-                WHERE A.datetime BETWEEN  :date_start AND :date_end ORDER BY A.datetime DESC LIMIT 50";
+                WHERE A.datetime >= :date_start
+                  AND A.datetime < DATE_ADD(:date_end, INTERVAL 1 DAY)
+                ORDER BY A.datetime DESC,A.id DESC
+                LIMIT 50";
         $R = $this->pdo->prepare($Q);   
         $R->bindParam(':date_start', $date_start);
         $R->bindParam(':date_end', $date_end);

@@ -3664,6 +3664,10 @@
                   var auditText = function(value){
                      return $('<div>').text(value == null ? '' : value).html();
                   };
+                  response.sort(function(a, b){
+                     var dateOrder = String(b.datetime || '').localeCompare(String(a.datetime || ''));
+                     return dateOrder !== 0 ? dateOrder : Number(b.audit_id || 0) - Number(a.audit_id || 0);
+                  });
                   $.each( response, function( i, value ) {
                            var auditDateTime = auditText(value['datetime']);
                            var auditLogType = auditText(value['log_type']);
@@ -4074,6 +4078,16 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-14",
+      changes: [
+        "Audit Log kini memaparkan rekod <b>terbaharu di bahagian paling atas</b> menggunakan susunan stabil <code>datetime DESC, id DESC</code>.",
+        "Jika beberapa aktiviti direkod pada saat yang sama, ID audit terbaharu menentukan susunan supaya paparan tidak berubah-ubah selepas reload.",
+        "Julat tarikh Audit Log kini merangkumi keseluruhan hari akhir yang dipilih dan tidak lagi berhenti pada jam 00:00:00.",
+        "UI melaksanakan susunan defensif selepas data dimuatkan, manakala database kekal sebagai source of truth untuk urutan dan had 50 rekod terkini."
+      ]
+    },
+    {
+      version: "2.0.4",
       date: "2026-07-14",
       changes: [
         "Dashboard pengguna kini mempunyai <b>carian aplikasi merentas kategori</b> berdasarkan nama dan fungsi aplikasi, dengan kategori padanan dipilih secara automatik.",
