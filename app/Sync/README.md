@@ -30,3 +30,8 @@ transaction, menjalankan source/blast-radius gate, dan memerlukan exact parity
 antara planned, executed dan audited counts sebelum commit. Adapter lock dan
 reconciliation juga belum mempunyai production caller; Apply kekal disabled
 sehingga controlled S4 wiring.
+
+S4A menambah pure `SyncRuntimeConfig.php` dan dormant `SyncEngineFactory.php`.
+Hanya exact `false/disabled` atau `true/safe` diterima; legacy tidak boleh
+dipilih. Factory hanya membina dependency graph dan tidak melakukan I/O. Kedua-
+dua class belum direquire atau dipanggil oleh runtime production.

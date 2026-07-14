@@ -3,7 +3,7 @@
 Tarikh pelan: 14 Julai 2026
 Change owner: Pemilik sistem OneID
 Rollback owner: Pemilik sistem OneID
-Status: **DESIGN/RUNBOOK SAHAJA — NO-GO UNTUK APPLY**
+Status: **S4A DORMANT SIAP — S4B–S4E BELUM, NO-GO UNTUK APPLY**
 Baseline code: commit `243ff2c`
 
 ## 1. Objektif dan Boundary
@@ -106,13 +106,18 @@ Hash mismatch, expired approval, admin berbeza atau replay mesti berhenti sebelu
 
 ### S4A — Dormant factory
 
-- tambah factory production yang strict-allowlist `disabled|safe`;
+- **Selesai secara dormant:** tambah factory production yang strict-allowlist
+  `disabled|safe`;
 - factory membina `ExternalApiUserSource`, `DatabaseSyncPersistenceAdapter`,
   `DatabaseSyncRunLock`, `DatabaseSyncReconciliationReader`, `SyncPlanner`,
   `SyncSafetyPolicy`, `SyncReconciler` dan `SecureInitialPasswordFactory`;
 - factory tidak melakukan external fetch atau membuka transaction;
 - missing/invalid flags menghasilkan safe diagnostic code;
 - deploy dengan `false/disabled`; dashboard masih preview-only.
+
+Implementation dan contract S4A dirujuk dalam
+`docs/S4A_DORMANT_FACTORY_DAN_STRICT_FLAG_CONTRACT.md`. Class belum mempunyai
+runtime caller dan tiada deployment flag diubah.
 
 ### S4B — Approval contract dan test
 
@@ -311,7 +316,6 @@ Register pelaksanaan: `docs/S4_PILOT_GATE_REGISTER.tsv`.
 
 ## 13. Exit Pelan
 
-Dokumentasi S4 lengkap tidak bermaksud pilot mendapat GO. Langkah implementasi
-pertama selepas checkpoint dokumen ialah **S4A dormant factory dan strict flag
-contract**, deploy masih `false/disabled`, tanpa butang Apply dan tanpa live
-sync.
+Dokumentasi S4 lengkap dan S4A dormant tidak bermaksud pilot mendapat GO.
+Langkah berikutnya ialah **S4B server-bound approval dan zero-mutation rejection
+contracts**, masih tanpa butang Apply, runtime endpoint atau live sync.

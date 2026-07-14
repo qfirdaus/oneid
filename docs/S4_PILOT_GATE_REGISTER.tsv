@@ -1,10 +1,10 @@
 gate_id	stage	gate	owner	status	evidence_or_decision
 S4-G01	baseline	S3 checkpoint exists	Change owner	pass	commit 243ff2c
 S4-G02	baseline	Working tree/release commit identified	Change owner	pending	Record exact S4 release commit before pilot
-S4-G03	wiring	Master Apply flag defaults false	Developer	pending	Contract and effective environment evidence required
-S4-G04	wiring	Engine flag defaults disabled and strict allowlist disabled|safe	Developer	pending	Missing invalid and partial combinations must fail closed
-S4-G05	wiring	Legacy writer cannot be selected by normal S4 flag	Developer	pending	Static and runtime contract required
-S4-G06	wiring	Factory construction performs no fetch or transaction	Developer	pending	Spy contract required
+S4-G03	wiring	Master Apply flag defaults false	Developer	pass	S4A pure contract plus read-only environment inspection
+S4-G04	wiring	Engine flag defaults disabled and strict allowlist disabled|safe	Developer	pass	Missing invalid and partial combinations fail closed in S4A fixture
+S4-G05	wiring	Legacy writer cannot be selected by normal S4 flag	Developer	pass	S4A config factory and static caller contract
+S4-G06	wiring	Factory construction performs no fetch or transaction	Developer	pass	S4A operation trap records zero calls
 S4-G07	approval	Approval is bound server-side to admin canonical hash counts and expiry	Developer	pending	Preview and Apply must use the same S3 safety policy
 S4-G08	approval	Apply uses the same fetched snapshot and validated canonical plan	Developer	pending	No second fetch TOCTOU or dependency on unstable ODBC row order
 S4-G09	approval	Expired wrong-admin mismatch and replay paths have zero mutation	Developer	pending	Automated fixture required
