@@ -13,49 +13,80 @@ class Database {
             $this->pdo->query("set names " . DB_CHARACSET);
         } catch (PDOException $e)
         {
-            //$this->func_error_log(LOG_IP,"MAJOR ALERT: Main DB Error. Check DB config file",0);
-                //header("Location: " .FALL_BACK_URI);
-                exit();
+            error_log('Database connection failed: ' . $e->getMessage());
+            throw new RuntimeException('Database connection failed', 0, $e);
         }
      }
 
 
-    //Authenticate
-    public function func_authenticate($username,$password){
-        $Q = "SELECT * FROM user_tbl WHERE u_id = :username AND u_password = :password";
+    private function authenticateByField($field,$username,$password){
+        $allowedFields = ['u_id', 'data2', 'data3', 'data8'];
+        if (!in_array($field, $allowedFields, true)) {
+            return false;
+        }
+        $Q = "SELECT * FROM user_tbl WHERE {$field} = :username LIMIT 1";
         $R = $this->pdo->prepare($Q);
         $R->bindParam(':username', $username);
-        $R->bindParam(':password', $password);
         $R->execute();
         $result = $R->fetch(PDO::FETCH_ASSOC);
+        if (!$result || !oneid_password_verify($password, (string) $result['u_password'])) {
+            return false;
+        }
+
+        $defaultPassword = trim((string) $result['data3']) !== ''
+            ? (string) $result['data4']
+            : (string) $result['data2'];
+        $changeRequired = (int) ($result['password_change_required'] ?? 0);
+        if ($defaultPassword !== '' && hash_equals($defaultPassword, $password)) {
+            $changeRequired = 1;
+        }
+
+        if (oneid_password_needs_rehash((string) $result['u_password'])) {
+            $modernHash = oneid_password_hash($password);
+            $this->updatePasswordHash($result['u_id'], $modernHash, $changeRequired);
+            $result['u_password'] = $modernHash;
+        } elseif ($changeRequired !== (int) ($result['password_change_required'] ?? 0)) {
+            $this->setPasswordChangeRequired($result['u_id'], $changeRequired);
+        }
+        $result['password_change_required'] = $changeRequired;
         return $result;
+    }
+
+    // Backward-compatible method names; password argument is now plaintext and
+    // verification happens in PHP to support both MD5 and password_hash().
+    public function func_authenticate($username,$password){
+        return $this->authenticateByField('u_id', $username, $password);
     }
     public function func_authenticate2($username,$password){
-        $Q = "SELECT * FROM user_tbl WHERE data2 = :username AND u_password = :password";
-        $R = $this->pdo->prepare($Q);
-        $R->bindParam(':username', $username);
-        $R->bindParam(':password', $password);
-        $R->execute();
-        $result = $R->fetch(PDO::FETCH_ASSOC);
-        return $result;
+        return $this->authenticateByField('data2', $username, $password);
     }
     public function func_authenticate3($username,$password){
-        $Q = "SELECT * FROM user_tbl WHERE data3 = :username AND u_password = :password";
-        $R = $this->pdo->prepare($Q);
-        $R->bindParam(':username', $username);
-        $R->bindParam(':password', $password);
-        $R->execute();
-        $result = $R->fetch(PDO::FETCH_ASSOC);
-        return $result;
+        return $this->authenticateByField('data3', $username, $password);
     }
     public function func_authenticate4($username,$password){
-        $Q = "SELECT * FROM user_tbl WHERE data8 = :username AND u_password = :password";
+        return $this->authenticateByField('data8', $username, $password);
+    }
+
+    public function verify_user_password($userId,$password){
+        return $this->authenticateByField('u_id', $userId, $password) !== false;
+    }
+
+    private function updatePasswordHash($userId,$hash,$changeRequired){
+        $Q = "UPDATE user_tbl SET u_password=:password, password_change_required=:required WHERE u_id=:user_id";
         $R = $this->pdo->prepare($Q);
-        $R->bindParam(':username', $username);
-        $R->bindParam(':password', $password);
-        $R->execute();
-        $result = $R->fetch(PDO::FETCH_ASSOC);
-        return $result;
+        $R->execute([':password'=>$hash, ':required'=>$changeRequired, ':user_id'=>$userId]);
+    }
+
+    public function set_user_password($userId,$password,$changeRequired=0){
+        $this->updatePasswordHash($userId, oneid_password_hash($password), (int) $changeRequired);
+        return 1;
+    }
+
+    public function setPasswordChangeRequired($userId,$required){
+        $Q = "UPDATE user_tbl SET password_change_required=:required WHERE u_id=:user_id";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':required'=>(int)$required, ':user_id'=>$userId]);
+        return $R->rowCount();
     }
 
 
@@ -104,7 +135,7 @@ class Database {
 
     
    public function action_add_new_user($u_id,$u_category,$u_password,$data1,$data2,$data3,$data4,$data5,$data6,$data7,$data8,$data9,$data10,$data11,$data12,$u_changes_hash){
-        $Q = "INSERT INTO  user_tbl(u_id,u_category,u_password,u_type,avail_status,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12,u_update_datetime,u_changes_hash) VALUES (:u_id,:u_category,:u_password,0,1,:data1,:data2,:data3,:data4,:data5,:data6,:data7,:data8,:data9,:data10,:data11,:data12,NOW(),:u_changes_hash)";
+        $Q = "INSERT INTO  user_tbl(u_id,u_category,u_password,password_change_required,u_type,avail_status,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12,u_update_datetime,u_changes_hash) VALUES (:u_id,:u_category,:u_password,1,0,1,:data1,:data2,:data3,:data4,:data5,:data6,:data7,:data8,:data9,:data10,:data11,:data12,NOW(),:u_changes_hash)";
         $R = $this->pdo->prepare($Q);
         $R->bindParam(':u_id', $u_id);
         $R->bindParam(':u_category', $u_category);
@@ -128,7 +159,7 @@ class Database {
     }
     
    public function action_add_new_user_from_external_source($u_id,$u_category,$u_password,$data1,$data2,$data3,$data4,$data5,$data6,$data7,$data8,$data9,$data10,$data11,$data12,$u_changes_hash){
-        $Q = "INSERT INTO user_tbl(u_id,u_category,u_password,u_type,avail_status,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12,u_update_datetime,u_changes_hash) VALUES (:u_id,:u_category,:u_password,0,1,:data1,:data2,:data3,:data4,:data5,:data6,:data7,:data8,:data9,:data10,:data11,:data12,NOW(),:u_changes_hash)
+        $Q = "INSERT INTO user_tbl(u_id,u_category,u_password,password_change_required,u_type,avail_status,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12,u_update_datetime,u_changes_hash) VALUES (:u_id,:u_category,:u_password,1,0,1,:data1,:data2,:data3,:data4,:data5,:data6,:data7,:data8,:data9,:data10,:data11,:data12,NOW(),:u_changes_hash)
             ON DUPLICATE KEY UPDATE u_category=:u_category,avail_status=1,data1=:data1,data2=:data2,data3=:data3,data4=:data4,data5=:data5,data6=:data6,data7=:data7,data8=:data8,data9=:data9,data10=:data10,data11=:data11,data12=:data12,u_update_datetime=NOW(),u_changes_hash=:u_changes_hash;";
         $R = $this->pdo->prepare($Q);
         $R->bindParam(':u_id', $u_id);
@@ -373,7 +404,7 @@ class Database {
 
 
     public function get_specific_user_info($u_id){
-        $Q = "SELECT u_id,u_category,u_type,avail_status,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12
+        $Q = "SELECT u_id,u_category,u_type,avail_status,password_change_required,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12
                 FROM user_tbl WHERE u_id=:u_id";
         $R = $this->pdo->prepare($Q);        
         $R->bindParam(':u_id', $u_id);  
@@ -384,7 +415,7 @@ class Database {
 
 //u_password
     public function get_specific_user_info_withpassword($u_id){
-        $Q = "SELECT u_id,u_password,u_category,u_type,avail_status,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12
+        $Q = "SELECT u_id,u_password,password_change_required,u_category,u_type,avail_status,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12
                 FROM user_tbl WHERE u_id=:u_id";
         $R = $this->pdo->prepare($Q);        
         $R->bindParam(':u_id', $u_id);  
@@ -759,22 +790,32 @@ class Database {
 
 
     public function check_token($token){
+        $tokenHash = oneid_token_hash((string) $token);
+        $legacyToken = strlen((string) $token) <= 25 ? (string) $token : '__not_legacy__';
         $Q = "SELECT A.*
                 FROM token_tbl A
                 LEFT JOIN user_tbl B ON B.u_id = A.user_id
-                WHERE A.token_id=:token AND B.avail_status=1";
-        $R = $this->pdo->prepare($Q);        
-        $R->bindParam(':token', $token);  
+                WHERE (A.token_id=:token_hash OR A.token_id=:legacy_token)
+                  AND B.avail_status=1";
+        $R = $this->pdo->prepare($Q);
+        $R->bindParam(':token_hash', $tokenHash);
+        $R->bindParam(':legacy_token', $legacyToken);
         $R->execute();
         $result = $R->fetch(PDO::FETCH_ASSOC);
+        if ($result && hash_equals((string) $result['token_id'], $legacyToken)) {
+            $migrate = $this->pdo->prepare("UPDATE token_tbl SET token_id=:token_hash WHERE token_id=:legacy_token");
+            $migrate->execute([':token_hash'=>$tokenHash, ':legacy_token'=>$legacyToken]);
+            $result['token_id'] = $tokenHash;
+        }
         return $result;
     }
 
 
    public function add_new_token($token_id,$user_id,$device){
+        $storedToken = oneid_token_hash((string) $token_id);
         $Q = "INSERT INTO token_tbl(token_id,token_datetime,user_id,status,device_info,site_id) VALUES (:token_id,NOW(),:user_id,1,:device,0)";
         $R = $this->pdo->prepare($Q);
-        $R->bindParam(':token_id', $token_id);
+        $R->bindParam(':token_id', $storedToken);
         $R->bindParam(':user_id', $user_id);
         $R->bindParam(':device', $device);
         $R->execute();        
@@ -806,10 +847,12 @@ class Database {
     }
 
     public function update_specific_token_status($user_id,$token_id,$status){
-            $Q = "UPDATE token_tbl SET status = :status WHERE user_id = :user_id AND token_id=:token_id";
+        $tokenHash = oneid_token_hash((string) $token_id);
+            $Q = "UPDATE token_tbl SET status = :status WHERE user_id = :user_id AND (token_id=:token_hash OR token_id=:token_id)";
             $R = $this->pdo->prepare($Q);
         $R->bindParam(':status', $status);
         $R->bindParam(':user_id', $user_id);
+        $R->bindParam(':token_hash', $tokenHash);
         $R->bindParam(':token_id', $token_id);
         $R->execute();
         $result = $R->rowCount();
@@ -817,9 +860,11 @@ class Database {
     }
 
 	public function update_specific_token_datetime($user_id,$token_id){
-            $Q = "UPDATE token_tbl SET token_datetime = NOW() WHERE user_id = :user_id AND token_id=:token_id AND status=1";
+        $tokenHash = oneid_token_hash((string) $token_id);
+            $Q = "UPDATE token_tbl SET token_datetime = NOW() WHERE user_id = :user_id AND (token_id=:token_hash OR token_id=:token_id) AND status=1";
             $R = $this->pdo->prepare($Q);
         $R->bindParam(':user_id', $user_id);
+        $R->bindParam(':token_hash', $tokenHash);
         $R->bindParam(':token_id', $token_id);
         $R->execute();
         $result = $R->rowCount();
@@ -912,10 +957,12 @@ class Database {
 
 
     public function otp_create($u_id,$otp_code){
-        $Q = "INSERT INTO otp_codes(u_id,otp_code,otp_create_date) VALUES (:u_id,:otp_code,NOW())";
+        $otpHash = oneid_password_hash((string) $otp_code);
+        $Q = "INSERT INTO otp_codes(u_id,otp_code,otp_create_date,otp_expires_at,otp_attempts,otp_consumed_at)
+              VALUES (:u_id,:otp_code,NOW(),DATE_ADD(NOW(), INTERVAL 5 MINUTE),0,NULL)";
         $R = $this->pdo->prepare($Q);
         $R->bindParam(':u_id', $u_id);
-        $R->bindParam(':otp_code', $otp_code);
+        $R->bindParam(':otp_code', $otpHash);
         $R->execute();        
         $result = $R->rowCount();
         return $result;
@@ -925,7 +972,9 @@ class Database {
         $Q = "SELECT *
                 FROM otp_codes
                 WHERE u_id = :u_id
-                  AND otp_create_date >= (NOW() - INTERVAL 1 MINUTE)
+                  AND otp_expires_at >= NOW()
+                  AND otp_consumed_at IS NULL
+                  AND otp_attempts < 5
                 ORDER BY otp_create_date DESC
                 LIMIT 1";
         $R = $this->pdo->prepare($Q);   
@@ -938,12 +987,50 @@ class Database {
 
 
     public function otp_update_otp_create_date($otp_id){
-            $Q = "UPDATE otp_codes SET otp_create_date = NOW() WHERE otp_id = :otp_id";
+            $Q = "UPDATE otp_codes SET otp_create_date = NOW(), otp_expires_at=DATE_ADD(NOW(), INTERVAL 5 MINUTE) WHERE otp_id = :otp_id AND otp_consumed_at IS NULL";
             $R = $this->pdo->prepare($Q);
         $R->bindParam(':otp_id', $otp_id);
         $R->execute();
         $result = $R->rowCount();
         return $result;
+    }
+
+    public function otp_latest_request($u_id){
+        $Q = "SELECT otp_id,otp_create_date FROM otp_codes WHERE u_id=:u_id ORDER BY otp_create_date DESC LIMIT 1";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':u_id'=>$u_id]);
+        return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function otp_count_last_day($u_id){
+        $Q = "SELECT COUNT(*) FROM otp_codes WHERE u_id=:u_id AND otp_create_date >= (NOW() - INTERVAL 1 DAY)";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':u_id'=>$u_id]);
+        return (int) $R->fetchColumn();
+    }
+
+    public function otp_invalidate_active($u_id){
+        $Q = "UPDATE otp_codes SET otp_consumed_at=NOW() WHERE u_id=:u_id AND otp_consumed_at IS NULL";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':u_id'=>$u_id]);
+        return $R->rowCount();
+    }
+
+    public function otp_record_failed_attempt($otp_id){
+        $Q = "UPDATE otp_codes
+              SET otp_attempts=otp_attempts+1,
+                  otp_consumed_at=IF(otp_attempts+1 >= 5,NOW(),otp_consumed_at)
+              WHERE otp_id=:otp_id AND otp_consumed_at IS NULL";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':otp_id'=>$otp_id]);
+        return $R->rowCount();
+    }
+
+    public function otp_consume($otp_id){
+        $Q = "UPDATE otp_codes SET otp_consumed_at=NOW() WHERE otp_id=:otp_id AND otp_consumed_at IS NULL";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':otp_id'=>$otp_id]);
+        return $R->rowCount();
     }
 
 

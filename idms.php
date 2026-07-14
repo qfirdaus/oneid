@@ -1,5 +1,8 @@
 <?php
-header('Content-Type: application/json');
+require_once __DIR__ . '/lib/secrets.php';
+require_once __DIR__ . '/lib/integration_security.php';
+
+header('Content-Type: application/json; charset=utf-8');
 
 $json = file_get_contents('php://input');
 $data = json_decode($json, true);
@@ -8,6 +11,8 @@ $query            = $data['query'] ?? $_GET['query'] ?? null;
 $limit            = $data['limit'] ?? $_GET['limit'] ?? null;
 $keyword          = $data['keyword'] ?? $_GET['keyword'] ?? null;
 $kdjabatansemasa  = $data['kdjabatansemasa'] ?? $_GET['kdjabatansemasa'] ?? null;
+
+oneid_integration_guard('idms', 'idms:read');
 
 if($query){
 
@@ -43,18 +48,14 @@ if($query){
 function db_connect(){
 
     $connection = odbc_connect(
-        "Driver={Adaptive Server Enterprise};Server=172.16.2.14;Port=5004;Database=ehrmdb",
-        "idms",
-        "idm$@upnm"
+        oneid_secret('ONEID_IDMS_ODBC_CONNECTION'),
+        oneid_secret('ONEID_IDMS_ODBC_USERNAME'),
+        oneid_secret('ONEID_IDMS_ODBC_PASSWORD')
     );
 
     if (!$connection) {
-        echo json_encode([
-            "status"=>"error",
-            "message"=>"Database connection failed",
-            "odbc_error"=>odbc_errormsg()
-        ]);
-        exit;
+        oneid_integration_audit('upstream_connection_failed', ['endpoint' => 'idms']);
+        oneid_integration_json_error(503, 'upstream_unavailable', 'Upstream service is unavailable.');
     }
 
     return $connection;
@@ -67,6 +68,7 @@ function GET_LIST_OF_STAFF($limit = null, $keyword = null, $kdjabatansemasa = nu
     if($limit <= 0){
         $limit = 10;
     }
+    $limit = min($limit, 100);
 
     odbc_exec($connection, "SET ROWCOUNT $limit");
 
@@ -74,32 +76,31 @@ function GET_LIST_OF_STAFF($limit = null, $keyword = null, $kdjabatansemasa = nu
             FROM idms_staff
             WHERE status <> 'Berhenti'";
 
+    $params = [];
     if(!empty($kdjabatansemasa)){
-        $kdjabatansemasa = trim($kdjabatansemasa);
-        $kdjabatansemasa = str_replace("'", "''", $kdjabatansemasa);
-
-        $sql .= " AND kdjabatansemasa = '".$kdjabatansemasa."'";
+        $sql .= " AND kdjabatansemasa = ?";
+        $params[] = trim((string) $kdjabatansemasa);
     }
 
     if(!empty($keyword)){
-        $keyword = trim($keyword);
-        $keyword = strtolower($keyword);
-        $keyword = str_replace("'", "''", $keyword);
-
         $sql .= " AND (
-                    LOWER(nama) LIKE '%".$keyword."%'
-                    OR LOWER(nopekerja) LIKE '%".$keyword."%'
+                    LOWER(nama) LIKE ?
+                    OR LOWER(nopekerja) LIKE ?
                   )";
+        $keywordParam = '%' . strtolower(trim((string) $keyword)) . '%';
+        $params[] = $keywordParam;
+        $params[] = $keywordParam;
     }
 
     $sql .= " ORDER BY nama ASC";
 
-    $rs = odbc_exec($connection, $sql);
+    $statement = odbc_prepare($connection, $sql);
+    $rs = $statement ? odbc_execute($statement, $params) : false;
 
     $rows = [];
 
     if($rs){
-        while($myRow = odbc_fetch_array($rs)){
+        while($myRow = odbc_fetch_array($statement)){
             $rows[] = [
                 "id" => (int)$myRow["idpekerja"],
                 "text" => trim($myRow["nama"])." (".trim($myRow["nopekerja"]).")",
@@ -111,6 +112,8 @@ function GET_LIST_OF_STAFF($limit = null, $keyword = null, $kdjabatansemasa = nu
                 "kdjabatansemasa" => trim($myRow["kdjabatansemasa"])
             ];
         }
+    } else {
+        oneid_integration_audit('upstream_query_failed', ['endpoint' => 'idms', 'operation' => 'staff_list']);
     }
 
     odbc_exec($connection, "SET ROWCOUNT 0");
@@ -128,7 +131,11 @@ function GET_LIST_OF_JABATAN($limit = null, $keyword = null){
 
     $limit = (int)$limit;
 
-    // apply limit hanya kalau user pass limit > 0
+    // Had tetap mengelakkan response tanpa batas.
+    if($limit <= 0){
+        $limit = 100;
+    }
+    $limit = min($limit, 100);
     if($limit > 0){
         odbc_exec($connection, "SET ROWCOUNT $limit");
     }
@@ -137,42 +144,40 @@ function GET_LIST_OF_JABATAN($limit = null, $keyword = null){
             FROM idms_jabatan
             WHERE 1=1";
 
+    $params = [];
     if(!empty($keyword)){
-        $keyword = trim($keyword);
-        $keyword = strtolower($keyword);
-        $keyword = str_replace("'", "''", $keyword);
-
         $sql .= " AND (
-                    LOWER(nama_ptj) LIKE '%".$keyword."%'
-                    OR LOWER(singkat) LIKE '%".$keyword."%'
-                    OR LOWER(kod_ptj) LIKE '%".$keyword."%'
+                    LOWER(nama_ptj) LIKE ?
+                    OR LOWER(singkat) LIKE ?
+                    OR LOWER(kod_ptj) LIKE ?
                   )";
+        $keywordParam = '%' . strtolower(trim((string) $keyword)) . '%';
+        $params = [$keywordParam, $keywordParam, $keywordParam];
     }
 
     $sql .= " ORDER BY nama_ptj ASC";
 
-    $rs = odbc_exec($connection, $sql);
+    $statement = odbc_prepare($connection, $sql);
+    $rs = $statement ? odbc_execute($statement, $params) : false;
 
     if(!$rs){
-        $err = odbc_errormsg($connection);
-
         if($limit > 0){
             odbc_exec($connection, "SET ROWCOUNT 0");
         }
 
         odbc_close($connection);
 
+        oneid_integration_audit('upstream_query_failed', ['endpoint' => 'idms', 'operation' => 'department_list']);
         return [
             "status" => "error",
-            "message" => "Query failed",
-            "sql" => $sql,
-            "odbc_error" => $err
+            "message" => "Upstream query failed",
+            "request_id" => oneid_integration_request_id()
         ];
     }
 
     $rows = [];
 
-    while($myRow = odbc_fetch_array($rs)){
+    while($myRow = odbc_fetch_array($statement)){
         $id    = trim($myRow["kod_ptj"]);
         $nama  = trim($myRow["nama_ptj"]);
         $short = trim($myRow["singkat"]);

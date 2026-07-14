@@ -1,17 +1,22 @@
 <?php
-session_start(); // Starting Session
+require_once __DIR__ . '/session_security.php';
+oneid_start_secure_session();
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-require 'src/Exception.php';
-require 'src/PHPMailer.php';
-require 'src/SMTP.php';
-require_once './config.php';
-include_once '../vendors/spyc-master/Spyc.php';
-require_once '../vendors/device-detector-master/autoload.php';
-require_once './external_data_source_API.php';
-require_once './sync_user_runner.php';
+require __DIR__ . '/src/Exception.php';
+require __DIR__ . '/src/PHPMailer.php';
+require __DIR__ . '/src/SMTP.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/upload_security.php';
+include_once dirname(__DIR__) . '/vendors/spyc-master/Spyc.php';
+require_once dirname(__DIR__) . '/vendors/device-detector-master/autoload.php';
+require_once __DIR__ . '/external_data_source_API.php';
+require_once __DIR__ . '/sync_user_runner.php';
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
+
+require_once __DIR__ . '/request_security.php';
+oneid_guard_q_func_request($_POST);
 
 $sys_config = $operation->get_system_config();
 $token_timeout = $sys_config['token_timeout'];//24 means 1 day
@@ -45,8 +50,7 @@ function generate_app_ID($length){
 
 
 function generate_token(){
-  $a= str_replace(".", "", uniqid('',true));
-    return $a;
+  return oneid_generate_sso_token();
 }
 
 
@@ -101,20 +105,20 @@ function string_sanitize($s) {
         if(trim($_POST['username']) == ""){
         }else{
           //check_uid
-        $results = $operation->func_authenticate($_POST['username'],md5($_POST['password']));
+        $results = $operation->func_authenticate($_POST['username'], $_POST['password']);
         if ($results != false){
         }else{
           //check data2
-          $results = $operation->func_authenticate2($_POST['username'],md5($_POST['password']));
+          $results = $operation->func_authenticate2($_POST['username'], $_POST['password']);
           if ($results != false){
           }else{
             //check data3        
-            $results = $operation->func_authenticate3($_POST['username'],md5($_POST['password']));
+            $results = $operation->func_authenticate3($_POST['username'], $_POST['password']);
             if ($results != false){
             }else{
               //check data3        
               if(trim($_POST['username']) != ""){
-                $results = $operation->func_authenticate4($_POST['username'],md5($_POST['password']));
+                $results = $operation->func_authenticate4($_POST['username'], $_POST['password']);
               }
               
             }
@@ -147,15 +151,11 @@ function string_sanitize($s) {
             $operation->add_new_token($new_refresh_token,$results['u_id'],$detector_device . ' ('.$detector_brand.')');
 
             $user_info = $operation->get_specific_user_info($results['u_id']);
-            $cookieData = array_merge( array( "sso_dt" => date('Y-m-d H:i:s'), "sso_cre" => $new_refresh_token), $user_info );
-            setcookie('sso_cre', json_encode($cookieData), time() + (60 * 30),'/',''); // 86400 = 1 day (this is default 1 day)
+            oneid_set_sso_cookie($new_refresh_token);
 
             $array['login_status'] = 1;
 
-            $_SESSION['user'] = $results['data1'];
-            $_SESSION['login_user']=$results['u_id'];
-            $_SESSION['login_status']="true";
-            $_SESSION['login_user_type']=$results['u_type'];
+            oneid_establish_authenticated_session($results);
 
             if(isset($_POST['site_id'])){
                 $check_result = check_specific_sp_allowed($operation,$_POST['site_id']);
@@ -181,17 +181,8 @@ function string_sanitize($s) {
 
      //First Time Login Check Password had changed or not
       if(isset( $_POST['check_default_password'])){
-        $user_info = $operation->get_specific_user_info_withpassword($_SESSION['login_user']);
         $array = array();
-        $data_challange = "";
-        if(trim($user_info['data3']) != ""){//staff
-          $data_challange = $user_info['data4'];
-		  $array['tst3'] = "Staff";
-        }else{//student
-          $data_challange = $user_info['data2'];
-		  $array['tst3'] = "Stuudent";
-        }
-        if(md5($data_challange) == $user_info['u_password']){
+        if((int) ($_SESSION['password_change_required'] ?? 0) === 1){
           $array['result'] = "change_pwd";
           echo json_encode($array);
         }else{
@@ -289,26 +280,10 @@ function string_sanitize($s) {
           $checkbox_status=1;
         }
         // File upload handling
-        $app_icon_upload_msg  = "";
-        $safeFileName = "";
-        $uploadDir = '../public_img/';
-        if (isset($_FILES['app_icon']) && $_FILES['app_icon']['error'] == 0) {
-            if (!file_exists($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-            // Optional: rename file
-            $ext = pathinfo($_FILES['app_icon']['name'], PATHINFO_EXTENSION);
-            $safeFileName = 'app_icon_' . time() . '.' . strtolower($ext);
-            $targetPath = $uploadDir . $safeFileName;
-
-            if (move_uploaded_file($_FILES['app_icon']['tmp_name'], $targetPath)) {
-                $app_icon_upload_msg= 'Upload Success';
-            } else {
-                $app_icon_upload_msg= 'Failed to move uploaded file';
-            }
-        } else {
-            $app_icon_upload_msg= 'No file uploaded or upload error';
-        }
+        $uploadDir = oneid_public_path('public_img');
+        $uploadResult = save_app_icon_upload($_FILES['app_icon'] ?? null, $uploadDir);
+        $safeFileName = $uploadResult['filename'];
+        $app_icon_upload_msg = $uploadResult['message'];
 
 
         $sp_id = generate_app_ID(10);
@@ -325,30 +300,16 @@ function string_sanitize($s) {
       }
 
       if(isset( $_POST['action_edit_app_info'])){
-        $app_icon_upload_msg  = "";
-        $safeFileName = "";
-        $uploadDir = '../public_img/';
-        if (isset($_FILES['app_icon']) && $_FILES['app_icon']['error'] == 0) {
-            // Save the new uploaded file
-            if (!file_exists($uploadDir)) {
-                  mkdir($uploadDir, 0755, true);
-              }
-              // Optional: rename file
-              $ext = pathinfo($_FILES['app_icon']['name'], PATHINFO_EXTENSION);
-              $safeFileName = 'app_icon_' . time() . '.' . strtolower($ext);
-              $targetPath = $uploadDir . $safeFileName;
-
-              if (move_uploaded_file($_FILES['app_icon']['tmp_name'], $targetPath)) {
-                  $app_icon_upload_msg= 'Upload Success';
-              } else {
-                  $app_icon_upload_msg= 'Failed to move uploaded file';
-              }
-        } elseif (!empty($_POST['existing_app_icon'])) {
-            // Reuse the previous file
-            $safeFileName = $_POST['existing_app_icon'];
+        $uploadDir = oneid_public_path('public_img');
+        $safeFileName = sanitize_existing_app_icon($_POST['existing_app_icon'] ?? '');
+        if (isset($_FILES['app_icon']) && ($_FILES['app_icon']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            $uploadResult = save_app_icon_upload($_FILES['app_icon'], $uploadDir);
+            $app_icon_upload_msg = $uploadResult['message'];
+            if ($uploadResult['success']) {
+                $safeFileName = $uploadResult['filename'];
+            }
         } else {
-            // No icon provided at all
-            $safeFileName = ''; // or handle as error
+            $app_icon_upload_msg = 'Existing app icon retained';
         }
 
         $checkbox_status=0; //0 support, 1 not support
@@ -369,11 +330,21 @@ function string_sanitize($s) {
       if(isset( $_POST['action_change_password'])){
 
         // echo $_SESSION['login_user'];
-        $login_result = $operation->func_authenticate($_SESSION['login_user'],md5($_POST['change_password_current']));
+        $login_result = $operation->verify_user_password($_SESSION['login_user'], $_POST['change_password_current']);
 
         if ($login_result != false){
           if($_POST['change_password_new'] == $_POST['change_password_new_reconfirm']){
-            $results = $operation->action_change_password($_SESSION['login_user'],md5($_POST['change_password_new']));
+            list($passwordValid, $passwordMessage) = oneid_validate_new_password($_POST['change_password_new']);
+            if (!$passwordValid) {
+              echo json_encode(['msg'=>$passwordMessage, 'status'=>0]);
+              return;
+            }
+            $results = $operation->set_user_password($_SESSION['login_user'], $_POST['change_password_new'], 0);
+            $_SESSION['password_change_required'] = 0;
+            $operation->update_whole_token_status($_SESSION['login_user'], 0);
+            $rotatedToken = generate_token();
+            $operation->add_new_token($rotatedToken, $_SESSION['login_user'], 'Password change');
+            oneid_set_sso_cookie($rotatedToken);
             $operation->syslog_record(21,$_SESSION['login_user'],getUserIP());
             echo json_encode(array( 'msg' => "Password successfully changed",
                           'status' => 1));
@@ -446,7 +417,9 @@ function string_sanitize($s) {
                           'status' => 0));
 
         }else{         
-          $operation->action_add_new_user($_POST['add_new_manual_user_id'],$_POST['add_new_manual_user_category'],md5($_POST['add_new_manual_user_id']),$_POST['add_new_manual_user_name'],$_POST['add_new_user_data2'],$_POST['add_new_user_data3'],$_POST['add_new_manual_user_id'],$_POST['add_new_user_data5'],$_POST['add_new_user_data6'],$_POST['add_new_user_data7'],$_POST['add_new_user_data8'],$_POST['add_new_user_data9'],$_POST['add_new_user_data10'],$_POST['add_new_user_data11'],$_POST['add_new_user_data12'],hash("sha256",$_POST['add_new_manual_user_name']));
+          $randomInitialPassword = oneid_password_hash(bin2hex(random_bytes(32)));
+          $operation->action_add_new_user($_POST['add_new_manual_user_id'],$_POST['add_new_manual_user_category'],$randomInitialPassword,$_POST['add_new_manual_user_name'],$_POST['add_new_user_data2'],$_POST['add_new_user_data3'],$_POST['add_new_manual_user_id'],$_POST['add_new_user_data5'],$_POST['add_new_user_data6'],$_POST['add_new_user_data7'],$_POST['add_new_user_data8'],$_POST['add_new_user_data9'],$_POST['add_new_user_data10'],$_POST['add_new_user_data11'],$_POST['add_new_user_data12'],hash("sha256",$_POST['add_new_manual_user_name']));
+          $operation->setPasswordChangeRequired($_POST['add_new_manual_user_id'], 1);
 
           $operation->syslog_record(23,$_SESSION['login_user']." -> ".$_POST['add_new_manual_user_id'],getUserIP());
           echo json_encode(array( 'msg' => "User successfully added.",
@@ -484,6 +457,7 @@ function string_sanitize($s) {
       if(isset( $_POST['admin_deactivate_user_record'])){
         $user_info = $operation->admin_search_user_account($_POST['user_info_id']);
         $results = $operation->admin_update_user_status($_POST['user_info_id'],0);
+        $operation->update_whole_token_status($_POST['user_info_id'], 0);
 
         $operation->syslog_record(25,$_SESSION['login_user']." -> ".$_POST['user_info_id'],getUserIP());
         echo json_encode(array( 'source_status' => 1, //1-sso, 2-external
@@ -554,10 +528,13 @@ function string_sanitize($s) {
           if($_POST['category_id'] == 9){
             $results = $operation->admin_change_user_category($_POST['user_id'],$_POST['category_id'],1);
 
+            $operation->update_whole_token_status($_POST['user_id'], 0);
+
             $operation->syslog_record(18,$_SESSION['login_user']." -> Grant Admin To -> ".$_POST['user_id'] . " " . $user_info['data1'],getUserIP());
             echo json_encode($results);
           }else{
             $results = $operation->admin_change_user_category($_POST['user_id'],$_POST['category_id'],0);
+            $operation->update_whole_token_status($_POST['user_id'], 0);
             $operation->syslog_record(18,$_SESSION['login_user']." -> Change User Category -> ".$_POST['user_id'] . " " . $user_info['data1'],getUserIP());
             echo json_encode($results);
           }
@@ -635,8 +612,9 @@ function string_sanitize($s) {
           }
           // echo json_encode(array_values($acl_merged_keyed),JSON_PRETTY_PRINT);
           if(isset($_COOKIE['sso_cre'])) {
-            $cookie = json_decode($_COOKIE["sso_cre"]);            
-            if($results[$i]['token_id'] == $cookie->sso_cre){
+            $cookieTokenHash = oneid_token_hash((string) $_COOKIE['sso_cre']);
+            if(hash_equals((string) $results[$i]['token_id'], $cookieTokenHash)
+              || hash_equals((string) $results[$i]['token_id'], (string) $_COOKIE['sso_cre'])){
               $results[$i]['current_token'] = "1";
             }else{
               $results[$i]['current_token'] = "0";
@@ -899,182 +877,93 @@ function string_sanitize($s) {
 
 
     if(isset( $_POST['action_forgot_password'])){
-        if(isset( $_POST['forgot_password_id'])){
-          $uid_result= $operation->func_search_uid($_POST['forgot_password_id']);
-          if(!empty($uid_result)){
-            //find any available TAC Code
-             //9 March 2026: replace
-			 // $otp_search_result = $operation->otp_check($_POST['forgot_password_id']);
-			 //with
-            $otp_search_result = $operation->otp_check($uid_result['u_id']);
-            $otp = generate_otp_code();
-            if(!empty($otp_search_result)){
-              $update_result= $operation->otp_update_otp_create_date($otp_search_result['otp_id']);
-              if($update_result==1){
-                echo json_encode(array( 'result' => "true",'msg' => "Check your email. Use the last OTP sent.", 'u_id' => $uid_result['u_id']));
-                $operation->syslog_record(9,"User: ".$uid_result['data1']." -> OTP Forgot Password Created",getUserIP());
-              }else{
-                if($sys_config_OTP_email == 1){
-                  OTP_EMAIL_Sender($otp,$uid_result['data5'],$uid_result['data1']);
-                }
-                echo json_encode(array( 'result' => "true",'msg' => "OTP Sent to your email. Check your inbox.", 'u_id' => $uid_result['u_id']));
-                $operation->syslog_record(9,"User: ".$uid_result['data1']." -> OTP Forgot Password Created",getUserIP());
-              }
-            }else{
-              //9 March 2026: replace
-			  //$create_otp_result = $operation->otp_create($_POST['forgot_password_id'],$otp);
-			  //with
-			  $create_otp_result = $operation->otp_create($uid_result['u_id'],$otp);
-              if($create_otp_result==1){
-                if($sys_config_OTP_email == 1){
-                  OTP_EMAIL_Sender($otp,$uid_result['data5'],$uid_result['data1']);
-                }
-                echo json_encode(array( 'result' => "true",'msg' => "OTP Sent to your email. Check your inbox.", 'u_id' => $uid_result['u_id']));
-                $operation->syslog_record(9,"User: ".$uid_result['data1']." -> OTP Forgot Password Created",getUserIP());
-
-              }else{
-                echo json_encode(array( 'result' => "false",'msg' => "Sorry, we're unable to create OTP at this moment, please try again"));
-              }
-            }
-          }else{
-			  
-			//---new func
-			$uid_result= $operation->func_search_uid_pelajar($_POST['forgot_password_id']);
-			 // echo json_encode($uid_result);
-			 // return;
-			if(!empty($uid_result)){
-            //find any available TAC Code
-            $otp_search_result = $operation->otp_check($uid_result['u_id']);
-            $otp = generate_otp_code();
-            if(!empty($otp_search_result)){
-              $update_result= $operation->otp_update_otp_create_date($otp_search_result['otp_id']);
-              if($update_result==1){
-                echo json_encode(array( 'result' => "true",'msg' => "Check your email. Use the last OTP sent.", 'u_id' => $uid_result['u_id']));
-                $operation->syslog_record(9,"User: ".$uid_result['data1']." -> OTP Forgot Password Created",getUserIP());
-              }else{
-                if($sys_config_OTP_email == 1){
-                  OTP_EMAIL_Sender($otp,$uid_result['data5'],$uid_result['data1']);
-                }
-                echo json_encode(array( 'result' => "true",'msg' => "OTP Sent to your email. Check your inbox.", 'u_id' => $uid_result['u_id']));
-                $operation->syslog_record(9,"User: ".$uid_result['data1']." -> OTP Forgot Password Created",getUserIP());
-              }
-            }else{
-              $create_otp_result = $operation->otp_create($uid_result['u_id'],$otp);
-              if($create_otp_result==1){
-                if($sys_config_OTP_email == 1){
-                  OTP_EMAIL_Sender($otp,$uid_result['data5'],$uid_result['data1']);
-                }
-                echo json_encode(array( 'result' => "true",'msg' => "OTP Sent to your email. Check your inbox.", 'u_id' => $uid_result['u_id']));
-                $operation->syslog_record(9,"User: ".$uid_result['data1']." -> OTP Forgot Password Created",getUserIP());
-
-              }else{
-                echo json_encode(array( 'result' => "false",'msg' => "Sorry, we're unable to create OTP at this moment, please try again"));
-              }
-            }
-          }else{
-			   echo json_encode(array( 'result' => "false",'msg' => "Sorry, we're unable to find any NIRC or Passport ID matched."));
-		  }
-			
-			  
-			  
-           
-          }
-        }else{
-			
-			
-          echo json_encode(array( 'result' => "false",'msg' => "Please key in NIRC or Passpord ID"));
-        }
-        
-        //check if
-        //$results = $operation->update_specific_token_status($_SESSION['login_user'],$_POST['token_id'],0);
-        //echo json_encode($results);
+      $identifier = trim((string) ($_POST['forgot_password_id'] ?? ''));
+      $uid_result = $identifier !== '' ? $operation->func_search_uid($identifier) : false;
+      if (!$uid_result && $identifier !== '') {
+        $uid_result = $operation->func_search_uid_pelajar($identifier);
       }
 
-    function generate_otp_code() {
-      return str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
+      unset($_SESSION['password_reset_user'], $_SESSION['password_reset_verified_at']);
+      if ($uid_result && (int) $uid_result['avail_status'] === 1) {
+        $_SESSION['password_reset_user'] = $uid_result['u_id'];
+        $latestRequest = $operation->otp_latest_request($uid_result['u_id']);
+        $cooldownPassed = !$latestRequest
+          || strtotime($latestRequest['otp_create_date']) <= (time() - 60);
+        $withinDailyLimit = $operation->otp_count_last_day($uid_result['u_id']) < 5;
+
+        if ($cooldownPassed && $withinDailyLimit) {
+          $otp = generate_otp_code();
+          $operation->otp_invalidate_active($uid_result['u_id']);
+          if ($operation->otp_create($uid_result['u_id'], $otp) === 1) {
+            if ((int) $sys_config_OTP_email === 1) {
+              OTP_EMAIL_Sender($otp, $uid_result['data5'], $uid_result['data1']);
+            }
+            $operation->syslog_record(9, 'Password reset OTP created for user ID: '.$uid_result['u_id'], getUserIP());
+          }
+        }
+      }
+
+      echo json_encode([
+        'result' => 'true',
+        'msg' => 'If the account is eligible, reset instructions have been sent to its registered email.'
+      ]);
     }
 
+    function generate_otp_code() {
+      return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    }
 
-     if(isset( $_POST['action_submit_OTP'])){
-        $otp_search_result = $operation->otp_check($_POST['u_id']);
-        if(!empty($otp_search_result)){
-          if($otp_search_result['otp_code']==$_POST['otp_id']){
-            //-- Get specific user
-            $user_info = $operation->func_search_uid($_POST['u_id']);
-            if(!empty($user_info)){
-              //-- Reset password to md5 ic
-              //$operation->action_change_password($_POST['u_id'],md5($user_info['data4']));
-			  //Bug fixed 23/2/2026 - By Nana
-			  //Issues when student reset password, it cant login. password are mixed up
-			  if(trim($user_info['data3']) != ""){
-					// Staff
-					$reset_password = md5($user_info['data4']);
-				} else {
-					// Student
-					$reset_password = md5($user_info['data2']);
-				}
-				$operation->action_change_password($_POST['u_id'], $reset_password);
-              //-- lg user in to dashboard
+    if(isset( $_POST['action_submit_OTP'])){
+      $resetUser = (string) ($_SESSION['password_reset_user'] ?? '');
+      $submittedOtp = preg_replace('/\D/', '', (string) ($_POST['otp_id'] ?? ''));
+      $otp_search_result = $resetUser !== '' ? $operation->otp_check($resetUser) : false;
 
-            $array = array();
-            if ($user_info != false){
-               //Check user available status
-               if($user_info['avail_status'] == 0){            
-                  $array['login_status'] = 0;
-                  $array['login_response_msg'] = "Sorry, your account had been suspended. Please contact BTMK for further information.";
-                  $operation->syslog_record(1,"User:".$user_info['u_id']."  -> ".$array['login_response_msg'],getUserIP());
-                  echo json_encode($array);
-                  return;
-               }
-                //SSO Token Initialize
-                $new_refresh_token = generate_token(); //generate new token
-                if($sys_config_multisession == 0){
-                  $operation->update_whole_token_status($user_info['u_id'],0); //expired all token for specific user
-                }
-                //
-                //Add new token to DB
-                $detector_brand = $dd->getBrandName();
-                $detector_device = $dd->getDeviceName();
-                $operation->add_new_token($new_refresh_token,$user_info['u_id'],$detector_device . ' ('.$detector_brand.')');
-                $user_info = $operation->get_specific_user_info($user_info['u_id']);
-                $cookieData = array_merge( array( "sso_dt" => date('Y-m-d H:i:s'), "sso_cre" => $new_refresh_token), $user_info );
-                setcookie('sso_cre', json_encode($cookieData), time() + (60 * 30),'/',''); // 86400 = 1 day (this is default 1 day)
-                $array['login_status'] = 1;
-                $array['result'] = "true";
-                $_SESSION['user'] = $user_info['data1'];
-                $_SESSION['login_user']=$user_info['u_id'];
-                $_SESSION['login_status']="true";
-                $_SESSION['login_user_type']=$user_info['u_type'];
-                $array['redirect_uri'] = 'page/dashboard'; 
-                $array['login_response_msg'] = "Login Success";
-                $operation->syslog_record(2,"User: ".$user_info['u_id']." Logged in From RESET -> ".$array['redirect_uri'],getUserIP());
-                echo json_encode($array);
-            }else{
-                $array['login_status'] = 0;
-                $array['login_response_msg'] = "Wrong username / password";
-                $operation->syslog_record(3,"User: ".$user_info['u_id']." -> " .$array['login_response_msg'],getUserIP());
-                echo json_encode($array);
-            }
-
-
-              //----
-
-
-
-
-
-
-            }else{
-              echo json_encode(array( 'result' => "false",'msg' => "Invalid User."));
-            }
-
-          }else{
-            echo json_encode(array( 'result' => "false",'msg' => "Invalid OTP. Please try again."));
-          }
-        }else{
-          echo json_encode(array( 'result' => "false",'msg' => "OTP Expired. Please request new OTP."));
+      if ($otp_search_result && strlen($submittedOtp) === 6
+        && password_verify($submittedOtp, (string) $otp_search_result['otp_code'])) {
+        $operation->otp_consume($otp_search_result['otp_id']);
+        $_SESSION['password_reset_verified_at'] = time();
+        echo json_encode([
+          'result' => 'true',
+          'reset_required' => true,
+          'msg' => 'OTP verified. Set a new password to continue.'
+        ]);
+      } else {
+        if ($otp_search_result) {
+          $operation->otp_record_failed_attempt($otp_search_result['otp_id']);
         }
-     }
+        echo json_encode(['result'=>'false', 'msg'=>'Invalid or expired OTP.']);
+      }
+    }
+
+    if(isset( $_POST['action_reset_password'])){
+      $resetUser = (string) ($_SESSION['password_reset_user'] ?? '');
+      $verifiedAt = (int) ($_SESSION['password_reset_verified_at'] ?? 0);
+      if ($resetUser === '' || $verifiedAt === 0 || (time() - $verifiedAt) > 600) {
+        oneid_json_deny(403, 'Password reset authorization expired');
+      }
+
+      $newPassword = (string) ($_POST['reset_password_new'] ?? '');
+      $confirmation = (string) ($_POST['reset_password_confirm'] ?? '');
+      if (!hash_equals($newPassword, $confirmation)) {
+        echo json_encode(['result'=>'false', 'msg'=>'Password confirmation does not match.']);
+        return;
+      }
+      list($passwordValid, $passwordMessage) = oneid_validate_new_password($newPassword);
+      if (!$passwordValid) {
+        echo json_encode(['result'=>'false', 'msg'=>$passwordMessage]);
+        return;
+      }
+
+      $operation->set_user_password($resetUser, $newPassword, 0);
+      $operation->update_whole_token_status($resetUser, 0);
+      $operation->syslog_record(21, 'Password reset completed for user ID: '.$resetUser, getUserIP());
+      unset($_SESSION['password_reset_user'], $_SESSION['password_reset_verified_at']);
+      echo json_encode([
+        'result'=>'true',
+        'msg'=>'Password updated. Please sign in with the new password.',
+        'redirect_uri'=>APP_URL.'/'
+      ]);
+    }
 
 
 
@@ -1083,7 +972,7 @@ function string_sanitize($s) {
       
       $html_title = 'Password Reset OTP';
       $html_body_header = 'Tetapan Semula Kata Laluan';
-      $html_body_content = '<p>Kata laluan semasa anda ialah nombor Kad Pengenalan (No. K/P) tanpa tanda -.</p><p>Sila gunakan OTP berikut untuk pengesahan:</p>';
+      $html_body_content = '<p>Sila gunakan OTP berikut untuk mengesahkan permintaan tetapan semula kata laluan:</p>';
 
       $email_body = '
       <!DOCTYPE html>
@@ -1116,7 +1005,7 @@ function string_sanitize($s) {
                   </tr>
                   <tr>
                     <td style="font-size: 14px; color: #777777;">
-                      OTP sah selama 1 minit.
+                      OTP sah selama 5 minit dan hanya boleh digunakan sekali.
                     </td>
                   </tr>
                   <tr>
@@ -1147,9 +1036,9 @@ function string_sanitize($s) {
             $mail->Port = "587"; // typically 587 
             $mail->SMTPSecure = 'tls'; // ssl is depracated
             $mail->SMTPAuth = true;
-            $mail->Username = "sysadmin@upnm.edu.my";
-            $mail->Password = "aPPs2019";
-            $mail->setFrom("sysadmin@upnm.edu.my", "sysadmin@upnm");
+            $mail->Username = oneid_secret('ONEID_SMTP_USERNAME');
+            $mail->Password = oneid_secret('ONEID_SMTP_PASSWORD');
+            $mail->setFrom(oneid_secret('ONEID_SMTP_USERNAME'), "sysadmin@upnm");
             $mail->addAddress($email, $user_name);
             //$mail->addAddress('30saat@gmail.com', 'Nabil');
             $mail->Subject = 'OneID@UPNM - OTP Lupa Kata Laluan';
@@ -1192,47 +1081,26 @@ function string_sanitize($s) {
       }
 
   if(isset( $_POST['update_specific_token_datetime'])){
-        $results = $operation->update_specific_token_datetime($_POST['u_id'],$_POST['token_id']);
-        require_once './SSO_IDP_INC.php';
+        $cookieToken = (string) ($_COOKIE['sso_cre'] ?? '');
+        if ($cookieToken === '') {
+          oneid_json_deny(401, 'SSO session token is missing');
+        }
+        $results = $operation->update_specific_token_datetime($_SESSION['login_user'], $cookieToken);
+        require_once __DIR__ . '/SSO_IDP_INC.php';
         // $cookie = json_decode( $_COOKIE["sso_cre"] );
         echo json_encode($results);
       } 
 	  
 	  
 	   if(isset( $_POST['admin_reset_password_user'])){
-		   
         $user_info = $operation->get_specific_user_info($_POST['user_id']);
-		switch($user_info['u_category']){
-                    case "2":
-                      //$user_category = 2;
-					  $password = md5($user_info['data4']);
-                    break;
-                    case "3":
-                      //$user_category = 3;
-					  $password = md5($user_info['data4']);
-                    break;
-                    case "10":
-                      //$user_category = 10;
-					  $password = md5($user_info['data2']);
-                    break;
-                    case "10":
-                      //$user_category = 10;
-					  $password = md5($user_info['data2']);
-                    break;
-                    case "11":
-                      //$user_category =11;
-					  $password = md5($user_info['data4']);
-                    break;
-                    case "12":
-                      //$user_category =12;
-					  $password = md5($user_info['data4']);
-                    break;
-                    default:
-                      //$user_category = 0;     
-					  $password = md5("SOS");                 
-                    break;
-                  }  
-		$results = $operation->action_change_password($_POST['user_id'],$password);
+        if (!$user_info) {
+          echo json_encode(0);
+          return;
+        }
+        $operation->set_user_password($_POST['user_id'], bin2hex(random_bytes(32)), 1);
+        $operation->update_whole_token_status($_POST['user_id'], 0);
+        $results = 1;
         echo json_encode($results);
       }
 

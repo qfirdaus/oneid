@@ -1,7 +1,10 @@
 <?php
-   session_start(); // Starting Session
-   require_once '../lib/config.php';
-   require_once '../lib/SSO_IDP_INC.php';
+   require_once __DIR__ . '/../lib/session_security.php';
+   oneid_start_secure_session();
+   require_once __DIR__ . '/../lib/config.php';
+   require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
+   require_once __DIR__ . '/../lib/request_security.php';
+   oneid_require_authenticated_page();
    $user_info = $operation->admin_search_user_account($_SESSION['login_user']);
    // echo "Xxxxx" . $_SESSION['user'];
     // echo json_encode($user_info);
@@ -85,7 +88,7 @@
       </div>
       <!--/Preloader-->
       <div class="wrapper theme-2-active navbar-top-light horizontal-nav">
-         <?php include 'const/top.php'; ?>
+         <?php include __DIR__ . '/const/top.php'; ?>
          <!--  <?php //include 'const/left.php'; ?> -->
          <div id="modal_change_first_time_password" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;" data-backdrop="static" 
      data-keyboard="false">
@@ -260,7 +263,7 @@
             </div>
             <div id="faq_c8" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq_h8">
               <div class="panel-body">
-                Kata laluan mestilah minimum 8 aksara, mengandungi kombinasi huruf besar dan huruf kecil, nombor, serta
+                Kata laluan mestilah minimum 12 aksara, mengandungi kombinasi huruf besar dan huruf kecil, nombor, serta
                 simbol khas.
               </div>
             </div>
@@ -362,7 +365,7 @@
                                           </div>
                                        <div class="profile-info text-center mb-15">
                                           <div class="profile-img-wrap">
-                                             <img id="user_photos" class="inline-block mb-10" src="../img/mock1.png" alt="user"/>
+                                             <img id="user_photos" class="inline-block mb-10" src="../img/mock1.jpg" alt="user"/>
                                              </div>	
                                           <h6 class="block mt-10 weight-500 capitalize-font txt-dark"><?php echo $_SESSION['user']; ?> (<?= (trim($user_info['data3']) == "") ? $user_info['data4'] : $user_info['data3']; ?>)</h6>
                                           <span class="block capitalize-font"><?php echo $user_info['data6']; ?></span>
@@ -582,6 +585,10 @@
       <script src="../dist/js/init.js"></script>
       <script src="../dist/js/widgets-data.js"></script>
       <script>
+         $.ajaxSetup({
+            headers: {'X-CSRF-Token': <?php echo json_encode(oneid_csrf_token()); ?>}
+         });
+
           var user_id = "<?php echo $user_info['data2']; ?>";
           var stu_id="<?php echo $user_info['data4']; ?>";
          $(document).ready(function() {
@@ -596,18 +603,15 @@
          function init_start(){
             checkImageExists('https://esmartcard.upnm.edu.my/img/staf/'+user_id+'.jpg', function(exists) {
                  if (exists) {
-                   console.log('Staff!');
                    // You can set it dynamically here if needed
                     $('#user_photos').attr('src', 'https://esmartcard.upnm.edu.my/img/staf/'+user_id+'.jpg');
                  } else {
                    checkImageExists('https://kemasukan.upnm.edu.my/tawaran/pelajar/student_image/'+stu_id+'.jpg', function(exists) {
                      // alert(stu_id)
                        if (exists) {
-                         console.log('Student!');
                          // You can set it dynamically here if needed
                           $('#user_photos').attr('src', 'https://kemasukan.upnm.edu.my/tawaran/pelajar/student_image/'+stu_id+'.jpg');
                        } else {
-                         console.log('Image NOT found.');
                           $('#user_photos').attr('src', '../img/gallery/mock1.jpg');
                        }
                      });
@@ -647,7 +651,6 @@
          
              },
              error: function (xhr, error, thrown) {
-                 console.log(xhr);
              }
          });
          }
@@ -800,7 +803,6 @@
             $('#follo_data_list_count_text').html('('+list_count+')');
             }
             
-                     console.log(tr)
                      $('#WebAppsTabsHeader').html(li);
                      $('#WebAppsTabsContent').html(div);
                      if(href!="undefined"){
@@ -810,7 +812,6 @@
          
              },
              error: function (xhr, error, thrown) {
-                 console.log(xhr);
              }
          });
          }
@@ -835,7 +836,6 @@
                  	// }else{                		
                  	// 	$('#follo_data_list_count_text').html('('+response.length+')');
                  	// }
-                 	console.log(response.length)
                  	var tr ='';
                      $('#security_tab_session').html('');
             $.each( response, function( i, value ) {
@@ -857,13 +857,11 @@
                 tr += '<div class="clearfix"></div>';
                 tr += '</div>';
             });
-                     console.log(tr)
          
                      $('#security_tab_session').html(tr);
          
              },
              error: function (xhr, error, thrown) {
-                 console.log(xhr);
              }
          });
          }
@@ -897,7 +895,6 @@
          
              },
              error: function (xhr, error, thrown) {
-                 console.log(xhr);
              }
          });
          }
@@ -931,7 +928,6 @@
          
                      },
                      error: function (xhr, error, thrown) {
-                         console.log(xhr);
                      }
                  });
          });
@@ -952,13 +948,11 @@
 		 
          if ($('#modal_change_first_time_password').hasClass('in')) {
              // Modal is open
-             console.log('Modal is open!');
              $('#default_pwd_text').text("Masukkan Kata Laluan Semasa");
 
             $('#modal_change_first_time_password').modal('hide');
          } else {
              // Modal is closed
-             console.log('Modal is closed.');
              $('#default_pwd_text').text("");
          }
          $('#change_password_current').val('');
@@ -972,7 +966,7 @@
 		    var password = $(this).val();
 
 		    // Check each requirement
-		    $('#p_length').html((password.length >= 8 ? '✅' : '❌') + ' At least 8 characters');
+		    $('#p_length').html((password.length >= 12 ? '✅' : '❌') + ' At least 12 characters');
 		    $('#p_lowercase').html((/[a-z]/.test(password) ? '✅' : '❌') + ' At least one lowercase letter');
 		    $('#p_uppercase').html((/[A-Z]/.test(password) ? '✅' : '❌') + ' At least one uppercase letter');
 		    $('#p_number').html((/\d/.test(password) ? '✅' : '❌') + ' At least one number');
@@ -980,19 +974,19 @@
 		});
 
          function checkPasswordStrength(password) {
-		    var strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+		    var strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$/;
 
 		    if (password.length === 0) {
 		        return { message: '', color: '' };
 		    } else if (!strongRegex.test(password)) {
-		        return { status:0,message: 'Weak password: must include uppercase, lowercase, number, symbol and be at least 8 characters.', color: 'red' };
+		        return { status:0,message: 'Weak password: must include uppercase, lowercase, number, symbol and be at least 12 characters.', color: 'red' };
 		    } else {
 		        return { status:1,message: 'Strong password', color: 'green' };
 		    }
 		}
 
 		function resetPasswordChecks() {
-		    $('#length').html('❌ At least 8 characters');
+		    $('#length').html('❌ At least 12 characters');
 		    $('#lowercase').html('❌ At least one lowercase letter');
 		    $('#uppercase').html('❌ At least one uppercase letter');
 		    $('#number').html('❌ At least one number');
@@ -1072,7 +1066,6 @@
          
                      },
                      error: function (xhr, error, thrown) {
-                         console.log(xhr);
                      }
                  });
          });
@@ -1082,7 +1075,6 @@
          function countdownTimeStart(){
          
          var countDownDate = new Date("<?php echo date('M d, Y  H:i:s', strtotime('+30 minute', strtotime(LOCAL_COOKIES_HANDLER()->sso_dt)));?>").getTime();
-         console.log(countDownDate);// Update the count down every 1 second
          var x = setInterval(function() {
          
          // Get todays date and time
@@ -1119,51 +1111,21 @@
 		
 		
 		
-        var Gu_id;
-        var Gtoken;
         function startTokenRefresh(){
-              var cookieValue = getCookie('sso_cre');  // Replace with actual name
-              if (cookieValue) {
-                  var parsedCookie = JSON.parse(cookieValue);
-                  Gtoken = parsedCookie.sso_cre;
-                  Gu_id = parsedCookie.u_id;
-                  setInterval(function() {
-                      refresh_tokens(Gu_id, Gtoken);
-                  }, 300000);
-                 //  300000  5 minutes
-                  // console.log('sso_cre value:', u_id);  // Outputs: 68e7bc5a367f4540586263
-              } else {
-                  console.log('Cookie not found');
-              }
+              setInterval(function() {
+                  refresh_tokens();
+              }, 300000);
         }
 
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = $.trim(cookies[i]);
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        function refresh_tokens(u_id,token_id) {
+        function refresh_tokens() {
           $.ajax({
               type: 'POST',
               url: '../lib/q_func',
               dataType: "json",
               data: {
-                  update_specific_token_datetime:"1",
-                  u_id: u_id,  // Form-like data
-                  token_id: token_id
+                  update_specific_token_datetime:"1"
               },
               success: function(response) {
-                  console.log('Success:', response);
                   // Handle response, e.g., update UI
                   // $('#result').html('Posted successfully: ' + JSON.stringify(response));
               },

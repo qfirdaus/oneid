@@ -1,0 +1,21 @@
+contract	method	legacy_source	legacy_symbol_or_behavior	production_wired
+ExternalUserSourceInterface	fetchAll	lib/external_data_source_API.php	EXTERNAL_DATA_SOURCE_GET_ALL_USER	no
+InitialPasswordFactoryInterface	createHash	lib/sync_user_runner.php	oneid_password_hash(bin2hex(random_bytes(32)))	no
+SyncPolicyInterface	excludedUserIds	lib/sync_user_runner.php	sync_get_exclude_uids	no
+SyncPolicyInterface	categoryIdFor	lib/sync_user_runner.php	category switch Akademik/Pentadbiran/Pelajar variants	no
+SyncPersistenceInterface	begin	lib/Database.php	beginTransaction	no
+SyncPersistenceInterface	commit	lib/Database.php	commit	no
+SyncPersistenceInterface	rollback	lib/Database.php	rollback	no
+SyncPersistenceInterface	createHeader	lib/Database.php	action_add_new_ext_header	no
+SyncPersistenceInterface	activeUsers	lib/Database.php	sync_get_all_sso_user	no
+SyncPersistenceInterface	inactiveUserIds	lib/Database.php	sync_get_inactive_user_ids	no
+SyncPersistenceInterface	deactivateUser	lib/Database.php	admin_update_user_status	no
+SyncPersistenceInterface	updateUser	lib/Database.php	admin_update_specific_user_info_all_data	no
+SyncPersistenceInterface	updateHeaderStatus	lib/Database.php	admin_update_ext_header_status	no
+SyncPersistenceInterface	stageExternalUser	lib/Database.php	action_add_external_temp_body	no
+SyncPersistenceInterface	insertExternalUser	lib/Database.php	action_add_new_user_from_external_source	no
+SyncPersistenceInterface	markStagedUser	lib/Database.php	admin_update_ext_body_status	no
+SyncPersistenceInterface	appendChanges	lib/Database.php	sync_log_change_batch	no
+SyncPersistenceInterface	updateSummary	lib/Database.php	sync_update_header_summary	no
+SyncPersistenceInterface	header	lib/Database.php	action_get_ext_header	no
+SyncRunSummary	toLegacyArray	lib/sync_user_runner.php	header plus Deactivate/Update/New/Reactivate keys	no

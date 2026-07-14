@@ -1,8 +1,20 @@
 RewriteEngine On
 
+# Security baseline (Sprint 1)
+# Prevent database dumps, operational logs and host scripts from being served.
+<FilesMatch "(?i)(^\.DS_Store$|^Thumbs\.db$|\.(sql|log|bat|ps1)$)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
 # 1) Paksa HTTPS kalau masih HTTP
 RewriteCond %{HTTPS} !=on
-RewriteRule ^ https://oneid.local%{REQUEST_URI} [L,R=301]
+RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [L,R=301]
 
 # 2) Auto-append .php kalau file tu wujud
 RewriteCond %{REQUEST_FILENAME} !-d

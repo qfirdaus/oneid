@@ -1,0 +1,9 @@
+scenario	legacy_path	production_path	comparison	result
+success	run_admin_sync_user	SyncOrchestrator::run	exact normalized persistence call trace	pass
+success	run_admin_sync_user	SyncRunSummary::toLegacyArray	legacy associative result	pass
+success	random password	SecureInitialPasswordFactory	both paths provide non-empty hashes	pass
+empty_source	run_admin_sync_user	SyncOrchestrator::run	exact call trace and result	pass
+no_pending	run_admin_sync_user	SyncOrchestrator::run	exact call trace result and header status 4	pass
+mutation_exception	run_admin_sync_user	SyncOrchestrator::run	exception and rollback trace	pass
+upstream_exception	run_admin_sync_user	SyncOrchestrator::run	current transaction weakness retained	pass
+static_guard	production callers	SyncOrchestrator	no caller reference	pass

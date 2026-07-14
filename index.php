@@ -1,5 +1,8 @@
 <?php 
-require_once 'lib/SSO_IDP_INC.php';
+require_once __DIR__ . '/lib/session_security.php';
+oneid_start_secure_session();
+require_once __DIR__ . '/lib/request_security.php';
+require_once __DIR__ . '/lib/SSO_IDP_INC.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -55,7 +58,7 @@ require_once 'lib/SSO_IDP_INC.php';
         <div class="login-form-block" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px;">
           <label for="password" class="login-form-label" style="margin-bottom: 4px; font-weight: 500; color: #2c2c2c;"> Kata Laluan</label>
           <input id="password" name="password" type="password" placeholder="Masukkan Kata Laluan" class="login-form-control custom_input login_placeholder" />
-		  <small>Masukkan No. K/P tanpa '-' atau No. Pasport untuk kali pertama</small>
+		  <small>Pengguna baharu perlu menggunakan fungsi Lupa Kata Laluan untuk menetapkan kata laluan pertama.</small>
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-3" >
@@ -289,6 +292,34 @@ require_once 'lib/SSO_IDP_INC.php';
                           </div>
                         </div>
 
+<!-- Modal password baharu selepas OTP disahkan -->
+<div class="modal fade" id="modal_reset_password" tabindex="-1" aria-labelledby="modal_reset_password_label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal_reset_password_label">Tetapkan Kata Laluan Baharu</h5>
+      </div>
+      <form id="form_reset_password">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" for="reset_password_new">Kata Laluan Baharu</label>
+            <input type="password" class="form-control" id="reset_password_new" name="reset_password_new" minlength="12" autocomplete="new-password" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="reset_password_confirm">Sahkan Kata Laluan Baharu</label>
+            <input type="password" class="form-control" id="reset_password_confirm" name="reset_password_confirm" minlength="12" autocomplete="new-password" required>
+          </div>
+          <small>Minimum 12 aksara serta mengandungi huruf besar, huruf kecil, nombor dan simbol.</small>
+          <div id="reset_password_message" class="mt-3"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-info">Simpan Kata Laluan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
                         <div class="modal fade" id="faqModal" tabindex="-1" aria-labelledby="faqModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
@@ -407,7 +438,7 @@ require_once 'lib/SSO_IDP_INC.php';
     </h2>
     <div id="collapse8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
       <div class="accordion-body">
-        Kata laluan mestilah minimum 8 aksara, mengandungi kombinasi huruf besar dan huruf kecil, nombor, serta simbol khas.
+        Kata laluan mestilah minimum 12 aksara, mengandungi kombinasi huruf besar dan huruf kecil, nombor, serta simbol khas.
       </div>
     </div>
   </div>
@@ -439,6 +470,10 @@ require_once 'lib/SSO_IDP_INC.php';
 
 
 <script>
+$.ajaxSetup({
+  headers: {'X-CSRF-Token': <?php echo json_encode(oneid_csrf_token()); ?>}
+});
+
 // ===== Client-side login limiter (cookie-based) =====
 window.LoginLimiter = (function () {
   var THRESHOLD = 5;                        // 5 fails triggers lock
@@ -529,7 +564,6 @@ $loginform.on('submit', function(ev){
 
     var data = $('#loginform').serializeArray();
     data.push({name: "site_id", value: fallback_sp_id});
-console.log(data);
         $.ajax({
                 type: 'POST',
                 url: './lib/q_func',
@@ -553,7 +587,6 @@ console.log(data);
 
             },
             error: function (xhr, error, thrown) {
-                console.log(xhr);
                 LoginLimiter.onFailure(username);
             }
         });
@@ -593,7 +626,6 @@ function open_forgot_password(){
                          },
                          success: function (response) {
                              if (response['result'] == "true"){  
-							 $('#forgot_password_id').val(response['u_id']);
                               $('#modal_forgot_password').modal('hide');
                               setTimeout(function() {
                     $('#modal_OTP').modal('show');
@@ -633,7 +665,6 @@ function open_forgot_password(){
             $('#otp_modal_loading_OTP').hide();
                      },
                      error: function (xhr, error, thrown) {
-                         console.log(xhr);
                      }
                  });
          });
@@ -663,7 +694,7 @@ function open_forgot_password(){
     function OTP_startCountdown() {
       if (countdownTimer !== null) return; // already running
 
-        otpEndTime = new Date().getTime() + 60000; // 60 seconds from now
+        otpEndTime = new Date().getTime() + 300000; // 5 minutes from now
 
         countdownTimer = setInterval(function() {
             OTP_updateCountdown();
@@ -736,7 +767,6 @@ function open_forgot_password(){
          
                      },
                      error: function (xhr, error, thrown) {
-                         console.log(xhr);
                      }
                  });
     }
@@ -751,18 +781,15 @@ function open_forgot_password(){
           otp += $(this).val();
         });
 
-        console.log("Entered OTP:", otp);
         if (otp.length < 6) {
           $('#otp_message').css('color', 'red').text('Please complete all 6 digits.');
           return;
         } else {
-          $('#otp_message').css('color', 'green').text('OTP submitted: ' + otp);
-          // You can now send `otp` to server
+          $('#otp_message').css('color', 'green').text('OTP lengkap dan sedia untuk dihantar.');
         }
 
              var data = $('#form_otp').serializeArray();
              data.push({name: 'action_submit_OTP', value: ''});
-             data.push({name: 'u_id', value: $("#forgot_password_id").val()});
              data.push({name: 'otp_id', value: otp});
              
                  $.ajax({
@@ -773,8 +800,11 @@ function open_forgot_password(){
                          beforeSend: function(){
                          },
                          success: function (response) {
-                             if (response['result'] == "true"){  
-                    window.location.href = response['redirect_uri'];
+                             if (response['result'] == "true" && response['reset_required']){
+                    $('#modal_OTP').modal('hide');
+                    $('#reset_password_new').val('');
+                    $('#reset_password_confirm').val('');
+                    $('#modal_reset_password').modal('show');
                 }else{                 
                 // alert();       
                      $.toast().reset('all');            
@@ -791,10 +821,33 @@ function open_forgot_password(){
          
                      },
                      error: function (xhr, error, thrown) {
-                         console.log(xhr);
                      }
                  });
          });
+
+    $('#form_reset_password').on('submit', function(ev){
+      ev.preventDefault();
+      var data = $(this).serializeArray();
+      data.push({name: 'action_reset_password', value: ''});
+      $.ajax({
+        type: 'POST',
+        url: './lib/q_func',
+        dataType: 'json',
+        data: data,
+        success: function(response){
+          if (response['result'] == 'true') {
+            $('#reset_password_message').removeClass('text-danger').addClass('text-success').text(response['msg']);
+            setTimeout(function(){ window.location.href = response['redirect_uri']; }, 1000);
+          } else {
+            $('#reset_password_message').removeClass('text-success').addClass('text-danger').text(response['msg']);
+          }
+        },
+        error: function(xhr){
+          var message = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : 'Unable to reset password.';
+          $('#reset_password_message').removeClass('text-success').addClass('text-danger').text(message);
+        }
+      });
+    });
 
 
 $('.otp-input').on('input', function() {

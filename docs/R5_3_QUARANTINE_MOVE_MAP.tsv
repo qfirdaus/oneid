@@ -1,0 +1,39 @@
+source	classification	reason
+.DS_Store	metadata-junk	macOS metadata; bukan runtime
+admin/.DS_Store	metadata-junk	macOS metadata; bukan runtime
+page/.DS_Store	metadata-junk	macOS metadata; bukan runtime
+lib/.DS_Store	metadata-junk	macOS metadata; bukan runtime
+vendors/.DS_Store	metadata-junk	macOS metadata; bukan runtime
+api_old.php	legacy-snapshot	tiada caller runtime ditemui; endpoint aktif ialah public/api.php -> api.php
+index1.php	legacy-snapshot	tiada caller runtime ditemui; entry point aktif ialah public/index.php -> index.php
+index_.php	legacy-snapshot	tiada caller runtime ditemui; entry point aktif ialah public/index.php -> index.php
+index_20250806.php	legacy-snapshot	tiada caller runtime ditemui; entry point aktif ialah public/index.php -> index.php
+test.php	legacy-test-endpoint	tidak diterbitkan oleh public root dan tiada caller runtime ditemui
+atest.php	legacy-test-endpoint	tidak diterbitkan oleh public root dan tiada caller runtime ditemui
+admin/dashboard_old.php	legacy-snapshot	tiada caller runtime ditemui; wrapper aktif menuju admin/dashboard.php
+page/dashboard2.php	legacy-snapshot	tiada caller runtime ditemui; wrapper aktif menuju page/dashboard.php
+page/dashboard_old.php	legacy-snapshot	tiada caller runtime ditemui; wrapper aktif menuju page/dashboard.php
+page/const/left copy.php	legacy-snapshot	tiada include/caller runtime ditemui
+lib/q_func_old.php	legacy-snapshot	tiada include/caller runtime ditemui; wrapper aktif menuju lib/q_func.php
+lib/SSO_IDP_INC - Copy.php	legacy-snapshot	tiada include/caller runtime ditemui; implementation aktif ialah lib/SSO_IDP_INC.php
+diag	owner-retired	monitoring diagnostic telah disahkan tidak digunakan
+cron	owner-retired	scheduler/sync cron telah disahkan tidak diperlukan
+assetsM	duplicate-public-tree	880 fail terbukti sama dengan public/assetsM; URL aktif dilayan dari public root
+dist	duplicate-public-tree	141 fail terbukti sama dengan public/dist; URL aktif dilayan dari public root
+img	duplicate-public-tree	143 fail terbukti sama dengan public/img; URL aktif dilayan dari public root
+public_img	obsolete-upload-copy	89 fail lama sudah ada dalam public/public_img; upload baharu menulis terus ke public/public_img
+public_docs	duplicate-public-tree	kandungan terbukti sama dengan public/public_docs
+videos	duplicate-public-tree	kandungan terbukti sama dengan public/videos
+favicon.ico	duplicate-public-file	favicon aktif berada dalam public/favicon.ico
+admin/favicon.ico	duplicate-public-file	favicon aktif berada dalam public/admin/favicon.ico
+page/favicon.ico	duplicate-public-file	favicon aktif berada dalam public/page/favicon.ico
+vendors/bower_components	duplicate-public-tree	kandungan terbukti sama dengan public/vendors/bower_components
+vendors/vectormap	duplicate-public-tree	kandungan terbukti sama dengan public/vendors/vectormap
+vendors/typeahead.js	duplicate-public-tree	kandungan terbukti sama dengan public/vendors/typeahead.js
+vendors/chart.js	unused-browser-vendor	tiada rujukan runtime ditemui dan bukan dependency PHP server-side
+vendors/jquery.sparkline	unused-browser-vendor	tiada rujukan runtime ditemui dan bukan dependency PHP server-side
+vendors/ecStat.min.js	unused-browser-vendor	tiada rujukan runtime ditemui dan bukan dependency PHP server-side
+vendors/echarts-liquidfill.min.js	unused-browser-vendor	tiada rujukan runtime ditemui dan bukan dependency PHP server-side
+vendors/jquery-ui.min.js	unused-browser-vendor	tiada rujukan runtime ditemui dan bukan dependency PHP server-side
+public/img/Thumbs.db	metadata-junk	Windows thumbnail metadata; bukan runtime
+public/assetsM/vendor/apex/apexcharts.min.old.js	legacy-static-snapshot	tiada rujukan runtime ditemui; apexcharts.min.js kekal aktif

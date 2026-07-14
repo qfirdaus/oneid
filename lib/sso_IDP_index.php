@@ -1,6 +1,7 @@
 <?php
-session_start(); // Starting Session
-require_once 'config.php';
+require_once __DIR__ . '/session_security.php';
+oneid_start_secure_session();
+require_once __DIR__ . '/config.php';
 //---------- SSO Checker
 $site_id="IDP";
 $SP_current_page = GET_CURRENT_PAGE_URI();

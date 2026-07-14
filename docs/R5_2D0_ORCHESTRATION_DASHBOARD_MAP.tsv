@@ -1,0 +1,11 @@
+component	entry_or_caller	dependencies_or_seams	characterization	risk	r52_decision
+sync orchestration	lib/q_func.php admin_add_sync_user	CSRF; admin role; Database; external source; audit log	In-memory success/empty/rollback fixtures	CRITICAL	DO_NOT_MOVE_IN_D0
+sync orchestration	cron/run_sync.php	Database; external source; storage log; process exit	Caller mapped; cron previously retired by owner	HIGH	KEEP_COMPATIBILITY
+sync transaction	run_admin_sync_user	beginTransaction before external fetch; try/catch begins later	Upstream failure after begin leaves no commit/rollback	CRITICAL	FUNCTIONAL_FIX_SEPARATE
+sync matching	run_admin_sync_user	staff IC; student matrix+IC; stored hash; inactive UID map	Fixture covers update/deactivate/new/reactivate	HIGH	CHARACTERIZED
+sync policy	run_admin_sync_user	hardcoded UID 10; category-to-ID switch; random initial password	Fixture locks current mapping/exclusion	HIGH	DO_NOT_CHANGE_WITH_MOVEMENT
+user dashboard	page/dashboard.php	1261 LOC; auth guard; top include; 7 q_func AJAX seams; 15 inline functions; 12 script tags	Static 7-contract group	HIGH	DO_NOT_MOVE_IN_D0
+admin dashboard	admin/dashboard.php	3905 LOC; admin guard; top include; 41 q_func AJAX seams; 62 inline functions; 18 script tags	Static 7-contract group	CRITICAL	DO_NOT_MOVE_IN_D0
+admin user list	admin/user_list.php	156 LOC; admin guard; category query parameters; 3 script tags	Static 7-contract group	HIGH	KEEP_ENTRYPOINT
+dashboard API	lib/q_func.php	Single endpoint for user/admin/sync actions; action authorization map	HTTP 405 and dashboard seam map	CRITICAL	EXTRACT_BY_FEATURE_ONLY
+dashboard presentation	inline HTML and JavaScript	relative asset paths; DOM IDs; modal/plugin lifecycle; generated HTML	Counts/fragments locked; browser UAT still required	HIGH	PREPARE_VIEW_ASSET_BATCH_ONLY

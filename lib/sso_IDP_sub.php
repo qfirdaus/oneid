@@ -1,6 +1,6 @@
 <?php
 //session_start(); // Starting Session
-require_once 'config.php';
+require_once __DIR__ . '/config.php';
 //---------- SSO Checker
 $site_id="IDP";
 $IDP_Domain="http://oneid.local/upnm_sso/";

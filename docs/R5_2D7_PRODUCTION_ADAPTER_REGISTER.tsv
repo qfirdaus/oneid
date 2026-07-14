@@ -1,0 +1,5 @@
+adapter	contract	legacy_dependency	contract_test	production_wired
+ExternalApiUserSource	ExternalUserSourceInterface	EXTERNAL_DATA_SOURCE_GET_ALL_USER	external return and exception propagation	no
+SecureInitialPasswordFactory	InitialPasswordFactoryInterface	oneid_password_hash plus random_bytes	secure non-empty non-deterministic hashes	no
+LegacySyncPolicy	SyncPolicyInterface	excluded UID and category switch	default exclusion six categories and fallback	no
+DatabaseSyncPersistenceAdapter	SyncPersistenceInterface	legacy Database method surface	exact 15-method argument and return parity	no

@@ -1,0 +1,11 @@
+scenario	legacy_path	test_projection_path	compared_contract	result
+success	run_admin_sync_user	TestSyncOrchestrator::run	exact normalized persistence call trace	pass
+success	run_admin_sync_user	SyncRunSummary::toLegacyArray	legacy result array	pass
+success	run_admin_sync_user	TestSyncOrchestrator::run	operation ordering	pass
+success	run_admin_sync_user	TestSyncOrchestrator::run	new/reactivate UID and category order	pass
+success	random initial password	injected initial password factory	both supply non-empty hash; value normalized	pass
+empty_source	run_admin_sync_user	TestSyncOrchestrator::run	exact persistence call trace	pass
+empty_source	run_admin_sync_user	SyncRunSummary::toLegacyArray	legacy result array	pass
+mutation_exception	run_admin_sync_user	TestSyncOrchestrator::run	exception message and rollback call trace	pass
+upstream_exception	run_admin_sync_user	TestSyncOrchestrator::run	exception and current no-rollback weakness	pass
+static_guard	production runtime	TestSyncOrchestrator	no production reference	pass

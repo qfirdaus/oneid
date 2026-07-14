@@ -1,0 +1,26 @@
+gate_id	area	requirement	status	evidence_or_owner_action
+D4-G01	baseline	D0-D3 regression all pass	pass	D3 17/17 D2 21/21 D1 18/18 D0 18/18
+D4-G02	runtime	production files unchanged during D4	pass	SHA-256 recorded in D4 plan
+D4-G03	transaction	compatibility-first boundary accepted for initial pilot	planned	owner approval required before implementation
+D4-G04	transaction	transaction fix isolated as separate functional change	planned	do not combine with initial engine switch
+D4-G05	feature_flag	ONEID_SYNC_ENGINE strict server-side flag implemented	pending	default legacy; allow legacy or interface only
+D4-G06	feature_flag	invalid flag fails closed without running sync	pending	implementation and automated test required
+D4-G07	adapter	production adapters implemented and contract-tested	pass	R5.2D7 dormant adapters 32/32; no tests/Support dependency
+D4-G08	planner	side-effect-free plan/dry-run implemented	pass	R5.2D6 pure app planner 17/17 and D5 zero-mutation parity 25/25
+D4-G09	shadow	single upstream snapshot comparison implemented	pending	no dual mutating execution
+D4-G10	parity	dry-run legacy/interface plan mismatch equals zero	pending	evidence from representative UAT snapshot
+D4-G11	caller	admin dashboard pilot caller identified	pass	lib/q_func.php admin_add_sync_user
+D4-G12	caller	cron remains retired and is not reactivated	accepted	owner decision already recorded in R4/Fasa 7
+D4-G13	backup	restricted pre-pilot database backup created and verified	pending	user_tbl ext_data_temp_header ext_data_temp_body sync_change_log
+D4-G14	reconciliation	pre-run counts and hashes captured	pending	change evidence outside public root
+D4-G15	reconciliation	post-run header audit and user state reconcile	pending	zero unexplained mismatch
+D4-G16	monitoring	structured engine/run/header/status/count/duration log implemented	pending	no password token credential or full PII row
+D4-G17	monitoring	alert and abort thresholds approved	pending	owner plus database/operator review
+D4-G18	cutover	maintenance window change ID owners and operator recorded	pending	owner system OneID plus named executor
+D4-G19	cutover	concurrent sync lock implemented and tested	pending	prevent two admin clicks or scheduler overlap
+D4-G20	cutover	one controlled admin pilot run approved	pending	interface flag only during window
+D4-G21	rollback	legacy flag restoration tested before pilot	pending	include PHP-FPM environment reload verification
+D4-G22	rollback	post-commit database restore procedure tested	pending	feature flag alone does not undo committed data
+D4-G23	soak	observation window completed without unexplained mismatch	pending	minimum agreed successful manual runs
+D4-G24	cleanup	legacy runner removal deferred	accepted	retain until interface engine exit criteria complete
+D4-G25	orchestrator	dormant production orchestrator full legacy parity	pass	R5.2D8 18/18; no caller or feature-flag wiring

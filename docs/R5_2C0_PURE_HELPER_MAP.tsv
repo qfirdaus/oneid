@@ -1,0 +1,32 @@
+source	symbol	known_callers	classification	risk	r52_decision	note
+lib/sync_user_runner.php	sync_compute_hash	run_admin_sync_user	PURE_DETERMINISTIC	MEDIUM	C1_IMPLEMENTED_WRAPPER	Delegates to app/Sync/SyncDataTransformer; delimiter-free ambiguity preserved
+lib/sync_user_runner.php	sync_log_field_names	sync_build_log_snapshot	PURE_DETERMINISTIC	LOW	C1_IMPLEMENTED_WRAPPER	Delegates to app/Sync/SyncDataTransformer
+lib/sync_user_runner.php	sync_build_log_snapshot	run_admin_sync_user	PURE_DETERMINISTIC	LOW	C1_IMPLEMENTED_WRAPPER	Delegates to app/Sync/SyncDataTransformer
+lib/sync_user_runner.php	sync_pick_log_fields	run_admin_sync_user	PURE_DETERMINISTIC	LOW	C1_IMPLEMENTED_WRAPPER	Delegates to app/Sync/SyncDataTransformer; category behavior preserved
+lib/sync_user_runner.php	sync_get_changed_fields	run_admin_sync_user	PURE_DETERMINISTIC	MEDIUM	C1_IMPLEMENTED_WRAPPER	Delegates to app/Sync/SyncDataTransformer; data1-data7 scope preserved
+lib/sync_user_runner.php	sync_remove_duplicateKeys	run_admin_sync_user	PURE_DETERMINISTIC	MEDIUM	C1_IMPLEMENTED_WRAPPER	Delegates to app/Sync/SyncDataTransformer; odd-count behavior preserved
+lib/sync_user_runner.php	sync_get_exclude_uids	run_admin_sync_user	DETERMINISTIC_POLICY	MEDIUM	KEEP_PENDING_CONFIG	Hardcoded UID exclusion is policy rather than transformation
+lib/auth_security.php	oneid_is_legacy_md5_hash	oneid_password_verify; oneid_password_needs_rehash	PURE_SECURITY	HIGH	KEEP_AS_IS	Already isolated; security behavior not part of restructuring
+lib/auth_security.php	oneid_validate_new_password	lib/q_func.php	PURE_SECURITY	HIGH	KEEP_AS_IS	Already isolated and characterized in Fasa 5
+lib/auth_security.php	oneid_token_hash	Database; lib/q_func.php	PURE_SECURITY	HIGH	KEEP_AS_IS	Already isolated; token contract critical
+lib/auth_security.php	oneid_password_hash	Database; sync runner	NONDETERMINISTIC_SECURITY	HIGH	KEEP_AS_IS	Password hashing uses random salt
+bootstrap/paths.php	oneid_project_path	No active caller found	PURE_WITH_CONSTANT	LOW	KEEP_AS_IS	Already isolated; possible unused helper
+bootstrap/paths.php	oneid_public_path	lib/q_func.php	PURE_WITH_CONSTANT	LOW	KEEP_AS_IS	Already isolated and actively used by upload path
+bootstrap/paths.php	oneid_storage_path	cron/run_sync.php	PURE_WITH_CONSTANT	LOW	KEEP_AS_IS	Already isolated and actively used by log path
+lib/upload_security.php	sanitize_existing_app_icon	lib/q_func.php	PURE_VALIDATION	MEDIUM	KEEP_AS_IS	Already isolated; upload security boundary
+lib/integration_security.php	oneid_integration_client_allows	oneid_integration_guard	PURE_SECURITY	HIGH	KEEP_AS_IS	Already isolated; external authorization contract
+lib/request_security.php	oneid_q_func_action_map	oneid_guard_q_func_request	DETERMINISTIC_POLICY	CRITICAL	KEEP_AS_IS	Authorization policy, not generic helper
+lib/q_func.php	generate_random	No active caller found	RANDOM_UNUSED	MEDIUM	R5_3_CLEANUP_CANDIDATE	Uses mt_rand; do not move as domain helper
+lib/q_func.php	generate_random_char	No active caller found	RANDOM_UNUSED	MEDIUM	R5_3_CLEANUP_CANDIDATE	Uses mt_rand; do not move as domain helper
+lib/q_func.php	sentence_case	No active caller found	PURE_UNUSED	LOW	R5_3_CLEANUP_CANDIDATE	Legacy unused function; quarantine evidence needed
+lib/q_func.php	string_sanitize	No active caller found	PURE_UNUSED	MEDIUM	R5_3_CLEANUP_CANDIDATE	htmlspecialchars is context-specific escaping, not generic sanitization
+lib/q_func.php	generate_app_ID	Admin add application	RANDOM_DOMAIN	HIGH	DEFER	Uses mt_rand and touches critical admin action
+lib/q_func.php	generate_token	Login; password change	RANDOM_SECURITY_ALIAS	CRITICAL	DEFER	Alias of canonical oneid_generate_sso_token; auth contract critical
+lib/q_func.php	getUserIP	Audit calls	REQUEST_GLOBAL	HIGH	DEFER	Reads server globals and defines trust behavior
+lib/q_func.php	php_sort_alpahabet	No active caller found	PURE_UNUSED	LOW	R5_3_CLEANUP_CANDIDATE	Name typo and usort callers are commented
+lib/q_func.php	check_specific_sp_allowed	Login and SSO launch	DATABASE_SESSION	CRITICAL	DEFER	Authorization and database calls
+lib/q_func.php	generate_otp_code	Password reset	RANDOM_SECURITY	CRITICAL	DEFER	Cryptographic random OTP generation
+lib/q_func.php	get_hour_diff	Token/session display	PURE_TIME	HIGH	DEFER	Duplicate exists in api.php; moving touches critical endpoints
+api.php	get_hour_diff	API token expiry	PURE_TIME	CRITICAL	DEFER	Duplicate with q_func and API response contract
+api.php	generate_token	API token rotation	RANDOM_SECURITY_ALIAS	CRITICAL	DEFER	External consumer contract
+skp_api.php	get_highest	SKP response	PURE_TRANSFORM	HIGH	DEFER	Pure-looking but embedded in live integration endpoint; empty-array behavior unsafe

@@ -1,8 +1,11 @@
 <?php
-   session_start(); // Starting Session
-   require_once '../lib/config.php';
+   require_once __DIR__ . '/../lib/session_security.php';
+   oneid_start_secure_session();
+   require_once __DIR__ . '/../lib/config.php';
    //return;
-   require_once '../lib/SSO_IDP_INC.php';
+   require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
+   require_once __DIR__ . '/../lib/request_security.php';
+   oneid_require_admin_page();
    
    $widget_data = $operation->admin_widget_count();
    $sys_config = $operation->get_system_config();
@@ -44,7 +47,7 @@
       </div>
       <!--/Preloader-->
       <div class="wrapper theme-2-active navbar-top-light horizontal-nav">
-         <?php include 'const/top.php'; ?>
+         <?php include __DIR__ . '/const/top.php'; ?>
          <!--  <?php //include 'const/left.php'; ?> -->
          <div id="modal_user_profile" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_edit_app" aria-hidden="true">
             <div class="modal-dialog">
@@ -1389,6 +1392,10 @@
       
       <!-- <script src="../dist/js/widgets-data.js"></script> -->
       <script>
+         $.ajaxSetup({
+            headers: {'X-CSRF-Token': <?php echo json_encode(oneid_csrf_token()); ?>}
+         });
+
          /* Switchery Init*/
          // var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
          // $('.js-switch-1').each(function() {
@@ -1438,7 +1445,6 @@
          			asyncprocess(response);
          		},
          		error: function (xhr, error, thrown) {
-         			console.log(xhr);
          		}
          	});
          },
@@ -1487,7 +1493,6 @@
            //----Login
            function get_service_provider_list(){
             var href = $('#WebAppsTabsHeader li.active a').attr('href'); // e.g. "#SumberManusia_1_tab"
-            console.log("href=>"+href);
            	$.ajax({
            		type: 'POST',
            		url: '../lib/q_func',
@@ -1505,7 +1510,6 @@
          
            			
            			var list_count = 0;
-                       	// console.log(response.length)
                        	var tr ='';
                        	var li = '';
                        	var div = '';
@@ -1610,7 +1614,6 @@
          // $('#follo_data_list_count_text').html('('+list_count+')');
          }
          
-         //console.log(div);
          
          $('#WebAppsTabsHeader').html(li);
          $('#WebAppsTabsContent').html(div);
@@ -1620,7 +1623,6 @@
          
          },
          error: function (xhr, error, thrown) {
-         console.log(xhr);
          }
          });
          }
@@ -1637,7 +1639,6 @@
                      },
                      success: function (response) {
                      	var list_count = 0;
-                     	//console.log(response.length)
                      	var tr ='';
                      	var select_opt = "";
                      	$('#user_account_type_list').html('');
@@ -1652,7 +1653,6 @@
                      			select_opt += '<option value="'+response[i]['uc_id']+'">'+response[i]['uc_name']+'</option>';
                      		}
                      	});
-                           // console.log(tr)
          
                            $('#user_account_type_list').html(tr);
                            $('#add_new_manual_user_category').html(select_opt);
@@ -1664,7 +1664,6 @@
          
                        },
                        error: function (xhr, error, thrown) {
-                       	console.log(xhr);
                        }
                    });
          }
@@ -1728,7 +1727,6 @@
          
                      },
                      error: function (xhr, error, thrown) {
-                     	console.log(xhr);
                      }
                  });
          }
@@ -1788,7 +1786,6 @@
                      	} 					
                      },
                      error: function (xhr, error, thrown) {
-                     	console.log(xhr);
                      }
                  });
          }
@@ -1867,7 +1864,6 @@
                      	$('#tbody_category_listing').html(tr);
                      },
                      error: function (xhr, error, thrown) {
-                     	console.log(xhr);
                      }
                  });
            }
@@ -1905,7 +1901,6 @@
            			$('#tbody_category_site_listing').html(tr);
            		},
            		error: function (xhr, error, thrown) {
-           			console.log(xhr);
            		}
            	});
            }
@@ -1942,7 +1937,6 @@
            			$('#tbody_category_site_listing_add_new').html(tr);
            		},
            		error: function (xhr, error, thrown) {
-           			console.log(xhr);
            		}
            	});
            }
@@ -1977,7 +1971,6 @@
          
            			},
            			error: function (xhr, error, thrown) {
-           				console.log(xhr);
            			}
            		});
            	});
@@ -2011,7 +2004,6 @@
          
            			},
            			error: function (xhr, error, thrown) {
-           				console.log(xhr);
            			}
            		});
            	});
@@ -2047,7 +2039,6 @@
          
            			},
            			error: function (xhr, error, thrown) {
-           				console.log(xhr);
            			}
            		});
            	});
@@ -2114,7 +2105,6 @@
          
          		},
          		error: function (xhr, error, thrown) {
-         			console.log(xhr);
          		}
          	});
            }
@@ -2166,7 +2156,6 @@
          
                },
                error: function (xhr, error, thrown) {
-                  console.log(xhr);
                }
             });
            });
@@ -2174,7 +2163,6 @@
            function open_remove_webapp_category(){
             var href = $('#WebAppsTabsHeader li.active a').attr('href'); // e.g. "#SumberManusia_1_tab"
             var number = href.split('_')[1]; // "1"
-            console.log(number); // Output: 1
             if(number == 0){
                   swal("This category could not be remove", "Reason: Defult Category", "error");
                return;
@@ -2206,7 +2194,6 @@
          
                   },
                   error: function (xhr, error, thrown) {
-                     console.log(xhr);
                   }
                });
             });
@@ -2237,7 +2224,6 @@
 		           	$('#modal_add_new_app').modal('show');
          		},
          		error: function (xhr, error, thrown) {
-         			console.log(xhr);
          		}
          	});
            }
@@ -2263,7 +2249,6 @@
 
               // 3. Optional extra field
               data.append('action_add_new_app', '');
-              // console.log(data);
               // return;
 
            	// var data = $('#form_add_new_app').serializeArray();
@@ -2322,7 +2307,6 @@
          
            		},
            		error: function (xhr, error, thrown) {
-           			console.log(xhr);
            		}
            	});
            });
@@ -2347,7 +2331,6 @@
            			$('#edit_app_category').html(option);
          		},
          		error: function (xhr, error, thrown) {
-         			console.log(xhr);
          		}
          	});
            	
@@ -2424,7 +2407,6 @@
          
          	    },
          	    error: function (xhr, error, thrown) {
-         	    	console.log(xhr);
          	    }
          	});
            }
@@ -2493,7 +2475,6 @@
          
            		},
            		error: function (xhr, error, thrown) {
-           			console.log(xhr);
            		}
            	});
            });
@@ -2529,7 +2510,6 @@
          
            			},
            			error: function (xhr, error, thrown) {
-           				console.log(xhr);
            			}
            		});
            	});
@@ -2612,7 +2592,6 @@
          			}
          		},
          		error: function (xhr, error, thrown) {
-         			console.log(xhr);
          		}
          	});
            }
@@ -2654,7 +2633,6 @@
          
                      },
                      error: function (xhr, error, thrown) {
-                     	console.log(xhr);
                      }
                  });
            }
@@ -2708,7 +2686,6 @@
          
            		},
            		error: function (xhr, error, thrown) {
-           			console.log(xhr);
            		}
            	});
            }
@@ -2747,7 +2724,6 @@
          
            			},
            			error: function (xhr, error, thrown) {
-           				console.log(xhr);
            			}
            		});
            	});
@@ -2790,7 +2766,6 @@
          
                      },
                      error: function (xhr, error, thrown) {
-                     	console.log(xhr);
                      }
                  });
            }
@@ -2824,7 +2799,6 @@
          
            			},
            			error: function (xhr, error, thrown) {
-           				console.log(xhr);
            			}
            		});
            	});
@@ -2860,7 +2834,6 @@
          
            			},
            			error: function (xhr, error, thrown) {
-           				console.log(xhr);
            			}
            		});
            	});
@@ -2890,7 +2863,6 @@
          
                      },
                      error: function (xhr, error, thrown) {
-                     	console.log(xhr);
                      }
                  });
            }
@@ -2965,7 +2937,6 @@
          
                  			},
                  			error: function (xhr, error, thrown) {
-                 				console.log(xhr);
                  			}
                  		});
          
@@ -3027,7 +2998,6 @@
          
          },
          error: function (xhr, error, thrown) {
-         	console.log(xhr);
          }
          });
          });
@@ -3087,7 +3057,6 @@
          
                                },
                                error: function (xhr, error, thrown) {
-                               	console.log(xhr);
                                	$('#sync_progress_id').hide();
                                	$('#sync_result_div').show();
                                	$('#sync_add_user_sync_total_ext_data_sync_result_text').html('<span class="badge badge-danger users-view-status">Sync failed. Please try again.</span>');
@@ -3168,7 +3137,6 @@
          
          },
          error: function (xhr, error, thrown) {
-         	console.log(xhr);
          }
          });
          });
@@ -3215,7 +3183,6 @@
          
          		},
          		error: function (xhr, error, thrown) {
-         			console.log(xhr);
          		}
          	});
          });
@@ -3255,7 +3222,6 @@
          
          		},
          		error: function (xhr, error, thrown) {
-         			console.log(xhr);
          		}
          	});
          });
@@ -3302,7 +3268,6 @@
          
          	},
          	error: function (xhr, error, thrown) {
-         		console.log(xhr);
          	}
          });
          }
@@ -3324,7 +3289,6 @@
 $('#app_security_session_loading').hide();
 $('#app_security_session_list').fadeIn();
 
-console.log(response.length);
 
 var $tbody = $('#security_tab_session');
 $tbody.empty();
@@ -3362,7 +3326,6 @@ if (!Array.isArray(response) || response.length === 0) {
          
                        },
                        error: function (xhr, error, thrown) {
-                       	console.log(xhr);
                        }
                    });
          }
@@ -3416,7 +3379,6 @@ if (!Array.isArray(response) || response.length === 0) {
          
             },
             error: function (xhr, error, thrown) {
-               console.log(xhr);
             }
          });
          }
@@ -3613,7 +3575,6 @@ if (!Array.isArray(response) || response.length === 0) {
                   render_sync_sessions_page(1);
                },
                error: function(xhr){
-                  console.log(xhr);
                   syncSessionsData = [];
                   $('#sync_session_tbody').html('<tr><td colspan="9">Failed to load sync sessions</td></tr>');
                   $('#sync_session_pagination').html('');
@@ -3646,7 +3607,6 @@ if (!Array.isArray(response) || response.length === 0) {
                   render_sync_detail_page(1);
                },
                error: function(xhr){
-                  console.log(xhr);
                   syncLogDetailData = [];
                   $('#sync_detail_tbody').html('<tr><td colspan="7">Failed to load session details</td></tr>');
                   $('#sync_detail_pagination').html('');
@@ -3667,7 +3627,6 @@ if (!Array.isArray(response) || response.length === 0) {
            
            // Find the distance between now an the count down date
            var distance = countDownDate - now;
-           // console.log(countDownDate);
            // Time calculations for days, hours, minutes and seconds
            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -3700,7 +3659,6 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
   const api      = $input.data('dropify');   // Dropify instance
 
   // Your custom code here (log, confirm, etc.)
-  console.log('Clear clicked for', $input.attr('id'));
 
   // Example async confirm (SweetAlert2):
   // Swal.fire({title:'Remove?', showCancelButton:true}).then(res => {
@@ -3713,51 +3671,21 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
     $('#edit_existing_app_icon').val('');
   }
 });
-         var Gu_id;
-        var Gtoken;
         function startTokenRefresh(){
-              var cookieValue = getCookie('sso_cre');  // Replace with actual name
-              if (cookieValue) {
-                  var parsedCookie = JSON.parse(cookieValue);
-                  Gtoken = parsedCookie.sso_cre;
-                  Gu_id = parsedCookie.u_id;
-                  setInterval(function() {
-                      refresh_tokens(Gu_id, Gtoken);
-                  }, 300000);
-                 //  300000  5 minutes
-                  // console.log('sso_cre value:', u_id);  // Outputs: 68e7bc5a367f4540586263
-              } else {
-                  console.log('Cookie not found');
-              }
+              setInterval(function() {
+                  refresh_tokens();
+              }, 300000);
         }
 
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = $.trim(cookies[i]);
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        function refresh_tokens(u_id,token_id) {
+        function refresh_tokens() {
           $.ajax({
               type: 'POST',
               url: '../lib/q_func',
               dataType: "json",
               data: {
-                  update_specific_token_datetime:"1",
-                  u_id: u_id,  // Form-like data
-                  token_id: token_id
+                  update_specific_token_datetime:"1"
               },
               success: function(response) {
-                  console.log('Success:', response);
                   // Handle response, e.g., update UI
                   // $('#result').html('Posted successfully: ' + JSON.stringify(response));
               },
@@ -3791,14 +3719,13 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
            			success: function (response) {
            				if (response == 1){
            					
-           					swal("Password Reset", "Password successfully reset", "success"); 
+					swal("Password Reset", "Sessions revoked. User must use Forgot Password to set a new password.", "success");
            				}else{
            					swal("Password Reset", "Password had already been reset.", "error"); 
            				}
          
            			},
            			error: function (xhr, error, thrown) {
-           				console.log(xhr);
            			}
            		});
            	});

@@ -1,0 +1,19 @@
+component	operation	classification	d5_behavior	evidence
+ExternalUserSourceInterface	fetchAll	read	allowed once	source call count equals 1
+SyncPersistenceInterface	activeUsers	read	allowed once for non-empty source	exact call trace
+SyncPersistenceInterface	inactiveUserIds	read	allowed once for non-empty source	exact call trace
+SyncPersistenceInterface	begin	mutation	forbidden	mutation spy throws
+SyncPersistenceInterface	commit	mutation	forbidden	mutation spy throws
+SyncPersistenceInterface	rollback	mutation	forbidden	mutation spy throws
+SyncPersistenceInterface	createHeader	mutation	forbidden	mutation spy throws
+SyncPersistenceInterface	deactivateUser	mutation	forbidden	mutation spy throws
+SyncPersistenceInterface	updateUser	mutation	forbidden	mutation spy throws
+SyncPersistenceInterface	updateHeaderStatus	mutation	forbidden	mutation spy throws
+SyncPersistenceInterface	stageExternalUser	mutation	forbidden	mutation spy throws
+SyncPersistenceInterface	insertExternalUser	mutation	forbidden	mutation spy throws
+SyncPersistenceInterface	markStagedUser	mutation	forbidden	mutation spy throws
+SyncPersistenceInterface	appendChanges	mutation	forbidden	mutation spy throws
+SyncPersistenceInterface	updateSummary	mutation	forbidden	mutation spy throws
+SyncPersistenceInterface	header	read after mutation	forbidden	not required by dry-run
+SyncPlan	safeProjection	redacted output	allowed	raw UID and names absent
+SyncPlan	planHash	deterministic output	allowed	repeated snapshot hash equal

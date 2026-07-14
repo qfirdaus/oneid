@@ -1,9 +1,18 @@
 <?php
-session_start(); // Starting Session
-require_once '../lib/config.php';
-require_once '../lib/SSO_IDP_INC.php';
+require_once __DIR__ . '/../lib/session_security.php';
+oneid_start_secure_session();
+require_once __DIR__ . '/../lib/config.php';
+require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
+require_once __DIR__ . '/../lib/request_security.php';
+oneid_require_admin_page();
 
-$userlist = $operation->admin_get_specific_category_user_listing($_GET['category_id']);
+$categoryId = filter_input(INPUT_GET, 'category_id', FILTER_VALIDATE_INT);
+if ($categoryId === false || $categoryId === null) {
+    http_response_code(400);
+    exit('Invalid category');
+}
+$categoryName = htmlspecialchars((string) ($_GET['category_name'] ?? ''), ENT_QUOTES, 'UTF-8');
+$userlist = $operation->admin_get_specific_category_user_listing($categoryId);
 //Merge remaining $get_move_info into unique item 
 // echo json_encode($get_move_info);
 
@@ -48,7 +57,7 @@ $userlist = $operation->admin_get_specific_category_user_listing($_GET['category
 
 
                             <center>                            
-                                <p><b>Category : <?php echo $_GET['category_name'];?></b></p>      
+                                <p><b>Category : <?php echo $categoryName; ?></b></p>
                                 <p><b>User List</b></p> 
                             </center>                                    
                         </div>

@@ -1,59 +1,31 @@
 <?php
 
+require_once dirname(__DIR__) . '/app/Sync/SyncDataTransformer.php';
+
 function sync_compute_hash($d1,$d2,$d3,$d4,$d5,$d6,$d7,$d8,$d9,$d10,$d11,$d12,$category=''){
-    return hash('sha256',
-        trim($d1).trim($d2).trim($d3).trim($d4).
-        trim($d5).trim($d6).trim($d7).trim($d8).
-        trim($d9).trim($d10).trim($d11).trim($d12).
-        trim($category)
+    return \OneId\App\Sync\SyncDataTransformer::computeHash(
+        $d1,$d2,$d3,$d4,$d5,$d6,$d7,$d8,$d9,$d10,$d11,$d12,$category
     );
 }
 
 function sync_log_field_names(){
-    return ['data1','data2','data3','data4','data5','data6','data7','ext_data_source_category'];
+    return \OneId\App\Sync\SyncDataTransformer::logFieldNames();
 }
 
 function sync_build_log_snapshot($row){
-    $snapshot = [];
-    foreach (sync_log_field_names() as $field) {
-        $snapshot[$field] = isset($row[$field]) ? trim((string)$row[$field]) : '';
-    }
-    return $snapshot;
+    return \OneId\App\Sync\SyncDataTransformer::buildLogSnapshot($row);
 }
 
 function sync_pick_log_fields($row, $fields){
-    $picked = [];
-    foreach ($fields as $field) {
-        $picked[$field] = isset($row[$field]) ? trim((string)$row[$field]) : '';
-    }
-    if (isset($row['ext_data_source_category']) && !in_array('ext_data_source_category', $fields, true)) {
-        $picked['ext_data_source_category'] = trim((string)$row['ext_data_source_category']);
-    }
-    return $picked;
+    return \OneId\App\Sync\SyncDataTransformer::pickLogFields($row, $fields);
 }
 
 function sync_get_changed_fields($old, $new){
-    $changed = [];
-    foreach (['data1','data2','data3','data4','data5','data6','data7'] as $field) {
-        $old_val = isset($old[$field]) ? trim((string)$old[$field]) : '';
-        $new_val = isset($new[$field]) ? trim((string)$new[$field]) : '';
-        if ($old_val !== $new_val) {
-            $changed[] = $field;
-        }
-    }
-    return implode(',', $changed);
+    return \OneId\App\Sync\SyncDataTransformer::getChangedFields($old, $new);
 }
 
 function sync_remove_duplicateKeys($rows){
-    $res = [];
-    foreach ($rows as $row) {
-        if(!empty($res[$row['u_changes_hash']])) {
-            unset($res[$row['u_changes_hash']]);
-        } else {
-            $res[$row['u_changes_hash']] = $row;
-        }
-    }
-    return array_values($res);
+    return \OneId\App\Sync\SyncDataTransformer::removeDuplicateKeys($rows);
 }
 
 function sync_get_exclude_uids(){
@@ -243,31 +215,31 @@ function run_admin_sync_user($operation, $triggered_by){
                     switch($filtered_data_B[$i]['ext_data_source_category']){
                         case "Akademik":
                             $user_category = 2;
-                            $password = md5($filtered_data_B[$i]['data4']);
+                            $password = oneid_password_hash(bin2hex(random_bytes(32)));
                         break;
                         case "Pentadbiran":
                             $user_category = 3;
-                            $password = md5($filtered_data_B[$i]['data4']);
+                            $password = oneid_password_hash(bin2hex(random_bytes(32)));
                         break;
                         case "Pelajar":
                             $user_category = 10;
-                            $password = md5($filtered_data_B[$i]['data2']);
+                            $password = oneid_password_hash(bin2hex(random_bytes(32)));
                         break;
                         case "PelajarPelajar":
                             $user_category = 10;
-                            $password = md5($filtered_data_B[$i]['data2']);
+                            $password = oneid_password_hash(bin2hex(random_bytes(32)));
                         break;
                         case "PentadbiranPelajar":
                             $user_category =11;
-                            $password = md5($filtered_data_B[$i]['data4']);
+                            $password = oneid_password_hash(bin2hex(random_bytes(32)));
                         break;
                         case "AkademikPelajar":
                             $user_category =12;
-                            $password = md5($filtered_data_B[$i]['data4']);
+                            $password = oneid_password_hash(bin2hex(random_bytes(32)));
                         break;
                         default:
                             $user_category = 0;
-                            $password = md5("SOS");
+                            $password = oneid_password_hash(bin2hex(random_bytes(32)));
                         break;
                     }
                     $operation->action_add_new_user_from_external_source($filtered_data_B[$i]['data4'],$user_category,$password,$filtered_data_B[$i]['data1'],$filtered_data_B[$i]['data2'],$filtered_data_B[$i]['data3'],$filtered_data_B[$i]['data4'],$filtered_data_B[$i]['data5'],$filtered_data_B[$i]['data6'],$filtered_data_B[$i]['data7'],$filtered_data_B[$i]['data8'],$filtered_data_B[$i]['data9'],$filtered_data_B[$i]['data10'],$filtered_data_B[$i]['data11'],$filtered_data_B[$i]['data12'],sync_compute_hash($filtered_data_B[$i]['data1'],$filtered_data_B[$i]['data2'],$filtered_data_B[$i]['data3'],$filtered_data_B[$i]['data4'],$filtered_data_B[$i]['data5'],$filtered_data_B[$i]['data6'],$filtered_data_B[$i]['data7'],$filtered_data_B[$i]['data8'],$filtered_data_B[$i]['data9'],$filtered_data_B[$i]['data10'],$filtered_data_B[$i]['data11'],$filtered_data_B[$i]['data12'],$filtered_data_B[$i]['ext_data_source_category']));

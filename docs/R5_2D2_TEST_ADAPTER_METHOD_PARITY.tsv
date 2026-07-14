@@ -1,0 +1,20 @@
+adapter	contract_method	legacy_method_or_behavior	parity_scope	production_wired
+CallableExternalUserSourceAdapter	fetchAll	injected callable	return value and invocation count	no
+CallableInitialPasswordFactoryAdapter	createHash	injected callable	return value and invocation count	no
+LegacySyncPolicyAdapter	excludedUserIds	sync_get_exclude_uids	default list ['10']	no
+LegacySyncPolicyAdapter	categoryIdFor	legacy category switch	all six known categories plus default	no
+LegacyOperationPersistenceAdapter	begin	beginTransaction	exact method and arguments	no
+LegacyOperationPersistenceAdapter	commit	commit	exact method and arguments	no
+LegacyOperationPersistenceAdapter	rollback	rollback	exact method and arguments	no
+LegacyOperationPersistenceAdapter	createHeader	action_add_new_ext_header	exact method arguments and return	no
+LegacyOperationPersistenceAdapter	activeUsers	sync_get_all_sso_user	exact method arguments and return	no
+LegacyOperationPersistenceAdapter	inactiveUserIds	sync_get_inactive_user_ids	exact method arguments and return	no
+LegacyOperationPersistenceAdapter	deactivateUser	admin_update_user_status	exact user ID and status 0	no
+LegacyOperationPersistenceAdapter	updateUser	admin_update_specific_user_info_all_data	exact user ID data1-data12 and hash order	no
+LegacyOperationPersistenceAdapter	updateHeaderStatus	admin_update_ext_header_status	exact method and arguments	no
+LegacyOperationPersistenceAdapter	stageExternalUser	action_add_external_temp_body	exact header data1-data12 and return	no
+LegacyOperationPersistenceAdapter	insertExternalUser	action_add_new_user_from_external_source	exact UID category password data1-data12 hash order	no
+LegacyOperationPersistenceAdapter	markStagedUser	admin_update_ext_body_status	exact method and arguments	no
+LegacyOperationPersistenceAdapter	appendChanges	sync_log_change_batch	exact batch payload	no
+LegacyOperationPersistenceAdapter	updateSummary	sync_update_header_summary	exact count and owner argument order	no
+LegacyOperationPersistenceAdapter	header	action_get_ext_header	exact method arguments and return	no

@@ -1,17 +1,26 @@
 <?php
-require_once 'config.php';
+require_once __DIR__ . '/session_security.php';
+oneid_start_secure_session();
+require_once __DIR__ . '/config.php';
 //---------- SSO Checker
 //---Configure this for IDP
 $site_id="IDP";
 $SSO_SP_LOGIN = "";
-$SSO_IDP_DOMAIN = "https://oneid.local/";
-$SSO_SP_DASHBOARD = "https://oneid.local/page/dashboard";
-// $SSO_IDP_DOMAIN = "http://localhost/upnm_sso_live/"; //<--- 20 May 2025 Change here
-// $SSO_SP_DASHBOARD = "http://localhost/upnm_sso_live/page/dashboard"; //<--- 20 May 2025 Change here
+$SSO_IDP_DOMAIN = SSO_IDP_DOMAIN;
+$SSO_SP_DASHBOARD = SSO_SP_DASHBOARD;
 $SP_current_page = GET_CURRENT_PAGE_URI();
 function LOCAL_COOKIES_HANDLER(){
 	if(isset($_COOKIE['sso_cre'])) {
-		return json_decode($_COOKIE["sso_cre"]);
+		$rawCookie = (string) $_COOKIE['sso_cre'];
+		$legacyCookie = json_decode($rawCookie);
+		$token = is_object($legacyCookie) && isset($legacyCookie->sso_cre)
+			? (string) $legacyCookie->sso_cre
+			: $rawCookie;
+		return (object) [
+			'sso_cre' => $token,
+			'sso_dt' => date('Y-m-d H:i:s', (int) ($_SESSION['oneid_session_last_activity'] ?? time())),
+			'u_id' => (string) ($_SESSION['login_user'] ?? ''),
+		];
 	}
 }
 if(!isset($_COOKIE['sso_cre'])) {
@@ -34,10 +43,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 					case "1": //Valid
 						//Set the sso_cre token to cookies
 						COOKIE_SETTER($_GET['new_sso_cre'],$API_REQUEST_RESULT['respond_user_packet']);
-			            $_SESSION['user'] = $API_REQUEST_RESULT['respond_user_packet']['data1'];
-			            $_SESSION['login_user']=$API_REQUEST_RESULT['respond_user_packet']['u_id'];
-			            $_SESSION['login_status']="true";
-			            $_SESSION['login_user_type']=$API_REQUEST_RESULT['respond_user_packet']['u_type'];
+			            oneid_establish_authenticated_session($API_REQUEST_RESULT['respond_user_packet']);
 
 						if($SSO_IDP_DOMAIN == $SP_current_page){
 							header('Location: '.$SSO_SP_DASHBOARD); 
@@ -67,7 +73,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 		}	 
 	}
 }else{
-		$cookie = json_decode( $_COOKIE["sso_cre"] );
+		$cookie = LOCAL_COOKIES_HANDLER();
 		$API_post_fields = array();
 		$API_post_fields['flag'] = 1;
 		$API_post_fields['data'] = array("site_id"=>$site_id,"token"=>$cookie->sso_cre);
@@ -95,10 +101,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 										case "1": //Valid
 											//Set the sso_cre token to cookies
 											COOKIE_SETTER($_GET['new_sso_cre'],$API_REQUEST_RESULT['respond_user_packet']);								
-								            $_SESSION['user'] = $API_REQUEST_RESULT['respond_user_packet']['data1'];
-								            $_SESSION['login_user']=$API_REQUEST_RESULT['respond_user_packet']['u_id'];
-								            $_SESSION['login_status']="true";
-								            $_SESSION['login_user_type']=$API_REQUEST_RESULT['respond_user_packet']['u_type'];
+									            oneid_establish_authenticated_session($API_REQUEST_RESULT['respond_user_packet']);
 											if($SSO_IDP_DOMAIN == $SP_current_page){
 												header('Location: '.$SSO_SP_DASHBOARD); 
 											}else{	  			
@@ -127,10 +130,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 							// echo json_encode($API_REQUEST_RESULT);
 						//Update the sso_cre token to cookies
 						COOKIE_SETTER($cookie->sso_cre,$API_REQUEST_RESULT['respond_user_packet']);
-			            $_SESSION['user'] = $API_REQUEST_RESULT['respond_user_packet']['data1'];
-			            $_SESSION['login_user']=$API_REQUEST_RESULT['respond_user_packet']['u_id'];
-			            $_SESSION['login_status']="true";
-			            $_SESSION['login_user_type']=$API_REQUEST_RESULT['respond_user_packet']['u_type'];
+			            oneid_establish_authenticated_session($API_REQUEST_RESULT['respond_user_packet']);
 			            //Check is there any redirect to service proveder "side_id"
 			            if(isset($_GET['site_id'])){
 			            	$check_result = GET_CHECK_SPECIFIC_SP_ALLOWED($operation,$_GET['site_id']);
@@ -150,10 +150,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 			break;
 			case "2": //Auto Reissue token
 				COOKIE_SETTER($API_REQUEST_RESULT['respond_new_token'],$API_REQUEST_RESULT['respond_user_packet']);
-				$_SESSION['user'] = $API_REQUEST_RESULT['respond_user_packet']['data1'];
-				$_SESSION['login_user']=$API_REQUEST_RESULT['respond_user_packet']['u_id'];
-				$_SESSION['login_status']="true";
-				$_SESSION['login_user_type']=$API_REQUEST_RESULT['respond_user_packet']['u_type'];
+				oneid_establish_authenticated_session($API_REQUEST_RESULT['respond_user_packet']);
 				if($SSO_IDP_DOMAIN == $SP_current_page){
 					header('Location: '.$SSO_SP_DASHBOARD); 
 				}else{	  	
@@ -175,8 +172,8 @@ function API_REQUEST($API_DATA,$SSO_IDP_DOMAIN){
     curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
     curl_setopt($ch,CURLOPT_HEADER, false);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
     curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
         'Content-Type: text/plain'));
@@ -195,8 +192,7 @@ function API_REQUEST($API_DATA,$SSO_IDP_DOMAIN){
 
 
 function COOKIE_SETTER($sso_cre,$respond_user_packet){
-	$cookieData = array_merge( array( "sso_dt" => date('Y-m-d H:i:s'), "sso_cre" => $sso_cre), $respond_user_packet);
-	setcookie('sso_cre', json_encode($cookieData), time() + (60 * 30),'/',''); // 86400 = 1 day (this is default 1 day)]	
+	oneid_set_sso_cookie((string) $sso_cre);
 }
 function GET_CURRENT_PAGE_URI(){
 	$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";  
@@ -247,10 +243,12 @@ function SSO_logOut_IDP($operation){
 	echo "X";
 	return;
 	if (isset($_COOKIE['sso_cre'])) {		
-        $results = $operation->check_token($_COOKIE['sso_cre']);
-        $operation->update_specific_token_status($results['user_id'],$_COOKIE['sso_cre'],0); //expired specific token for specific site & user
-    	unset($_COOKIE['sso_cre']); 
-    	setcookie('sso_cre', null, -1, '/'); 
+		$cookie = LOCAL_COOKIES_HANDLER();
+		$results = $operation->check_token($cookie->sso_cre);
+		if ($results) {
+			$operation->update_specific_token_status($results['user_id'],$cookie->sso_cre,0);
+		}
+		oneid_clear_sso_cookie();
 	}	
 	header('Location: '.$SSO_IDP_DOMAIN); 
 }

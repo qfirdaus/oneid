@@ -1,16 +1,23 @@
 <?php 
-require_once './lib/config.php';
-require_once './lib/stateless_jwt.php';
+require_once __DIR__ . '/lib/config.php';
+require_once __DIR__ . '/lib/stateless_jwt.php';
+require_once __DIR__ . '/lib/integration_security.php';
+
+header('Content-Type: application/json; charset=utf-8');
+oneid_integration_guard('sso_token', 'sso:validate');
 
 ini_set('always_populate_raw_post_data', -1);
 $json = file_get_contents('php://input');
 //$json = str_replace('"{"', "{", $json);
 //$json = str_replace('"}"', "}", $json); 
 $data = json_decode($json,true);
+if (!is_array($data)) {
+	oneid_integration_json_error(400, 'invalid_json', 'A valid JSON request body is required.');
+}
 
 $token_timeout = $operation->get_system_config()['token_timeout']; //24 means 1 day
 // echo json_encode($data);s
-switch($data['flag']){
+switch($data['flag'] ?? null){
 	case "1": //check SSO Token RESULT = (1) OK, (0) Invalid
 		$API_respond_fields = array();
 		//respond_flag = 0-error,1-normal,2-auto reissue token
@@ -111,8 +118,7 @@ switch($data['flag']){
 }
 
 function generate_token(){
-	$a= str_replace(".", "", uniqid('',true));
-    return $a;
+	return oneid_generate_sso_token();
 }
 
 

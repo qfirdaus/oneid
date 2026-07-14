@@ -1,9 +1,23 @@
 <?php 
+require_once __DIR__ . '/lib/secrets.php';
+require_once __DIR__ . '/lib/integration_security.php';
+
+header('Content-Type: application/json; charset=utf-8');
+
 ini_set('always_populate_raw_post_data', -1);
 $json = file_get_contents('php://input');
 $json = str_replace('"{"', "{", $json);
 $json = str_replace('"}"', "}", $json);
 $data = json_decode($json,true);
+
+$requestedScope = isset($data['query']) && is_array($data['query']) ? 'skp:sync' : 'skp:profile';
+oneid_integration_guard('skp', $requestedScope);
+if (!is_array($data)) {
+	oneid_integration_json_error(400, 'invalid_json', 'A valid JSON request body is required.');
+}
+if (!array_key_exists('query', $data)) {
+	oneid_integration_json_error(400, 'missing_query', 'A query is required.');
+}
 
 
 
@@ -23,8 +37,15 @@ if(isset($data['query'])){
 			case "GET_SYNC":
 				$sync_data = (EXTERNAL_SKP_SYNC());
 				$chunk = array_chunk($sync_data, 5000);
+				$chunkIndex = filter_var($data['query']['CHUNK_SIZE'] ?? null, FILTER_VALIDATE_INT, [
+					'options' => ['min_range' => 0],
+				]);
+				if ($chunkIndex === false || !isset($chunk[$chunkIndex])) {
+					oneid_integration_json_error(400, 'invalid_chunk', 'The requested chunk does not exist.');
+				}
+				$data['query']['CHUNK_SIZE'] = $chunkIndex;
 				
-				foreach ($chunk[$data['query']['CHUNK_SIZE']] as $i => $ii) {
+				foreach ($chunk[$chunkIndex] as $i => $ii) {
 				  $chunk[$data['query']['CHUNK_SIZE']][$i]['matrik'] = utf8_encode($chunk[$data['query']['CHUNK_SIZE']][$i]['matrik']);
 				  $chunk[$data['query']['CHUNK_SIZE']][$i]['nokp'] = utf8_encode($chunk[$data['query']['CHUNK_SIZE']][$i]['nokp']);
 				  $chunk[$data['query']['CHUNK_SIZE']][$i]['notentera'] = utf8_encode($chunk[$data['query']['CHUNK_SIZE']][$i]['notentera']);
@@ -58,7 +79,7 @@ if(isset($data['query'])){
 				  
 				}
 				
-				echo json_encode(($chunk[$data['query']['CHUNK_SIZE']]));
+				echo json_encode(($chunk[$chunkIndex]));
 			break;
 			
 		}
@@ -104,20 +125,24 @@ function get_highest($arr) {
 
 
 function EXTERNAL_SKP_INFO_QUERY($user_id){
-	$connection = odbc_connect("skp_api","skpelajar","SKp3l@j@r"); 
+	$connection = odbc_connect(oneid_secret('ONEID_SKP_ODBC_DSN'), oneid_secret('ONEID_SKP_ODBC_USERNAME'), oneid_secret('ONEID_SKP_ODBC_PASSWORD'));
 	
 		if (!$connection) {
-		echo "Couldn't make a connection kaunselor!"; 
-		exit;
+		oneid_integration_audit('upstream_connection_failed', ['endpoint' => 'skp']);
+		oneid_integration_json_error(503, 'upstream_unavailable', 'Upstream service is unavailable.');
 		}
 		
-		$sql = 'SELECT matrik,nokp,notentera,nama,jantina,bangsa_detail,agama,negeri,sesimasuk,alamat1,alamat2,alamat3,alamat4,telno,hpno,email,kdprogram,program,semsemasa,nosem,kategori_kadet,fakulti,tahap_pengajian,nokpibu,nokpbapa,namaibu,namabapa,kdtahap,user_type="STUDENT" FROM v210 WHERE nokp="'.$user_id.'" AND  status = "02"';
+		$sql = 'SELECT matrik,nokp,notentera,nama,jantina,bangsa_detail,agama,negeri,sesimasuk,alamat1,alamat2,alamat3,alamat4,telno,hpno,email,kdprogram,program,semsemasa,nosem,kategori_kadet,fakulti,tahap_pengajian,nokpibu,nokpbapa,namaibu,namabapa,kdtahap,user_type="STUDENT" FROM v210 WHERE nokp=? AND status = "02"';
 	
-    $rs = odbc_exec($connection, $sql);
+    $statement = odbc_prepare($connection, $sql);
+    $rs = $statement ? odbc_execute($statement, [(string) $user_id]) : false;
 	$rows = array();
 
-	while($myRow = odbc_fetch_array( $rs )){ //<--lots of rows
+	while($rs && ($myRow = odbc_fetch_array($statement))){
 		$rows[] = $myRow;
+	}
+	if (!$rs) {
+		oneid_integration_audit('upstream_query_failed', ['endpoint' => 'skp', 'operation' => 'profile']);
 	}
 	odbc_close($connection);
 	
@@ -129,11 +154,11 @@ function EXTERNAL_SKP_INFO_QUERY($user_id){
 
 
 function EXTERNAL_SKP_SYNC(){
-	$connection = odbc_connect("skp_api","skpelajar","SKp3l@j@r"); 
+	$connection = odbc_connect(oneid_secret('ONEID_SKP_ODBC_DSN'), oneid_secret('ONEID_SKP_ODBC_USERNAME'), oneid_secret('ONEID_SKP_ODBC_PASSWORD'));
 	
 		if (!$connection) {
-		echo "Couldn't make a connection kaunselor!"; 
-		exit;
+		oneid_integration_audit('upstream_connection_failed', ['endpoint' => 'skp']);
+		oneid_integration_json_error(503, 'upstream_unavailable', 'Upstream service is unavailable.');
 		}
 		
 		$sql = 'SELECT matrik,nokp,notentera,nama,jantina,bangsa_detail,agama,negeri,sesimasuk,alamat1,alamat2,alamat3,alamat4,telno,hpno,email,kdprogram,program,semsemasa,nosem,kategori_kadet,fakulti,tahap_pengajian,nokpibu,nokpbapa,namaibu,namabapa,kdtahap,user_type="STUDENT" FROM v210 where nokp <> "" AND status = "02"';

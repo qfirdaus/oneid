@@ -1,15 +1,16 @@
 <?php
+require_once __DIR__ . '/secrets.php';
+
 //connection to sybase
 function EXTERNAL_DATA_SOURCE_GET_ALL_USER(){
 	/* echo "hai";
 	return */;
-		$connection = odbc_connect("dbserver","ssoupnm","ss0UPNM**"); 
+		$connection = odbc_connect(oneid_secret('ONEID_STAFF_ODBC_DSN'), oneid_secret('ONEID_STAFF_ODBC_USERNAME'), oneid_secret('ONEID_STAFF_ODBC_PASSWORD'));
 		if (!$connection) {
 		echo "Couldn't make a connection!"; 
 		exit;
 		}
-		//$connection_student = odbc_connect("dbserver_student","ssoupnm","ss0UPNM**"); 
-		$connection_student = odbc_connect("dbserver_student","dba_student","mnpu123"); 
+		$connection_student = odbc_connect(oneid_secret('ONEID_STUDENT_SYNC_ODBC_DSN'), oneid_secret('ONEID_STUDENT_SYNC_ODBC_USERNAME'), oneid_secret('ONEID_STUDENT_SYNC_ODBC_PASSWORD'));
 		if (!$connection_student) {
 		echo "Couldn't make a connection!"; 
 		exit;
@@ -38,31 +39,32 @@ function EXTERNAL_DATA_SOURCE_GET_ALL_USER(){
 }
 
 function EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER($user_id){
-		$connection = odbc_connect("dbserver","ssoupnm","ss0UPNM**"); 
+		$connection = odbc_connect(oneid_secret('ONEID_STAFF_ODBC_DSN'), oneid_secret('ONEID_STAFF_ODBC_USERNAME'), oneid_secret('ONEID_STAFF_ODBC_PASSWORD'));
 		if (!$connection) {
 		echo "Couldn't make a connection kaunselor!"; 
 		exit;
 		}
-		$connection_student = odbc_connect("dbserver_student","ssoupnm","ss0UPNM**"); 
+		$connection_student = odbc_connect(oneid_secret('ONEID_STUDENT_LOOKUP_ODBC_DSN'), oneid_secret('ONEID_STUDENT_LOOKUP_ODBC_USERNAME'), oneid_secret('ONEID_STUDENT_LOOKUP_ODBC_PASSWORD'));
 		if (!$connection_student) {
 		echo "Couldn't make a connection kaunselor!"; 
 		exit;
 		}
-	$sql = 'SELECT (gelaran + " " + nama)  as data1,idpekerja as data2, nopekerja as data3, ISNULL(nokp,"") as data4, ISNULL(email,"") as data5, ISNULL(jabatansemasa,"") as data6, ISNULL(jawatansemasa,"") as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, jenis as ext_data_source_category  FROM SSO_Staf_Aktif WHERE nokp="'.$user_id.'"';
-	
-    $rs = odbc_exec($connection, $sql);
+	$sql = 'SELECT (gelaran + " " + nama)  as data1,idpekerja as data2, nopekerja as data3, ISNULL(nokp,"") as data4, ISNULL(email,"") as data5, ISNULL(jabatansemasa,"") as data6, ISNULL(jawatansemasa,"") as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, jenis as ext_data_source_category  FROM SSO_Staf_Aktif WHERE nokp=?';
+	$statement = odbc_prepare($connection, $sql);
+    $rs = $statement ? odbc_execute($statement, [(string) $user_id]) : false;
 	$rows = array();
 
-	while($myRow = odbc_fetch_array( $rs )){ //<--lots of rows
+	while($rs && ($myRow = odbc_fetch_array($statement))){
 		$rows[] = $myRow;
 	}
 	odbc_close($connection);
 							
-	$sql = 'SELECT nama  as data1,no_matrik as data2, "" as data3, ISNULL(nokp,"") as data4, ISNULL(email,"") as data5, nama_ptj as data6, program as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, "Pelajar" as ext_data_source_category  FROM v210_sso_student_aktif WHERE nokp="'.$user_id.'"';
-    $rs = odbc_exec($connection_student, $sql);
+	$sql = 'SELECT nama  as data1,no_matrik as data2, "" as data3, ISNULL(nokp,"") as data4, ISNULL(email,"") as data5, nama_ptj as data6, program as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, "Pelajar" as ext_data_source_category  FROM v210_sso_student_aktif WHERE nokp=?';
+	$statementStudent = odbc_prepare($connection_student, $sql);
+    $rs = $statementStudent ? odbc_execute($statementStudent, [(string) $user_id]) : false;
 	$rows_student = array();
 
-	while($myRow = odbc_fetch_array( $rs )){ //<--lots of rows
+	while($rs && ($myRow = odbc_fetch_array($statementStudent))){
 		$rows_student[] = $myRow;
 	}
 	odbc_close($connection_student);
@@ -78,8 +80,8 @@ function SAMPLE_DATA_SOURCE_GET_ALL_USER(){
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
             curl_setopt($ch,CURLOPT_HEADER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                 'Content-Type: application/x-www-form-urlencoded'));
@@ -99,8 +101,8 @@ function SAMPLE_DATA_SOURCE_GET_SPECIFIC_USER($user_id){
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
             curl_setopt($ch,CURLOPT_HEADER, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
             curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                 'Content-Type: application/x-www-form-urlencoded'));
