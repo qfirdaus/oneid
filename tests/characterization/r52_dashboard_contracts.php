@@ -20,7 +20,7 @@ return [
     [
         'name' => 'admin dashboard',
         'file' => 'admin/dashboard.php',
-        'loc' => 3917,
+        'loc' => 3924,
         'q_func_calls' => 41,
         'function_declarations' => 62,
         'script_tags' => 18,
@@ -28,7 +28,7 @@ return [
             'oneid_require_admin_page();',
             "include __DIR__ . '/const/top.php'",
             "url: '../lib/q_func'",
-            'admin_add_sync_user',
+            'admin_preview_sync_user',
             'admin_get_sync_sessions',
             'admin_get_sync_log_detail',
             'window.open("./user_list.php?category_id=',

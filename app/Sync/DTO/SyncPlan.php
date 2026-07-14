@@ -13,7 +13,9 @@ final class SyncPlan
         public readonly int $sourceRows,
         public readonly int $discardedInvalid,
         public readonly int $discardedExcluded,
-        public readonly array $warnings = []
+        public readonly array $warnings = [],
+        public readonly int $protectedManualUsers = 0,
+        public readonly int $discardedProtectedCollisions = 0
     ) {
     }
 
@@ -69,6 +71,8 @@ final class SyncPlan
             'source_rows' => $this->sourceRows,
             'discarded_invalid' => $this->discardedInvalid,
             'discarded_excluded' => $this->discardedExcluded,
+            'protected_manual_users' => $this->protectedManualUsers,
+            'discarded_protected_collisions' => $this->discardedProtectedCollisions,
             'warnings' => $this->warnings,
         ];
 

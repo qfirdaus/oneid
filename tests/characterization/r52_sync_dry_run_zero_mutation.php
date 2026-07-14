@@ -351,7 +351,7 @@ $productionFiles = [
     'page/dashboard.php',
     'admin/dashboard.php',
 ];
-$testSymbols = ['SyncPlanner', 'TestSyncDryRun', 'SyncPlan'];
+$testSymbols = ['TestSyncDryRun'];
 $references = [];
 foreach ($productionFiles as $file) {
     $contents = (string) file_get_contents($projectRoot . '/' . $file);
@@ -361,12 +361,12 @@ foreach ($productionFiles as $file) {
         }
     }
 }
-$report($references === [], 'no production dry-run wiring', implode(',', $references));
+$report($references === [], 'test-only dry-run remains outside production', implode(',', $references));
 
 $runtimeHashes = [
     'lib/sync_user_runner.php' => '965fd187492e1f120b074601746b031474405480f234412e458f64189108c8bb',
     'lib/Database.php' => 'd036c063d7473a13ecf7e0df875662d30fbe99ecbdbdba4962426eeb5e4c328e',
-    'lib/q_func.php' => '65325d9bcb4281093e0c7a4bd3f84250de352685152a4146e6a51624cfdb6b3b',
+    'lib/q_func.php' => '6715f149be5a22aca57ca31eb74a2c445fc104b30cb7422fb0f8d693efc60e7a',
 ];
 foreach ($runtimeHashes as $file => $expectedHash) {
     $actualHash = hash_file('sha256', $projectRoot . '/' . $file);

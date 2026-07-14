@@ -1,36 +1,48 @@
 <?php
 require_once __DIR__ . '/secrets.php';
+require_once dirname(__DIR__) . '/app/Sync/ExternalRowNormalizer.php';
 
 //connection to sybase
 function EXTERNAL_DATA_SOURCE_GET_ALL_USER(){
 	/* echo "hai";
 	return */;
+		if (!function_exists('odbc_connect')) {
+			throw new RuntimeException('ODBC_EXTENSION_UNAVAILABLE');
+		}
 		$connection = odbc_connect(oneid_secret('ONEID_STAFF_ODBC_DSN'), oneid_secret('ONEID_STAFF_ODBC_USERNAME'), oneid_secret('ONEID_STAFF_ODBC_PASSWORD'));
 		if (!$connection) {
-		echo "Couldn't make a connection!"; 
-		exit;
+		throw new RuntimeException('EXTERNAL_STAFF_CONNECTION_FAILED');
 		}
 		$connection_student = odbc_connect(oneid_secret('ONEID_STUDENT_SYNC_ODBC_DSN'), oneid_secret('ONEID_STUDENT_SYNC_ODBC_USERNAME'), oneid_secret('ONEID_STUDENT_SYNC_ODBC_PASSWORD'));
 		if (!$connection_student) {
-		echo "Couldn't make a connection!"; 
-		exit;
+		odbc_close($connection);
+		throw new RuntimeException('EXTERNAL_STUDENT_CONNECTION_FAILED');
 		}
-	$sql = 'SELECT (gelaran + " " + nama)  as data1,idpekerja as data2, nopekerja as data3, ISNULL(nokp,"") as data4, ISNULL(email,"") as data5, ISNULL(jabatansemasa,"") as data6, ISNULL(jawatansemasa,"") as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, jenis as ext_data_source_category  FROM SSO_Staf_Aktif';
+	$sql = 'SELECT (gelaran + " " + nama)  as data1,idpekerja as data2, nopekerja as data3, ISNULL(nokp,"") as data4, ISNULL(email,"") as data5, ISNULL(jabatansemasa,"") as data6, ISNULL(jawatansemasa,"") as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, jenis as ext_data_source_category  FROM ehrmdb.dbo.SSO_Staf_Aktif';
 	
     $rs = odbc_exec($connection, $sql);
+	if ($rs === false) {
+		odbc_close($connection);
+		odbc_close($connection_student);
+		throw new RuntimeException('EXTERNAL_STAFF_QUERY_FAILED');
+	}
 	$rows = array();
 
 	while($myRow = odbc_fetch_array( $rs )){ //<--lots of rows
-		$rows[] = $myRow;
+		$rows[] = \OneId\App\Sync\ExternalRowNormalizer::normalize($myRow);
 	}
 	odbc_close($connection);
 							
 	$sql = 'SELECT nama  as data1,no_matrik as data4, "" as data3, ISNULL(nokp,"") as data2, ISNULL(email,"") as data5, nama_ptj as data6, program as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, "Pelajar" as ext_data_source_category  FROM v210_sso_student_aktif';
     $rs = odbc_exec($connection_student, $sql);
+	if ($rs === false) {
+		odbc_close($connection_student);
+		throw new RuntimeException('EXTERNAL_STUDENT_QUERY_FAILED');
+	}
 	$rows_student = array();
 
 	while($myRow = odbc_fetch_array( $rs )){ //<--lots of rows
-		$rows_student[] = $myRow;
+		$rows_student[] = \OneId\App\Sync\ExternalRowNormalizer::normalize($myRow);
 	}
 	odbc_close($connection_student);
 	
@@ -49,13 +61,13 @@ function EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER($user_id){
 		echo "Couldn't make a connection kaunselor!"; 
 		exit;
 		}
-	$sql = 'SELECT (gelaran + " " + nama)  as data1,idpekerja as data2, nopekerja as data3, ISNULL(nokp,"") as data4, ISNULL(email,"") as data5, ISNULL(jabatansemasa,"") as data6, ISNULL(jawatansemasa,"") as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, jenis as ext_data_source_category  FROM SSO_Staf_Aktif WHERE nokp=?';
+	$sql = 'SELECT (gelaran + " " + nama)  as data1,idpekerja as data2, nopekerja as data3, ISNULL(nokp,"") as data4, ISNULL(email,"") as data5, ISNULL(jabatansemasa,"") as data6, ISNULL(jawatansemasa,"") as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, jenis as ext_data_source_category  FROM ehrmdb.dbo.SSO_Staf_Aktif WHERE nokp=?';
 	$statement = odbc_prepare($connection, $sql);
     $rs = $statement ? odbc_execute($statement, [(string) $user_id]) : false;
 	$rows = array();
 
 	while($rs && ($myRow = odbc_fetch_array($statement))){
-		$rows[] = $myRow;
+		$rows[] = \OneId\App\Sync\ExternalRowNormalizer::normalize($myRow);
 	}
 	odbc_close($connection);
 							
@@ -65,7 +77,7 @@ function EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER($user_id){
 	$rows_student = array();
 
 	while($rs && ($myRow = odbc_fetch_array($statementStudent))){
-		$rows_student[] = $myRow;
+		$rows_student[] = \OneId\App\Sync\ExternalRowNormalizer::normalize($myRow);
 	}
 	odbc_close($connection_student);
 	

@@ -89,8 +89,12 @@ foreach ($contracts['production_files'] as $file) {
     }
 }
 $report(
-    $productionReferences === [],
-    'no production wiring',
+    $productionReferences === [
+        'lib/q_func.php:ExternalUserSourceInterface',
+        'lib/q_func.php:SyncPolicyInterface',
+        'lib/q_func.php:SyncPersistenceInterface',
+    ],
+    'production contract wiring limited to S2 preview',
     $productionReferences === [] ? '' : implode(',', $productionReferences)
 );
 

@@ -14,6 +14,16 @@ require_once __DIR__ . '/external_data_source_API.php';
 require_once __DIR__ . '/sync_user_runner.php';
 require_once dirname(__DIR__) . '/app/User/ManualUserInput.php';
 require_once dirname(__DIR__) . '/app/User/ManualUserCreator.php';
+require_once dirname(__DIR__) . '/app/Sync/Contracts/ExternalUserSourceInterface.php';
+require_once dirname(__DIR__) . '/app/Sync/Contracts/SyncPersistenceInterface.php';
+require_once dirname(__DIR__) . '/app/Sync/Contracts/SyncPolicyInterface.php';
+require_once dirname(__DIR__) . '/app/Sync/DTO/SyncPlan.php';
+require_once dirname(__DIR__) . '/app/Sync/SyncDataTransformer.php';
+require_once dirname(__DIR__) . '/app/Sync/SyncPlanner.php';
+require_once dirname(__DIR__) . '/app/Sync/SyncPreviewService.php';
+require_once dirname(__DIR__) . '/app/Sync/Adapters/ExternalApiUserSource.php';
+require_once dirname(__DIR__) . '/app/Sync/Adapters/DatabaseSyncPersistenceAdapter.php';
+require_once dirname(__DIR__) . '/app/Sync/Adapters/LegacySyncPolicy.php';
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
 
@@ -378,7 +388,59 @@ function string_sanitize($s) {
       }
 
 
+      if(isset( $_POST['admin_preview_sync_user'])){
+            try {
+                $previewService = new \OneId\App\Sync\SyncPreviewService(
+                    new \OneId\App\Sync\Adapters\ExternalApiUserSource(),
+                    new \OneId\App\Sync\Adapters\DatabaseSyncPersistenceAdapter($operation),
+                    new \OneId\App\Sync\SyncPlanner(
+                        new \OneId\App\Sync\Adapters\LegacySyncPolicy()
+                    )
+                );
+                echo json_encode($previewService->preview());
+            } catch (\Throwable $exception) {
+                $correlationId = bin2hex(random_bytes(8));
+                $knownPreviewCodes = [
+                    'ODBC_EXTENSION_UNAVAILABLE',
+                    'EXTERNAL_STAFF_CONNECTION_FAILED',
+                    'EXTERNAL_STUDENT_CONNECTION_FAILED',
+                    'EXTERNAL_STAFF_QUERY_FAILED',
+                    'EXTERNAL_STUDENT_QUERY_FAILED',
+                    'EMPTY_EXTERNAL_SNAPSHOT',
+                ];
+                $diagnosticCode = in_array($exception->getMessage(), $knownPreviewCodes, true)
+                    ? $exception->getMessage()
+                    : 'UNEXPECTED_PREVIEW_ERROR';
+                error_log(sprintf(
+                    '[ONEID_SYNC_PREVIEW] correlation=%s exception=%s code=%s',
+                    $correlationId,
+                    get_class($exception),
+                    $diagnosticCode
+                ));
+                echo json_encode([
+                    'status' => 0,
+                    'mode' => 'preview',
+                    'can_apply' => false,
+                    'code' => 'PREVIEW_FAILED',
+                    'msg' => 'External sync preview could not be generated safely.',
+                    'correlation_id' => $correlationId,
+                ]);
+            }
+      }
+
       if(isset( $_POST['admin_add_sync_user'])){
+            $applyEnabled = filter_var(
+                getenv('ONEID_SYNC_APPLY_ENABLED') ?: 'false',
+                FILTER_VALIDATE_BOOLEAN
+            );
+            if (!$applyEnabled) {
+                echo json_encode([
+                    'status' => 0,
+                    'code' => 'SYNC_APPLY_DISABLED',
+                    'msg' => 'External sync apply is disabled during S2 preview-only mode.',
+                ]);
+                return;
+            }
             try {
                 $triggered_by = $_SESSION['login_user'] ?? '';
                 $header_info = run_admin_sync_user($operation, $triggered_by);

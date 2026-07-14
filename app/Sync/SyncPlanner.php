@@ -26,6 +26,7 @@ final class SyncPlanner
         $sourceRows = count($externalRows);
         $discardedInvalid = 0;
         $discardedExcluded = 0;
+        $discardedProtectedCollisions = 0;
         $list = $externalRows;
 
         foreach ($list as $index => $row) {
@@ -57,6 +58,48 @@ final class SyncPlanner
             $activeUsers,
             static fn(array $row): bool => !isset($excluded[$normalize($row['u_id'] ?? '')])
         ));
+
+        // Manual accounts are locally authoritative. Mirror the S1 writer
+        // policy in the pure planner so preview counts cannot propose an
+        // overwrite or deactivation that production would refuse.
+        $protectedIdentityMap = [];
+        $protectedManualUsers = 0;
+        foreach ($ssoList as $ssoRow) {
+            if (($ssoRow['account_source'] ?? '') !== 'manual'
+                || (int) ($ssoRow['sync_protected'] ?? 0) !== 1
+            ) {
+                continue;
+            }
+            $protectedManualUsers++;
+            foreach (['u_id', 'data2', 'data4'] as $identityField) {
+                $identity = $normalize($ssoRow[$identityField] ?? '');
+                if ($identity !== '') {
+                    $protectedIdentityMap[$identity] = true;
+                }
+            }
+        }
+        if ($protectedIdentityMap !== []) {
+            $ssoList = array_values(array_filter(
+                $ssoList,
+                static fn(array $row): bool => ($row['account_source'] ?? '') !== 'manual'
+                    || (int) ($row['sync_protected'] ?? 0) !== 1
+            ));
+            $list = array_values(array_filter($list, static function (array $row) use (
+                $protectedIdentityMap,
+                $normalize,
+                &$discardedProtectedCollisions
+            ): bool {
+                $primary = $normalize($row['data4'] ?? '');
+                $secondary = $normalize($row['data2'] ?? '');
+                $collides = isset($protectedIdentityMap[$primary])
+                    || ($secondary !== '' && isset($protectedIdentityMap[$secondary]));
+                if ($collides) {
+                    $discardedProtectedCollisions++;
+                }
+                return !$collides;
+            }));
+        }
+
         $ssoByUid = [];
         foreach ($ssoList as $ssoRow) {
             $ssoByUid[$ssoRow['u_id']] = $ssoRow;
@@ -193,11 +236,19 @@ final class SyncPlanner
             ];
         }
 
+        $warnings = [];
+        if ($discardedProtectedCollisions > 0) {
+            $warnings[] = 'External identities colliding with protected manual accounts were excluded.';
+        }
+
         return new SyncPlan(
             $actions,
             $sourceRows,
             $discardedInvalid,
-            $discardedExcluded
+            $discardedExcluded,
+            $warnings,
+            $protectedManualUsers,
+            $discardedProtectedCollisions
         );
     }
 

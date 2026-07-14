@@ -562,7 +562,7 @@
                                        <div class="form-wrap">
                                           <div class="form-body overflow-hide">
                                              <div class="form-group">
-                                                <button id="btn_sync" class="btn  btn-primary btn-outline btn-block" type="button" onclick="pick_add_sync_user();"><i class="fa fa-refresh"></i> Sync with external data</button>
+                                                <button id="btn_sync" class="btn  btn-primary btn-outline btn-block" type="button" onclick="pick_preview_sync_user();"><i class="fa fa-search"></i> Preview external sync</button>
                                                 <p id="sync_status_msg" class="text-muted text-center mt-10" style="display:none;"></p>
                                              </div>
                                              <div class="form-group">
@@ -587,7 +587,7 @@
                <div class="modal-content">
                   <div class="modal-header">
                      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_add_new_single_user">Add User - From external data</h5>
+                     <h5 class="modal-title" id="aria_modal_add_new_single_user">External Sync Preview (Read-only)</h5>
                   </div>
                   <form id="form_add_new_category">
                      <div class="modal-body">
@@ -601,26 +601,43 @@
                                              <div class="form-body overflow-hide">
                                                 <div class="form-group">
                                                    <div class="progress progress-lg" id="sync_progress_id">
-                                                      <div class="progress-bar progress-bar-primary active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%" role="progressbar"> Hold on, Syncing data.. </div>
+                                                      <div class="progress-bar progress-bar-primary active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%" role="progressbar"> Generating read-only preview... </div>
                                                    </div>
                                                    <div id="sync_result_div">
-                                                      <h6 class="mb-1"><i ></i> Sync Completed. summary as follows:</h6>
+                                                      <h6 class="mb-1"><i></i> Proposed changes (nothing has been applied):</h6>
                                                       <table class="table table-borderless">
                                                          <tbody>
-                                                            <!--  <tr>
-                                                               <td>Total External Data Found:</td>
-                                                               <td><span id="sync_add_user_sync_total_ext_data_found_text"></span></td>
-                                                               </tr> -->
                                                             <tr>
-                                                               <td>Total Processed Data:</td>
-                                                               <td><span id="sync_add_user_sync_total_ext_data_processed_text"></span></td>
+                                                               <td>External rows:</td>
+                                                               <td><span id="sync_preview_source_rows"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>Sync Status:</td>
-                                                               <td id="sync_add_user_sync_total_ext_data_sync_result_text"><span class="badge badge-success users-view-status">Active</span></td>
+                                                               <td>New / Update:</td>
+                                                               <td><span id="sync_preview_new_update"></span></td>
+                                                            </tr>
+                                                            <tr>
+                                                               <td>Deactivate / Reactivate:</td>
+                                                               <td><span id="sync_preview_deactivate_reactivate"></span></td>
+                                                            </tr>
+                                                            <tr>
+                                                               <td>Protected manual / collisions:</td>
+                                                               <td><span id="sync_preview_protected"></span></td>
+                                                            </tr>
+                                                            <tr>
+                                                               <td>Plan hash / expiry:</td>
+                                                               <td><span id="sync_preview_hash_expiry"></span></td>
+                                                            </tr>
+                                                            <tr>
+                                                               <td>Preview status:</td>
+                                                               <td><span id="sync_preview_status" class="users-view-status"></span></td>
+                                                            </tr>
+                                                            <tr>
+                                                               <td>Warnings:</td>
+                                                               <td><ul id="sync_preview_warnings" class="pl-15"></ul></td>
                                                             </tr>
                                                          </tbody>
                                                       </table>
+                                                      <p class="text-muted">S2 is preview-only. There is no Apply action on this screen.</p>
                                                    </div>
                                                 </div>
                                              </div>
@@ -3008,66 +3025,56 @@
          $(".add_new_manual_user_input_loading_text").hide();
          }
          
-         function pick_add_sync_user(){        	
-         
-         $.ajax({
-         type: 'POST',
-         url: '../lib/q_func',
-         dataType: "json",
-         data: {admin_add_sync_user:''},     
-         beforeSend: function(){
-         	$('#btn_sync').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Syncing...');
-         	$('#sync_status_msg').show().text('Sync in progress, please wait...');
-         	$('#modal_open_add_user_option').modal('hide');
-         	$('#modal_add_new_single_user').modal('show');
-         	$('#sync_progress_id').show();
-         	$('#sync_result_div').hide();
-         },
-         success: function (response) {
-         	$('#sync_progress_id').hide();
-         	$('#sync_result_div').show();
-         	if(response && response.error){
-         		$('#sync_add_user_sync_total_ext_data_sync_result_text').html('<span class="badge badge-danger users-view-status">Sync failed: ' + response.error + '</span>');
-         		return;
-         	}
-         	var status = "";
-         	switch(response['ext_head_status']){
-                               		case "0": //inprogreess-downloading
-                               		status = '<span class="badge badge-warning users-view-status">Inprogress and still downloading.</span>';
-                               		break;
-                               		case "1": //completed upload to temp
-                               		status = '<span class="badge badge-warning users-view-status">Complete upload to temp table. Awaiting to update to user record</span>';
-                               		break;
-                               		case "2": //completed upload to sso db
-                               		status = '<span class="badge badge-success users-view-status">Sync Complete and successfully uploaded/updated to user record</span>';
-                               		break;
-                               		case "3": //failed/ no data
-                               		status = '<span class="badge badge-warning users-view-status">No external record found. Please check your source data</span>';
-                               		break;
-                               		case "4": //completed / nothing to upload
-                               		status = '<span class="badge badge-success users-view-status">Sync Complete. Both External & Internal data are already synced</span>';
-                               		break;
-                               	}
-                               	// $('#sync_add_user_sync_total_ext_data_found_text').text(response['ext_head_initial_sourcedata']);
-                               	$('#sync_add_user_sync_total_ext_data_processed_text').text(response['ext_head_uploaded_data']);
-                               	$('#sync_add_user_sync_total_ext_data_sync_result_text').html(status);
-                               	admin_get_all_user_category(0);
-         
-         
-         
-                               },
-                               error: function (xhr, error, thrown) {
-                               	$('#sync_progress_id').hide();
-                               	$('#sync_result_div').show();
-                               	$('#sync_add_user_sync_total_ext_data_sync_result_text').html('<span class="badge badge-danger users-view-status">Sync failed. Please try again.</span>');
-                               },
-                               complete: function(){
-                               	$('#btn_sync').prop('disabled', false).html('<i class="fa fa-refresh"></i> Sync with external data');
-                               	$('#sync_status_msg').hide().text('');
-                               }
-                           });
-         
-         
+         function pick_preview_sync_user(){
+            $.ajax({
+               type: 'POST',
+               url: '../lib/q_func',
+               dataType: "json",
+               data: {admin_preview_sync_user:''},
+               beforeSend: function(){
+                  $('#btn_sync').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Previewing...');
+                  $('#sync_status_msg').show().text('Generating read-only preview...');
+                  $('#modal_open_add_user_option').modal('hide');
+                  $('#modal_add_new_single_user').modal('show');
+                  $('#sync_progress_id').show();
+                  $('#sync_result_div').hide();
+               },
+               success: function (response) {
+                  $('#sync_progress_id').hide();
+                  $('#sync_result_div').show();
+                  if(!response || response.status !== 1 || response.mode !== 'preview'){
+                     var reference = response && response.correlation_id ? ' Reference: ' + response.correlation_id : '';
+                     $('#sync_preview_status').text('Preview failed.' + reference).addClass('badge badge-danger');
+                     return;
+                  }
+                  var counts = response.counts || {};
+                  $('#sync_preview_source_rows').text(response.source_rows || 0);
+                  $('#sync_preview_new_update').text((counts.New || 0) + ' / ' + (counts.Update || 0));
+                  $('#sync_preview_deactivate_reactivate').text((counts.Deactivate || 0) + ' / ' + (counts.Reactivate || 0));
+                  $('#sync_preview_protected').text((response.protected_manual_users || 0) + ' / ' + (response.discarded_protected_collisions || 0));
+                  $('#sync_preview_hash_expiry').text(String(response.plan_hash || '').substring(0, 12) + '... / ' + (response.expires_at || '-'));
+                  $('#sync_preview_status')
+                     .removeClass('badge-danger badge-warning badge-success')
+                     .addClass(response.risk_level === 'blocked' ? 'badge badge-danger' : (response.risk_level === 'warning' ? 'badge badge-warning' : 'badge badge-success'))
+                     .text(response.risk_level === 'blocked' ? 'BLOCKED — anomaly requires review' : 'PREVIEW ONLY — no changes applied');
+                  var warningList = $('#sync_preview_warnings').empty();
+                  (response.warnings || []).forEach(function(warning){
+                     $('<li>').text(warning).appendTo(warningList);
+                  });
+                  if((response.warnings || []).length === 0){
+                     $('<li>').text('No planner warning detected.').appendTo(warningList);
+                  }
+               },
+               error: function () {
+                  $('#sync_progress_id').hide();
+                  $('#sync_result_div').show();
+                  $('#sync_preview_status').text('Preview failed. Please try again.').addClass('badge badge-danger');
+               },
+               complete: function(){
+                  $('#btn_sync').prop('disabled', false).html('<i class="fa fa-search"></i> Preview external sync');
+                  $('#sync_status_msg').hide().text('');
+               }
+            });
          }
          
          function pick_add_single_user(){        	

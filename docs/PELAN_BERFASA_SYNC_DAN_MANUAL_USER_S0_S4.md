@@ -3,7 +3,7 @@
 Tarikh: 14 Julai 2026  
 Owner perubahan: Pemilik sistem OneID  
 Owner rollback: Pemilik sistem OneID  
-Status: **AKTIF — S0 DAN S1 SELESAI; S2–S4 BELUM DILAKSANAKAN**
+Status: **AKTIF — S0, S1 DAN S2 SELESAI; S3–S4 BELUM DILAKSANAKAN**
 
 ## 1. Objektif
 
@@ -105,6 +105,12 @@ Exit gate S2:
 - parity planner dengan legacy ialah sifar mismatch;
 - pentadbir melihat blast radius sebelum sebarang write.
 
+Kemaskini S2 pada 14 Julai 2026: endpoint/UI preview read-only, plan hash,
+expiry, anomaly threshold, masking dan protection akaun manual telah
+diimplementasikan. Automated zero-mutation contract dan live preview browser
+read-only disahkan lulus oleh owner. Rujuk
+`docs/S2_EXTERNAL_SYNC_PREVIEW_DAN_DRY_RUN.md`.
+
 ## 6. S3 — External Sync Operational Safety
 
 Perubahan dirancang:
@@ -165,9 +171,10 @@ Urutan yang diluluskan ialah:
 S0 baseline → S1 manual/provenance → S2 preview → S3 writer safety → S4 cutover
 ```
 
-S1 ialah langkah seterusnya selepas review dan checkpoint Git bagi S0.
-
 Kemaskini S1: implementation, migration, automated verification, Manual Add,
 OTP/password reset dan login selesai pada 14 Julai 2026. UAT menemui limiter
 login legacy 10 aksara; ia dibetulkan kepada 20 dan login retest owner berjaya.
 Rujuk `docs/S1_MANUAL_USER_HARDENING_DAN_PROVENANCE.md`.
+
+S2 telah melepasi exit gate. Langkah berikutnya ialah checkpoint Git S2 sebelum
+memulakan S3 transaction, lock, source-completeness dan reconciliation safety.
