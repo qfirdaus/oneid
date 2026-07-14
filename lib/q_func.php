@@ -25,6 +25,9 @@ require_once dirname(__DIR__) . '/app/User/UserSecurityActionService.php';
 require_once dirname(__DIR__) . '/app/User/UserManagementException.php';
 require_once dirname(__DIR__) . '/app/User/UserProfilePolicyService.php';
 require_once dirname(__DIR__) . '/app/User/UserAclManagementService.php';
+require_once dirname(__DIR__) . '/app/Admin/WebAppManagementException.php';
+require_once dirname(__DIR__) . '/app/Admin/WebAppCategoryService.php';
+require_once dirname(__DIR__) . '/app/Admin/WebAppService.php';
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
 
@@ -228,36 +231,30 @@ function string_sanitize($s) {
       }
 
       if(isset( $_POST['admin_get_all_service_provider'])){
-        $sp_group = $operation->get_sp_group();
-        foreach ($sp_group as $i => $ii) { 
-          $sp_group[$i]['tabname'] = preg_replace('/\s+/', '', $sp_group[$i]['sp_group_name'])."_".$sp_group[$i]['sp_group_id']."_tab";
-          $final_result = array();
-          $results = $operation->admin_get_all_service_provider_byGroup($sp_group[$i]['sp_group_id']);
-          usort($results, 'php_sort_alpahabet');
-
-          $results2 = $operation->admin_get_all_service_provider_non_sso_byGroup($sp_group[$i]['sp_group_id']);
-          usort($results2, 'php_sort_alpahabet');
-
-          $final_result = array_merge($results,$results2);
-          $sp_group[$i]['data'] = $final_result;
+        $rows = $operation->admin_get_active_app_directory_rows();
+        $groups = [];
+        foreach ($rows as $row) {
+          $groupId = (string) $row['sp_group_id'];
+          if (!isset($groups[$groupId])) {
+            $groups[$groupId] = [
+              'sp_group_id' => $row['sp_group_id'],
+              'sp_group_name' => $row['sp_group_name'],
+              'sp_group_seq' => $row['sp_group_seq'],
+              'tabname' => 'AppGroup_' . $row['sp_group_id'] . '_tab',
+              'data' => [],
+            ];
+          }
+          $groups[$groupId]['data'][] = [
+            'sp_id' => $row['sp_id'],
+            'sp_name' => $row['sp_name'],
+            'sp_description' => $row['sp_description'],
+            'sp_domain' => $row['sp_domain'],
+            'sp_image' => $row['sp_image'],
+            'sp_sso_support' => $row['sp_sso_support'],
+            'sp_group_id' => $row['sp_group_id'],
+          ];
         }
-
-        // Separate arrays
-        $group0 = [];
-        $otherGroups = [];
-        foreach ($sp_group as $group) {
-            if ($group['sp_group_id'] === 0) {
-                $group0[] = $group;
-            } else {
-                $otherGroups[] = $group;
-            }
-        }
-
-        $final = array_merge($otherGroups, $group0);
-
-        
-        // $results = [];
-        echo json_encode($final);
+        echo json_encode(array_values($groups));
       }
 
       if(isset( $_POST['admin_get_sso_settings'])){
@@ -269,26 +266,36 @@ function string_sanitize($s) {
       
 
       if(isset( $_POST['action_add_new_webapp_category'])){
-        $operation->syslog_record(11,$_SESSION['login_user'],getUserIP());
-        $results = $operation->action_add_new_webapp_category($_POST['add_new_webapp_category_name']);
-        echo json_encode($results);
+        try {
+          $service = new \OneId\App\Admin\WebAppCategoryService($operation);
+          echo json_encode($service->create(
+            (string) ($_POST['add_new_webapp_category_name'] ?? ''),
+            (string) $_SESSION['login_user'],
+            getUserIP()
+          ));
+        } catch (\OneId\App\Admin\WebAppManagementException $exception) {
+          echo json_encode(['status'=>0,'code'=>$exception->reason,'msg'=>'Application category was not created.','correlation_id'=>$exception->correlationId]);
+        }
       }
 
 
       if(isset( $_POST['action_remove_app_category'])){
-        //get list of apps under the category
-        $app_list = array();
-        $results = $operation->admin_get_all_service_provider_byGroup($_POST['app_category_id']);
-        $results2 = $operation->admin_get_all_service_provider_non_sso_byGroup($_POST['app_category_id']);
-        $app_list = array_merge($results,$results2);
-
-        foreach ($app_list as $i => $ii) {
-          $operation->reset_web_app_category($app_list[$i]['sp_id']);
+        try {
+          $service = new \OneId\App\Admin\WebAppCategoryService($operation);
+          echo json_encode($service->remove(
+            (string) ($_POST['app_category_id'] ?? ''),
+            (string) $_SESSION['login_user'],
+            getUserIP()
+          ));
+        } catch (\OneId\App\Admin\WebAppManagementException $exception) {
+          echo json_encode([
+            'status' => 0,
+            'code' => $exception->reason,
+            'msg' => 'Application category was not removed.',
+            'correlation_id' => $exception->correlationId,
+            'context' => $exception->context,
+          ]);
         }
-        $final = $operation->action_remove_app_category($_POST['app_category_id']);
-        $operation->syslog_record(12,$_SESSION['login_user'],getUserIP());
-        echo json_encode($final);
-        //echo json_encode($results);
       }
 
 
@@ -758,11 +765,21 @@ function string_sanitize($s) {
       }
 
       if(isset( $_POST['action_remove_app'])){
-
-        $results = $operation->action_update_app_status($_POST['app_id'],0);
-        $operation->remove_acl_category_all_by_sp_id($_POST['app_id']);
-        $operation->syslog_record(29,$_SESSION['login_user'],getUserIP());
-        echo json_encode($results);
+        try {
+          $service = new \OneId\App\Admin\WebAppService($operation);
+          echo json_encode($service->archive(
+            (string) ($_POST['app_id'] ?? ''),
+            (string) $_SESSION['login_user'],
+            getUserIP()
+          ));
+        } catch (\OneId\App\Admin\WebAppManagementException $exception) {
+          echo json_encode([
+            'status'=>0,
+            'code'=>$exception->reason,
+            'msg'=>'Application was not removed.',
+            'correlation_id'=>$exception->correlationId,
+          ]);
+        }
       }
 
       if(isset( $_POST['admin_get_all_blacklist_record'])){

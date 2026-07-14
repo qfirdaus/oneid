@@ -33,6 +33,12 @@ $report(
         && str_contains($adminDashboard, 'Gate live Apply-path M1'),
     'latest admin release card reads shared v2.0.4 metadata and notes'
 );
+$report(
+    str_contains($adminDashboard, 'const releasePageSize = 10;')
+        && str_contains($adminDashboard, 'releaseNotes.slice(0, visibleReleaseCount)')
+        && str_contains($adminDashboard, 'Lihat release terdahulu'),
+    'release history initially shows 10 and supports progressive older releases'
+);
 
 $report(
     oneid_format_device_info('desktop', '', '', 'Firefox', 'Windows') === 'Desktop · Firefox · Windows',

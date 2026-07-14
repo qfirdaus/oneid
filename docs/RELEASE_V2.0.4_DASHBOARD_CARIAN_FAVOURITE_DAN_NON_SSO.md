@@ -25,6 +25,15 @@ contract integrasi SSO consumer.
 - Tab NON SSO menggunakan identiti warna berbeza.
 - Aplikasi SSO memaparkan `Login`; NON SSO memaparkan `Akses`.
 - Kad aplikasi dan tindakan Favourite/Login/Akses disusun secara responsive.
+- Version Releases memaparkan 10 versi terkini dahulu dan membuka 10 release
+  terdahulu pada setiap tindakan `Lihat release terdahulu`.
+- Tab kategori Web Apps admin hanya memaparkan kategori dengan aplikasi aktif.
+- Manage Categories memaparkan inventori aktif/inactive dan hanya membenarkan
+  kategori benar-benar kosong dipadam.
+- Remove App mengarkib aplikasi, membersihkan semua ACL/Favourite dan merekod
+  correlation reference dalam satu transaction.
+- Effective ACL menolak aplikasi inactive dan schema menguatkuasakan nama
+  kategori unik serta foreign key kategori berpolisi `ON DELETE RESTRICT`.
 
 ## Sempadan keselamatan
 
@@ -55,14 +64,17 @@ menjalankan DOWN migration jika data pilihan pengguna mahu dikekalkan.
 php tools/u1_user_dashboard_contract.php
 php tools/u1_user_app_favourites_migrate.php --check
 php tools/release_metadata_contract.php
+php tools/w4_web_app_management_contract.php
 php tools/m2_user_security_actions_contract.php
 php tools/m3_profile_acl_contract.php
 php tools/restructure_smoke.php https://oneid.local --insecure
 ```
 
 Automated contract, migration check, transaction rollback proof dan smoke HTTP
-telah lulus. Browser UAT untuk carian, persistence Favourite serta label
-Login/Akses perlu disahkan oleh owner sebelum release dianggap ditutup.
+telah lulus. Owner UAT W0–W4 turut lulus bagi category create, duplicate
+rejection, empty-only removal, app soft archive dan ACL/Favourite cleanup.
+Bukti correlation dan keadaan database akhir direkod dalam
+`docs/W0_W4_AUDIT_DAN_HARDENING_WEB_APPS.md`.
 
 ## Rekod M1
 

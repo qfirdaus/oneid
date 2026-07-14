@@ -278,6 +278,28 @@
             <!-- /.modal-dialog -->
          </div>
 
+         <div id="modal_manage_webapp_categories" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_manage_webapp_categories" aria-hidden="true">
+            <div class="modal-dialog">
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                     <h5 class="modal-title" id="aria_modal_manage_webapp_categories">Manage Application Categories</h5>
+                  </div>
+                  <div class="modal-body">
+                     <p class="category-manage-intro">Kategori hanya boleh dipadam apabila tiada aplikasi aktif atau inactive masih assigned kepadanya.</p>
+                     <div id="category_manage_loading" class="category-manage-state">
+                        <i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i>
+                        <span>Loading categories</span>
+                     </div>
+                     <div id="category_manage_list" class="category-manage-list" aria-live="polite"></div>
+                  </div>
+                  <div class="modal-footer">
+                     <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                  </div>
+               </div>
+            </div>
+         </div>
+
 
 
          <div id="modal_edit_app" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_edit_app" aria-hidden="true">
@@ -975,9 +997,9 @@
                                                             <p>Pilih kategori untuk melihat aplikasi yang berkaitan.</p>
                                                          </div>
                                                          <div class="web-app-actions">
-                                                            <button class="web-app-action is-danger" type="button" onclick="open_remove_webapp_category();">
+                                                            <button class="web-app-action is-danger" type="button" onclick="open_manage_webapp_categories();">
                                                                <i class="fa fa-folder-open-o" aria-hidden="true"></i>
-                                                               <span>Remove category</span>
+                                                               <span>Manage categories</span>
                                                             </button>
                                                             <button class="web-app-action" type="button" onclick="open_add_new_webapp_category();">
                                                                <i class="fa fa-folder-o" aria-hidden="true"></i>
@@ -1336,6 +1358,16 @@
                                                          </div>
                                                          <div id="release_notes_list" class="version-release-list" aria-live="polite">
                                                             <!-- Release cards are rendered from the static release notes below. -->
+                                                         </div>
+                                                         <div id="release_notes_controls" class="version-release-controls" hidden>
+                                                            <button type="button" id="release_notes_more" class="version-release-more" aria-controls="release_notes_list">
+                                                               <i class="fa fa-history" aria-hidden="true"></i>
+                                                               <span>Lihat release terdahulu</span>
+                                                            </button>
+                                                            <button type="button" id="release_notes_latest" class="version-release-latest" aria-controls="release_notes_list" hidden>
+                                                               <i class="fa fa-angle-up" aria-hidden="true"></i>
+                                                               <span>Tunjuk 10 terkini</span>
+                                                            </button>
                                                          </div>
                                                       </div>
                                                    </div>
@@ -2238,12 +2270,12 @@
                beforeSend: function(){
                },
                success: function (response) {
-                  if (response == 1){        
+                  if (Number(response.status) === 1){
                      get_service_provider_list();   
                      $.toast().reset('all');                    
                      $.toast({
                         heading: '',
-                        text: 'App category successfully created',
+                        text: 'App category successfully created. Reference: ' + response.correlation_id,
                         position: 'bottom-center',
                         loaderBg:'#fec107',
                         icon: 'success',
@@ -2255,7 +2287,7 @@
                      $.toast().reset('all');            
                      $.toast({
                         heading: '',
-                        text: 'Opps! there is some problem.',
+                        text: (response.code || 'Category was not created') + (response.correlation_id ? ' — Reference: ' + response.correlation_id : ''),
                         position: 'bottom-center',
                         loaderBg:'#fec107',
                         icon: 'warning',
@@ -2270,45 +2302,88 @@
             });
            });
 
-           function open_remove_webapp_category(){
-            var href = $('#WebAppsTabsHeader li.active a').attr('href'); // e.g. "#SumberManusia_1_tab"
-            var number = href.split('_')[1]; // "1"
-            if(number == 0){
-                  swal("This category could not be remove", "Reason: Defult Category", "error");
-               return;
-            }
-            swal({   
-               title: "Remove App Category",   
-               text: "Are you sure you want to remove this Category?",   
-               type: "warning",   
-               showCancelButton: true,   
-               confirmButtonColor: "#DD6B55",   
-               confirmButtonText: "Yes!",   
-               closeOnConfirm: false 
-            }, function(){   
-         
+           function webAppManagementText(value){
+            return $('<div>').text(value == null ? '' : String(value)).html();
+           }
+
+           function open_manage_webapp_categories(){
+            $('#modal_manage_webapp_categories').modal('show');
+            $('#category_manage_loading').show();
+            $('#category_manage_list').hide().html('');
+            $.ajax({
+               type: 'POST',
+               url: '../lib/q_func',
+               dataType: 'json',
+               data: {admin_get_app_all_group: ''},
+               success: function(response){
+                  $('#category_manage_loading').hide();
+                  $('#category_manage_list').show();
+                  if (!Array.isArray(response) || response.length === 0) {
+                     $('#category_manage_list').html('<div class="category-manage-state"><i class="fa fa-folder-open-o" aria-hidden="true"></i><span>No categories available.</span></div>');
+                     return;
+                  }
+                  var rows = '';
+                  $.each(response, function(_, category){
+                     var categoryId = webAppManagementText(category.sp_group_id);
+                     var categoryName = webAppManagementText(category.sp_group_name);
+                     var activeCount = Number(category.active_count || 0);
+                     var inactiveCount = Number(category.inactive_count || 0);
+                     var assignedCount = Number(category.assigned_count || 0);
+                     var isSystem = String(category.sp_group_id) === '0';
+                     var canRemove = !isSystem && assignedCount === 0;
+                     var reason = isSystem
+                        ? 'System category — protected'
+                        : (assignedCount > 0 ? assignedCount + ' assigned app(s) must be moved first' : 'Empty category — eligible for removal');
+                     rows += '<div class="category-manage-row">';
+                     rows += '<div class="category-manage-name"><strong title="'+categoryName+'">'+categoryName+'</strong><small>'+webAppManagementText(reason)+'</small></div>';
+                     rows += '<div class="category-manage-counts"><span><strong>'+activeCount+'</strong><small>Active</small></span><span><strong>'+inactiveCount+'</strong><small>Inactive</small></span></div>';
+                     rows += '<button type="button" class="category-manage-remove" data-category-id="'+categoryId+'" data-category-name="'+categoryName+'" '+(canRemove ? '' : 'disabled')+' title="'+(canRemove ? 'Remove empty category' : webAppManagementText(reason))+'" aria-label="'+(canRemove ? 'Remove '+categoryName : webAppManagementText(reason))+'"><i class="fa fa-trash" aria-hidden="true"></i></button>';
+                     rows += '</div>';
+                  });
+                  $('#category_manage_list').html(rows);
+               },
+               error: function(xhr){
+                  $('#category_manage_loading').hide();
+                  $('#category_manage_list').show().html('<div class="category-manage-state is-error"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i><span>Unable to load categories. HTTP '+xhr.status+'.</span></div>');
+               }
+            });
+           }
+
+           $(document).on('click', '.category-manage-remove:not(:disabled)', function(){
+            var categoryId = String($(this).data('category-id') || '');
+            var categoryName = String($(this).data('category-name') || '');
+            swal({
+               title: 'Remove empty category?',
+               text: 'Category: ' + categoryName + '. The server will reject this action if any application is assigned.',
+               type: 'warning',
+               showCancelButton: true,
+               confirmButtonColor: '#DD6B55',
+               confirmButtonText: 'Remove category',
+               closeOnConfirm: false
+            }, function(){
                $.ajax({
                   type: 'POST',
                   url: '../lib/q_func',
-                  dataType: "json",
-                  data: {action_remove_app_category:'',app_category_id:number},     
-                  beforeSend: function(){
-                  },
-                  success: function (response) {
-                     if (response == 1){
-                        get_service_provider_list();   
-                        swal("App Category Removed", "", "success"); 
-                     }else{
-                        swal("App Category Remove", "Error", "error"); 
+                  dataType: 'json',
+                  data: {action_remove_app_category: '', app_category_id: categoryId},
+                  success: function(response){
+                     if (Number(response.status) === 1 && response.code === 'W1_CATEGORY_REMOVED') {
+                        swal('Category removed', 'Reference: ' + response.correlation_id, 'success');
+                        get_service_provider_list();
+                        open_manage_webapp_categories();
+                        return;
                      }
-         
+                     var assigned = response.context && response.context.assigned_count
+                        ? '\nAssigned applications: ' + response.context.assigned_count : '';
+                     swal('Category not removed', 'Code: ' + (response.code || 'W1_REQUEST_FAILED') + assigned + '\nReference: ' + (response.correlation_id || 'Unavailable'), 'error');
+                     open_manage_webapp_categories();
                   },
-                  error: function (xhr, error, thrown) {
+                  error: function(xhr){
+                     swal('Category not removed', 'The server request failed. HTTP ' + xhr.status + '.', 'error');
                   }
                });
             });
-
-           }
+           });
          
          
            function open_add_new_webapp(){
@@ -2602,26 +2677,25 @@
            		closeOnConfirm: false 
            	}, function(){   
          
-           		$.ajax({
-           			type: 'POST',
-           			url: '../lib/q_func',
-           			dataType: "json",
-           			data: {action_remove_app:'',app_id:app_id},     
-           			beforeSend: function(){
-           			},
-           			success: function (response) {
-           				if (response == 1){
-           					$('#modal_edit_app').modal('hide');
-           					get_service_provider_list();   
-           					swal("App Removed", "", "success"); 
-           				}else{
-           					swal("App Remove", "Error", "error"); 
-           				}
-         
-           			},
-           			error: function (xhr, error, thrown) {
-           			}
-           		});
+              $.ajax({
+                type: 'POST',
+                url: '../lib/q_func',
+                dataType: "json",
+                data: {action_remove_app:'',app_id:app_id},
+                beforeSend: function(){
+                },
+                success: function (response) {
+                  if (Number(response.status) === 1){
+                    $('#modal_edit_app').modal('hide');
+                    get_service_provider_list();
+                    swal("App Removed", "Access references were revoked. Reference: " + response.correlation_id, "success");
+                  }else{
+                    swal("App Not Removed", (response.code || "Request failed") + (response.correlation_id ? "\nReference: " + response.correlation_id : ""), "error");
+                  }
+                },
+                error: function (xhr, error, thrown) {
+                }
+              });
            	});
            }
          
@@ -4010,7 +4084,12 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         "Aplikasi OneID SSO menggunakan label <b>Login</b>, manakala aplikasi NON SSO menggunakan label <b>Akses</b> dan badge <b>Akses terus</b>.",
         "Tab <b>NON SSO</b> diberi identiti warna berbeza supaya pautan terus mudah dibezakan daripada aplikasi berintegrasi OneID.",
         "Migration, rollback, characterization contract dan runbook UAT U1 ditambah; smoke HTTP, structure, M2, M3 dan release regression kekal lulus.",
-        "Gate live Apply-path M1 direkod sebagai ditangguhkan oleh owner sehingga akaun external ujian yang sesuai tersedia; penangguhan ini tidak mengaktifkan External Sync Apply S4E."
+        "Gate live Apply-path M1 direkod sebagai ditangguhkan oleh owner sehingga akaun external ujian yang sesuai tersedia; penangguhan ini tidak mengaktifkan External Sync Apply S4E.",
+        "Paparan <b>Version Releases</b> dihadkan kepada 10 versi terkini dan menyediakan tindakan untuk melihat release terdahulu secara berperingkat."
+        ,"Direktori admin kini hanya memaparkan tab kategori yang mempunyai aplikasi aktif; inventori penuh dan sebab kategori tidak boleh dipadam tersedia melalui <b>Manage Categories</b>."
+        ,"Kategori sistem dilindungi dan kategori berisi tidak boleh dipadam; create/delete menggunakan validation, transaction, rollback serta correlated audit trail."
+        ,"Remove App kini mengarkib aplikasi ke kategori sistem dan membersihkan group ACL, direct ACL, blacklist serta Favourite secara atomic; aplikasi inactive ditolak oleh effective ACL."
+        ,"Integriti schema diperkukuh dengan nama kategori unik dan foreign key <code>sp_list.sp_group_id</code> berpolisi <code>ON DELETE RESTRICT</code>."
       ]
     },
     {
@@ -4134,6 +4213,11 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
   const releaseList = document.getElementById("release_notes_list");
   const currentReleaseBadge = document.getElementById("current_release_badge");
+  const releaseControls = document.getElementById("release_notes_controls");
+  const releaseMoreButton = document.getElementById("release_notes_more");
+  const releaseLatestButton = document.getElementById("release_notes_latest");
+  const releasePageSize = 10;
+  let visibleReleaseCount = releasePageSize;
   const formatReleaseDate = date => {
     const parsedDate = new Date(`${date}T00:00:00`);
     return new Intl.DateTimeFormat('ms-MY', {
@@ -4150,21 +4234,45 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
     `;
   }
 
-  releaseList.innerHTML = releaseNotes.map((release, releaseIndex) => `
-    <article class="version-release-card${releaseIndex === 0 ? ' is-current' : ''}">
-      <div class="version-release-meta">
-        ${releaseIndex === 0 ? '<span class="version-latest-label">Latest</span>' : ''}
-        <span class="version-number">v${release.version}</span>
-        <time class="version-release-date" datetime="${release.date}">${formatReleaseDate(release.date)}</time>
-      </div>
-      <div class="version-release-content">
-        <h5>${releaseIndex === 0 ? 'Latest updates' : `Release ${release.version}`}</h5>
-        <ol class="version-change-list">
-          ${release.changes.map(item => `<li>${item}</li>`).join("")}
-        </ol>
-      </div>
-    </article>
-  `).join("");
+  const renderReleaseNotes = () => {
+    const visibleReleases = releaseNotes.slice(0, visibleReleaseCount);
+    releaseList.innerHTML = visibleReleases.map((release, releaseIndex) => `
+      <article class="version-release-card${releaseIndex === 0 ? ' is-current' : ''}">
+        <div class="version-release-meta">
+          ${releaseIndex === 0 ? '<span class="version-latest-label">Latest</span>' : ''}
+          <span class="version-number">v${release.version}</span>
+          <time class="version-release-date" datetime="${release.date}">${formatReleaseDate(release.date)}</time>
+        </div>
+        <div class="version-release-content">
+          <h5>${releaseIndex === 0 ? 'Latest updates' : `Release ${release.version}`}</h5>
+          <ol class="version-change-list">
+            ${release.changes.map(item => `<li>${item}</li>`).join("")}
+          </ol>
+        </div>
+      </article>
+    `).join("");
+
+    const remainingReleases = Math.max(0, releaseNotes.length - visibleReleases.length);
+    releaseControls.hidden = releaseNotes.length <= releasePageSize;
+    releaseMoreButton.hidden = remainingReleases === 0;
+    releaseLatestButton.hidden = visibleReleaseCount <= releasePageSize;
+    releaseMoreButton.querySelector('span').textContent = remainingReleases > 0
+      ? `Lihat release terdahulu (${Math.min(releasePageSize, remainingReleases)})`
+      : 'Semua release telah dipaparkan';
+  };
+
+  releaseMoreButton.addEventListener('click', () => {
+    visibleReleaseCount = Math.min(visibleReleaseCount + releasePageSize, releaseNotes.length);
+    renderReleaseNotes();
+  });
+
+  releaseLatestButton.addEventListener('click', () => {
+    visibleReleaseCount = releasePageSize;
+    renderReleaseNotes();
+    document.querySelector('#tab_versioning .version-release-header').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  renderReleaseNotes();
       </script>
       <style>
          #the-basics .tt-dropdown-menu {
@@ -4581,6 +4689,120 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
       #follo_8 .web-app-state.is-error > span {
         color: #d46b62;
+      }
+
+      .category-manage-intro {
+        margin: 0 0 15px;
+        color: #68778a;
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .category-manage-list {
+        overflow: hidden;
+        border: 1px solid #e1e6ed;
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .category-manage-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto 38px;
+        align-items: start;
+        gap: 14px;
+        padding: 14px 15px;
+        border-bottom: 1px solid #edf0f4;
+      }
+
+      .category-manage-row:last-child {
+        border-bottom: 0;
+      }
+
+      .category-manage-name strong,
+      .category-manage-name small {
+        display: block;
+      }
+
+      .category-manage-name strong {
+        overflow: hidden;
+        color: #2f3e52;
+        font-size: 12px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .category-manage-name small {
+        margin-top: 4px;
+        color: #7d8998;
+        font-size: 10px;
+      }
+
+      .category-manage-counts {
+        display: flex;
+        gap: 6px;
+      }
+
+      .category-manage-counts span {
+        min-width: 58px;
+        padding: 6px 8px;
+        border-radius: 6px;
+        background: #f4f7fa;
+      }
+
+      .category-manage-counts strong,
+      .category-manage-counts small {
+        display: block;
+      }
+
+      .category-manage-counts strong {
+        color: #344358;
+        font-size: 12px;
+      }
+
+      .category-manage-counts small {
+        color: #8793a2;
+        font-size: 8px;
+        text-transform: uppercase;
+      }
+
+      .category-manage-remove {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 34px;
+        padding: 0;
+        border: 1px solid #efc7c3;
+        border-radius: 6px;
+        background: #fff;
+        color: #c85b52;
+      }
+
+      .category-manage-remove:disabled {
+        border-color: #e3e8ed;
+        background: #f5f7f9;
+        color: #aeb7c1;
+        cursor: not-allowed;
+      }
+
+      .category-manage-state {
+        padding: 25px 15px;
+        color: #718093;
+        text-align: center;
+      }
+
+      .category-manage-state i,
+      .category-manage-state span {
+        display: block;
+      }
+
+      .category-manage-state i {
+        margin-bottom: 8px;
+        color: #168fcb;
+      }
+
+      .category-manage-state.is-error i {
+        color: #c85b52;
       }
 
       #follo_8 .web-app-category-empty {
@@ -6876,6 +7098,47 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #tab_versioning .version-change-list b {
         color: #37465a;
         font-weight: 600;
+      }
+
+      #tab_versioning .version-release-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding-top: 5px;
+      }
+
+      #tab_versioning .version-release-controls[hidden],
+      #tab_versioning .version-release-controls button[hidden] {
+        display: none;
+      }
+
+      #tab_versioning .version-release-controls button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 8px 14px;
+        border: 1px solid #cfe0eb;
+        border-radius: 7px;
+        background: #fff;
+        color: #168fcb;
+        font-size: 11px;
+        font-weight: 600;
+        gap: 7px;
+        transition: border-color .18s ease, background .18s ease, color .18s ease;
+      }
+
+      #tab_versioning .version-release-controls button:hover,
+      #tab_versioning .version-release-controls button:focus {
+        border-color: #a9d4e7;
+        background: #eef8fd;
+        color: #087eaf;
+      }
+
+      #tab_versioning .version-release-latest {
+        border-color: #dce4ec;
+        color: #68778a;
       }
 
       @media (max-width: 767px) {

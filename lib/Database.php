@@ -805,7 +805,7 @@ class Database {
         $Q = "SELECT A.sp_id,B.sp_name,B.sp_description,B.sp_domain,B.sp_image,B.sp_group_id
                 FROM acl_group A 
                 LEFT JOIN sp_list B ON B.sp_id = A.sp_id
-                WHERE A.uc_id=:uc_id";
+                WHERE A.uc_id=:uc_id AND B.avail_status=1";
         $R = $this->pdo->prepare($Q);        
         $R->bindParam(':uc_id', $uc_id);  
         $R->execute();
@@ -817,7 +817,7 @@ class Database {
         $Q = "SELECT A.sp_id,B.sp_name,B.sp_description,B.sp_domain,B.sp_image,B.sp_group_id
                 FROM acl_single A
                 LEFT JOIN sp_list B ON B.sp_id = A.sp_id
-                WHERE A.u_id=:u_id";
+                WHERE A.u_id=:u_id AND B.avail_status=1";
         $R = $this->pdo->prepare($Q);        
         $R->bindParam(':u_id', $u_id);  
         $R->execute();
@@ -865,6 +865,22 @@ class Database {
         return $result;
     }
 
+    public function admin_find_app_category_by_name_for_update(string $name): array|false{
+        $Q = "SELECT sp_group_id,sp_group_name FROM sp_group
+              WHERE LOWER(TRIM(sp_group_name))=LOWER(TRIM(:name)) LIMIT 1 FOR UPDATE";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':name'=>$name]);
+        return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_create_app_category(string $name): int{
+        $Q = "INSERT INTO sp_group(sp_group_name,sp_group_seq)
+              VALUES (:name,COALESCE((SELECT MAX(sequence_value)+1 FROM (SELECT sp_group_seq AS sequence_value FROM sp_group) seq),1))";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':name'=>$name]);
+        return $R->rowCount();
+    }
+
   public function admin_get_specific_web_app_category_info($sp_id){
         $Q = "SELECT sp_group_id,sp_group_name,sp_group_seq
                 FROM sp_group where sp_group_id = :sp_id";
@@ -875,24 +891,34 @@ class Database {
         return $result;
     }
 
-    public function reset_web_app_category($sp_id){
-            $Q = "UPDATE sp_list SET sp_group_id = 0 WHERE sp_id = :sp_id";
-            $R = $this->pdo->prepare($Q);
-        $R->bindParam(':sp_id', $sp_id);
-        $R->execute();
-        $result = $R->rowCount();
-        return $result;
+    public function admin_get_app_category_for_update(int $categoryId){
+        $Q = "SELECT sp_group_id,sp_group_name,sp_group_seq
+              FROM sp_group WHERE sp_group_id=:category_id LIMIT 1 FOR UPDATE";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':category_id' => $categoryId]);
+        return $R->fetch(PDO::FETCH_ASSOC);
     }
 
-
-    public function action_remove_app_category($sp_group_id){
-        $Q = "DELETE FROM sp_group
-                WHERE sp_group_id = :sp_group_id";
+    public function admin_count_apps_assigned_to_category(int $categoryId): int{
+        $Q = "SELECT COUNT(*) FROM sp_list WHERE sp_group_id=:category_id";
         $R = $this->pdo->prepare($Q);
-        $R->bindParam(':sp_group_id', $sp_group_id);
-        $R->execute();
-        $result = $R->rowCount();
-        return $result;
+        $R->execute([':category_id' => $categoryId]);
+        return (int) $R->fetchColumn();
+    }
+
+    public function admin_delete_empty_app_category(int $categoryId): int{
+        $Q = "DELETE FROM sp_group
+              WHERE sp_group_id=:category_id
+                AND sp_group_id<>0
+                AND NOT EXISTS (
+                    SELECT 1 FROM sp_list WHERE sp_group_id=:assigned_category_id
+                )";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([
+            ':category_id' => $categoryId,
+            ':assigned_category_id' => $categoryId,
+        ]);
+        return $R->rowCount();
     }
 
    public function action_add_new_app($sp_id,$sp_name,$sp_description,$sp_domain,$sp_image,$sp_group_id,$sp_sso_support){
@@ -947,6 +973,35 @@ class Database {
         $R->execute();
         $result = $R->rowCount();
         return $result;
+    }
+
+    public function admin_get_service_provider_for_update(string $appId): array|false{
+        $Q = "SELECT sp_id,sp_name,avail_status,sp_group_id FROM sp_list
+              WHERE sp_id=:app_id FOR UPDATE";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':app_id'=>$appId]);
+        return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_archive_service_provider(string $appId): int{
+        $Q = "UPDATE sp_list SET avail_status=0,sp_group_id=0
+              WHERE sp_id=:app_id AND avail_status=1";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':app_id'=>$appId]);
+        return $R->rowCount();
+    }
+
+    public function admin_delete_app_access_references(string $table, string $appId): int{
+        $allowed = ['acl_group','acl_single','acl_blacklist','user_app_favourite'];
+        if (!in_array($table, $allowed, true)) {
+            throw new InvalidArgumentException('Unsupported app access table.');
+        }
+        if ($table === 'user_app_favourite' && !$this->supportsUserAppFavourites()) {
+            return 0;
+        }
+        $R = $this->pdo->prepare("DELETE FROM `{$table}` WHERE sp_id=:app_id");
+        $R->execute([':app_id'=>$appId]);
+        return $R->rowCount();
     }
 
 
@@ -1220,11 +1275,29 @@ class Database {
     }
 
     public function get_sp_group(){
-        $Q = "SELECT * FROM sp_group";
+        $Q = "SELECT g.sp_group_id,g.sp_group_name,g.sp_group_seq,
+                     SUM(CASE WHEN s.avail_status=1 THEN 1 ELSE 0 END) AS active_count,
+                     SUM(CASE WHEN s.avail_status=0 THEN 1 ELSE 0 END) AS inactive_count,
+                     COUNT(s.sp_id) AS assigned_count
+              FROM sp_group g
+              LEFT JOIN sp_list s ON s.sp_group_id=g.sp_group_id
+              GROUP BY g.sp_group_id,g.sp_group_name,g.sp_group_seq
+              ORDER BY (g.sp_group_id=0) ASC,g.sp_group_seq DESC,g.sp_group_name ASC";
         $R = $this->pdo->prepare($Q);
         $R->execute();
         $result = $R->fetchAll(PDO::FETCH_ASSOC);
         return $result;
+    }
+
+    public function admin_get_active_app_directory_rows(): array{
+        $Q = "SELECT g.sp_group_id,g.sp_group_name,g.sp_group_seq,
+                     s.sp_id,s.sp_name,s.sp_description,s.sp_domain,s.sp_image,s.sp_sso_support
+              FROM sp_group g
+              INNER JOIN sp_list s ON s.sp_group_id=g.sp_group_id AND s.avail_status=1
+              ORDER BY (g.sp_group_id=0) ASC,g.sp_group_seq DESC,g.sp_group_name ASC,s.sp_name ASC";
+        $R = $this->pdo->prepare($Q);
+        $R->execute();
+        return $R->fetchAll(PDO::FETCH_ASSOC);
     }
 
 
