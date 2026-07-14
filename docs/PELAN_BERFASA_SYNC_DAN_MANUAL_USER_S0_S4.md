@@ -3,7 +3,7 @@
 Tarikh: 14 Julai 2026  
 Owner perubahan: Pemilik sistem OneID  
 Owner rollback: Pemilik sistem OneID  
-Status: **AKTIF — S0 SELESAI; S1–S4 BELUM DILAKSANAKAN**
+Status: **AKTIF — S0 DAN S1 SELESAI; S2–S4 BELUM DILAKSANAKAN**
 
 ## 1. Objektif
 
@@ -166,3 +166,8 @@ S0 baseline → S1 manual/provenance → S2 preview → S3 writer safety → S4 
 ```
 
 S1 ialah langkah seterusnya selepas review dan checkpoint Git bagi S0.
+
+Kemaskini S1: implementation, migration, automated verification, Manual Add,
+OTP/password reset dan login selesai pada 14 Julai 2026. UAT menemui limiter
+login legacy 10 aksara; ia dibetulkan kepada 20 dan login retest owner berjaya.
+Rujuk `docs/S1_MANUAL_USER_HARDENING_DAN_PROVENANCE.md`.

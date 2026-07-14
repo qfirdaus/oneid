@@ -3,6 +3,7 @@
 class Database {
   
     protected $pdo;
+    private ?bool $userProvenanceSupported = null;
     public function __construct()
     {
         try
@@ -134,8 +135,12 @@ class Database {
 //Dashboard
 
     
-   public function action_add_new_user($u_id,$u_category,$u_password,$data1,$data2,$data3,$data4,$data5,$data6,$data7,$data8,$data9,$data10,$data11,$data12,$u_changes_hash){
-        $Q = "INSERT INTO  user_tbl(u_id,u_category,u_password,password_change_required,u_type,avail_status,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12,u_update_datetime,u_changes_hash) VALUES (:u_id,:u_category,:u_password,1,0,1,:data1,:data2,:data3,:data4,:data5,:data6,:data7,:data8,:data9,:data10,:data11,:data12,NOW(),:u_changes_hash)";
+   public function action_add_new_user($u_id,$u_category,$u_password,$data1,$data2,$data3,$data4,$data5,$data6,$data7,$data8,$data9,$data10,$data11,$data12,$u_changes_hash,$account_source='manual',$sync_protected=1){
+        if ($this->supportsUserProvenance()) {
+            $Q = "INSERT INTO user_tbl(u_id,u_category,u_password,password_change_required,u_type,avail_status,account_source,sync_protected,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12,u_update_datetime,u_changes_hash) VALUES (:u_id,:u_category,:u_password,1,0,1,:account_source,:sync_protected,:data1,:data2,:data3,:data4,:data5,:data6,:data7,:data8,:data9,:data10,:data11,:data12,NOW(),:u_changes_hash)";
+        } else {
+            $Q = "INSERT INTO user_tbl(u_id,u_category,u_password,password_change_required,u_type,avail_status,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12,u_update_datetime,u_changes_hash) VALUES (:u_id,:u_category,:u_password,1,0,1,:data1,:data2,:data3,:data4,:data5,:data6,:data7,:data8,:data9,:data10,:data11,:data12,NOW(),:u_changes_hash)";
+        }
         $R = $this->pdo->prepare($Q);
         $R->bindParam(':u_id', $u_id);
         $R->bindParam(':u_category', $u_category);
@@ -153,14 +158,32 @@ class Database {
         $R->bindParam(':data11', $data11);
         $R->bindParam(':data12', $data12);
         $R->bindParam(':u_changes_hash', $u_changes_hash);
+        if ($this->supportsUserProvenance()) {
+            $R->bindParam(':account_source', $account_source);
+            $R->bindParam(':sync_protected', $sync_protected, PDO::PARAM_INT);
+        }
         $R->execute();        
         $result = $R->rowCount();
         return $result;
     }
     
    public function action_add_new_user_from_external_source($u_id,$u_category,$u_password,$data1,$data2,$data3,$data4,$data5,$data6,$data7,$data8,$data9,$data10,$data11,$data12,$u_changes_hash){
-        $Q = "INSERT INTO user_tbl(u_id,u_category,u_password,password_change_required,u_type,avail_status,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12,u_update_datetime,u_changes_hash) VALUES (:u_id,:u_category,:u_password,1,0,1,:data1,:data2,:data3,:data4,:data5,:data6,:data7,:data8,:data9,:data10,:data11,:data12,NOW(),:u_changes_hash)
-            ON DUPLICATE KEY UPDATE u_category=:u_category,avail_status=1,data1=:data1,data2=:data2,data3=:data3,data4=:data4,data5=:data5,data6=:data6,data7=:data7,data8=:data8,data9=:data9,data10=:data10,data11=:data11,data12=:data12,u_update_datetime=NOW(),u_changes_hash=:u_changes_hash;";
+        if ($this->supportsUserProvenance()) {
+            $protectedCheck = $this->pdo->prepare(
+                "SELECT 1 FROM user_tbl
+                 WHERE u_id=:u_id AND account_source='manual' AND sync_protected=1
+                 LIMIT 1 FOR UPDATE"
+            );
+            $protectedCheck->execute([':u_id'=>$u_id]);
+            if ($protectedCheck->fetchColumn() !== false) {
+                return 0;
+            }
+            $Q = "INSERT INTO user_tbl(u_id,u_category,u_password,password_change_required,u_type,avail_status,account_source,sync_protected,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12,u_update_datetime,u_changes_hash) VALUES (:u_id,:u_category,:u_password,1,0,1,'external',0,:data1,:data2,:data3,:data4,:data5,:data6,:data7,:data8,:data9,:data10,:data11,:data12,NOW(),:u_changes_hash)
+                ON DUPLICATE KEY UPDATE u_category=:u_category,avail_status=1,account_source='external',sync_protected=0,data1=:data1,data2=:data2,data3=:data3,data4=:data4,data5=:data5,data6=:data6,data7=:data7,data8=:data8,data9=:data9,data10=:data10,data11=:data11,data12=:data12,u_update_datetime=NOW(),u_changes_hash=:u_changes_hash;";
+        } else {
+            $Q = "INSERT INTO user_tbl(u_id,u_category,u_password,password_change_required,u_type,avail_status,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12,u_update_datetime,u_changes_hash) VALUES (:u_id,:u_category,:u_password,1,0,1,:data1,:data2,:data3,:data4,:data5,:data6,:data7,:data8,:data9,:data10,:data11,:data12,NOW(),:u_changes_hash)
+                ON DUPLICATE KEY UPDATE u_category=:u_category,avail_status=1,data1=:data1,data2=:data2,data3=:data3,data4=:data4,data5=:data5,data6=:data6,data7=:data7,data8=:data8,data9=:data9,data10=:data10,data11=:data11,data12=:data12,u_update_datetime=NOW(),u_changes_hash=:u_changes_hash;";
+        }
         $R = $this->pdo->prepare($Q);
         $R->bindParam(':u_id', $u_id);
         $R->bindParam(':u_category', $u_category);
@@ -290,10 +313,13 @@ class Database {
     }
 
     public function sync_get_all_sso_user(){
+        $provenanceFields = $this->supportsUserProvenance()
+            ? ", account_source, sync_protected"
+            : ", 'legacy' AS account_source, 0 AS sync_protected";
         $Q = "SELECT u_id, u_category, avail_status,
                      data1, data2, data3, data4, data5, data6,
                      data7, data8, data9, data10, data11, data12,
-                     u_changes_hash, '1' AS source
+                     u_changes_hash, '1' AS source" . $provenanceFields . "
               FROM user_tbl
               WHERE avail_status = 1";
         $R = $this->pdo->prepare($Q);
@@ -319,6 +345,29 @@ class Database {
 
     public function rollback(){
         return $this->pdo->rollBack();
+    }
+
+    public function supportsUserProvenance(): bool{
+        if ($this->userProvenanceSupported !== null) {
+            return $this->userProvenanceSupported;
+        }
+
+        $Q = "SELECT COUNT(*)
+              FROM information_schema.COLUMNS
+              WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME = 'user_tbl'
+                AND COLUMN_NAME IN ('account_source', 'sync_protected')";
+        $R = $this->pdo->prepare($Q);
+        $R->execute();
+        $this->userProvenanceSupported = (int) $R->fetchColumn() === 2;
+        return $this->userProvenanceSupported;
+    }
+
+    public function isActiveUserCategory($categoryId): bool{
+        $Q = "SELECT 1 FROM user_category WHERE uc_id=:category_id AND avail_status=1 LIMIT 1";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':category_id'=>(int)$categoryId]);
+        return $R->fetchColumn() !== false;
     }
 
     public function sync_log_change($ext_head_id, $u_id, $action, $old_data, $new_data, $changed_fields){

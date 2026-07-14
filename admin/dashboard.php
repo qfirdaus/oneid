@@ -660,11 +660,11 @@
                                              <div class="form-body overflow-hide">
                                                 <div class="form-group">
                                                    <label class="control-label mb-10" for="add_new_category_name">Name @ Data 1</label>
-                                                   <input type="text" class="form-control add_new_manual_user_input" id="add_new_manual_user_name" name="add_new_manual_user_name" placeholder="Staff/Student Name" required="">
+                                                   <input type="text" class="form-control add_new_manual_user_input" id="add_new_manual_user_name" name="add_new_manual_user_name" placeholder="Staff/Student Name" maxlength="100" required="">
                                                 </div>
                                                 <div class="form-group">
                                                    <label class="control-label mb-10" for="add_new_category_name">No KP / User ID / Username</label>
-                                                   <input type="text" class="form-control add_new_manual_user_input" id="add_new_manual_user_id" name="add_new_manual_user_id" placeholder="User Unique ID, Staff/Student ID" required="" disabled="">
+                                                   <input type="text" class="form-control add_new_manual_user_input" id="add_new_manual_user_id" name="add_new_manual_user_id" placeholder="User Unique ID, Staff/Student ID" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@-]*" required="" disabled="">
                                                 </div>
                                                 <div class="form-group">
                                                    <label class="control-label mb-10" for="add_new_manual_user_category">Category</label>
@@ -691,8 +691,8 @@
                                                                   <input type="text" class="form-control add_new_manual_user_input" id="add_new_user_data3" name="add_new_user_data3" placeholder="nopekerja / full id pekerja">
                                                                </div>
                                                                <div class="form-group">
-                                                                  <label class="control-label mb-10" for="add_new_user_data5">Data 5</label>
-                                                                  <input type="text" class="form-control add_new_manual_user_input" id="add_new_user_data5" name="add_new_user_data5" placeholder="emel">
+                                                                  <label class="control-label mb-10" for="add_new_user_data5">Email @ Data 5 (required for OTP)</label>
+                                                                  <input type="email" class="form-control add_new_manual_user_input" id="add_new_user_data5" name="add_new_user_data5" placeholder="nama@domain.edu.my" maxlength="100" required="">
                                                                </div>
                                                                <div class="form-group">
                                                                   <label class="control-label mb-10" for="add_new_user_data6">Data 6</label>
@@ -3137,12 +3137,24 @@
          
          },
          error: function (xhr, error, thrown) {
+            $(".add_new_manual_user_input").prop('disabled', false);
+            $(".add_new_manual_user_input_loading_text").hide();
+            $.toast().reset('all');
+            $.toast({
+               heading: '',
+               text: 'User tidak dapat ditambah. Sila cuba semula atau semak log menggunakan ID rujukan.',
+               position: 'bottom-center',
+               loaderBg:'#fec107',
+               icon: 'error',
+               hideAfter: 5000,
+               stack: 6
+            });
          }
          });
          });
          
          
-         function nav_back_to_category_listing(){        	
+         function nav_back_to_category_listing(){
          $('#modal_user_profile').modal('hide');
          $('#modal_category_user_list_view').modal('show');
          }

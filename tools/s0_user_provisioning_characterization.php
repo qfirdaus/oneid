@@ -12,6 +12,11 @@ if (PHP_SAPI !== 'cli') {
 }
 
 $projectRoot = dirname(__DIR__);
+if (is_file($projectRoot . '/docs/S1_MANUAL_USER_HARDENING_DAN_PROVENANCE.md')
+    && !in_array('--force-baseline', $argv, true)) {
+    echo "SKIP S0 historical baseline: superseded by S1; use Git commit 93d7445 to reproduce the original 50/50 result.\n";
+    exit(0);
+}
 $contracts = require $projectRoot . '/tests/characterization/s0_user_provisioning_contracts.php';
 $checks = 0;
 $failed = 0;

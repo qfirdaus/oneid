@@ -20,7 +20,7 @@ return [
     [
         'name' => 'admin dashboard',
         'file' => 'admin/dashboard.php',
-        'loc' => 3905,
+        'loc' => 3917,
         'q_func_calls' => 41,
         'function_declarations' => 62,
         'script_tags' => 18,

@@ -11,7 +11,7 @@
     "check:compatibility": "php tools/r54_compatibility_contract.php",
     "check:final-structure": "php tools/r55_structure_boundary_contract.php",
     "check:transitional": "php tools/r55_transitional_contract.php",
-    "check:user-provisioning": "php tools/s0_user_provisioning_characterization.php"
+    "check:user-provisioning": "php tools/s1_user_provisioning_contract.php"
   },
   "author": "hencework",
   "license": "ISC",

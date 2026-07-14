@@ -77,6 +77,36 @@ function run_admin_sync_user($operation, $triggered_by){
         $sso_list = array_values(array_filter($sso_list, function($sso) use ($sync_exclude_uids, $norm) {
             return !isset($sync_exclude_uids[$norm($sso['u_id'] ?? '')]);
         }));
+
+        // Manual accounts are locally authoritative. Keep them outside the
+        // external matching/deactivation set and reject colliding external
+        // identities before staging or upsert.
+        $protected_identity_map = [];
+        foreach ($sso_list as $sso_row) {
+            if (($sso_row['account_source'] ?? '') !== 'manual'
+                || (int) ($sso_row['sync_protected'] ?? 0) !== 1) {
+                continue;
+            }
+            foreach (['u_id', 'data2', 'data4'] as $identityField) {
+                $identity = $norm($sso_row[$identityField] ?? '');
+                if ($identity !== '') {
+                    $protected_identity_map[$identity] = true;
+                }
+            }
+        }
+        if ($protected_identity_map !== []) {
+            $sso_list = array_values(array_filter($sso_list, static function($sso) {
+                return ($sso['account_source'] ?? '') !== 'manual'
+                    || (int) ($sso['sync_protected'] ?? 0) !== 1;
+            }));
+            $list = array_values(array_filter($list, function($row) use ($protected_identity_map, $norm) {
+                $primary = $norm($row['data4'] ?? '');
+                $secondary = $norm($row['data2'] ?? '');
+                return !isset($protected_identity_map[$primary])
+                    && ($secondary === '' || !isset($protected_identity_map[$secondary]));
+            }));
+        }
+
         $sso_by_uid = [];
         foreach ($sso_list as $sso_row) {
             $sso_by_uid[$sso_row['u_id']] = $sso_row;

@@ -19,3 +19,9 @@ R5.2D5–D8 menambah immutable plan, pure planner, production adapter dan
 production orchestrator di `Sync/`. Semua class tersebut masih dormant;
 `run_admin_sync_user` dan caller legacy belum berubah. Full dormant production
 parity lulus 18/18 dalam D8.
+
+S1 menambah `User/ManualUserInput.php` dan `User/ManualUserCreator.php` untuk
+validation serta penciptaan akaun manual secara atomik. Runtime controller
+kekal di `lib/q_func.php`, tetapi mendelegasikan action Manual Add User kepada
+application service ini. Provenance disimpan sebagai `manual` dan protected
+daripada full external sync selepas migration S1 aktif.

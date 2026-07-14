@@ -52,7 +52,7 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
 
         <div class="login-form-block" style="display: flex; flex-direction: column; gap: 4px;margin-bottom: 20px;">
           <label for="username" class="login-form-label" style="margin-bottom: 4px; font-weight: 500; color: #2c2c2c;"> ID Pengguna</label>
-          <input id="username" name="username" type="text" class="login-form-control custom_input login_placeholder" placeholder="Masukkan No. Staf (XXXX-XX) / No. Pelajar" />
+          <input id="username" name="username" type="text" class="login-form-control custom_input login_placeholder" placeholder="Masukkan No. Staf (XXXX-XX) / No. Pelajar" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@-]*" />
         </div>
 
         <div class="login-form-block" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px;">
@@ -910,8 +910,8 @@ $('#otp_inputs').on('paste', function(e) {
 	
 	
 	
-	const MAXLEN = 10;
-  const allowedRe = /^[A-Za-z0-9-]*$/;
+	const MAXLEN = 20;
+  const allowedRe = /^[A-Za-z0-9._@-]*$/;
 
   function showAlert(msg){ $('#usernameAlert').text(msg).show(); }
   function hideAlert(){ $('#usernameAlert').hide().text(''); }
@@ -921,7 +921,7 @@ $('#otp_inputs').on('paste', function(e) {
     const before = $el.val();
 
     // strip disallowed chars
-    let v = before.replace(/[^A-Za-z0-9-]/g, '');
+    let v = before.replace(/[^A-Za-z0-9._@-]/g, '');
 
     // cap length
     if (v.length > MAXLEN) v = v.slice(0, MAXLEN);
@@ -930,9 +930,9 @@ $('#otp_inputs').on('paste', function(e) {
     if (v !== before) {
       $el.val(v);
       if (!allowedRe.test(before)) {
-        showAlert('Only letters, numbers, and "-" allowed.');
+        showAlert('Hanya huruf, nombor, titik, garis bawah, @ dan sempang dibenarkan.');
       } else if (before.length > MAXLEN) {
-        showAlert('Max 10 characters.');
+        showAlert('Maksimum 20 aksara.');
       }
     } else {
       hideAlert();
@@ -943,7 +943,7 @@ $('#otp_inputs').on('paste', function(e) {
   $('#username').on('blur', function () {
     const v = this.value;
     if (!allowedRe.test(v) || v.length > MAXLEN) {
-      showAlert('Username must be up to 10 chars using A–Z, 0–9, or "-".');
+      showAlert('ID pengguna mesti maksimum 20 aksara.');
     } else {
       hideAlert();
     }

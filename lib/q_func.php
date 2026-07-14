@@ -12,6 +12,8 @@ include_once dirname(__DIR__) . '/vendors/spyc-master/Spyc.php';
 require_once dirname(__DIR__) . '/vendors/device-detector-master/autoload.php';
 require_once __DIR__ . '/external_data_source_API.php';
 require_once __DIR__ . '/sync_user_runner.php';
+require_once dirname(__DIR__) . '/app/User/ManualUserInput.php';
+require_once dirname(__DIR__) . '/app/User/ManualUserCreator.php';
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
 
@@ -409,22 +411,22 @@ function string_sanitize($s) {
 
 
       if(isset( $_POST['action_add_new_user_manual_check_user_id'])){
-        $results = $operation->get_specific_user_info($_POST['add_new_manual_user_id']);
-        // echo !empty($results);
-        // return;
-        if(!empty($results)){          
-          echo json_encode(array( 'msg' => "User ID already in used. Please change another user id.",
-                          'status' => 0));
-
-        }else{         
-          $randomInitialPassword = oneid_password_hash(bin2hex(random_bytes(32)));
-          $operation->action_add_new_user($_POST['add_new_manual_user_id'],$_POST['add_new_manual_user_category'],$randomInitialPassword,$_POST['add_new_manual_user_name'],$_POST['add_new_user_data2'],$_POST['add_new_user_data3'],$_POST['add_new_manual_user_id'],$_POST['add_new_user_data5'],$_POST['add_new_user_data6'],$_POST['add_new_user_data7'],$_POST['add_new_user_data8'],$_POST['add_new_user_data9'],$_POST['add_new_user_data10'],$_POST['add_new_user_data11'],$_POST['add_new_user_data12'],hash("sha256",$_POST['add_new_manual_user_name']));
-          $operation->setPasswordChangeRequired($_POST['add_new_manual_user_id'], 1);
-
-          $operation->syslog_record(23,$_SESSION['login_user']." -> ".$_POST['add_new_manual_user_id'],getUserIP());
-          echo json_encode(array( 'msg' => "User successfully added.",
-                          'status' => 1));
-
+        try {
+          $manualInput = \OneId\App\User\ManualUserInput::fromPost($_POST);
+          $manualCreator = new \OneId\App\User\ManualUserCreator($operation);
+          $manualResult = $manualCreator->create(
+            $manualInput,
+            (string) ($_SESSION['login_user'] ?? ''),
+            (string) getUserIP()
+          );
+          echo json_encode($manualResult);
+        } catch (InvalidArgumentException $exception) {
+          echo json_encode([
+            'status' => 0,
+            'msg' => $exception->getMessage(),
+            'code' => 'VALIDATION_FAILED',
+            'correlation_id' => '',
+          ]);
         }
       }
 

@@ -36,5 +36,5 @@ return [
         'page/dashboard.php',
         'admin/dashboard.php',
     ],
-    'legacy_sync_runner_sha256' => '7a5fbe4e9d176661eda4f7d26449641edef683e77d355f9b9d5e227a9331b9df',
+    'legacy_sync_runner_sha256' => '965fd187492e1f120b074601746b031474405480f234412e458f64189108c8bb',
 ];

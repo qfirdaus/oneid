@@ -34,3 +34,5 @@ public_img/*
 # Local rollback evidence dan quarantine payload
 /storage/quarantine/*
 !/storage/quarantine/.gitkeep
+/storage/backups/*
+!/storage/backups/.gitkeep
