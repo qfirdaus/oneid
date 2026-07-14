@@ -260,15 +260,29 @@ $report(
 );
 
 if ($preview) {
+    $authenticatedCsrfToken = '';
+    if (preg_match('/X-CSRF-Token\'\s*:\s*("[a-f0-9]{64}")/i', $adminDashboard['body'], $matches) === 1) {
+        $decoded = json_decode($matches[1], true);
+        $authenticatedCsrfToken = is_string($decoded) ? $decoded : '';
+    }
+    $report(
+        $authenticatedCsrfToken !== ''
+            && $csrfToken !== ''
+            && !hash_equals($csrfToken, $authenticatedCsrfToken),
+        'authenticated CSRF token rotated'
+    );
+
     // Deliberately sends only the preview action. This verifier has no Apply
     // field, approval ID handling or call to the mutating sync action.
-    $previewResponse = $request(
-        $baseUrl . '/lib/q_func.php',
-        'POST',
-        ['admin_preview_sync_user' => ''],
-        ['Accept: application/json', 'X-CSRF-Token: ' . $csrfToken],
-        $cookieJar
-    );
+    $previewResponse = $authenticatedCsrfToken === ''
+        ? ['error' => 'missing_authenticated_csrf', 'status' => 0, 'body' => '']
+        : $request(
+            $baseUrl . '/lib/q_func.php',
+            'POST',
+            ['admin_preview_sync_user' => ''],
+            ['Accept: application/json', 'X-CSRF-Token: ' . $authenticatedCsrfToken],
+            $cookieJar
+        );
     $previewJson = json_decode($previewResponse['body'], true);
     $previewOk = $previewResponse['error'] === ''
         && $previewResponse['status'] === 200

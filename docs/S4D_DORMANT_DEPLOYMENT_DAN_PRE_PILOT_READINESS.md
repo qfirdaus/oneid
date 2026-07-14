@@ -117,8 +117,7 @@ S4E kekal NO-GO sehingga sekurang-kurangnya:
 1. root/system scheduler inventory disahkan tiada job OneID;
 2. DBA membuktikan external staff/student credential ialah SELECT-only;
 3. maintenance window dan pilot admin ditetapkan;
-4. fresh preview counts/hash direkod dan diterima oleh change owner;
-5. log path/monitoring serta observation owner disahkan.
+4. log path/monitoring serta observation owner disahkan.
 
 ## 7. Backup dan Restore Evidence Template
 

@@ -16,7 +16,7 @@ Status: **VERIFIKASI OPERASI LULUS — GATE DBA DAN PRE-PILOT LAIN MASIH NO-GO**
 | External credential benar-benar SELECT-only | Belum terbukti sepenuhnya | Runtime login tidak dibenarkan membaca metadata grant; DBA perlu beri grant/role evidence |
 | Full OneID backup | Lulus | 73,881,422 bait; SHA-256 `3f9efeae73079169cc5df825797badbeab79572b7d6007f99ed7b9dba7ec4794` |
 | Restore rehearsal | Lulus | 15 jadual, exact row-count digest sama, target rehearsal telah dibuang |
-| Admin login → fresh preview → logout | Lulus | Disahkan change owner/tester pada 14 Julai 2026; tiada Apply dijalankan |
+| Admin login → fresh preview → logout | Lulus | 16/16; CSRF selepas login dirotasi; preview 6,485 source, 71 new, 7 update, 0 deactivate/reactivate, protected 1, collision 0; plan hash `6f0010cb7e6a...` |
 | SSO consumer `iqs-framework.local` | Lulus | Login, return ke consumer, tiada redirect loop/5xx dan logout disahkan pada 14 Julai 2026 |
 
 ## Backup dan Restore
@@ -103,7 +103,6 @@ telah diterima pada 14 Julai 2026 dan gate SSO ditanda lulus.
 Backup, restore, public smoke, admin login/fresh preview/logout, SSO consumer
 dan runtime SELECT evidence telah lulus. S4E masih **NO-GO** sehingga DBA
 mengesahkan kedua-dua external credential memang SELECT-only dan baki gate
-pre-pilot seperti scheduler, monitoring, maintenance window dan acceptance
-diselesaikan.
+pre-pilot diselesaikan.
 
 Tiada Apply atau live sync dijalankan dalam verifikasi ini.
