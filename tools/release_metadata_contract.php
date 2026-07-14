@@ -15,9 +15,9 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $label);
 };
 
-$report(ONEID_APP_VERSION === '2.0.3', 'central application version is 2.0.3');
+$report(ONEID_APP_VERSION === '2.0.4', 'central application version is 2.0.4');
 $report(
-    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.0.3',
+    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.0.4',
     'central copyright and footer text match the approved release'
 );
 
@@ -29,8 +29,9 @@ foreach (['index.php', 'page/dashboard.php', 'admin/dashboard.php'] as $page) {
 $adminDashboard = (string) file_get_contents($projectRoot . '/admin/dashboard.php');
 $report(
     str_contains($adminDashboard, 'version: <?php echo json_encode(ONEID_APP_VERSION); ?>')
-        && str_contains($adminDashboard, 'Profile Save, category policy dan ACL hardening'),
-    'latest admin release card reads shared v2.0.3 metadata and notes'
+        && str_contains($adminDashboard, 'carian aplikasi merentas kategori')
+        && str_contains($adminDashboard, 'Gate live Apply-path M1'),
+    'latest admin release card reads shared v2.0.4 metadata and notes'
 );
 
 $report(

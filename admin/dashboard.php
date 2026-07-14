@@ -4002,6 +4002,21 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
       date: "2026-07-14",
       changes: [
+        "Dashboard pengguna kini mempunyai <b>carian aplikasi merentas kategori</b> berdasarkan nama dan fungsi aplikasi, dengan kategori padanan dipilih secara automatik.",
+        "Tab <b>Favourite</b> berikon bintang ditambah pada kedudukan pertama untuk mengumpulkan aplikasi yang kerap digunakan tanpa mengeluarkannya daripada kategori asal.",
+        "Pilihan Favourite disimpan secara persistent mengikut akaun melalui jadual preference khusus dan kekal selepas logout atau login semula.",
+        "Favourite dikawal oleh session dan effective ACL; preference tidak menambah akses serta tidak boleh memintas category allow, direct allow atau blacklist deny.",
+        "Setiap kad aplikasi kini menyediakan tindakan Favourite berkeadaan kelabu/kuning dan tindakan akses yang lebih jelas serta responsive.",
+        "Aplikasi OneID SSO menggunakan label <b>Login</b>, manakala aplikasi NON SSO menggunakan label <b>Akses</b> dan badge <b>Akses terus</b>.",
+        "Tab <b>NON SSO</b> diberi identiti warna berbeza supaya pautan terus mudah dibezakan daripada aplikasi berintegrasi OneID.",
+        "Migration, rollback, characterization contract dan runbook UAT U1 ditambah; smoke HTTP, structure, M2, M3 dan release regression kekal lulus.",
+        "Gate live Apply-path M1 direkod sebagai ditangguhkan oleh owner sehingga akaun external ujian yang sesuai tersedia; penangguhan ini tidak mengaktifkan External Sync Apply S4E."
+      ]
+    },
+    {
+      version: "2.0.3",
+      date: "2026-07-14",
+      changes: [
         "<b>Profile Save, category policy dan ACL hardening</b> disiapkan melalui fasa M3 dengan validation, explicit confirmation, transaction, rollback dan correlated audit trail.",
         "Butang <b>Save Profile</b> kini menjadi satu-satunya laluan menyimpan nama dan kategori; perubahan dropdown tidak lagi terus mengubah database.",
         "Nama akaun external-managed dijadikan read-only dan hanya boleh dikemas kini melalui Safe Resync, manakala nama akaun manual boleh disimpan selepas validation.",

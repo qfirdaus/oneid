@@ -79,6 +79,7 @@ function oneid_q_func_action_map(): array
             'action_change_password',
             'admin_get_all_token_for_specific_user',
             'get_specific_user_app_list',
+            'user_set_app_favourite',
             'go_to_service_provider',
             'user_signoff_security_sessions',
             'update_specific_token_datetime',

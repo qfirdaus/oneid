@@ -473,7 +473,15 @@
                                           <div class="user-app-category-card">
                                              <div>
                                                 <h5>Application categories</h5>
-                                                <p>Pilih kategori untuk memaparkan sistem yang berkaitan.</p>
+                                                <p>Cari aplikasi atau pilih kategori untuk memaparkan sistem yang berkaitan.</p>
+                                             </div>
+                                             <div class="user-app-search">
+                                                <i class="fa fa-search" aria-hidden="true"></i>
+                                                <label class="sr-only" for="user_app_search">Cari aplikasi</label>
+                                                <input type="search" id="user_app_search" autocomplete="off" placeholder="Cari nama atau fungsi aplikasi">
+                                                <button type="button" id="user_app_search_clear" title="Kosongkan carian" aria-label="Kosongkan carian" hidden>
+                                                   <i class="fa fa-times" aria-hidden="true"></i>
+                                                </button>
                                              </div>
                                              <ul role="tablist" class="nav" id="WebAppsTabsHeader"></ul>
                                           </div>
@@ -652,9 +660,143 @@
          }
          
          
+         var userAppDirectoryGroups = [];
+         var userAppSearchTerm = '';
+         var userAppActiveTab = '#user_app_favourites_tab';
+
+         function userAppText(value){
+            return $('<div>').text(value == null ? '' : value).html();
+         }
+
+         function userAppMatches(application, term){
+            if (term === '') {
+               return true;
+            }
+            var searchable = [application.sp_name, application.sp_description]
+               .map(function(value){ return String(value || '').toLocaleLowerCase(); })
+               .join(' ');
+            return searchable.indexOf(term) !== -1;
+         }
+
+         function userAppUniqueApplications(){
+            var seen = {};
+            var applications = [];
+            $.each(userAppDirectoryGroups, function(_, group){
+               $.each(Array.isArray(group.data) ? group.data : [], function(__, application){
+                  var id = String(application.sp_id || '');
+                  if (id !== '' && !seen[id]) {
+                     seen[id] = true;
+                     applications.push(application);
+                  }
+               });
+            });
+            return applications;
+         }
+
+         function userAppCard(application, index){
+            var appId = userAppText(application.sp_id);
+            var appName = userAppText(application.sp_name);
+            var appDescription = userAppText(application.sp_description);
+            var appImage = userAppText(application.sp_image);
+            var imageSource = appImage === '' ? '../img/thumb-1.jpg' : '../public_img/' + appImage;
+            var isDirect = String(application.sp_sso_support) !== '0';
+            var isFavourite = Number(application.is_favourite) === 1;
+            var favouriteTitle = isFavourite ? 'Buang daripada Favourite' : 'Tambah ke Favourite';
+            var accessLabel = isDirect ? 'Akses terus' : 'OneID SSO';
+            var buttonLabel = isDirect ? 'Akses' : 'Login';
+            var buttonTitle = isDirect ? 'Akses aplikasi' : 'Login dengan OneID';
+
+            var card = '<article class="user-app-card">';
+            card += '<div class="user-app-index">'+index+'</div>';
+            card += '<div class="user-app-image"><img src="'+imageSource+'" alt="" loading="lazy"></div>';
+            card += '<div class="user-app-content"><div class="user-app-name"><strong title="'+appName+'">'+appName+'</strong><span class="user-app-access '+(isDirect ? 'is-direct' : '')+'">'+accessLabel+'</span></div>';
+            card += '<p title="'+appDescription+'">'+appDescription+'</p></div>';
+            card += '<div class="user-app-actions">';
+            card += '<button type="button" class="user-app-favourite '+(isFavourite ? 'is-selected' : '')+'" data-app-id="'+appId+'" data-favourite="'+(isFavourite ? '1' : '0')+'" aria-pressed="'+(isFavourite ? 'true' : 'false')+'" title="'+favouriteTitle+'" aria-label="'+favouriteTitle+'"><i class="fa fa-star" aria-hidden="true"></i></button>';
+            card += '<button type="button" class="user-app-open '+(isDirect ? 'is-direct' : '')+'" data-app-id="'+appId+'" title="'+buttonTitle+'"><i class="fa '+(isDirect ? 'fa-external-link' : 'fa-sign-in')+'" aria-hidden="true"></i><span>'+buttonLabel+'</span></button>';
+            card += '</div></article>';
+            return card;
+         }
+
+         function renderUserAppDirectory(){
+            var term = userAppSearchTerm.trim().toLocaleLowerCase();
+            var allApplications = userAppUniqueApplications();
+            var favouriteApplications = allApplications.filter(function(application){
+               return Number(application.is_favourite) === 1 && userAppMatches(application, term);
+            });
+            var tabs = '';
+            var panes = '';
+            var matchingTabs = [];
+            var requestedTab = userAppActiveTab;
+
+            if (allApplications.length === 0) {
+               $('#user_app_count').text('0');
+               $('#WebAppsTabsHeader, #WebAppsTabsContent').html('');
+               $('#follo_data_list').html(
+                  '<div class="user-app-state"><span><i class="fa fa-th-large" aria-hidden="true"></i></span>' +
+                  '<strong>No accessible applications</strong>' +
+                  '<small>Please contact PTMK if you require access to a system.</small></div>'
+               );
+               return;
+            }
+
+            tabs += '<li class="is-favourite-tab" role="presentation">';
+            tabs += '<a data-toggle="tab" role="tab" href="#user_app_favourites_tab" title="Favourite" aria-label="Favourite"><i class="fa fa-star" aria-hidden="true"></i><strong>'+favouriteApplications.length+'</strong></a></li>';
+            panes += '<div id="user_app_favourites_tab" class="tab-pane fade" role="tabpanel"><div class="user-app-list">';
+            if (favouriteApplications.length === 0) {
+               panes += '<div class="user-app-category-empty"><i class="fa fa-star-o" aria-hidden="true"></i><span>'+(term === '' ? 'Belum ada aplikasi Favourite. Pilih ikon bintang pada aplikasi yang kerap digunakan.' : 'Tiada aplikasi Favourite sepadan dengan carian.')+'</span></div>';
+            } else {
+               matchingTabs.push('#user_app_favourites_tab');
+               $.each(favouriteApplications, function(index, application){ panes += userAppCard(application, index + 1); });
+            }
+            panes += '</div></div>';
+
+            $.each(userAppDirectoryGroups, function(index, group){
+               var groupId = String(group.sp_group_id || index);
+               var paneId = 'user_app_group_' + groupId.replace(/[^A-Za-z0-9_-]/g, '');
+               var groupNameRaw = String(group.sp_group_name || 'Uncategorized');
+               var groupName = userAppText(groupNameRaw);
+               var isNonSso = groupNameRaw.replace(/\s+/g, ' ').trim().toUpperCase() === 'NON SSO';
+               var applications = (Array.isArray(group.data) ? group.data : []).filter(function(application){
+                  return userAppMatches(application, term);
+               });
+
+               if (applications.length > 0) {
+                  matchingTabs.push('#' + paneId);
+               }
+               tabs += '<li class="'+(isNonSso ? 'is-non-sso-tab' : '')+'" role="presentation">';
+               tabs += '<a data-toggle="tab" role="tab" href="#'+paneId+'"><span>'+groupName+'</span><strong>'+applications.length+'</strong></a></li>';
+               panes += '<div id="'+paneId+'" class="tab-pane fade" role="tabpanel"><div class="user-app-list">';
+               if (applications.length === 0) {
+                  panes += '<div class="user-app-category-empty"><i class="fa fa-inbox" aria-hidden="true"></i><span>'+(term === '' ? 'Tiada aplikasi dalam kategori ini.' : 'Tiada aplikasi sepadan dengan carian dalam kategori ini.')+'</span></div>';
+               } else {
+                  $.each(applications, function(appIndex, application){ panes += userAppCard(application, appIndex + 1); });
+               }
+               panes += '</div></div>';
+            });
+
+            $('#user_app_count').text(allApplications.length);
+            $('#follo_data_list_count_text').html('(' + allApplications.length + ')');
+            $('#follo_data_list').html('');
+            $('#WebAppsTabsHeader').html(tabs);
+            $('#WebAppsTabsContent').html(panes);
+
+            if (matchingTabs.indexOf(requestedTab) === -1) {
+               requestedTab = matchingTabs.length > 0 ? matchingTabs[0] : '#user_app_favourites_tab';
+            }
+            var $requestedLink = $('#WebAppsTabsHeader a[href="'+requestedTab+'"]');
+            if ($requestedLink.length) {
+               $requestedLink.tab('show');
+               userAppActiveTab = requestedTab;
+            }
+         }
+
          //----Login
          function get_specific_user_app_list(){
-            var href = $('#WebAppsTabsHeader li.active a').attr('href'); // e.g. "#SumberManusia_1_tab"
+            var href = $('#WebAppsTabsHeader li.active a').attr('href');
+            if (href) {
+               userAppActiveTab = href;
+            }
          $.ajax({
                  type: 'POST',
                  url: '../lib/q_func',
@@ -671,72 +813,8 @@
                  success: function (response) {
                    $('#app_list_loading').hide();
                    $('#app_list').fadeIn();
-
-				   var appText = function(value){
-					  return $('<div>').text(value == null ? '' : value).html();
-				   };
-				   var listCount = 0;
-				   var tabs = '';
-				   var panes = '';
-
-				   if (!Array.isArray(response) || response.length === 0) {
-					  $('#user_app_count').text('0');
-					  $('#follo_data_list_count_text').html('');
-					  $('#follo_data_list').html(
-						 '<div class="user-app-state">' +
-						 '<span><i class="fa fa-th-large" aria-hidden="true"></i></span>' +
-						 '<strong>No accessible applications</strong>' +
-						 '<small>Please contact BTMK if you require access to a system.</small>' +
-						 '</div>'
-					  );
-					  return;
-				   }
-
-				   $.each(response, function(i, group) {
-					  var tabName = appText(group['tabname']);
-					  var groupName = appText(group['sp_group_name']);
-					  var applications = Array.isArray(group['data']) ? group['data'] : [];
-					  var activeClass = i === 0 ? 'active' : '';
-					  var paneClass = i === 0 ? 'tab-pane fade active in' : 'tab-pane fade';
-
-					  tabs += '<li class="'+activeClass+'" role="presentation">';
-					  tabs += '<a aria-expanded="'+(i === 0 ? 'true' : 'false')+'" data-toggle="tab" role="tab" href="#'+tabName+'"><span>'+groupName+'</span><strong>'+applications.length+'</strong></a>';
-					  tabs += '</li>';
-
-					  panes += '<div id="'+tabName+'" class="'+paneClass+'" role="tabpanel"><div class="user-app-list">';
-					  if (applications.length === 0) {
-						 panes += '<div class="user-app-category-empty"><i class="fa fa-inbox" aria-hidden="true"></i><span>No applications in this category.</span></div>';
-					  }
-
-					  $.each(applications, function(k, application) {
-						 listCount++;
-						 var appId = appText(application['sp_id']);
-						 var appName = appText(application['sp_name']);
-						 var appDescription = appText(application['sp_description']);
-						 var appImage = appText(application['sp_image']);
-						 var imageSource = appImage === '' ? '../img/thumb-1.jpg' : '../public_img/' + appImage;
-						 var directLogin = application['sp_sso_support'] !== "0";
-
-						 panes += '<article class="user-app-card">';
-						 panes += '<div class="user-app-index">'+(k + 1)+'</div>';
-						 panes += '<div class="user-app-image"><img src="'+imageSource+'" alt="" loading="lazy"></div>';
-						 panes += '<div class="user-app-content"><div class="user-app-name"><strong title="'+appName+'">'+appName+'</strong><span class="user-app-access '+(directLogin ? 'is-direct' : '')+'">'+(directLogin ? 'Direct login' : 'SSO')+'</span></div>';
-						 panes += '<p title="'+appDescription+'">'+appDescription+'</p></div>';
-						 panes += '<button type="button" class="user-app-open '+(directLogin ? 'is-direct' : '')+'" data-app-id="'+appId+'" onclick="go_to_service_provider(this.dataset.appId);" title="'+(directLogin ? 'Login to application' : 'Open application')+'"><i class="fa '+(directLogin ? 'fa-sign-in' : 'fa-external-link')+'" aria-hidden="true"></i><span>'+(directLogin ? 'Login' : 'Open')+'</span></button>';
-						 panes += '</article>';
-					  });
-
-					  panes += '</div></div>';
-				   });
-
-				   $('#user_app_count').text(listCount);
-				   $('#follo_data_list_count_text').html('(' + listCount + ')');
-				   $('#WebAppsTabsHeader').html(tabs);
-				   $('#WebAppsTabsContent').html(panes);
-				   if (href && $('#WebAppsTabsHeader a[href="'+href+'"]').length) {
-					  $('#WebAppsTabsHeader a[href="'+href+'"]').tab('show');
-				   }
-
+				   userAppDirectoryGroups = Array.isArray(response) ? response : [];
+				   renderUserAppDirectory();
 				},
 				error: function (xhr, error, thrown) {
 				   $('#user_app_count').text('\u2014');
@@ -752,6 +830,67 @@
 				}
          });
          }
+
+         $(document).on('input', '#user_app_search', function(){
+            userAppSearchTerm = String(this.value || '');
+            $('#user_app_search_clear').prop('hidden', userAppSearchTerm === '');
+            renderUserAppDirectory();
+         });
+
+         $(document).on('click', '#user_app_search_clear', function(){
+            userAppSearchTerm = '';
+            $('#user_app_search').val('').focus();
+            $(this).prop('hidden', true);
+            renderUserAppDirectory();
+         });
+
+         $(document).on('shown.bs.tab', '#WebAppsTabsHeader a[data-toggle="tab"]', function(){
+            userAppActiveTab = $(this).attr('href');
+         });
+
+         $(document).on('click', '.user-app-open', function(){
+            go_to_service_provider(String($(this).data('app-id') || ''));
+         });
+
+         $(document).on('click', '.user-app-favourite', function(){
+            var $button = $(this);
+            var appId = String($button.data('app-id') || '');
+            var enabled = String($button.data('favourite')) === '1' ? '0' : '1';
+            $button.prop('disabled', true).addClass('is-saving');
+
+            $.ajax({
+               type: 'POST',
+               url: '../lib/q_func',
+               dataType: 'json',
+               data: {user_set_app_favourite: '', sp_id: appId, enabled: enabled},
+               success: function(response){
+                  if (Number(response.status) !== 1) {
+                     return;
+                  }
+                  $.each(userAppDirectoryGroups, function(_, group){
+                     $.each(Array.isArray(group.data) ? group.data : [], function(__, application){
+                        if (String(application.sp_id) === appId) {
+                           application.is_favourite = Number(response.is_favourite) === 1 ? 1 : 0;
+                        }
+                     });
+                  });
+                  renderUserAppDirectory();
+               },
+               error: function(){
+                  $button.prop('disabled', false).removeClass('is-saving');
+                  $.toast().reset('all');
+                  $.toast({
+                     heading: 'Favourite tidak dapat disimpan',
+                     text: 'Sila cuba semula atau hubungi PTMK jika masalah berterusan.',
+                     position: 'bottom-center',
+                     loaderBg: '#fec107',
+                     icon: 'error',
+                     hideAfter: 3500,
+                     stack: 4
+                  });
+               }
+            });
+         });
          
          
          function get_specific_user_activ_session(){
@@ -1201,6 +1340,62 @@
         line-height: 1.45;
       }
 
+      .user-app-search {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 14px;
+      }
+
+      .user-app-search > i {
+        position: absolute;
+        left: 13px;
+        z-index: 1;
+        color: #168fcb;
+        pointer-events: none;
+      }
+
+      .user-app-search input {
+        width: 100%;
+        height: 40px;
+        padding: 8px 42px 8px 38px;
+        border: 1px solid #dce4ec;
+        border-radius: 7px;
+        background: #fbfcfd;
+        color: #344358;
+        font-size: 12px;
+        outline: none;
+        transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+      }
+
+      .user-app-search input:focus {
+        border-color: #41b8e3;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(17, 168, 223, .11);
+      }
+
+      .user-app-search button {
+        position: absolute;
+        right: 5px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 30px;
+        padding: 0;
+        border: 0;
+        border-radius: 5px;
+        background: transparent;
+        color: #8995a5;
+      }
+
+      .user-app-search button:hover,
+      .user-app-search button:focus {
+        background: #edf4f8;
+        color: #168fcb;
+      }
+
       #WebAppsTabsHeader {
         display: flex;
         flex-wrap: wrap;
@@ -1253,6 +1448,46 @@
       }
 
       #WebAppsTabsHeader > li.active > a strong {
+        background: rgba(255, 255, 255, .22);
+        color: #fff;
+      }
+
+      #WebAppsTabsHeader > li.is-favourite-tab > a {
+        min-width: 46px;
+        justify-content: center;
+        border-color: #ead9a9;
+        background: #fffbef;
+        color: #a87809;
+      }
+
+      #WebAppsTabsHeader > li.is-favourite-tab.active > a,
+      #WebAppsTabsHeader > li.is-favourite-tab.active > a:hover,
+      #WebAppsTabsHeader > li.is-favourite-tab.active > a:focus {
+        border-color: #e8ad25;
+        background: #e8ad25;
+        color: #fff;
+      }
+
+      #WebAppsTabsHeader > li.is-non-sso-tab > a {
+        border-color: #e3d8f2;
+        background: #f8f4fc;
+        color: #72538f;
+      }
+
+      #WebAppsTabsHeader > li.is-non-sso-tab > a strong {
+        background: #eee5f6;
+        color: #72538f;
+      }
+
+      #WebAppsTabsHeader > li.is-non-sso-tab.active > a,
+      #WebAppsTabsHeader > li.is-non-sso-tab.active > a:hover,
+      #WebAppsTabsHeader > li.is-non-sso-tab.active > a:focus {
+        border-color: #7f5aa3;
+        background: #7f5aa3;
+        color: #fff;
+      }
+
+      #WebAppsTabsHeader > li.is-non-sso-tab.active > a strong {
         background: rgba(255, 255, 255, .22);
         color: #fff;
       }
@@ -1366,13 +1601,47 @@
         white-space: nowrap;
       }
 
+      .user-app-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 10px;
+      }
+
+      .user-app-favourite {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        border: 1px solid #dce4ec;
+        border-radius: 6px;
+        background: #fff;
+        color: #a6b0bd;
+        transition: color .18s ease, border-color .18s ease, background .18s ease;
+      }
+
+      .user-app-favourite:hover,
+      .user-app-favourite:focus,
+      .user-app-favourite.is-selected {
+        border-color: #e6b745;
+        background: #fff9e9;
+        color: #e2a919;
+      }
+
+      .user-app-favourite.is-saving {
+        cursor: wait;
+        opacity: .6;
+      }
+
       .user-app-open {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         min-width: 74px;
         height: 34px;
-        margin-top: 10px;
+        margin-top: 0;
         padding: 0 12px;
         border: 1px solid #11a8df;
         border-radius: 6px;
@@ -1475,7 +1744,7 @@
         }
 
         .user-app-card {
-          grid-template-columns: 22px 46px minmax(0, 1fr) 36px;
+          grid-template-columns: 22px 46px minmax(0, 1fr) auto;
           gap: 9px;
           padding: 14px;
         }
@@ -1499,11 +1768,25 @@
           min-width: 36px;
           width: 36px;
           padding: 0;
-          margin-top: 6px;
+          margin-top: 0;
         }
 
         .user-app-open span {
           display: none;
+        }
+
+        .user-app-actions {
+          align-items: flex-end;
+          flex-direction: column;
+          gap: 5px;
+          margin-top: 4px;
+        }
+
+        .user-app-favourite,
+        .user-app-open {
+          width: 34px;
+          min-width: 34px;
+          height: 32px;
         }
       }
 

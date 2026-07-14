@@ -4,6 +4,7 @@ class Database {
   
     protected $pdo;
     private ?bool $userProvenanceSupported = null;
+    private ?bool $userAppFavouritesSupported = null;
     public function __construct()
     {
         try
@@ -438,6 +439,92 @@ class Database {
         $R->execute();
         $this->userProvenanceSupported = (int) $R->fetchColumn() === 2;
         return $this->userProvenanceSupported;
+    }
+
+    public function supportsUserAppFavourites(): bool{
+        if ($this->userAppFavouritesSupported !== null) {
+            return $this->userAppFavouritesSupported;
+        }
+
+        $Q = "SELECT COUNT(*)
+              FROM information_schema.TABLES
+              WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME = 'user_app_favourite'";
+        $R = $this->pdo->prepare($Q);
+        $R->execute();
+        $this->userAppFavouritesSupported = (int) $R->fetchColumn() === 1;
+        return $this->userAppFavouritesSupported;
+    }
+
+    /** @return string[] */
+    public function getUserAppFavouriteIds(string $userId): array{
+        if (!$this->supportsUserAppFavourites()) {
+            return [];
+        }
+
+        $Q = "SELECT sp_id FROM user_app_favourite WHERE u_id=:u_id ORDER BY created_at ASC";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':u_id' => $userId]);
+        $rows = $R->fetchAll(PDO::FETCH_COLUMN, 0);
+        return $rows ? array_map('strval', $rows) : [];
+    }
+
+    /**
+     * Favourite never grants access. This mirrors the effective ACL rule used
+     * by the dashboard: category or direct allow, minus an explicit deny.
+     */
+    public function userHasEffectiveAppAccess(string $userId, string $spId): bool{
+        $Q = "SELECT 1
+              FROM user_tbl u
+              INNER JOIN sp_list sp ON sp.sp_id=:sp_id AND sp.avail_status=1
+              WHERE u.u_id=:u_id
+                AND u.avail_status=1
+                AND NOT EXISTS (
+                    SELECT 1 FROM acl_blacklist b
+                    WHERE b.u_id=u.u_id AND b.sp_id=sp.sp_id
+                )
+                AND (
+                    EXISTS (
+                        SELECT 1 FROM acl_group g
+                        WHERE g.uc_id=u.u_category AND g.sp_id=sp.sp_id
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM acl_single s
+                        WHERE s.u_id=u.u_id AND s.sp_id=sp.sp_id
+                    )
+                )
+              LIMIT 1";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':u_id' => $userId, ':sp_id' => $spId]);
+        return $R->fetchColumn() !== false;
+    }
+
+    public function hasUserAppFavourite(string $userId, string $spId): bool{
+        if (!$this->supportsUserAppFavourites()) {
+            return false;
+        }
+
+        $Q = "SELECT 1 FROM user_app_favourite
+              WHERE u_id=:u_id AND sp_id=:sp_id LIMIT 1";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':u_id' => $userId, ':sp_id' => $spId]);
+        return $R->fetchColumn() !== false;
+    }
+
+    public function setUserAppFavourite(string $userId, string $spId, bool $enabled): void{
+        if (!$this->supportsUserAppFavourites()) {
+            throw new RuntimeException('User app favourites storage is unavailable.');
+        }
+
+        if ($enabled) {
+            $Q = "INSERT INTO user_app_favourite (u_id,sp_id,created_at,updated_at)
+                  VALUES (:u_id,:sp_id,NOW(),NOW())
+                  ON DUPLICATE KEY UPDATE updated_at=NOW()";
+        } else {
+            $Q = "DELETE FROM user_app_favourite WHERE u_id=:u_id AND sp_id=:sp_id";
+        }
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':u_id' => $userId, ':sp_id' => $spId]);
     }
 
     public function isActiveUserCategory($categoryId): bool{

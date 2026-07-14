@@ -1,6 +1,6 @@
 {
   "name": "oneid-uat",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "private": true,
   "description": "OneID UAT legacy frontend build tooling",
   "scripts": {
@@ -16,6 +16,7 @@
     "check:user-resync": "php tools/m1_safe_user_resync_contract.php",
     "check:user-security-actions": "php tools/m2_user_security_actions_contract.php",
     "check:user-profile-acl": "php tools/m3_profile_acl_contract.php",
+    "check:user-dashboard": "php tools/u1_user_dashboard_contract.php",
     "check:user-provisioning": "php tools/s1_user_provisioning_contract.php",
     "check:sync-preview": "php tools/s2_sync_preview_contract.php",
     "check:sync-safety": "php tools/s3_sync_safety_contract.php",

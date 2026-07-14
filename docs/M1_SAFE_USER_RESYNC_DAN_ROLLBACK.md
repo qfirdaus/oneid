@@ -3,7 +3,12 @@
 Tarikh: 14 Julai 2026
 Owner perubahan: Pemilik sistem OneID
 Owner rollback: Pemilik sistem OneID
-Status: **IMPLEMENTED — STATIC/IN-MEMORY PASS, MANUAL UAT GATE PENDING**
+Status: **IMPLEMENTED — NO-CHANGE UAT PASS; LIVE APPLY-PATH UAT DEFERRED BY OWNER**
+
+Keputusan owner, 14 Julai 2026: baki ujian yang memerlukan akaun external dengan
+perubahan sebenar ditangguhkan sehingga akaun ujian yang sesuai dikenal pasti.
+Penangguhan ini direkod untuk disambung semula; ia bukan kelulusan untuk menguji
+mutation menggunakan akaun production secara rawak.
 
 ## 1. Objektif
 
@@ -206,6 +211,34 @@ akaun staff dan satu akaun student. Kedua-duanya memulangkan correlation ID dan
 tidak mengubah data. Gate Cancel, Apply sebenar, audit event dan replay approval
 masih belum dilaksanakan kerana tiada akaun UAT dengan perubahan selamat dipilih.
 
+### Rekod penangguhan dan titik sambung semula
+
+Apabila owner bersedia, sambung M1 terus dari gate berikut tanpa mengulangi
+implementasi M0–M3:
+
+1. pilih akaun `account_source=external`, aktif dan bukan akaun pentadbir;
+2. pastikan external source mempunyai sekurang-kurangnya satu perubahan profil
+   yang tidak sensitif dan diketahui nilai asal/baharunya;
+3. simpan snapshot OneID semasa dan tetapkan rollback owner;
+4. jalankan Preview dan simpan field diff, plan/fingerprint, expiry serta
+   correlation reference;
+5. tekan Cancel pada preview pertama dan sahkan zero mutation;
+6. jana preview baharu, Apply dalam tempoh lima minit dan sahkan hanya field
+   yang dipreview berubah;
+7. semak Audit Log event `24` dengan correlation yang sama;
+8. cuba replay approval yang telah digunakan dan pastikan ditolak;
+9. jika outcome tidak sepadan, hentikan ujian dan rollback nilai profil daripada
+   snapshot—jangan jalankan semula secara membuta tuli.
+
+Evidence yang perlu dihantar untuk menutup gate:
+
+- user ID ujian yang dimask jika perlu;
+- reference Preview, Apply dan replay rejection;
+- senarai field berubah tanpa menyalin data sensitif penuh;
+- bukti Cancel menghasilkan zero mutation;
+- bukti Audit Log event `24`;
+- keputusan rollback rehearsal atau pengesahan rollback tidak diperlukan.
+
 Jangan gunakan akaun production untuk gate pertama. External connection boleh
 membaca production source hanya jika credential telah disahkan DBA sebagai
 SELECT-only; mutation M1 berlaku pada database OneID environment semasa sahaja.
@@ -251,5 +284,7 @@ jangan pulihkan direct legacy handler yang menggunakan sample localhost.
 ## 9. Keputusan
 
 Legacy direct Resync telah diganti dengan preview-confirm-apply yang
-fail-closed. M1 belum menandakan live manual UAT sebagai PASS sehingga owner
-menjalankan gate dalam Seksyen 6.
+fail-closed. No-change staff dan student telah disahkan. Live Apply-path kekal
+belum ditutup dan telah ditangguhkan secara rasmi oleh owner sehingga akaun
+external ujian yang sesuai tersedia. Rujuk "Rekod penangguhan dan titik sambung
+semula" dalam Seksyen 6 apabila ujian disambung.

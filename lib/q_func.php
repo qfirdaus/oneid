@@ -997,7 +997,10 @@ function string_sanitize($s) {
       foreach ($acl_merged_keyed as $i => $ii) {
         $idp_info = $operation->admin_get_specific_service_provider($acl_merged_keyed[$i]['sp_id']);
         $acl_merged_keyed[$i]['sp_sso_support'] = $idp_info['sp_sso_support'];
-        # code...
+      }
+      $favouriteIds = array_flip($operation->getUserAppFavouriteIds((string) $_SESSION['login_user']));
+      foreach ($acl_merged_keyed as $i => $ii) {
+        $acl_merged_keyed[$i]['is_favourite'] = isset($favouriteIds[(string) $ii['sp_id']]) ? 1 : 0;
       }
       $sp_list = array_values($acl_merged_keyed);
       $sp_group = array_unique(array_column($acl_merged_keyed, 'sp_group_id'));
@@ -1046,6 +1049,32 @@ function string_sanitize($s) {
 
 
       // echo json_encode(array_values($acl_merged_keyed),JSON_PRETTY_PRINT);
+     }
+
+     if(isset( $_POST['user_set_app_favourite'])){
+      $userId = (string) $_SESSION['login_user'];
+      $spId = trim((string) ($_POST['sp_id'] ?? ''));
+      $enabledRaw = (string) ($_POST['enabled'] ?? '');
+
+      if (!preg_match('/^[A-Za-z0-9_-]{1,20}$/', $spId)
+          || !in_array($enabledRaw, ['0', '1'], true)) {
+        http_response_code(422);
+        echo json_encode(['status' => 0, 'code' => 'INVALID_FAVOURITE_REQUEST']);
+      } elseif (!$operation->supportsUserAppFavourites()) {
+        http_response_code(503);
+        echo json_encode(['status' => 0, 'code' => 'FAVOURITES_STORAGE_UNAVAILABLE']);
+      } elseif ($enabledRaw === '1' && !$operation->userHasEffectiveAppAccess($userId, $spId)) {
+        http_response_code(403);
+        echo json_encode(['status' => 0, 'code' => 'APP_ACCESS_DENIED']);
+      } else {
+        $enabled = $enabledRaw === '1';
+        $operation->setUserAppFavourite($userId, $spId, $enabled);
+        echo json_encode([
+          'status' => 1,
+          'sp_id' => $spId,
+          'is_favourite' => $enabled ? 1 : 0,
+        ]);
+      }
      }
 
 
