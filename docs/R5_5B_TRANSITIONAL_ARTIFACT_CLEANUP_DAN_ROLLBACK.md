@@ -46,8 +46,20 @@ menggunakan `docs/nginx/R5_5B_RETIRE_ONEID_NEXT.md` selepas backup Nginx.
 | Full characterization `oneid-next.local` | 69/69 PASS |
 
 R5.5B repository batch ditutup sebagai PASS. Penamatan Nginx
-`oneid-next.local` bukan closure gate batch ini; statusnya kekal
-`READY_NOT_EXECUTED` sebagai change owner-operated yang berasingan.
+`oneid-next.local` pada mulanya dijadualkan sebagai change owner-operated yang
+berasingan dan kemudiannya selesai dengan status `EXECUTED_PASS`.
+
+## Closure penamatan `oneid-next.local`
+
+Owner membuang server block parallel pada 14 Julai 2026. `nginx -t` dan reload
+berjaya, `nginx -T` tidak lagi memaparkan hostname tersebut, manakala
+`oneid.local` lulus smoke 10/10 dan characterization 69/69. Semakan read-only
+selepas pelaksanaan mengesahkan hanya satu block `oneid.local` kekal dan tiada
+block `oneid-next.local`.
+
+Certificate serta hosts/DNS mapping belum dibuang. Output owner tidak
+menunjukkan backup pra-retirement baharu; rollback masih boleh menggunakan
+backup R4 yang telah direkodkan atau template vhost dalam repository.
 
 ```bash
 php -l bootstrap/paths.php

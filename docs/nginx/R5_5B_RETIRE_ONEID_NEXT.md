@@ -1,7 +1,7 @@
 # R5.5B — Runbook Penamatan `oneid-next.local`
 
 Tarikh: 14 Julai 2026
-Status: `READY_NOT_EXECUTED`
+Status: `EXECUTED_PASS`
 
 ## Keputusan
 
@@ -18,7 +18,30 @@ untuk tempoh sebelum log yang tersedia.
 Penamatan tidak dilakukan oleh perubahan repository. Ia ialah change Nginx
 berasingan oleh change/rollback owner.
 
-## Pre-check
+## Rekod pelaksanaan
+
+Owner melaksanakan change pada 14 Julai 2026 dengan membuang hanya server block
+`oneid-next.local` daripada `/etc/nginx/sites-available/local-projects`.
+
+Keputusan selepas change:
+
+- `nginx -t`: syntax OK dan configuration test successful;
+- Nginx reload: berjaya;
+- `nginx -T`: tiada lagi `server_name oneid-next.local`;
+- `oneid.local`: kekal tepat satu server block;
+- restructure smoke `oneid.local`: 10/10 PASS;
+- full characterization `oneid.local`: 69/69 PASS.
+
+Semakan read-only selepas output owner mengesahkan keadaan yang sama. Certificate
+dan hosts/DNS mapping `oneid-next.local` belum dibuang untuk mengekalkan pilihan
+rollback sepanjang observation.
+
+Output pelaksanaan yang diterima tidak menunjukkan penciptaan backup baharu
+sebelum edit. Rollback source yang diketahui ialah backup R4
+`/var/backups/oneid/R4-20260714-014057/local-projects.after-r4` dengan checksum
+yang pernah direkodkan, serta template `docs/nginx/oneid-next.local.conf`.
+
+## Pre-check (rekod prosedur)
 
 ```bash
 cd /var/www/app/oneid-uat
@@ -32,7 +55,7 @@ sudo nginx -T | grep -n "server_name oneid-next.local"
 Jangan teruskan jika `oneid.local` gagal atau terdapat consumer bukan owner pada
 access log `oneid-next`.
 
-## Backup
+## Backup (prosedur untuk pelaksanaan/rollback akan datang)
 
 ```bash
 export ONEID_R55B_CHANGE_ID="R5-5B-NGINX-$(date +%Y%m%d-%H%M%S)"
@@ -46,7 +69,7 @@ sudo sha256sum \
   | sudo tee "$ONEID_R55B_BACKUP_DIR/SHA256SUMS"
 ```
 
-## Pelaksanaan owner
+## Pelaksanaan owner (selesai)
 
 Edit `/etc/nginx/sites-available/local-projects` dan buang hanya keseluruhan
 `server { ... }` yang mempunyai:

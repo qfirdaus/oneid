@@ -6,5 +6,5 @@ config directory	private non-secret configuration target; documented and guarded
 resources directory	private view/resource extraction target; documented and guarded outside public	KEEP	README retained	not applicable
 public .htaccess	Apache public-root defense and rewrite configuration	KEEP	no change	not applicable
 public/public_img .htaccess	Apache defense-in-depth for upload directory	KEEP	no change	not applicable
-oneid-next.local	1324 available-log requests all from 127.0.0.1; oneid.local already active on public root	READY_TO_RETIRE	separate owner-operated Nginx change; not executed in repository batch	restore backed-up Nginx configuration and reload
+oneid-next.local	1324 available-log requests all from 127.0.0.1; oneid.local already active on public root	RETIRED_PASS	owner removed the Nginx server block; nginx validation/reload, smoke 10/10 and characterization 69/69 passed	restore R4 backup or documented vhost template and reload
 oneid-next certificate and hosts entry	needed only while parallel hostname remains enabled	DEFER_REMOVE	remove after vhost retirement observation	restore certificate/hosts mapping if rollback needed

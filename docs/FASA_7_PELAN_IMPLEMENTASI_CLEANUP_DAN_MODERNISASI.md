@@ -745,3 +745,11 @@ Smoke kedua-dua hostname lulus 10/10 dan full characterization lulus 69/69.
 Status R5.5B ialah PASS. `oneid-next.local` belum dinyahaktifkan; ia kekal
 `READY_NOT_EXECUTED` sehingga owner menjalankan backup, edit, `nginx -t`, reload
 dan post-change smoke melalui runbook berasingan.
+
+Closure Nginx R5.5B: owner kemudiannya membuang server block
+`oneid-next.local`. `nginx -t` dan reload berjaya; `nginx -T` mengesahkan block
+tersebut tiada. `oneid.local` kekal tepat satu block dan lulus smoke 10/10 serta
+full characterization 69/69. Read-only verification selepas pelaksanaan
+mengesahkan keputusan yang sama. Certificate dan hosts/DNS mapping dikekalkan
+untuk observation/rollback. External change direkodkan dalam
+`docs/R5_5B_NGINX_RETIREMENT_CHANGE_RECORD.md`.
