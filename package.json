@@ -8,7 +8,9 @@
     "serve": "grunt serve",
     "check:structure": "php tools/r54_structure_contract.php",
     "check:assets": "php tools/r54_asset_contract.php",
-    "check:compatibility": "php tools/r54_compatibility_contract.php"
+    "check:compatibility": "php tools/r54_compatibility_contract.php",
+    "check:final-structure": "php tools/r55_structure_boundary_contract.php",
+    "check:transitional": "php tools/r55_transitional_contract.php"
   },
   "author": "hencework",
   "license": "ISC",

@@ -24,10 +24,6 @@ if (!defined('STORAGE_PATH')) {
     define('STORAGE_PATH', PROJECT_ROOT . DIRECTORY_SEPARATOR . 'storage');
 }
 
-if (!defined('LEGACY_PUBLIC_PATH')) {
-    define('LEGACY_PUBLIC_PATH', PROJECT_ROOT);
-}
-
 function oneid_project_path(string $path = ''): string
 {
     return PROJECT_ROOT . ($path === '' ? '' : DIRECTORY_SEPARATOR . ltrim($path, '/\\'));
@@ -42,4 +38,3 @@ function oneid_storage_path(string $path = ''): string
 {
     return STORAGE_PATH . ($path === '' ? '' : DIRECTORY_SEPARATOR . ltrim($path, '/\\'));
 }
-

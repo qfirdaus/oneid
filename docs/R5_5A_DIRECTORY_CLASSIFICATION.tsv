@@ -1,0 +1,11 @@
+name_or_pair	location_a	location_b	classification	evidence	decision
+admin	admin	public/admin	INTENTIONAL_BOUNDARY	public contains wrappers; root contains dashboard/user-list implementation	KEEP until endpoint-by-endpoint application extraction
+page	page	public/page	INTENTIONAL_BOUNDARY	public contains wrappers; root contains authenticated dashboard implementation	KEEP until endpoint-by-endpoint application extraction
+lib	lib	public/lib	INTENTIONAL_BOUNDARY	public has three HTTP compatibility entry points; root has private libraries/integrations	KEEP; SSO routes require Fasa 6B consumer evidence
+vendors	vendors	public/vendors	DIFFERENT_PURPOSE	root has server-side device detector/Spyc; public has browser assets	KEEP both; do not merge
+src	src	lib/src	DIFFERENT_PURPOSE	root src is SCSS build input; lib/src is live PHPMailer code	KEEP both; rename only with caller/build migration
+Sync	app/Sync	tests/Support/Sync	PRODUCTION_VS_TEST	production dormant services versus test adapters/fixtures	KEEP namespace boundary
+const	admin/const	page/const	ROLE_SPECIFIC	active top.php callers and different checksums	KEEP; future view extraction requires visual characterization
+dist	public/dist	public/vendors/**/dist	OWNED_OUTPUT_VS_DEPENDENCY	project build output versus package-owned distributions	KEEP; exclude vendor internals from duplicate cleanup
+docs	docs	public/vendors/**/docs	PROJECT_VS_DEPENDENCY	project operations docs versus package bundled material	KEEP currently; vendor pruning requires dependency rebuild evidence
+config	config	lib/config.php	DIRECTORY_VS_RUNTIME_FILE	config directory excludes secrets; legacy runtime-local config file is Git-ignored	KEEP until configuration bootstrap migration

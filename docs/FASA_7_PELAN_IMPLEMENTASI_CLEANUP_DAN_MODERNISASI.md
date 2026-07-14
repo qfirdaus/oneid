@@ -712,3 +712,36 @@ PASS_WITH_AUTHENTICATED_LOGOUT_GATE sehingga authenticated admin logout mendapat
 Closure gate R5.4C kemudian lulus pada 14 Julai 2026. Authenticated admin logout
 mendapat 14/14 pada kedua-dua hostname, termasuk cookie clearing dan session
 replay rejection. Status akhir R5.4C ialah PASS.
+
+R5.5A dimulakan sebagai final-structure baseline tanpa runtime movement. Audit
+directory berulang membezakan thin public wrapper daripada private
+implementation, browser vendor daripada PHP vendor, build `src` daripada
+PHPMailer `lib/src`, dan production `app/Sync` daripada test support. Nama
+directory vendor yang berulang tidak dikira sebagai duplicate project tree.
+README, classification register, deployment runbook dan structure-boundary
+contract ditambah; keputusan verification direkodkan dalam
+`docs/R5_5A_FINAL_STRUCTURE_BASELINE_DAN_DEPLOYMENT_RUNBOOK.md`.
+
+Keputusan R5.5A: structure-boundary contract lulus 60/60, regression R5.4A–C
+masing-masing kekal 31/31, 27/27 dan 24/24. Smoke kedua-dua hostname lulus 10/10
+dan full characterization lulus 69/69. Empat private URL utama memberi 404.
+Tiada symlink aktif, world-writable path atau duplicate project directory yang
+boleh dibuang secara pukal ditemui. Status akhir R5.5A ialah PASS; langkah
+seterusnya ialah R5.5B, iaitu disposition artefak transitional kecil secara
+item-by-item tanpa menyentuh endpoint berisiko tinggi.
+
+R5.5B dimulakan dengan caller dan deployment evidence. Root `.htaccess` dikenal
+pasti dormant selepas Nginx dan Apache sama-sama menggunakan public-root;
+`LEGACY_PUBLIC_PATH` mempunyai zero caller. Kedua-duanya dibuang. Directory
+`config/` dan `resources/` dikekalkan sebagai private architecture boundary.
+Available access log `oneid-next.local` mempunyai 1,324 request dan semuanya
+dari `127.0.0.1`; parallel hostname ditandakan ready-to-retire melalui runbook
+Nginx berasingan, tetapi tiada external Nginx change dilakukan dalam repository
+batch ini.
+
+Keputusan R5.5B repository batch: transitional contract lulus 19/19,
+structure-boundary 60/60 dan regression R5.4A–C kekal 31/31, 27/27 serta 24/24.
+Smoke kedua-dua hostname lulus 10/10 dan full characterization lulus 69/69.
+Status R5.5B ialah PASS. `oneid-next.local` belum dinyahaktifkan; ia kekal
+`READY_NOT_EXECUTED` sehingga owner menjalankan backup, edit, `nginx -t`, reload
+dan post-change smoke melalui runbook berasingan.

@@ -1,0 +1,10 @@
+artifact	evidence	decision	implementation	rollback
+root .htaccess	Nginx document root is public; Nginx ignores .htaccess; Apache public-root has public/.htaccess	REMOVE	deleted from project root	git restore --source=08dff0d -- .htaccess
+LEGACY_PUBLIC_PATH	defined only in bootstrap/paths.php; zero runtime/test caller	REMOVE	constant definition deleted	git restore --source=08dff0d -- bootstrap/paths.php
+ONEID_PUBLIC_PATH override	active deployment override used to resolve PUBLIC_PATH	KEEP	no change	not applicable
+config directory	private non-secret configuration target; documented and guarded outside public	KEEP	README retained	not applicable
+resources directory	private view/resource extraction target; documented and guarded outside public	KEEP	README retained	not applicable
+public .htaccess	Apache public-root defense and rewrite configuration	KEEP	no change	not applicable
+public/public_img .htaccess	Apache defense-in-depth for upload directory	KEEP	no change	not applicable
+oneid-next.local	1324 available-log requests all from 127.0.0.1; oneid.local already active on public root	READY_TO_RETIRE	separate owner-operated Nginx change; not executed in repository batch	restore backed-up Nginx configuration and reload
+oneid-next certificate and hosts entry	needed only while parallel hostname remains enabled	DEFER_REMOVE	remove after vhost retirement observation	restore certificate/hosts mapping if rollback needed
