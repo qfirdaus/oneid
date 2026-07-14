@@ -171,15 +171,25 @@ $report(
     $productionReferences === [] ? '' : implode(',', $productionReferences)
 );
 
-$runtimeHashes = [
-    'lib/sync_user_runner.php' => '965fd187492e1f120b074601746b031474405480f234412e458f64189108c8bb',
-    'lib/Database.php' => 'ef82c7ac8d3898e8ead942bb0991007b3fe6b475bd3b697a6b00f0643e0cfb4e',
-    'lib/q_func.php' => '6715f149be5a22aca57ca31eb74a2c445fc104b30cb7422fb0f8d693efc60e7a',
-];
-foreach ($runtimeHashes as $file => $expectedHash) {
-    $actualHash = hash_file('sha256', $projectRoot . '/' . $file);
-    $report($actualHash === $expectedHash, 'runtime unchanged: ' . $file, 'sha256=' . $actualHash);
-}
+$legacyRunner = $projectRoot . '/lib/sync_user_runner.php';
+$legacyRunnerHash = hash_file('sha256', $legacyRunner);
+$report(
+    $legacyRunnerHash === '965fd187492e1f120b074601746b031474405480f234412e458f64189108c8bb',
+    'legacy runner remains unchanged and unselected',
+    'sha256=' . $legacyRunnerHash
+);
+$databaseSource = (string) file_get_contents($projectRoot . '/lib/Database.php');
+$report(
+    str_contains($databaseSource, 'sync_latest_completed_source_rows')
+        && str_contains($databaseSource, 'ext_head_status IN (2, 4)'),
+    'S4D database change is read-only baseline lookup'
+);
+$qFuncSource = (string) file_get_contents($projectRoot . '/lib/q_func.php');
+$report(
+    str_contains($qFuncSource, 'createApprovedCoordinator($approvalStore)')
+        && !str_contains($qFuncSource, 'run_admin_sync_user($operation'),
+    'S4D q_func selects approved coordinator, not legacy writer'
+);
 $report(!is_file($projectRoot . '/cron/run_sync.php'), 'retired cron absent from runtime');
 
 printf("RESULT checks=%d failed=%d\n", $checks, $failed);

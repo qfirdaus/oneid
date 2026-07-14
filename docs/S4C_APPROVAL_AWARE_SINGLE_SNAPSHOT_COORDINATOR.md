@@ -83,8 +83,8 @@ runtime atau external production access berlaku.
 
 - S4-G08 lulus pada domain/coordinator level: satu fetched snapshot dan plan
   yang telah divalidasi digunakan oleh writer;
-- S4-G07 kekal pending: preview runtime belum menggunakan approval issuance dan
-  full S3 policy binding;
+- pada checkpoint S4C, S4-G07 masih pending; S4D kemudiannya melengkapkan
+  preview runtime issuance dan full S3 policy binding;
 - S4-G10 kekal pending: endpoint Apply belum wujud;
 - S4-G17 kekal pending sehingga S4C diberi checkpoint/release commit dan
   regression direkod terhadap commit tersebut.

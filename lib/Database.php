@@ -242,6 +242,19 @@ class Database {
         return $result;
     }
 
+    public function sync_latest_completed_source_rows(): ?int{
+        $Q = "SELECT ext_head_initial_sourcedata
+              FROM ext_data_temp_header
+              WHERE ext_head_status IN (2, 4)
+                AND ext_head_initial_sourcedata > 0
+              ORDER BY ext_head_id DESC
+              LIMIT 1";
+        $R = $this->pdo->prepare($Q);
+        $R->execute();
+        $value = $R->fetchColumn();
+        return $value === false ? null : (int) $value;
+    }
+
 
 
     public function admin_update_ext_header_status($ext_head_id,$status,$data_header,$data_count){

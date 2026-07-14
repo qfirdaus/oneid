@@ -21,6 +21,13 @@ final class ApprovedSyncCoordinator
         int $lockWaitSeconds = 0,
         ?int $now = null
     ): SyncRunSummary {
+        if (preg_match('/^[a-f0-9]{64}$/', $approvalId) !== 1) {
+            throw new \RuntimeException('SYNC_APPROVAL_INVALID');
+        }
+        if (trim($adminId) === '') {
+            throw new \RuntimeException('SYNC_APPROVAL_ADMIN_INVALID');
+        }
+
         return $this->orchestrator->runApproved(
             $triggeredBy,
             $approvalId,

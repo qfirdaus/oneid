@@ -3,7 +3,7 @@
 Tarikh pelan: 14 Julai 2026
 Change owner: Pemilik sistem OneID
 Rollback owner: Pemilik sistem OneID
-Status: **S4A–S4C DORMANT SIAP — S4D–S4E BELUM, NO-GO UNTUK APPLY**
+Status: **S4A–S4C SIAP; S4D DORMANT RUNTIME SIAP/OPERATING GATES PENDING; S4E NO-GO**
 Baseline code: commit `243ff2c`
 
 ## 1. Objektif dan Boundary
@@ -145,6 +145,8 @@ preview runtime dan UI masih tidak menggunakan approval service.
 
 ### S4D — Dormant deployment dan pre-pilot readiness
 
+- **Dormant runtime implementation siap:** preview approval, authoritative
+  completed-header baseline, strict safe-only endpoint dan generic response;
 - deploy code dengan Apply masih `false/disabled`;
 - jalankan S1, S2, S3, auth dan public-root regression;
 - sahkan preview browser kekal read-only;
@@ -156,6 +158,12 @@ preview runtime dan UI masih tidak menggunakan approval service.
 - pastikan plan `risk_level=normal`, collision=0 dan Deactivate dalam jangkaan;
 - sahkan external account benar-benar read-only;
 - lengkapkan semua gate dalam register S4.
+
+Implementation/evidence S4D dirujuk dalam
+`docs/S4D_DORMANT_DEPLOYMENT_DAN_PRE_PILOT_READINESS.md` dan
+`docs/S4D_PRE_PILOT_READINESS_REGISTER.tsv`. Backup, restore, external
+SELECT-only evidence, browser/SSO verification dan owner acceptance masih
+pending; oleh itu status kekal NO-GO.
 
 ### S4E — Satu controlled pilot
 

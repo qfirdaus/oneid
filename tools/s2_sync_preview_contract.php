@@ -51,7 +51,7 @@ $report(!str_contains($service, 'begin()') && !str_contains($service, 'createHea
 $report(str_contains($service, "'can_apply' => false") && str_contains($service, "'mode' => 'preview'"), 'preview response cannot authorize apply');
 $report(str_contains($service, 'array_slice($plan->safeProjection()'), 'response uses redacted action projection');
 $report(str_contains($qFunc, "if(isset( \$_POST['admin_preview_sync_user']))"), 'q_func exposes preview controller');
-$report(str_contains($qFunc, "getenv('ONEID_SYNC_APPLY_ENABLED')") && str_contains($qFunc, "'SYNC_APPLY_DISABLED'"), 'legacy apply defaults to feature-gated disabled');
+$report(str_contains($qFunc, 'SyncRuntimeConfig::fromEnvironment()') && !str_contains($qFunc, 'run_admin_sync_user($operation'), 'Apply uses strict safe runtime path and cannot select legacy writer');
 $report(str_contains($externalSource, "throw new RuntimeException('ODBC_EXTENSION_UNAVAILABLE')") && str_contains($externalSource, "throw new RuntimeException('EXTERNAL_STAFF_CONNECTION_FAILED')") && !str_contains(substr($externalSource, 0, strpos($externalSource, 'function EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER')), 'exit;'), 'preview source fails with catchable diagnostic codes');
 $report(substr_count($externalSource, 'FROM ehrmdb.dbo.SSO_Staf_Aktif') === 2 && !str_contains($externalSource, 'FROM stafdb'), 'active integration uses ehrmdb staff view only');
 $report(substr_count($compatibilityExternalSource, 'FROM ehrmdb.dbo.SSO_Staf_Aktif') === 2 && !str_contains($compatibilityExternalSource, 'FROM stafdb'), 'compatibility integration uses ehrmdb staff view only');
@@ -62,7 +62,7 @@ $report(substr_count($compatibilityExternalSource, 'ExternalRowNormalizer::norma
 $report(str_contains($qFunc, "'UNEXPECTED_PREVIEW_ERROR'") && str_contains($qFunc, 'code=%s'), 'preview logs allowlisted diagnostic code only');
 $report(str_contains($dashboard, "data: {admin_preview_sync_user:''}"), 'dashboard posts preview action');
 $report(!str_contains($dashboard, "data: {admin_add_sync_user:''}"), 'dashboard no longer posts mutating action');
-$report(str_contains($dashboard, 'S2 is preview-only. There is no Apply action'), 'dashboard explains preview-only boundary');
+$report(str_contains($dashboard, 'there is no Apply action on this screen'), 'dashboard explains preview-only boundary');
 
 $output = [];
 $code = 1;

@@ -637,7 +637,7 @@
                                                             </tr>
                                                          </tbody>
                                                       </table>
-                                                      <p class="text-muted">S2 is preview-only. There is no Apply action on this screen.</p>
+                                                      <p class="text-muted">S4D readiness preview only. Approval may be prepared server-side, but there is no Apply action on this screen.</p>
                                                    </div>
                                                 </div>
                                              </div>
@@ -3056,7 +3056,11 @@
                   $('#sync_preview_status')
                      .removeClass('badge-danger badge-warning badge-success')
                      .addClass(response.risk_level === 'blocked' ? 'badge badge-danger' : (response.risk_level === 'warning' ? 'badge badge-warning' : 'badge badge-success'))
-                     .text(response.risk_level === 'blocked' ? 'BLOCKED — anomaly requires review' : 'PREVIEW ONLY — no changes applied');
+                     .text(response.risk_level === 'blocked'
+                        ? 'BLOCKED — anomaly or baseline requires review'
+                        : (response.approval_ready === true
+                           ? 'READY FOR CONTROLLED PILOT — Apply remains disabled'
+                           : 'PREVIEW ONLY — no changes applied'));
                   var warningList = $('#sync_preview_warnings').empty();
                   (response.warnings || []).forEach(function(warning){
                      $('<li>').text(warning).appendTo(warningList);

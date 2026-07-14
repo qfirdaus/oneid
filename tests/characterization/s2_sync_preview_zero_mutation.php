@@ -11,9 +11,11 @@ foreach ([
     'app/Sync/Contracts/SyncPersistenceInterface.php',
     'app/Sync/Contracts/SyncPolicyInterface.php',
     'app/Sync/DTO/SyncPlan.php',
+    'app/Sync/DTO/SyncSafetyDecision.php',
     'app/Sync/ExternalRowNormalizer.php',
     'app/Sync/SyncDataTransformer.php',
     'app/Sync/SyncPlanner.php',
+    'app/Sync/SyncSafetyPolicy.php',
     'app/Sync/SyncPreviewService.php',
     'app/Sync/Adapters/LegacySyncPolicy.php',
 ] as $file) {

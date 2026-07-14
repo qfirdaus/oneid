@@ -1,0 +1,18 @@
+item_id	area	check	owner	status	evidence_or_next_action
+S4D-01	release	S4D exact release commit recorded	Change owner	pending	Checkpoint after review and regression
+S4D-02	flags	Nginx FPM systemd and shell contain no active Apply flags	Operations	pass	Read-only inspection 2026-07-14; strict config defaults false/disabled
+S4D-03	runtime	Legacy writer inaccessible from Apply endpoint	Developer	pass	S4D contract; q_func uses strict approved coordinator only
+S4D-04	approval	Preview uses completed-header baseline and full S3 policy	Developer	pass	S4D in-memory fixture and static contract
+S4D-05	security	Apply is admin-only CSRF exactly-one-action and approval-bound	Developer	pass	request_security plus S4D endpoint contract
+S4D-06	ui	Dashboard contains preview only and no Apply bearer/control	Developer	pass	S4D static UI contract
+S4D-07	session	Single-node file session topology suitable for pilot	Operations	pass	Nginx local PHP-FPM socket and /var/lib/php/sessions
+S4D-08	scheduler	All user root system and project schedulers retired	Operations	pending	Project/current-user/system refs clean; confirm root crontab
+S4D-09	external	Staff and student production credentials are SELECT-only	DBA	pending	Provide grants/role evidence without credential values
+S4D-10	backup	OneID UAT backup exists outside document root with checksum	DBA	pending	No S4D backup evidence found
+S4D-11	restore	Backup restore rehearsal passes on separate database	DBA	pending	Record restore and reconciliation evidence
+S4D-12	browser	Admin auth logout and fresh preview pass	Tester	pending	Run after S4D checkpoint/deployment; do not click Apply
+S4D-13	public	Public-root HTTP smoke passes	Tester	pending	Run automated smoke after final S4D regression
+S4D-14	sso	At least one SSO consumer passes	Tester	pending	Manual browser verification after deployment
+S4D-15	monitor	Nginx PHP-FPM and sync log paths are readable and stable	Operations	pending	Confirm PHP-FPM log and inspect marker during observation
+S4D-16	pilot	Maintenance window pilot admin and owners assigned	Change owner	pending	Required before S4E
+S4D-17	preview	Fresh normal preview counts and baseline accepted	Change owner	pending	Record counts/hash prefix/correlation only; never approval ID

@@ -61,7 +61,7 @@ $report(str_contains($database, 'GET_LOCK(:lock_name, :wait_seconds)') && str_co
 $report(str_contains($database, 'FROM sync_change_log') && str_contains($database, 'GROUP BY action'), 'reconciliation reads durable audit totals');
 $report(str_contains($persistenceAdapter, 'SYNC_DEACTIVATE_NOT_APPLIED') && str_contains($persistenceAdapter, 'SYNC_INSERT_NOT_APPLIED') && str_contains($persistenceAdapter, 'SYNC_AUDIT_WRITE_MISMATCH'), 'writer rejects zero-row and audit-count anomalies');
 $report(!str_contains($qFunc, 'SafeSyncOrchestrator') && !str_contains($legacyRunner, 'SafeSyncOrchestrator'), 'S3 orchestrator has no production caller wiring');
-$report(str_contains($qFunc, "getenv('ONEID_SYNC_APPLY_ENABLED')") && str_contains($qFunc, "'SYNC_APPLY_DISABLED'"), 'legacy Apply remains default-disabled');
+$report(str_contains($qFunc, 'SyncRuntimeConfig::fromEnvironment()') && !str_contains($qFunc, 'run_admin_sync_user($operation'), 'Apply is strict safe-only and defaults disabled');
 
 $output = [];
 $code = 1;

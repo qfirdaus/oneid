@@ -214,12 +214,12 @@ $report(
 
 $runtimeHashes = [
     'lib/sync_user_runner.php' => '965fd187492e1f120b074601746b031474405480f234412e458f64189108c8bb',
-    'lib/Database.php' => 'ef82c7ac8d3898e8ead942bb0991007b3fe6b475bd3b697a6b00f0643e0cfb4e',
-    'lib/q_func.php' => '6715f149be5a22aca57ca31eb74a2c445fc104b30cb7422fb0f8d693efc60e7a',
+    'lib/Database.php' => '4657eb89a7d90514cb13b842dba6a4453d1ac320b3fceb5e0d06f2c91426a41a',
+    'lib/q_func.php' => '213dadbc6ad77ded818aa92d2e979c0b2b13afc1022b8289c5938b6883905f41',
 ];
 foreach ($runtimeHashes as $file => $expectedHash) {
     $actualHash = hash_file('sha256', $projectRoot . '/' . $file);
-    $report($actualHash === $expectedHash, 'runtime unchanged: ' . $file, 'sha256=' . $actualHash);
+    $report($actualHash === $expectedHash, 'S4D runtime checkpoint: ' . $file, 'sha256=' . $actualHash);
 }
 $report(!is_file($projectRoot . '/cron/run_sync.php'), 'retired cron absent from runtime');
 

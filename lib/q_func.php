@@ -12,18 +12,9 @@ include_once dirname(__DIR__) . '/vendors/spyc-master/Spyc.php';
 require_once dirname(__DIR__) . '/vendors/device-detector-master/autoload.php';
 require_once __DIR__ . '/external_data_source_API.php';
 require_once __DIR__ . '/sync_user_runner.php';
+require_once dirname(__DIR__) . '/bootstrap/sync_runtime.php';
 require_once dirname(__DIR__) . '/app/User/ManualUserInput.php';
 require_once dirname(__DIR__) . '/app/User/ManualUserCreator.php';
-require_once dirname(__DIR__) . '/app/Sync/Contracts/ExternalUserSourceInterface.php';
-require_once dirname(__DIR__) . '/app/Sync/Contracts/SyncPersistenceInterface.php';
-require_once dirname(__DIR__) . '/app/Sync/Contracts/SyncPolicyInterface.php';
-require_once dirname(__DIR__) . '/app/Sync/DTO/SyncPlan.php';
-require_once dirname(__DIR__) . '/app/Sync/SyncDataTransformer.php';
-require_once dirname(__DIR__) . '/app/Sync/SyncPlanner.php';
-require_once dirname(__DIR__) . '/app/Sync/SyncPreviewService.php';
-require_once dirname(__DIR__) . '/app/Sync/Adapters/ExternalApiUserSource.php';
-require_once dirname(__DIR__) . '/app/Sync/Adapters/DatabaseSyncPersistenceAdapter.php';
-require_once dirname(__DIR__) . '/app/Sync/Adapters/LegacySyncPolicy.php';
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
 
@@ -390,14 +381,27 @@ function string_sanitize($s) {
 
       if(isset( $_POST['admin_preview_sync_user'])){
             try {
+                $approvalStore = new \OneId\App\Sync\Adapters\SessionSyncApprovalStore();
+                $approvalService = new \OneId\App\Sync\SyncApprovalService(
+                    $approvalStore,
+                    new \OneId\App\Sync\SyncPlanFingerprinter()
+                );
                 $previewService = new \OneId\App\Sync\SyncPreviewService(
                     new \OneId\App\Sync\Adapters\ExternalApiUserSource(),
                     new \OneId\App\Sync\Adapters\DatabaseSyncPersistenceAdapter($operation),
                     new \OneId\App\Sync\SyncPlanner(
                         new \OneId\App\Sync\Adapters\LegacySyncPolicy()
-                    )
+                    ),
+                    300,
+                    5.0,
+                    new \OneId\App\Sync\SyncSafetyPolicy()
                 );
-                echo json_encode($previewService->preview());
+                $baseline = $operation->sync_latest_completed_source_rows();
+                echo json_encode($previewService->previewForApproval(
+                    (string) ($_SESSION['login_user'] ?? ''),
+                    $baseline,
+                    $approvalService
+                ));
             } catch (\Throwable $exception) {
                 $correlationId = bin2hex(random_bytes(8));
                 $knownPreviewCodes = [
@@ -429,25 +433,76 @@ function string_sanitize($s) {
       }
 
       if(isset( $_POST['admin_add_sync_user'])){
-            $applyEnabled = filter_var(
-                getenv('ONEID_SYNC_APPLY_ENABLED') ?: 'false',
-                FILTER_VALIDATE_BOOLEAN
-            );
-            if (!$applyEnabled) {
+            try {
+                $runtimeConfig = \OneId\App\Sync\SyncRuntimeConfig::fromEnvironment();
+                $approvalStore = new \OneId\App\Sync\Adapters\SessionSyncApprovalStore();
+                $coordinator = (new \OneId\App\Sync\SyncEngineFactory(
+                    $operation,
+                    $runtimeConfig
+                ))->createApprovedCoordinator($approvalStore);
+                $triggeredBy = (string) ($_SESSION['login_user'] ?? '');
+                $approvalId = is_string($_POST['sync_approval_id'] ?? null)
+                    ? trim($_POST['sync_approval_id'])
+                    : '';
+                $summary = $coordinator->run(
+                    $approvalId,
+                    $triggeredBy,
+                    'Manual admin external sync'
+                );
+                $operation->syslog_record(
+                    22,
+                    sprintf(
+                        'ADMIN_SYNC_SAFE header=%d new=%d updated=%d deactivated=%d reactivated=%d',
+                        $summary->headerId,
+                        $summary->new,
+                        $summary->updated,
+                        $summary->deactivated,
+                        $summary->reactivated
+                    ),
+                    getUserIP()
+                );
+                echo json_encode([
+                    'status' => 1,
+                    'code' => 'SYNC_APPLY_COMPLETED',
+                    'header_id' => $summary->headerId,
+                    'counts' => [
+                        'New' => $summary->new,
+                        'Update' => $summary->updated,
+                        'Deactivate' => $summary->deactivated,
+                        'Reactivate' => $summary->reactivated,
+                    ],
+                ]);
+            } catch (\Throwable $exception) {
+                $correlationId = bin2hex(random_bytes(8));
+                $knownApplyCodes = [
+                    'SYNC_APPLY_DISABLED',
+                    'SYNC_APPLY_FLAG_INVALID',
+                    'SYNC_ENGINE_INVALID',
+                    'SYNC_FLAG_COMBINATION_INVALID',
+                    'SYNC_APPROVAL_INVALID',
+                    'SYNC_APPROVAL_NOT_AVAILABLE',
+                    'SYNC_APPROVAL_EXPIRED',
+                    'SYNC_APPROVAL_ADMIN_MISMATCH',
+                    'SYNC_APPROVAL_PLAN_MISMATCH',
+                    'SYNC_ALREADY_RUNNING',
+                    'SYNC_SAFETY_BLOCKED',
+                    'SYNC_RECONCILIATION_MISMATCH',
+                ];
+                $diagnosticCode = in_array($exception->getMessage(), $knownApplyCodes, true)
+                    ? $exception->getMessage()
+                    : 'UNEXPECTED_SYNC_APPLY_ERROR';
+                error_log(sprintf(
+                    '[ONEID_SYNC_APPLY] correlation=%s exception=%s code=%s',
+                    $correlationId,
+                    get_class($exception),
+                    $diagnosticCode
+                ));
                 echo json_encode([
                     'status' => 0,
-                    'code' => 'SYNC_APPLY_DISABLED',
-                    'msg' => 'External sync apply is disabled during S2 preview-only mode.',
+                    'code' => $diagnosticCode,
+                    'msg' => 'External sync was not applied.',
+                    'correlation_id' => $correlationId,
                 ]);
-                return;
-            }
-            try {
-                $triggered_by = $_SESSION['login_user'] ?? '';
-                $header_info = run_admin_sync_user($operation, $triggered_by);
-                $operation->syslog_record(22,'User: '.$triggered_by.' ADMIN_SYNC_USER session='.$header_info['ext_head_id'].' new='.$header_info['New'].' updated='.$header_info['Update'].' deactivated='.$header_info['Deactivate'].' reactivated='.$header_info['Reactivate'],getUserIP());
-                echo json_encode($header_info);
-            } catch (Exception $e) {
-                echo json_encode(['error' => $e->getMessage()]);
             }
       }
 

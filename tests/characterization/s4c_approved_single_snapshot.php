@@ -247,5 +247,16 @@ $report($replay, 'approval replay is rejected');
 $report($beginBeforeReplay === $beginAfterReplay, 'approval replay cannot start a second transaction');
 $report(end($trace) === 'lock.release', 'replay rejection releases lock');
 
+$trace = [];
+[$coordinator] = s4c_fixture($trace, s4c_rows());
+try {
+    $coordinator->run('malformed', '0530-09', 'S4C malformed');
+    $malformed = false;
+} catch (RuntimeException $exception) {
+    $malformed = $exception->getMessage() === 'SYNC_APPROVAL_INVALID';
+}
+$report($malformed, 'malformed approval is rejected at coordinator boundary');
+$report($trace === [], 'malformed approval performs no lock, source or persistence access');
+
 printf("RESULT checks=%d failed=%d\n", $checks, $failed);
 exit($failed === 0 ? 0 : 1);

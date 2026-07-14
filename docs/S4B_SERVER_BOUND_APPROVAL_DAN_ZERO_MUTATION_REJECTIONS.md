@@ -160,10 +160,10 @@ checksum working tree selepas S4C.
 ## 11. Limitasi dan NO-GO
 
 Limitasi same-snapshot/factory ini telah diselesaikan secara dormant oleh S4C.
-Preview runtime masih belum menerbitkan approval dan endpoint Apply masih tidak
-wujud. Oleh itu:
+S4D kemudian menyambungkan preview issuance dan strict safe-only endpoint dalam
+keadaan flags disabled serta tanpa UI Apply. Oleh itu:
 
-- G07 kekal pending untuk full preview-policy/runtime binding;
+- G07 lulus melalui S4D full preview-policy/runtime binding;
 - G08 lulus pada coordinator/domain level melalui S4C;
 - endpoint, UI Apply dan live pilot kekal NO-GO.
 
@@ -175,6 +175,7 @@ diperlukan kerana tiada runtime caller atau environment change.
 
 ## 13. Langkah Berikutnya
 
-S4C telah dilaksanakan secara dormant. Langkah berikutnya ialah **S4D — dormant
-deployment dan pre-pilot readiness**. Endpoint, UI Apply dan live sync masih
-tidak boleh diaktifkan.
+S4C telah dilaksanakan secara dormant dan S4D runtime wiring kini tersedia
+dengan flags kekal disabled. Backup/restore, external read-only evidence,
+browser/SSO dan owner gates masih wajib sebelum S4E. UI Apply dan live sync
+masih tidak boleh diaktifkan.

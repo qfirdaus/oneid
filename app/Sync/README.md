@@ -45,3 +45,9 @@ S4C menambah `ApprovedSyncCoordinator` dan approval gate pada
 divalidasi sebelum transaction dan plan object sama diserahkan kepada writer.
 Factory hanya mendedahkan coordinator approval-aware. Semua ini masih dormant:
 preview runtime, endpoint, UI Apply, cron dan live sync belum diwiring.
+
+S4D menyambungkan class map, preview approval dan Apply endpoint secara
+fail-closed. Preview memerlukan completed-header baseline serta full S3 policy;
+Apply hanya boleh melalui strict `true/safe` dan approval coordinator. Flags
+deployment kekal unset/default-disabled dan dashboard masih tiada Apply. Backup,
+restore, external SELECT-only evidence dan controlled pilot belum dilaksanakan.

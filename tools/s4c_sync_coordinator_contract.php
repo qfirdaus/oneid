@@ -52,13 +52,13 @@ $report(str_contains($coordinator, 'runApproved(') && str_contains($coordinator,
 $report(str_contains($factory, 'createApprovedCoordinator') && str_contains($factory, 'new SyncApprovalService('), 'factory exposes approval-aware coordinator');
 $report(str_contains($factory, 'private function buildSafeOrchestrator') && !str_contains($factory, 'public function createSafeOrchestrator'), 'raw writer construction is private to factory');
 $report(!str_contains($factory, 'SessionSyncApprovalStore'), 'factory requires injected server-side approval store');
-$report(!str_contains($qFunc, 'ApprovedSyncCoordinator') && !str_contains($dashboard, 'admin_apply_sync_user') && !str_contains($cron, 'ApprovedSyncCoordinator'), 'runtime endpoint, Apply UI and cron remain unwired');
+$report(str_contains($qFunc, 'createApprovedCoordinator') && !str_contains($dashboard, 'admin_apply_sync_user') && !str_contains($cron, 'ApprovedSyncCoordinator'), 'S4D endpoint is coordinator-only while Apply UI and cron remain unwired');
 
 $output = [];
 $code = 1;
 exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($root . '/tests/characterization/s4c_approved_single_snapshot.php') . ' 2>&1', $output, $code);
 $detail = implode(' | ', array_slice($output, -2));
-$report($code === 0 && in_array('RESULT checks=19 failed=0', $output, true), 'S4C in-memory coordinator fixture passes', $detail);
+$report($code === 0 && in_array('RESULT checks=21 failed=0', $output, true), 'S4C in-memory coordinator fixture passes', $detail);
 
 printf("RESULT checks=%d failed=%d\n", $checks, $failed);
 exit($failed === 0 ? 0 : 1);
