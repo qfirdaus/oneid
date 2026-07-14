@@ -1,0 +1,19 @@
+ID	Flow	Current contract	Risk	Target phase
+S0-C01	Both	POST, exactly one recognized action, CSRF and admin authorization are required	Controlled	Retain S1-S4
+S0-C02	External sync	Admin button immediately calls admin_add_sync_user	No preview or explicit confirmation	S2
+S0-C03	External sync	Legacy run_admin_sync_user remains production writer	Dormant orchestrator not wired	S4
+S0-C04	External sync	Transaction begins before external fetch; fetch is outside rollback try/catch	Open transaction/failure semantics	S3
+S0-C05	External sync	All active users are candidates; unmatched users are deactivated	Manual accounts may be deactivated	S1/S3
+S0-C06	External sync	Only UID 10 is hardcoded excluded	No provenance-based protection	S1/S3
+S0-C07	External sync	Empty source is guarded with status 3	Partial/incomplete snapshot can still mass-deactivate	S3
+S0-C08	External sync	No server-side single-run lock	Concurrent writers possible	S3
+S0-C09	External sync	Raw exception message is returned in JSON	Internal detail disclosure	S3
+S0-C10	External sync	Pure SyncPlanner/dry-run and production orchestrator already exist dormant	Must prove preview/parity before wiring	S2/S4
+S0-C11	Manual add	Duplicate lookup precedes prepared INSERT	Check/insert race remains	S1
+S0-C12	Manual add	Initial password is random, hashed and unknown; change required is set	Safe credential baseline	Retain S1
+S0-C13	Manual add	Name, ID and category are browser-required	Crafted POST bypasses browser validation	S1
+S0-C14	Manual add	Email field data5 is optional	OTP onboarding may be impossible	S1
+S0-C15	Manual add	No transaction spans insert, flag update and audit event 23	Partial success possible	S1
+S0-C16	Manual add	AJAX error callback is empty	Ambiguous operator outcome	S1
+S0-C17	Manual add	Manual u_changes_hash hashes name only	Inconsistent with external sync hash	S1
+S0-C18	Both	No account_source or sync_protected field is used	Manual/external provenance is indistinguishable	S1/S3

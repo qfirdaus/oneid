@@ -1,0 +1,168 @@
+# Pelan Berfasa Keselamatan Sync dan Manual User — S0 hingga S4
+
+Tarikh: 14 Julai 2026  
+Owner perubahan: Pemilik sistem OneID  
+Owner rollback: Pemilik sistem OneID  
+Status: **AKTIF — S0 SELESAI; S1–S4 BELUM DILAKSANAKAN**
+
+## 1. Objektif
+
+Pelan ini mengukuhkan dua operasi pentadbiran:
+
+1. **Sync with external data** — full snapshot yang boleh menambah, mengemas
+   kini, menyahaktif dan mengaktifkan semula akaun.
+2. **Manual Add User** — penciptaan satu akaun oleh pentadbir.
+
+Kedua-duanya berkongsi `user_tbl` dan saling mempengaruhi. Akaun manual yang
+tiada dalam external snapshot kini boleh dianggap hilang lalu dinyahaktif oleh
+full sync. Oleh itu kedua-dua flow tidak boleh dibaiki secara berasingan tanpa
+polisi provenance yang jelas.
+
+## 2. Ringkasan Fasa
+
+| Fasa | Fokus | Risiko | Mutation production |
+| --- | --- | --- | --- |
+| S0 | Baseline, characterization dan keputusan polisi | Sangat rendah | Tiada |
+| S1 | Hardening Manual Add User dan provenance | Rendah–sederhana | Ya, terkawal |
+| S2 | Preview/dry-run external sync | Sederhana | Preview mesti zero mutation |
+| S3 | Transaction, lock, threshold dan operational safety | Sederhana–tinggi | Ya |
+| S4 | Feature-flag cutover orchestrator dan verification | Tinggi | Ya, terkawal |
+
+## 3. S0 — Baseline dan Characterization
+
+Skop:
+
+- petakan UI → action → controller → persistence bagi kedua-dua flow;
+- kunci authorization, CSRF, password dan audit behavior semasa;
+- buktikan full-sync behavior menggunakan fixture in-memory;
+- buktikan pure dry-run dormant kekal zero mutation;
+- rekod kelemahan sebagai contract supaya perubahan fasa seterusnya disengajakan;
+- tiada live sync, POST production, database query atau tambah pengguna.
+
+Artefak S0:
+
+- `docs/S0_BASELINE_DAN_CHARACTERIZATION_SYNC_MANUAL_USER.md`;
+- `docs/S0_SYNC_MANUAL_USER_BASELINE_REGISTER.tsv`;
+- `tests/characterization/s0_user_provisioning_contracts.php`;
+- `tools/s0_user_provisioning_characterization.php`;
+- script `npm run check:user-provisioning` dalam `package.json`.
+
+Exit gate S0:
+
+- semua contract static/in-memory lulus;
+- checksum runtime tidak berubah;
+- polisi akaun manual direkod untuk S1;
+- risiko live sync difahami dan tiada sync dijalankan semasa S0.
+
+## 4. S1 — Manual Add User Hardening
+
+Perubahan dirancang:
+
+- validation server-side untuk ID, nama, kategori, panjang dan format;
+- email sah diwajibkan apabila onboarding menggunakan OTP;
+- transaction atomik untuk duplicate check/insert, password flag dan audit;
+- tangani duplicate-key race dengan respons selamat;
+- isi error callback UI dan guna correlation ID;
+- selaraskan `u_changes_hash` dengan canonical transformer;
+- tambah provenance seperti `account_source=manual|external`;
+- tambah polisi `sync_protected` untuk akaun manual;
+- output encoding bagi data manual yang dipaparkan semula;
+- characterization dan integration test tanpa mendedahkan PII.
+
+Keputusan polisi awal: akaun `manual` hendaklah dilindungi daripada auto-
+deactivation secara default. Sebarang pengecualian perlu tindakan pentadbir yang
+jelas dan diaudit.
+
+Exit gate S1:
+
+- invalid request ditolak server-side;
+- insert/audit tidak boleh separuh berjaya;
+- onboarding mempunyai email sah;
+- provenance boleh dibezakan;
+- manual account tidak masuk deactivation path tanpa polisi eksplisit.
+
+## 5. S2 — External Sync Preview dan Dry-run
+
+R5.2D5–D8 telah menyediakan `SyncPlanner`, zero-mutation dry-run, production
+adapter dan orchestrator secara dormant. S2 menggunakan semula komponen itu,
+bukan membina planner kedua.
+
+Perubahan dirancang:
+
+- bina endpoint preview admin-only yang tidak memanggil mutation method;
+- ambil satu snapshot external dan satu snapshot internal;
+- paparkan count `NEW`, `UPDATE`, `DEACTIVATE`, `REACTIVATE`;
+- paparkan identifier yang dimask/hashed, bukan raw PII;
+- hasilkan deterministic plan hash dan expiry;
+- warning untuk snapshot kosong, menyusut atau tidak lengkap;
+- explicit confirmation yang terikat pada plan hash;
+- bukti automated bahawa preview ialah zero mutation.
+
+Exit gate S2:
+
+- preview dan apply tidak bercampur;
+- zero mutation dibuktikan;
+- parity planner dengan legacy ialah sifar mismatch;
+- pentadbir melihat blast radius sebelum sebarang write.
+
+## 6. S3 — External Sync Operational Safety
+
+Perubahan dirancang:
+
+- server-side single-run lock dengan owner dan TTL;
+- transaction bermula hanya selepas snapshot/preprocessing selamat atau semua
+  kegagalan upstream ditutup dengan rollback;
+- ODBC/API failure menggunakan exception terkawal, bukan `echo/exit`;
+- threshold hard-stop untuk mass deactivation dan perubahan luar biasa;
+- provenance/sync protection dipatuhi oleh planner dan writer;
+- job/correlation ID, structured log dan reconciliation report;
+- response generik kepada browser; detail teknikal hanya dalam log selamat;
+- status jelas: planned, running, completed, failed atau rolled_back;
+- backup dan rollback data diuji sebelum live run.
+
+Exit gate S3:
+
+- concurrent run ditolak;
+- partial-source anomaly berhenti sebelum mutation;
+- semua failure path menutup transaction;
+- reconciliation count sepadan dengan audit log;
+- tiada akaun manual terlindung dinyahaktif.
+
+## 7. S4 — Controlled Cutover dan Verification
+
+Perubahan dirancang:
+
+- strict server-side feature flag, default `legacy`;
+- shadow comparison hanya antara pure planner, bukan dua writer;
+- satu controlled pilot melalui manual admin sync;
+- scheduled sync kekal retired dan di luar skop;
+- semak count/status/audit sebelum dan selepas pilot;
+- kekalkan rollback kepada legacy sepanjang observation window;
+- retirement legacy hanya selepas parity, monitoring dan owner acceptance.
+
+Exit gate S4:
+
+- full UAT termasuk login admin, preview, apply, reconciliation dan SSO lulus;
+- tiada unexplained deactivate/update;
+- monitoring stabil dalam tempoh pemerhatian;
+- rollback rehearsal lulus;
+- owner memberi keputusan GO untuk retirement legacy.
+
+## 8. Peraturan Keselamatan Merentas Semua Fasa
+
+- Jangan gunakan butang full sync sebagai ujian UI biasa.
+- Jangan jalankan dua engine mutating untuk perbandingan.
+- Jangan hidupkan semula cron dalam fasa ini.
+- Jangan rekod raw IC, email, token, password atau external row dalam evidence.
+- Setiap live mutation memerlukan backup, owner, window dan rollback point.
+- Satu fasa mesti lulus gate sebelum fasa berikutnya dimulakan.
+
+## 9. Urutan Pelaksanaan
+
+Urutan yang diluluskan ialah:
+
+```text
+S0 baseline → S1 manual/provenance → S2 preview → S3 writer safety → S4 cutover
+```
+
+S1 ialah langkah seterusnya selepas review dan checkpoint Git bagi S0.
