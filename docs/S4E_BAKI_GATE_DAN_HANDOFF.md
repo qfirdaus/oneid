@@ -243,7 +243,7 @@ Tarikh: 15 Julai 2026
 Window mula: 23:15
 Window tamat: 23:45
 Observation tamat: 00:45, 16 Julai 2026
-Pilot admin: 05530-09
+Pilot admin: 0530-09
 Change owner: Firdaus
 Rollback owner: Firdaus
 DBA/on-call: Firdaus / DBA dan SA
