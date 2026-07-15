@@ -21,8 +21,8 @@ menjalankan scheduler atau menjalankan live sync.
 | Pembetulan verifier CSRF | `ea51e52` |
 | Regression | S1 39/39, S2 29/29, S3 26/26, S4A 16/16, S4B 19/19, S4C 15/15, S4D 21/21 |
 | Admin preview/logout | 16/16 |
-| Fresh preview | 6,485 source; 72 new; 26 update; 1 deactivate; 0 reactivate; protected 1; collision 0; owner acceptance pending |
-| Plan | Hash prefix `14fa1389f87c`; approval ready; tiada Apply dibuat |
+| Fresh preview | 6,485 source; 72 new; 27 update; 1 deactivate; 0 reactivate; protected 1; collision 0; accepted by Firdaus after private review |
+| Plan | Hash prefix `0af93efe6b11`; update manifest `4c43bdc87cebb60b0f08c21d122ac3fd7ce0e7e201bd3b5e63686a085a22cb74`; tiada Apply dibuat |
 | SSO | `iqs-framework.local` end-to-end dan logout lulus |
 | Public root | Smoke 10/10 |
 | Backup | AppsStagingv1 `S4D-20260715-212233`; 73,896,288 bait; SHA-256 direkod; mode 0600 |
@@ -213,7 +213,7 @@ Communication/incident channel:
 User/admin change freeze mula dan tamat:
 Approved release commit:
 Backup evidence:
-Expected preview: source=6485 new=72 update=26 deactivate=1 reactivate=0
+Expected preview: source=6485 new=72 update=27 deactivate=1 reactivate=0
 Maximum Apply requests: 1
 ```
 
@@ -252,7 +252,9 @@ Security reviewer: Firdaus
 Communication/incident channel: WhatsApp/Teams kumpulan teknikal OneID
 User/admin change freeze: 21:00-23:00
 Backup evidence: S4D-20260715-212233; checksum verified OK
-Accepted preview: source=6485 new=72 update=26 deactivate=1 reactivate=0 protected=1 collision=0
+Accepted preview: source=6485 new=72 update=27 deactivate=1 reactivate=0 protected=1 collision=0
+Update manifest: 4c43bdc87cebb60b0f08c21d122ac3fd7ce0e7e201bd3b5e63686a085a22cb74
+Update review: all 27 reviewed; pilot-selected candidate verified; changed field data5; change accepted as legitimate
 Deactivate candidate: privately verified and accepted
 Maximum Apply requests: 1
 ```
