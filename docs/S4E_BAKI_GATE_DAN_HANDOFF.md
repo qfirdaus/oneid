@@ -21,22 +21,22 @@ menjalankan scheduler atau menjalankan live sync.
 | Pembetulan verifier CSRF | `ea51e52` |
 | Regression | S1 39/39, S2 29/29, S3 26/26, S4A 16/16, S4B 19/19, S4C 15/15, S4D 21/21 |
 | Admin preview/logout | 16/16 |
-| Fresh preview | 6,485 source; 71 new; 7 update; 0 deactivate; 0 reactivate; protected 1; collision 0 |
-| Plan | Hash prefix `6f0010cb7e6a`; approval ready; tiada Apply dibuat |
+| Fresh preview | 6,485 source; 72 new; 26 update; 1 deactivate; 0 reactivate; protected 1; collision 0; owner acceptance pending |
+| Plan | Hash prefix `14fa1389f87c`; approval ready; tiada Apply dibuat |
 | SSO | `iqs-framework.local` end-to-end dan logout lulus |
 | Public root | Smoke 10/10 |
-| Backup | 73,881,422 bait; SHA-256 direkod di private evidence |
-| Restore rehearsal | 15 jadual; exact row-count digest sama; rehearsal DB dibuang |
-| External read | Staf 1,062 + pelajar 5,423 melalui SELECT sahaja |
+| Backup | AppsStagingv1 `S4D-20260715-212233`; 73,896,288 bait; SHA-256 direkod; mode 0600 |
+| Restore rehearsal | 16 jadual; exact row-count digest sama; rehearsal DB dibuang; source tidak diubah |
+| External read | Jumlah 6,485 row melalui SELECT sahaja |
 
 ## 3. Baki Gate Yang Menyekat S4E
 
 | Gate | Owner | Status | Syarat lulus |
 | --- | --- | --- | --- |
-| DBA external credential | DBA | Pending | Bukti kedua-dua runtime login hanya mempunyai hak bacaan yang diperlukan |
-| Scheduler inventory | Operations | Pending | Root, user, system cron, timer dan queue tiada job OneID sync aktif |
-| Monitoring dan privasi log | Operations + Security reviewer | Pending | Log boleh dicapai, observation owner ditetapkan dan tiada raw PII/token/credential |
-| Maintenance window | Change owner | Pending | Window, pilot admin, owners, freeze, komunikasi dan abort criteria direkod |
+| DBA external credential | DBA | Pass | Kedua-dua runtime login disahkan CONNECT + required-view SELECT sahaja pada 15 Julai 2026 |
+| Scheduler inventory | Operations | Pass | AppsStagingv1 tiada cron, timer atau queued job OneID sync aktif pada 15 Julai 2026 |
+| Monitoring dan privasi log | Firdaus | Pass (pre-pilot) | Log boleh dicapai, redacted scan bersih dan observation 60 minit dijadualkan; post-pilot stability kekal gate berasingan |
+| Maintenance window | Firdaus | Pass | Window, pilot admin, owners, freeze, komunikasi dan abort criteria direkod untuk 16 Julai 2026 |
 
 Walaupun empat gate utama di atas selesai, arahan **GO S4E** yang baharu masih
 wajib. Tiada persetujuan tersirat daripada preview `approval_ready=yes`.
@@ -145,25 +145,28 @@ Gate berkaitan: `S4D-08` dan `S4-G20`.
 
 ### Log minimum
 
-- `/var/log/nginx/oneid-r4.access.log`;
-- `/var/log/nginx/oneid-r4.error.log`;
+- `/var/log/nginx/oneid-uat.access.log`;
+- `/var/log/nginx/oneid-uat.error.log`;
 - PHP-FPM journal atau error log sebenar;
 - application/sync marker yang digunakan semasa pilot.
 
 Semakan awal yang selamat:
 
 ```bash
-sudo test -r /var/log/nginx/oneid-r4.access.log && echo NGINX_ACCESS_READABLE
-sudo test -r /var/log/nginx/oneid-r4.error.log && echo NGINX_ERROR_READABLE
+sudo test -r /var/log/nginx/oneid-uat.access.log && echo NGINX_ACCESS_READABLE
+sudo test -r /var/log/nginx/oneid-uat.error.log && echo NGINX_ERROR_READABLE
 
 sudo systemctl status php8.3-fpm --no-pager
 sudo journalctl -u php8.3-fpm --since "30 minutes ago" --no-pager
 
-sudo tail -n 100 /var/log/nginx/oneid-r4.error.log
+sudo tail -n 100 /var/log/nginx/oneid-uat.error.log
 ```
 
 Jangan salin raw log yang mempunyai PII atau token ke Git. Evidence hendaklah
 berbentuk counts, timestamp, correlation ID, header ID atau keputusan redacted.
+`ONEID_SYNC_PREVIEW` dan `ONEID_SYNC_APPLY` ialah marker exception; kiraan sifar
+sebelum pilot adalah normal. Kejayaan controlled Apply direkod sebagai audit DB
+`ADMIN_SYNC_SAFE`, bukan sebagai success marker dalam Nginx/PHP error log.
 
 ### Syarat lulus
 
@@ -210,7 +213,7 @@ Communication/incident channel:
 User/admin change freeze mula dan tamat:
 Approved release commit:
 Backup evidence:
-Expected preview: source=6485 new=71 update=7 deactivate=0 reactivate=0
+Expected preview: source=6485 new=72 update=26 deactivate=1 reactivate=0
 Maximum Apply requests: 1
 ```
 
@@ -231,6 +234,32 @@ semula dan tidak boleh menggunakan acceptance lama secara automatik.
 - lebih daripada seorang admin atau lebih daripada satu Apply dirancang.
 
 Gate berkaitan: `S4D-16` dan `S4-G23`.
+
+### Rekod window yang diluluskan
+
+```text
+Change ID: ONEID-S4E-20260716-01
+Tarikh: 16 Julai 2026
+Window mula: 21:00
+Window tamat: 22:00
+Observation tamat: 23:00
+Pilot admin: 05530-09
+Change owner: Firdaus
+Rollback owner: Firdaus
+DBA/on-call: Firdaus / DBA dan SA
+Operations/monitoring owner: Firdaus
+Security reviewer: Firdaus
+Communication/incident channel: WhatsApp/Teams kumpulan teknikal OneID
+User/admin change freeze: 21:00-23:00
+Backup evidence: S4D-20260715-212233; checksum verified OK
+Accepted preview: source=6485 new=72 update=26 deactivate=1 reactivate=0 protected=1 collision=0
+Deactivate candidate: privately verified and accepted
+Maximum Apply requests: 1
+```
+
+Acceptance ini terikat kepada counts di atas. Preview mesti dijana semula dalam
+window; sebarang perubahan counts, hash, warning atau collision membatalkan
+acceptance dan keputusan kembali NO-GO sehingga dinilai semula.
 
 ## 8. Urutan Menyambung Kerja
 

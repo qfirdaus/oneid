@@ -9,7 +9,7 @@ S4-G07	approval	Approval is bound server-side to admin canonical hash counts and
 S4-G08	approval	Apply uses the same fetched snapshot and validated canonical plan	Developer	pass	S4C coordinator proves one fetch one plan before transaction; S4D endpoint is wired but flag-disabled
 S4-G09	approval	Expired wrong-admin mismatch and replay paths have zero mutation	Developer	pass	S4B rejection fixture and S4C coordinator fixture prove rejection before application transaction
 S4-G10	security	Apply endpoint is admin-only CSRF protected and exactly one action	Developer	pass	request_security guard and S4D static contract; endpoint remains flag-disabled and absent from UI
-S4-G11	privacy	Logs and responses contain no raw PII token or credential	Security reviewer	pending	Complete redacted log review in S4E_BAKI_GATE_DAN_HANDOFF section 6
+S4-G11	privacy	Logs and responses contain no raw PII token or credential	Security reviewer	pass	Firdaus security review 2026-07-15: redacted sensitive-term counts 0 across AppsStagingv1 Nginx access/error and PHP-FPM logs; raw log content not copied to Git or handoff
 S4-G12	safety	Single-run advisory lock success failure and release paths pass	Developer	pass	S3 contract 26/26 at checkpoint
 S4-G13	safety	Source completeness and blast-radius policy passes	Developer	pass	S3 in-memory fixture 24/24 at checkpoint
 S4-G14	safety	Planned executed audited reconciliation occurs before commit	Developer	pass	S3 contract at checkpoint
@@ -21,11 +21,11 @@ S4-G19	external	Staff and student production credentials verified read-only	DBA	
 S4-G20	scheduler	Cron and all schedulers remain retired	Operations	pass	AppsStagingv1 inventory 2026-07-15 found no user/root crontab, OneID system refs, timers or queued jobs
 S4-G21	backup	OneID UAT backup completed outside document root	DBA	pass	AppsStagingv1 rehearsal S4D-20260715-212233: 73896288-byte oneiddb dump outside public root; SHA-256 d3183c7779b00be5f815232d1585507b6bb8c9146ce57bf07b59cbc8e7396462; files mode 0600
 S4-G22	backup	Restore rehearsal succeeds to separate database	DBA	pass	AppsStagingv1 2026-07-15: restored 16 tables to generated oneiddb_s4d database; exact source/restore row-count digest matched; temporary target dropped; source_modified=no
-S4-G23	pilot	Maintenance window and pilot admin assigned	Change owner	pending	Complete window owner freeze and abort template in handoff section 7
-S4-G24	pilot	Fresh preview is normal and counts accepted	Change owner	pending	Current counts changed to 6485 source; new 72 update 26 deactivate 1 reactivate 0; owner acceptance pending
+S4-G23	pilot	Maintenance window and pilot admin assigned	Change owner	pass	Change window 2026-07-16 21:00-22:00; observation and freeze through 23:00; pilot admin 05530-09; Firdaus change rollback monitoring and security owner; DBA/SA on-call; WhatsApp/Teams technical OneID channel
+S4-G24	pilot	Fresh preview is normal and counts accepted	Change owner	pass	Firdaus accepted 2026-07-15 preview source 6485 new 72 update 26 deactivate 1 reactivate 0 protected 1 collision 0 after private verification and acceptance of the external-source deactivation candidate; regenerate in window and stop on any variance
 S4-G25	pilot	Effective flags false|disabled proven before window	Operations	pass	No flags in enabled Nginx FPM systemd or shell; strict runtime defaults false/disabled on 2026-07-14
 S4-G26	pilot	Effective flags true|safe enabled only for one pilot	Operations	pending	Change evidence and timestamp
 S4-G27	pilot	Flags returned immediately to false|disabled	Operations	pending	Runtime evidence after request
 S4-G28	reconcile	Header staged audit and user count reconciliation passes	Tester	pending	Pilot header report
-S4-G29	monitor	Nginx PHP-FPM application and sync logs stable	Operations	pending	Prepare readable log paths and minimum 60-minute observation per handoff section 6
+S4-G29	monitor	Nginx PHP-FPM application and sync logs stable	Operations	pending	Preflight 2026-07-15 passed: services active and logs readable; marker count 0 is expected before Apply because sync markers log exceptions and ADMIN_SYNC_SAFE is DB audit; complete minimum 60-minute post-pilot observation
 S4-G30	acceptance	Final ACCEPT or ROLLBACK decision recorded	Change owner	pending	Signed decision; default NO-GO
