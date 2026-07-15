@@ -25,7 +25,8 @@
     "check:sync-wiring": "php tools/s4a_sync_wiring_contract.php",
     "check:sync-approval": "php tools/s4b_sync_approval_contract.php",
     "check:sync-coordinator": "php tools/s4c_sync_coordinator_contract.php",
-    "check:sync-readiness": "php tools/s4d_pre_pilot_contract.php"
+    "check:sync-readiness": "php tools/s4d_pre_pilot_contract.php",
+    "check:sync-deactivation-investigation": "php tools/s4e_deactivation_investigation_contract.php"
   },
   "author": "hencework",
   "license": "ISC",

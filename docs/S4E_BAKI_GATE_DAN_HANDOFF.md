@@ -213,6 +213,26 @@ Gate berkaitan: `S4D-16` dan `S4-G23`.
 
 ## 8. Urutan Menyambung Kerja
 
+### Investigation calon deactivation
+
+Sebelum menerima sebarang count `Deactivate` bukan sifar, operator boleh
+menjalankan tool CLI read-only berikut. Output default hanya membawa digest:
+
+```bash
+php tools/s4e_deactivation_investigation.php
+```
+
+Jika identiti perlu dilihat untuk semakan authorized, jalankan terus pada
+terminal private dan ikut confirmation interaktif:
+
+```bash
+php tools/s4e_deactivation_investigation.php --reveal
+```
+
+Jangan salin output revealed ke Git, ticket, log atau chat. Tool tidak membuka
+transaction, tidak menulis header/audit/user dan tidak memanggil Apply. Semak
+contract dengan `php tools/s4e_deactivation_investigation_contract.php`.
+
 1. Dapatkan evidence DBA tanpa menjalankan write test.
 2. Lengkapkan inventory scheduler read-only.
 3. Sahkan log path, privacy review, monitoring owner dan observation duration.
