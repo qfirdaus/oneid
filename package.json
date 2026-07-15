@@ -27,7 +27,8 @@
     "check:sync-coordinator": "php tools/s4c_sync_coordinator_contract.php",
     "check:sync-readiness": "php tools/s4d_pre_pilot_contract.php",
     "check:sync-deactivation-investigation": "php tools/s4e_deactivation_investigation_contract.php",
-    "check:external-readonly-policy": "php tools/s4e_external_readonly_policy_contract.php"
+    "check:external-readonly-policy": "php tools/s4e_external_readonly_policy_contract.php",
+    "check:backup-restore-guard": "php tools/s4e_backup_restore_guard_contract.php"
   },
   "author": "hencework",
   "license": "ISC",

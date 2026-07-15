@@ -97,12 +97,68 @@ $reflection->setAccessible(true);
 $pdo = $reflection->getValue($operation);
 $actualDatabase = (string) $pdo->query('SELECT DATABASE()')->fetchColumn();
 $serverHostname = (string) $pdo->query('SELECT @@hostname')->fetchColumn();
-if (
-    $sourceDatabase !== 'oneiddb'
-    || $actualDatabase !== $sourceDatabase
-    || stripos($serverHostname, 'dev') === false
+$databaseBytesQuery = $pdo->prepare(
+    'SELECT COALESCE(SUM(DATA_LENGTH + INDEX_LENGTH), 0)
+     FROM information_schema.TABLES WHERE TABLE_SCHEMA = :database'
+);
+$databaseBytesQuery->execute([':database' => $actualDatabase]);
+$estimatedDatabaseBytes = (int) $databaseBytesQuery->fetchColumn();
+$freeBytes = (int) disk_free_space($root . '/storage');
+$preflight = in_array('--preflight', $argv, true);
+
+if ($preflight) {
+    printf("PREFLIGHT source_host=%s server_hostname=%s database=%s estimated_bytes=%d free_bytes=%d\n", $host, $serverHostname, $actualDatabase, $estimatedDatabaseBytes, $freeBytes);
+    printf("PREFLIGHT mysqldump=%s mysql=%s apply_enabled=%s engine=%s\n",
+        is_executable('/usr/bin/mysqldump') ? 'yes' : 'no',
+        is_executable('/usr/bin/mysql') ? 'yes' : 'no',
+        (string) oneid_config('ONEID_SYNC_APPLY_ENABLED'),
+        (string) oneid_config('ONEID_SYNC_ENGINE')
+    );
+    $preflightOk = $sourceDatabase !== ''
+        && $actualDatabase === $sourceDatabase
+        && $estimatedDatabaseBytes > 0
+        && $freeBytes > ($estimatedDatabaseBytes * 3)
+        && is_executable('/usr/bin/mysqldump')
+        && is_executable('/usr/bin/mysql')
+        && (string) oneid_config('ONEID_SYNC_APPLY_ENABLED') === 'false'
+        && (string) oneid_config('ONEID_SYNC_ENGINE') === 'disabled';
+    printf("RESULT preflight=%s mutation_statements=0\n", $preflightOk ? 'pass' : 'fail');
+    exit($preflightOk ? 0 : 1);
+}
+
+if (!in_array('--execute', $argv, true)) {
+    s4d_fail('Choose --preflight or --execute explicitly.');
+}
+
+if ((string) oneid_config('ONEID_SYNC_APPLY_ENABLED') !== 'false'
+    || (string) oneid_config('ONEID_SYNC_ENGINE') !== 'disabled'
 ) {
-    s4d_fail('Fail-closed target check rejected a non-DEV or unexpected source database.');
+    s4d_fail('Rehearsal requires sync Apply to remain false and the engine disabled.');
+}
+
+$allowedServerHostname = trim((string) oneid_config('ONEID_REHEARSAL_ALLOWED_SERVER_HOSTNAME', ''));
+$allowedSourceDatabase = trim((string) oneid_config('ONEID_REHEARSAL_ALLOWED_SOURCE_DATABASE', ''));
+if ($allowedServerHostname === ''
+    || $allowedSourceDatabase === ''
+    || $sourceDatabase !== 'oneiddb'
+    || !hash_equals(strtolower($allowedServerHostname), strtolower($serverHostname))
+    || !hash_equals($allowedSourceDatabase, $sourceDatabase)
+    || !hash_equals($sourceDatabase, $actualDatabase)
+) {
+    s4d_fail('Fail-closed target allowlist rejected the server hostname or source database.');
+}
+if (!function_exists('stream_isatty') || !stream_isatty(STDIN)) {
+    s4d_fail('Execution requires an interactive terminal.');
+}
+fwrite(STDERR, sprintf(
+    "Source %s/%s will be dumped. A generated rehearsal DB will be created and dropped.\nType BACKUP-RESTORE %s to continue: ",
+    $serverHostname,
+    $sourceDatabase,
+    $sourceDatabase
+));
+$confirmation = trim((string) fgets(STDIN));
+if (!hash_equals('BACKUP-RESTORE ' . $sourceDatabase, $confirmation)) {
+    s4d_fail('Operator confirmation did not match.');
 }
 
 $schemaQuery = $pdo->prepare(
@@ -212,6 +268,11 @@ try {
 } finally {
     if ($created) {
         try {
+            if ($rehearsalDatabase === $sourceDatabase
+                || preg_match('/\Aoneiddb_s4d_[0-9]{8}_[0-9]{6}_[a-f0-9]{4}\z/', $rehearsalDatabase) !== 1
+            ) {
+                throw new RuntimeException('Unsafe rehearsal cleanup target rejected.');
+            }
             $pdo->exec('DROP DATABASE IF EXISTS ' . s4d_quote_identifier($rehearsalDatabase));
             $dropped = true;
         } catch (Throwable $dropException) {

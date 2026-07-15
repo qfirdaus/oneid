@@ -254,6 +254,22 @@ Jangan salin output revealed ke Git, ticket, log atau chat. Tool tidak membuka
 transaction, tidak menulis header/audit/user dan tidak memanggil Apply. Semak
 contract dengan `php tools/s4e_deactivation_investigation_contract.php`.
 
+### Backup/restore staging
+
+Jalankan preflight read-only dahulu pada host sasaran:
+
+```bash
+php tools/s4d_backup_restore_rehearsal.php --preflight
+```
+
+Execution hanya dibenarkan selepas hostname dan source database daripada
+preflight dimasukkan tepat dalam `.private/runtime.php` sebagai
+`ONEID_REHEARSAL_ALLOWED_SERVER_HOSTNAME` dan
+`ONEID_REHEARSAL_ALLOWED_SOURCE_DATABASE`. Selepas itu operator menjalankan
+`--execute` pada terminal interaktif dan menaip confirmation yang diminta.
+Tool tidak menerima password pada command line, tidak pernah memilih source
+database sebagai cleanup target dan hanya boleh drop nama rehearsal generated.
+
 1. Dapatkan evidence DBA tanpa menjalankan write test.
 2. Lengkapkan inventory scheduler read-only.
 3. Sahkan log path, privacy review, monitoring owner dan observation duration.
