@@ -703,7 +703,7 @@
                                                 </div>
                                                 <div class="form-group">
                                                    <label class="control-label mb-10" for="add_new_category_name">No KP / User ID / Username</label>
-                                                   <input type="text" class="form-control add_new_manual_user_input" id="add_new_manual_user_id" name="add_new_manual_user_id" placeholder="User Unique ID, Staff/Student ID" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@-]*" required="" disabled="">
+                                                   <input type="text" class="form-control add_new_manual_user_input" id="add_new_manual_user_id" name="add_new_manual_user_id" placeholder="User Unique ID, Staff/Student ID" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@\-]*" required="" disabled="">
                                                 </div>
                                                 <div class="form-group">
                                                    <label class="control-label mb-10" for="add_new_manual_user_category">Category</label>

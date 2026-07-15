@@ -52,7 +52,7 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
 
         <div class="login-form-block" style="display: flex; flex-direction: column; gap: 4px;margin-bottom: 20px;">
           <label for="username" class="login-form-label" style="margin-bottom: 4px; font-weight: 500; color: #2c2c2c;"> ID Pengguna</label>
-          <input id="username" name="username" type="text" class="login-form-control custom_input login_placeholder" placeholder="Masukkan No. Staf (XXXX-XX) / No. Pelajar" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@-]*" />
+          <input id="username" name="username" type="text" class="login-form-control custom_input login_placeholder" placeholder="Masukkan No. Staf (XXXX-XX) / No. Pelajar" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@\-]*" />
         </div>
 
         <div class="login-form-block" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px;">
