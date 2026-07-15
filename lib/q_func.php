@@ -1364,8 +1364,22 @@ function string_sanitize($s) {
             
       if(isset( $_POST['admin_get_audit_range'])){
         list($start, $end) = explode(' - ', $_POST['audit_search_daterange']);
-        $startDate = date('Y-m-d', strtotime($start)); // "2016-01-01"
-        $endDate   = date('Y-m-d', strtotime($end));   // "2016-01-31"
+        $parseAuditDate = static function (string $value): ?string {
+          foreach (['!d/m/Y', '!m/d/Y', '!Y-m-d'] as $format) {
+            $parsed = DateTimeImmutable::createFromFormat($format, trim($value));
+            $errors = DateTimeImmutable::getLastErrors();
+            if ($parsed !== false && ($errors === false || ($errors['warning_count'] === 0 && $errors['error_count'] === 0))) {
+              return $parsed->format('Y-m-d');
+            }
+          }
+          return null;
+        };
+        $startDate = $parseAuditDate($start);
+        $endDate = $parseAuditDate($end);
+        if ($startDate === null || $endDate === null) {
+          echo json_encode([]);
+          exit;
+        }
         $results = $operation->admin_get_audit_range($startDate,$endDate);
         echo json_encode($results);
       }

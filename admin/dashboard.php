@@ -1195,7 +1195,7 @@
                                                             <form class="audit-filter-form" onsubmit="search_audit_date_range(); return false;">
                                                                <div class="audit-date-input-wrap">
                                                                   <i class="fa fa-calendar-o" aria-hidden="true"></i>
-                                                                  <input class="form-control input-daterange-datepicker" type="text" id="audit_search_daterange" name="audit_search_daterange" value="01/01/2016 - 01/31/2016" aria-label="Audit log date range"/>
+                                                                  <input class="form-control input-daterange-datepicker" type="text" id="audit_search_daterange" name="audit_search_daterange" value="01/01/2016 - 31/01/2016" aria-label="Audit log date range"/>
                                                                </div>
                                                                <button type="submit" class="audit-search-button" aria-label="Search audit logs" title="Search audit logs">
                                                                   <i class="fa fa-search" aria-hidden="true"></i>
@@ -1284,7 +1284,7 @@
                                                                               <th>Triggered By</th>
                                                                               <th>Changes</th>
                                                                               <th>Status</th>
-                                                                              <th>Action</th>
+                                                                              <th class="sync-action-column">#</th>
                                                                            </tr>
                                                                         </thead>
                                                                         <tbody id="sync_session_tbody">
@@ -1520,6 +1520,10 @@
             var auditDatePicker = $('.input-daterange-datepicker').daterangepicker({
                startDate: moment(),
                endDate: moment(),
+               locale: {
+                  format: 'DD/MM/YYYY',
+                  separator: ' - '
+               },
                buttonClasses: ['btn', 'btn-sm'],
                applyClass: 'btn-info',
                cancelClass: 'btn-default'
@@ -2230,7 +2234,7 @@
 						tr += '<button type="button" class="user-result-view" data-user-id="'+resultUserId+'" data-user-source="'+resultSource+'" onclick="view_user_profile(this.dataset.userId, this.dataset.userSource);" title="View user profile" aria-label="View user profile"><i class="fa fa-eye" aria-hidden="true"></i></button>';
 						tr += '</div>';
          			$('#search_user_account_main_result_data').html(tr);
-         			$('#modal_user_profile_lastupdate_text').text(response['u_update_datetime']);
+						$('#modal_user_profile_lastupdate_text').text(admin_format_datetime(response['u_update_datetime']));
          
          		},
          		error: function (xhr, error, thrown) {
@@ -2809,7 +2813,7 @@
                         $('#modal_user_profile_category').prop('disabled', false);
                               $('#modal_user_profile_name').prop('disabled', m3ProfileSource !== 'manual')
                                 .attr('title', m3ProfileSource === 'manual' ? 'Manual account name may be edited.' : 'External account name is maintained through Safe Resync.');
-                        $('#modal_user_profile_lastupdate_text').text(response['u_update_datetime']);
+                        $('#modal_user_profile_lastupdate_text').text(admin_format_datetime(response['u_update_datetime']));
                      }
                      break;
                      case "2": //unreg
@@ -3581,6 +3585,22 @@
          }
          
          
+         function admin_format_datetime(value){
+            if(value === null || value === undefined || value === '' || value === '-'){
+               return '-';
+            }
+            var text = String(value).trim();
+            var match = text.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+            if(match){
+               return match[3] + '/' + match[2] + '/' + match[1] + ' ' + (match[4] || '00') + ':' + (match[5] || '00') + ':' + (match[6] || '00');
+            }
+            match = text.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?/);
+            if(match){
+               return match[1] + '/' + match[2] + '/' + match[3] + ' ' + (match[4] || '00') + ':' + (match[5] || '00') + ':' + (match[6] || '00');
+            }
+            return text;
+         }
+
          function get_all_user_activ_session(){
          $.ajax({
          	type: 'POST',
@@ -3617,7 +3637,7 @@
 					var rows = '';
 					$.each(response, function (i, session) {
 						var isCurrent = session.current_token === "1";
-						var tokenDateTime = sessionText(session.token_datetime);
+						var tokenDateTime = sessionText(admin_format_datetime(session.token_datetime));
 						var userName = sessionText(session.name);
 						var deviceInfo = sessionText(session.device_info);
 						var statusText = isCurrent ? 'Current' : 'Active';
@@ -3690,7 +3710,7 @@
             var rows = auditLogData.slice(start, start + AUDIT_LOG_PAGE_SIZE);
             var tr = '';
             $.each(rows, function(i, value){
-               var auditDateTime = audit_log_text(value.datetime);
+               var auditDateTime = audit_log_text(admin_format_datetime(value.datetime));
                var auditLogType = audit_log_text(value.log_type);
                var auditLogDetail = audit_log_text(value.log_detail);
                var auditIpAddress = audit_log_text(value.ip_addr);
@@ -3903,8 +3923,8 @@
             var rows = syncSessionsData.slice(start, start + SYNC_SESSIONS_PAGE_SIZE);
             var tr = '';
             $.each(rows, function(i, row){
-               var dtStart = row.ext_head_dt_start || '-';
-               var dtEnd = row.ext_head_dt_end ? ' — ' + row.ext_head_dt_end : '';
+               var dtStart = admin_format_datetime(row.ext_head_dt_start);
+               var dtEnd = row.ext_head_dt_end ? ' — ' + admin_format_datetime(row.ext_head_dt_end) : '';
                tr += '<tr class="sync-session-row">';
                tr += '<td data-label="Session"><span class="sync-session-id">#' + row.ext_head_id + '</span></td>';
                tr += '<td data-label="Date / Time"><span class="sync-session-time">' + dtStart + dtEnd + '</span></td>';
@@ -3916,7 +3936,7 @@
                tr += '<span><small>Reactivated</small><strong>' + (row.total_reactivated || 0) + '</strong></span>';
                tr += '</div></td>';
                tr += '<td data-label="Status">' + sync_status_badge(row.ext_head_status) + '</td>';
-               tr += '<td data-label="Action"><button type="button" class="sync-view-button" title="View session details" aria-label="View session details" onclick="load_sync_log_detail(' + row.ext_head_id + ', \'' + String(dtStart).replace(/'/g, "\\'") + '\');"><i class="fa fa-eye" aria-hidden="true"></i><span class="sr-only">View session details</span></button></td>';
+               tr += '<td class="sync-action-column" data-label="#"><button type="button" class="sync-view-button" title="View session details" aria-label="View session details" onclick="load_sync_log_detail(' + row.ext_head_id + ', \'' + String(dtStart).replace(/'/g, "\\'") + '\');"><i class="fa fa-eye" aria-hidden="true"></i><span class="sr-only">View session details</span></button></td>';
                tr += '</tr>';
             });
             $('#sync_session_tbody').html(tr || '<tr class="sync-empty-row"><td colspan="6">No sync sessions found.</td></tr>');
@@ -3970,7 +3990,7 @@
                tr += '<div><span>Old data</span><p>' + sync_format_json_cell(row.old_data) + '</p></div>';
                tr += '<div><span>New data</span><p>' + sync_format_json_cell(row.new_data) + '</p></div>';
                tr += '</div></td>';
-               tr += '<td data-label="Time"><span class="sync-session-time">' + (row.logged_at || '-') + '</span></td>';
+               tr += '<td data-label="Time"><span class="sync-session-time">' + admin_format_datetime(row.logged_at) + '</span></td>';
                tr += '</tr>';
             });
             $('#sync_detail_tbody').html(tr || '<tr class="sync-empty-row"><td colspan="5">No changes recorded for this session.</td></tr>');
@@ -6585,6 +6605,10 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(4) { width: 34%; }
       #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(5) { width: 14%; }
       #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(6) { width: 7%; }
+
+      #tab_synclog .sync-log-table .sync-action-column {
+        text-align: left !important;
+      }
 
       #tab_synclog .sync-log-table tbody tr:first-child td {
         border-top: 0;
