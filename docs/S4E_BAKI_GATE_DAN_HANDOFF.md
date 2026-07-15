@@ -238,11 +238,11 @@ Gate berkaitan: `S4D-16` dan `S4-G23`.
 ### Rekod window yang diluluskan
 
 ```text
-Change ID: ONEID-S4E-20260716-01
-Tarikh: 16 Julai 2026
-Window mula: 21:00
-Window tamat: 22:00
-Observation tamat: 23:00
+Change ID: ONEID-S4E-20260715-EMERGENCY-01
+Tarikh: 15 Julai 2026
+Window mula: 23:15
+Window tamat: 23:45
+Observation tamat: 00:45, 16 Julai 2026
 Pilot admin: 05530-09
 Change owner: Firdaus
 Rollback owner: Firdaus
@@ -250,13 +250,15 @@ DBA/on-call: Firdaus / DBA dan SA
 Operations/monitoring owner: Firdaus
 Security reviewer: Firdaus
 Communication/incident channel: WhatsApp/Teams kumpulan teknikal OneID
-User/admin change freeze: 21:00-23:00
+User/admin change freeze: 23:15-00:45
 Backup evidence: S4D-20260715-212233; checksum verified OK
 Accepted preview: source=6485 new=72 update=27 deactivate=1 reactivate=0 protected=1 collision=0
 Update manifest: 4c43bdc87cebb60b0f08c21d122ac3fd7ce0e7e201bd3b5e63686a085a22cb74
 Update review: all 27 reviewed; pilot-selected candidate verified; changed field data5; change accepted as legitimate
 Deactivate candidate: privately verified and accepted
 Maximum Apply requests: 1
+Revised-window readiness: DBA/SA on-call YES; operations monitoring YES; security reviewer YES
+Change owner decision: GO
 ```
 
 Acceptance ini terikat kepada counts di atas. Preview mesti dijana semula dalam
