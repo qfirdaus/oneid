@@ -1539,6 +1539,13 @@
                cancelClass: 'btn-default'
             });
             auditDatePicker.data('daterangepicker').container.addClass('oneid-audit-daterangepicker');
+            auditDatePicker
+               .on('show.daterangepicker', function(event, picker){
+                  picker.container.addClass('is-open');
+               })
+               .on('hide.daterangepicker', function(event, picker){
+                  picker.container.removeClass('is-open');
+               });
 
          $('#search_user_account_main_progress_bar').hide();
          $('#search_user_account_main_search_result').hide();
@@ -6264,7 +6271,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         color: #d46b62;
       }
 
-      .daterangepicker.oneid-audit-daterangepicker.show-calendar {
+      .daterangepicker.oneid-audit-daterangepicker.is-open {
         display: flex !important;
         flex-wrap: wrap;
         width: 548px;
@@ -6326,7 +6333,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       @media (max-width: 767px) {
-        .daterangepicker.oneid-audit-daterangepicker.show-calendar {
+        .daterangepicker.oneid-audit-daterangepicker.is-open {
           display: block !important;
           width: 278px;
         }
