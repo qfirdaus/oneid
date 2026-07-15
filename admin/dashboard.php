@@ -1245,6 +1245,7 @@
                                                                   </tbody>
                                                                </table>
                                                             </div>
+                                                            <div id="audit_log_pagination" class="audit-log-pagination text-center" aria-label="Audit log pages"></div>
                                                          </div>
                                                       </div>
                                                    </div>
@@ -1540,13 +1541,14 @@
          // 	new Switchery($(this)[0], $(this).data());
          // });
          $(document).ready(function() {
-            $('.input-daterange-datepicker').daterangepicker({
+            var auditDatePicker = $('.input-daterange-datepicker').daterangepicker({
                startDate: moment(),
-    endDate: moment(),
-     buttonClasses: ['btn', 'btn-sm'],
-         applyClass: 'btn-info',
-         cancelClass: 'btn-default'
-   });
+               endDate: moment(),
+               buttonClasses: ['btn', 'btn-sm'],
+               applyClass: 'btn-info',
+               cancelClass: 'btn-default'
+            });
+            auditDatePicker.data('daterangepicker').container.addClass('oneid-audit-daterangepicker');
 
          $('#search_user_account_main_progress_bar').hide();
          $('#search_user_account_main_search_result').hide();
@@ -3667,6 +3669,59 @@
          
          
 
+         var auditLogData = [];
+         var AUDIT_LOG_PAGE_SIZE = 10;
+
+         function render_audit_pagination(currentPage, totalPages){
+            if(totalPages <= 1){
+               $('#audit_log_pagination').html('');
+               return;
+            }
+            var html = '<ul class="pagination pagination-sm">';
+            html += currentPage <= 1
+               ? '<li class="disabled"><a href="javascript:void(0)">Prev</a></li>'
+               : '<li><a href="javascript:void(0)" onclick="render_audit_log_page(' + (currentPage - 1) + ')">Prev</a></li>';
+            var startPage = Math.max(1, currentPage - 2);
+            var endPage = Math.min(totalPages, startPage + 4);
+            startPage = Math.max(1, endPage - 4);
+            for(var p = startPage; p <= endPage; p++){
+               html += p === currentPage
+                  ? '<li class="active"><a href="javascript:void(0)">' + p + '</a></li>'
+                  : '<li><a href="javascript:void(0)" onclick="render_audit_log_page(' + p + ')">' + p + '</a></li>';
+            }
+            html += currentPage >= totalPages
+               ? '<li class="disabled"><a href="javascript:void(0)">Next</a></li>'
+               : '<li><a href="javascript:void(0)" onclick="render_audit_log_page(' + (currentPage + 1) + ')">Next</a></li>';
+            html += '</ul>';
+            $('#audit_log_pagination').html(html);
+         }
+
+         function audit_log_text(value){
+            return $('<div>').text(value == null ? '' : value).html();
+         }
+
+         function render_audit_log_page(page){
+            var totalPages = Math.ceil(auditLogData.length / AUDIT_LOG_PAGE_SIZE) || 1;
+            page = Math.max(1, Math.min(page, totalPages));
+            var start = (page - 1) * AUDIT_LOG_PAGE_SIZE;
+            var rows = auditLogData.slice(start, start + AUDIT_LOG_PAGE_SIZE);
+            var tr = '';
+            $.each(rows, function(i, value){
+               var auditDateTime = audit_log_text(value.datetime);
+               var auditLogType = audit_log_text(value.log_type);
+               var auditLogDetail = audit_log_text(value.log_detail);
+               var auditIpAddress = audit_log_text(value.ip_addr);
+               tr += '<tr>';
+               tr += '<td data-label="Date / Time"><span class="audit-cell-text audit-log-time" title="'+auditDateTime+'">'+auditDateTime+'</span></td>';
+               tr += '<td data-label="Log Type"><span class="audit-cell-text audit-type-badge" title="'+auditLogType+'">'+auditLogType+'</span></td>';
+               tr += '<td data-label="Activity Details"><span class="audit-cell-text audit-log-details" title="'+auditLogDetail+'">'+auditLogDetail+'</span></td>';
+               tr += '<td data-label="IP Address"><code class="audit-cell-text audit-ip-address" title="'+auditIpAddress+'">'+auditIpAddress+'</code></td>';
+               tr += '</tr>';
+            });
+            $('#audit_search_result_tbody').html(tr);
+            render_audit_pagination(page, totalPages);
+         }
+
          function search_audit_date_range(){
             $.ajax({
             type: 'POST',
@@ -3674,6 +3729,8 @@
             dataType: "json",
             data: {admin_get_audit_range:'',audit_search_daterange:$('#audit_search_daterange').val()},     
             beforeSend: function(){
+               auditLogData = [];
+               $('#audit_log_pagination').html('');
                $('#audit_result_count').text('\u2014');
                $('#audit_search_result_tbody').html(
                   '<tr class="audit-state-row is-loading"><td colspan="4">' +
@@ -3685,6 +3742,7 @@
             },
             success: function (response) {
                if(!Array.isArray(response) || response.length == 0){
+                  auditLogData = [];
                   $.toast().reset('all');            
                   $.toast({
                      heading: '',
@@ -3714,33 +3772,20 @@
                      hideAfter: 3500, 
                      stack: 6
                   });  
-                  var tr="";
-                  var auditText = function(value){
-                     return $('<div>').text(value == null ? '' : value).html();
-                  };
                   response.sort(function(a, b){
                      var dateOrder = String(b.datetime || '').localeCompare(String(a.datetime || ''));
                      return dateOrder !== 0 ? dateOrder : Number(b.audit_id || 0) - Number(a.audit_id || 0);
                   });
-                  $.each( response, function( i, value ) {
-                           var auditDateTime = auditText(value['datetime']);
-                           var auditLogType = auditText(value['log_type']);
-                           var auditLogDetail = auditText(value['log_detail']);
-                           var auditIpAddress = auditText(value['ip_addr']);
-                           tr += '<tr>';
-                           tr += '<td data-label="Date / Time"><span class="audit-cell-text audit-log-time" title="'+auditDateTime+'">'+auditDateTime+'</span></td>';
-                           tr += '<td data-label="Log Type"><span class="audit-cell-text audit-type-badge" title="'+auditLogType+'">'+auditLogType+'</span></td>';
-                           tr += '<td data-label="Activity Details"><span class="audit-cell-text audit-log-details" title="'+auditLogDetail+'">'+auditLogDetail+'</span></td>';
-                           tr += '<td data-label="IP Address"><code class="audit-cell-text audit-ip-address" title="'+auditIpAddress+'">'+auditIpAddress+'</code></td>';
-                           tr += '</tr>';
-                        });
+                  auditLogData = response;
                   $('#audit_result_count').text(response.length);
-                  $('#audit_search_result_tbody').html(tr);
+                  render_audit_log_page(1);
 
                }
          
             },
             error: function (xhr, error, thrown) {
+               auditLogData = [];
+               $('#audit_log_pagination').html('');
                $('#audit_result_count').text('\u2014');
                $('#audit_search_result_tbody').html(
                   '<tr class="audit-state-row is-error"><td colspan="4">' +
@@ -6229,7 +6274,81 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         color: #d46b62;
       }
 
+      .daterangepicker.oneid-audit-daterangepicker.show-calendar {
+        display: flex !important;
+        flex-wrap: wrap;
+        width: 548px;
+        max-width: calc(100vw - 24px);
+        padding: 4px;
+      }
+
+      .daterangepicker.oneid-audit-daterangepicker .calendar {
+        float: none !important;
+        flex: 1 1 260px;
+        max-width: 270px;
+      }
+
+      .daterangepicker.oneid-audit-daterangepicker .ranges {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        order: 3;
+        float: none !important;
+        clear: both;
+        flex: 0 0 100%;
+        width: 100% !important;
+        margin: 0;
+        padding: 10px 8px 6px;
+        border-top: 1px solid #e6ebf0;
+        text-align: right;
+      }
+
+      .daterangepicker.oneid-audit-daterangepicker .ranges ul:empty {
+        display: none;
+      }
+
+      .daterangepicker.oneid-audit-daterangepicker .range_inputs {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .daterangepicker.oneid-audit-daterangepicker .range_inputs .btn {
+        float: none !important;
+        min-width: 72px;
+        margin: 0;
+      }
+
+      #tab_auditlog .audit-log-pagination {
+        min-height: 16px;
+        padding: 12px 16px;
+        border-top: 1px solid #edf0f4;
+        background: #fbfcfd;
+      }
+
+      #tab_auditlog .audit-log-pagination:empty {
+        display: none;
+      }
+
+      #tab_auditlog .audit-log-pagination .pagination {
+        margin: 0;
+      }
+
       @media (max-width: 767px) {
+        .daterangepicker.oneid-audit-daterangepicker.show-calendar {
+          display: block !important;
+          width: 278px;
+        }
+
+        .daterangepicker.oneid-audit-daterangepicker .calendar {
+          max-width: 270px;
+        }
+
+        .daterangepicker.oneid-audit-daterangepicker .ranges {
+          display: block;
+        }
+
         #tab_auditlog .audit-log-panel {
           padding: 20px 15px;
         }
