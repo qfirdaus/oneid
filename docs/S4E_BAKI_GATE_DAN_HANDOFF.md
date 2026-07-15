@@ -90,6 +90,12 @@ Evidence location/ticket:
 DBA decision: PASS|FAIL
 ```
 
+Rekod semasa 15 Julai 2026: DBA mengesahkan kedua-dua runtime credential Staff
+dan Student mempunyai CONNECT serta SELECT pada view diperlukan sahaja.
+INSERT, UPDATE, DELETE, MERGE, CREATE, ALTER, DROP, TRUNCATE, writer EXECUTE,
+GRANT/REVOKE, database-owner dan administrative/server role semuanya absent.
+Keputusan gate ialah PASS; raw grant/credential evidence kekal di luar Git.
+
 Gate berkaitan: `S4D-09` dan `S4-G19`.
 
 ## 5. Gate Scheduler — Sahkan Semua Sync Kekal Retired
