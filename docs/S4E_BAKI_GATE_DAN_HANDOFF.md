@@ -6,6 +6,25 @@ Rollback owner: Pemilik sistem OneID
 Baseline sebelum handoff: `ea51e52`
 Status: **NO-GO — APPLY KEKAL DISABLED**
 
+## Incident dan isolated rehearsal 15–16 Julai 2026
+
+Satu controlled pilot request pada 15 Julai 2026 23:22 gagal dengan
+`PDOException` dan respons tersanitasi. Flags dikembalikan kepada
+`false/disabled/false`. Audit selepas kegagalan mengesahkan semua table InnoDB,
+tiada header baharu, advisory lock dilepaskan, counts/manifest tidak berubah dan
+tiada durable mutation.
+
+Stage telemetry kemudian mengenal pasti kegagalan pada `update_header_summary`,
+SQLSTATE `22001`, driver `1406`: label deskriptif telah dihantar ke kolum
+`triggered_by`. Endpoint dibetulkan supaya canonical session admin ID `0530-09`
+digunakan untuk approval admin dan `triggered_by`.
+
+Pada 16 Julai 2026, backup-based isolated rehearsal menjalankan subset tepat
+`2 New / 1 Update / 0 Deactivate / 0 Reactivate` pada database generated.
+Reconciliation lulus dengan rehearsal header 40, target sementara dibuang dan
+`oneiddb` dilaporkan `source_modified=no`. Kejayaan rehearsal tidak memberi GO
+live; window dan arahan GO baharu masih wajib.
+
 ## 1. Tujuan
 
 Dokumen ini ialah titik sambung kerja sebelum S4E. Ia menerangkan evidence yang
