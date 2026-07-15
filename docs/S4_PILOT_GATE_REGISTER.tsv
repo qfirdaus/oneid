@@ -19,8 +19,8 @@ S4-G17	regression	S3 safety regression passes on release commit	Tester	pass	2026
 S4-G18	regression	Admin auth logout public-root and SSO smoke pass	Tester	pass	Public-root 10/10; admin preview/logout 16/16; iqs-framework.local SSO pass on 2026-07-14
 S4-G19	external	Staff and student production credentials verified read-only	DBA	pass	DBA confirmed 2026-07-15 CONNECT plus required-view SELECT only; DML DDL grant owner and administrative privileges absent; raw evidence retained outside Git
 S4-G20	scheduler	Cron and all schedulers remain retired	Operations	pass	AppsStagingv1 inventory 2026-07-15 found no user/root crontab, OneID system refs, timers or queued jobs
-S4-G21	backup	OneID UAT backup completed outside document root	DBA	pending	Previous WSL evidence is not deployed on AppsStagingv1; create and checksum a backup of the actual staging database
-S4-G22	backup	Restore rehearsal succeeds to separate database	DBA	pending	Repeat isolated restore and reconciliation using the actual staging backup
+S4-G21	backup	OneID UAT backup completed outside document root	DBA	pass	AppsStagingv1 rehearsal S4D-20260715-212233: 73896288-byte oneiddb dump outside public root; SHA-256 d3183c7779b00be5f815232d1585507b6bb8c9146ce57bf07b59cbc8e7396462; files mode 0600
+S4-G22	backup	Restore rehearsal succeeds to separate database	DBA	pass	AppsStagingv1 2026-07-15: restored 16 tables to generated oneiddb_s4d database; exact source/restore row-count digest matched; temporary target dropped; source_modified=no
 S4-G23	pilot	Maintenance window and pilot admin assigned	Change owner	pending	Complete window owner freeze and abort template in handoff section 7
 S4-G24	pilot	Fresh preview is normal and counts accepted	Change owner	pending	Current counts changed to 6485 source; new 72 update 26 deactivate 1 reactivate 0; owner acceptance pending
 S4-G25	pilot	Effective flags false|disabled proven before window	Operations	pass	No flags in enabled Nginx FPM systemd or shell; strict runtime defaults false/disabled on 2026-07-14
