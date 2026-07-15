@@ -208,7 +208,7 @@ var admintres = function(){
 				$('<li class="todo-item"><div class="checkbox checkbox-success"><input type="checkbox" id="checkbox'+random+'"/><label for="checkbox'+random+'">' + $('.new-todo input').val() + '</label></div></li><li><hr class="light-grey-hr"/></li>').insertAfter(".todo-list li:last-child");
 				$('.new-todo input').val('');
 		} else if(e.which == 13) {
-			alert('Please type somthing!');
+			oneidToast('Input required', 'Please type something.', 'warning');
 		}
 		return;
 	});
@@ -219,7 +219,7 @@ var admintres = function(){
 			$('<li class="self mb-10"><div class="self-msg-wrap"><div class="msg block pull-right">' + $(this).val() + '<div class="msg-per-detail mt-5"><span class="msg-time txt-grey">3:30 pm</span></div></div></div><div class="clearfix"></div></li>').insertAfter(".fixed-sidebar-right .chat-content  ul li:last-child");
 			$(this).val('');
 		} else if(e.which == 13) {
-			alert('Please type somthing!');
+			oneidToast('Message required', 'Please type something.', 'warning');
 		}
 		return;
 	});
@@ -228,7 +228,7 @@ var admintres = function(){
 			$('<li class="self mb-10"><div class="self-msg-wrap"><div class="msg block pull-right">' + $(this).val() + '<div class="msg-per-detail mt-5"><span class="msg-time txt-grey">3:30 pm</span></div></div></div><div class="clearfix"></div></li>').insertAfter(".chat-for-widgets .chat-content  ul li:last-child");
 			$(this).val('');
 		} else if(e.which == 13) {
-			alert('Please type somthing!');
+			oneidToast('Message required', 'Please type something.', 'warning');
 		}
 		return;
 	});
@@ -237,7 +237,7 @@ var admintres = function(){
 			$('<li class="self mb-10"><div class="self-msg-wrap"><div class="msg block pull-right">' + $(this).val() + '<div class="msg-per-detail mt-5"><span class="msg-time txt-grey">3:30 pm</span></div></div></div><div class="clearfix"></div></li>').insertAfter(".chat-for-widgets-1 .chat-content  ul li:last-child");
 			$(this).val('');
 		} else if(e.which == 13) {
-			alert('Please type asomthing!');
+			oneidToast('Message required', 'Please type something.', 'warning');
 		}
 		return;
 	});
@@ -439,4 +439,3 @@ $(window).on("resize", function () {
 	chatApp();
 }).resize();
 /***** Resize function end *****/
-

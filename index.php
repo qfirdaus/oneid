@@ -466,6 +466,7 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
   <script src="assetsM/vendor/overlay-scroll/jquery.overlayScrollbars.min.js"></script>
   <script src="assetsM/vendor/overlay-scroll/custom-scrollbar.js"></script>
   <script src="vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
+  <script src="assetsM/js/oneid-notifications.js?v=20260716-1"></script>
   <script src="assetsM/js/main.js"></script>
 
 

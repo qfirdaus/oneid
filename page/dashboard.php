@@ -585,8 +585,9 @@
       <!-- Sweet-Alert  -->
       <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
       <script src="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
+      <script src="../assetsM/js/oneid-notifications.js?v=20260716-1"></script>
       <!-- Init JavaScript -->
-      <script src="../dist/js/init.js"></script>
+      <script src="../dist/js/init.js?v=20260716-1"></script>
       <script src="../dist/js/widgets-data.js"></script>
       <script>
          $.ajaxSetup({

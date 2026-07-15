@@ -19,12 +19,8 @@ $(document).ready(function() {
 	// 
 	var drEvent = $('#input-file-events').dropify();
 
-	drEvent.on('dropify.beforeClear', function(event, element){
-		return confirm("Do you really want to delete \"" + element.file.name + "\" ?");
-	});
-
 	drEvent.on('dropify.afterClear', function(event, element){
-		alert('File deleted');
+		oneidToast('File deleted', 'The selected file was removed.', 'success');
 	});
 
 	drEvent.on('dropify.errors', function(event, element){

@@ -1514,12 +1514,13 @@
       <!-- Sweet-Alert  -->
       <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
       <script src="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
+      <script src="../assetsM/js/oneid-notifications.js?v=20260716-1"></script>
       <!-- Init JavaScript -->
-      <script src="../dist/js/init.js"></script>
+      <script src="../dist/js/init.js?v=20260716-1"></script>
       <script src="../vendors/typeahead.js"></script>
       <!-- Form Flie Upload Data JavaScript -->
       <script src="../vendors/bower_components/dropify/dist/js/dropify.min.js"></script>
-      <script src="../dist/js/form-file-upload-data.js"></script>
+      <script src="../dist/js/form-file-upload-data.js?v=20260716-1"></script>
 
       <!-- Moment JavaScript -->
       <script type="text/javascript" src="../vendors/bower_components/moment/min/moment-with-locales.min.js"></script>
@@ -3270,10 +3271,13 @@
 
                   $('#btn_apply_sync_pilot').off('click').on('click', function(){
                      if(!pilotApprovalId){ return; }
-                     if(!window.confirm('Apply exactly 2 New and 1 Update? No Deactivate or Reactivate will be allowed. This approval can be used once only.')){
-                        return;
-                     }
-                     var button = $(this).prop('disabled', true).text('Applying controlled pilot...');
+                     var button = $(this);
+                     oneidConfirm(
+                        'Apply controlled pilot?',
+                        'Apply exactly 2 New and 1 Update? No Deactivate or Reactivate will be allowed. This approval can be used once only.',
+                        'Apply pilot',
+                        function(){
+                     button.prop('disabled', true).text('Applying controlled pilot...');
                      $.ajax({
                         type: 'POST',
                         url: '../lib/q_func',
@@ -3284,18 +3288,20 @@
                            button.hide();
                            if(applyResponse && applyResponse.status === 1){
                               var applied = applyResponse.counts || {};
-                              window.alert('Controlled pilot completed. Header ' + applyResponse.header_id + '; New=' + (applied.New || 0) + ', Update=' + (applied.Update || 0) + ', Deactivate=' + (applied.Deactivate || 0) + ', Reactivate=' + (applied.Reactivate || 0) + '.');
+                              oneidToast('Controlled pilot completed', 'Header ' + applyResponse.header_id + '; New=' + (applied.New || 0) + ', Update=' + (applied.Update || 0) + ', Deactivate=' + (applied.Deactivate || 0) + ', Reactivate=' + (applied.Reactivate || 0) + '.', 'success', {hideAfter: 7000});
                            } else {
                               var code = applyResponse && applyResponse.code ? applyResponse.code : 'SYNC_APPLY_FAILED';
-                              window.alert('Controlled pilot was not applied. Code: ' + code + '. Generate a fresh preview before retrying.');
+                              oneidToast('Controlled pilot was not applied', 'Code: ' + code + '. Generate a fresh preview before retrying.', 'error');
                            }
                         },
                         error: function(){
                            pilotApprovalId = '';
                            button.hide();
-                           window.alert('Controlled pilot request failed. Generate a fresh preview and inspect server logs.');
+                           oneidToast('Controlled pilot request failed', 'Generate a fresh preview and inspect server logs.', 'error');
                         }
                      });
+                        }
+                     );
                   });
                },
                error: function () {
@@ -4058,11 +4064,10 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
   //   if (res.isConfirmed) api.clearElement();  // this will also trigger before/afterClear
   // });
 
-  // Simple confirm:
-  if (confirm('Remove the selected file?')) {
-    api.clearElement();            // proceed; will still fire the Dropify events
+  oneidConfirm('Remove selected file?', 'The selected file will be cleared from this form.', 'Remove file', function () {
+    api.clearElement();
     $('#edit_existing_app_icon').val('');
-  }
+  });
 });
         function startTokenRefresh(){
               setInterval(function() {
