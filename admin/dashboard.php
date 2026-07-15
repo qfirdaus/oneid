@@ -7207,10 +7207,10 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
       #tab_versioning .version-release-toggle {
         display: grid;
-        grid-template-columns: 150px minmax(0, 1fr) 24px;
+        grid-template-columns: 132px minmax(0, 1fr) 34px;
         align-items: center;
         width: 100%;
-        padding: 0;
+        padding: 0 12px 0 0;
         border: 0;
         background: #fff;
         color: inherit;
@@ -7226,15 +7226,15 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
       #tab_versioning .version-release-meta {
         display: block;
-        padding: 22px 20px;
+        padding: 14px 16px;
         border-right: 1px solid #edf0f4;
         background: #fbfcfd;
       }
 
       #tab_versioning .version-latest-label {
         display: inline-block;
-        margin-bottom: 12px;
-        padding: 4px 9px;
+        margin-bottom: 7px;
+        padding: 3px 8px;
         border-radius: 20px;
         background: #11a8df;
         color: #fff;
@@ -7251,16 +7251,16 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_versioning .version-number {
-        margin-bottom: 7px;
+        margin-bottom: 4px;
         color: #263447;
-        font-size: 20px;
+        font-size: 17px;
         font-weight: 700;
         line-height: 1.2;
       }
 
       #tab_versioning .version-release-date {
         color: #7b8797;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 500;
       }
 
@@ -7274,13 +7274,21 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_versioning .version-release-summary {
-        padding: 0 24px;
+        padding: 0 18px;
         color: #526176;
         font-size: 14px;
         font-weight: 600;
       }
 
       #tab_versioning .version-release-chevron {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        margin-right: 4px;
+        border-radius: 50%;
+        background: #f1f6f9;
         color: #7f8b9a;
         transition: transform .18s ease;
       }
@@ -7379,11 +7387,12 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         }
 
         #tab_versioning .version-release-toggle {
-          grid-template-columns: minmax(0, 1fr) 22px;
+          grid-template-columns: minmax(0, 1fr) 34px;
+          padding-right: 8px;
         }
 
         #tab_versioning .version-release-meta {
-          padding: 16px 18px;
+          padding: 12px 14px;
           border-right: 0;
         }
 
