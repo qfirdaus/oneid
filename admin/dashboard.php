@@ -1407,9 +1407,7 @@
                                                                </div>
                                                                <div class="sso-config-control">
                                                                   <div class="sso-config-switch" aria-label="Allow multiple sessions">
-                                                                     <span>Disabled</span>
                                                                      <input type="checkbox" class="js-switch js-switch-1" id="sso_settings_multi_session" data-color="#11a8df" data-size="small"/>
-                                                                     <span>Enabled</span>
                                                                   </div>
                                                                </div>
                                                             </div>
@@ -1424,9 +1422,7 @@
                                                                </div>
                                                                <div class="sso-config-control">
                                                                   <div class="sso-config-switch" aria-label="Send OTP email to user">
-                                                                     <span>Disabled</span>
                                                                      <input type="checkbox" class="js-switch js-switch-1" id="sso_settings_otp_email" data-color="#11a8df" data-size="small"/>
-                                                                     <span>Enabled</span>
                                                                   </div>
                                                                </div>
                                                             </div>
@@ -6989,7 +6985,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #tab_settings .sso-config-row {
         display: grid;
         grid-template-columns: minmax(0, 1fr) 260px;
-        align-items: center;
+        align-items: start;
         gap: 30px;
         min-height: 112px;
         padding: 22px 26px;
@@ -7034,6 +7030,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_settings .sso-config-control {
+        align-self: start;
         justify-self: stretch;
       }
 
@@ -7114,7 +7111,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
         #tab_settings .sso-config-switch {
           justify-content: flex-start;
-          padding-left: 50px;
+          padding-left: 0;
         }
 
         #tab_settings .sso-config-note {
