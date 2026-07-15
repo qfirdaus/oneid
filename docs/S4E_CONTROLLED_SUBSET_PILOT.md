@@ -66,3 +66,16 @@ Semak implementation dengan:
 ```bash
 php tools/s4e_controlled_pilot_contract.php
 ```
+
+Jika full preview Update berubah, inventori read-only boleh dijalankan dengan:
+
+```bash
+php tools/s4e_update_investigation.php
+```
+
+Output default hanya mengandungi digest, changed-field names dan manifest digest.
+`--reveal` memerlukan confirmation interaktif dan hanya untuk semakan private;
+jangan salin raw output ke Git, ticket, log atau chat. Plan lama yang tidak
+mempunyai manifest calon tidak boleh dibanding secara retrospektif daripada
+plan hash sahaja. Simpan hanya manifest digest/count sebagai evidence selepas
+set baharu diterima supaya drift seterusnya boleh dikenal pasti dengan tepat.
