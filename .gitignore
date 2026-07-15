@@ -2,8 +2,10 @@
 *.sql
 !/docs/migrations/*.sql
 
-# Config sensitif
-lib/config.php
+# Konfigurasi runtime local/sensitif. Struktur directory kekal dalam Git,
+# tetapi nilai staging/production tidak boleh di-commit.
+/.private/*
+!/.private/.gitkeep
 
 # Logs
 *.log
@@ -27,7 +29,6 @@ public_img/*
 
 # Runtime data selepas migrasi ke public root
 /public/public_img/*
-!/public/public_img/.htaccess
 /public/public_docs/*
 /public/videos/*
 

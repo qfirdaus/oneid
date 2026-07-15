@@ -130,7 +130,7 @@ function EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER($user_id, $source_family = 'both
 
 function SAMPLE_DATA_SOURCE_GET_ALL_USER(){
 	 //----- 1. Script for Sample data USING CURL CALL
-            $url = "http://localhost/SSO_IDP/sample_data.php";
+            $url = (string) oneid_config('ONEID_SAMPLE_DATA_URL');
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
@@ -151,7 +151,7 @@ function SAMPLE_DATA_SOURCE_GET_ALL_USER(){
 
 function SAMPLE_DATA_SOURCE_GET_SPECIFIC_USER($user_id){
 	 //----- 1. Script for Sample data USING CURL CALL
-            $url = "http://localhost/SSO_IDP/sample_data.php";
+            $url = (string) oneid_config('ONEID_SAMPLE_DATA_URL');
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);

@@ -31,7 +31,9 @@ Struktur `public/` selari telah berjaya diwujudkan tanpa menukar document root N
 - menukar include aktif daripada working-directory relative kepada `__DIR__`;
 - upload icon menggunakan `oneid_public_path('public_img')`;
 - cron log menggunakan `oneid_storage_path('logs')`;
-- default secret path dikekalkan pada `/var/www/app/.oneid-uat-secrets.php` melalui `PROJECT_ROOT`.
+- Catatan semasa: default secret path telah dimigrasi selepas R5.5B ke
+  `PROJECT_ROOT/.private/runtime.php`; lokasi lama di bawah ialah rekod sejarah
+  pelaksanaan R0-R3.
 
 ### R2 — Parallel public structure
 

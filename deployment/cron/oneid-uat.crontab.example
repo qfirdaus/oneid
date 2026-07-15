@@ -1,0 +1,3 @@
+# Pasang menggunakan `crontab -e` bagi account service OneID.
+# Aktifkan command sebenar hanya selepas runbook sync dan approval gate lulus.
+# */15 * * * * cd /var/www/app/oneid-uat && /usr/bin/php cron/<command>.php >> storage/logs/cron.log 2>&1

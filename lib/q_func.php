@@ -1300,13 +1300,13 @@ function string_sanitize($s) {
             $mail = new PHPMailer;
             $mail->isSMTP(); 
             $mail->SMTPDebug = 0; 
-            $mail->Host = "smtp.office365.com"; 
-            $mail->Port = "587"; // typically 587 
-            $mail->SMTPSecure = 'tls'; // ssl is depracated
+            $mail->Host = (string) oneid_config('ONEID_SMTP_HOST');
+            $mail->Port = (int) oneid_config('ONEID_SMTP_PORT');
+            $mail->SMTPSecure = (string) oneid_config('ONEID_SMTP_ENCRYPTION');
             $mail->SMTPAuth = true;
             $mail->Username = oneid_secret('ONEID_SMTP_USERNAME');
             $mail->Password = oneid_secret('ONEID_SMTP_PASSWORD');
-            $mail->setFrom(oneid_secret('ONEID_SMTP_USERNAME'), "sysadmin@upnm");
+            $mail->setFrom(oneid_secret('ONEID_SMTP_USERNAME'), (string) oneid_config('ONEID_SMTP_FROM_NAME'));
             $mail->addAddress($email, $user_name);
             //$mail->addAddress('30saat@gmail.com', 'Nabil');
             $mail->Subject = 'OneID@UPNM - OTP Lupa Kata Laluan';

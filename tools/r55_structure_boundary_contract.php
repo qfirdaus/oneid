@@ -103,7 +103,9 @@ $check(is_file($root . '/public/vendors/bower_components/jquery/dist/jquery.min.
 
 $gitignore = (string) file_get_contents($root . '/.gitignore');
 $check(str_contains($gitignore, '*.sql'), 'database dumps are Git-ignored');
-$check(str_contains($gitignore, 'lib/config.php'), 'runtime-local configuration is Git-ignored');
+$check(!str_contains($gitignore, "\nlib/config.php"), 'compatibility configuration bootstrap is tracked');
+$check(str_contains($gitignore, '/.private/*'), 'private runtime configuration is Git-ignored');
+$check(is_file($root . '/config/runtime.php'), 'committed runtime defaults exist outside public root');
 $check(str_contains($gitignore, '/storage/quarantine/*'), 'quarantine payload is Git-ignored');
 $check(str_contains($gitignore, '/public/public_img/*'), 'runtime uploads are Git-ignored');
 

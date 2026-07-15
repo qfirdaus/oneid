@@ -87,7 +87,7 @@ $resyncBlock = $resyncStart !== false && $resyncEnd !== false
 $report($resyncBlock !== '', 'resync controller block located');
 $report(str_contains($resyncBlock, 'SAMPLE_DATA_SOURCE_GET_SPECIFIC_USER('), 'known risk: resync uses sample data source');
 $report(!str_contains($resyncBlock, 'EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER($_POST') || str_contains($resyncBlock, '// $results = EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER'), 'known risk: authoritative lookup is not active');
-$report(str_contains($external, 'http://localhost/SSO_IDP/sample_data.php'), 'known risk: sample lookup targets localhost fixture');
+$report(str_contains($external, "oneid_config('ONEID_SAMPLE_DATA_URL')"), 'sample lookup URL is centrally configured');
 $report(str_contains($external, 'function SAMPLE_DATA_SOURCE_GET_SPECIFIC_USER') && str_contains($external, 'return [];'), 'known risk: missing sample identity returns empty array');
 $report(str_contains($resyncBlock, "\$results['data1']") && str_contains($resyncBlock, "\$results['data12']"), 'known risk: resync consumes fields without result schema guard');
 $report(str_contains($resyncBlock, 'admin_update_specific_user_info_all_data('), 'known risk: resync directly mutates user profile');

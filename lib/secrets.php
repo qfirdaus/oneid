@@ -18,7 +18,7 @@ function oneid_secret(string $key, bool $required = true): string
     if ($secrets === null) {
         $secretsFile = getenv('ONEID_SECRETS_FILE');
         if ($secretsFile === false || trim($secretsFile) === '') {
-            $secretsFile = dirname(PROJECT_ROOT) . '/.oneid-uat-secrets.php';
+            $secretsFile = PROJECT_ROOT . '/.private/runtime.php';
         }
 
         if (!is_file($secretsFile) || !is_readable($secretsFile)) {

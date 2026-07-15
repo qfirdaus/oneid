@@ -15,8 +15,12 @@ final class SyncRuntimeConfig
 
     public static function fromEnvironment(): self
     {
-        $apply = getenv('ONEID_SYNC_APPLY_ENABLED');
-        $engine = getenv('ONEID_SYNC_ENGINE');
+        $apply = function_exists('oneid_config')
+            ? oneid_config('ONEID_SYNC_APPLY_ENABLED')
+            : getenv('ONEID_SYNC_APPLY_ENABLED');
+        $engine = function_exists('oneid_config')
+            ? oneid_config('ONEID_SYNC_ENGINE')
+            : getenv('ONEID_SYNC_ENGINE');
 
         return self::fromValues(
             $apply === false ? null : $apply,

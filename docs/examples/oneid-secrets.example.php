@@ -3,6 +3,15 @@
 // Template sahaja. Salin ke lokasi di luar document root dan isi melalui
 // saluran pengurusan secrets yang diluluskan. Jangan commit nilai sebenar.
 return [
+    // Nilai environment-specific bukan secret juga boleh dioverride di sini.
+    'ONEID_APP_URL' => 'https://oneid.local',
+    'ONEID_APP_DEBUG' => false,
+    'ONEID_SSO_IDP_URL' => 'https://oneid.local/',
+    'ONEID_SSO_DASHBOARD_URL' => 'https://oneid.local/page/dashboard',
+    'ONEID_SAMPLE_DATA_URL' => 'http://localhost/SSO_IDP/sample_data.php',
+    'ONEID_SYNC_APPLY_ENABLED' => 'false',
+    'ONEID_SYNC_ENGINE' => 'disabled',
+
     'ONEID_DB_DSN' => '',
     'ONEID_DB_USERNAME' => '',
     'ONEID_DB_PASSWORD' => '',

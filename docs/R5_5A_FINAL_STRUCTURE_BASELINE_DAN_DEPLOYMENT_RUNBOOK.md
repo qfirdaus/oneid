@@ -66,7 +66,7 @@ Baseline portable:
 
 - file source/config bukan secret: tidak world-writable;
 - directory source: tidak world-writable;
-- secret file dan database dump local: tiada access untuk `other`;
+- `.private/runtime.php` dan database dump local: tiada access untuk `other`;
 - `storage/` dan `public/public_img/` hanya boleh diberi write kepada account
   PHP-FPM yang sebenar, bukan mode `0777`;
 - Nginx hanya membaca `public/`; ia tidak memerlukan read access kepada `docs/`,
@@ -76,6 +76,11 @@ Owner/group berbeza antara host dibenarkan. Contract mengunci capability
 berisiko (`world-writable` dan symlink), bukan nama user tertentu.
 
 ## Deployment verification
+
+Konfigurasi semasa menggunakan default committed di `config/runtime.php` dan
+override server-local di `.private/runtime.php`. Fail private itu tidak masuk
+Git dan mesti disediakan sebelum PHP-FPM menerima trafik. Template Nginx,
+PHP-FPM dan cron berada di `deployment/`.
 
 ```bash
 cd /var/www/app/oneid-uat

@@ -3,7 +3,7 @@
 require_once __DIR__ . '/config.php';
 //---------- SSO Checker
 $site_id="IDP";
-$IDP_Domain="http://oneid.local/upnm_sso/";
+$IDP_Domain=SSO_IDP_DOMAIN;
 // $IDP_Domain="http://172.16.0.14/upnm_sso_live/"; //<--- 20 May 2025 Change here
 $SP_current_page = GET_CURRENT_PAGE_URI();
 if(!isset($_COOKIE['sso_cre'])) {

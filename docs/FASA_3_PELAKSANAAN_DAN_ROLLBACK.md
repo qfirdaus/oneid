@@ -94,7 +94,8 @@ Urutan lookup:
 
 1. Environment variable dengan nama key yang diminta.
 2. Fail yang ditetapkan melalui `ONEID_SECRETS_FILE`.
-3. Fallback UAT `/var/www/app/.oneid-uat-secrets.php`.
+3. Catatan semasa: fallback UAT telah dimigrasi ke
+   `/var/www/app/oneid-uat/.private/runtime.php` selepas fasa ini selesai.
 
 Loader akan fail secara tertutup dengan `RuntimeException` jika secret store tiada, tidak boleh dibaca, formatnya bukan array, atau required key kosong. Mesej exception tidak mengandungi nilai secret.
 

@@ -16,12 +16,10 @@ $check = static function (bool $condition, string $label) use (&$checks, &$faile
 };
 
 $check(!file_exists($root . '/.htaccess'), 'retired root .htaccess is absent');
-$check(is_file($root . '/public/.htaccess'), 'Apache public-root .htaccess remains');
-$check(is_file($root . '/public/public_img/.htaccess'), 'Apache upload defense .htaccess remains');
-
-$publicHtaccess = (string) file_get_contents($root . '/public/.htaccess');
-$check(str_contains($publicHtaccess, 'Options -Indexes'), 'public .htaccess disables directory indexes');
-$check(str_contains($publicHtaccess, 'public_img|videos'), 'public .htaccess blocks scripts in asset/upload roots');
+$check(!file_exists($root . '/public/.htaccess'), 'unused Apache public-root configuration is absent');
+$check(!file_exists($root . '/public/public_img/.htaccess'), 'unused Apache upload configuration is absent');
+$nginxTemplate = (string) file_get_contents($root . '/deployment/nginx/oneid-staging.conf');
+$check(str_contains($nginxTemplate, 'public_img|videos'), 'Nginx template blocks scripts in asset/upload roots');
 
 $paths = (string) file_get_contents($root . '/bootstrap/paths.php');
 $check(!str_contains($paths, 'LEGACY_PUBLIC_PATH'), 'unused LEGACY_PUBLIC_PATH is absent');

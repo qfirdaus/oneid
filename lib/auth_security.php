@@ -12,10 +12,10 @@ function oneid_is_legacy_md5_hash(string $hash): bool
 
 function oneid_legacy_md5_allowed(): bool
 {
-    $configuredDeadline = trim((string) getenv('ONEID_LEGACY_MD5_DEADLINE'));
-    $deadline = $configuredDeadline !== ''
-        ? strtotime($configuredDeadline)
-        : strtotime('2026-10-13 23:59:59 Asia/Kuala_Lumpur');
+    $configuredDeadline = function_exists('oneid_config')
+        ? trim((string) oneid_config('ONEID_LEGACY_MD5_DEADLINE'))
+        : trim((string) getenv('ONEID_LEGACY_MD5_DEADLINE'));
+    $deadline = $configuredDeadline !== '' ? strtotime($configuredDeadline) : false;
 
     return $deadline !== false && time() <= $deadline;
 }

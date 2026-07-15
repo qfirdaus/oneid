@@ -38,11 +38,12 @@ dan rollback, bukan melalui bulk directory move.
 - PHP 8.3 dan PHP-FPM;
 - Nginx atau Apache dengan document root `public/`;
 - MySQL yang serasi dengan schema OneID;
-- secret melalui environment atau `ONEID_SECRETS_FILE`.
+- secret melalui `.private/runtime.php`, environment atau `ONEID_SECRETS_FILE`.
 
 Jangan commit `.sql`, credential, upload runtime atau quarantine payload. Fail
-`lib/config.php` ialah runtime-local dan diabaikan Git; secret resolution berada
-di `lib/secrets.php`.
+`lib/config.php` ialah compatibility bootstrap yang masuk Git; default bukan
+secret berada di `config/runtime.php`, nilai server-local berada di
+`.private/runtime.php`, dan secret resolution berada di `lib/secrets.php`.
 
 ## Verification
 
