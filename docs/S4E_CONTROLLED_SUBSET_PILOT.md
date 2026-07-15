@@ -67,6 +67,21 @@ Semak implementation dengan:
 php tools/s4e_controlled_pilot_contract.php
 ```
 
+## Isolated rehearsal selepas kegagalan pilot
+
+Runner backup-based mesti dijalankan dengan live Apply flags kekal disabled:
+
+```bash
+php tools/s4e_isolated_pilot_rehearsal.php --preflight
+php tools/s4e_isolated_pilot_rehearsal.php --execute
+```
+
+Ia mengesahkan checksum backup `S4D-20260715-212233`, mencipta database bernama
+generated `oneiddb_s4e_*`, restore dump, menjalankan subset `2/1/0/0` melalui
+coordinator sebenar, memaparkan stage/SQLSTATE/driver code yang disanitasi dan
+membuang target dalam `finally`. Child menolak `oneiddb` secara bebas walaupun
+parent salah konfigurasi. Password tidak dimasukkan ke process arguments.
+
 Jika full preview Update berubah, inventori read-only boleh dijalankan dengan:
 
 ```bash
