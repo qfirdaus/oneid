@@ -15,6 +15,7 @@ if (PHP_SAPI !== 'cli') {
 }
 
 require_once dirname(__DIR__) . '/lib/secrets.php';
+require_once dirname(__DIR__) . '/lib/readonly_odbc.php';
 
 $targets = [
     [
@@ -47,7 +48,7 @@ foreach ($targets as $target) {
         continue;
     }
 
-    $result = @odbc_exec($connection, $target['query']);
+    $result = @oneid_readonly_odbc_exec($connection, $target['query']);
     $row = $result === false ? false : odbc_fetch_array($result);
     $count = is_array($row) ? (int) array_values($row)[0] : -1;
     odbc_close($connection);

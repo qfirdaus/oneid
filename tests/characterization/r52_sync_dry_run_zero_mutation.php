@@ -365,10 +365,10 @@ $report($references === [], 'test-only dry-run remains outside production', impl
 
 $runtimeHashes = [
     'lib/sync_user_runner.php' => '965fd187492e1f120b074601746b031474405480f234412e458f64189108c8bb',
-    // Updated by M1 Safe User Resync. Full-sync production wiring remains
-    // dormant; these runtime files now also host the isolated per-user flow.
-    'lib/Database.php' => 'a91a11fbff5f95951c6b07724b878a949c0c79400ebaaa01f1db4d88a0c8b277',
-    'lib/q_func.php' => '01e4930a2cc1e6fa1bfded5515ab3002c6b470d4a25abdbee49d1a27540cabe3',
+    // Current post-M1/S4D runtime checkpoint. Full-sync production wiring
+    // remains feature-flagged and approval-bound.
+    'lib/Database.php' => '2a9e9c70e0379714658a7eaaa2b60f89aee5f9ccc7f2c62f2083b93250957379',
+    'lib/q_func.php' => '71fd6fbb55c35a3c8e81417db919963d815f13146c5d242b4945aaa526c455d1',
 ];
 foreach ($runtimeHashes as $file => $expectedHash) {
     $actualHash = hash_file('sha256', $projectRoot . '/' . $file);

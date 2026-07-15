@@ -63,6 +63,21 @@ DBA perlu memberikan salah satu evidence tersanitasi:
 Jangan menguji read-only dengan menghantar INSERT/UPDATE/DELETE walaupun diikuti
 ROLLBACK. Production external DB kekal untuk bacaan sahaja.
 
+Application defense-in-depth berada di `lib/readonly_odbc.php`. Semua caller
+staff/student aktif mesti melalui wrapper yang menerima tepat satu statement
+bermula dengan `SELECT` dan menolak DML, DDL, privilege changes, stored
+procedure execution, comment serta multi-statement sebelum ODBC dipanggil.
+Semak polisi dengan:
+
+```bash
+php tools/s4e_external_readonly_policy_contract.php
+php tools/s4d_external_readonly_evidence.php
+```
+
+Guard aplikasi tidak menggantikan database grant. Jika code regression atau
+credential digunakan oleh proses lain, hanya privilege SELECT-only pada DB
+yang menjadi sempadan terakhir. Oleh itu evidence DBA masih wajib.
+
 ### Rekod penutupan
 
 ```text

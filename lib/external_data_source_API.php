@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/secrets.php';
+require_once __DIR__ . '/readonly_odbc.php';
 require_once dirname(__DIR__) . '/app/Sync/ExternalRowNormalizer.php';
 
 //connection to sybase
@@ -20,7 +21,7 @@ function EXTERNAL_DATA_SOURCE_GET_ALL_USER(){
 		}
 	$sql = 'SELECT (gelaran + " " + nama)  as data1,idpekerja as data2, nopekerja as data3, ISNULL(nokp,"") as data4, ISNULL(email,"") as data5, ISNULL(jabatansemasa,"") as data6, ISNULL(jawatansemasa,"") as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, jenis as ext_data_source_category  FROM ehrmdb.dbo.SSO_Staf_Aktif';
 	
-    $rs = odbc_exec($connection, $sql);
+    $rs = oneid_readonly_odbc_exec($connection, $sql);
 	if ($rs === false) {
 		odbc_close($connection);
 		odbc_close($connection_student);
@@ -34,7 +35,7 @@ function EXTERNAL_DATA_SOURCE_GET_ALL_USER(){
 	odbc_close($connection);
 							
 	$sql = 'SELECT nama  as data1,no_matrik as data4, "" as data3, ISNULL(nokp,"") as data2, ISNULL(email,"") as data5, nama_ptj as data6, program as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, "Pelajar" as ext_data_source_category  FROM v210_sso_student_aktif';
-    $rs = odbc_exec($connection_student, $sql);
+    $rs = oneid_readonly_odbc_exec($connection_student, $sql);
 	if ($rs === false) {
 		odbc_close($connection_student);
 		throw new RuntimeException('EXTERNAL_STUDENT_QUERY_FAILED');
@@ -85,7 +86,7 @@ function EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER($user_id, $source_family = 'both
 				throw new RuntimeException('EXTERNAL_STAFF_CONNECTION_FAILED');
 			}
 			$sql = 'SELECT (gelaran + " " + nama) as data1,idpekerja as data2,nopekerja as data3,ISNULL(nokp,"") as data4,ISNULL(email,"") as data5,ISNULL(jabatansemasa,"") as data6,ISNULL(jawatansemasa,"") as data7,"" as data8,"" as data9,"" as data10,"" as data11,"" as data12,jenis as ext_data_source_category FROM ehrmdb.dbo.SSO_Staf_Aktif WHERE nokp=' . $identityLiteral;
-			$statement = odbc_exec($connection, $sql);
+			$statement = oneid_readonly_odbc_exec($connection, $sql);
 			if (!$statement) {
 				throw new RuntimeException('EXTERNAL_STAFF_LOOKUP_FAILED');
 			}
@@ -108,7 +109,7 @@ function EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER($user_id, $source_family = 'both
 				throw new RuntimeException('EXTERNAL_STUDENT_CONNECTION_FAILED');
 			}
 			$sql = 'SELECT nama as data1,ISNULL(nokp,"") as data2,"" as data3,no_matrik as data4,ISNULL(email,"") as data5,nama_ptj as data6,program as data7,"" as data8,"" as data9,"" as data10,"" as data11,"" as data12,"Pelajar" as ext_data_source_category FROM v210_sso_student_aktif WHERE CONVERT(VARCHAR(64),no_matrik)=' . $identityLiteral;
-			$statementStudent = odbc_exec($connection_student, $sql);
+			$statementStudent = oneid_readonly_odbc_exec($connection_student, $sql);
 			if (!$statementStudent) {
 				throw new RuntimeException('EXTERNAL_STUDENT_LOOKUP_FAILED');
 			}

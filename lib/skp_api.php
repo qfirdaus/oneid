@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/secrets.php';
+require_once __DIR__ . '/readonly_odbc.php';
 require_once dirname(__DIR__) . '/app/Sync/ExternalRowNormalizer.php';
 
 //connection to sybase
@@ -16,7 +17,7 @@ function EXTERNAL_DATA_SOURCE_GET_ALL_USER(){
 		}
 	$sql = 'SELECT (gelaran + " " + nama)  as data1,idpekerja as data2, nopekerja as data3, ISNULL(nokp,"") as data4, ISNULL(email,"") as data5, ISNULL(jabatansemasa,"") as data6, ISNULL(jawatansemasa,"") as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, jenis as ext_data_source_category  FROM ehrmdb.dbo.SSO_Staf_Aktif';
 	
-    $rs = odbc_exec($connection, $sql);
+    $rs = oneid_readonly_odbc_exec($connection, $sql);
 	$rows = array();
 
 	while($myRow = odbc_fetch_array( $rs )){ //<--lots of rows
@@ -25,7 +26,7 @@ function EXTERNAL_DATA_SOURCE_GET_ALL_USER(){
 	odbc_close($connection);
 							
 	$sql = 'SELECT nama  as data1,no_matrik as data2, "" as data3, ISNULL(nokp,"") as data4, ISNULL(email,"") as data5, nama_ptj as data6, program as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, "Pelajar" as ext_data_source_category  FROM v210_sso_student_aktif';
-    $rs = odbc_exec($connection_student, $sql);
+    $rs = oneid_readonly_odbc_exec($connection_student, $sql);
 	$rows_student = array();
 
 	while($myRow = odbc_fetch_array( $rs )){ //<--lots of rows
@@ -49,7 +50,7 @@ function EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER($user_id){
 		exit;
 		}
 	$sql = 'SELECT (gelaran + " " + nama)  as data1,idpekerja as data2, nopekerja as data3, ISNULL(nokp,"") as data4, ISNULL(email,"") as data5, ISNULL(jabatansemasa,"") as data6, ISNULL(jawatansemasa,"") as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, jenis as ext_data_source_category  FROM ehrmdb.dbo.SSO_Staf_Aktif WHERE nokp=?';
-	$statement = odbc_prepare($connection, $sql);
+	$statement = oneid_readonly_odbc_prepare($connection, $sql);
     $rs = $statement ? odbc_execute($statement, [(string) $user_id]) : false;
 	$rows = array();
 
@@ -59,7 +60,7 @@ function EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER($user_id){
 	odbc_close($connection);
 							
 	$sql = 'SELECT nama  as data1,no_matrik as data2, "" as data3, ISNULL(nokp,"") as data4, ISNULL(email,"") as data5, nama_ptj as data6, program as data7,  "" as data8, "" as data9, "" as data10, "" as data11, "" as data12, "Pelajar" as ext_data_source_category  FROM v210_sso_student_aktif WHERE nokp=?';
-	$statementStudent = odbc_prepare($connection_student, $sql);
+	$statementStudent = oneid_readonly_odbc_prepare($connection_student, $sql);
     $rs = $statementStudent ? odbc_execute($statementStudent, [(string) $user_id]) : false;
 	$rows_student = array();
 
