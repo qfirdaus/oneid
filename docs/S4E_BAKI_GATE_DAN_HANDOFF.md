@@ -284,6 +284,26 @@ Acceptance ini terikat kepada counts di atas. Preview mesti dijana semula dalam
 window; sebarang perubahan counts, hash, warning atau collision membatalkan
 acceptance dan keputusan kembali NO-GO sehingga dinilai semula.
 
+### Window baharu selepas isolated rehearsal
+
+```text
+Change ID: ONEID-S4E-20260716-02
+Tarikh: 16 Julai 2026
+Window mula: 00:20
+Window tamat: 00:50
+Observation/freeze tamat: 01:50
+Pilot admin: 0530-09
+DBA/SA on-call: READY
+Operations monitoring: READY
+Security reviewer: READY
+Maximum Apply requests: 1
+Pilot scope: 2 New / 1 Update / 0 Deactivate / 0 Reactivate
+Change owner decision: GO
+```
+
+GO ini hanya sah jika preflight, checksum, fresh preview dan update manifest
+sepadan selepas 00:20. Approval atau GO window terdahulu tidak boleh digunakan.
+
 ## 8. Urutan Menyambung Kerja
 
 ### Investigation calon deactivation

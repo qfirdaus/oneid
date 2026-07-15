@@ -34,7 +34,8 @@
     "check:failed-pilot-audit": "php tools/s4e_failed_pilot_audit_contract.php",
     "check:pilot-compatibility": "php tools/s4e_pilot_compatibility_audit_contract.php",
     "check:sync-stage-telemetry": "php tools/s4e_stage_telemetry_contract.php",
-    "check:isolated-pilot-rehearsal": "php tools/s4e_isolated_pilot_rehearsal_contract.php"
+    "check:isolated-pilot-rehearsal": "php tools/s4e_isolated_pilot_rehearsal_contract.php",
+    "check:pilot-result-audit": "php tools/s4e_pilot_result_audit_contract.php"
   },
   "author": "hencework",
   "license": "ISC",
