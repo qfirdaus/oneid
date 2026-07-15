@@ -3,6 +3,8 @@
 namespace OneId\App\Sync\Adapters;
 
 use OneId\App\Sync\Contracts\SyncPersistenceInterface;
+use OneId\App\Sync\SyncDatabaseStageException;
+use PDOException;
 
 /** Bridge from the sync persistence contract to the legacy Database API. */
 final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
@@ -13,22 +15,22 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
 
     public function begin(): void
     {
-        $this->operation->beginTransaction();
+        $this->guard('begin_transaction', fn() => $this->operation->beginTransaction());
     }
 
     public function commit(): void
     {
-        $this->operation->commit();
+        $this->guard('commit_transaction', fn() => $this->operation->commit());
     }
 
     public function rollback(): void
     {
-        $this->operation->rollback();
+        $this->guard('rollback_transaction', fn() => $this->operation->rollback());
     }
 
     public function createHeader(int $type): int
     {
-        $headerId = (int) $this->operation->action_add_new_ext_header($type);
+        $headerId = (int) $this->guard('create_header', fn() => $this->operation->action_add_new_ext_header($type));
         if ($headerId < 1) {
             throw new \RuntimeException('SYNC_HEADER_CREATE_FAILED');
         }
@@ -47,13 +49,13 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
 
     public function deactivateUser(string $userId): void
     {
-        $result = $this->operation->admin_update_user_status($userId, 0);
+        $result = $this->guard('deactivate_user', fn() => $this->operation->admin_update_user_status($userId, 0));
         $this->assertAffected($result, 'SYNC_DEACTIVATE_NOT_APPLIED');
     }
 
     public function updateUser(string $userId, array $row, string $changeHash): void
     {
-        $result = $this->operation->admin_update_specific_user_info_all_data(
+        $result = $this->guard('update_user', fn() => $this->operation->admin_update_specific_user_info_all_data(
             $userId,
             $row['data1'],
             $row['data2'],
@@ -68,18 +70,18 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
             $row['data11'],
             $row['data12'],
             $changeHash
-        );
+        ));
         $this->assertAffected($result, 'SYNC_UPDATE_NOT_APPLIED');
     }
 
     public function updateHeaderStatus(int $headerId, int $status, string $field, int $count): void
     {
-        $this->operation->admin_update_ext_header_status($headerId, $status, $field, $count);
+        $this->guard('update_header_status', fn() => $this->operation->admin_update_ext_header_status($headerId, $status, $field, $count));
     }
 
     public function stageExternalUser(int $headerId, array $row): int
     {
-        $bodyId = (int) $this->operation->action_add_external_temp_body(
+        $bodyId = (int) $this->guard('stage_external_user', fn() => $this->operation->action_add_external_temp_body(
             $headerId,
             $row['data1'],
             $row['data2'],
@@ -93,7 +95,7 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
             $row['data10'],
             $row['data11'],
             $row['data12']
-        );
+        ));
         if ($bodyId < 1) {
             throw new \RuntimeException('SYNC_STAGE_CREATE_FAILED');
         }
@@ -106,7 +108,7 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
         string $passwordHash,
         string $changeHash
     ): void {
-        $result = $this->operation->action_add_new_user_from_external_source(
+        $result = $this->guard('insert_external_user', fn() => $this->operation->action_add_new_user_from_external_source(
             $row['data4'],
             $categoryId,
             $passwordHash,
@@ -123,19 +125,19 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
             $row['data11'],
             $row['data12'],
             $changeHash
-        );
+        ));
         $this->assertAffected($result, 'SYNC_INSERT_NOT_APPLIED');
     }
 
     public function markStagedUser(int $headerId, int $bodyId, int $status): void
     {
-        $result = $this->operation->admin_update_ext_body_status($headerId, $bodyId, $status);
+        $result = $this->guard('mark_staged_user', fn() => $this->operation->admin_update_ext_body_status($headerId, $bodyId, $status));
         $this->assertAffected($result, 'SYNC_STAGE_STATUS_NOT_APPLIED');
     }
 
     public function appendChanges(array $changes): void
     {
-        $result = $this->operation->sync_log_change_batch($changes);
+        $result = $this->guard('append_change_audit', fn() => $this->operation->sync_log_change_batch($changes));
         if ($result !== null && (int) $result !== count($changes)) {
             throw new \RuntimeException('SYNC_AUDIT_WRITE_MISMATCH');
         }
@@ -149,19 +151,19 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
         int $reactivated,
         string $triggeredBy
     ): void {
-        $this->operation->sync_update_header_summary(
+        $this->guard('update_header_summary', fn() => $this->operation->sync_update_header_summary(
             $headerId,
             $new,
             $updated,
             $deactivated,
             $reactivated,
             $triggeredBy
-        );
+        ));
     }
 
     public function header(int $headerId): array
     {
-        return $this->operation->action_get_ext_header($headerId);
+        return $this->guard('read_committed_header', fn() => $this->operation->action_get_ext_header($headerId));
     }
 
     /**
@@ -172,6 +174,15 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
     {
         if ($result !== null && (int) $result < 1) {
             throw new \RuntimeException($failureCode);
+        }
+    }
+
+    private function guard(string $stage, callable $operation): mixed
+    {
+        try {
+            return $operation();
+        } catch (PDOException $exception) {
+            throw SyncDatabaseStageException::fromPdo($stage, $exception);
         }
     }
 }

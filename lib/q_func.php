@@ -521,6 +521,7 @@ function string_sanitize($s) {
                     'SYNC_PILOT_DESTRUCTIVE_ACTION_FORBIDDEN',
                     'SYNC_PILOT_DISABLED',
                     'SYNC_PILOT_SUBSET_UNAVAILABLE',
+                    'SYNC_DATABASE_WRITE_FAILED',
                     'SYNC_APPROVAL_INVALID',
                     'SYNC_APPROVAL_NOT_AVAILABLE',
                     'SYNC_APPROVAL_EXPIRED',
@@ -533,12 +534,24 @@ function string_sanitize($s) {
                 $diagnosticCode = in_array($exception->getMessage(), $knownApplyCodes, true)
                     ? $exception->getMessage()
                     : 'UNEXPECTED_SYNC_APPLY_ERROR';
-                error_log(sprintf(
-                    '[ONEID_SYNC_APPLY] correlation=%s exception=%s code=%s',
-                    $correlationId,
-                    get_class($exception),
-                    $diagnosticCode
-                ));
+                if ($exception instanceof \OneId\App\Sync\SyncDatabaseStageException) {
+                    error_log(sprintf(
+                        '[ONEID_SYNC_APPLY] correlation=%s exception=%s code=%s stage=%s sqlstate=%s driver=%d',
+                        $correlationId,
+                        get_class($exception),
+                        $diagnosticCode,
+                        $exception->stage,
+                        $exception->sqlState,
+                        $exception->driverCode
+                    ));
+                } else {
+                    error_log(sprintf(
+                        '[ONEID_SYNC_APPLY] correlation=%s exception=%s code=%s',
+                        $correlationId,
+                        get_class($exception),
+                        $diagnosticCode
+                    ));
+                }
                 echo json_encode([
                     'status' => 0,
                     'code' => $diagnosticCode,

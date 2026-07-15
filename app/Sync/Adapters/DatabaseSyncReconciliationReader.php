@@ -3,6 +3,8 @@
 namespace OneId\App\Sync\Adapters;
 
 use OneId\App\Sync\Contracts\SyncReconciliationReaderInterface;
+use OneId\App\Sync\SyncDatabaseStageException;
+use PDOException;
 
 final class DatabaseSyncReconciliationReader implements SyncReconciliationReaderInterface
 {
@@ -12,6 +14,10 @@ final class DatabaseSyncReconciliationReader implements SyncReconciliationReader
 
     public function changeCounts(int $headerId): array
     {
-        return $this->operation->sync_reconciliation_counts($headerId);
+        try {
+            return $this->operation->sync_reconciliation_counts($headerId);
+        } catch (PDOException $exception) {
+            throw SyncDatabaseStageException::fromPdo('read_reconciliation', $exception);
+        }
     }
 }
