@@ -4346,11 +4346,13 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       <article class="version-release-card${releaseIndex === 0 ? ' is-current is-open' : ''}">
         <button type="button" class="version-release-toggle" aria-expanded="${releaseIndex === 0 ? 'true' : 'false'}" aria-controls="release-content-${releaseIndex}">
           <span class="version-release-meta">
-            ${releaseIndex === 0 ? '<span class="version-latest-label">Latest</span>' : ''}
             <span class="version-number">v${release.version}</span>
             <time class="version-release-date" datetime="${release.date}">${formatReleaseDate(release.date)}</time>
           </span>
-          <span class="version-release-summary">${releaseIndex === 0 ? 'Latest updates' : `Release ${release.version}`}</span>
+          <span class="version-release-summary">
+            ${releaseIndex === 0 ? '<span class="version-latest-label">Current Release</span>' : ''}
+            <span>${releaseIndex === 0 ? 'Latest updates' : `Release ${release.version}`}</span>
+          </span>
           <i class="fa fa-chevron-down version-release-chevron" aria-hidden="true"></i>
         </button>
         <div id="release-content-${releaseIndex}" class="version-release-content"${releaseIndex === 0 ? '' : ' hidden'}>
@@ -7233,7 +7235,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
       #tab_versioning .version-latest-label {
         display: inline-block;
-        margin-bottom: 7px;
+        margin: 0;
         padding: 3px 8px;
         border-radius: 20px;
         background: #11a8df;
@@ -7274,6 +7276,9 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_versioning .version-release-summary {
+        display: flex;
+        align-items: center;
+        gap: 10px;
         padding: 0 18px;
         color: #526176;
         font-size: 14px;
@@ -7397,7 +7402,14 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         }
 
         #tab_versioning .version-release-summary {
-          display: none;
+          grid-column: 1 / -1;
+          grid-row: 2;
+          padding: 0 14px 12px;
+        }
+
+        #tab_versioning .version-release-chevron {
+          grid-column: 2;
+          grid-row: 1;
         }
 
         #tab_versioning .version-latest-label,
