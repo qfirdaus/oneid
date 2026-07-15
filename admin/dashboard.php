@@ -659,7 +659,7 @@
                                                             </tr>
                                                          </tbody>
                                                       </table>
-                                                      <p class="text-muted">S4D readiness preview only. Approval may be prepared server-side, but there is no Apply action on this screen.</p>
+                                                      <p id="sync_pilot_notice" class="text-muted">Readiness preview only. Controlled Pilot Apply remains disabled.</p>
                                                    </div>
                                                 </div>
                                              </div>
@@ -672,6 +672,7 @@
                         </div>
                      </div>
                      <div class="modal-footer">
+                        <button type="button" id="btn_apply_sync_pilot" class="btn btn-danger waves-effect" style="display:none">Apply controlled pilot (2 New + 1 Update)</button>
                         <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
                      </div>
                   </form>
@@ -3207,6 +3208,7 @@
          }
          
          function pick_preview_sync_user(){
+            var pilotApprovalId = '';
             $.ajax({
                type: 'POST',
                url: '../lib/q_func',
@@ -3229,6 +3231,7 @@
                      return;
                   }
                   var counts = response.counts || {};
+                  var pilotCounts = response.pilot_counts || {};
                   $('#sync_preview_source_rows').text(response.source_rows || 0);
                   $('#sync_preview_new_update').text((counts.New || 0) + ' / ' + (counts.Update || 0));
                   $('#sync_preview_deactivate_reactivate').text((counts.Deactivate || 0) + ' / ' + (counts.Reactivate || 0));
@@ -3249,6 +3252,51 @@
                   if((response.warnings || []).length === 0){
                      $('<li>').text('No planner warning detected.').appendTo(warningList);
                   }
+                  $('#btn_apply_sync_pilot').hide().prop('disabled', true);
+                  pilotApprovalId = '';
+                  if(response.pilot_apply_available === true
+                     && typeof response.approval_id === 'string'
+                     && response.approval_id.length === 64
+                     && (pilotCounts.New || 0) === 2
+                     && (pilotCounts.Update || 0) === 1
+                     && (pilotCounts.Deactivate || 0) === 0
+                     && (pilotCounts.Reactivate || 0) === 0){
+                     pilotApprovalId = response.approval_id;
+                     $('#btn_apply_sync_pilot').show().prop('disabled', false);
+                     $('#sync_pilot_notice').text('Controlled pilot scope: exactly 2 New + 1 Update; no Deactivate or Reactivate. Approval expires at ' + (response.expires_at || '-') + '.');
+                  } else {
+                     $('#sync_pilot_notice').text('Readiness preview only. Controlled Pilot Apply remains disabled.');
+                  }
+
+                  $('#btn_apply_sync_pilot').off('click').on('click', function(){
+                     if(!pilotApprovalId){ return; }
+                     if(!window.confirm('Apply exactly 2 New and 1 Update? No Deactivate or Reactivate will be allowed. This approval can be used once only.')){
+                        return;
+                     }
+                     var button = $(this).prop('disabled', true).text('Applying controlled pilot...');
+                     $.ajax({
+                        type: 'POST',
+                        url: '../lib/q_func',
+                        dataType: 'json',
+                        data: {admin_add_sync_user:'', sync_approval_id:pilotApprovalId},
+                        success: function(applyResponse){
+                           pilotApprovalId = '';
+                           button.hide();
+                           if(applyResponse && applyResponse.status === 1){
+                              var applied = applyResponse.counts || {};
+                              window.alert('Controlled pilot completed. Header ' + applyResponse.header_id + '; New=' + (applied.New || 0) + ', Update=' + (applied.Update || 0) + ', Deactivate=' + (applied.Deactivate || 0) + ', Reactivate=' + (applied.Reactivate || 0) + '.');
+                           } else {
+                              var code = applyResponse && applyResponse.code ? applyResponse.code : 'SYNC_APPLY_FAILED';
+                              window.alert('Controlled pilot was not applied. Code: ' + code + '. Generate a fresh preview before retrying.');
+                           }
+                        },
+                        error: function(){
+                           pilotApprovalId = '';
+                           button.hide();
+                           window.alert('Controlled pilot request failed. Generate a fresh preview and inspect server logs.');
+                        }
+                     });
+                  });
                },
                error: function () {
                   $('#sync_progress_id').hide();

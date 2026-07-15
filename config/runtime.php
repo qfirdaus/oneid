@@ -23,6 +23,11 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_LEGACY_MD5_DEADLINE' => '2026-10-13 23:59:59 Asia/Kuala_Lumpur',
         'ONEID_SYNC_APPLY_ENABLED' => 'false',
         'ONEID_SYNC_ENGINE' => 'disabled',
+        'ONEID_SYNC_PILOT_ENABLED' => 'false',
+        'ONEID_SYNC_PILOT_NEW_LIMIT' => '2',
+        'ONEID_SYNC_PILOT_UPDATE_LIMIT' => '1',
+        'ONEID_SYNC_PILOT_DEACTIVATE_LIMIT' => '0',
+        'ONEID_SYNC_PILOT_REACTIVATE_LIMIT' => '0',
         'ONEID_SYNC_TRIGGERED_BY' => 'Sync Agent',
     ];
     static $local = null;

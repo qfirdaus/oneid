@@ -28,6 +28,8 @@ foreach ([
     'app/Sync/SafeSyncOrchestrator.php',
     'app/Sync/ApprovedSyncCoordinator.php',
     'app/Sync/SyncRuntimeConfig.php',
+    'app/Sync/SyncPilotConfig.php',
+    'app/Sync/SyncPlanSubsetSelector.php',
     'app/Sync/Adapters/ExternalApiUserSource.php',
     'app/Sync/Adapters/DatabaseSyncPersistenceAdapter.php',
     'app/Sync/Adapters/DatabaseSyncReconciliationReader.php',

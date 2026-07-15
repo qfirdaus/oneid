@@ -11,6 +11,11 @@ return [
     'ONEID_SAMPLE_DATA_URL' => 'http://localhost/SSO_IDP/sample_data.php',
     'ONEID_SYNC_APPLY_ENABLED' => 'false',
     'ONEID_SYNC_ENGINE' => 'disabled',
+    'ONEID_SYNC_PILOT_ENABLED' => 'false',
+    'ONEID_SYNC_PILOT_NEW_LIMIT' => '2',
+    'ONEID_SYNC_PILOT_UPDATE_LIMIT' => '1',
+    'ONEID_SYNC_PILOT_DEACTIVATE_LIMIT' => '0',
+    'ONEID_SYNC_PILOT_REACTIVATE_LIMIT' => '0',
 
     'ONEID_DB_DSN' => '',
     'ONEID_DB_USERNAME' => '',

@@ -52,7 +52,7 @@ $report(str_contains($service, 'hash_equals($approval->adminId') && str_contains
 $report(!str_contains($service, 'SyncPersistenceInterface') && !str_contains($service, 'begin(') && !str_contains($service, 'commit('), 'approval service cannot mutate application database');
 $report(str_contains($sessionStore, 'PHP_SESSION_ACTIVE') && str_contains($sessionStore, 'unset($records[$approvalId])'), 'server-side session store requires active session and one-time consume');
 $report(str_contains($qFunc, 'SyncApprovalService') && str_contains($qFunc, 'SessionSyncApprovalStore'), 'S4D q_func wires server-side one-time approval');
-$report(!str_contains($dashboard, 'sync_approval_id') && !str_contains($dashboard, 'admin_apply_sync_user'), 'dashboard has no full-sync approval or Apply UI wiring');
+$report(str_contains($dashboard, 'pilot_apply_available === true') && str_contains($dashboard, 'pilotApprovalId'), 'dashboard approval bearer is restricted to controlled pilot UI');
 $report(str_contains($factory, 'SyncApprovalService') && !str_contains($factory, 'SessionSyncApprovalStore'), 'S4C factory uses injected approval store without session coupling');
 
 $output = [];

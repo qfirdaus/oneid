@@ -45,7 +45,7 @@ $report(str_contains($factory, 'new ApprovedSyncCoordinator(') && str_contains($
 $report(!str_contains($factory, 'fetchAll(') && !str_contains($factory, 'begin(') && !str_contains($factory, 'run('), 'factory construction contains no source/transaction/run call');
 $report(str_contains($qFunc, 'SyncEngineFactory') && str_contains($qFunc, 'SyncRuntimeConfig::fromEnvironment()'), 'S4D q_func uses strict safe factory wiring');
 $report(!str_contains($legacyRunner, 'SyncEngineFactory') && !str_contains($legacyRunner, 'SyncRuntimeConfig'), 'legacy runner has no S4A runtime wiring');
-$report(!str_contains($dashboard, 'admin_apply_sync_user') && !str_contains($dashboard, "data: {admin_add_sync_user:''}"), 'dashboard remains preview-only');
+$report(str_contains($dashboard, 'pilot_apply_available === true') && str_contains($dashboard, 'pilotApprovalId'), 'dashboard writer remains gated behind controlled pilot response');
 $report(!str_contains($qFunc, 'FILTER_VALIDATE_BOOLEAN') && !str_contains($qFunc, 'run_admin_sync_user($operation'), 'S4D removes loose flag parsing and legacy writer selection');
 
 $output = [];

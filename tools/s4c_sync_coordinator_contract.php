@@ -52,7 +52,7 @@ $report(str_contains($coordinator, 'runApproved(') && str_contains($coordinator,
 $report(str_contains($factory, 'createApprovedCoordinator') && str_contains($factory, 'new SyncApprovalService('), 'factory exposes approval-aware coordinator');
 $report(str_contains($factory, 'private function buildSafeOrchestrator') && !str_contains($factory, 'public function createSafeOrchestrator'), 'raw writer construction is private to factory');
 $report(!str_contains($factory, 'SessionSyncApprovalStore'), 'factory requires injected server-side approval store');
-$report(str_contains($qFunc, 'createApprovedCoordinator') && !str_contains($dashboard, 'admin_apply_sync_user') && !str_contains($cron, 'ApprovedSyncCoordinator'), 'S4D endpoint is coordinator-only while Apply UI and cron remain unwired');
+$report(str_contains($qFunc, 'createPilotCoordinator') && str_contains($dashboard, 'pilot_apply_available === true') && !str_contains($cron, 'ApprovedSyncCoordinator'), 'S4E endpoint and UI are pilot-coordinator-only while cron remains unwired');
 
 $output = [];
 $code = 1;

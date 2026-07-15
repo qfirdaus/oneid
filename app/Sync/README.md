@@ -51,3 +51,9 @@ fail-closed. Preview memerlukan completed-header baseline serta full S3 policy;
 Apply hanya boleh melalui strict `true/safe` dan approval coordinator. Flags
 deployment kekal unset/default-disabled dan dashboard masih tiada Apply. Backup,
 restore, external SELECT-only evidence dan controlled pilot belum dilaksanakan.
+
+S4E menambah controlled subset pilot yang berasingan. Dashboard hanya memaparkan
+button apabila server mengesahkan `true/safe`, pilot flag aktif, approval sah dan
+scope tepat `2 New + 1 Update + 0 Deactivate + 0 Reactivate`. Preview dan writer
+memilih subset deterministik yang sama; full plan dan destructive action tidak
+boleh dipilih melalui endpoint pilot. Default deployment kekal disabled.

@@ -419,11 +419,24 @@ function string_sanitize($s) {
                     new \OneId\App\Sync\SyncSafetyPolicy()
                 );
                 $baseline = $operation->sync_latest_completed_source_rows();
-                echo json_encode($previewService->previewForApproval(
+                $pilotConfig = \OneId\App\Sync\SyncPilotConfig::fromEnvironment();
+                $runtimeConfig = \OneId\App\Sync\SyncRuntimeConfig::fromEnvironment();
+                $subsetSelector = $pilotConfig->enabled
+                    ? new \OneId\App\Sync\SyncPlanSubsetSelector($pilotConfig)
+                    : null;
+                $previewResponse = $previewService->previewForApproval(
                     (string) ($_SESSION['login_user'] ?? ''),
                     $baseline,
-                    $approvalService
-                ));
+                    $approvalService,
+                    $subsetSelector
+                );
+                $previewResponse['pilot_apply_available'] = $pilotConfig->enabled
+                    && $runtimeConfig->canApply()
+                    && ($previewResponse['approval_ready'] ?? false) === true;
+                if (!$previewResponse['pilot_apply_available']) {
+                    unset($previewResponse['approval_id']);
+                }
+                echo json_encode($previewResponse);
             } catch (\Throwable $exception) {
                 $correlationId = bin2hex(random_bytes(8));
                 $knownPreviewCodes = [
@@ -457,11 +470,12 @@ function string_sanitize($s) {
       if(isset( $_POST['admin_add_sync_user'])){
             try {
                 $runtimeConfig = \OneId\App\Sync\SyncRuntimeConfig::fromEnvironment();
+                $pilotConfig = \OneId\App\Sync\SyncPilotConfig::fromEnvironment();
                 $approvalStore = new \OneId\App\Sync\Adapters\SessionSyncApprovalStore();
                 $coordinator = (new \OneId\App\Sync\SyncEngineFactory(
                     $operation,
                     $runtimeConfig
-                ))->createApprovedCoordinator($approvalStore);
+                ))->createPilotCoordinator($approvalStore, $pilotConfig);
                 $triggeredBy = (string) ($_SESSION['login_user'] ?? '');
                 $approvalId = is_string($_POST['sync_approval_id'] ?? null)
                     ? trim($_POST['sync_approval_id'])
@@ -469,7 +483,7 @@ function string_sanitize($s) {
                 $summary = $coordinator->run(
                     $approvalId,
                     $triggeredBy,
-                    'Manual admin external sync'
+                    'Controlled pilot admin external sync'
                 );
                 $operation->syslog_record(
                     22,
@@ -501,6 +515,12 @@ function string_sanitize($s) {
                     'SYNC_APPLY_FLAG_INVALID',
                     'SYNC_ENGINE_INVALID',
                     'SYNC_FLAG_COMBINATION_INVALID',
+                    'SYNC_PILOT_FLAG_INVALID',
+                    'SYNC_PILOT_LIMIT_INVALID',
+                    'SYNC_PILOT_SCOPE_INVALID',
+                    'SYNC_PILOT_DESTRUCTIVE_ACTION_FORBIDDEN',
+                    'SYNC_PILOT_DISABLED',
+                    'SYNC_PILOT_SUBSET_UNAVAILABLE',
                     'SYNC_APPROVAL_INVALID',
                     'SYNC_APPROVAL_NOT_AVAILABLE',
                     'SYNC_APPROVAL_EXPIRED',

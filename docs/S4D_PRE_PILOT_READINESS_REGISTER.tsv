@@ -4,7 +4,7 @@ S4D-02	flags	Nginx FPM systemd and shell contain no active Apply flags	Operation
 S4D-03	runtime	Legacy writer inaccessible from Apply endpoint	Developer	pass	S4D contract; q_func uses strict approved coordinator only
 S4D-04	approval	Preview uses completed-header baseline and full S3 policy	Developer	pass	S4D in-memory fixture and static contract
 S4D-05	security	Apply is admin-only CSRF exactly-one-action and approval-bound	Developer	pass	request_security plus S4D endpoint contract
-S4D-06	ui	Dashboard contains preview only and no Apply bearer/control	Developer	pass	S4D static UI contract
+S4D-06	ui	Dashboard Apply control and approval bearer are fail-closed	Developer	pass	S4E controlled pilot contract: button requires server pilot availability and exact 2 New plus 1 Update with zero Deactivate/Reactivate; defaults remain disabled
 S4D-07	session	Single-node file session topology suitable for pilot	Operations	pass	Nginx local PHP-FPM socket and /var/lib/php/sessions
 S4D-08	scheduler	All user root system and project schedulers retired	Operations	pass	AppsStagingv1 inventory 2026-07-15: no user/root crontab, OneID system refs or queued at jobs; listed timers are OS maintenance only
 S4D-09	external	Staff and student production credentials are SELECT-only	DBA	pass	DBA confirmed 2026-07-15 both runtime logins have CONNECT and required-view SELECT only; DML DDL grant owner and administrative privileges absent; raw evidence retained outside Git

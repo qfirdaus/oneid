@@ -47,7 +47,8 @@ final class SyncPreviewService
     public function previewForApproval(
         string $adminId,
         ?int $acceptedBaseline,
-        SyncApprovalService $approvalService
+        SyncApprovalService $approvalService,
+        ?SyncPlanSubsetSelector $subsetSelector = null
     ): array {
         [$externalRows, $activeUsers, $plan] = $this->buildPlan();
         $response = $this->projectPreview($externalRows, $activeUsers, $plan);
@@ -86,14 +87,17 @@ final class SyncPreviewService
             return $response;
         }
 
+        $approvedPlan = $subsetSelector === null ? $plan : $subsetSelector->select($plan);
         $receipt = $approvalService->issue(
             $adminId,
-            $plan,
+            $approvedPlan,
             $acceptedBaseline,
             time()
         );
         $timezone = new DateTimeZone('Asia/Kuala_Lumpur');
         $response['approval_ready'] = true;
+        $response['pilot_mode'] = $subsetSelector !== null;
+        $response['pilot_counts'] = $approvedPlan->legacyCounts();
         $response['approval_id'] = $receipt->approvalId;
         $response['correlation_id'] = $receipt->correlationId;
         $response['plan_hash'] = $receipt->planFingerprint;

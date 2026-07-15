@@ -48,11 +48,11 @@ $report(str_contains($preview, 'SOURCE_BASELINE_UNAVAILABLE') && str_contains($p
 $report(!str_contains($preview, 'begin()') && !str_contains($preview, 'createHeader(') && !str_contains($preview, 'commit()'), 'preview approval has no application mutation capability');
 $report(str_contains($database, 'sync_latest_completed_source_rows') && str_contains($database, 'ext_head_status IN (2, 4)'), 'baseline comes from latest completed OneID sync header');
 $report(str_contains($guard, "'admin_add_sync_user'") && str_contains($guard, 'Exactly one recognized action is required') && str_contains($guard, 'oneid_require_csrf()'), 'Apply endpoint inherits admin exactly-one-action and CSRF guards');
-$report(str_contains($qFunc, 'SyncRuntimeConfig::fromEnvironment()') && str_contains($qFunc, 'createApprovedCoordinator($approvalStore)'), 'Apply endpoint uses strict approval-aware safe coordinator');
+$report(str_contains($qFunc, 'SyncRuntimeConfig::fromEnvironment()') && str_contains($qFunc, 'createPilotCoordinator($approvalStore, $pilotConfig)'), 'Apply endpoint uses strict approval-aware pilot coordinator');
 $report(str_contains($qFunc, "\$_POST['sync_approval_id']") && !str_contains($qFunc, 'run_admin_sync_user($operation'), 'Apply requires approval ID and cannot invoke legacy writer');
 $report(!str_contains($qFunc, 'FILTER_VALIDATE_BOOLEAN') && str_contains($qFunc, "'SYNC_APPLY_DISABLED'"), 'loose flag parsing is absent and disabled code is allowlisted');
 $report(str_contains($qFunc, "'msg' => 'External sync was not applied.'") && !str_contains($qFunc, "['error' => \$exception->getMessage()]"), 'Apply failure response is generic');
-$report(!str_contains($dashboard, "data: {admin_add_sync_user:''}") && !str_contains($dashboard, 'sync_approval_id'), 'dashboard still exposes no Apply control or approval bearer');
+$report(str_contains($dashboard, 'pilot_apply_available === true') && str_contains($qFunc, 'createPilotCoordinator($approvalStore, $pilotConfig)'), 'dashboard Apply control is restricted to dedicated pilot coordinator');
 
 $output = [];
 $code = 1;

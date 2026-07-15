@@ -61,8 +61,8 @@ $report(substr_count($externalSource, 'ExternalRowNormalizer::normalize($myRow)'
 $report(substr_count($compatibilityExternalSource, 'ExternalRowNormalizer::normalize($myRow)') === 4, 'compatibility integration normalizes every ODBC row');
 $report(str_contains($qFunc, "'UNEXPECTED_PREVIEW_ERROR'") && str_contains($qFunc, 'code=%s'), 'preview logs allowlisted diagnostic code only');
 $report(str_contains($dashboard, "data: {admin_preview_sync_user:''}"), 'dashboard posts preview action');
-$report(!str_contains($dashboard, "data: {admin_add_sync_user:''}"), 'dashboard no longer posts mutating action');
-$report(str_contains($dashboard, 'there is no Apply action on this screen'), 'dashboard explains preview-only boundary');
+$report(str_contains($dashboard, "sync_approval_id:pilotApprovalId"), 'dashboard mutation requires one-time pilot approval');
+$report(str_contains($dashboard, 'Controlled Pilot Apply remains disabled'), 'dashboard explains fail-closed pilot boundary');
 
 $output = [];
 $code = 1;

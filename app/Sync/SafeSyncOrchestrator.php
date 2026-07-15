@@ -25,7 +25,8 @@ final class SafeSyncOrchestrator
         private SyncPlanner $planner,
         private SyncSafetyPolicy $safetyPolicy,
         private SyncReconciler $reconciler,
-        private InitialPasswordFactoryInterface $passwordFactory
+        private InitialPasswordFactoryInterface $passwordFactory,
+        private ?SyncPlanSubsetSelector $subsetSelector = null
     ) {
     }
 
@@ -94,6 +95,9 @@ final class SafeSyncOrchestrator
             $activeUsers = $this->persistence->activeUsers();
             $inactiveUserIds = $this->persistence->inactiveUserIds();
             $plan = $this->planner->plan($externalRows, $activeUsers, $inactiveUserIds);
+            if ($this->subsetSelector !== null) {
+                $plan = $this->subsetSelector->select($plan);
+            }
 
             $approval = null;
             if ($approvalGate !== null) {

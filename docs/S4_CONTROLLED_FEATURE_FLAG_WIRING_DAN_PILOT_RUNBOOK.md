@@ -1,5 +1,11 @@
 # S4 — Controlled Feature-Flag Wiring dan Pilot Runbook
 
+> Kemaskini S4E: subset pilot `2 New + 1 Update + 0 Deactivate + 0 Reactivate`
+> telah diimplementasikan secara fail-closed. Rujuk
+> `docs/S4E_CONTROLLED_SUBSET_PILOT.md`. Kenyataan preview-only di bawah
+> menerangkan checkpoint S4D; pada code S4E button masih tersembunyi secara
+> default dan hanya tersedia apabila ketiga-tiga flag pilot diluluskan aktif.
+
 Tarikh pelan: 14 Julai 2026
 Change owner: Pemilik sistem OneID
 Rollback owner: Pemilik sistem OneID

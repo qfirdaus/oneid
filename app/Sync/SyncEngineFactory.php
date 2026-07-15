@@ -34,7 +34,25 @@ final class SyncEngineFactory
         );
     }
 
-    private function buildSafeOrchestrator(): SafeSyncOrchestrator
+    public function createPilotCoordinator(
+        SyncApprovalStoreInterface $approvalStore,
+        SyncPilotConfig $pilotConfig
+    ): ApprovedSyncCoordinator {
+        if (!$this->config->canApply()) {
+            throw new RuntimeException('SYNC_APPLY_DISABLED');
+        }
+        if (!$pilotConfig->enabled) {
+            throw new RuntimeException('SYNC_PILOT_DISABLED');
+        }
+        $selector = new SyncPlanSubsetSelector($pilotConfig);
+
+        return new ApprovedSyncCoordinator(
+            $this->buildSafeOrchestrator($selector),
+            new SyncApprovalService($approvalStore, new SyncPlanFingerprinter())
+        );
+    }
+
+    private function buildSafeOrchestrator(?SyncPlanSubsetSelector $selector = null): SafeSyncOrchestrator
     {
         return new SafeSyncOrchestrator(
             new ExternalApiUserSource(),
@@ -44,7 +62,8 @@ final class SyncEngineFactory
             new SyncPlanner(new LegacySyncPolicy()),
             new SyncSafetyPolicy(),
             new SyncReconciler(),
-            new SecureInitialPasswordFactory()
+            new SecureInitialPasswordFactory(),
+            $selector
         );
     }
 }
