@@ -1353,16 +1353,6 @@
                                                          <div id="release_notes_list" class="version-release-list" aria-live="polite">
                                                             <!-- Release cards are rendered from the static release notes below. -->
                                                          </div>
-                                                         <div id="release_notes_controls" class="version-release-controls" hidden>
-                                                            <button type="button" id="release_notes_more" class="version-release-more" aria-controls="release_notes_list">
-                                                               <i class="fa fa-history" aria-hidden="true"></i>
-                                                               <span>Lihat release terdahulu</span>
-                                                            </button>
-                                                            <button type="button" id="release_notes_latest" class="version-release-latest" aria-controls="release_notes_list" hidden>
-                                                               <i class="fa fa-angle-up" aria-hidden="true"></i>
-                                                               <span>Tunjuk 10 terkini</span>
-                                                            </button>
-                                                         </div>
                                                       </div>
                                                    </div>
                                                 </div>
@@ -4173,6 +4163,19 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-16",
+      changes: [
+        "<b>Controlled Pilot External Sync</b> berjaya melaksanakan subset terkawal 2 akaun baharu dan 1 kemas kini tanpa Deactivate atau Reactivate; Apply kemudiannya dikembalikan kepada disabled.",
+        "Backup penuh <code>oneiddb</code>, restore rehearsal dan isolated pilot rehearsal disahkan melalui checksum, row reconciliation serta cleanup database sementara tanpa mengubah sumber.",
+        "Struktur deployment memisahkan public root, konfigurasi runtime persekitaran dan secret store di dalam direktori projek tetapi di luar capaian web.",
+        "Semua notifikasi aplikasi distandardkan sebagai <b>toast top-right</b>; native alert diganti dengan toast dan tindakan berisiko menggunakan SweetAlert confirmation.",
+        "Audit Log kini menyediakan pagination 10 rekod setiap halaman serta date picker yang lebih padat dengan Apply dan Cancel di bawah kalendar.",
+        "Aset CSS legacy yang tidak digunakan dibuang daripada dashboard untuk mengurangkan warning browser tanpa mengubah Dropify, SweetAlert atau fungsi aktif.",
+        "Paparan <b>Version Releases</b> kini menggunakan accordion eksklusif: release terkini terbuka secara default dan hanya satu release dipaparkan pada satu masa."
+      ]
+    },
+    {
+      version: "2.0.5",
       date: "2026-07-14",
       changes: [
         "Audit Log kini memaparkan rekod <b>terbaharu di bahagian paling atas</b> menggunakan susunan stabil <code>datetime DESC, id DESC</code>.",
@@ -4322,11 +4325,6 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
   const releaseList = document.getElementById("release_notes_list");
   const currentReleaseBadge = document.getElementById("current_release_badge");
-  const releaseControls = document.getElementById("release_notes_controls");
-  const releaseMoreButton = document.getElementById("release_notes_more");
-  const releaseLatestButton = document.getElementById("release_notes_latest");
-  const releasePageSize = 10;
-  let visibleReleaseCount = releasePageSize;
   const formatReleaseDate = date => {
     const parsedDate = new Date(`${date}T00:00:00`);
     return new Intl.DateTimeFormat('ms-MY', {
@@ -4344,15 +4342,18 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
   }
 
   const renderReleaseNotes = () => {
-    const visibleReleases = releaseNotes.slice(0, visibleReleaseCount);
-    releaseList.innerHTML = visibleReleases.map((release, releaseIndex) => `
-      <article class="version-release-card${releaseIndex === 0 ? ' is-current' : ''}">
-        <div class="version-release-meta">
-          ${releaseIndex === 0 ? '<span class="version-latest-label">Latest</span>' : ''}
-          <span class="version-number">v${release.version}</span>
-          <time class="version-release-date" datetime="${release.date}">${formatReleaseDate(release.date)}</time>
-        </div>
-        <div class="version-release-content">
+    releaseList.innerHTML = releaseNotes.map((release, releaseIndex) => `
+      <article class="version-release-card${releaseIndex === 0 ? ' is-current is-open' : ''}">
+        <button type="button" class="version-release-toggle" aria-expanded="${releaseIndex === 0 ? 'true' : 'false'}" aria-controls="release-content-${releaseIndex}">
+          <span class="version-release-meta">
+            ${releaseIndex === 0 ? '<span class="version-latest-label">Latest</span>' : ''}
+            <span class="version-number">v${release.version}</span>
+            <time class="version-release-date" datetime="${release.date}">${formatReleaseDate(release.date)}</time>
+          </span>
+          <span class="version-release-summary">${releaseIndex === 0 ? 'Latest updates' : `Release ${release.version}`}</span>
+          <i class="fa fa-chevron-down version-release-chevron" aria-hidden="true"></i>
+        </button>
+        <div id="release-content-${releaseIndex}" class="version-release-content"${releaseIndex === 0 ? '' : ' hidden'}>
           <h5>${releaseIndex === 0 ? 'Latest updates' : `Release ${release.version}`}</h5>
           <ol class="version-change-list">
             ${release.changes.map(item => `<li>${item}</li>`).join("")}
@@ -4360,25 +4361,24 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         </div>
       </article>
     `).join("");
-
-    const remainingReleases = Math.max(0, releaseNotes.length - visibleReleases.length);
-    releaseControls.hidden = releaseNotes.length <= releasePageSize;
-    releaseMoreButton.hidden = remainingReleases === 0;
-    releaseLatestButton.hidden = visibleReleaseCount <= releasePageSize;
-    releaseMoreButton.querySelector('span').textContent = remainingReleases > 0
-      ? `Lihat release terdahulu (${Math.min(releasePageSize, remainingReleases)})`
-      : 'Semua release telah dipaparkan';
   };
 
-  releaseMoreButton.addEventListener('click', () => {
-    visibleReleaseCount = Math.min(visibleReleaseCount + releasePageSize, releaseNotes.length);
-    renderReleaseNotes();
-  });
-
-  releaseLatestButton.addEventListener('click', () => {
-    visibleReleaseCount = releasePageSize;
-    renderReleaseNotes();
-    document.querySelector('#tab_versioning .version-release-header').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  releaseList.addEventListener('click', event => {
+    const toggle = event.target.closest('.version-release-toggle');
+    if (!toggle) return;
+    const selectedCard = toggle.closest('.version-release-card');
+    const selectedContent = document.getElementById(toggle.getAttribute('aria-controls'));
+    const shouldOpen = toggle.getAttribute('aria-expanded') !== 'true';
+    releaseList.querySelectorAll('.version-release-card').forEach(card => {
+      card.classList.remove('is-open');
+      card.querySelector('.version-release-toggle').setAttribute('aria-expanded', 'false');
+      card.querySelector('.version-release-content').hidden = true;
+    });
+    if (shouldOpen) {
+      selectedCard.classList.add('is-open');
+      toggle.setAttribute('aria-expanded', 'true');
+      selectedContent.hidden = false;
+    }
   });
 
   renderReleaseNotes();
@@ -7193,8 +7193,6 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_versioning .version-release-card {
-        display: grid;
-        grid-template-columns: 150px minmax(0, 1fr);
         margin-bottom: 14px;
         overflow: hidden;
         border: 1px solid #e1e6ed;
@@ -7207,7 +7205,27 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         border-left: 4px solid #11a8df;
       }
 
+      #tab_versioning .version-release-toggle {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr) 24px;
+        align-items: center;
+        width: 100%;
+        padding: 0;
+        border: 0;
+        background: #fff;
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      #tab_versioning .version-release-toggle:hover,
+      #tab_versioning .version-release-toggle:focus {
+        background: #f8fbfd;
+        outline: none;
+      }
+
       #tab_versioning .version-release-meta {
+        display: block;
         padding: 22px 20px;
         border-right: 1px solid #edf0f4;
         background: #fbfcfd;
@@ -7247,7 +7265,28 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_versioning .version-release-content {
+        border-top: 1px solid #edf0f4;
         padding: 22px 26px 24px;
+      }
+
+      #tab_versioning .version-release-content[hidden] {
+        display: none;
+      }
+
+      #tab_versioning .version-release-summary {
+        padding: 0 24px;
+        color: #526176;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      #tab_versioning .version-release-chevron {
+        color: #7f8b9a;
+        transition: transform .18s ease;
+      }
+
+      #tab_versioning .version-release-card.is-open .version-release-chevron {
+        transform: rotate(180deg);
       }
 
       #tab_versioning .version-release-content h5 {
@@ -7339,14 +7378,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
           text-align: left;
         }
 
-        #tab_versioning .version-release-card {
-          grid-template-columns: 1fr;
+        #tab_versioning .version-release-toggle {
+          grid-template-columns: minmax(0, 1fr) 22px;
         }
 
         #tab_versioning .version-release-meta {
           padding: 16px 18px;
           border-right: 0;
-          border-bottom: 1px solid #edf0f4;
+        }
+
+        #tab_versioning .version-release-summary {
+          display: none;
         }
 
         #tab_versioning .version-latest-label,

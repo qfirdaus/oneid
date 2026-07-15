@@ -15,9 +15,9 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $label);
 };
 
-$report(ONEID_APP_VERSION === '2.0.5', 'central application version is 2.0.5');
+$report(ONEID_APP_VERSION === '2.0.6', 'central application version is 2.0.6');
 $report(
-    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.0.5',
+    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.0.6',
     'central copyright and footer text match the approved release'
 );
 
@@ -29,15 +29,15 @@ foreach (['index.php', 'page/dashboard.php', 'admin/dashboard.php'] as $page) {
 $adminDashboard = (string) file_get_contents($projectRoot . '/admin/dashboard.php');
 $report(
     str_contains($adminDashboard, 'version: <?php echo json_encode(ONEID_APP_VERSION); ?>')
-        && str_contains($adminDashboard, 'datetime DESC, id DESC')
-        && str_contains($adminDashboard, 'keseluruhan hari akhir'),
-    'latest admin release card reads shared v2.0.5 metadata and notes'
+        && str_contains($adminDashboard, 'Controlled Pilot External Sync')
+        && str_contains($adminDashboard, 'toast top-right'),
+    'latest admin release card reads shared v2.0.6 metadata and notes'
 );
 $report(
-    str_contains($adminDashboard, 'const releasePageSize = 10;')
-        && str_contains($adminDashboard, 'releaseNotes.slice(0, visibleReleaseCount)')
-        && str_contains($adminDashboard, 'Lihat release terdahulu'),
-    'release history initially shows 10 and supports progressive older releases'
+    str_contains($adminDashboard, 'version-release-toggle')
+        && str_contains($adminDashboard, "releaseList.querySelectorAll('.version-release-card')")
+        && str_contains($adminDashboard, 'selectedContent.hidden = false'),
+    'release history uses exclusive show-hide accordion behavior'
 );
 
 $report(
