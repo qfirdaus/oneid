@@ -368,7 +368,7 @@ $runtimeHashes = [
     // Current post-M1/S4D runtime checkpoint. Full-sync production wiring
     // remains feature-flagged and approval-bound.
     'lib/Database.php' => '2a9e9c70e0379714658a7eaaa2b60f89aee5f9ccc7f2c62f2083b93250957379',
-    'lib/q_func.php' => '4627313f0b667e9a190205935c5ff329e659841a5c56028872d1eaa454bb85e5',
+    'lib/q_func.php' => 'dfac45232e140154da07acfaeda3c67bc9e0f0e4bd77634eee920ddf4d60c498',
 ];
 foreach ($runtimeHashes as $file => $expectedHash) {
     $actualHash = hash_file('sha256', $projectRoot . '/' . $file);

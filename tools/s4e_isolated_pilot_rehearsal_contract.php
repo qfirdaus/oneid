@@ -10,6 +10,7 @@ $r(str_contains($p,"\$target==='oneiddb'")&&str_contains($p,"preg_match('/\\Aone
 $r(str_contains($p,"hash_equals('ISOLATED-PILOT oneiddb'")&&str_contains($p,'stream_isatty(STDIN)'),'execution requires interactive source-bound confirmation');
 $r(str_contains($ch,"\$actual === 'oneiddb'")&&str_contains($ch,'ONEID_REHEARSAL_TARGET_DATABASE'),'child independently rejects source database');
 $r(str_contains($ch,"fromValues('true', '2', '1', '0', '0')")&&str_contains($ch,"'Deactivate' => 0, 'Reactivate' => 0"),'child runs exact non-destructive pilot subset');
+$r(str_contains($ch,"\$rehearsalAdminId = 'S4E-TEST'")&&substr_count($ch,'$rehearsalAdminId')>=4,'child uses one short admin ID for approval admin and triggered-by');
 $r(str_contains($ch,'SyncDatabaseStageException')&&str_contains($ch,'stage=%s sqlstate=%s driver=%d'),'child reports sanitized stage telemetry');
 $r(str_contains($p,'DROP DATABASE')&&str_contains($p,'restore_target_dropped=')&&str_contains($p,'source_modified=no'),'runner always reports cleanup and source state');
 $r(!str_contains($p,"--password=")&&str_contains($p,"['MYSQL_PWD']=DB_PASSWORD"),'password is absent from process arguments');

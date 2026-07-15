@@ -49,7 +49,8 @@ try {
         new \OneId\App\Sync\SyncSafetyPolicy()
     );
     $baseline = $operation->sync_latest_completed_source_rows();
-    $receipt = $preview->previewForApproval('S4E isolated rehearsal', $baseline, $approval, $selector);
+    $rehearsalAdminId = 'S4E-TEST';
+    $receipt = $preview->previewForApproval($rehearsalAdminId, $baseline, $approval, $selector);
     if (($receipt['approval_ready'] ?? false) !== true || ($receipt['pilot_counts'] ?? []) !== [
         'New' => 2, 'Update' => 1, 'Deactivate' => 0, 'Reactivate' => 0,
     ]) {
@@ -61,8 +62,8 @@ try {
     ))->createPilotCoordinator($store, $pilot);
     $summary = $coordinator->run(
         (string) $receipt['approval_id'],
-        'S4E isolated rehearsal',
-        'S4E isolated rehearsal'
+        $rehearsalAdminId,
+        $rehearsalAdminId
     );
     printf(
         "PASS isolated_apply header=%d new=%d update=%d deactivate=%d reactivate=%d reconciliation=pass\n",

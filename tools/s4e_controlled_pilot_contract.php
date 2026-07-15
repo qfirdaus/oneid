@@ -29,6 +29,7 @@ $report(str_contains($source['app/Sync/SafeSyncOrchestrator.php'], '$this->subse
 $report(str_contains($source['app/Sync/SyncPreviewService.php'], '$approvedPlan = $subsetSelector') && str_contains($source['app/Sync/SyncPreviewService.php'], "['pilot_counts']"), 'preview approval binds selected subset');
 $report(str_contains($factory, 'createPilotCoordinator') && str_contains($factory, 'SYNC_PILOT_DISABLED'), 'endpoint factory has a dedicated fail-closed pilot path');
 $report(str_contains($qFunc, 'createPilotCoordinator($approvalStore, $pilotConfig)') && !str_contains($qFunc, 'run_admin_sync_user($operation'), 'admin endpoint cannot call legacy or full writer');
+$report(str_contains($qFunc, "\$coordinator->run(\n                    \$approvalId,\n                    \$triggeredBy,\n                    \$triggeredBy"), 'pilot persists canonical admin ID as triggered-by');
 $report(str_contains($dashboard, 'pilot_apply_available === true') && str_contains($dashboard, '(pilotCounts.Deactivate || 0) === 0'), 'UI requires server pilot availability and zero destructive counts');
 $report(str_contains($dashboard, "data: {admin_add_sync_user:'', sync_approval_id:pilotApprovalId}"), 'UI sends one-time approval only to guarded endpoint');
 

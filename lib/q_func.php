@@ -483,7 +483,7 @@ function string_sanitize($s) {
                 $summary = $coordinator->run(
                     $approvalId,
                     $triggeredBy,
-                    'Controlled pilot admin external sync'
+                    $triggeredBy
                 );
                 $operation->syslog_record(
                     22,
