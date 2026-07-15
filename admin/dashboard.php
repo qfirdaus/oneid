@@ -25,16 +25,8 @@
       <link href="../vendors/bower_components/morris.js/morris.css" rel="stylesheet" type="text/css"/>
       <!-- vector map CSS -->
       <link href="../vendors/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet" type="text/css"/>
-      <!-- Calendar CSS -->
-      <link href="../vendors/bower_components/fullcalendar/dist/fullcalendar.css" rel="stylesheet" type="text/css"/>
-      <!-- Data table CSS -->
-      <link href="../vendors/bower_components/datatables/media/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css"/>
-
       <!-- Bootstrap Daterangepicker CSS -->
       <link href="../vendors/bower_components/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet" type="text/css"/>
-       
-      <!-- Bootstrap Switches CSS -->
-      <link href="../vendors/bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet" type="text/css"/>
       <link href="../vendors/bower_components/sweetalert/dist/sweetalert.css" rel="stylesheet" type="text/css">
       <link href="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css">
       <!-- Custom CSS -->
@@ -1508,8 +1500,6 @@
       <script src="../dist/js/jquery.slimscroll.js"></script>
       <!-- Fancy Dropdown JS -->
       <script src="../dist/js/dropdown-bootstrap-extended.js"></script>
-      <!-- Switchery JavaScript -->
-      <script src="../vendors/bower_components/switchery/dist/switchery.min.js"></script>
       <!-- Switchery JavaScript -->
       <script src="../vendors/bower_components/switchery/dist/switchery.min.js"></script>
       <!-- Sweet-Alert  -->
