@@ -626,7 +626,7 @@ function open_forgot_password(){
               $('#forgot_pwd_loading_OTP').show();
                          },
                          success: function (response) {
-                             if (response['result'] == "true"){  
+                             if (response['result'] == "true" && response['delivery_available'] !== false){
                               $('#modal_forgot_password').modal('hide');
                               setTimeout(function() {
                     $('#modal_OTP').modal('show');
@@ -729,7 +729,7 @@ function open_forgot_password(){
               $('#otp_modal_loading_OTP').show();
                          },
                          success: function (response) {
-                             if (response['result'] == "true"){  
+                             if (response['result'] == "true" && response['delivery_available'] !== false){
                               $('#modal_forgot_password').modal('hide');
                               setTimeout(function() {
                     $('#modal_OTP').modal('show');

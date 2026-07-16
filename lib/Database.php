@@ -113,23 +113,78 @@ class Database {
    
 
     public function get_system_config(){
-        $Q = "SELECT * FROM sys_config";
+        $Q = "SELECT id, token_timeout, multi_session, password_reset_email_enabled FROM sys_config WHERE singleton_key = 1";
         $R = $this->pdo->prepare($Q);      
         $R->execute();
         $result = $R->fetch(PDO::FETCH_ASSOC);
         return $result;
     }
 
-
-    public function update_configuration($token_timeout,$multi_session,$email_OTP){
-            $Q = "UPDATE sys_config SET token_timeout = :token_timeout, multi_session=:multi_session,email_OTP=:email_OTP";
-            $R = $this->pdo->prepare($Q);
-        $R->bindParam(':token_timeout', $token_timeout);
-        $R->bindParam(':multi_session', $multi_session);
-        $R->bindParam(':email_OTP', $email_OTP);
+    public function get_system_config_for_update(){
+        $Q = "SELECT id, token_timeout, multi_session, password_reset_email_enabled FROM sys_config WHERE singleton_key = 1 FOR UPDATE";
+        $R = $this->pdo->prepare($Q);
         $R->execute();
-        $result = $R->rowCount();
-        return $result;
+        return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function update_configuration_by_id($configId,$token_timeout,$multi_session){
+        $Q = "UPDATE sys_config SET token_timeout = :token_timeout, multi_session=:multi_session WHERE id = :config_id AND singleton_key = 1";
+        $R = $this->pdo->prepare($Q);
+        $R->bindParam(':config_id', $configId, PDO::PARAM_INT);
+        $R->bindParam(':token_timeout', $token_timeout);
+        $R->bindParam(':multi_session', $multi_session, PDO::PARAM_INT);
+        $R->execute();
+        return $R->rowCount();
+    }
+
+    public function update_password_recovery_by_id($configId,$enabled){
+        $Q = "UPDATE sys_config SET password_reset_email_enabled=:enabled WHERE id=:config_id AND singleton_key=1";
+        $R=$this->pdo->prepare($Q);$R->execute([':config_id'=>$configId,':enabled'=>$enabled]);
+        return $R->rowCount();
+    }
+
+    public function preview_policy_revocation($newTimeoutHours,$timeoutReduced,$disableMultiple){
+        $timeoutSeconds = (int) round((float) $newTimeoutHours * 3600);
+        $timeoutSql = $timeoutReduced
+            ? "status=1 AND TIMESTAMPDIFF(SECOND,token_issued_at,NOW()) > :timeout_seconds"
+            : "0=1";
+        $multiSql = $disableMultiple
+            ? "token_id IN (SELECT token_id FROM (SELECT token_id,ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY token_issued_at DESC,token_id DESC) rn FROM token_tbl WHERE status=1) ranked WHERE rn>1)"
+            : "0=1";
+        $Q = "SELECT COUNT(*) affected_tokens,COUNT(DISTINCT user_id) affected_users,
+                     SUM(timeout_hit) timeout_tokens,SUM(multiple_hit) multiple_tokens
+              FROM (SELECT user_id,CASE WHEN {$timeoutSql} THEN 1 ELSE 0 END timeout_hit,
+                           CASE WHEN {$multiSql} THEN 1 ELSE 0 END multiple_hit
+                    FROM token_tbl WHERE status=1) impact
+              WHERE timeout_hit=1 OR multiple_hit=1";
+        $R = $this->pdo->prepare($Q);
+        if ($timeoutReduced) {
+            $R->bindValue(':timeout_seconds', $timeoutSeconds, PDO::PARAM_INT);
+        }
+        $R->execute();
+        $row = $R->fetch(PDO::FETCH_ASSOC) ?: [];
+        return [
+            'affected_tokens'=>(int)($row['affected_tokens']??0),
+            'affected_users'=>(int)($row['affected_users']??0),
+            'timeout_tokens'=>(int)($row['timeout_tokens']??0),
+            'multiple_tokens'=>(int)($row['multiple_tokens']??0),
+        ];
+    }
+
+    public function schedule_policy_revocation($newTimeoutHours,$timeoutReduced,$disableMultiple,$revokeAt,$correlationId){
+        $timeoutSeconds = (int) round((float)$newTimeoutHours*3600);
+        $timeoutSql = $timeoutReduced ? "TIMESTAMPDIFF(SECOND,t.token_issued_at,NOW()) > :timeout_seconds" : "0=1";
+        $multiSql = $disableMultiple ? "t.token_id IN (SELECT token_id FROM (SELECT token_id,ROW_NUMBER() OVER(PARTITION BY user_id ORDER BY token_issued_at DESC,token_id DESC) rn FROM token_tbl WHERE status=1) ranked WHERE rn>1)" : "0=1";
+        $Q="UPDATE token_tbl t SET t.policy_revoke_at=:revoke_at,t.policy_revoke_correlation=:correlation WHERE t.status=1 AND (({$timeoutSql}) OR ({$multiSql}))";
+        $R=$this->pdo->prepare($Q);
+        $R->bindValue(':revoke_at',$revokeAt);$R->bindValue(':correlation',$correlationId);
+        if($timeoutReduced)$R->bindValue(':timeout_seconds',$timeoutSeconds,PDO::PARAM_INT);
+        $R->execute();return $R->rowCount();
+    }
+
+    public function enforce_due_token_revocation($tokenId){
+        $Q="UPDATE token_tbl SET status=0 WHERE token_id=:token_id AND status=1 AND policy_revoke_at IS NOT NULL AND policy_revoke_at<=NOW()";
+        $R=$this->pdo->prepare($Q);$R->execute([':token_id'=>$tokenId]);return $R->rowCount();
     }
 
 
@@ -1185,7 +1240,7 @@ class Database {
 
    public function add_new_token($token_id,$user_id,$device){
         $storedToken = oneid_token_hash((string) $token_id);
-        $Q = "INSERT INTO token_tbl(token_id,token_datetime,user_id,status,device_info,site_id) VALUES (:token_id,NOW(),:user_id,1,:device,0)";
+        $Q = "INSERT INTO token_tbl(token_id,token_datetime,token_issued_at,user_id,status,device_info,site_id) VALUES (:token_id,NOW(),NOW(),:user_id,1,:device,0)";
         $R = $this->pdo->prepare($Q);
         $R->bindParam(':token_id', $storedToken);
         $R->bindParam(':user_id', $user_id);

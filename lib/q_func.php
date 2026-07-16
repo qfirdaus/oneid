@@ -28,6 +28,10 @@ require_once dirname(__DIR__) . '/app/User/UserAclManagementService.php';
 require_once dirname(__DIR__) . '/app/Admin/WebAppManagementException.php';
 require_once dirname(__DIR__) . '/app/Admin/WebAppCategoryService.php';
 require_once dirname(__DIR__) . '/app/Admin/WebAppService.php';
+require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationException.php';
+require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationService.php';
+require_once dirname(__DIR__) . '/app/Admin/PasswordRecoveryConfigurationService.php';
+require_once dirname(__DIR__) . '/app/Auth/SsoTokenLifetimePolicy.php';
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
 
@@ -37,7 +41,8 @@ oneid_guard_q_func_request($_POST);
 $sys_config = $operation->get_system_config();
 $token_timeout = $sys_config['token_timeout'];//24 means 1 day
 $sys_config_multisession = $sys_config['multi_session']; //Multi Session
-$sys_config_OTP_email = $sys_config['email_OTP']; //Multi Session
+$passwordResetEmailEnabled = $sys_config['password_reset_email_enabled'];
+$tokenLifetimePolicy = new \OneId\App\Auth\SsoTokenLifetimePolicy();
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $dd = new DeviceDetector($userAgent);
 $dd->parse();
@@ -258,9 +263,49 @@ function string_sanitize($s) {
       }
 
       if(isset( $_POST['admin_get_sso_settings'])){
-        $results = $operation->get_system_config();
-        // $results = [];
-        echo json_encode($results);
+        try {
+          $service = new \OneId\App\Admin\SsoConfigurationService($operation);
+          echo json_encode($service->read());
+        } catch (\OneId\App\Admin\SsoConfigurationException $exception) {
+          echo json_encode([
+            'status'=>0,
+            'code'=>$exception->reason,
+            'message'=>'Authentication policy could not be loaded.',
+            'correlation_id'=>$exception->correlationId,
+          ]);
+        }
+      }
+
+      if(isset($_POST['admin_get_password_recovery_settings'])){
+        try{$service=new \OneId\App\Admin\PasswordRecoveryConfigurationService($operation);echo json_encode($service->read());}
+        catch(\OneId\App\Admin\SsoConfigurationException $e){echo json_encode(['status'=>0,'code'=>$e->reason,'message'=>'Password recovery policy could not be loaded.','correlation_id'=>$e->correlationId]);}
+      }
+
+      if(isset($_POST['update_password_recovery'])){
+        try{$service=new \OneId\App\Admin\PasswordRecoveryConfigurationService($operation);echo json_encode($service->update($_POST['password_reset_email_enabled']??null,(string)$_SESSION['login_user'],getUserIP()));}
+        catch(\OneId\App\Admin\SsoConfigurationException $e){echo json_encode(['status'=>0,'code'=>$e->reason,'message'=>'Password recovery policy was not updated.','correlation_id'=>$e->correlationId]);}
+      }
+
+      if(isset($_POST['test_password_recovery_email'])){
+        $correlation=bin2hex(random_bytes(8));$recipient=trim((string)($_POST['recipient_email']??''));
+        if(filter_var($recipient,FILTER_VALIDATE_EMAIL)===false){echo json_encode(['status'=>0,'code'=>'SC6_TEST_EMAIL_INVALID','correlation_id'=>$correlation]);}
+        else{$messageId=null;$sent=OTP_EMAIL_Sender('TEST',$recipient,'OneID Administrator',true,$messageId);$safeMessageId=preg_replace('/[^A-Za-z0-9@._<>-]/','',(string)$messageId);$operation->syslog_record(34,'admin='.(string)$_SESSION['login_user'].' action=password_recovery_test_email result='.($sent?'smtp_accepted':'failed').' message_id='.($safeMessageId!==''?$safeMessageId:'unavailable').' correlation='.$correlation,getUserIP());echo json_encode(['status'=>$sent?1:0,'code'=>$sent?'SC6_TEST_EMAIL_SMTP_ACCEPTED':'SC6_TEST_EMAIL_FAILED','delivery_confirmed'=>false,'message_id'=>$safeMessageId!==''?$safeMessageId:null,'correlation_id'=>$correlation]);}
+      }
+
+      if(isset($_POST['preview_configuration_update'])){
+        try {
+          $service = new \OneId\App\Admin\SsoConfigurationService($operation);
+          $preview = $service->preview($_POST);
+          $previewId = bin2hex(random_bytes(24));
+          $_SESSION['sso_policy_preview'] = [
+            'id'=>$previewId,'admin'=>(string)$_SESSION['login_user'],
+            'expires_at'=>time()+300,'after'=>$preview['after'],'impact'=>$preview['impact'],
+          ];
+          $preview['preview_id']=$previewId;
+          echo json_encode($preview);
+        } catch (\OneId\App\Admin\SsoConfigurationException $exception) {
+          echo json_encode(['status'=>0,'code'=>$exception->reason,'message'=>'Policy preview failed.','correlation_id'=>$exception->correlationId]);
+        }
       }
 
       
@@ -836,8 +881,30 @@ function string_sanitize($s) {
 
       
       if(isset( $_POST['update_configuration'])){
-        $results = $operation->update_configuration($_POST['token_timeout'],$_POST['sso_settings_multi_session'],$_POST['sso_settings_OTP_email']);
-        echo json_encode($results);
+        try {
+          $approval = $_SESSION['sso_policy_preview'] ?? null;
+          $submittedAfter = ['token_timeout'=>(string)($_POST['token_timeout']??''),'multi_session'=>(int)($_POST['sso_settings_multi_session']??-1)];
+          if (!is_array($approval) || !hash_equals((string)($approval['id']??''),(string)($_POST['policy_preview_id']??'')) || (int)($approval['expires_at']??0)<time() || (string)($approval['admin']??'')!==(string)$_SESSION['login_user'] || ($approval['after']??null)!==$submittedAfter) {
+            echo json_encode(['status'=>0,'code'=>'SC5_PREVIEW_INVALID','message'=>'A fresh matching preview is required.','correlation_id'=>bin2hex(random_bytes(8))]);
+            unset($_SESSION['sso_policy_preview']);
+            return;
+          }
+          unset($_SESSION['sso_policy_preview']);
+          $service = new \OneId\App\Admin\SsoConfigurationService($operation);
+          echo json_encode($service->update(
+            $_POST,
+            (string) $_SESSION['login_user'],
+            (string) getUserIP(),
+            (array)($approval['impact']??[])
+          ));
+        } catch (\OneId\App\Admin\SsoConfigurationException $exception) {
+          echo json_encode([
+            'status'=>0,
+            'code'=>$exception->reason,
+            'message'=>'Authentication policy was not updated.',
+            'correlation_id'=>$exception->correlationId,
+          ]);
+        }
       }
 
       
@@ -862,24 +929,14 @@ function string_sanitize($s) {
         foreach ($results as $i => $ii) {
           $results[$i]['device_info'] = oneid_normalize_device_info($results[$i]['device_info'] ?? '');
           //Here will check with the system settings for token timeout
-          $hour_diff = get_hour_diff($results[$i]['token_datetime'],date("Y-m-d H:i:s"));
+          $tokenEvaluation = $tokenLifetimePolicy->evaluate($results[$i]['token_issued_at'],date("Y-m-d H:i:s"),(float)$token_timeout);
           // echo $results[$i]['token_datetime'].'#'.date("Y-m-d H:i:s").'<br/>';
           // echo $hour_diff."#";
-          if($hour_diff <= 0){
-            //Check timeout
-            if(abs($hour_diff) > $token_timeout){ //Token had pass the token_timeout max life but,
+          if($tokenEvaluation['state'] !== \OneId\App\Auth\SsoTokenLifetimePolicy::ACTIVE){
               $unset_flag = 1;
               $operation->update_specific_token_status($_SESSION['login_user'],$results[$i]['token_id'],0); //expired current browser token for specific browser
               unset($results[$i]);
               continue;
-            }
-          }else{
-              $unset_flag = 1;
-              $operation->update_specific_token_status($_SESSION['login_user'],$results[$i]['token_id'],0); //expired current browser token for specific browser
-              unset($results[$i]);
-              continue;
-            // echo "x"; 
-          //INVALID change token settings to expired
           }
           // echo json_encode(array_values($acl_merged_keyed),JSON_PRETTY_PRINT);
           if(isset($_COOKIE['sso_cre'])) {
@@ -909,24 +966,14 @@ function string_sanitize($s) {
          foreach ($results as $i => $ii) {
           $results[$i]['device_info'] = oneid_normalize_device_info($results[$i]['device_info'] ?? '');
           //Here will check with the system settings for token timeout
-          $hour_diff = get_hour_diff($results[$i]['token_datetime'],date("Y-m-d H:i:s"));
+          $tokenEvaluation = $tokenLifetimePolicy->evaluate($results[$i]['token_issued_at'],date("Y-m-d H:i:s"),(float)$token_timeout);
           // echo $results[$i]['token_datetime'].'#'.date("Y-m-d H:i:s").'<br/>';
           // echo $hour_diff."#";
-          if($hour_diff <= 0){
-            //Check timeout
-            if(abs($hour_diff) > $token_timeout){ //Token had pass the token_timeout max life but,
+          if($tokenEvaluation['state'] !== \OneId\App\Auth\SsoTokenLifetimePolicy::ACTIVE){
               $unset_flag = 1;
               $operation->update_specific_token_status($results[$i]['user_id'],$results[$i]['token_id'],0); //expired current browser token for specific browser
               unset($results[$i]);
               continue;
-            }
-          }else{
-              $unset_flag = 1;
-              $operation->update_specific_token_status($results[$i]['user_id'],$results[$i]['token_id'],0); //expired current browser token for specific browser
-              unset($results[$i]);
-              continue;
-            // echo "x"; 
-          //INVALID change token settings to expired
           }
           // echo json_encode(array_values($acl_merged_keyed),JSON_PRETTY_PRINT);
          /*  if(isset($_COOKIE['sso_cre'])) {
@@ -1185,8 +1232,7 @@ function string_sanitize($s) {
       }
 
       unset($_SESSION['password_reset_user'], $_SESSION['password_reset_verified_at']);
-      if ($uid_result && (int) $uid_result['avail_status'] === 1) {
-        $_SESSION['password_reset_user'] = $uid_result['u_id'];
+      if ($uid_result && (int) $uid_result['avail_status'] === 1 && (int)$passwordResetEmailEnabled===1 && filter_var((string)$uid_result['data5'],FILTER_VALIDATE_EMAIL)!==false) {
         $latestRequest = $operation->otp_latest_request($uid_result['u_id']);
         $cooldownPassed = !$latestRequest
           || strtotime($latestRequest['otp_create_date']) <= (time() - 60);
@@ -1196,16 +1242,20 @@ function string_sanitize($s) {
           $otp = generate_otp_code();
           $operation->otp_invalidate_active($uid_result['u_id']);
           if ($operation->otp_create($uid_result['u_id'], $otp) === 1) {
-            if ((int) $sys_config_OTP_email === 1) {
-              OTP_EMAIL_Sender($otp, $uid_result['data5'], $uid_result['data1']);
+            if (OTP_EMAIL_Sender($otp, $uid_result['data5'], $uid_result['data1'])) {
+              $_SESSION['password_reset_user'] = $uid_result['u_id'];
+              $operation->syslog_record(9, 'Password reset OTP delivered for user ID: '.$uid_result['u_id'], getUserIP());
+            } else {
+              $operation->otp_invalidate_active($uid_result['u_id']);
+              $operation->syslog_record(35, 'Password reset delivery failed for user ID: '.$uid_result['u_id'], getUserIP());
             }
-            $operation->syslog_record(9, 'Password reset OTP created for user ID: '.$uid_result['u_id'], getUserIP());
           }
         }
       }
 
       echo json_encode([
         'result' => 'true',
+        'delivery_available' => (int)$passwordResetEmailEnabled === 1,
         'msg' => 'If the account is eligible, reset instructions have been sent to its registered email.'
       ]);
     }
@@ -1269,11 +1319,11 @@ function string_sanitize($s) {
 
 
 
-    function OTP_EMAIL_Sender($otp_code,$email,$user_name){
+    function OTP_EMAIL_Sender($otp_code,$email,$user_name,$isTest=false,&$messageId=null){
       
-      $html_title = 'Password Reset OTP';
-      $html_body_header = 'Tetapan Semula Kata Laluan';
-      $html_body_content = '<p>Sila gunakan OTP berikut untuk mengesahkan permintaan tetapan semula kata laluan:</p>';
+      $html_title = $isTest ? 'Password Recovery Email Test' : 'Password Reset OTP';
+      $html_body_header = $isTest ? 'Ujian E-mel Password Recovery' : 'Tetapan Semula Kata Laluan';
+      $html_body_content = $isTest ? '<p>Ini ialah ujian penghantaran e-mel Password Recovery yang dimulakan oleh pentadbir OneID.</p>' : '<p>Sila gunakan OTP berikut untuk mengesahkan permintaan tetapan semula kata laluan:</p>';
 
       $email_body = '
       <!DOCTYPE html>
@@ -1306,7 +1356,7 @@ function string_sanitize($s) {
                   </tr>
                   <tr>
                     <td style="font-size: 14px; color: #777777;">
-                      OTP sah selama 5 minit dan hanya boleh digunakan sekali.
+                      '.($isTest ? 'Tiada tindakan pengguna diperlukan.' : 'OTP sah selama 5 minit dan hanya boleh digunakan sekali.').'
                     </td>
                   </tr>
                   <tr>
@@ -1342,10 +1392,10 @@ function string_sanitize($s) {
             $mail->setFrom(oneid_secret('ONEID_SMTP_USERNAME'), (string) oneid_config('ONEID_SMTP_FROM_NAME'));
             $mail->addAddress($email, $user_name);
             //$mail->addAddress('30saat@gmail.com', 'Nabil');
-            $mail->Subject = 'OneID@UPNM - OTP Lupa Kata Laluan';
+            $mail->Subject = $isTest ? 'OneID@UPNM - Ujian Password Recovery' : 'OneID@UPNM - OTP Lupa Kata Laluan';
             $mail->msgHTML($email_body); // remove if you do not want to send HTML email
             $mail->AltBody = 'HTML not supported';
-            $mail->send();
+            $sent=(bool)$mail->send();$messageId=$sent?$mail->getLastMessageID():null;return $sent;
     }
 
 

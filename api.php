@@ -2,6 +2,7 @@
 require_once __DIR__ . '/lib/config.php';
 require_once __DIR__ . '/lib/stateless_jwt.php';
 require_once __DIR__ . '/lib/integration_security.php';
+require_once __DIR__ . '/app/Auth/SsoTokenLifetimePolicy.php';
 
 header('Content-Type: application/json; charset=utf-8');
 oneid_integration_guard('sso_token', 'sso:validate');
@@ -16,6 +17,7 @@ if (!is_array($data)) {
 }
 
 $token_timeout = $operation->get_system_config()['token_timeout']; //24 means 1 day
+$tokenLifetimePolicy = new \OneId\App\Auth\SsoTokenLifetimePolicy();
 // echo json_encode($data);s
 switch($data['flag'] ?? null){
 	case "1": //check SSO Token RESULT = (1) OK, (0) Invalid
@@ -28,17 +30,24 @@ switch($data['flag'] ?? null){
 			$API_respond_fields['respond_description'] = "Token not available, login to IDP for new token";
         	echo json_encode($API_respond_fields);
         }else{
+	        if(!empty($results['policy_revoke_at']) && strtotime((string)$results['policy_revoke_at'])<=time()){
+               if($operation->enforce_due_token_revocation((string)$results['token_id'])===1){
+                  $operation->syslog_record(31,'action=lazy_policy_revoke correlation='.(string)($results['policy_revoke_correlation']??''),oneid_integration_client_ip());
+               }
+               $results['status']=0;
+	        }
 	        //Here will check with the system settings for token timeout
-	        $hour_diff = get_hour_diff($results['token_datetime'],date("Y-m-d H:i:s"));
+	        $tokenEvaluation = $tokenLifetimePolicy->evaluate($results['token_issued_at'],date("Y-m-d H:i:s"),(float)$token_timeout);
+	        $hour_diff = round(-$tokenEvaluation['age_seconds']/3600, 1);
 	        // echo "X";
 	        // echo $hour_diff . "XX";
-	        if($hour_diff <= 0){
+	        if($tokenEvaluation['state'] !== \OneId\App\Auth\SsoTokenLifetimePolicy::FUTURE_INVALID){
 	        	//Check timeout
-	        	if(abs($hour_diff) > $token_timeout){ //Token had pass the token_timeout max life but,
+               if($tokenEvaluation['state'] !== \OneId\App\Auth\SsoTokenLifetimePolicy::ACTIVE){
 	        		//we have BUFFER OF 1 HOUR (1hr) if the user is still active, 
 	        		//token will be reissued , this to cater if user is actively using the system beyond the max token life,
 	        		// so system will automatically reissued a new token without user knowing the new token. 
-	        		if((abs($hour_diff) - $token_timeout) < 1){
+                  if($tokenEvaluation['state'] === \OneId\App\Auth\SsoTokenLifetimePolicy::LEGACY_REFRESH){
 	        			//recreate new token
 						$API_respond_fields['respond_flag'] = "2"; //0-error,1-normal,2-auto reissue token
 						$API_respond_fields['respond'] = "1"; //0-invalid, 1- valid

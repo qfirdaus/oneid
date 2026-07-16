@@ -1,0 +1,7 @@
+setting	producer_or_editor	consumer	enforcement	current_effect
+token_timeout	admin/dashboard.php:update_configuration	api.php:token-validation	api.php compares token age and permits legacy refresh window	Global SSO token lifetime in hours; not PHP session timeout
+token_timeout	admin/dashboard.php:update_configuration	lib/q_func.php:active-session-listing	Expired tokens are marked inactive while session lists are read	Expiry cleanup is access-driven, not an immediate global sweep
+multi_session	admin/dashboard.php:update_configuration	lib/q_func.php:auth	Login invalidates all prior user tokens only when value is 0	Changing 1 to 0 does not immediately revoke existing tokens
+email_OTP	admin/dashboard.php:update_configuration	lib/q_func.php:action_forgot_password	OTP email is sent only when value is 1	Controls password-reset delivery only; not login MFA or Admin 2FA
+php_session_idle_timeout	lib/session_security.php hard-coded policy	all PHP authenticated pages	Session cleared after more than 1800 seconds idle	Independent of token_timeout
+php_session_absolute_timeout	lib/session_security.php hard-coded policy	all PHP authenticated pages	Session cleared after more than 28800 seconds absolute age	Independent of token_timeout

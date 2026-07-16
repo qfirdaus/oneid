@@ -1365,13 +1365,13 @@
                                                       <div class="sso-config-panel">
                                                          <div class="sso-config-header">
                                                             <div>
-                                                               <span class="sso-config-eyebrow">Identity &amp; session</span>
-                                                               <h4 class="sso-config-title">SSO Configuration</h4>
-                                                               <p class="sso-config-intro">Urus tempoh sesi, akses berbilang peranti dan penghantaran OTP untuk pengguna OneID.</p>
+                                                               <span class="sso-config-eyebrow">Authentication policy</span>
+                                                               <h4 class="sso-config-title">Authentication &amp; SSO Token Policy</h4>
+                                                               <p class="sso-config-intro">Urus hayat token SSO dan token aktif pada beberapa peranti. Password Recovery dikawal secara berasingan di bawah.</p>
                                                             </div>
-                                                            <button class="sso-config-save" type="button" onclick="update_configuration();">
+                                                            <button class="sso-config-save" id="sso_config_save_button" type="button" onclick="update_configuration();" disabled aria-busy="true">
                                                                <i class="fa fa-check" aria-hidden="true"></i>
-                                                               <span>Save changes</span>
+                                                               <span id="sso_config_save_label">Loading settings...</span>
                                                             </button>
                                                          </div>
                                                          <div class="sso-config-body">
@@ -1379,8 +1379,8 @@
                                                                <div class="sso-config-copy">
                                                                   <span class="sso-config-index">01</span>
                                                                   <div>
-                                                                     <label for="sso_settings_token_session_timeout">Session timeout</label>
-                                                                     <p>Tempoh sah sesi sebelum pengguna perlu membuat pengesahan semula.</p>
+                                                                     <label for="sso_settings_token_session_timeout">SSO token lifetime</label>
+                                                                     <p>Tempoh nominal token SSO sebelum validation atau legacy refresh berlaku. PHP session OneID kekal berasingan: tamat selepas 30 minit tanpa aktiviti atau maksimum 8 jam.</p>
                                                                   </div>
                                                                </div>
                                                                <div class="sso-config-control sso-config-select-wrap">
@@ -1401,36 +1401,34 @@
                                                                <div class="sso-config-copy">
                                                                   <span class="sso-config-index">02</span>
                                                                   <div>
-                                                                     <label for="sso_settings_multi_session">Multiple sessions</label>
-                                                                     <p>Benarkan akaun yang sama mempunyai lebih daripada satu sesi aktif.</p>
+                                                                     <label for="sso_settings_multi_session">Allow multiple active SSO tokens</label>
+                                                                     <p>Benarkan token daripada beberapa browser atau peranti kekal aktif. Jika dimatikan, behavior semasa hanya membatalkan token lama pada login pengguna yang berikutnya.</p>
                                                                   </div>
                                                                </div>
                                                                <div class="sso-config-control">
-                                                                  <div class="sso-config-switch" aria-label="Allow multiple sessions">
+                                                                  <div class="sso-config-switch" aria-label="Allow multiple active SSO tokens">
                                                                      <input type="checkbox" class="js-switch js-switch-1" id="sso_settings_multi_session" data-color="#11a8df" data-size="small"/>
                                                                   </div>
                                                                </div>
                                                             </div>
 
-                                                            <div class="sso-config-row">
-                                                               <div class="sso-config-copy">
-                                                                  <span class="sso-config-index">03</span>
-                                                                  <div>
-                                                                     <label for="sso_settings_otp_email">OTP email delivery</label>
-                                                                     <p>Hantar kod OTP ke alamat e-mel pengguna bagi proses pengesahan berkaitan.</p>
-                                                                  </div>
-                                                               </div>
-                                                               <div class="sso-config-control">
-                                                                  <div class="sso-config-switch" aria-label="Send OTP email to user">
-                                                                     <input type="checkbox" class="js-switch js-switch-1" id="sso_settings_otp_email" data-color="#11a8df" data-size="small"/>
-                                                                  </div>
-                                                               </div>
+                                                            <div class="sso-config-note sso-config-note-warning">
+                                                               <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                                               <p>Token sehingga satu minggu meningkatkan tempoh pendedahan jika token dicuri.</p>
                                                             </div>
-
                                                             <div class="sso-config-note">
                                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                                               <p>Perubahan konfigurasi memberi kesan kepada flow authentication dan sesi pengguna. Semak pilihan sebelum menyimpan.</p>
+                                                               <p id="sso_config_operational_status" role="status" aria-live="polite">Loading current policy...</p>
                                                             </div>
+                                                         </div>
+                                                      </div>
+                                                      <div class="sso-config-panel" style="margin-top:24px">
+                                                         <div class="sso-config-header"><div><span class="sso-config-eyebrow">Account recovery</span><h4 class="sso-config-title">Password Recovery</h4><p class="sso-config-intro">Polisi penghantaran OTP Forgot Password. Ia bukan login MFA atau Admin Step-Up 2FA.</p></div><button class="sso-config-save" id="recovery_config_save_button" type="button" onclick="updatePasswordRecovery();" disabled><i class="fa fa-check"></i> <span id="recovery_config_save_label">Loading settings...</span></button></div>
+                                                         <div class="sso-config-body">
+                                                            <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="password_reset_email_enabled">Send password-reset OTP by email</label><p>Apabila OFF, Forgot Password tidak mencipta challenge kerana tiada saluran recovery manual yang diluluskan.</p></div></div><div class="sso-config-control"><div class="sso-config-switch"><input type="checkbox" class="js-switch js-switch-1" id="password_reset_email_enabled" data-color="#11a8df" data-size="small"/></div></div></div>
+                                                            <div class="sso-config-note"><i class="fa fa-heartbeat"></i><p id="recovery_smtp_status" role="status">Checking SMTP configuration...</p></div>
+                                                            <div class="sso-config-row"><div class="sso-config-copy"><div><label for="password_recovery_test_email">Test delivery</label><p>Masukkan mailbox UAT yang diluluskan. Alamat penuh dan credential tidak direkod dalam audit.</p></div></div><div class="sso-config-control"><input type="email" class="form-control" id="password_recovery_test_email" placeholder="Mailbox UAT"><button type="button" class="btn btn-default btn-sm mt-10" onclick="testPasswordRecoveryEmail();">Send test</button></div></div>
+                                                            <div class="sso-config-note sso-config-note-warning"><i class="fa fa-exclamation-triangle"></i><p>Recovery bagi pengguna tanpa e-mel sah adalah fail-closed. Prosedur manual belum tersedia dalam sistem.</p></div>
                                                          </div>
                                                       </div>
                                                    </div>
@@ -1544,6 +1542,7 @@
          get_service_provider_list();
          admin_get_all_user_category(0);		
          admin_get_settings();	
+         loadPasswordRecovery();
          get_all_user_activ_session();
 		 
              startTokenRefresh();
@@ -1800,6 +1799,42 @@
          
          
          
+         var ssoConfigOriginal = null;
+         var ssoConfigSaving = false;
+
+         function ssoConfigValues(){
+            return {
+               token_timeout: String($('#sso_settings_token_session_timeout').val() || ''),
+               multi_session: document.getElementById('sso_settings_multi_session').checked ? '1' : '0'
+            };
+         }
+
+         function ssoConfigTimeoutLabel(value){
+            var option = $('#sso_settings_token_session_timeout option[value="' + value + '"]');
+            return option.length ? option.text() : value + ' jam';
+         }
+
+         function ssoConfigChangeSummary(current){
+            var changes = [];
+            if (!ssoConfigOriginal) {
+               return changes;
+            }
+            if (current.token_timeout !== ssoConfigOriginal.token_timeout) {
+               changes.push('SSO token lifetime: ' + ssoConfigTimeoutLabel(ssoConfigOriginal.token_timeout) + ' -> ' + ssoConfigTimeoutLabel(current.token_timeout));
+            }
+            if (current.multi_session !== ssoConfigOriginal.multi_session) {
+               changes.push('Multiple active SSO tokens: ' + (ssoConfigOriginal.multi_session === '1' ? 'Allowed' : 'Not allowed') + ' -> ' + (current.multi_session === '1' ? 'Allowed' : 'Not allowed'));
+            }
+            return changes;
+         }
+
+         function setSsoConfigSaving(isSaving){
+            ssoConfigSaving = isSaving;
+            $('#sso_config_save_button').prop('disabled', isSaving || !ssoConfigOriginal).attr('aria-busy', isSaving ? 'true' : 'false');
+            $('#sso_config_save_label').text(isSaving ? 'Saving...' : 'Review & save');
+            $('#sso_settings_token_session_timeout, #sso_settings_multi_session').prop('disabled', isSaving);
+         }
+
          function admin_get_settings(){
          $.ajax({
          type: 'POST',
@@ -1810,7 +1845,17 @@
                          // $('#login_status').html('<div class="alert alert-info alert-dismissable alert-style-1"><i class="zmdi zmdi-info-outline"></i>Signing on. Checking info. Wait a moment.</div>');
                      },
                      success: function (response) {
-                     	var time_out = Number(response['token_timeout']);
+                        if (!response || Number(response.status) !== 1 || response.code !== 'SC2_CONFIG_LOADED' || !response.data) {
+                           ssoConfigOriginal = null;
+                           $('#sso_config_save_button').prop('disabled', true).attr('aria-busy', 'false');
+                           $('#sso_config_save_label').text('Settings unavailable');
+                           var loadReference = response && response.correlation_id ? '\nReference: ' + response.correlation_id : '';
+                           $('#sso_config_operational_status').text('Current policy could not be loaded. No changes can be saved.');
+                           swal('Settings unavailable', 'The server rejected or could not complete the load request.' + loadReference, 'error');
+                           return;
+                        }
+                        response = response.data;
+                        var time_out = Number(response['token_timeout']);
                      	switch(time_out){
                            case 0.5:
                            $('#sso_settings_token_session_timeout').val(response['token_timeout']);
@@ -1840,84 +1885,121 @@
                      		break;
                      	}
          
-                     	if(response['multi_session'] == "0"){
-                     		$("#sso_settings_multi_session").attr("checked", false);
-                     	}else{
-                     		$("#sso_settings_multi_session").attr("checked", true);
-                     	}
-                        if(response['email_OTP'] == "0"){
-                           $("#sso_settings_otp_email").attr("checked", false);
+                        if(response['multi_session'] == "0"){
+                           $("#sso_settings_multi_session").prop("checked", false);
                         }else{
-                           $("#sso_settings_otp_email").attr("checked", true);
+                           $("#sso_settings_multi_session").prop("checked", true);
                         }
-                     	var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch'));
-                     	elems.forEach(function (html) {
-                     		var switchery = new Switchery(html, {});
-                     	});
-         
+                        var elems = Array.prototype.slice.call(document.querySelectorAll('.js-switch:not(#password_reset_email_enabled)'));
+                        elems.forEach(function (html) {
+                           if (!html.getAttribute('data-switchery')) { new Switchery(html, {}); }
+                        });
+                        ssoConfigOriginal = ssoConfigValues();
+                        setSsoConfigSaving(false);
+                        $('#sso_config_operational_status').text('Current policy loaded. Review all changes before saving; existing token enforcement behavior is unchanged in this phase.');
                      },
                      error: function (xhr, error, thrown) {
+                        ssoConfigOriginal = null;
+                        $('#sso_config_save_button').prop('disabled', true).attr('aria-busy', 'false');
+                        $('#sso_config_save_label').text('Settings unavailable');
+                        $('#sso_config_operational_status').text('Current policy could not be loaded. No changes can be saved. HTTP ' + xhr.status + '.');
+                        swal('Settings unavailable', 'The current policy could not be loaded. No changes have been made.\nHTTP status: ' + xhr.status, 'error');
                      }
                  });
          }
          
          function update_configuration(){
-         var isChecked=document.getElementById("sso_settings_multi_session").checked;
-         var sso_settings_multi_session = 0;
-
-         if(isChecked==true){
-         sso_settings_multi_session = 1;
-         }else{         
-         sso_settings_multi_session = 0;
+            if (ssoConfigSaving || !ssoConfigOriginal) {
+               return;
+            }
+            var current = ssoConfigValues();
+            var changes = ssoConfigChangeSummary(current);
+            if (changes.length === 0) {
+               swal('No changes', 'The selected policy already matches the saved values. No request was sent.', 'info');
+               return;
+            }
+            var warning = '';
+            if (Number(current.token_timeout) >= 168) {
+               warning += '\n\nWarning: the selected token lifetime is one week.';
+            }
+            setSsoConfigSaving(true);
+            $('#sso_config_operational_status').text('Calculating affected users and tokens...');
+            $.ajax({
+               type:'POST',url:'../lib/q_func',dataType:'json',
+               data:{preview_configuration_update:'',sso_settings_multi_session:current.multi_session,token_timeout:current.token_timeout},
+               success:function(preview){
+                  if(!preview || preview.code!=='SC5_PREVIEW_CREATED'){
+                     swal('Preview failed','No changes were made.\nCode: '+(preview&&preview.code?preview.code:'SC5_PREVIEW_INVALID'),'error');
+                     return;
+                  }
+                  var impact=preview.impact||{};
+                  swal({title:'Confirm policy and impact',text:changes.join('\n')+warning+'\n\nAffected users: '+Number(impact.affected_users||0)+'\nAffected tokens: '+Number(impact.affected_tokens||0)+'\nGrace period: 15 minutes',type:'warning',showCancelButton:true,confirmButtonColor:'#11a8df',confirmButtonText:'Save policy',cancelButtonText:'Cancel',closeOnConfirm:false},function(){
+                     submitSsoConfigUpdate(current,preview.preview_id);
+                  });
+               },
+               error:function(xhr){swal('Preview failed','No changes were made. HTTP '+xhr.status+'.','error');},
+               complete:function(){setSsoConfigSaving(false);}
+            });
          }
-         var isChecked_OTP_email=document.getElementById("sso_settings_otp_email").checked;
-         var sso_settings_OTP_email = 0;
 
-         if(isChecked_OTP_email==true){
-         sso_settings_OTP_email = 1;
-         }else{         
-         sso_settings_OTP_email = 0;
-         }
-         var token_timeout = 0;
-         
-         token_timeout = $('#sso_settings_token_session_timeout').val();
-         
-         $.ajax({
-         type: 'POST',
-         url: '../lib/q_func',
-         dataType: "json",
-         data: {update_configuration:"",sso_settings_multi_session:sso_settings_multi_session,token_timeout,token_timeout,sso_settings_OTP_email:sso_settings_OTP_email},
-         beforeSend: function(){
-                         // $('#login_status').html('<div class="alert alert-info alert-dismissable alert-style-1"><i class="zmdi zmdi-info-outline"></i>Signing on. Checking info. Wait a moment.</div>');
-                     },
+         function submitSsoConfigUpdate(current,previewId){
+            setSsoConfigSaving(true);
+            $('#sso_config_operational_status').text('Saving policy. Do not close this page.');
+            $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',
+               data:{update_configuration:'',policy_preview_id:previewId,sso_settings_multi_session:current.multi_session,token_timeout:current.token_timeout},
                      success: function (response) {
-                     	if(response == 1){
-                     		$.toast().reset('all');                    
-                     		$.toast({
-                     			heading: '',
-                     			text: 'SSO configuration updated',
-                     			position: 'bottom-center',
-                     			loaderBg:'#fec107',
-                     			icon: 'success',
-                     			hideAfter: 3500, 
-                     			stack: 6
-                     		}); 
-                     	}else{
-                     		$.toast().reset('all');                    
-                     		$.toast({
-                     			heading: '',
-                     			text: 'No update had been made',
-                     			position: 'bottom-center',
-                     			loaderBg:'#fec107',
-                     			icon: 'warning',
-                     			hideAfter: 3500, 
-                     			stack: 6
-                     		}); 
-                     	} 					
+                        if(response && Number(response.status) === 1 && response.code === 'SC2_CONFIG_UPDATED'){
+                           ssoConfigOriginal = current;
+                           var enforcement=response.enforcement||{};
+                           $('#sso_config_operational_status').text('Policy saved. Scheduled tokens: '+Number(enforcement.scheduled_tokens||0)+(enforcement.revoke_at?' at '+enforcement.revoke_at:'.'));
+                           swal('Policy saved', 'Scheduled tokens: '+Number(enforcement.scheduled_tokens||0)+'\nGrace period: 15 minutes\nReference: ' + response.correlation_id, 'success');
+                        }else if(response && Number(response.status) === 1 && response.code === 'SC2_CONFIG_UNCHANGED'){
+                           ssoConfigOriginal = current;
+                           $('#sso_config_operational_status').text('No database value changed; the saved policy already matched the selection.');
+                           swal('No changes', 'The database already contained the selected values.\nReference: ' + response.correlation_id, 'info');
+                        }else{
+                           var errorCode = response && response.code ? response.code : 'SC2_RESPONSE_INVALID';
+                           var errorReference = response && response.correlation_id ? response.correlation_id : 'Unavailable';
+                           $('#sso_config_operational_status').text('Policy was not saved. Code: ' + errorCode + '.');
+                           swal('Policy not saved', 'The request was rejected or returned an invalid result.\nCode: ' + errorCode + '\nReference: ' + errorReference, 'error');
+                        }
                      },
                      error: function (xhr, error, thrown) {
+                        $('#sso_config_operational_status').text('Save failed. The previous loaded policy remains the baseline. HTTP ' + xhr.status + '.');
+                        swal('Policy not saved', 'The server request failed. No success has been assumed.\nHTTP status: ' + xhr.status, 'error');
+                     },
+                     complete: function () {
+                        setSsoConfigSaving(false);
                      }
                  });
+         }
+
+         var recoveryConfigOriginal=null;
+         function loadPasswordRecovery(){
+            $.post('../lib/q_func',{admin_get_password_recovery_settings:''},function(r){
+               if(!r||r.code!=='SC6_RECOVERY_LOADED'){ $('#recovery_config_save_label').text('Settings unavailable'); return; }
+               recoveryConfigOriginal=String(r.data.password_reset_email_enabled);
+               var recoveryToggle=document.getElementById('password_reset_email_enabled');recoveryToggle.checked=recoveryConfigOriginal==='1';
+               if(!recoveryToggle.getAttribute('data-switchery')){new Switchery(recoveryToggle,{});}
+               $('#recovery_config_save_button').prop('disabled',false);$('#recovery_config_save_label').text('Review & save');
+               var h=r.data.smtp_health||{};$('#recovery_smtp_status').text('SMTP configuration: '+(h.status==='configured'?'configured; live delivery not yet verified.':'not configured.'));
+            },'json').fail(function(){ $('#recovery_config_save_label').text('Settings unavailable'); });
+         }
+         function updatePasswordRecovery(){
+            if(recoveryConfigOriginal===null)return;var value=$('#password_reset_email_enabled').prop('checked')?'1':'0';
+            if(value===recoveryConfigOriginal){swal('No changes','Password Recovery policy already matches.','info');return;}
+            var text=value==='1'?'Enable email OTP delivery?':'Disable email OTP delivery? Forgot Password will fail closed and create no challenge.';
+            swal({title:'Confirm Password Recovery policy',text:text,type:'warning',showCancelButton:true,confirmButtonText:'Save policy',closeOnConfirm:false},function(){
+               $('#recovery_config_save_button').prop('disabled',true);$.post('../lib/q_func',{update_password_recovery:'',password_reset_email_enabled:value},function(r){
+                  if(r&&Number(r.status)===1){recoveryConfigOriginal=value;swal('Recovery policy saved','Reference: '+r.correlation_id,'success');}else{swal('Policy not saved','Code: '+(r&&r.code?r.code:'SC6_RESPONSE_INVALID'),'error');}
+               },'json').fail(function(){swal('Policy not saved','Server request failed.','error');}).always(function(){$('#recovery_config_save_button').prop('disabled',false);});
+            });
+         }
+         function testPasswordRecoveryEmail(){
+            var recipient=$.trim($('#password_recovery_test_email').val());if(!recipient){swal('Recipient required','Enter an approved UAT mailbox.','warning');return;}
+            swal({title:'Send recovery test?',text:'A non-OTP test email will be sent to the entered mailbox.',type:'warning',showCancelButton:true,confirmButtonText:'Send test',closeOnConfirm:false},function(){
+               $.post('../lib/q_func',{test_password_recovery_email:'',recipient_email:recipient},function(r){swal(Number(r.status)===1?'Accepted by SMTP':'Test failed',(Number(r.status)===1?'The SMTP server accepted the message. Check Inbox, Junk and Quarantine; this is not proof of mailbox delivery.':'The SMTP server did not accept the message.')+'\nCode: '+r.code+(r.message_id?'\nMessage-ID: '+r.message_id:'')+'\nReference: '+r.correlation_id,Number(r.status)===1?'success':'error');},'json').fail(function(){swal('Test failed','Server request failed.','error');});
+            });
          }
          
          function open_category_listing(uc_id,uc_text){
@@ -6998,6 +7080,14 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         outline: none;
       }
 
+      #tab_settings .sso-config-save:disabled {
+        border-color: #aeb9c5;
+        background: #aeb9c5;
+        box-shadow: none;
+        cursor: not-allowed;
+        opacity: .78;
+      }
+
       #tab_settings .sso-config-body {
         overflow: hidden;
         border: 1px solid #e1e6ed;
@@ -7107,6 +7197,16 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         margin: 0;
         font-size: 11px;
         line-height: 1.55;
+      }
+
+      #tab_settings .sso-config-note-warning {
+        border-bottom: 1px solid #f5e4b8;
+        background: #fffaf0;
+        color: #795d20;
+      }
+
+      #tab_settings .sso-config-note-warning i {
+        color: #d49b18;
       }
 
       @media (max-width: 767px) {
