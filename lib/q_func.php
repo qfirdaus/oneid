@@ -22,6 +22,8 @@ require_once dirname(__DIR__) . '/app/User/UserResyncException.php';
 require_once dirname(__DIR__) . '/app/User/UserResyncService.php';
 require_once dirname(__DIR__) . '/app/User/UserSecurityActionException.php';
 require_once dirname(__DIR__) . '/app/User/UserSecurityActionService.php';
+require_once dirname(__DIR__) . '/app/User/UserPasswordChangeException.php';
+require_once dirname(__DIR__) . '/app/User/UserPasswordChangeService.php';
 require_once dirname(__DIR__) . '/app/User/UserManagementException.php';
 require_once dirname(__DIR__) . '/app/User/UserProfilePolicyService.php';
 require_once dirname(__DIR__) . '/app/User/UserAclManagementService.php';
@@ -36,7 +38,7 @@ use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
 
 require_once __DIR__ . '/request_security.php';
-oneid_guard_q_func_request($_POST);
+oneid_guard_q_func_request($_POST,$operation);
 
 $sys_config = $operation->get_system_config();
 $token_timeout = $sys_config['token_timeout'];//24 means 1 day
@@ -398,36 +400,13 @@ function string_sanitize($s) {
 
 
       if(isset( $_POST['action_change_password'])){
-
-        // echo $_SESSION['login_user'];
-        $login_result = $operation->verify_user_password($_SESSION['login_user'], $_POST['change_password_current']);
-
-        if ($login_result != false){
-          if($_POST['change_password_new'] == $_POST['change_password_new_reconfirm']){
-            list($passwordValid, $passwordMessage) = oneid_validate_new_password($_POST['change_password_new']);
-            if (!$passwordValid) {
-              echo json_encode(['msg'=>$passwordMessage, 'status'=>0]);
-              return;
-            }
-            $results = $operation->set_user_password($_SESSION['login_user'], $_POST['change_password_new'], 0);
-            $_SESSION['password_change_required'] = 0;
-            $operation->update_whole_token_status($_SESSION['login_user'], 0);
-            $rotatedToken = generate_token();
-            $operation->add_new_token($rotatedToken, $_SESSION['login_user'], $detectedDeviceInfo);
-            oneid_set_sso_cookie($rotatedToken);
-            $operation->syslog_record(21,$_SESSION['login_user'],getUserIP());
-            echo json_encode(array( 'msg' => "Password successfully changed",
-                          'status' => 1));
-          }else{
-            $operation->syslog_record(20,$_SESSION['login_user'],getUserIP());
-            echo json_encode(array( 'msg' => "New password confirmation does not match.",
-                          'status' => 0));
-          }
-        }else{
-          $operation->syslog_record(20,$_SESSION['login_user'],getUserIP());
-          echo json_encode(array( 'msg' => "Unable to verify current password",
-                          'status' => 0));
-        }
+        $userId=(string)$_SESSION['login_user'];$ip=(string)getUserIP();$wasForced=(int)($_SESSION['password_change_required']??0)===1;
+        if($operation->count_recent_invalid_current_password_attempts($userId,$ip,15)>=5){$correlation=bin2hex(random_bytes(8));$operation->syslog_record(20,'user='.$userId.' outcome=rejected reason=UC4_RATE_LIMITED correlation='.$correlation,$ip);if(!headers_sent())http_response_code(429);echo json_encode(['status'=>0,'code'=>'UC4_RATE_LIMITED','msg'=>'Too many invalid current-password attempts. Try again later.','correlation_id'=>$correlation]);return;}
+        try{$service=new \OneId\App\User\UserPasswordChangeService($operation);$result=$service->change($userId,(string)($_POST['change_password_current']??''),(string)($_POST['change_password_new']??''),(string)($_POST['change_password_new_reconfirm']??''),$detectedDeviceInfo,$ip,!$wasForced);$token=$result['replacement_token'];unset($result['replacement_token']);
+          if($wasForced){oneid_clear_sso_cookie();$_SESSION=[];session_regenerate_id(true);$result['redirect_uri']=APP_URL.'/';}
+          else{session_regenerate_id(true);$_SESSION['password_change_required']=0;unset($_SESSION['oneid_csrf_token']);$result['csrf_token']=oneid_csrf_token();oneid_set_sso_cookie((string)$token);}
+          echo json_encode($result);}
+        catch(\OneId\App\User\UserPasswordChangeException $e){$operation->syslog_record(20,'user='.$_SESSION['login_user'].' outcome=rejected reason='.$e->reason.' correlation='.$e->correlationId,getUserIP());echo json_encode(['status'=>0,'code'=>$e->reason,'msg'=>'Password was not changed.','correlation_id'=>$e->correlationId]);}
       }
 
 

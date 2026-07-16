@@ -1,0 +1,6 @@
+<?php
+declare(strict_types=1);require_once dirname(__DIR__).'/lib/auth_security.php';$root=dirname(__DIR__);$service=(string)file_get_contents($root.'/app/User/UserPasswordChangeService.php');$db=(string)file_get_contents($root.'/lib/Database.php');$n=0;$f=0;$ok=function($v,$d)use(&$n,&$f){$n++;if(!$v)$f++;printf("%s: %s\n",$v?'PASS':'FAIL',$d);};
+$ok(oneid_validate_new_password('Password123!X')[0]===false,'common predictable password is rejected');$ok(oneid_validate_new_password('USER123!StrongPass','USER123')[0]===false,'password containing user ID is rejected');$ok(oneid_validate_new_password('River!Quartz92')[0]===true,'non-common compliant passphrase is accepted');
+$ok(str_contains($service,'get_password_history_hashes($userId,5)')&&str_contains($service,'UC5_PASSWORD_HISTORY_REUSED'),'last five password hashes are checked');$ok(str_contains($service,'record_password_history')&&str_contains($service,'prune_password_history($userId,5)'),'previous hash is recorded and history retained at five');
+$ok(str_contains($db,'user_password_history')&&is_file($root.'/docs/migrations/20260716_uc5_password_history_up.sql'),'history persistence and migration exist');
+printf("RESULT: checks=%d failures=%d\n",$n,$f);exit($f===0?0:1);

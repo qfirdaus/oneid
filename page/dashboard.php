@@ -303,25 +303,29 @@
                                           <div class="form-wrap">
                                              <div class="form-body overflow-hide">
                                                 <div class="form-group">
-                                                   <label class="control-label mb-10" for="change_password_current"><span id="default_pwd_text"></span></label>
-                                                   <input type="password" class="form-control" id="change_password_current" name="change_password_current" placeholder="" required="">
+                                                   <label class="control-label mb-10" for="change_password_current"><span id="default_pwd_text">Kata Laluan Semasa</span></label>
+                                                   <input type="password" class="form-control" id="change_password_current" name="change_password_current" autocomplete="current-password" required>
                                                 </div>
                                                 <hr/>
                                                 <div class="form-group">
                                                    <label class="control-label mb-10" for="change_password_new">Kata Laluan Baharu</label>
-                                                   <input type="password" class="form-control" id="change_password_new" name="change_password_new" placeholder="" required="">
+                                                   <input type="password" class="form-control" id="change_password_new" name="change_password_new" autocomplete="new-password" minlength="12" required>
                                                 </div>
                                                 <div class="form-group">
                                                    <label class="control-label mb-10" for="change_password_new_reconfirm">Sahkan Kata Laluan Baharu</label>
-                                                   <input type="password" class="form-control" id="change_password_new_reconfirm" name="change_password_new_reconfirm" placeholder="" required="">
+                                                   <input type="password" class="form-control" id="change_password_new_reconfirm" name="change_password_new_reconfirm" autocomplete="new-password" minlength="12" required>
                                                 </div>
                                                 <ul id="password-requirements" style="list-style: none; padding-left: 0; margin-top: 10px;">
-            												  <li id="p_length">❌ Sekurang-kurangnya 8 aksara</li>
+														  <li id="p_length">❌ Sekurang-kurangnya 12 aksara</li>
 																<li id="p_lowercase">❌ Sekurang-kurangnya satu huruf kecil</li>
 																<li id="p_uppercase">❌ Sekurang-kurangnya satu huruf besar</li>
 																<li id="p_number">❌ Sekurang-kurangnya satu nombor</li>
 																<li id="p_special">❌ Sekurang-kurangnya satu aksara khas</li>
             												</ul>
+                                             </div>
+                                             <div id="password_change_feedback" class="alert" role="alert" aria-live="assertive" style="display:none;user-select:text;-webkit-user-select:text;">
+                                                <p id="password_change_feedback_text" style="white-space:pre-wrap;margin-bottom:8px;"></p>
+                                                <button type="button" class="btn btn-xs btn-default" id="password_change_copy_button" onclick="copyPasswordChangeFeedback();"><i class="fa fa-copy" aria-hidden="true"></i> Salin mesej</button>
                                              </div>
                                           </div>
                                        </div>
@@ -335,7 +339,7 @@
                         <!--<button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>-->
 						
                         <button type="button" class="btn btn-danger waves-effect" id="chge_pwd_logout" onclick="logout();">Log Keluar</button>
-                        <button type="submit" class="btn btn-primary waves-effect">Tukar</button>
+                        <button type="submit" class="btn btn-primary waves-effect" id="btn_change_password_submit"><span id="change_password_submit_label">Tukar</span></button>
                         <button id="btn_close_changePW" type="button" class="btn btn-secondary text-primary" data-dismiss="modal">Tutup</button>
                      </div>
                   </form>
@@ -1021,16 +1025,18 @@
 		 
          if ($('#modal_change_first_time_password').hasClass('in')) {
              // Modal is open
-             $('#default_pwd_text').text("Masukkan Kata Laluan Semasa");
+             $('#default_pwd_text').text("Kata Laluan Semasa");
 
             $('#modal_change_first_time_password').modal('hide');
          } else {
              // Modal is closed
-             $('#default_pwd_text').text("");
+             $('#default_pwd_text').text("Kata Laluan Semasa");
          }
          $('#change_password_current').val('');
          $('#change_password_new').val('');
          $('#change_password_new_reconfirm').val('');
+         $('#password_change_feedback').hide().removeClass('alert-success alert-danger alert-info');
+         $('#password_change_feedback_text').text('');
          $('#modal_change_password').modal('show');
          resetPasswordChecks();
          }
@@ -1059,45 +1065,49 @@
 		}
 
 		function resetPasswordChecks() {
-		    $('#length').html('❌ At least 12 characters');
-		    $('#lowercase').html('❌ At least one lowercase letter');
-		    $('#uppercase').html('❌ At least one uppercase letter');
-		    $('#number').html('❌ At least one number');
-		    $('#special').html('❌ At least one special character');
+		    $('#p_length').html('❌ At least 12 characters');
+		    $('#p_lowercase').html('❌ At least one lowercase letter');
+		    $('#p_uppercase').html('❌ At least one uppercase letter');
+		    $('#p_number').html('❌ At least one number');
+		    $('#p_special').html('❌ At least one special character');
 		}
 
-         
+         var passwordChangeSubmitting = false;
+         function setPasswordChangeSubmitting(submitting){
+            passwordChangeSubmitting = submitting;
+            $('#btn_change_password_submit').prop('disabled', submitting).attr('aria-busy', submitting ? 'true' : 'false');
+            $('#change_password_submit_label').text(submitting ? 'Menukar...' : 'Tukar');
+            $('#change_password_current, #change_password_new, #change_password_new_reconfirm').prop('disabled', submitting);
+         }
+         function passwordChangeFeedback(response, success){
+            var code=response&&response.code?response.code:'UC1_RESPONSE_INVALID';
+            var reference=response&&response.correlation_id?response.correlation_id:'Unavailable';
+            return (response&&response.msg?response.msg:(success?'Password successfully changed.':'Password was not changed.'))+' Code: '+code+'. Reference: '+reference+'.';
+         }
+         function showPasswordChangeFeedback(message,type){
+            var panel=$('#password_change_feedback');panel.removeClass('alert-success alert-danger alert-info').addClass(type==='success'?'alert-success':(type==='info'?'alert-info':'alert-danger'));
+            $('#password_change_feedback_text').text(message);panel.show();
+         }
+         function copyPasswordChangeFeedback(){
+            var text=$('#password_change_feedback_text').text();if(!text){return;}
+            if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(function(){$('#password_change_copy_button').text('Disalin');});return;}
+            var area=$('<textarea>').val(text).css({position:'fixed',left:'-9999px'}).appendTo('body');area[0].select();document.execCommand('copy');area.remove();$('#password_change_copy_button').text('Disalin');
+         }
+
          var form_change_password = $('#form_change_password');
          form_change_password.on('submit', function(ev){
              ev.preventDefault();
+             if(passwordChangeSubmitting){return;}
 
               var password = $('#change_password_new').val();
               var password2 = $('#change_password_new_reconfirm').val();
 			  var checking = checkPasswordStrength(password);
 			  if(checking.status == 0){
-			  	$.toast().reset('all');                    
-				$.toast({
-							heading: '',
-							text: checking.message,
-							position: 'bottom-center',
-							loaderBg:'#fec107',
-							icon: 'error',
-							hideAfter: 3500, 
-							stack: 6
-				});  
+				showPasswordChangeFeedback(checking.message,'error');
 			  	return;
 			  }
 			  if(password != password2){
-			  	$.toast().reset('all');                    
-				$.toast({
-							heading: '',
-							text: "New password & confirmation password does not match",
-							position: 'bottom-center',
-							loaderBg:'#fec107',
-							icon: 'error',
-							hideAfter: 3500, 
-							stack: 6
-				});  
+				showPasswordChangeFeedback('New password and confirmation password do not match.','error');
 			  	return;
 			  }
 
@@ -1110,35 +1120,24 @@
                          dataType: "json",
                          data:data,
                          beforeSend: function(){
+                           setPasswordChangeSubmitting(true);
                          },
                          success: function (response) {
                              if (response['status'] == 1){  
-                             	$('#modal_change_password').modal('hide');      
-         						$.toast().reset('all');                    
-						         $.toast({
-						         	heading: '',
-						         	text: response['msg'],
-						         	position: 'bottom-center',
-						         	loaderBg:'#fec107',
-						         	icon: 'success',
-						         	hideAfter: 3500, 
-						         	stack: 6
-						         });  
-						                             }else{                        
-						         						$.toast().reset('all');            
-						         $.toast({
-						         	heading: '',
-						         	text: response['msg'],
-						         	position: 'bottom-center',
-						         	loaderBg:'#fec107',
-						         	icon: 'error',
-						         	hideAfter: 3500, 
-						         	stack: 6
-						         });  
+                                if(response.csrf_token){$.ajaxSetup({headers:{'X-CSRF-Token':response.csrf_token}});}
+								showPasswordChangeFeedback(passwordChangeFeedback(response,true),'success');
+								$('#change_password_current, #change_password_new, #change_password_new_reconfirm').val('');
+								if(response.reauthentication_required&&response.redirect_uri){showPasswordChangeFeedback(passwordChangeFeedback(response,true)+'\nYou will be redirected to sign in again.','success');setTimeout(function(){window.location.href=response.redirect_uri;},3500);}
+								                             }else{
+								showPasswordChangeFeedback(passwordChangeFeedback(response,false),'error');
                              }
          
                      },
                      error: function (xhr, error, thrown) {
+                        showPasswordChangeFeedback('Password was not changed. The request failed with HTTP '+xhr.status+'.','error');
+                     },
+                     complete: function(){
+                        setPasswordChangeSubmitting(false);
                      }
                  });
          });

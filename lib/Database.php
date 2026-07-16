@@ -91,6 +91,30 @@ class Database {
         return $R->rowCount();
     }
 
+    public function get_user_password_change_for_update($userId){
+        $Q="SELECT u_id,u_password,password_change_required,avail_status FROM user_tbl WHERE u_id=:user_id LIMIT 1 FOR UPDATE";
+        $R=$this->pdo->prepare($Q);$R->execute([':user_id'=>$userId]);return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function get_password_change_requirement($userId){
+        $R=$this->pdo->prepare("SELECT password_change_required,avail_status FROM user_tbl WHERE u_id=:user_id LIMIT 1");$R->execute([':user_id'=>$userId]);return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function count_recent_invalid_current_password_attempts($userId,$ipAddress,$minutes=15){
+        $since=date('Y-m-d H:i:s',time()-((int)$minutes*60));$pattern='user='.$userId.' outcome=rejected reason=UC2_CURRENT_PASSWORD_INVALID%';
+        $R=$this->pdo->prepare("SELECT COUNT(*) FROM syslog WHERE log_type=20 AND ip_addr=:ip AND datetime>=:since AND log_detail LIKE :pattern");$R->execute([':ip'=>$ipAddress,':since'=>$since,':pattern'=>$pattern]);return(int)$R->fetchColumn();
+    }
+
+    public function get_password_history_hashes($userId,$limit=5){
+        $limit=max(1,min(10,(int)$limit));$R=$this->pdo->prepare("SELECT password_hash FROM user_password_history WHERE user_id=:user_id ORDER BY id DESC LIMIT {$limit}");$R->execute([':user_id'=>$userId]);return $R->fetchAll(PDO::FETCH_COLUMN,0);
+    }
+    public function record_password_history($userId,$hash){
+        $R=$this->pdo->prepare("INSERT INTO user_password_history(user_id,password_hash,changed_at) VALUES(:user_id,:hash,NOW())");$R->execute([':user_id'=>$userId,':hash'=>$hash]);return $R->rowCount();
+    }
+    public function prune_password_history($userId,$keep=5){
+        $keep=max(1,min(10,(int)$keep));$Q="DELETE FROM user_password_history WHERE user_id=:user_id AND id NOT IN (SELECT id FROM (SELECT id FROM user_password_history WHERE user_id=:inner_user ORDER BY id DESC LIMIT {$keep}) retained)";$R=$this->pdo->prepare($Q);$R->execute([':user_id'=>$userId,':inner_user'=>$userId]);return $R->rowCount();
+    }
+
 
     public function func_search_uid($u_id){
         $Q = "SELECT * FROM user_tbl WHERE u_id = :u_id";
@@ -827,18 +851,6 @@ class Database {
             $R = $this->pdo->prepare($Q);
         $R->bindParam(':u_id', $u_id);
         $R->bindParam(':status', $status);
-        $R->execute();
-        $result = $R->rowCount();
-        return $result;
-    }
-
-
-    public function action_change_password($user_id,$password){
-        $Q = "UPDATE user_tbl SET u_password=:password
-                WHERE u_id = :user_id";
-        $R = $this->pdo->prepare($Q);
-        $R->bindParam(':user_id', $user_id);
-        $R->bindParam(':password', $password);
         $R->execute();
         $result = $R->rowCount();
         return $result;

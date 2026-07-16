@@ -36,7 +36,7 @@ function oneid_password_needs_rehash(string $storedHash): bool
         || password_needs_rehash($storedHash, PASSWORD_DEFAULT);
 }
 
-function oneid_validate_new_password(string $password): array
+function oneid_validate_new_password(string $password, string $userId = ''): array
 {
     if (strlen($password) < 12) {
         return [false, 'Password must contain at least 12 characters.'];
@@ -47,6 +47,10 @@ function oneid_validate_new_password(string $password): array
         || !preg_match('/[^a-zA-Z0-9]/', $password)) {
         return [false, 'Password must include uppercase, lowercase, number and symbol.'];
     }
+    $normalized=strtolower($password);$common=['password','password123','p@ssw0rd','qwerty123','admin123','welcome123','letmein123','upnm123'];
+    foreach($common as $weak){if(str_contains($normalized,$weak)){return[false,'Password is too common or predictable.'];}}
+    $normalizedUser=strtolower(preg_replace('/[^a-zA-Z0-9]/','',$userId));
+    if(strlen($normalizedUser)>=4&&str_contains(preg_replace('/[^a-z0-9]/','',$normalized),$normalizedUser)){return[false,'Password must not contain the user ID.'];}
 
     return [true, ''];
 }

@@ -68,6 +68,12 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
           </button>
         </div>
 
+        <div class="mydigitalid-preview" aria-label="MyDigital ID integration coming soon">
+          <span class="mydigitalid-preview-label">Pilihan log masuk akan datang</span>
+          <img src="https://www.digital-id.my/images/logo/logo_colored.svg" alt="MyDigital ID" width="158" height="42" loading="lazy" referrerpolicy="no-referrer" />
+          <small>Integrasi belum diaktifkan</small>
+        </div>
+
         <input type="hidden" name="auth" value="auth">
       </form>
       
@@ -967,6 +973,32 @@ $('#otp_inputs').on('paste', function(e) {
   body.login-container {
     background: linear-gradient(to bottom right, #f5f7fa, #c3cfe2);
   }
+
+  .mydigitalid-preview {
+    margin: 18px auto 4px;
+    padding-top: 14px;
+    border-top: 1px solid #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    color: #777;
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
+  }
+  .mydigitalid-preview img {
+    width: 142px;
+    height: auto;
+    max-width: 55%;
+  }
+  .mydigitalid-preview-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .mydigitalid-preview small { font-size: 11px; }
 
   .form-control:focus {
     border-color: #ffc107;
