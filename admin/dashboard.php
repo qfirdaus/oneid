@@ -4340,6 +4340,19 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
+      version: "2.0.6",
+      date: "2026-07-16",
+      changes: [
+        "<b>Controlled Pilot External Sync</b> berjaya melaksanakan subset terkawal 2 akaun baharu dan 1 kemas kini tanpa Deactivate atau Reactivate; Apply kemudiannya dikembalikan kepada disabled.",
+        "Backup penuh <code>oneiddb</code>, restore rehearsal dan isolated pilot rehearsal disahkan melalui checksum, row reconciliation serta cleanup database sementara tanpa mengubah sumber.",
+        "Struktur deployment memisahkan public root, konfigurasi runtime persekitaran dan secret store di dalam direktori projek tetapi di luar capaian web.",
+        "Semua notifikasi aplikasi distandardkan sebagai <b>toast top-right</b>; native alert diganti dengan toast dan tindakan berisiko menggunakan SweetAlert confirmation.",
+        "Audit Log kini menyediakan pagination 10 rekod setiap halaman serta date picker yang lebih padat dengan Apply dan Cancel di bawah kalendar.",
+        "Aset CSS legacy yang tidak digunakan dibuang daripada dashboard untuk mengurangkan warning browser tanpa mengubah Dropify, SweetAlert atau fungsi aktif.",
+        "Paparan <b>Version Releases</b> kini menggunakan accordion eksklusif: release terkini terbuka secara default dan hanya satu release dipaparkan pada satu masa."
+      ]
+    },
+    {
       version: "2.0.5",
       date: "2026-07-14",
       changes: [

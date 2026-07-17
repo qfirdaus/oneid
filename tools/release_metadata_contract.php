@@ -33,6 +33,15 @@ $report(
         && str_contains($adminDashboard, 'WA6 menyediakan reconciliation read-only'),
     'latest admin release card reads shared v2.0.7 metadata and notes'
 );
+$release206Position = strpos($adminDashboard, 'version: "2.0.6"');
+$release205Position = strpos($adminDashboard, 'version: "2.0.5"');
+$report(
+    $release206Position !== false
+        && $release205Position !== false
+        && $release206Position < $release205Position
+        && str_contains($adminDashboard, 'Controlled Pilot External Sync'),
+    'release history preserves v2.0.6 between v2.0.7 and v2.0.5'
+);
 $report(
     str_contains($adminDashboard, 'version-release-toggle')
         && str_contains($adminDashboard, "releaseList.querySelectorAll('.version-release-card')")
