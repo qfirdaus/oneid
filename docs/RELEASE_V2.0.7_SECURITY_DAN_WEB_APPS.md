@@ -24,8 +24,8 @@ Password Recovery, tukar kata laluan pengguna dan pengurusan Admin Web Apps.
 - login dan Password Recovery mempunyai bounded network timeout, perlindungan
   double-submit, pelepasan session lock semasa SMTP, audit correlation dan
   operational feedback apabila request tergendala.
-- ID atau password kosong ditolak sebelum authentication, dan semua kegagalan
-  login dipaparkan melalui SweetAlert dan bukan inline alert lama.
+- ID atau password kosong ditolak sebelum authentication; mesej login kekal
+  menggunakan inline alert asal dengan validation dan timeout baharu.
 - halaman login memuatkan runtime SweetAlert sebelum notification wrapper supaya
   feedback login dan Password Recovery benar-benar boleh dipaparkan.
 

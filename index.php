@@ -492,6 +492,15 @@ function oneidPublicAlert(title, text, type) {
   });
 }
 
+function showLoginInlineError(message) {
+  $('#login_status').html(
+    '<div class="alert alert-danger alert-dismissable">' +
+      '<i class="zmdi zmdi-block pr-15 pull-left"></i>' +
+      '<p class="pull-left"></p><div class="clearfix"></div>' +
+    '</div>'
+  ).find('p').text(message || 'Log masuk tidak berjaya.');
+}
+
 // ===== Client-side login limiter (cookie-based) =====
 window.LoginLimiter = (function () {
   var THRESHOLD = 5;                        // 5 fails triggers lock
@@ -582,11 +591,11 @@ $loginform.on('submit', function(ev){
     // === NEW: abort if currently locked ===
     if (LoginLimiter.check(username) || $loginform.data('submitting')) return;
     if (!String(username || '').trim()) {
-      oneidPublicAlert('Log masuk tidak berjaya', 'Sila masukkan ID Pengguna.', 'error');
+      showLoginInlineError('Sila masukkan ID Pengguna.');
       return;
     }
     if (!String(password || '')) {
-      oneidPublicAlert('Log masuk tidak berjaya', 'Sila masukkan Kata Laluan.', 'error');
+      showLoginInlineError('Sila masukkan Kata Laluan.');
       return;
     }
 
@@ -606,8 +615,7 @@ $loginform.on('submit', function(ev){
                     if (response['login_status'] == 0){
                       // === NEW: count a failure ===
                       LoginLimiter.onFailure(username);
-                        $('#login_status').empty();
-                        oneidPublicAlert('Log masuk tidak berjaya', response['login_response_msg'] || 'ID Pengguna atau Kata Laluan tidak sah.', 'error');
+                        showLoginInlineError(response['login_response_msg'] || 'ID Pengguna atau Kata Laluan tidak sah.');
 
                     }else{
                         // === NEW: clear counter on success ===
@@ -618,7 +626,7 @@ $loginform.on('submit', function(ev){
 
             },
             error: function (xhr, error, thrown) {
-                oneidPublicAlert('Log masuk tidak berjaya', error === 'timeout' ? 'Permintaan log masuk tamat tempoh. Cuba semula.' : 'Respons pelayan tidak dapat diterima.', 'error');
+                showLoginInlineError(error === 'timeout' ? 'Permintaan log masuk tamat tempoh. Cuba semula.' : 'Respons pelayan tidak dapat diterima.');
             },
             complete: function(){
                 $loginform.data('submitting', false).find(':submit').prop('disabled', false);
