@@ -15,7 +15,9 @@ tidak menambah endpoint, query database, mutation atau perubahan ACL.
 - padanan case-insensitive pada nama, penerangan/fungsi, URL/domain dan App ID;
 - kiraan setiap kategori menunjukkan bilangan padanan;
 - kategori padanan pertama dipilih apabila kategori semasa tiada hasil;
-- status memaparkan jumlah padanan daripada jumlah keseluruhan;
+- status jumlah padanan diumumkan kepada screen reader tanpa menambah teks
+  visual di sebelah textbox;
+- textbox menggunakan lebar penuh ruang carian;
 - butang clear memulihkan semua aplikasi dan fokus input;
 - carian dikekalkan apabila direktori di-refresh;
 - input dan output aplikasi menggunakan escaping sedia ada.

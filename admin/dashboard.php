@@ -1019,7 +1019,7 @@
                                                                <i class="fa fa-times" aria-hidden="true"></i>
                                                             </button>
                                                          </div>
-                                                         <small id="admin_web_app_search_status" aria-live="polite">Carian merentas semua kategori aplikasi.</small>
+                                                         <span class="sr-only" id="admin_web_app_search_status" aria-live="polite">Carian sedia digunakan.</span>
                                                       </div>
 
                                                       <div class="web-app-category-nav">
@@ -4739,8 +4739,8 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
       #follo_8 .web-app-search {
         position: relative;
-        flex: 1 1 420px;
-        max-width: 620px;
+        flex: 1 1 100%;
+        max-width: none;
       }
 
       #follo_8 .web-app-search > i {
@@ -4790,11 +4790,6 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         color: #168fcb;
       }
 
-      #follo_8 #admin_web_app_search_status {
-        color: #7a8696;
-        font-size: 11px;
-        white-space: nowrap;
-      }
 
       #follo_8 .web-app-actions {
         display: flex;
@@ -5250,11 +5245,6 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
           max-width: none;
         }
 
-        #follo_8 #admin_web_app_search_status {
-          display: block;
-          margin-top: 8px;
-          white-space: normal;
-        }
       }
 
       @media (max-width: 767px) {
