@@ -53,15 +53,48 @@ if (is_dir($uploadDir)) {
             'filename' => $entry->getFilename(),
             'bytes' => $entry->getSize(),
             'modified_at' => date(DATE_ATOM, $entry->getMTime()),
+            'age_days' => max(0, (int) floor((time() - $entry->getMTime()) / 86400)),
             'sha256' => hash_file('sha256', $entry->getPathname()),
         ];
     }
 }
 
+$databaseFilenameReferences = [];
+$legacyReferenceRows = $pdo->query(
+    "SELECT sp_id,sp_image AS filename FROM sp_list WHERE TRIM(COALESCE(sp_image,''))<>''"
+)->fetchAll();
+foreach ($legacyReferenceRows as $reference) {
+    $databaseFilenameReferences[(string) $reference['filename']][] = [
+        'app_id' => (string) $reference['sp_id'],
+        'environment' => 'legacy_global',
+    ];
+}
+$environmentReferenceRows = $pdo->query(
+    "SELECT sp_id,environment,image_filename AS filename FROM sp_app_asset WHERE TRIM(COALESCE(image_filename,''))<>''"
+)->fetchAll();
+foreach ($environmentReferenceRows as $reference) {
+    $databaseFilenameReferences[(string) $reference['filename']][] = [
+        'app_id' => (string) $reference['sp_id'],
+        'environment' => (string) $reference['environment'],
+    ];
+}
+
+$hashCounts = [];
+foreach ($files as $manifest) {
+    $hashCounts[$manifest['sha256']] = ($hashCounts[$manifest['sha256']] ?? 0) + 1;
+}
+
 $orphanCandidates = [];
 foreach ($files as $filename => $manifest) {
     if (!isset($references[$filename])) {
-        $orphanCandidates[] = $manifest + ['classification' => 'unreferenced_candidate'];
+        $otherReferences = $databaseFilenameReferences[$filename] ?? [];
+        $orphanCandidates[] = $manifest + [
+            'duplicate_content_files_local' => $hashCounts[$manifest['sha256']],
+            'database_references_outside_effective_environment' => $otherReferences,
+            'classification' => $otherReferences === []
+                ? 'unreferenced_all_database_candidate'
+                : 'referenced_outside_effective_environment_candidate',
+        ];
     }
 }
 
@@ -79,6 +112,14 @@ $report = [
         'filesystem_icon_files' => count($files),
         'missing_references' => count($missing),
         'orphan_candidates' => count($orphanCandidates),
+        'orphan_unreferenced_all_database' => count(array_filter(
+            $orphanCandidates,
+            static fn(array $candidate): bool => $candidate['classification'] === 'unreferenced_all_database_candidate'
+        )),
+        'orphan_referenced_outside_effective_environment' => count(array_filter(
+            $orphanCandidates,
+            static fn(array $candidate): bool => $candidate['classification'] === 'referenced_outside_effective_environment_candidate'
+        )),
     ],
     'missing_references' => $missing,
     'orphan_candidates' => $orphanCandidates,

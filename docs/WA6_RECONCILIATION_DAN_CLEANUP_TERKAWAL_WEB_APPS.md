@@ -18,6 +18,8 @@ staging boleh digabungkan.
   legacy fallback hanya apabila environment row tiada;
 - `orphan_candidates` ialah calon semakan, bukan arahan pemadaman;
 - setiap calon mempunyai saiz, modification time dan SHA-256;
+- setiap calon mempunyai umur fail, bilangan duplicate content dalam filesystem
+  semasa dan reference database di luar effective environment;
 - manifest local dan staging mesti dijana serta diluluskan berasingan;
 - quarantine/grace period dan deletion hanya boleh dibina selepas keputusan
   owner terhadap manifest dan tempoh simpanan.
@@ -43,3 +45,23 @@ di-commit.
 5. Owner sahkan senarai tepat serta grace period.
 6. Hanya selepas itu reka rehearsal quarantine dan rollback; deletion kekal
    langkah terakhir dengan kelulusan berasingan.
+
+## Evidence manifest local — 17 Julai 2026
+
+Manifest read-only selepas pilot WA5 diarkibkan menghasilkan:
+
+- 76 rekod aplikasi database;
+- 63 effective referenced files;
+- 96 icon files dalam filesystem local;
+- 0 missing reference;
+- 33 orphan candidate dengan jumlah 1.65 MiB;
+- 32 calon tidak dirujuk oleh mana-mana row database;
+- 1 calon masih mempunyai reference legacy di luar effective local contract;
+- 6 calon berumur kurang daripada 30 hari;
+- 2 kumpulan duplicate content berdasarkan SHA-256.
+
+Fail `app_icon_e4d7802cbca3ac33e90af6e6bb904a36.png` masih dirujuk oleh
+legacy global row bagi app `2WJ4USYRS9`; ia dilindungi daripada quarantine.
+Semua enam fail berumur kurang 30 hari turut dilindungi sehingga grace period
+dipersetujui dan tamat. Baki 27 fail lama hanya menjadi shortlist semakan;
+quarantine belum diluluskan.
