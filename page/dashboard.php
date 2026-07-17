@@ -473,7 +473,6 @@
                                           <div class="user-app-category-card">
                                              <div>
                                                 <h5>Application categories</h5>
-                                                <p>Cari aplikasi atau pilih kategori untuk memaparkan sistem yang berkaitan.</p>
                                              </div>
                                              <div class="user-app-search">
                                                 <i class="fa fa-search" aria-hidden="true"></i>
