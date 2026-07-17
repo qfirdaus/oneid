@@ -175,6 +175,8 @@ function API_REQUEST($API_DATA,$SSO_IDP_DOMAIN){
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
     curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 12);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
         'Content-Type: text/plain'));
     curl_setopt($ch, CURLOPT_POSTFIELDS, ($API_DATA));
@@ -185,6 +187,10 @@ function API_REQUEST($API_DATA,$SSO_IDP_DOMAIN){
     $errors = curl_error($ch);
     $response = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    if ($result === false || $response < 200 || $response >= 300) {
+        error_log(sprintf('SSO internal API failed http=%d error=%s', $response, $errors));
+        return json_encode(['respond_flag' => '0', 'respond' => '0']);
+    }
     return ($result);
 }
 //--------- END OF SSO Checker

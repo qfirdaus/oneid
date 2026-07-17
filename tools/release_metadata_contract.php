@@ -30,6 +30,7 @@ $adminDashboard = (string) file_get_contents($projectRoot . '/admin/dashboard.ph
 $report(
     str_contains($adminDashboard, 'version: <?php echo json_encode(ONEID_APP_VERSION); ?>')
         && str_contains($adminDashboard, 'Konfigurasi SSO pentadbir diperkukuh')
+        && str_contains($adminDashboard, 'session-lock release')
         && str_contains($adminDashboard, 'WA6 menyediakan reconciliation read-only'),
     'latest admin release card reads shared v2.0.7 metadata and notes'
 );

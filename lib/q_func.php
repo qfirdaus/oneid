@@ -121,7 +121,14 @@ function string_sanitize($s) {
     //Check admin login
      if(isset( $_POST['auth'])){
         $results = array();
-        if(trim($_POST['username']) == ""){
+        $submittedUsername = trim((string) ($_POST['username'] ?? ''));
+        if($submittedUsername === ''){
+          echo json_encode([
+            'login_status' => 0,
+            'code' => 'AUTH_USERNAME_REQUIRED',
+            'login_response_msg' => 'User ID is required.'
+          ]);
+          return;
         }else{
           //check_uid
         $results = $operation->func_authenticate($_POST['username'], $_POST['password']);
@@ -1159,12 +1166,15 @@ function string_sanitize($s) {
 
 
     if(isset( $_POST['action_forgot_password'])){
+      $correlation = bin2hex(random_bytes(8));
       $identifier = trim((string) ($_POST['forgot_password_id'] ?? ''));
       $uid_result = $identifier !== '' ? $operation->func_search_uid($identifier) : false;
       if (!$uid_result && $identifier !== '') {
         $uid_result = $operation->func_search_uid_pelajar($identifier);
       }
 
+      $outcome = 'not_eligible';
+      $auditType = 35;
       unset($_SESSION['password_reset_user'], $_SESSION['password_reset_verified_at']);
       if ($uid_result && (int) $uid_result['avail_status'] === 1 && (int)$passwordResetEmailEnabled===1 && filter_var((string)$uid_result['data5'],FILTER_VALIDATE_EMAIL)!==false) {
         $latestRequest = $operation->otp_latest_request($uid_result['u_id']);
@@ -1172,23 +1182,49 @@ function string_sanitize($s) {
           || strtotime($latestRequest['otp_create_date']) <= (time() - 60);
         $withinDailyLimit = $operation->otp_count_last_day($uid_result['u_id']) < 5;
 
-        if ($cooldownPassed && $withinDailyLimit) {
+        if (!$cooldownPassed) {
+          $outcome = 'cooldown';
+        } elseif (!$withinDailyLimit) {
+          $outcome = 'daily_limit';
+        } else {
           $otp = generate_otp_code();
           $operation->otp_invalidate_active($uid_result['u_id']);
           if ($operation->otp_create($uid_result['u_id'], $otp) === 1) {
-            if (OTP_EMAIL_Sender($otp, $uid_result['data5'], $uid_result['data1'])) {
-              $_SESSION['password_reset_user'] = $uid_result['u_id'];
-              $operation->syslog_record(9, 'Password reset OTP delivered for user ID: '.$uid_result['u_id'], getUserIP());
+            $_SESSION['password_reset_user'] = $uid_result['u_id'];
+            session_write_close();
+            $sent = OTP_EMAIL_Sender($otp, $uid_result['data5'], $uid_result['data1']);
+            oneid_start_secure_session();
+            if ($sent) {
+              $outcome = 'smtp_accepted';
+              $auditType = 9;
             } else {
+              $outcome = 'smtp_failed';
               $operation->otp_invalidate_active($uid_result['u_id']);
-              $operation->syslog_record(35, 'Password reset delivery failed for user ID: '.$uid_result['u_id'], getUserIP());
+              unset($_SESSION['password_reset_user'], $_SESSION['password_reset_verified_at']);
             }
+          } else {
+            $outcome = 'challenge_create_failed';
           }
         }
       }
 
+      $userForAudit = is_array($uid_result) ? (string) ($uid_result['u_id'] ?? '') : '';
+      $operation->syslog_record(
+        $auditType,
+        sprintf(
+          'action=password_recovery_request outcome=%s user=%s identifier_hash=%s correlation=%s',
+          $outcome,
+          $userForAudit !== '' ? $userForAudit : 'unresolved',
+          hash('sha256', strtolower($identifier)),
+          $correlation
+        ),
+        getUserIP()
+      );
+
       echo json_encode([
         'result' => 'true',
+        'code' => 'SC6_RECOVERY_REQUEST_ACCEPTED',
+        'correlation_id' => $correlation,
         'delivery_available' => (int)$passwordResetEmailEnabled === 1,
         'msg' => 'If the account is eligible, reset instructions have been sent to its registered email.'
       ]);
@@ -1317,6 +1353,8 @@ function string_sanitize($s) {
             $mail = new PHPMailer;
             $mail->isSMTP(); 
             $mail->SMTPDebug = 0; 
+            $mail->Timeout = 10;
+            $mail->Timelimit = 15;
             $mail->Host = (string) oneid_config('ONEID_SMTP_HOST');
             $mail->Port = (int) oneid_config('ONEID_SMTP_PORT');
             $mail->SMTPSecure = (string) oneid_config('ONEID_SMTP_ENCRYPTION');

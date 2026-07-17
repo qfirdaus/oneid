@@ -21,6 +21,9 @@ Password Recovery, tukar kata laluan pengguna dan pengurusan Admin Web Apps.
 - icon baharu dinormalisasi kepada static PNG 256×256 dengan kawalan jenis,
   dimensi, pixel, animation dan metadata;
 - WA6 menyediakan laporan reconciliation read-only serta manifest SHA-256.
+- login dan Password Recovery mempunyai bounded network timeout, perlindungan
+  double-submit, pelepasan session lock semasa SMTP, audit correlation dan
+  operational feedback apabila request tergendala.
 
 ## Batas release
 

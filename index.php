@@ -561,13 +561,18 @@ window.LoginLimiter = (function () {
     //----Login
 var fallback_sp_id=getUrlParameter('site_id');
 var $loginform = $('#loginform');
+$loginform.data('submitting', false);
 $loginform.on('submit', function(ev){
     ev.preventDefault();
 
     var username = $('#username').val();
 
     // === NEW: abort if currently locked ===
-    if (LoginLimiter.check(username)) return;
+    if (LoginLimiter.check(username) || $loginform.data('submitting')) return;
+    if (!String(username || '').trim()) {
+      swal('Log masuk tidak berjaya', 'Sila masukkan ID Pengguna.', 'error');
+      return;
+    }
 
     var data = $('#loginform').serializeArray();
     data.push({name: "site_id", value: fallback_sp_id});
@@ -575,8 +580,10 @@ $loginform.on('submit', function(ev){
                 type: 'POST',
                 url: './lib/q_func',
                 dataType: "json",
+                timeout: 15000,
                 data: data,
                 beforeSend: function(){
+                  $loginform.data('submitting', true).find(':submit').prop('disabled', true);
                   $('#login_status').html('<div class="alert alert-info alert-dismissable alert-style-1">Log masuk sedang diproses. Sila tunggu sebentar.</div>');
                 },
                 success: function (response) {
@@ -594,7 +601,10 @@ $loginform.on('submit', function(ev){
 
             },
             error: function (xhr, error, thrown) {
-                LoginLimiter.onFailure(username);
+                swal('Log masuk tidak berjaya', error === 'timeout' ? 'Permintaan log masuk tamat tempoh. Cuba semula.' : 'Respons pelayan tidak dapat diterima.', 'error');
+            },
+            complete: function(){
+                $loginform.data('submitting', false).find(':submit').prop('disabled', false);
             }
         });
 });
@@ -616,8 +626,19 @@ function open_forgot_password(){
 
              
          var form_forgot_password = $('#form_forgot_password');
+         var recoveryRequestInFlight = false;
+         function recoveryReference(response){
+           return response && response.correlation_id ? '\nReference: ' + response.correlation_id : '';
+         }
+         function finishRecoveryLoading(){
+           recoveryRequestInFlight = false;
+           form_forgot_password.find(':submit').prop('disabled', false);
+           $('#forgot_pwd_body, #forgot_pwd_footer, #otp_modal_body, #otp_modal_footer').show();
+           $('#forgot_pwd_loading_OTP, #otp_modal_loading_OTP').hide();
+         }
          form_forgot_password.on('submit', function(ev){
              ev.preventDefault();
+             if (recoveryRequestInFlight) return;
 
              var data = $('#form_forgot_password').serializeArray();
              data.push({name: 'action_forgot_password', value: ''});
@@ -625,8 +646,11 @@ function open_forgot_password(){
                          type: 'POST',
                          url: './lib/q_func',
                          dataType: "json",
+                         timeout: 20000,
                          data:data,
                          beforeSend: function(){
+              recoveryRequestInFlight = true;
+              form_forgot_password.find(':submit').prop('disabled', true);
               $('#forgot_pwd_body').hide();
               $('#forgot_pwd_footer').hide();
               $('#forgot_pwd_loading_OTP').show();
@@ -637,31 +661,13 @@ function open_forgot_password(){
                               setTimeout(function() {
                     $('#modal_OTP').modal('show');
                 }, 500);
-                    $.toast().reset('all');                    
-                     $.toast({
-                      heading: '',
-                      text: response['msg'],
-                      position: 'bottom-center',
-                      loaderBg:'#fec107',
-                      icon: 'success',
-                      hideAfter: 3500, 
-                      stack: 6
-                     });  
+                    swal('Permintaan diterima', response['msg'] + recoveryReference(response), 'success');
                      OTP_startCountdown();
                      $("#btn_otp_request").hide();
                      $("#btn_otp_submit").show();
                 }else{                 
                 // alert();       
-                     $.toast().reset('all');            
-                     $.toast({
-                      heading: '',
-                      text: response['msg'],
-                      position: 'bottom-center',
-                      loaderBg:'#fec107',
-                      icon: 'error',
-                      hideAfter: 3500, 
-                      stack: 6
-                     });  
+                     swal('Permintaan tidak dapat diproses', response['msg'] + recoveryReference(response), 'error');
                              }
                 
             $('#forgot_pwd_body').show();
@@ -672,7 +678,9 @@ function open_forgot_password(){
             $('#otp_modal_loading_OTP').hide();
                      },
                      error: function (xhr, error, thrown) {
-                     }
+                       swal('Permintaan tergendala', error === 'timeout' ? 'Penghantaran mengambil masa terlalu lama. Status kejayaan tidak diandaikan.' : 'Respons pelayan tidak dapat diterima. Status kejayaan tidak diandaikan.', 'error');
+                     },
+                     complete: finishRecoveryLoading
                  });
          });
 
@@ -724,12 +732,15 @@ function open_forgot_password(){
     }
 
     function resend_request_OTP(){
+      if (recoveryRequestInFlight) return;
       $.ajax({
                          type: 'POST',
                          url: './lib/q_func',
                          dataType: "json",
+                         timeout: 20000,
                          data:{action_forgot_password:"",forgot_password_id:$("#forgot_password_id").val()},
                          beforeSend: function(){
+              recoveryRequestInFlight = true;
               $('#otp_modal_body').hide();
               $('#otp_modal_footer').hide();
               $('#otp_modal_loading_OTP').show();
@@ -740,32 +751,14 @@ function open_forgot_password(){
                               setTimeout(function() {
                     $('#modal_OTP').modal('show');
                 }, 500);
-                    $.toast().reset('all');                    
-                     $.toast({
-                      heading: '',
-                      text: response['msg'],
-                      position: 'bottom-center',
-                      loaderBg:'#fec107',
-                      icon: 'success',
-                      hideAfter: 3500, 
-                      stack: 6
-                     });  
+                    swal('Permintaan diterima', response['msg'] + recoveryReference(response), 'success');
                      OTP_startCountdown();
                      $("#btn_otp_request").hide();
                      $("#btn_otp_submit").show();
                  
                 }else{                 
                 // alert();       
-                     $.toast().reset('all');            
-                     $.toast({
-                      heading: '',
-                      text: response['msg'],
-                      position: 'bottom-center',
-                      loaderBg:'#fec107',
-                      icon: 'error',
-                      hideAfter: 3500, 
-                      stack: 6
-                     });  
+                     swal('Permintaan tidak dapat diproses', response['msg'] + recoveryReference(response), 'error');
                              }
 
               $('#otp_modal_body').show();
@@ -774,7 +767,9 @@ function open_forgot_password(){
          
                      },
                      error: function (xhr, error, thrown) {
-                     }
+                       swal('Permintaan tergendala', error === 'timeout' ? 'Penghantaran mengambil masa terlalu lama. Status kejayaan tidak diandaikan.' : 'Respons pelayan tidak dapat diterima. Status kejayaan tidak diandaikan.', 'error');
+                     },
+                     complete: finishRecoveryLoading
                  });
     }
 

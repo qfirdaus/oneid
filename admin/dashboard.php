@@ -4336,6 +4336,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         "Admin Web Apps Add/Edit kini menggunakan validation HTTPS, App ID kriptografi, confirmation, double-submit protection, atomic persistence dan audit correlation.",
         "Icon Web Apps disimpan mengikut environment <code>local</code>/<code>staging</code> walaupun database dikongsi; setiap filesystem kekal berasingan dan missing asset jatuh kepada placeholder.",
         "Upload icon baharu didecode dan dinormalisasi kepada static PNG 256×256; metadata dibuang, animated image dan input melebihi had keselamatan ditolak.",
+        "Login dan Password Recovery kini mempunyai request timeout, double-submit protection, session-lock release, correlation audit serta feedback SweetAlert apabila respons tergendala.",
         "WA6 menyediakan reconciliation read-only dengan SHA-256 bagi missing reference dan orphan candidate; tiada quarantine atau deletion dibenarkan tanpa kelulusan owner."
       ]
     },
