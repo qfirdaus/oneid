@@ -1547,7 +1547,7 @@
 
       .user-app-content {
         min-width: 0;
-        padding-top: 3px;
+        padding-top: 1px;
       }
 
       .user-app-name {
@@ -1555,7 +1555,7 @@
         align-items: center;
         min-width: 0;
         gap: 8px;
-        margin-bottom: 7px;
+        margin-bottom: 3px;
       }
 
       .user-app-name strong {

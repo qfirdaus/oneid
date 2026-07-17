@@ -4998,7 +4998,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         align-items: center;
         min-width: 0;
         gap: 8px;
-        margin-bottom: 4px;
+        margin-bottom: 2px;
       }
 
       #follo_8 .web-app-card-name strong {
@@ -5038,7 +5038,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #follo_8 .web-app-card-content p {
-        margin: 0 0 4px;
+        margin: 0 0 2px;
         color: #758193;
         font-size: 11px;
       }
