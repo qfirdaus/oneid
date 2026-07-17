@@ -1,7 +1,7 @@
 # SC6 — Pemisahan Password Recovery
 
 **Tarikh:** 16 Julai 2026  
-**Status:** IMPLEMENTED — AUTOMATED CONTRACT PASS; SMTP ACCEPTED, MAILBOX DELIVERY FAILED/PENDING INVESTIGATION
+**Status:** COMPLETE — AUTOMATED CONTRACT, MAILBOX DELIVERY DAN FORGOT-PASSWORD OTP E2E PASS
 
 ## Hasil
 
@@ -29,7 +29,7 @@ delivery gagal terus diinvalkan dan event 35 direkod.
 | 34 | `ADMIN_PASSWORD_RECOVERY_TEST_EMAIL` |
 | 35 | `PASSWORD_RECOVERY_DELIVERY_FAILED` |
 
-## UAT manual berbaki
+## UAT manual
 
 ### Bukti SMTP test
 
@@ -52,8 +52,36 @@ sebagai isu downstream mail delivery, bukan kegagalan sambungan/authentication
 SMTP aplikasi. Ujian berikutnya akan memaparkan dan mengaudit `Message-ID` untuk
 rujukan message trace.
 
-1. Sahkan e-mel ujian diterima dalam mailbox UAT.
-2. Jalankan satu Forgot Password menggunakan pengguna UAT bere-mel sah.
-3. Sahkan OTP diterima, boleh digunakan sekali dan reset berjaya.
+### Penutupan insiden mailbox — 17 Julai 2026
+
+DBA mengesahkan punca kegagalan terdahulu ialah mailbox kehabisan storan. DBA
+telah membersihkan storan dan owner kemudian mengesahkan e-mel ujian Password
+Recovery diterima dalam mailbox. Kandungan diterima ialah template ujian bukan
+OTP dan tidak memerlukan tindakan pengguna.
+
+Audit aplikasi terbaru yang sepadan:
+
+- masa SMTP acceptance: `2026-07-17 07:27:52`;
+- code semantik: `SC6_TEST_EMAIL_SMTP_ACCEPTED`;
+- correlation: `8feb00eba0828c18`;
+- Message-ID tersedia dalam audit untuk message trace; dan
+- pengesahan delivery akhir: owner/mailbox, PASS.
+
+Kesimpulan: sambungan SMTP, acceptance dan mailbox delivery kini **PASS**.
+Insiden terdahulu ditutup sebagai isu kapasiti mailbox, bukan defect aplikasi.
+
+### Forgot Password OTP end-to-end — PASS
+
+Owner mengesahkan flow penuh menggunakan akaun pilot berjaya pada 17 Julai
+2026. Bukti server-side tanpa merekod OTP mentah:
+
+- OTP dihantar: `2026-07-17 12:13:38`, event 9;
+- expiry ditetapkan tepat lima minit selepas creation;
+- OTP digunakan dengan `otp_attempts=0` dan `otp_consumed_at=2026-07-17 12:14:33`;
+- password reset selesai: `2026-07-17 12:14:52`, event 21;
+- OTP diterima dalam mailbox dan hanya digunakan sekali; dan
+- login menggunakan password baharu disahkan berjaya oleh owner.
+
+OTP mentah, hash OTP, password dan token tidak direkod dalam dokumen ini.
 
 Jangan matikan delivery untuk UAT live tanpa recovery window yang dipersetujui.

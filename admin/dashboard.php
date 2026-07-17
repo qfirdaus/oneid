@@ -185,9 +185,10 @@
                                                 </div>
 
                                                 <div class="form-group">
-                                                   <label class="control-label mb-10" for="add_new_app_icon">App Icon (65x65)</label>
+                                                   <label class="control-label mb-10" for="add_new_app_icon">App Icon (optional)</label>
                                                    <div class="mt-1">
-                                                      <input type="file" id="add_new_app_icon" name="add_new_app_icon" class="dropify" data-default-file="../img/thumb-1.jpg" data-height="100" />
+                                                      <input type="file" id="add_new_app_icon" name="add_new_app_icon" class="dropify" data-default-file="../img/thumb-1.jpg" data-height="100" accept="image/jpeg,image/png,image/gif,image/webp" />
+                                                      <small class="text-muted">JPEG, PNG, GIF or WebP, maximum 5 MB. Image dimensions are not resized by the current system.</small>
                                                    </div>  
                                                 </div> 
 
@@ -204,10 +205,10 @@
 												</div>
                                                 <div class="checkbox checkbox-primary">
 														<input id="add_new_app_sso_checkbox" name="add_new_app_sso_checkbox" type="checkbox">
-														<label for="add_new_app_sso_checkbox">
-															Apps does not support SSO
-														</label>
-												</div>
+												<label for="add_new_app_sso_checkbox">
+													Direct link only (this app does not support OneID SSO)
+												</label>
+										</div>
                                              </div>
                                           </div>
                                        </div>
@@ -219,7 +220,7 @@
                      </div>
                      <div class="modal-footer">
                         <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary waves-effect">Add</button>
+                        <button type="submit" class="btn btn-primary waves-effect" id="btn_add_app_submit"><span class="submit-label">Add App</span></button>
                      </div>
                   </form>
                </div>
@@ -340,10 +341,11 @@
                                                    <textarea class="form-control" rows="3" id="edit_app_desc" name="edit_app_desc" placeholder="Describe what the app does"></textarea>
                                                 </div>
                                                 <div class="form-group">
-                                                   <label class="control-label mb-10" for="edit_new_app_icon">App Icon (65x65)</label>
+                                                   <label class="control-label mb-10" for="edit_new_app_icon">Replace App Icon (optional)</label>
                                                    <div class="mt-1">
-                                                      <input type="file" id="edit_new_app_icon" name="edit_new_app_icon" class="dropify" data-default-file="../img/thumb-1.jpg" data-height="100" />
+                                                      <input type="file" id="edit_new_app_icon" name="edit_new_app_icon" class="dropify" data-default-file="../img/thumb-1.jpg" data-height="100" accept="image/jpeg,image/png,image/gif,image/webp" />
                                                       <input type="hidden" name="edit_existing_app_icon" id="edit_existing_app_icon" value="" />
+                                                      <small class="text-muted">Leave empty to retain the current icon. JPEG, PNG, GIF or WebP, maximum 5 MB.</small>
                                                    </div>  
                                                 </div> 
                                                 <div class="form-group">
@@ -366,10 +368,10 @@
 												</div>
                                                 <div class="checkbox checkbox-primary">
 														<input id="app_info_sso_checkbox" type="checkbox" name="app_info_sso_checkbox">
-														<label for="app_info_sso_checkbox">
-															Apps does not support SSO
-														</label>
-												</div>
+												<label for="app_info_sso_checkbox">
+													Direct link only (this app does not support OneID SSO)
+												</label>
+										</div>
                                              </div>
                                           </div>
                                        </div>
@@ -383,7 +385,7 @@
                      <div class="modal-footer"  id="modal_edit_btn">
                         <button type="button" class="btn btn-danger waves-effect" onclick="remove_app();">Remove</button>
                         <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary waves-effect">Save</button>
+                        <button type="submit" class="btn btn-primary waves-effect" id="btn_edit_app_submit"><span class="submit-label">Save Changes</span></button>
                      </div>
                   </form>
                </div>
@@ -2476,10 +2478,10 @@
            				option += '<option value="'+response[i]['sp_group_id']+'">'+response[i]['sp_group_name']+'</option>';
            			});
            			$('#add_new_app_category').html(option);
-		         	$('#add_new_app_name').val('');
-		           	$('#add_new_app_desc').val('');
-		           	$('#add_new_app_url').val('');
-		           	$('#modal_add_new_app').modal('show');
+			$('#add_new_app_name').val('');
+			$('#add_new_app_desc').val('');
+			$('#add_new_app_url').val('');
+			$('#modal_add_new_app').modal('show');
          		},
          		error: function (xhr, error, thrown) {
          		}
@@ -2487,9 +2489,58 @@
            }
          
          
+           function setAppFormSubmitting(buttonSelector, submitting, idleLabel, busyLabel){
+              var button = $(buttonSelector);
+              button.prop('disabled', submitting).attr('aria-busy', submitting ? 'true' : 'false');
+              button.find('.submit-label').text(submitting ? busyLabel : idleLabel);
+           }
+
+           function showAppOperationalAlert(type, title, message, response){
+              var code = response && response.code ? String(response.code) : 'WA1_REQUEST_FAILED';
+              var reference = response && response.correlation_id ? String(response.correlation_id) : 'Unavailable';
+              swal(title, message + '\nCode: ' + code + '\nReference: ' + reference, type === 'success' ? 'success' : (type === 'warning' ? 'warning' : 'error'));
+           }
+
+           function appClientReference(){
+              if (window.crypto && window.crypto.getRandomValues) {
+                 var bytes = new Uint8Array(8);
+                 window.crypto.getRandomValues(bytes);
+                 return Array.prototype.map.call(bytes, function(value){ return ('0' + value.toString(16)).slice(-2); }).join('');
+              }
+              return 'client-' + String(Date.now());
+           }
+
+           function validateSelectedAppIcon(file){
+              if (!file) {
+                 return true;
+              }
+              var allowed = ['image/jpeg','image/png','image/gif','image/webp'];
+              if (allowed.indexOf(String(file.type || '').toLowerCase()) === -1) {
+                 showAppOperationalAlert('error', 'Icon was not accepted.', 'Select a JPEG, PNG, GIF or WebP image. No application changes were sent.', {code:'WA3_CLIENT_ICON_TYPE_REJECTED',correlation_id:appClientReference()});
+                 return false;
+              }
+              if (Number(file.size || 0) <= 0 || Number(file.size) > 5242880) {
+                 showAppOperationalAlert('error', 'Icon was not accepted.', 'The selected image must not exceed 5 MB. No application changes were sent.', {code:'WA3_CLIENT_ICON_SIZE_REJECTED',correlation_id:appClientReference()});
+                 return false;
+              }
+              return true;
+           }
+
+           function appTransportErrorResponse(xhr){
+              if (xhr && Number(xhr.status) === 413) {
+                 return {code:'WA3_UPLOAD_REQUEST_TOO_LARGE',correlation_id:appClientReference()};
+              }
+              return xhr && xhr.responseJSON ? xhr.responseJSON : null;
+           }
+
+           var addAppSubmitting = false;
            var form_add_new_app = $('#form_add_new_app');
            form_add_new_app.on('submit', function(ev){
-           	ev.preventDefault();
+              ev.preventDefault();
+
+            if (addAppSubmitting) {
+               return;
+            }
 
             var data = new FormData();
 
@@ -2502,6 +2553,9 @@
               // 2. Add file input
               var fileInput = $('#add_new_app_icon')[0];
               if (fileInput.files.length > 0) {
+                if (!validateSelectedAppIcon(fileInput.files[0])) {
+                  return;
+                }
                 data.append('app_icon', fileInput.files[0]);
               }
 
@@ -2509,30 +2563,35 @@
               data.append('action_add_new_app', '');
               // return;
 
-           	// var data = $('#form_add_new_app').serializeArray();
-           	// data.push({name: 'action_add_new_app', value: ''});
-           	$.ajax({
+			// var data = $('#form_add_new_app').serializeArray();
+			// data.push({name: 'action_add_new_app', value: ''});
+            swal({
+               title: 'Add App',
+               text: 'Create this application using the entered metadata and optional icon?',
+               type: 'warning',
+               showCancelButton: true,
+               confirmButtonText: 'Yes, add app',
+               closeOnConfirm: true
+            }, function(confirmed){
+              if (!confirmed || addAppSubmitting) {
+                 return;
+              }
+			  $.ajax({
            		type: 'POST',
            		url: '../lib/q_func',
            		dataType: "json",
            		data:data,
                processData: false, // important
                contentType: false, // important
-           		beforeSend: function(){
-           		},
-           		success: function (response) {
-           			if (response.status == 1){        
-           				get_service_provider_list();   
-           				$.toast().reset('all');                    
-           				$.toast({
-           					heading: '',
-           					text: 'App successfully added',
-           					position: 'bottom-center',
-           					loaderBg:'#fec107',
-           					icon: 'success',
-           					hideAfter: 3500, 
-           					stack: 6
-           				});  								
+				beforeSend: function(){
+                  addAppSubmitting = true;
+                  setAppFormSubmitting('#btn_add_app_submit', true, 'Add App', 'Adding...');
+				},
+				success: function (response) {
+					if (Number(response.status) === 1){
+						get_service_provider_list();
+						var iconRejected = response.icon_status === 'rejected';
+                  showAppOperationalAlert(iconRejected ? 'warning' : 'success', iconRejected ? 'App added without the selected icon.' : 'App successfully added.', iconRejected ? 'The selected icon was rejected. The application record was created without a custom icon.' : (response.icon_status === 'stored' ? 'The application metadata and icon were saved.' : 'The application metadata was saved using the default icon.'), response);
            				$('#add_new_app_name').val('');
            				$('#add_new_app_desc').val('');
            				$('#add_new_app_url').val('');
@@ -2545,28 +2604,25 @@
                      // 2. Remove Dropify wrapper elements
                      input.closest('.dropify-wrapper').remove(); // Dropify doesn’t remove this automatically
                      // 3. Replace with clean input
-                     var newInput = $('<input type="file" id="add_new_app_icon" name="app_icon" class="dropify" data-default-file="../img/thumb-1.jpg" data-height="100">');
+                     var newInput = $('<input type="file" id="add_new_app_icon" name="app_icon" class="dropify" data-default-file="../img/thumb-1.jpg" data-height="100" accept="image/jpeg,image/png,image/gif,image/webp">');
                      $('#add_new_app_icon').replaceWith(newInput); // swap old input
                      // 4. Re-initialize Dropify
                      newInput.dropify();
 
-           			}else{                        
-           				$.toast().reset('all');            
-           				$.toast({
-           					heading: '',
-           					text: 'Opps! there is some problem.',
-           					position: 'bottom-center',
-           					loaderBg:'#fec107',
-           					icon: 'warning',
-           					hideAfter: 3500, 
-           					stack: 6
-           				});  
-           			}
+					}else{
+                  showAppOperationalAlert('error', 'App was not added.', 'The server did not create the application record.', response);
+					}
          
            		},
-           		error: function (xhr, error, thrown) {
-           		}
-           	});
+				error: function (xhr, error, thrown) {
+					showAppOperationalAlert('error', 'App was not added.', Number(xhr && xhr.status) === 413 ? 'The web server rejected the request because it exceeded the configured request limit.' : 'The request failed before a valid result was received.', appTransportErrorResponse(xhr));
+				},
+               complete: function(){
+                  addAppSubmitting = false;
+                  setAppFormSubmitting('#btn_add_app_submit', false, 'Add App', 'Adding...');
+				}
+			  });
+            });
            });
          
          
@@ -2601,8 +2657,8 @@
            		url: '../lib/q_func',
            		dataType: "json",
            		data: {admin_get_specific_service_provider:"",sp_id:sp_id},
-           		beforeSend: function(){
-           			$('#modal_edit_app').modal('show');
+			beforeSend: function(){
+				$('#modal_edit_app').modal('show');
            			$('#modal_edit_row_loading').show();
            			$('#modal_edit_row_main').hide();
            			$('#modal_edit_btn').hide();
@@ -2634,7 +2690,7 @@
                      input.closest('.dropify-wrapper').remove(); // Dropify doesn’t remove this automatically
 
                      // 3. Replace with clean input
-                     var newInput = $('<input type="file" id="edit_new_app_icon" name="app_icon" class="dropify" data-default-file="../public_img/'+response['sp_image']+'" data-height="100">');
+                     var newInput = $('<input type="file" id="edit_new_app_icon" name="app_icon" class="dropify" data-default-file="../public_img/'+response['sp_image']+'" data-height="100" accept="image/jpeg,image/png,image/gif,image/webp">');
                      $('#edit_new_app_icon').replaceWith(newInput); // swap old input
 
                      // 4. Re-initialize Dropify
@@ -2650,7 +2706,7 @@
                      input.closest('.dropify-wrapper').remove(); // Dropify doesn’t remove this automatically
 
                      // 3. Replace with clean input
-                     var newInput = $('<input type="file" id="edit_new_app_icon" name="app_icon" class="dropify" data-default-file="../img/thumb-1.jpg" data-height="100">');
+                     var newInput = $('<input type="file" id="edit_new_app_icon" name="app_icon" class="dropify" data-default-file="../img/thumb-1.jpg" data-height="100" accept="image/jpeg,image/png,image/gif,image/webp">');
                      $('#edit_new_app_icon').replaceWith(newInput); // swap old input
 
                      // 4. Re-initialize Dropify
@@ -2670,9 +2726,13 @@
            }
          
          
+           var editAppSubmitting = false;
            var form_edit_app = $('#form_edit_app');
            form_edit_app.on('submit', function(ev){
-           	ev.preventDefault();
+              ev.preventDefault();
+            if (editAppSubmitting) {
+               return;
+            }
            	// var data = $('#form_edit_app').serializeArray();
            	// data.push({name: 'action_edit_app_info', value: ''});
                var data = new FormData();
@@ -2686,6 +2746,9 @@
               // 2. Add file input
               var fileInput = $('#edit_new_app_icon')[0];
               if (fileInput.files.length > 0) {
+                if (!validateSelectedAppIcon(fileInput.files[0])) {
+                  return;
+                }
                 data.append('app_icon', fileInput.files[0]);
               }else {
                  // No new image uploaded — send info about the existing one
@@ -2696,45 +2759,47 @@
               // 3. Optional extra field
               data.append('action_edit_app_info', '');
 
-           	$.ajax({
+            swal({
+               title: 'Save App Changes',
+               text: 'Apply these metadata and optional icon changes to this application?',
+               type: 'warning',
+               showCancelButton: true,
+               confirmButtonText: 'Yes, save changes',
+               closeOnConfirm: true
+            }, function(confirmed){
+              if (!confirmed || editAppSubmitting) {
+                 return;
+              }
+			  $.ajax({
            		type: 'POST',
            		url: '../lib/q_func',
            		dataType: "json",
            		data:data,
                processData: false, // important
                contentType: false, // important
-           		beforeSend: function(){
-           		},
-           		success: function (response) {
-           			if (response.status == 1){        
-           				get_service_provider_list();   
-           				$.toast().reset('all');                    
-           				$.toast({
-           					heading: '',
-           					text: 'Record updated',
-           					position: 'bottom-center',
-           					loaderBg:'#fec107',
-           					icon: 'success',
-           					hideAfter: 3500, 
-           					stack: 6
-           				});  
-           			}else{                        
-           				$.toast().reset('all');            
-           				$.toast({
-           					heading: '',
-           					text: 'No changes detected',
-           					position: 'bottom-center',
-           					loaderBg:'#fec107',
-           					icon: 'warning',
-           					hideAfter: 3500, 
-           					stack: 6
-           				});  
-           			}
+				beforeSend: function(){
+                  editAppSubmitting = true;
+                  setAppFormSubmitting('#btn_edit_app_submit', true, 'Save Changes', 'Saving...');
+				},
+				success: function (response) {
+					if (Number(response.status) === 1){
+						get_service_provider_list();
+						var iconRejected = response.icon_status === 'rejected';
+                  showAppOperationalAlert(iconRejected ? 'warning' : 'success', iconRejected ? 'Metadata saved; selected icon not changed.' : 'App successfully updated.', iconRejected ? 'The selected icon was rejected and the previous icon was retained.' : (response.icon_status === 'stored' ? 'The metadata and replacement icon were saved.' : 'The metadata was saved and the existing icon was retained.'), response);
+					}else{
+                  showAppOperationalAlert('warning', 'No changes saved.', 'The stored record already matched the submitted values, or the update was not applied.', response);
+					}
          
            		},
-           		error: function (xhr, error, thrown) {
-           		}
-           	});
+				error: function (xhr, error, thrown) {
+					showAppOperationalAlert('error', 'App changes were not saved.', Number(xhr && xhr.status) === 413 ? 'The web server rejected the request because it exceeded the configured request limit.' : 'The request failed before a valid result was received.', appTransportErrorResponse(xhr));
+				},
+               complete: function(){
+                  editAppSubmitting = false;
+                  setAppFormSubmitting('#btn_edit_app_submit', false, 'Save Changes', 'Saving...');
+				}
+			  });
+            });
            });
          
          

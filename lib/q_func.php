@@ -68,17 +68,6 @@ function generate_random($length){
  return $string;
 }
 
-function generate_app_ID($length){
-    $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ01234KLMNOPQRSTUVWXYZ56789';
-    $string = '';
- $max = strlen($characters) - 1;
- for ($i = 0; $i < $length; $i++) {
-      $string .= $characters[mt_rand(0, $max)];
- }
- return $string;
-}
-
-
 function generate_token(){
   return oneid_generate_sso_token();
 }
@@ -347,55 +336,21 @@ function string_sanitize($s) {
 
 
       if(isset( $_POST['action_add_new_app'])){
-        $checkbox_status=0; //0 support, 1 not support
-        if(isset($_POST['add_new_app_sso_checkbox'])){
-          $checkbox_status=1;
+        try {
+          $service = new \OneId\App\Admin\WebAppService($operation);
+          echo json_encode($service->create($_POST,$_FILES['app_icon']??null,oneid_public_path('public_img'),(string)$_SESSION['login_user'],getUserIP()));
+        } catch (\OneId\App\Admin\WebAppManagementException $exception) {
+          echo json_encode(['status'=>0,'code'=>$exception->reason,'msg'=>'Application was not created.','correlation_id'=>$exception->correlationId]);
         }
-        // File upload handling
-        $uploadDir = oneid_public_path('public_img');
-        $uploadResult = save_app_icon_upload($_FILES['app_icon'] ?? null, $uploadDir);
-        $safeFileName = $uploadResult['filename'];
-        $app_icon_upload_msg = $uploadResult['message'];
-
-
-        $sp_id = generate_app_ID(10);
-        $results_1 = $operation->action_add_new_app($sp_id,$_POST['add_new_app_name'],$_POST['add_new_app_desc'],str_replace(':/','://', trim(preg_replace('/\/+/', '/',$_POST['add_new_app_url']), '/')),$safeFileName,$_POST['add_new_app_category'],$checkbox_status);
-
-        $operation->syslog_record(13,$_SESSION['login_user'],getUserIP());
-        // Prepare a result with extra data
-        $results = [
-            'status' => $results_1,
-            'app_icon' => $app_icon_upload_msg
-        ];
-
-        echo json_encode($results);
       }
 
       if(isset( $_POST['action_edit_app_info'])){
-        $uploadDir = oneid_public_path('public_img');
-        $safeFileName = sanitize_existing_app_icon($_POST['existing_app_icon'] ?? '');
-        if (isset($_FILES['app_icon']) && ($_FILES['app_icon']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
-            $uploadResult = save_app_icon_upload($_FILES['app_icon'], $uploadDir);
-            $app_icon_upload_msg = $uploadResult['message'];
-            if ($uploadResult['success']) {
-                $safeFileName = $uploadResult['filename'];
-            }
-        } else {
-            $app_icon_upload_msg = 'Existing app icon retained';
+        try {
+          $service = new \OneId\App\Admin\WebAppService($operation);
+          echo json_encode($service->update($_POST,$_FILES['app_icon']??null,oneid_public_path('public_img'),(string)$_SESSION['login_user'],getUserIP()));
+        } catch (\OneId\App\Admin\WebAppManagementException $exception) {
+          echo json_encode(['status'=>0,'code'=>$exception->reason,'msg'=>'Application was not updated.','correlation_id'=>$exception->correlationId]);
         }
-
-        $checkbox_status=0; //0 support, 1 not support
-        if(isset($_POST['app_info_sso_checkbox'])){
-          $checkbox_status=1;
-        }
-        $results_1 = $operation->action_edit_app_info($_POST['edit_app_id'],$_POST['edit_app_name'],$_POST['edit_app_desc'],str_replace(':/','://',trim(preg_replace('/\/+/', '/', $_POST['edit_app_url']), '/')),$safeFileName,$_POST['edit_app_category'],$checkbox_status);
-
-        $operation->syslog_record(14,$_SESSION['login_user'],getUserIP());
-        $results = [
-            'status' => $results_1,
-            'app_icon' => $app_icon_upload_msg
-        ];
-        echo json_encode($results);
       }
 
 

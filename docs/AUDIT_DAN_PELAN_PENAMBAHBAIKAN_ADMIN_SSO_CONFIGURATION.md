@@ -425,12 +425,12 @@ dan diuji untuk rollback.
 
 ### Fasa 6 — Pisahkan Password Recovery
 
-**Status pelaksanaan (16 Julai 2026): IMPLEMENTED — AUTOMATED CONTRACT PASS;
-SMTP ACCEPTED TETAPI MAILBOX DELIVERY GAGAL/PENDING INVESTIGATION.** Migration rename, panel dan service berasingan,
+**Status pelaksanaan (dikemas kini 17 Julai 2026): COMPLETE — AUTOMATED
+CONTRACT, MAILBOX DELIVERY DAN FORGOT-PASSWORD OTP E2E PASS.** Migration rename, panel dan service berasingan,
 fail-closed delivery, SMTP readiness, test delivery dan audit telah disediakan.
-SMTP acceptance disahkan melalui correlation `27cb2dc64a8939a7`, tetapi pemilik
-melaporkan mesej tidak tiba di mailbox. Ujian kedua menunjukkan hasil sama pada
-correlation `6b5072db43c5d1b8`; siasatan downstream Microsoft 365 diperlukan. Rujuk
+Kegagalan awal bukan defect aplikasi; mailbox kehabisan storan dan telah
+dibersihkan oleh DBA. Owner mengesahkan e-mel diterima selepas pembetulan.
+Acceptance terbaru direkod melalui correlation `8feb00eba0828c18`. Rujuk
 `docs/SC6_PEMISAHAN_PASSWORD_RECOVERY.md`.
 
 **Objektif:** Mengeluarkan OTP reset password daripada skop SSO policy.
@@ -613,6 +613,7 @@ Remediasi perlu bermula dengan baseline, pembetulan UI, validation server-side
 dan audit trail. Redesign token lifecycle hendaklah dibuat kemudian melalui
 consumer inventory, compatibility contract dan controlled rollout. Sehingga
 owner memberikan kelulusan, semua cadangan dalam dokumen ini kekal berstatus
-Fasa 0 hingga Fasa 6 telah dilaksanakan mengikut keputusan owner. Live delivery
-UAT bagi Password Recovery masih perlu disahkan. Penemuan berkaitan Admin
+Fasa 0 hingga Fasa 6 telah dilaksanakan mengikut keputusan owner. SMTP,
+mailbox delivery dan OTP reset end-to-end Password Recovery telah disahkan
+berjaya. Penemuan berkaitan Admin
 Step-Up 2FA dan controlled rollout penuh kekal sebagai skop Fasa 7 hingga Fasa 8.

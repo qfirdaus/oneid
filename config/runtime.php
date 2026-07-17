@@ -11,6 +11,8 @@ function oneid_config(string $key, mixed $fallback = null): mixed
     static $defaults = [
         'ONEID_APP_URL' => 'https://oneid.local',
         'ONEID_APP_DEBUG' => false,
+        // Fail closed: every deployment must set its own private runtime value.
+        'ONEID_ENVIRONMENT' => '',
         'ONEID_TIMEZONE' => 'Asia/Kuala_Lumpur',
         'ONEID_DB_CHARSET' => 'latin1',
         'ONEID_SSO_IDP_URL' => 'https://oneid.local/',

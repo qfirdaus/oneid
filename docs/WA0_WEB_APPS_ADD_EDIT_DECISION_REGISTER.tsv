@@ -1,0 +1,17 @@
+ID	Decision	Status	Current answer / proposed default	Owner action
+WA0-D01	Database topology	CONFIRMED	WSL and staging use the same OneID database	None
+WA0-D02	Filesystem topology	CONFIRMED	WSL and staging use separate filesystems	None
+WA0-D03	Asset ownership	CONFIRMED	Upload remains in and is served by the environment where it was uploaded	None
+WA0-D04	Cross-environment file synchronization	CONFIRMED	No Git, NFS, shared mount or automatic copy	None
+WA0-D05	Official runtime identity values	IMPLEMENTED	WSL=local; staging=staging; production=production	Set the staging private runtime value before/with deployment
+WA0-D06	Icon required on Add App	PENDING	Proposed: optional with explicit standard placeholder	Confirm policy
+WA0-D07	Canonical icon output	PENDING	Proposed: square static WebP/PNG generated server-side	Confirm format
+WA0-D08	Canonical icon dimensions	PENDING	Current label says 65x65 but backend does not enforce it	Confirm source/output dimensions
+WA0-D09	Application URL policy	IMPLEMENTED_DEFAULT	Absolute HTTPS URL with valid hostname; no credentials/fragment	Confirm whether any private-host exception is required during UAT
+WA0-D10	Duplicate policy	PENDING	16 normalized duplicate-name groups and 6 duplicate-domain groups currently exist	Define active/legacy duplicate rule
+WA0-D11	SSO field semantics	IMPLEMENTED_DEFAULT	Checkbox now explicitly says Direct link only / does not support OneID SSO	Confirm wording during UAT
+WA0-D12	Mutation success contract	PROPOSED	Success only when metadata, environment asset and mandatory audit are consistent	Approve contract
+WA0-D13	Legacy sp_image transition	IMPLEMENTED	Legacy sp_image is read fallback; new uploads write sp_app_asset only	Verify during WA4 UAT
+WA0-D14	Missing environment asset behavior	IMPLEMENTED	New apps without an environment asset show placeholder; no cross-environment fetch	Verify during WA4 UAT
+WA0-D15	Orphan retention	PENDING	Quarantine per environment; no deletion during WA0	Set retention/grace period
+WA0-D16	Deployment order	PENDING	Proposed: migration once on shared DB, compatible code rollout WSL then staging	Confirm order/window

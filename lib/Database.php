@@ -5,6 +5,7 @@ class Database {
     protected $pdo;
     private ?bool $userProvenanceSupported = null;
     private ?bool $userAppFavouritesSupported = null;
+    private string $environment;
     public function __construct()
     {
         try
@@ -13,6 +14,11 @@ class Database {
             $this->pdo->exec("SET CHARACTER SET " . DB_CHARACSET);
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->pdo->query("set names " . DB_CHARACSET);
+            $environment=strtolower(trim((string)oneid_config('ONEID_ENVIRONMENT','')));
+            if(preg_match('/^[a-z][a-z0-9_-]{1,31}$/',$environment)!==1){
+                throw new RuntimeException('ONEID_ENVIRONMENT is not configured safely.');
+            }
+            $this->environment=$environment;
         } catch (PDOException $e)
         {
             error_log('Database connection failed: ' . $e->getMessage());
@@ -869,36 +875,42 @@ class Database {
 
 
     public function specfic_user_get_sp_list_by_group($uc_id){
-        $Q = "SELECT A.sp_id,B.sp_name,B.sp_description,B.sp_domain,B.sp_image,B.sp_group_id
+        $Q = "SELECT A.sp_id,B.sp_name,B.sp_description,B.sp_domain,COALESCE(NULLIF(E.image_filename,''),B.sp_image) AS sp_image,B.sp_group_id
                 FROM acl_group A 
                 LEFT JOIN sp_list B ON B.sp_id = A.sp_id
+                LEFT JOIN sp_app_asset E ON E.sp_id=B.sp_id AND E.environment=:environment
                 WHERE A.uc_id=:uc_id AND B.avail_status=1";
         $R = $this->pdo->prepare($Q);        
         $R->bindParam(':uc_id', $uc_id);  
+        $R->bindValue(':environment',$this->environment);
         $R->execute();
         $result = $R->fetchAll(PDO::FETCH_ASSOC);
         return $result;
     }
 
     public function specfic_user_get_sp_list_by_specific_sp($u_id){
-        $Q = "SELECT A.sp_id,B.sp_name,B.sp_description,B.sp_domain,B.sp_image,B.sp_group_id
+        $Q = "SELECT A.sp_id,B.sp_name,B.sp_description,B.sp_domain,COALESCE(NULLIF(E.image_filename,''),B.sp_image) AS sp_image,B.sp_group_id
                 FROM acl_single A
                 LEFT JOIN sp_list B ON B.sp_id = A.sp_id
+                LEFT JOIN sp_app_asset E ON E.sp_id=B.sp_id AND E.environment=:environment
                 WHERE A.u_id=:u_id AND B.avail_status=1";
         $R = $this->pdo->prepare($Q);        
         $R->bindParam(':u_id', $u_id);  
+        $R->bindValue(':environment',$this->environment);
         $R->execute();
         $result = $R->fetchAll(PDO::FETCH_ASSOC);
         return $result;
     }
 
     public function specfic_user_get_sp_blacklist($u_id){
-        $Q = "SELECT A.sp_id,B.sp_name,B.sp_description,B.sp_domain,B.sp_image,A.aclblk_id,B.sp_group_id
+        $Q = "SELECT A.sp_id,B.sp_name,B.sp_description,B.sp_domain,COALESCE(NULLIF(E.image_filename,''),B.sp_image) AS sp_image,A.aclblk_id,B.sp_group_id
                 FROM acl_blacklist A 
                 LEFT JOIN sp_list B ON B.sp_id = A.sp_id
+                LEFT JOIN sp_app_asset E ON E.sp_id=B.sp_id AND E.environment=:environment
                 WHERE A.u_id=:u_id";
         $R = $this->pdo->prepare($Q);        
         $R->bindParam(':u_id', $u_id);  
+        $R->bindValue(':environment',$this->environment);
         $R->execute();
         $result = $R->fetchAll(PDO::FETCH_ASSOC);
         return $result;
@@ -906,19 +918,19 @@ class Database {
 
 
     public function admin_get_all_service_provider(){
-        $Q = "SELECT sp_id,sp_name,sp_description,sp_domain,sp_image,sp_sso_support
-                FROM sp_list where avail_status = 1 AND sp_sso_support = 0";
+        $Q = "SELECT S.sp_id,S.sp_name,S.sp_description,S.sp_domain,COALESCE(NULLIF(E.image_filename,''),S.sp_image) AS sp_image,S.sp_sso_support
+                FROM sp_list S LEFT JOIN sp_app_asset E ON E.sp_id=S.sp_id AND E.environment=:environment WHERE S.avail_status = 1 AND S.sp_sso_support = 0";
         $R = $this->pdo->prepare($Q);   
-        $R->execute();
+        $R->execute([':environment'=>$this->environment]);
         $result = $R->fetchAll(PDO::FETCH_ASSOC);
         return $result;
     }
 
     public function admin_get_all_service_provider_non_sso(){
-        $Q = "SELECT sp_id,sp_name,sp_description,sp_domain,sp_image,sp_sso_support
-                FROM sp_list where avail_status = 1 AND sp_sso_support = 1";
+        $Q = "SELECT S.sp_id,S.sp_name,S.sp_description,S.sp_domain,COALESCE(NULLIF(E.image_filename,''),S.sp_image) AS sp_image,S.sp_sso_support
+                FROM sp_list S LEFT JOIN sp_app_asset E ON E.sp_id=S.sp_id AND E.environment=:environment WHERE S.avail_status = 1 AND S.sp_sso_support = 1";
         $R = $this->pdo->prepare($Q);   
-        $R->execute();
+        $R->execute([':environment'=>$this->environment]);
         $result = $R->fetchAll(PDO::FETCH_ASSOC);
         return $result;
     }
@@ -1003,6 +1015,29 @@ class Database {
         return $result;
     }
 
+    public function admin_app_category_exists(int $categoryId): bool{
+        $R=$this->pdo->prepare("SELECT 1 FROM sp_group WHERE sp_group_id=:category_id LIMIT 1");
+        $R->execute([':category_id'=>$categoryId]);
+        return $R->fetchColumn()!==false;
+    }
+
+    public function admin_app_id_exists(string $appId): bool{
+        $R=$this->pdo->prepare("SELECT 1 FROM sp_list WHERE sp_id=:app_id LIMIT 1");
+        $R->execute([':app_id'=>$appId]);
+        return $R->fetchColumn()!==false;
+    }
+
+    public function admin_upsert_app_asset(string $appId,string $filename,string $updatedBy): int{
+        $Q="INSERT INTO sp_app_asset(sp_id,environment,image_filename,updated_by)
+            VALUES(:app_id,:environment,:filename,:updated_by)
+            ON DUPLICATE KEY UPDATE image_filename=VALUES(image_filename),updated_by=VALUES(updated_by),updated_at=CURRENT_TIMESTAMP";
+        $R=$this->pdo->prepare($Q);
+        $R->execute([':app_id'=>$appId,':environment'=>$this->environment,':filename'=>$filename,':updated_by'=>$updatedBy]);
+        return $R->rowCount();
+    }
+
+    public function admin_get_environment(): string{return $this->environment;}
+
 
 
     public function action_edit_app_info($sp_id,$sp_name,$sp_description,$sp_domain,$sp_image,$sp_group_id,$sp_sso_support){
@@ -1018,6 +1053,13 @@ class Database {
         $R->execute();
         $result = $R->rowCount();
         return $result;
+    }
+
+    public function admin_update_app_metadata($sp_id,$sp_name,$sp_description,$sp_domain,$sp_group_id,$sp_sso_support): int{
+        $Q="UPDATE sp_list SET sp_name=:sp_name,sp_description=:sp_description,sp_domain=:sp_domain,sp_sso_support=:sp_sso_support,sp_group_id=:sp_group_id WHERE sp_id=:sp_id";
+        $R=$this->pdo->prepare($Q);
+        $R->execute([':sp_id'=>$sp_id,':sp_name'=>$sp_name,':sp_description'=>$sp_description,':sp_domain'=>$sp_domain,':sp_group_id'=>$sp_group_id,':sp_sso_support'=>$sp_sso_support]);
+        return $R->rowCount();
     }
 
 
@@ -1043,10 +1085,15 @@ class Database {
     }
 
     public function admin_get_service_provider_for_update(string $appId): array|false{
-        $Q = "SELECT sp_id,sp_name,avail_status,sp_group_id FROM sp_list
-              WHERE sp_id=:app_id FOR UPDATE";
+        $Q = "SELECT S.sp_id,S.sp_name,S.sp_description,S.sp_domain,
+                     COALESCE(NULLIF(E.image_filename,''),S.sp_image) AS sp_image,
+                     S.sp_image AS legacy_sp_image,E.image_filename AS environment_sp_image,
+                     S.avail_status,S.sp_group_id,S.sp_sso_support
+              FROM sp_list S
+              LEFT JOIN sp_app_asset E ON E.sp_id=S.sp_id AND E.environment=:environment
+              WHERE S.sp_id=:app_id FOR UPDATE";
         $R = $this->pdo->prepare($Q);
-        $R->execute([':app_id'=>$appId]);
+        $R->execute([':app_id'=>$appId,':environment'=>$this->environment]);
         return $R->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -1074,11 +1121,12 @@ class Database {
 
 
     public function admin_get_specific_service_provider($sp_id){
-        $Q = "SELECT *
-                FROM sp_list
-                WHERE sp_id=:sp_id";
+        $Q = "SELECT S.*,COALESCE(NULLIF(E.image_filename,''),S.sp_image) AS sp_image
+                FROM sp_list S LEFT JOIN sp_app_asset E ON E.sp_id=S.sp_id AND E.environment=:environment
+                WHERE S.sp_id=:sp_id";
         $R = $this->pdo->prepare($Q);   
         $R->bindParam(':sp_id', $sp_id);  
+        $R->bindValue(':environment',$this->environment);
         $R->execute();
         $result = $R->fetch(PDO::FETCH_ASSOC);
         return $result;
@@ -1358,31 +1406,34 @@ class Database {
 
     public function admin_get_active_app_directory_rows(): array{
         $Q = "SELECT g.sp_group_id,g.sp_group_name,g.sp_group_seq,
-                     s.sp_id,s.sp_name,s.sp_description,s.sp_domain,s.sp_image,s.sp_sso_support
+                     s.sp_id,s.sp_name,s.sp_description,s.sp_domain,COALESCE(NULLIF(e.image_filename,''),s.sp_image) AS sp_image,s.sp_sso_support
               FROM sp_group g
               INNER JOIN sp_list s ON s.sp_group_id=g.sp_group_id AND s.avail_status=1
+              LEFT JOIN sp_app_asset e ON e.sp_id=s.sp_id AND e.environment=:environment
               ORDER BY (g.sp_group_id=0) ASC,g.sp_group_seq DESC,g.sp_group_name ASC,s.sp_name ASC";
         $R = $this->pdo->prepare($Q);
-        $R->execute();
+        $R->execute([':environment'=>$this->environment]);
         return $R->fetchAll(PDO::FETCH_ASSOC);
     }
 
 
     public function admin_get_all_service_provider_byGroup($sp_group_id){
-        $Q = "SELECT sp_id,sp_name,sp_description,sp_domain,sp_image,sp_sso_support,sp_group_id
-                FROM sp_list where avail_status = 1 AND sp_sso_support = 0 AND sp_group_id=:sp_group_id";
+        $Q = "SELECT S.sp_id,S.sp_name,S.sp_description,S.sp_domain,COALESCE(NULLIF(E.image_filename,''),S.sp_image) AS sp_image,S.sp_sso_support,S.sp_group_id
+                FROM sp_list S LEFT JOIN sp_app_asset E ON E.sp_id=S.sp_id AND E.environment=:environment WHERE S.avail_status = 1 AND S.sp_sso_support = 0 AND S.sp_group_id=:sp_group_id";
         $R = $this->pdo->prepare($Q);   
         $R->bindParam(':sp_group_id', $sp_group_id);
+        $R->bindValue(':environment',$this->environment);
         $R->execute();
         $result = $R->fetchAll(PDO::FETCH_ASSOC);
         return $result;
     }
 
     public function admin_get_all_service_provider_non_sso_byGroup($sp_group_id){
-        $Q = "SELECT sp_id,sp_name,sp_description,sp_domain,sp_image,sp_sso_support,sp_group_id
-                FROM sp_list where avail_status = 1 AND sp_sso_support = 1 AND sp_group_id=:sp_group_id";
+        $Q = "SELECT S.sp_id,S.sp_name,S.sp_description,S.sp_domain,COALESCE(NULLIF(E.image_filename,''),S.sp_image) AS sp_image,S.sp_sso_support,S.sp_group_id
+                FROM sp_list S LEFT JOIN sp_app_asset E ON E.sp_id=S.sp_id AND E.environment=:environment WHERE S.avail_status = 1 AND S.sp_sso_support = 1 AND S.sp_group_id=:sp_group_id";
         $R = $this->pdo->prepare($Q);   
         $R->bindParam(':sp_group_id', $sp_group_id);
+        $R->bindValue(':environment',$this->environment);
         $R->execute();
         $result = $R->fetchAll(PDO::FETCH_ASSOC);
         return $result;

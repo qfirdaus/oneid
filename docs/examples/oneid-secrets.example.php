@@ -5,6 +5,8 @@
 return [
     // Nilai environment-specific bukan secret juga boleh dioverride di sini.
     'ONEID_APP_URL' => 'https://oneid.local',
+    // WSL: local; staging: staging; production: production.
+    'ONEID_ENVIRONMENT' => 'local',
     'ONEID_APP_DEBUG' => false,
     'ONEID_SSO_IDP_URL' => 'https://oneid.local/',
     'ONEID_SSO_DASHBOARD_URL' => 'https://oneid.local/page/dashboard',

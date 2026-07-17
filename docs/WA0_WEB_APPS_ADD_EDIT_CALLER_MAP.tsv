@@ -1,0 +1,17 @@
+ID	Surface	File/line	Operation	Current data/asset behavior	WA target
+WA0-C01	Admin Add form	admin/dashboard.php:175	Collect name, description, icon, URL, category and SSO selection	Client required fields only; icon label claims 65x65	WA1/WA2
+WA0-C02	Admin Add submit	admin/dashboard.php:2490	POST multipart action_add_new_app	No loading/double-submit guard; ignores app_icon result; generic toast	WA1
+WA0-C03	Admin Edit loader	admin/dashboard.php:2598	Load app and construct icon preview	Uses global sp_image and local ../public_img path	WA4
+WA0-C04	Admin Edit submit	admin/dashboard.php:2673	POST multipart action_edit_app_info	No loading/double-submit guard; generic success based only on DB row count	WA1
+WA0-C05	Mutation handler Add	lib/q_func.php:349	Upload file, generate ID, insert sp_list, audit event 13	File precedes DB; upload failure does not stop insert; global sp_image	WA2/WA3/WA4
+WA0-C06	Mutation handler Edit	lib/q_func.php:374	Upload/retain file, update sp_list, audit event 14	Failed upload can retain old icon while metadata succeeds; global sp_image	WA2/WA3/WA4
+WA0-C07	Upload validation	lib/upload_security.php:8	Validate size, MIME and image signature	No pixel/dimension/animation policy or re-encode	WA5
+WA0-C08	Upload storage	lib/upload_security.php:66	Move upload to oneid_public_path(public_img)	Random filename; no transaction compensation/old-file lifecycle	WA3/WA6
+WA0-C09	Legacy DB Add	lib/Database.php:991	Insert application metadata and sp_image	Single global image field; no application service transaction	WA2/WA3/WA4
+WA0-C10	Legacy DB Edit	lib/Database.php:1008	Update metadata and sp_image	Single global image field; rowCount 0 is ambiguous	WA2/WA3/WA4
+WA0-C11	Admin directory query	lib/Database.php:1359	Read active app directory	Returns global sp_image	WA4
+WA0-C12	Admin directory render	admin/dashboard.php:1682	Render ../public_img/{sp_image}	Falls back only when value empty, not when local file is missing	WA1/WA4
+WA0-C13	User ACL queries	lib/Database.php:871	Read group/direct/blacklist app details	All return global sp_image	WA4
+WA0-C14	User app render	page/dashboard.php:701	Render ../public_img/{sp_image}	Uses environment-local filesystem with global filename	WA4
+WA0-C15	Request security	lib/request_security.php:98	Protect Add/Edit mutations	Admin session and CSRF protection already active	KEEP
+WA0-C16	Runtime configuration	config/runtime.php:8	Resolve environment/private/default config	No explicit ONEID_ENVIRONMENT identity yet	WA4
