@@ -709,7 +709,7 @@
 
             var card = '<article class="user-app-card">';
             card += '<div class="user-app-index">'+index+'</div>';
-            card += '<div class="user-app-image"><img src="'+imageSource+'" alt="" loading="lazy"></div>';
+            card += '<div class="user-app-image"><img src="'+imageSource+'" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'../img/thumb-1.jpg\';"></div>';
             card += '<div class="user-app-content"><div class="user-app-name"><strong title="'+appName+'">'+appName+'</strong><span class="user-app-access '+(isDirect ? 'is-direct' : '')+'">'+accessLabel+'</span></div>';
             card += '<p title="'+appDescription+'">'+appDescription+'</p></div>';
             card += '<div class="user-app-actions">';

@@ -1687,7 +1687,7 @@
 
 								panes += '<article class="web-app-card">';
 								panes += '<div class="web-app-card-index">'+(k + 1)+'</div>';
-								panes += '<div class="web-app-card-image"><img src="'+imageSource+'" alt="" loading="lazy"></div>';
+								panes += '<div class="web-app-card-image"><img src="'+imageSource+'" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'../img/thumb-1.jpg\';"></div>';
 								panes += '<div class="web-app-card-content">';
 								panes += '<div class="web-app-card-name"><strong title="'+appName+'">'+appName+'</strong>'+(ssoUnsupported ? '<span class="web-app-sso-badge">Direct link</span>' : '<span class="web-app-sso-badge is-enabled">SSO</span>')+'</div>';
 								panes += '<p title="'+appDescription+'">'+appDescription+'</p>';

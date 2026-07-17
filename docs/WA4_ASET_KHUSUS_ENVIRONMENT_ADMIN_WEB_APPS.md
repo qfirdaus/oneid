@@ -101,6 +101,47 @@ Gunakan satu app pilot aktif:
 6. Sahkan kedua-dua filename/fail berbeza dan berada pada filesystem masing-masing.
 7. Archive app pilot hanya selepas semua evidence diambil.
 
+### Evidence deployment staging — owner, 17 Julai 2026
+
+- staging fast-forward daripada `7d9a384` kepada `c146e37`;
+- `.private/runtime.php` staging lulus PHP syntax;
+- `Database::admin_get_environment()` tersedia selepas pull;
+- runtime identity memulangkan tepat `staging`;
+- WA1 UI contract: 13/13 PASS;
+- WA2 validation/failure regression: 14/14 PASS;
+- WA3 atomic contract: 13/13 PASS;
+- WA4 environment asset contract: 12/12 PASS;
+- migration tidak dijalankan semula pada staging kerana database dikongsi.
+
+Status deployment gate: **PASS**. Baseline filesystem staging dan manual
+isolation UAT gambar A/B masih berbaki.
+
+### Evidence baseline filesystem staging — 17 Julai 2026 15:27:58 +08:00
+
+- runtime identity: `staging`;
+- shared DB: 75 app, 37 aktif, 38 inactive;
+- staging filesystem: 89 icon files;
+- environment asset rows ketika baseline: 0;
+- missing local files: 2;
+- orphan candidates staging: 28;
+- missing references ialah app `2WJ4USYRS9` dan `EJEN8QNV9N`, kedua-duanya
+  merujuk filename legacy yang wujud/berasal daripada WSL tetapi tidak wujud pada
+  filesystem staging.
+
+Keputusan ini membuktikan filesystem tidak dikongsi dan bukan alasan untuk
+menyalin fail. UI admin/user ditambah `onerror` fallback kepada icon default
+supaya legacy reference yang tiada secara lokal tidak memaparkan broken image.
+
+Pada 15:28:59 shared DB mempunyai row pertama WA4 untuk app `2WJ4USYRS9`:
+`environment=local`, filename
+`app_icon_a8cbaf3960a81c047f060c029351025d.png`, actor `820705025923`. Row yang sama
+kelihatan apabila query dibuat dari staging dan WSL kerana database dikongsi;
+staging tetap tidak memilihnya kerana runtime identity ialah `staging`.
+
+Audit event 14 mengesahkan `environment=local`, outcome `success`, icon `stored`
+dan correlation `02a7533439e75cbb`. Fail WSL wujud dengan saiz 42,103 byte dan
+mode `0644`. Local-side upload gambar A: **PASS**.
+
 ## 8. Rollback
 
 Code rollback boleh kembali membaca `sp_list.sp_image`; jangan drop table ketika

@@ -8,6 +8,8 @@ $root=dirname(__DIR__);
 $db=(string)file_get_contents($root.'/lib/Database.php');
 $service=(string)file_get_contents($root.'/app/Admin/WebAppService.php');
 $runtime=(string)file_get_contents($root.'/config/runtime.php');
+$adminDashboard=(string)file_get_contents($root.'/admin/dashboard.php');
+$userDashboard=(string)file_get_contents($root.'/page/dashboard.php');
 $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
 $scalar=static fn(string $sql):int=>(int)$pdo->query($sql)->fetchColumn();
 $checks=[];
@@ -21,6 +23,7 @@ $checks['new asset write is keyed by runtime environment']=str_contains($db,'INS
 $checks['service create leaves legacy global image blank']=preg_match('/\$data\[\x27url\x27\],\s*\x27\x27,\s*\$data\[\x27category_id\x27\]/',$service)===1;
 $checks['service writes environment asset only when icon selected']=substr_count($service,'admin_upsert_app_asset')===2;
 $checks['audit records environment']=substr_count($service,'environment=%s')>=2;
+$checks['missing local legacy file falls back to placeholder']=str_contains($adminDashboard,"this.src=\\'../img/thumb-1.jpg\\'")&&str_contains($userDashboard,"this.src=\\'../img/thumb-1.jpg\\'");
 
 $before=$scalar("SELECT COUNT(*) FROM sp_app_asset");
 $appId=(string)$pdo->query("SELECT sp_id FROM sp_list WHERE avail_status=1 ORDER BY sp_id LIMIT 1")->fetchColumn();
