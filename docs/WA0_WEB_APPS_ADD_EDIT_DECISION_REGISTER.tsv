@@ -5,8 +5,8 @@ WA0-D03	Asset ownership	CONFIRMED	Upload remains in and is served by the environ
 WA0-D04	Cross-environment file synchronization	CONFIRMED	No Git, NFS, shared mount or automatic copy	None
 WA0-D05	Official runtime identity values	IMPLEMENTED	WSL=local; staging=staging; production=production	Set the staging private runtime value before/with deployment
 WA0-D06	Icon required on Add App	PENDING	Proposed: optional with explicit standard placeholder	Confirm policy
-WA0-D07	Canonical icon output	PENDING	Proposed: square static WebP/PNG generated server-side	Confirm format
-WA0-D08	Canonical icon dimensions	PENDING	Current label says 65x65 but backend does not enforce it	Confirm source/output dimensions
+WA0-D07	Canonical icon output	IMPLEMENTED_DEFAULT	Static PNG generated through server-side GD decode/re-encode	Confirm during WA5 visual UAT
+WA0-D08	Canonical icon dimensions	IMPLEMENTED_DEFAULT	256x256 contain-fit; source max 4096x4096 and 16 MP	Confirm during WA5 visual UAT
 WA0-D09	Application URL policy	IMPLEMENTED_DEFAULT	Absolute HTTPS URL with valid hostname; no credentials/fragment	Confirm whether any private-host exception is required during UAT
 WA0-D10	Duplicate policy	PENDING	16 normalized duplicate-name groups and 6 duplicate-domain groups currently exist	Define active/legacy duplicate rule
 WA0-D11	SSO field semantics	IMPLEMENTED_DEFAULT	Checkbox now explicitly says Direct link only / does not support OneID SSO	Confirm wording during UAT

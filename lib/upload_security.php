@@ -98,13 +98,66 @@ function stage_app_icon_upload(?array $file, string $stagingDir): array
     if (!is_dir($stagingDir) && !mkdir($stagingDir, 0700, true)) {
         return ['success'=>false,'filename'=>'','staged_path'=>'','message'=>'Unable to create upload staging directory'];
     }
-    $filename = 'app_icon_' . bin2hex(random_bytes(16)) . '.' . $validation['extension'];
+    $filename = 'app_icon_' . bin2hex(random_bytes(16)) . '.png';
     $stagedPath = rtrim($stagingDir, '/\\') . DIRECTORY_SEPARATOR . '.pending_' . bin2hex(random_bytes(16));
-    if (!move_uploaded_file((string) $file['tmp_name'], $stagedPath)) {
-        return ['success'=>false,'filename'=>'','staged_path'=>'','message'=>'Failed to stage uploaded image'];
+    $normalized = normalize_app_icon_to_png((string) $file['tmp_name'], $stagedPath);
+    if (!$normalized['success']) {
+        return ['success'=>false,'filename'=>'','staged_path'=>'','message'=>$normalized['message']];
     }
     @chmod($stagedPath, 0600);
-    return ['success'=>true,'filename'=>$filename,'staged_path'=>$stagedPath,'message'=>'Upload staged'];
+    return ['success'=>true,'filename'=>$filename,'staged_path'=>$stagedPath,'message'=>'Upload normalized and staged'];
+}
+
+/** @return array{success:bool,message:string} */
+function normalize_app_icon_to_png(string $sourcePath,string $targetPath,int $canvasSize=256,int $maxDimension=4096,int $maxPixels=16000000): array
+{
+    if(!extension_loaded('gd')||!function_exists('imagecreatefromstring')||!function_exists('imagepng')){
+        return ['success'=>false,'message'=>'Server image normalization is unavailable'];
+    }
+    $info=@getimagesize($sourcePath);
+    if($info===false||($info[0]??0)<1||($info[1]??0)<1){
+        return ['success'=>false,'message'=>'Invalid image dimensions'];
+    }
+    $width=(int)$info[0];$height=(int)$info[1];
+    if($width>$maxDimension||$height>$maxDimension||($width*$height)>$maxPixels){
+        return ['success'=>false,'message'=>'Image dimensions exceed the allowed limit'];
+    }
+    $contents=@file_get_contents($sourcePath);
+    if($contents===false||app_icon_is_animated($contents,(string)($info['mime']??''))){
+        return ['success'=>false,'message'=>'Animated images are not allowed'];
+    }
+    $source=@imagecreatefromstring($contents);
+    if($source===false)return ['success'=>false,'message'=>'Image could not be decoded'];
+    if(($info['mime']??'')==='image/jpeg'&&function_exists('exif_read_data')){
+        $exif=@exif_read_data($sourcePath);
+        $orientation=(int)($exif['Orientation']??1);
+        $rotated=false;
+        if($orientation===3)$rotated=imagerotate($source,180,0);
+        elseif($orientation===6)$rotated=imagerotate($source,-90,0);
+        elseif($orientation===8)$rotated=imagerotate($source,90,0);
+        if($rotated!==false){imagedestroy($source);$source=$rotated;}
+        $width=imagesx($source);$height=imagesy($source);
+    }
+    $canvas=imagecreatetruecolor($canvasSize,$canvasSize);
+    if($canvas===false){imagedestroy($source);return ['success'=>false,'message'=>'Image canvas could not be created'];}
+    imagealphablending($canvas,false);imagesavealpha($canvas,true);
+    $transparent=imagecolorallocatealpha($canvas,0,0,0,127);imagefill($canvas,0,0,$transparent);
+    $scale=min($canvasSize/$width,$canvasSize/$height);
+    $targetWidth=max(1,(int)round($width*$scale));$targetHeight=max(1,(int)round($height*$scale));
+    $x=(int)floor(($canvasSize-$targetWidth)/2);$y=(int)floor(($canvasSize-$targetHeight)/2);
+    $copied=imagecopyresampled($canvas,$source,$x,$y,0,0,$targetWidth,$targetHeight,$width,$height);
+    $written=$copied&&imagepng($canvas,$targetPath,9);
+    imagedestroy($source);imagedestroy($canvas);
+    if(!$written){if(is_file($targetPath))@unlink($targetPath);return ['success'=>false,'message'=>'Normalized image could not be written'];}
+    return ['success'=>true,'message'=>'Image normalized to 256x256 PNG'];
+}
+
+function app_icon_is_animated(string $contents,string $mime): bool
+{
+    if($mime==='image/gif')return substr_count($contents,"\x00\x21\xF9\x04")>1;
+    if($mime==='image/webp')return str_contains(substr($contents,0,64),'ANIM');
+    if($mime==='image/png')return str_contains(substr($contents,0,256),'acTL');
+    return false;
 }
 
 /** Publish a staged icon using an atomic rename on the same filesystem. */

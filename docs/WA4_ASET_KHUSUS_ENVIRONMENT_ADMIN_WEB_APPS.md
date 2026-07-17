@@ -1,7 +1,7 @@
 # WA4 — Aset Khusus Environment Admin Web Apps
 
 **Tarikh:** 17 Julai 2026  
-**Status:** IMPLEMENTED DI WSL/SHARED DATABASE — STAGING CONFIG DAN UAT BERBAKI  
+**Status:** COMPLETE — WSL/STAGING ISOLATION DAN OWNER VISUAL UAT LULUS
 **Migration:** `20260717_wa4_environment_app_asset_up.sql` — applied sekali
 
 ## 1. Keputusan seni bina
@@ -141,6 +141,68 @@ staging tetap tidak memilihnya kerana runtime identity ialah `staging`.
 Audit event 14 mengesahkan `environment=local`, outcome `success`, icon `stored`
 dan correlation `02a7533439e75cbb`. Fail WSL wujud dengan saiz 42,103 byte dan
 mode `0644`. Local-side upload gambar A: **PASS**.
+
+Ujian susulan WSL pada 15:34:58 turut PASS dengan
+`WA4_APP_UPDATED_ENVIRONMENT_ASSET`, correlation `3e376927565981b4` dan local
+filename `app_icon_a2542fa568ac60c2aba95f8fdc6e2185.png`.
+
+Percubaan staging correlation `0633553751879c5b` menghasilkan
+`WA3_APP_UPDATE_FAILED`. Shared DB mengesahkan rollback lengkap: tiada row
+`environment=staging` dan tiada success audit dengan correlation tersebut.
+Log mengesahkan `rename()` gagal dengan `Permission denied`: PHP-FPM berjalan
+sebagai `www-data`, sedangkan `public/public_img` ialah `iqs:www-data` mode
+`0755`. Staging directory private `storage/runtime` ialah `www-data:www-data`
+mode `0700` dan berfungsi seperti direka. Pembetulan minimum ialah
+`public/public_img` kekal owner `iqs`, group `www-data`, mode setgid `2775`;
+permission `777` dan recursive chown tidak dibenarkan. Status staging isolation
+UAT: **BLOCKED PENDING PERMISSION FIX AND RETEST**, bukan partial database
+mutation. UI juga diperbetulkan supaya exception ini dipaparkan sebagai “App
+changes were not saved”, bukan “No changes saved”.
+
+Permission fix staging kemudiannya dilaksanakan dan disahkan oleh owner:
+
+- `public/public_img` = `iqs:www-data`, mode `2775`;
+- write probe sebagai `www-data` = PASS;
+- tiada penggunaan `777` atau recursive ownership change;
+- query sebelum retry masih menunjukkan row `local` sahaja, mengesahkan failure
+  terdahulu tidak meninggalkan row staging.
+
+Status: **PERMISSION GATE PASS — RETRY UPLOAD GAMBAR B BERBAKI**.
+
+### Evidence isolation upload — 17 Julai 2026
+
+| Environment | Code/reference | Filename | Audit |
+| --- | --- | --- | --- |
+| `local` | `WA4_APP_UPDATED_ENVIRONMENT_ASSET`; `1a124143111da60b` | `app_icon_14c0ea3c959ee23414599a9d1614270f.png` | Event 14, actor `820705025923`, IP `127.0.0.1`, outcome success, icon stored, 15:40:50. |
+| `staging` | `WA4_APP_UPDATED_ENVIRONMENT_ASSET`; `030d48a667c4bc6d` | `app_icon_84483bd9f13959bd000be9222d21b2c3.png` | Event 14, actor `820705025923`, IP `2.0.1.6`, outcome success, icon stored, 15:41:22. |
+
+Shared database mempunyai tepat dua row bagi app `2WJ4USYRS9`, satu untuk setiap
+environment. Filesystem WSL mengandungi local filename (42,103 byte, mode 0644)
+dan tidak mengandungi staging filename; staging directory dalaman WSL kosong.
+Ini membuktikan database reference dikongsi tetapi fail staging tidak disalin ke
+WSL. Pengesahan visual A kekal di WSL/B dipaparkan di staging dan reciprocal
+filesystem check staging masih berbaki sebelum gate WA4 ditutup.
+
+Reciprocal staging filesystem check kemudian lulus:
+
+- local filename `app_icon_14c0ea3c959ee23414599a9d1614270f.png` = ABSENT;
+- staging filename `app_icon_84483bd9f13959bd000be9222d21b2c3.png`
+  = EXISTS, 37,825 byte, mode `0644`;
+- query staging memulangkan tepat dua row shared DB: `local` dan `staging` dengan
+  filename masing-masing.
+
+Filesystem isolation gate: **PASS**. Baki tunggal ialah owner visual confirmation
+bahawa WSL memaparkan gambar A dan staging memaparkan gambar B.
+
+Owner kemudian mengesahkan secara visual bahawa:
+
+- WSL memaparkan gambar A daripada row/filename `environment=local`;
+- staging memaparkan gambar B daripada row/filename `environment=staging`;
+- tiada cross-environment image leakage atau broken image pada app pilot.
+
+Kesimpulan WA4: shared database menyimpan dua reference environment berasingan,
+setiap deployment membaca row sendiri dan setiap filesystem menyimpan failnya
+sendiri. **WA4 owner UAT: PASS; phase closed.**
 
 ## 8. Rollback
 

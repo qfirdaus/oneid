@@ -188,7 +188,7 @@
                                                    <label class="control-label mb-10" for="add_new_app_icon">App Icon (optional)</label>
                                                    <div class="mt-1">
                                                       <input type="file" id="add_new_app_icon" name="add_new_app_icon" class="dropify" data-default-file="../img/thumb-1.jpg" data-height="100" accept="image/jpeg,image/png,image/gif,image/webp" />
-                                                      <small class="text-muted">JPEG, PNG, GIF or WebP, maximum 5 MB. Image dimensions are not resized by the current system.</small>
+                                                      <small class="text-muted">JPEG, PNG, GIF or WebP, maximum 5 MB and 4096×4096. The server converts it to a static 256×256 PNG.</small>
                                                    </div>  
                                                 </div> 
 
@@ -345,7 +345,7 @@
                                                    <div class="mt-1">
                                                       <input type="file" id="edit_new_app_icon" name="edit_new_app_icon" class="dropify" data-default-file="../img/thumb-1.jpg" data-height="100" accept="image/jpeg,image/png,image/gif,image/webp" />
                                                       <input type="hidden" name="edit_existing_app_icon" id="edit_existing_app_icon" value="" />
-                                                      <small class="text-muted">Leave empty to retain the current icon. JPEG, PNG, GIF or WebP, maximum 5 MB.</small>
+                                                      <small class="text-muted">Leave empty to retain the current icon. Maximum 5 MB and 4096×4096; converted to a static 256×256 PNG.</small>
                                                    </div>  
                                                 </div> 
                                                 <div class="form-group">
@@ -2787,7 +2787,8 @@
 						var iconRejected = response.icon_status === 'rejected';
                   showAppOperationalAlert(iconRejected ? 'warning' : 'success', iconRejected ? 'Metadata saved; selected icon not changed.' : 'App successfully updated.', iconRejected ? 'The selected icon was rejected and the previous icon was retained.' : (response.icon_status === 'stored' ? 'The metadata and replacement icon were saved.' : 'The metadata was saved and the existing icon was retained.'), response);
 					}else{
-                  showAppOperationalAlert('warning', 'No changes saved.', 'The stored record already matched the submitted values, or the update was not applied.', response);
+                  var unchanged = response && response.code === 'WA3_APP_UNCHANGED';
+                  showAppOperationalAlert(unchanged ? 'warning' : 'error', unchanged ? 'No changes saved.' : 'App changes were not saved.', unchanged ? 'The stored record already matched the submitted values.' : 'The operation was rejected or rolled back. No completed update was recorded.', response);
 					}
          
            		},

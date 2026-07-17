@@ -2,7 +2,7 @@
 
 **Tarikh audit:** 17 Julai 2026  
 **Owner keputusan:** Pemilik sistem OneID  
-**Status:** WA0 DIREKOD; WA1 IMPLEMENTED; WA2 COMPLETE; WA3 IMPLEMENTED; WA4 IMPLEMENTED DI WSL — STAGING UAT BERBAKI  
+**Status:** WA0 DIREKOD; WA1 IMPLEMENTED; WA2 COMPLETE; WA3 IMPLEMENTED; WA4 COMPLETE; WA5 IMPLEMENTED — UAT BERBAKI
 **Skop:** `Admin > Web Apps > Add App` dan penggantian gambar melalui Edit App  
 **Bukan sebahagian daripada:** W0–W4 category lifecycle yang telah selesai
 
@@ -242,6 +242,13 @@ WA4 environment-specific asset persistence telah dilaksanakan dan migration
 expanding dipasang sekali pada shared database. WSL menggunakan `local`; staging
 mesti menetapkan runtime `staging` sebelum UAT. Rekod penuh berada dalam
 `docs/WA4_ASET_KHUSUS_ENVIRONMENT_ADMIN_WEB_APPS.md`.
+
+WA4 ditutup selepas automated contract, shared DB row isolation, reciprocal
+filesystem check dan visual owner UAT WSL/staging semuanya lulus.
+
+WA5 normalisasi imej telah dilaksanakan menggunakan GD: input baharu didecode,
+dihadkan, ditolak jika animated dan dire-encode sebagai static 256×256 PNG.
+Rekod berada dalam `docs/WA5_NORMALISASI_DAN_KESELAMATAN_IMEJ_WEB_APPS.md`.
 
 Tiada pembetulan Web Apps/Add App, migration atau cleanup dibuat dalam WA0.
 Baseline filesystem staging dan keputusan bertanda `PENDING`/`PROPOSED` masih
