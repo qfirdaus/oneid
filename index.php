@@ -21,6 +21,7 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
   <link rel="stylesheet" href="assetsM/css/main.min.css" />
   <link rel="stylesheet" href="assetsM/css/custom.css" />
   <link rel="stylesheet" href="vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" />
+  <link rel="stylesheet" href="vendors/bower_components/sweetalert/dist/sweetalert.css" />
   <link href="https://fonts.googleapis.com/css2?family=Moon+Dance&display=swap" rel="stylesheet" />
 
 </head>
@@ -472,6 +473,7 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
   <script src="assetsM/vendor/overlay-scroll/jquery.overlayScrollbars.min.js"></script>
   <script src="assetsM/vendor/overlay-scroll/custom-scrollbar.js"></script>
   <script src="vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
+  <script src="vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
   <script src="assetsM/js/oneid-notifications.js?v=20260716-1"></script>
   <script src="assetsM/js/main.js"></script>
 
@@ -480,6 +482,15 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
 $.ajaxSetup({
   headers: {'X-CSRF-Token': <?php echo json_encode(oneid_csrf_token()); ?>}
 });
+
+function oneidPublicAlert(title, text, type) {
+  swal({
+    title: title,
+    text: text,
+    type: type || 'info',
+    confirmButtonText: 'OK'
+  });
+}
 
 // ===== Client-side login limiter (cookie-based) =====
 window.LoginLimiter = (function () {
@@ -571,11 +582,11 @@ $loginform.on('submit', function(ev){
     // === NEW: abort if currently locked ===
     if (LoginLimiter.check(username) || $loginform.data('submitting')) return;
     if (!String(username || '').trim()) {
-      swal('Log masuk tidak berjaya', 'Sila masukkan ID Pengguna.', 'error');
+      oneidPublicAlert('Log masuk tidak berjaya', 'Sila masukkan ID Pengguna.', 'error');
       return;
     }
     if (!String(password || '')) {
-      swal('Log masuk tidak berjaya', 'Sila masukkan Kata Laluan.', 'error');
+      oneidPublicAlert('Log masuk tidak berjaya', 'Sila masukkan Kata Laluan.', 'error');
       return;
     }
 
@@ -596,7 +607,7 @@ $loginform.on('submit', function(ev){
                       // === NEW: count a failure ===
                       LoginLimiter.onFailure(username);
                         $('#login_status').empty();
-                        swal('Log masuk tidak berjaya', response['login_response_msg'] || 'ID Pengguna atau Kata Laluan tidak sah.', 'error');
+                        oneidPublicAlert('Log masuk tidak berjaya', response['login_response_msg'] || 'ID Pengguna atau Kata Laluan tidak sah.', 'error');
 
                     }else{
                         // === NEW: clear counter on success ===
@@ -607,7 +618,7 @@ $loginform.on('submit', function(ev){
 
             },
             error: function (xhr, error, thrown) {
-                swal('Log masuk tidak berjaya', error === 'timeout' ? 'Permintaan log masuk tamat tempoh. Cuba semula.' : 'Respons pelayan tidak dapat diterima.', 'error');
+                oneidPublicAlert('Log masuk tidak berjaya', error === 'timeout' ? 'Permintaan log masuk tamat tempoh. Cuba semula.' : 'Respons pelayan tidak dapat diterima.', 'error');
             },
             complete: function(){
                 $loginform.data('submitting', false).find(':submit').prop('disabled', false);
@@ -667,13 +678,13 @@ function open_forgot_password(){
                               setTimeout(function() {
                     $('#modal_OTP').modal('show');
                 }, 500);
-                    swal('Permintaan diterima', response['msg'] + recoveryReference(response), 'success');
+                    oneidPublicAlert('Permintaan diterima', response['msg'] + recoveryReference(response), 'success');
                      OTP_startCountdown();
                      $("#btn_otp_request").hide();
                      $("#btn_otp_submit").show();
                 }else{                 
                 // alert();       
-                     swal('Permintaan tidak dapat diproses', response['msg'] + recoveryReference(response), 'error');
+                     oneidPublicAlert('Permintaan tidak dapat diproses', response['msg'] + recoveryReference(response), 'error');
                              }
                 
             $('#forgot_pwd_body').show();
@@ -684,7 +695,7 @@ function open_forgot_password(){
             $('#otp_modal_loading_OTP').hide();
                      },
                      error: function (xhr, error, thrown) {
-                       swal('Permintaan tergendala', error === 'timeout' ? 'Penghantaran mengambil masa terlalu lama. Status kejayaan tidak diandaikan.' : 'Respons pelayan tidak dapat diterima. Status kejayaan tidak diandaikan.', 'error');
+                       oneidPublicAlert('Permintaan tergendala', error === 'timeout' ? 'Penghantaran mengambil masa terlalu lama. Status kejayaan tidak diandaikan.' : 'Respons pelayan tidak dapat diterima. Status kejayaan tidak diandaikan.', 'error');
                      },
                      complete: finishRecoveryLoading
                  });
@@ -757,14 +768,14 @@ function open_forgot_password(){
                               setTimeout(function() {
                     $('#modal_OTP').modal('show');
                 }, 500);
-                    swal('Permintaan diterima', response['msg'] + recoveryReference(response), 'success');
+                    oneidPublicAlert('Permintaan diterima', response['msg'] + recoveryReference(response), 'success');
                      OTP_startCountdown();
                      $("#btn_otp_request").hide();
                      $("#btn_otp_submit").show();
                  
                 }else{                 
                 // alert();       
-                     swal('Permintaan tidak dapat diproses', response['msg'] + recoveryReference(response), 'error');
+                     oneidPublicAlert('Permintaan tidak dapat diproses', response['msg'] + recoveryReference(response), 'error');
                              }
 
               $('#otp_modal_body').show();
@@ -773,7 +784,7 @@ function open_forgot_password(){
          
                      },
                      error: function (xhr, error, thrown) {
-                       swal('Permintaan tergendala', error === 'timeout' ? 'Penghantaran mengambil masa terlalu lama. Status kejayaan tidak diandaikan.' : 'Respons pelayan tidak dapat diterima. Status kejayaan tidak diandaikan.', 'error');
+                       oneidPublicAlert('Permintaan tergendala', error === 'timeout' ? 'Penghantaran mengambil masa terlalu lama. Status kejayaan tidak diandaikan.' : 'Respons pelayan tidak dapat diterima. Status kejayaan tidak diandaikan.', 'error');
                      },
                      complete: finishRecoveryLoading
                  });
