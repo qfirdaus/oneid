@@ -460,9 +460,19 @@
                                                 <p class="user-app-intro">Akses semua sistem yang telah diberikan kepada akaun anda.</p>
                                              </div>
                                              <div class="user-app-header-actions">
-                                                <div class="user-app-count" aria-live="polite">
-                                                   <span>Available</span>
-                                                   <strong id="user_app_count">&mdash;</strong>
+                                                <div class="user-app-summary" aria-live="polite" aria-label="Ringkasan aplikasi">
+                                                   <div class="user-app-count">
+                                                      <span>Jumlah</span>
+                                                      <strong id="user_app_count">&mdash;</strong>
+                                                   </div>
+                                                   <div class="user-app-count is-sso">
+                                                      <span>Full SSO</span>
+                                                      <strong id="user_app_sso_count">&mdash;</strong>
+                                                   </div>
+                                                   <div class="user-app-count is-non-sso">
+                                                      <span>Non SSO</span>
+                                                      <strong id="user_app_non_sso_count">&mdash;</strong>
+                                                   </div>
                                                 </div>
                                                 <button type="button" class="user-app-refresh" onclick="get_specific_user_app_list();" title="Refresh applications" aria-label="Refresh applications">
                                                    <i class="fa fa-refresh" aria-hidden="true"></i>
@@ -731,6 +741,7 @@
 
             if (allApplications.length === 0) {
                $('#user_app_count').text('0');
+               $('#user_app_sso_count, #user_app_non_sso_count').text('0');
                $('#WebAppsTabsHeader, #WebAppsTabsContent').html('');
                $('#follo_data_list').html(
                   '<div class="user-app-state"><span><i class="fa fa-th-large" aria-hidden="true"></i></span>' +
@@ -775,7 +786,12 @@
                panes += '</div></div>';
             });
 
+            var ssoCount = allApplications.filter(function(application){
+               return String(application.sp_sso_support) === '0';
+            }).length;
             $('#user_app_count').text(allApplications.length);
+            $('#user_app_sso_count').text(ssoCount);
+            $('#user_app_non_sso_count').text(allApplications.length - ssoCount);
             $('#follo_data_list_count_text').html('(' + allApplications.length + ')');
             $('#follo_data_list').html('');
             $('#WebAppsTabsHeader').html(tabs);
@@ -803,7 +819,7 @@
                  dataType: "json",
                  data: {get_specific_user_app_list:""},
                  beforeSend: function(){
-				   $('#user_app_count').text('\u2014');
+                   $('#user_app_count, #user_app_sso_count, #user_app_non_sso_count').text('\u2014');
                    $('#app_list_loading').fadeIn();
                    $('#app_list').hide();
 				   $('#WebAppsTabsHeader').html('');
@@ -817,7 +833,7 @@
 				   renderUserAppDirectory();
 				},
 				error: function (xhr, error, thrown) {
-				   $('#user_app_count').text('\u2014');
+                  $('#user_app_count, #user_app_sso_count, #user_app_non_sso_count').text('\u2014');
 				   $('#app_list_loading').hide();
 				   $('#app_list').show();
 				   $('#follo_data_list').html(
@@ -1258,6 +1274,12 @@
         gap: 9px;
       }
 
+      .user-app-summary {
+        display: flex;
+        align-items: stretch;
+        gap: 7px;
+      }
+
       .user-app-count {
         min-width: 102px;
         padding: 10px 14px;
@@ -1270,6 +1292,24 @@
       .user-app-count span,
       .user-app-count strong {
         display: block;
+      }
+
+      .user-app-count.is-sso {
+        border-color: #cbe9d8;
+        background: #edf9f2;
+      }
+
+      .user-app-count.is-sso strong {
+        color: #22844f;
+      }
+
+      .user-app-count.is-non-sso {
+        border-color: #f2dfbd;
+        background: #fff8eb;
+      }
+
+      .user-app-count.is-non-sso strong {
+        color: #a86c15;
       }
 
       .user-app-count span {
@@ -1730,8 +1770,19 @@
         }
 
         .user-app-header-actions {
-          width: max-content;
+          width: 100%;
+          flex-wrap: wrap;
           margin-top: 16px;
+        }
+
+        .user-app-summary {
+          flex: 1 1 auto;
+          flex-wrap: wrap;
+        }
+
+        .user-app-count {
+          flex: 1 1 88px;
+          min-width: 88px;
         }
 
         .user-app-count {

@@ -980,9 +980,19 @@
                                                             <h4 class="web-app-title">Web Apps</h4>
                                                             <p class="web-app-intro">Urus aplikasi berdaftar, kategori dan konfigurasi sambungan SSO.</p>
                                                          </div>
-                                                         <div class="web-app-count" aria-live="polite">
-                                                            <span>Applications</span>
-                                                            <strong id="web_app_count">&mdash;</strong>
+                                                         <div class="web-app-summary" aria-live="polite" aria-label="Application summary">
+                                                            <div class="web-app-count">
+                                                               <span>Total</span>
+                                                               <strong id="web_app_count">&mdash;</strong>
+                                                            </div>
+                                                            <div class="web-app-count is-sso">
+                                                               <span>Full SSO</span>
+                                                               <strong id="web_app_sso_count">&mdash;</strong>
+                                                            </div>
+                                                            <div class="web-app-count is-non-sso">
+                                                               <span>Non SSO</span>
+                                                               <strong id="web_app_non_sso_count">&mdash;</strong>
+                                                            </div>
                                                          </div>
                                                       </div>
 
@@ -1653,6 +1663,7 @@
              var totalCount = 0;
              var matchingCount = 0;
              var matchingTabs = [];
+             var uniqueApplications = {};
 
              $.each(adminWebAppGroups, function(i, group){
                var tabName = adminWebAppText(group.tabname);
@@ -1662,6 +1673,10 @@
                  return adminWebAppMatches(application, term);
                });
                totalCount += allApplications.length;
+               $.each(allApplications, function(_, application){
+                 var uniqueId = String(application.sp_id || '');
+                 if (uniqueId !== '') uniqueApplications[uniqueId] = application;
+               });
                matchingCount += applications.length;
                if (applications.length > 0) matchingTabs.push('#' + tabName);
 
@@ -1688,7 +1703,14 @@
                panes += '</div></div>';
              });
 
+             var uniqueList = Object.keys(uniqueApplications).map(function(id){ return uniqueApplications[id]; });
+             var ssoCount = uniqueList.filter(function(application){
+               return String(application.sp_sso_support) === '0';
+             }).length;
+             totalCount = uniqueList.length;
              $('#web_app_count').text(totalCount);
+             $('#web_app_sso_count').text(ssoCount);
+             $('#web_app_non_sso_count').text(totalCount - ssoCount);
              $('#WebAppsTabsHeader').html(tabs);
              $('#WebAppsTabsContent').html(panes);
              $('#admin_web_app_search_status').text(term === '' ? 'Carian merentas semua kategori aplikasi.' : 'Memaparkan ' + matchingCount + ' daripada ' + totalCount + ' aplikasi.');
@@ -1712,7 +1734,7 @@
            		data: {admin_get_all_service_provider:""},
 			beforeSend: function(){
 						adminWebAppGroups = [];
-						$('#web_app_count').text('\u2014');
+						$('#web_app_count, #web_app_sso_count, #web_app_non_sso_count').text('\u2014');
            			$('#tab_available_apps_list_loading').show();
            			$('#tab_available_apps_list').hide();
                         $('#WebAppsTabsHeader').html('');
@@ -1726,6 +1748,7 @@
 						if (!Array.isArray(response) || response.length === 0) {
 							adminWebAppGroups = [];
 							$('#web_app_count').text('0');
+							$('#web_app_sso_count, #web_app_non_sso_count').text('0');
 							$('#admin_web_app_search_status').text('Tiada aplikasi tersedia untuk carian.');
 							$('#follo_data_list').html(
 								'<div class="web-app-state">' +
@@ -1742,7 +1765,7 @@
 
 					},
 					error: function (xhr, error, thrown) {
-						$('#web_app_count').text('\u2014');
+						$('#web_app_count, #web_app_sso_count, #web_app_non_sso_count').text('\u2014');
 						$('#tab_available_apps_list_loading').hide();
 						$('#tab_available_apps_list').show();
 						$('#admin_web_app_search_status').text('Carian tidak tersedia kerana direktori gagal dimuatkan.');
@@ -4380,6 +4403,16 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
       date: "2026-07-17",
       changes: [
+        "Dashboard pengguna dan Administrator kini memaparkan pecahan <b>Jumlah, Full SSO dan Non SSO</b> berdasarkan aplikasi unik serta kontrak <code>sp_sso_support</code> yang sama dengan tindakan akses.",
+        "Kad ringkasan aplikasi menggunakan identiti warna berbeza dan susun atur responsive, termasuk state loading, kosong dan kegagalan data.",
+        "Audit Fasa 7 <b>Admin Step-Up 2FA</b> diperluas dengan pilihan OTP e-mel atau Microsoft Authenticator melalui TOTP, server-side enforcement, enrollment, recovery dan audit tanpa melaksanakan feature tersebut lagi.",
+        "Audit serta pelan pelaksanaan <b>multi-language Bahasa Melayu dan English</b> disusun dalam ML0 hingga ML9 meliputi Configuration default language, preference pengguna, UI, API, e-mel, accessibility, metadata, UAT dan rollback."
+      ]
+    },
+    {
+      version: "2.0.7",
+      date: "2026-07-17",
+      changes: [
         "Konfigurasi SSO pentadbir diperkukuh melalui validation, audit correlation, integriti database, token lifecycle dan pemisahan polisi <b>Password Recovery</b>.",
         "Penghantaran test email dan OTP Password Recovery telah disahkan sehingga mailbox; OTP kekal sah 5 minit dan hanya boleh digunakan sekali.",
         "Aliran <b>Tukar Kata Laluan</b> kini memberikan feedback SweetAlert/toast yang jelas, mengesahkan password semasa dan kualiti password, merotasi session serta membatalkan session/token lain.",
@@ -4675,9 +4708,34 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         text-align: right;
       }
 
+      #follo_8 .web-app-summary {
+        display: flex;
+        align-items: stretch;
+        flex: 0 0 auto;
+        gap: 7px;
+      }
+
       #follo_8 .web-app-count span,
       #follo_8 .web-app-count strong {
         display: block;
+      }
+
+      #follo_8 .web-app-count.is-sso {
+        border-color: #cbe9d8;
+        background: #edf9f2;
+      }
+
+      #follo_8 .web-app-count.is-sso strong {
+        color: #22844f;
+      }
+
+      #follo_8 .web-app-count.is-non-sso {
+        border-color: #f2dfbd;
+        background: #fff8eb;
+      }
+
+      #follo_8 .web-app-count.is-non-sso strong {
+        color: #a86c15;
       }
 
       #follo_8 .web-app-count span {
@@ -5256,9 +5314,15 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
           display: block;
         }
 
-        #follo_8 .web-app-count {
-          width: max-content;
+        #follo_8 .web-app-summary {
+          width: 100%;
+          flex-wrap: wrap;
           margin-top: 16px;
+        }
+
+        #follo_8 .web-app-count {
+          flex: 1 1 88px;
+          min-width: 88px;
           text-align: left;
         }
 

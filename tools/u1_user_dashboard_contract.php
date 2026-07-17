@@ -20,6 +20,10 @@ $checks = [
     'NON SSO receives distinct tab styling' => strpos($files['dashboard'], 'is-non-sso-tab') !== false,
     'SSO and direct access labels are explicit' => strpos($files['dashboard'], "isDirect ? 'Akses' : 'Login'") !== false
         && strpos($files['dashboard'], "isDirect ? 'Akses terus' : 'OneID SSO'") !== false,
+    'application summary separates total SSO and non SSO' => strpos($files['dashboard'], 'id="user_app_count"') !== false
+        && strpos($files['dashboard'], 'id="user_app_sso_count"') !== false
+        && strpos($files['dashboard'], 'id="user_app_non_sso_count"') !== false
+        && strpos($files['dashboard'], "String(application.sp_sso_support) === '0'") !== false,
     'favourite endpoint is authenticated user action' => strpos($files['guard'], "'user_set_app_favourite'") !== false,
     'server derives favourite owner from session' => strpos($files['endpoint'], "\$_SESSION['login_user']") !== false
         && strpos($files['endpoint'], "isset( \$_POST['user_set_app_favourite'])") !== false,

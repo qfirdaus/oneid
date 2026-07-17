@@ -458,16 +458,21 @@ Aktiviti:
 
 - bina challenge khusus purpose `ADMIN_ACCESS` atau
   `SECURITY_CONFIGURATION_CHANGE`;
+- sediakan dua kaedah pilihan: OTP e-mel dan Microsoft Authenticator melalui
+  standard TOTP, bukan Microsoft Entra push notification;
+- bina enrollment, confirmation, revocation dan recovery faktor TOTP dengan
+  secret dienkripsi menggunakan key di luar database dan repository;
 - ikat challenge kepada admin, session, purpose dan browser;
 - wajibkan verification server-side untuk endpoint sensitif;
 - rotasi session ID dan CSRF selepas verification;
 - gunakan tempoh step-up pendek, dicadangkan 15 minit;
 - batalkan step-up apabila logout, login semula, role atau session berubah;
 - tambah rate limit, resend cooldown dan audit event; dan
-- pertimbangkan pemisahan role View dan Change Security Configuration.
+- kekalkan satu role admin sedia ada tanpa memperkenalkan role security-admin.
 
 **Exit criteria:** Direct URL dan direct endpoint tidak boleh memintas step-up
-apabila kawalan diaktifkan.
+apabila kawalan diaktifkan; kedua-dua kaedah disahkan server-side dan kegagalan
+satu faktor tidak menghasilkan bypass faktor yang lain.
 
 ### Fasa 8 — UAT, controlled rollout dan monitoring
 

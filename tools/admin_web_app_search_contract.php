@@ -16,6 +16,11 @@ $checks = [
     'clear restores directory and input focus' => str_contains($dashboard, "$('#admin_web_app_search').val('').focus()") && str_contains($dashboard, 'renderAdminWebAppDirectory();'),
     'search does not introduce a backend action' => !str_contains((string) file_get_contents($root . '/lib/q_func.php'), 'admin_search_web_app'),
     'full-width responsive search styling exists' => str_contains($dashboard, '#follo_8 .web-app-search-row') && str_contains($dashboard, 'flex: 1 1 100%') && str_contains($dashboard, 'max-width: none') && str_contains($dashboard, '#follo_8 .web-app-search input:focus'),
+    'application summary separates unique total SSO and non SSO' => str_contains($dashboard, 'id="web_app_count"')
+        && str_contains($dashboard, 'id="web_app_sso_count"')
+        && str_contains($dashboard, 'id="web_app_non_sso_count"')
+        && str_contains($dashboard, 'var uniqueApplications = {}')
+        && str_contains($dashboard, "String(application.sp_sso_support) === '0'"),
 ];
 
 $failed = 0;
