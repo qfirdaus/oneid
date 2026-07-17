@@ -566,11 +566,16 @@ $loginform.on('submit', function(ev){
     ev.preventDefault();
 
     var username = $('#username').val();
+    var password = $('#password').val();
 
     // === NEW: abort if currently locked ===
     if (LoginLimiter.check(username) || $loginform.data('submitting')) return;
     if (!String(username || '').trim()) {
       swal('Log masuk tidak berjaya', 'Sila masukkan ID Pengguna.', 'error');
+      return;
+    }
+    if (!String(password || '')) {
+      swal('Log masuk tidak berjaya', 'Sila masukkan Kata Laluan.', 'error');
       return;
     }
 
@@ -590,7 +595,8 @@ $loginform.on('submit', function(ev){
                     if (response['login_status'] == 0){
                       // === NEW: count a failure ===
                       LoginLimiter.onFailure(username);
-                        $('#login_status').html('<div class="alert alert-danger alert-dismissable"><i class="zmdi zmdi-block pr-15 pull-left"></i><p class="pull-left">Log masuk tidak berjaya.</p><div class="clearfix"></div></div>');
+                        $('#login_status').empty();
+                        swal('Log masuk tidak berjaya', response['login_response_msg'] || 'ID Pengguna atau Kata Laluan tidak sah.', 'error');
 
                     }else{
                         // === NEW: clear counter on success ===

@@ -129,6 +129,13 @@ function string_sanitize($s) {
             'login_response_msg' => 'User ID is required.'
           ]);
           return;
+        }elseif((string) ($_POST['password'] ?? '') === ''){
+          echo json_encode([
+            'login_status' => 0,
+            'code' => 'AUTH_PASSWORD_REQUIRED',
+            'login_response_msg' => 'Password is required.'
+          ]);
+          return;
         }else{
           //check_uid
         $results = $operation->func_authenticate($_POST['username'], $_POST['password']);
