@@ -1010,6 +1010,18 @@
                                                          </div>
                                                       </div>
 
+                                                      <div class="web-app-search-row">
+                                                         <div class="web-app-search">
+                                                            <i class="fa fa-search" aria-hidden="true"></i>
+                                                            <label class="sr-only" for="admin_web_app_search">Cari semua aplikasi</label>
+                                                            <input type="search" id="admin_web_app_search" autocomplete="off" placeholder="Cari nama, fungsi, URL atau App ID">
+                                                            <button type="button" id="admin_web_app_search_clear" title="Kosongkan carian" aria-label="Kosongkan carian" hidden>
+                                                               <i class="fa fa-times" aria-hidden="true"></i>
+                                                            </button>
+                                                         </div>
+                                                         <small id="admin_web_app_search_status" aria-live="polite">Carian merentas semua kategori aplikasi.</small>
+                                                      </div>
+
                                                       <div class="web-app-category-nav">
                                                          <ul role="tablist" class="nav" id="WebAppsTabsHeader"></ul>
                                                       </div>
@@ -1618,15 +1630,88 @@
          
          
          
-           //----Login
+           var adminWebAppGroups = [];
+           var adminWebAppSearchTerm = '';
+           var adminWebAppActiveTab = '';
+
+           function adminWebAppText(value){
+             return $('<div>').text(value == null ? '' : value).html();
+           }
+
+           function adminWebAppMatches(application, term){
+             if (term === '') return true;
+             return [application.sp_name, application.sp_description, application.sp_domain, application.sp_id]
+               .map(function(value){ return String(value || '').toLocaleLowerCase(); })
+               .join(' ')
+               .indexOf(term) !== -1;
+           }
+
+           function renderAdminWebAppDirectory(){
+             var term = adminWebAppSearchTerm.trim().toLocaleLowerCase();
+             var tabs = '';
+             var panes = '';
+             var totalCount = 0;
+             var matchingCount = 0;
+             var matchingTabs = [];
+
+             $.each(adminWebAppGroups, function(i, group){
+               var tabName = adminWebAppText(group.tabname);
+               var groupName = adminWebAppText(group.sp_group_name);
+               var allApplications = Array.isArray(group.data) ? group.data : [];
+               var applications = allApplications.filter(function(application){
+                 return adminWebAppMatches(application, term);
+               });
+               totalCount += allApplications.length;
+               matchingCount += applications.length;
+               if (applications.length > 0) matchingTabs.push('#' + tabName);
+
+               tabs += '<li role="presentation"><a aria-expanded="false" data-toggle="tab" role="tab" href="#'+tabName+'"><span>'+groupName+'</span><strong>'+applications.length+'</strong></a></li>';
+               panes += '<div id="'+tabName+'" class="tab-pane fade" role="tabpanel"><div class="web-app-card-list">';
+               if (applications.length === 0) {
+                 panes += '<div class="web-app-category-empty"><i class="fa fa-inbox" aria-hidden="true"></i><span>'+(term === '' ? 'No applications in this category.' : 'Tiada aplikasi sepadan dengan carian dalam kategori ini.')+'</span></div>';
+               }
+               $.each(applications, function(k, application){
+                 var appId = adminWebAppText(application.sp_id);
+                 var appName = adminWebAppText(application.sp_name);
+                 var appDescription = adminWebAppText(application.sp_description);
+                 var appDomain = adminWebAppText(application.sp_domain);
+                 var appImage = adminWebAppText(application.sp_image);
+                 var imageSource = appImage === '' ? '../img/thumb-1.jpg' : '../public_img/' + appImage;
+                 var ssoUnsupported = application.sp_sso_support !== '0';
+                 panes += '<article class="web-app-card">';
+                 panes += '<div class="web-app-card-index">'+(k + 1)+'</div>';
+                 panes += '<div class="web-app-card-image"><img src="'+imageSource+'" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'../img/thumb-1.jpg\';"></div>';
+                 panes += '<div class="web-app-card-content"><div class="web-app-card-name"><strong title="'+appName+'">'+appName+'</strong>'+(ssoUnsupported ? '<span class="web-app-sso-badge">Direct link</span>' : '<span class="web-app-sso-badge is-enabled">SSO</span>')+'</div>';
+                 panes += '<p title="'+appDescription+'">'+appDescription+'</p><span class="web-app-domain" title="'+appDomain+'"><i class="fa fa-link" aria-hidden="true"></i>'+appDomain+'</span></div>';
+                 panes += '<button type="button" class="web-app-view" data-app-id="'+appId+'" onclick="open_edit_webapp(this.dataset.appId);" title="View application" aria-label="View application"><i class="fa fa-eye" aria-hidden="true"></i></button></article>';
+               });
+               panes += '</div></div>';
+             });
+
+             $('#web_app_count').text(totalCount);
+             $('#WebAppsTabsHeader').html(tabs);
+             $('#WebAppsTabsContent').html(panes);
+             $('#admin_web_app_search_status').text(term === '' ? 'Carian merentas semua kategori aplikasi.' : 'Memaparkan ' + matchingCount + ' daripada ' + totalCount + ' aplikasi.');
+
+             var requestedTab = adminWebAppActiveTab;
+             if (matchingTabs.indexOf(requestedTab) === -1) requestedTab = matchingTabs.length ? matchingTabs[0] : $('#WebAppsTabsHeader a').first().attr('href');
+             var $link = $('#WebAppsTabsHeader a[href="'+requestedTab+'"]');
+             if ($link.length) {
+               $link.tab('show');
+               adminWebAppActiveTab = requestedTab;
+             }
+           }
+
            function get_service_provider_list(){
-            var href = $('#WebAppsTabsHeader li.active a').attr('href'); // e.g. "#SumberManusia_1_tab"
+            var href = $('#WebAppsTabsHeader li.active a').attr('href');
+            if (href) adminWebAppActiveTab = href;
            	$.ajax({
            		type: 'POST',
            		url: '../lib/q_func',
            		dataType: "json",
            		data: {admin_get_all_service_provider:""},
-           		beforeSend: function(){
+			beforeSend: function(){
+						adminWebAppGroups = [];
 						$('#web_app_count').text('\u2014');
            			$('#tab_available_apps_list_loading').show();
            			$('#tab_available_apps_list').hide();
@@ -1638,15 +1723,10 @@
            			$('#tab_available_apps_list_loading').hide();
            			$('#tab_available_apps_list').show();
 
-						var appText = function(value){
-							return $('<div>').text(value == null ? '' : value).html();
-						};
-						var listCount = 0;
-						var tabs = '';
-						var panes = '';
-
 						if (!Array.isArray(response) || response.length === 0) {
+							adminWebAppGroups = [];
 							$('#web_app_count').text('0');
+							$('#admin_web_app_search_status').text('Tiada aplikasi tersedia untuk carian.');
 							$('#follo_data_list').html(
 								'<div class="web-app-state">' +
 								'<span><i class="fa fa-th-large" aria-hidden="true"></i></span>' +
@@ -1657,61 +1737,15 @@
 							return;
 						}
 
-						$.each(response, function(i, group) {
-							var tabName = appText(group['tabname']);
-							var groupName = appText(group['sp_group_name']);
-							var applications = Array.isArray(group['data']) ? group['data'] : [];
-							var activeClass = i === 0 ? 'active' : '';
-							var paneClass = i === 0 ? 'tab-pane fade active in' : 'tab-pane fade';
-
-							tabs += '<li class="'+activeClass+'" role="presentation">';
-							tabs += '<a aria-expanded="'+(i === 0 ? 'true' : 'false')+'" data-toggle="tab" role="tab" href="#'+tabName+'"><span>'+groupName+'</span><strong>'+applications.length+'</strong></a>';
-							tabs += '</li>';
-
-							panes += '<div id="'+tabName+'" class="'+paneClass+'" role="tabpanel">';
-							panes += '<div class="web-app-card-list">';
-
-							if (applications.length === 0) {
-								panes += '<div class="web-app-category-empty"><i class="fa fa-inbox" aria-hidden="true"></i><span>No applications in this category.</span></div>';
-							}
-
-							$.each(applications, function(k, application) {
-								listCount++;
-								var appId = appText(application['sp_id']);
-								var appName = appText(application['sp_name']);
-								var appDescription = appText(application['sp_description']);
-								var appDomain = appText(application['sp_domain']);
-								var appImage = appText(application['sp_image']);
-								var imageSource = appImage === '' ? '../img/thumb-1.jpg' : '../public_img/' + appImage;
-								var ssoUnsupported = application['sp_sso_support'] !== "0";
-
-								panes += '<article class="web-app-card">';
-								panes += '<div class="web-app-card-index">'+(k + 1)+'</div>';
-								panes += '<div class="web-app-card-image"><img src="'+imageSource+'" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'../img/thumb-1.jpg\';"></div>';
-								panes += '<div class="web-app-card-content">';
-								panes += '<div class="web-app-card-name"><strong title="'+appName+'">'+appName+'</strong>'+(ssoUnsupported ? '<span class="web-app-sso-badge">Direct link</span>' : '<span class="web-app-sso-badge is-enabled">SSO</span>')+'</div>';
-								panes += '<p title="'+appDescription+'">'+appDescription+'</p>';
-								panes += '<span class="web-app-domain" title="'+appDomain+'"><i class="fa fa-link" aria-hidden="true"></i>'+appDomain+'</span>';
-								panes += '</div>';
-								panes += '<button type="button" class="web-app-view" data-app-id="'+appId+'" onclick="open_edit_webapp(this.dataset.appId);" title="View application" aria-label="View application"><i class="fa fa-eye" aria-hidden="true"></i></button>';
-								panes += '</article>';
-							});
-
-							panes += '</div></div>';
-						});
-
-						$('#web_app_count').text(listCount);
-						$('#WebAppsTabsHeader').html(tabs);
-						$('#WebAppsTabsContent').html(panes);
-						if (href && $('#WebAppsTabsHeader a[href="'+href+'"]').length) {
-							$('#WebAppsTabsHeader a[href="'+href+'"]').tab('show');
-						}
+						adminWebAppGroups = response;
+						renderAdminWebAppDirectory();
 
 					},
 					error: function (xhr, error, thrown) {
 						$('#web_app_count').text('\u2014');
 						$('#tab_available_apps_list_loading').hide();
 						$('#tab_available_apps_list').show();
+						$('#admin_web_app_search_status').text('Carian tidak tersedia kerana direktori gagal dimuatkan.');
 						$('#follo_data_list').html(
 							'<div class="web-app-state is-error">' +
 							'<span><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>' +
@@ -1722,6 +1756,23 @@
 					}
          });
          }
+
+         $(document).on('input', '#admin_web_app_search', function(){
+           adminWebAppSearchTerm = String(this.value || '');
+           $('#admin_web_app_search_clear').prop('hidden', adminWebAppSearchTerm === '');
+           renderAdminWebAppDirectory();
+         });
+
+         $(document).on('click', '#admin_web_app_search_clear', function(){
+           adminWebAppSearchTerm = '';
+           $('#admin_web_app_search').val('').focus();
+           $(this).prop('hidden', true);
+           renderAdminWebAppDirectory();
+         });
+
+         $(document).on('shown.bs.tab', '#follo_8 #WebAppsTabsHeader a[data-toggle="tab"]', function(){
+           adminWebAppActiveTab = $(this).attr('href');
+         });
          
          
          function admin_get_all_user_category(type){
@@ -4334,6 +4385,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         "Aliran <b>Tukar Kata Laluan</b> kini memberikan feedback SweetAlert/toast yang jelas, mengesahkan password semasa dan kualiti password, merotasi session serta membatalkan session/token lain.",
         "Halaman login memaparkan logo MyDigital ID sebagai preview tanpa mengaktifkan fungsi authentication baharu.",
         "Admin Web Apps Add/Edit kini menggunakan validation HTTPS, App ID kriptografi, confirmation, double-submit protection, atomic persistence dan audit correlation.",
+        "Admin Web Apps kini mempunyai <b>carian semua aplikasi</b> merentas kategori berdasarkan nama, fungsi, URL dan App ID, dengan kiraan hasil serta clear action.",
         "Icon Web Apps disimpan mengikut environment <code>local</code>/<code>staging</code> walaupun database dikongsi; setiap filesystem kekal berasingan dan missing asset jatuh kepada placeholder.",
         "Upload icon baharu didecode dan dinormalisasi kepada static PNG 256×256; metadata dibuang, animated image dan input melebihi had keselamatan ditolak.",
         "Login dan Password Recovery kini mempunyai request timeout, double-submit protection, session-lock release, correlation audit serta feedback SweetAlert apabila respons tergendala.",
@@ -4673,6 +4725,75 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         color: #7a8696;
         font-size: 12px;
         line-height: 1.45;
+      }
+
+      #follo_8 .web-app-search-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 14px;
+        border-right: 1px solid #e1e6ed;
+        border-left: 1px solid #e1e6ed;
+        background: #fff;
+      }
+
+      #follo_8 .web-app-search {
+        position: relative;
+        flex: 1 1 420px;
+        max-width: 620px;
+      }
+
+      #follo_8 .web-app-search > i {
+        position: absolute;
+        top: 50%;
+        left: 13px;
+        color: #8b99aa;
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+
+      #follo_8 .web-app-search input {
+        width: 100%;
+        height: 38px;
+        padding: 0 42px 0 38px;
+        border: 1px solid #dce4ec;
+        border-radius: 7px;
+        background: #fbfcfd;
+        color: #29384b;
+        font-size: 12px;
+        outline: none;
+      }
+
+      #follo_8 .web-app-search input:focus {
+        border-color: #39aeda;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(17, 168, 223, .10);
+      }
+
+      #follo_8 .web-app-search button {
+        position: absolute;
+        top: 50%;
+        right: 7px;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: #7c8999;
+        transform: translateY(-50%);
+      }
+
+      #follo_8 .web-app-search button:hover,
+      #follo_8 .web-app-search button:focus {
+        background: #edf4f7;
+        color: #168fcb;
+      }
+
+      #follo_8 #admin_web_app_search_status {
+        color: #7a8696;
+        font-size: 11px;
+        white-space: nowrap;
       }
 
       #follo_8 .web-app-actions {
@@ -5119,6 +5240,20 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         #follo_8 .web-app-actions {
           flex-wrap: wrap;
           margin-top: 16px;
+        }
+
+        #follo_8 .web-app-search-row {
+          display: block;
+        }
+
+        #follo_8 .web-app-search {
+          max-width: none;
+        }
+
+        #follo_8 #admin_web_app_search_status {
+          display: block;
+          margin-top: 8px;
+          white-space: normal;
         }
       }
 
