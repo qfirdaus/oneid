@@ -1,7 +1,7 @@
 # SC6 — Pemisahan Password Recovery
 
 **Tarikh:** 16 Julai 2026  
-**Status:** COMPLETE — AUTOMATED CONTRACT, MAILBOX DELIVERY DAN FORGOT-PASSWORD OTP E2E PASS
+**Status:** COMPLETE — AUTOMATED CONTRACT, MAILBOX DELIVERY, OTP E2E DAN RESILIENCE HOTFIX UAT PASS
 
 ## Hasil
 
@@ -85,3 +85,33 @@ Owner mengesahkan flow penuh menggunakan akaun pilot berjaya pada 17 Julai
 OTP mentah, hash OTP, password dan token tidak direkod dalam dokumen ini.
 
 Jangan matikan delivery untuk UAT live tanpa recovery window yang dipersetujui.
+
+### Resilience hotfix staging — PASS
+
+Selepas insiden login/session dan loading Forgot Password pada staging, hotfix
+v2.0.7 menambah bounded timeout, double-submit protection, session-lock release
+semasa SMTP, correlation bagi semua recovery request dan operational feedback
+yang sentiasa menutup loading state.
+
+Owner melaksanakan UAT selepas deployment dan PHP-FPM reload:
+
+- ID login kosong: inline validation PASS;
+- password kosong: inline validation PASS;
+- credential salah: inline failure feedback PASS;
+- credential sah: login PASS tanpa refresh berulang;
+- logout/refresh: PASS;
+- Password Recovery selesai dalam tempoh timeout dan SweetAlert memaparkan
+  Reference;
+- e-mel OTP diterima oleh owner.
+
+Bukti audit shared database:
+
+- masa: `2026-07-17 17:53:52`;
+- event: 9;
+- outcome: `smtp_accepted`;
+- pilot: `S1TEST-20260714`;
+- correlation: `0af02512003452fc`;
+- identifier hanya direkod sebagai SHA-256.
+
+Automated resilience contract: 11/11 PASS. UAT hotfix login dan Password
+Recovery: **COMPLETE**.
