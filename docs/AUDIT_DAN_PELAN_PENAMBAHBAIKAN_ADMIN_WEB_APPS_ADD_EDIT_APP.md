@@ -2,7 +2,7 @@
 
 **Tarikh audit:** 17 Julai 2026  
 **Owner keputusan:** Pemilik sistem OneID  
-**Status:** WA0 DIREKOD; WA1 IMPLEMENTED; WA2 COMPLETE; WA3 IMPLEMENTED; WA4 COMPLETE; WA5 COMPLETE; WA6 DIMULAKAN
+**Status:** WA0 DIREKOD; WA1 IMPLEMENTED; WA2 COMPLETE; WA3 IMPLEMENTED; WA4 COMPLETE; WA5 COMPLETE; WA6 COMPLETE
 **Skop:** `Admin > Web Apps > Add App` dan penggantian gambar melalui Edit App  
 **Bukan sebahagian daripada:** W0–W4 category lifecycle yang telah selesai
 
@@ -257,6 +257,11 @@ lulus.
 
 WA6 dimulakan sebagai reconciliation read-only per environment. Tiada fail
 boleh dikuarantin atau dipadam sebelum manifest tepat diluluskan owner.
+
+WA6 ditutup pada 17 Julai 2026 selepas manifest, hash, quarantine/restore
+rehearsal, quarantine 27 fail lama bagi setiap environment, reconciliation dan
+visual UAT local/staging lulus. Kedua-dua batch berada dalam observation 30
+hari; permanent deletion kekal memerlukan kelulusan baharu.
 
 Tiada pembetulan Web Apps/Add App, migration atau cleanup dibuat dalam WA0.
 Baseline filesystem staging dan keputusan bertanda `PENDING`/`PROPOSED` masih

@@ -1,7 +1,7 @@
 # WA6 — Reconciliation dan Cleanup Terkawal Web Apps
 
 **Tarikh mula:** 17 Julai 2026
-**Status:** INVENTORI READ-ONLY TERSEDIA — CLEANUP BELUM DIBENARKAN
+**Status:** IMPLEMENTATION COMPLETE — LOCAL/STAGING VISUAL UAT PASS; OBSERVATION 30 HARI AKTIF
 
 ## Objektif
 
@@ -124,3 +124,82 @@ Tool `tools/wa6_web_app_asset_quarantine.php`:
 Rehearsal pertama mesti menggunakan `--limit=1`, diikuti semakan reconciliation,
 restore batch dan semakan hash/reconciliation semula. Batch penuh hanya boleh
 dilaksanakan selepas rehearsal tersebut lulus.
+
+## Evidence quarantine/restore rehearsal staging — 17 Julai 2026
+
+- automated quarantine contract: 11/11 PASS;
+- dry-run memilih `app_icon_1752725496.png`, umur 365 hari, tanpa mutation;
+- quarantine batch: `20260717T171407-18a202a1`;
+- selepas quarantine: filesystem 94, missing 0, orphan candidate 30;
+- restore batch: PASS, 1 fail dipulihkan;
+- selepas restore: filesystem 95, missing 0, orphan candidate 31;
+- semua 31 calon kekal tanpa database reference selepas restore.
+
+Rehearsal move, manifest, reconciliation dan rollback: **PASS**. Gate
+quarantine penuh bagi 27 fail staging berumur minimum 30 hari dibuka berdasarkan
+kelulusan owner. Empat fail baharu kekal dilindungi dan permanent deletion
+masih tidak dibenarkan.
+
+## Evidence quarantine penuh staging — 17 Julai 2026
+
+- batch ID: `20260717T171913-77b21c8a`;
+- environment: `staging`;
+- 27 fail berumur 95 hingga 365 hari dipindahkan ke private quarantine;
+- filesystem icon files turun daripada 95 kepada 68;
+- orphan candidate turun daripada 31 kepada 4;
+- kesemua 4 baki calon tidak dirujuk database tetapi dilindungi oleh umur;
+- missing reference kekal 0;
+- database mutation: tiada;
+- permanent deletion: tidak dibenarkan.
+
+Batch penuh staging memasuki observation period 30 hari. Restore keseluruhan
+batch boleh dilakukan dengan:
+
+```bash
+php tools/wa6_web_app_asset_quarantine.php \
+  --restore=20260717T171913-77b21c8a
+```
+
+Jangan jalankan restore kecuali berlaku regression, dan jangan lakukan deletion
+selepas observation period tanpa reconciliation baharu serta kelulusan owner.
+
+## Evidence quarantine local — 17 Julai 2026
+
+- automated quarantine contract: 11/11 PASS;
+- rehearsal batch: `20260717T172452-651142b0`;
+- reconciliation selepas rehearsal: filesystem 95, missing 0, orphan 32;
+- restore rehearsal: PASS dan baseline kembali kepada filesystem 96, missing 0,
+  orphan 33;
+- batch penuh: `20260717T172513-c6ea7e4d`;
+- 27 fail berumur minimum 30 hari dipindahkan ke private quarantine;
+- selepas batch penuh: filesystem 69, missing 0, orphan candidate 6;
+- lima baki calon tidak dirujuk database tetapi dilindungi oleh umur;
+- satu baki calon mempunyai legacy global reference dan dilindungi;
+- database mutation dan permanent deletion: tiada.
+
+Rollback batch penuh local, jika regression disahkan:
+
+```bash
+php tools/wa6_web_app_asset_quarantine.php \
+  --restore=20260717T172513-c6ea7e4d
+```
+
+Quarantine teknikal local dan staging: **PASS**. Kedua-dua batch penuh memasuki
+observation period 30 hari. Visual UAT selepas quarantine perlu disahkan pada
+kedua-dua environment sebelum implementation gate ditutup; permanent deletion
+kekal memerlukan reconciliation dan kelulusan baharu selepas observation.
+
+## Visual UAT selepas quarantine — owner, 17 Julai 2026
+
+Owner mengesahkan melalui paparan Admin Web Apps bahawa:
+
+- local memaparkan ikon aplikasi bagi kategori HR dengan betul;
+- staging memaparkan ikon aplikasi bagi kategori NON SSO dengan betul;
+- jumlah 36 Web Apps dan pecahan kategori kekal dipaparkan;
+- tiada broken image atau placeholder yang tidak dijangka kelihatan.
+
+Visual UAT local/staging: **PASS**. Implementation gate WA6 ditutup. Batch local
+`20260717T172513-c6ea7e4d` dan batch staging
+`20260717T171913-77b21c8a` kekal dalam private quarantine sepanjang observation
+30 hari. Permanent deletion bukan sebahagian daripada implementation complete
+ini dan memerlukan reconciliation serta kelulusan baharu selepas tempoh tamat.
