@@ -2,7 +2,7 @@
 
 **Tarikh audit:** 17 Julai 2026  
 **Owner keputusan:** Pemilik sistem OneID  
-**Status:** WA0 DIREKOD; WA1 IMPLEMENTED; WA2 COMPLETE; WA3 IMPLEMENTED; WA4 COMPLETE; WA5 IMPLEMENTED — UAT BERBAKI
+**Status:** WA0 DIREKOD; WA1 IMPLEMENTED; WA2 COMPLETE; WA3 IMPLEMENTED; WA4 COMPLETE; WA5 COMPLETE; WA6 DIMULAKAN
 **Skop:** `Admin > Web Apps > Add App` dan penggantian gambar melalui Edit App  
 **Bukan sebahagian daripada:** W0–W4 category lifecycle yang telah selesai
 
@@ -249,6 +249,14 @@ filesystem check dan visual owner UAT WSL/staging semuanya lulus.
 WA5 normalisasi imej telah dilaksanakan menggunakan GD: input baharu didecode,
 dihadkan, ditolak jika animated dan dire-encode sebagai static 256×256 PNG.
 Rekod berada dalam `docs/WA5_NORMALISASI_DAN_KESELAMATAN_IMEJ_WEB_APPS.md`.
+
+WA5 ditutup selepas automated contract 10/10, UAT normalisasi dan paparan,
+animated GIF rejection serta filesystem isolation lulus. Manual oversized UI
+diterima owner sebagai bukan blocker kerana dimension-limit contract telah
+lulus.
+
+WA6 dimulakan sebagai reconciliation read-only per environment. Tiada fail
+boleh dikuarantin atau dipadam sebelum manifest tepat diluluskan owner.
 
 Tiada pembetulan Web Apps/Add App, migration atau cleanup dibuat dalam WA0.
 Baseline filesystem staging dan keputusan bertanda `PENDING`/`PROPOSED` masih

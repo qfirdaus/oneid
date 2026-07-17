@@ -1,7 +1,7 @@
 # WA5 — Normalisasi dan Keselamatan Imej Web Apps
 
 **Tarikh:** 17 Julai 2026
-**Status:** IMPLEMENTED — AUTOMATED CONTRACT LULUS, MANUAL UAT BERBAKI
+**Status:** COMPLETE — AUTOMATED CONTRACT DAN UAT PILOT LULUS; MANUAL OVERSIZED DITERIMA OWNER
 **Schema migration:** Tiada
 
 ## 1. Baseline dan capability
@@ -77,10 +77,61 @@ ujian. Ia tidak menulis database atau runtime upload directory.
 - `public/public_img` = `iqs:www-data`, mode `2775`;
 - write probe PHP-FPM user `www-data` = PASS.
 
-Deployment/automated gate WA5: **PASS**. Manual normalized-image UAT masih
-berbaki. Warning Git ketika tidak boleh traverse private
+Deployment/automated gate WA5: **PASS**. Pada masa deployment ini, manual
+normalized-image UAT masih berbaki dan kemudiannya dilaksanakan seperti bukti
+di bawah. Warning Git ketika tidak boleh traverse private
 `storage/runtime` diselesaikan dengan ignore directory tersebut; permission
 `0700` milik PHP-FPM tidak dilonggarkan.
+
+### Evidence UAT normalisasi staging — owner, 17 Julai 2026
+
+- app pilot: `T9U927YQ52` (`WA5 Image Normalization Pilot`);
+- environment: `staging`;
+- environment asset: `app_icon_85e087c2b544d09c1dfc3fc22f53afd8.png`;
+- asset `updated_at`: `2026-07-17 16:00:30`;
+- pemeriksaan server: `256x256 image/png`;
+- keputusan probe: `PASS WA5 normalized image`;
+- pengesahan visual owner: imej dipaparkan dengan betul tanpa distortion;
+- semakan filesystem WSL: fail staging
+  `app_icon_85e087c2b544d09c1dfc3fc22f53afd8.png` tidak wujud (`PASS`).
+
+UAT normalisasi utama WA5: **PASS**. Fail legacy WA4 yang masih berukuran
+500x500 tidak dikira kegagalan kerana WA5 tidak memigrasi aset lama secara
+automatik. Isolation staging ke WSL bagi aset pilot turut disahkan.
+
+### Evidence UAT animated GIF rejection — owner, 17 Julai 2026
+
+- input: animated GIF pada app pilot `T9U927YQ52`;
+- keputusan UI: `WA3_ICON_REJECTED`;
+- correlation ID: `2e0c5faf4b4d6137`;
+- mesej: operation rejected/rolled back dan tiada completed update direkodkan;
+- keputusan: **PASS**.
+
+Selepas ujian, rekod environment asset semasa ialah
+`app_icon_90e9bc16cc1bcfae741f41823c4031fd.png` dengan `updated_at`
+`2026-07-17 16:07:33`. Oleh sebab rekod ini berbeza daripada baseline awal,
+ia ditetapkan sebagai baseline terkini untuk pengesahan rejection oversized.
+Fail tersebut turut disahkan tidak wujud dalam filesystem WSL.
+
+### UAT imej besar dan keputusan penutupan — owner, 17 Julai 2026
+
+- satu imej yang dianggap besar oleh owner diterima kerana masih memenuhi
+  had teknikal WA5;
+- keputusan UI: `WA4_APP_UPDATED_ENVIRONMENT_ASSET`;
+- correlation ID: `1c0359a49c28f000`;
+- environment asset baharu:
+  `app_icon_2687aba7bdd0ff1f720e996088248722.png`;
+- asset `updated_at`: `2026-07-17 16:26:16`;
+- dimensi fail sumber tidak disahkan melebihi 4096px, maka percubaan ini tidak
+  diklasifikasikan sebagai PASS bagi manual oversized rejection;
+- owner tidak mempunyai fixture oversized dan menerima penutupan WA5
+  berdasarkan automated dimension-limit contract yang lulus.
+
+Keputusan penutupan WA5: **COMPLETE**. Automated contract membuktikan input
+melebihi had dimensi ditolak, manakala UAT pilot membuktikan normalisasi,
+paparan visual, animated GIF rejection dan filesystem isolation. Manual UI
+oversized rejection kekal sebagai ujian tambahan yang boleh diulang apabila
+fixture sesuai tersedia; ia bukan blocker penutupan yang dipersetujui owner.
 
 ## 7. Rollback
 

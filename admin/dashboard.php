@@ -4327,15 +4327,16 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
-      date: "2026-07-16",
+      date: "2026-07-17",
       changes: [
-        "<b>Controlled Pilot External Sync</b> berjaya melaksanakan subset terkawal 2 akaun baharu dan 1 kemas kini tanpa Deactivate atau Reactivate; Apply kemudiannya dikembalikan kepada disabled.",
-        "Backup penuh <code>oneiddb</code>, restore rehearsal dan isolated pilot rehearsal disahkan melalui checksum, row reconciliation serta cleanup database sementara tanpa mengubah sumber.",
-        "Struktur deployment memisahkan public root, konfigurasi runtime persekitaran dan secret store di dalam direktori projek tetapi di luar capaian web.",
-        "Semua notifikasi aplikasi distandardkan sebagai <b>toast top-right</b>; native alert diganti dengan toast dan tindakan berisiko menggunakan SweetAlert confirmation.",
-        "Audit Log kini menyediakan pagination 10 rekod setiap halaman serta date picker yang lebih padat dengan Apply dan Cancel di bawah kalendar.",
-        "Aset CSS legacy yang tidak digunakan dibuang daripada dashboard untuk mengurangkan warning browser tanpa mengubah Dropify, SweetAlert atau fungsi aktif.",
-        "Paparan <b>Version Releases</b> kini menggunakan accordion eksklusif: release terkini terbuka secara default dan hanya satu release dipaparkan pada satu masa."
+        "Konfigurasi SSO pentadbir diperkukuh melalui validation, audit correlation, integriti database, token lifecycle dan pemisahan polisi <b>Password Recovery</b>.",
+        "Penghantaran test email dan OTP Password Recovery telah disahkan sehingga mailbox; OTP kekal sah 5 minit dan hanya boleh digunakan sekali.",
+        "Aliran <b>Tukar Kata Laluan</b> kini memberikan feedback SweetAlert/toast yang jelas, mengesahkan password semasa dan kualiti password, merotasi session serta membatalkan session/token lain.",
+        "Halaman login memaparkan logo MyDigital ID sebagai preview tanpa mengaktifkan fungsi authentication baharu.",
+        "Admin Web Apps Add/Edit kini menggunakan validation HTTPS, App ID kriptografi, confirmation, double-submit protection, atomic persistence dan audit correlation.",
+        "Icon Web Apps disimpan mengikut environment <code>local</code>/<code>staging</code> walaupun database dikongsi; setiap filesystem kekal berasingan dan missing asset jatuh kepada placeholder.",
+        "Upload icon baharu didecode dan dinormalisasi kepada static PNG 256×256; metadata dibuang, animated image dan input melebihi had keselamatan ditolak.",
+        "WA6 menyediakan reconciliation read-only dengan SHA-256 bagi missing reference dan orphan candidate; tiada quarantine atau deletion dibenarkan tanpa kelulusan owner."
       ]
     },
     {
