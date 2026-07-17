@@ -37,3 +37,4 @@ public_img/*
 !/storage/quarantine/.gitkeep
 /storage/backups/*
 !/storage/backups/.gitkeep
+/storage/runtime/

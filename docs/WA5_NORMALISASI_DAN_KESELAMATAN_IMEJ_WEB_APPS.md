@@ -68,6 +68,20 @@ ujian. Ia tidak menulis database atau runtime upload directory.
 5. Cuba imej melebihi 4096 atau 16 MP; jangka rejection dan metadata lama kekal.
 6. Sahkan isolation WSL/staging masih kekal selepas normalized upload.
 
+### Evidence deployment staging — owner, 17 Julai 2026
+
+- fast-forward staging daripada `5104dd5` kepada `dea7278`;
+- runtime identity = `staging`;
+- PHP GD = available;
+- WA1 13/13, WA2 14/14, WA3 13/13, WA4 13/13 dan WA5 10/10 PASS;
+- `public/public_img` = `iqs:www-data`, mode `2775`;
+- write probe PHP-FPM user `www-data` = PASS.
+
+Deployment/automated gate WA5: **PASS**. Manual normalized-image UAT masih
+berbaki. Warning Git ketika tidak boleh traverse private
+`storage/runtime` diselesaikan dengan ignore directory tersebut; permission
+`0700` milik PHP-FPM tidak dilonggarkan.
+
 ## 7. Rollback
 
 Pulihkan staged upload kepada penyimpanan format asal. Tiada schema rollback.
