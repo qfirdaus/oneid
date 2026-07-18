@@ -4567,6 +4567,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
       date: "2026-07-18",
       changes: [
+        "Pengurusan kategori Web Apps kini menyediakan tindakan <b>Edit</b> untuk membetulkan nama kategori dengan validation, duplicate protection, transaction dan audit log yang wajib.",
+        "Modal Edit Category kembali ke <b>Manage Categories</b> selepas Cancel, tutup atau simpan supaya aliran kerja pentadbir kekal lancar.",
+        "Kolum nombor pada <b>External Sync Log</b> dilebarkan dan dikekalkan pada satu baris untuk menyokong nombor sehingga tiga digit.",
+        "Logo header pengguna dan pentadbir dikemas kini kepada identiti <b>UPNM 30 Tahun</b> menggunakan aset PNG tempatan tanpa kebergantungan kepada pelayan luar.",
+        "Full External Sync yang diluluskan selesai dengan reconciliation tepat: 70 New, 33 Update, 1 Deactivate dan 0 Reactivate; runtime Apply dikembalikan kepada disabled selepas operasi."
+      ]
+    },
+    {
+      version: "2.0.10",
+      date: "2026-07-18",
+      changes: [
         "Fasa <b>S4F Full External Sync</b> menyediakan endpoint dan UI Apply berasingan yang kekal disabled secara default serta hanya tersedia dalam maintenance window yang diluluskan.",
         "Full Apply diikat kepada exact New, Update, Deactivate dan Reactivate counts, full 64-character plan hash, admin session, approval sekali guna dan typed confirmation.",
         "Writer mengambil fresh external snapshot sebelum transaction, mengesahkan semula plan, menggunakan advisory lock dan mewajibkan transaction serta reconciliation audit sebelum commit.",

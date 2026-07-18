@@ -5,8 +5,8 @@
 					<div class="nav-header pull-left">
 						<div class="logo-wrap">
 							<a href="./dashboard">
-								<img class="brand-img img-responsive" src="../img/logoupnm_top.png" alt="brand"/>
-								<span class="brand-text img-responsive"><img  src="../img/logoupnm_top.png" alt="brand"/></span>
+								<img class="brand-img img-responsive" src="../img/logo_upnm_30.png" width="187" height="50" alt="Universiti Pertahanan Nasional Malaysia 30 Tahun"/>
+								<span class="brand-text img-responsive"><img src="../img/logo_upnm_30.png" width="187" height="50" alt="Universiti Pertahanan Nasional Malaysia 30 Tahun"/></span>
 							</a>
 						</div>
 					</div>	

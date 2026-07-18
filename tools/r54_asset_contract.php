@@ -90,6 +90,7 @@ $requiredAssets = [
     'public/dist/js/widgets-data.js',
     'public/img/logo_oneid.png',
     'public/img/logoupnm_2.png',
+    'public/img/logo_upnm_30.png',
     'public/public_docs/MANUAL_SALAM.pdf',
     'public/videos/video1.mp4',
     'public/vendors/bower_components/jquery/dist/jquery.min.js',
