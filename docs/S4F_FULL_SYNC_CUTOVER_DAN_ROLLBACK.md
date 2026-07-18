@@ -159,3 +159,15 @@ header status `2`, uploaded `70`, semua counts serta audit sepadan dan syslog
 marker tepat satu. Gate reconciliation S4F-11 ditutup sebagai PASS. Perbezaan
 identifier tidak menunjukkan executor berlainan dan tiada database correction
 dilakukan.
+
+## Rekod Observation dan Keputusan Akhir
+
+Observation pasca-Apply diteruskan sehingga masa yang diluluskan dan selesai
+pada 18 Julai 2026 `17:30:00 +08:00`. PHP-FPM kekal aktif, log akses dan error
+Nginx boleh dibaca, serta semakan selepas Apply mendapati `0` fatal/database
+error dan `0` marker kegagalan `ONEID_SYNC_FULL`. Tiada pendedahan data sensitif
+dikesan dan effective runtime Apply kekal disabled.
+
+Firdaus merekodkan keputusan akhir `ACCEPT` untuk change
+`ONEID-S4F-20260718-01`. Gate monitoring S4F-12 dan keputusan akhir S4F-13
+ditutup sebagai PASS; operasi Full External Sync ini selesai tanpa rollback.
