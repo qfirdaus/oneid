@@ -58,6 +58,14 @@ Hanya teruskan apabila output ialah
 6. Rekod Header dan counts daripada respons. Semak Sync Log dan log aplikasi jika
    respons gagal atau secondary audit marker memberi warning.
 
+Reconcile sesuatu batch menggunakan tool Operational, contohnya:
+
+```bash
+php tools/s4g_operational_sync_result_audit.php \
+  --header=43 --source=6485 --new=0 --update=137 \
+  --deactivate=0 --reactivate=0 --expected-admin=820705025923
+```
+
 Writer mengambil fresh snapshot sebelum transaction. Jika fingerprint/counts
 berubah selepas Preview, Apply ditolak dan Administrator mesti menjana Preview
 baharu.
