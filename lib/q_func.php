@@ -413,7 +413,11 @@ function string_sanitize($s) {
                 );
                 $baseline = $operation->sync_latest_completed_source_rows();
                 $pilotConfig = \OneId\App\Sync\SyncPilotConfig::fromEnvironment();
+                $fullConfig = \OneId\App\Sync\SyncFullConfig::fromEnvironment();
                 $runtimeConfig = \OneId\App\Sync\SyncRuntimeConfig::fromEnvironment();
+                if ($pilotConfig->enabled && $fullConfig->enabled) {
+                    throw new \RuntimeException('SYNC_MODE_CONFLICT');
+                }
                 $subsetSelector = $pilotConfig->enabled
                     ? new \OneId\App\Sync\SyncPlanSubsetSelector($pilotConfig)
                     : null;
@@ -426,7 +430,24 @@ function string_sanitize($s) {
                 $previewResponse['pilot_apply_available'] = $pilotConfig->enabled
                     && $runtimeConfig->canApply()
                     && ($previewResponse['approval_ready'] ?? false) === true;
-                if (!$previewResponse['pilot_apply_available']) {
+                $previewCounts = is_array($previewResponse['counts'] ?? null)
+                    ? $previewResponse['counts']
+                    : [];
+                $previewResponse['full_apply_available'] = $fullConfig->enabled
+                    && !$pilotConfig->enabled
+                    && $runtimeConfig->canApply()
+                    && ($previewResponse['approval_ready'] ?? false) === true
+                    && $previewCounts === $fullConfig->expectedCounts
+                    && hash_equals(
+                        $fullConfig->expectedPlanHash,
+                        (string) ($previewResponse['plan_hash'] ?? '')
+                    );
+                if ($previewResponse['full_apply_available']) {
+                    $previewResponse['full_confirmation'] = $fullConfig->confirmationText();
+                }
+                if (!$previewResponse['pilot_apply_available']
+                    && !$previewResponse['full_apply_available']
+                ) {
                     unset($previewResponse['approval_id']);
                 }
                 echo json_encode($previewResponse);
@@ -455,6 +476,114 @@ function string_sanitize($s) {
                     'can_apply' => false,
                     'code' => 'PREVIEW_FAILED',
                     'msg' => 'External sync preview could not be generated safely.',
+                    'correlation_id' => $correlationId,
+                ]);
+            }
+      }
+
+      if(isset( $_POST['admin_apply_full_sync'])){
+            try {
+                $runtimeConfig = \OneId\App\Sync\SyncRuntimeConfig::fromEnvironment();
+                $pilotConfig = \OneId\App\Sync\SyncPilotConfig::fromEnvironment();
+                $fullConfig = \OneId\App\Sync\SyncFullConfig::fromEnvironment();
+                if ($pilotConfig->enabled) {
+                    throw new \RuntimeException('SYNC_MODE_CONFLICT');
+                }
+                $confirmation = is_string($_POST['full_sync_confirmation'] ?? null)
+                    ? trim($_POST['full_sync_confirmation'])
+                    : '';
+                if (!hash_equals($fullConfig->confirmationText(), $confirmation)) {
+                    throw new \RuntimeException('SYNC_FULL_CONFIRMATION_INVALID');
+                }
+                $approvalStore = new \OneId\App\Sync\Adapters\SessionSyncApprovalStore();
+                $coordinator = (new \OneId\App\Sync\SyncEngineFactory(
+                    $operation,
+                    $runtimeConfig
+                ))->createFullCoordinator($approvalStore, $fullConfig);
+                $triggeredBy = (string) ($_SESSION['login_user'] ?? '');
+                $approvalId = is_string($_POST['sync_approval_id'] ?? null)
+                    ? trim($_POST['sync_approval_id'])
+                    : '';
+                $summary = $coordinator->run(
+                    $approvalId,
+                    $triggeredBy,
+                    $triggeredBy
+                );
+                $auditMarkerRecorded = true;
+                try {
+                    $operation->syslog_record(
+                        22,
+                        sprintf(
+                            'ADMIN_SYNC_FULL_SAFE header=%d new=%d updated=%d deactivated=%d reactivated=%d',
+                            $summary->headerId,
+                            $summary->new,
+                            $summary->updated,
+                            $summary->deactivated,
+                            $summary->reactivated
+                        ),
+                        getUserIP()
+                    );
+                } catch (\Throwable $auditException) {
+                    $auditMarkerRecorded = false;
+                    error_log(sprintf(
+                        '[ONEID_SYNC_FULL_AUDIT] header=%d exception=%s code=AUDIT_MARKER_FAILED',
+                        $summary->headerId,
+                        get_class($auditException)
+                    ));
+                }
+                echo json_encode([
+                    'status' => 1,
+                    'code' => $auditMarkerRecorded
+                        ? 'SYNC_FULL_APPLY_COMPLETED'
+                        : 'SYNC_FULL_APPLY_COMPLETED_AUDIT_WARNING',
+                    'header_id' => $summary->headerId,
+                    'audit_marker_recorded' => $auditMarkerRecorded,
+                    'counts' => [
+                        'New' => $summary->new,
+                        'Update' => $summary->updated,
+                        'Deactivate' => $summary->deactivated,
+                        'Reactivate' => $summary->reactivated,
+                    ],
+                ]);
+            } catch (\Throwable $exception) {
+                $correlationId = bin2hex(random_bytes(8));
+                $knownFullCodes = [
+                    'SYNC_APPLY_DISABLED',
+                    'SYNC_APPLY_FLAG_INVALID',
+                    'SYNC_ENGINE_INVALID',
+                    'SYNC_FLAG_COMBINATION_INVALID',
+                    'SYNC_MODE_CONFLICT',
+                    'SYNC_FULL_FLAG_INVALID',
+                    'SYNC_FULL_COUNT_INVALID',
+                    'SYNC_FULL_PLAN_HASH_INVALID',
+                    'SYNC_FULL_EMPTY_SCOPE',
+                    'SYNC_FULL_DISABLED',
+                    'SYNC_FULL_COUNT_MISMATCH',
+                    'SYNC_FULL_PLAN_MISMATCH',
+                    'SYNC_FULL_CONFIRMATION_INVALID',
+                    'SYNC_APPROVAL_INVALID',
+                    'SYNC_APPROVAL_NOT_AVAILABLE',
+                    'SYNC_APPROVAL_EXPIRED',
+                    'SYNC_APPROVAL_ADMIN_MISMATCH',
+                    'SYNC_APPROVAL_PLAN_MISMATCH',
+                    'SYNC_ALREADY_RUNNING',
+                    'SYNC_SAFETY_BLOCKED',
+                    'SYNC_RECONCILIATION_MISMATCH',
+                    'SYNC_DATABASE_WRITE_FAILED',
+                ];
+                $diagnosticCode = in_array($exception->getMessage(), $knownFullCodes, true)
+                    ? $exception->getMessage()
+                    : 'UNEXPECTED_SYNC_FULL_ERROR';
+                error_log(sprintf(
+                    '[ONEID_SYNC_FULL] correlation=%s exception=%s code=%s',
+                    $correlationId,
+                    get_class($exception),
+                    $diagnosticCode
+                ));
+                echo json_encode([
+                    'status' => 0,
+                    'code' => $diagnosticCode,
+                    'msg' => 'Full synchronization was not applied.',
                     'correlation_id' => $correlationId,
                 ]);
             }

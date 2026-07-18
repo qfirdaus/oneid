@@ -652,6 +652,11 @@
                                                          </tbody>
                                                       </table>
                                                       <p id="sync_pilot_notice" class="text-muted">Readiness preview only. Controlled Pilot Apply remains disabled.</p>
+                                                      <div id="sync_full_confirmation_group" class="form-group" style="display:none">
+                                                         <label for="sync_full_confirmation">Type the exact confirmation phrase</label>
+                                                         <input type="text" id="sync_full_confirmation" name="sync_full_confirmation" class="form-control" autocomplete="off" spellcheck="false">
+                                                         <small id="sync_full_confirmation_hint" class="text-muted"></small>
+                                                      </div>
                                                    </div>
                                                 </div>
                                              </div>
@@ -665,6 +670,7 @@
                      </div>
                      <div class="modal-footer">
                         <button type="button" id="btn_apply_sync_pilot" class="btn btn-danger waves-effect" style="display:none">Apply controlled pilot (2 New + 1 Update)</button>
+                        <button type="button" id="btn_apply_sync_full" class="btn btn-danger waves-effect" style="display:none" disabled>Apply approved full sync</button>
                         <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
                      </div>
                   </form>
@@ -3419,6 +3425,8 @@
          
          function pick_preview_sync_user(){
             var pilotApprovalId = '';
+            var fullApprovalId = '';
+            var fullConfirmation = '';
             $.ajax({
                type: 'POST',
                url: '../lib/q_func',
@@ -3446,7 +3454,9 @@
                   $('#sync_preview_new_update').text((counts.New || 0) + ' / ' + (counts.Update || 0));
                   $('#sync_preview_deactivate_reactivate').text((counts.Deactivate || 0) + ' / ' + (counts.Reactivate || 0));
                   $('#sync_preview_protected').text((response.protected_manual_users || 0) + ' / ' + (response.discarded_protected_collisions || 0));
-                  $('#sync_preview_hash_expiry').text(String(response.plan_hash || '').substring(0, 12) + '... / ' + (response.expires_at || '-'));
+                  $('#sync_preview_hash_expiry')
+                     .css({'overflow-wrap':'anywhere','word-break':'break-all'})
+                     .text(String(response.plan_hash || '-') + ' / ' + (response.expires_at || '-'));
                   $('#sync_preview_status')
                      .removeClass('badge-danger badge-warning badge-success')
                      .addClass(response.risk_level === 'blocked' ? 'badge badge-danger' : (response.risk_level === 'warning' ? 'badge badge-warning' : 'badge badge-success'))
@@ -3463,7 +3473,12 @@
                      $('<li>').text('No planner warning detected.').appendTo(warningList);
                   }
                   $('#btn_apply_sync_pilot').hide().prop('disabled', true);
+                  $('#btn_apply_sync_full').hide().prop('disabled', true);
+                  $('#sync_full_confirmation_group').hide();
+                  $('#sync_full_confirmation').val('');
                   pilotApprovalId = '';
+                  fullApprovalId = '';
+                  fullConfirmation = '';
                   if(response.pilot_apply_available === true
                      && typeof response.approval_id === 'string'
                      && response.approval_id.length === 64
@@ -3477,6 +3492,24 @@
                   } else {
                      $('#sync_pilot_notice').text('Readiness preview only. Controlled Pilot Apply remains disabled.');
                   }
+
+                  if(response.full_apply_available === true
+                     && typeof response.approval_id === 'string'
+                     && response.approval_id.length === 64
+                     && typeof response.full_confirmation === 'string'
+                     && response.full_confirmation.length > 12){
+                     fullApprovalId = response.approval_id;
+                     fullConfirmation = response.full_confirmation;
+                     $('#sync_full_confirmation_group').show();
+                     $('#sync_full_confirmation_hint').text(fullConfirmation);
+                     $('#btn_apply_sync_full').show();
+                     $('#sync_preview_status').text('READY FOR APPROVED FULL SYNC');
+                     $('#sync_pilot_notice').text('Full sync is bound to the exact approved counts and plan hash. Approval expires at ' + (response.expires_at || '-') + '.');
+                  }
+
+                  $('#sync_full_confirmation').off('input').on('input', function(){
+                     $('#btn_apply_sync_full').prop('disabled', $(this).val().trim() !== fullConfirmation);
+                  });
 
                   $('#btn_apply_sync_pilot').off('click').on('click', function(){
                      if(!pilotApprovalId){ return; }
@@ -3509,6 +3542,53 @@
                            oneidToast('Controlled pilot request failed', 'Generate a fresh preview and inspect server logs.', 'error');
                         }
                      });
+                        }
+                     );
+                  });
+
+                  $('#btn_apply_sync_full').off('click').on('click', function(){
+                     var typedConfirmation = $('#sync_full_confirmation').val().trim();
+                     if(!fullApprovalId || typedConfirmation !== fullConfirmation){ return; }
+                     var button = $(this);
+                     var summary = 'New=' + (counts.New || 0)
+                        + ', Update=' + (counts.Update || 0)
+                        + ', Deactivate=' + (counts.Deactivate || 0)
+                        + ', Reactivate=' + (counts.Reactivate || 0) + '.';
+                     oneidConfirm(
+                        'Apply approved full sync?',
+                        summary + ' The plan will be fetched and verified again before any database transaction.',
+                        'Apply full sync',
+                        function(){
+                           button.prop('disabled', true).text('Applying full sync...');
+                           $.ajax({
+                              type: 'POST',
+                              url: '../lib/q_func',
+                              dataType: 'json',
+                              data: {
+                                 admin_apply_full_sync: '',
+                                 sync_approval_id: fullApprovalId,
+                                 full_sync_confirmation: typedConfirmation
+                              },
+                              success: function(applyResponse){
+                                 fullApprovalId = '';
+                                 button.hide();
+                                 $('#sync_full_confirmation_group').hide();
+                                 if(applyResponse && applyResponse.status === 1){
+                                    var applied = applyResponse.counts || {};
+                                    var auditWarning = applyResponse.audit_marker_recorded === false ? ' Secondary audit marker failed; run reconciliation immediately.' : '';
+                                    oneidToast('Full sync committed', 'Header ' + applyResponse.header_id + '; New=' + (applied.New || 0) + ', Update=' + (applied.Update || 0) + ', Deactivate=' + (applied.Deactivate || 0) + ', Reactivate=' + (applied.Reactivate || 0) + '.' + auditWarning, applyResponse.audit_marker_recorded === false ? 'warning' : 'success', {hideAfter: 10000});
+                                 } else {
+                                    var code = applyResponse && applyResponse.code ? applyResponse.code : 'SYNC_FULL_APPLY_FAILED';
+                                    oneidToast('Full sync was not applied', 'Code: ' + code + '. Generate a fresh preview and review the plan.', 'error', {hideAfter: 8000});
+                                 }
+                              },
+                              error: function(){
+                                 fullApprovalId = '';
+                                 button.hide();
+                                 $('#sync_full_confirmation_group').hide();
+                                 oneidToast('Full sync request failed', 'No success has been assumed. Inspect server logs before generating another preview.', 'error', {hideAfter: 8000});
+                              }
+                           });
                         }
                      );
                   });
@@ -4399,6 +4479,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-18",
+      changes: [
+        "Fasa <b>S4F Full External Sync</b> menyediakan endpoint dan UI Apply berasingan yang kekal disabled secara default serta hanya tersedia dalam maintenance window yang diluluskan.",
+        "Full Apply diikat kepada exact New, Update, Deactivate dan Reactivate counts, full 64-character plan hash, admin session, approval sekali guna dan typed confirmation.",
+        "Writer mengambil fresh external snapshot sebelum transaction, mengesahkan semula plan, menggunakan advisory lock dan mewajibkan transaction serta reconciliation audit sebelum commit.",
+        "Preflight, post-run result audit, characterization contract, cutover/rollback runbook dan gate register ditambah untuk operasi full sync yang fail-closed.",
+        "Semakan private menerima 33 Update dan 1 Deactivate; backup baharu disahkan melalui checksum serta isolated restore 18 jadual tanpa mengubah source database."
+      ]
+    },
+    {
+      version: "2.0.9",
       date: "2026-07-18",
       changes: [
         "Keserasian Chrome dan Firefox dipertingkat dengan atribut <b>autocomplete</b>, username tersembunyi serta identiti medan yang lengkap untuk login, password recovery, OTP dan pertukaran kata laluan.",

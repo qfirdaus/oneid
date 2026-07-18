@@ -100,6 +100,7 @@ function oneid_q_func_action_map(): array
             'admin_search_user_account',
             'admin_preview_sync_user',
             'admin_add_sync_user',
+            'admin_apply_full_sync',
             'admin_get_get_specific_user_profile_info',
             'action_add_new_user_manual_check_user_id',
             'admin_preview_specific_user_resync',

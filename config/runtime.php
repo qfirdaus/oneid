@@ -30,6 +30,13 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_SYNC_PILOT_UPDATE_LIMIT' => '1',
         'ONEID_SYNC_PILOT_DEACTIVATE_LIMIT' => '0',
         'ONEID_SYNC_PILOT_REACTIVATE_LIMIT' => '0',
+        // Full sync requires environment-private exact counts and a 64-char plan hash.
+        'ONEID_SYNC_FULL_ENABLED' => 'false',
+        'ONEID_SYNC_FULL_EXPECTED_NEW' => '0',
+        'ONEID_SYNC_FULL_EXPECTED_UPDATE' => '0',
+        'ONEID_SYNC_FULL_EXPECTED_DEACTIVATE' => '0',
+        'ONEID_SYNC_FULL_EXPECTED_REACTIVATE' => '0',
+        'ONEID_SYNC_FULL_EXPECTED_PLAN_HASH' => '',
         'ONEID_SYNC_TRIGGERED_BY' => 'Sync Agent',
     ];
     static $local = null;

@@ -30,6 +30,8 @@ foreach ([
     'app/Sync/ApprovedSyncCoordinator.php',
     'app/Sync/SyncRuntimeConfig.php',
     'app/Sync/SyncPilotConfig.php',
+    'app/Sync/SyncFullConfig.php',
+    'app/Sync/FullSyncApprovalGate.php',
     'app/Sync/SyncPlanSubsetSelector.php',
     'app/Sync/Adapters/ExternalApiUserSource.php',
     'app/Sync/Adapters/DatabaseSyncPersistenceAdapter.php',
