@@ -23,6 +23,7 @@
     "check:user-provisioning": "php tools/s1_user_provisioning_contract.php",
     "check:sync-preview": "php tools/s2_sync_preview_contract.php",
     "check:sync-safety": "php tools/s3_sync_safety_contract.php",
+    "check:sync-operational": "php tools/s4g_operational_sync_contract.php",
     "check:sync-wiring": "php tools/s4a_sync_wiring_contract.php",
     "check:sync-approval": "php tools/s4b_sync_approval_contract.php",
     "check:sync-coordinator": "php tools/s4c_sync_coordinator_contract.php",

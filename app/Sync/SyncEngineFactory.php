@@ -71,6 +71,30 @@ final class SyncEngineFactory
         );
     }
 
+    public function createOperationalCoordinator(
+        SyncApprovalStoreInterface $approvalStore,
+        SyncOperationalConfig $operationalConfig,
+        string $confirmation
+    ): ApprovedSyncCoordinator {
+        if (!$this->config->canApply()) {
+            throw new RuntimeException('SYNC_APPLY_DISABLED');
+        }
+        if (!$operationalConfig->enabled) {
+            throw new RuntimeException('SYNC_OPERATIONAL_DISABLED');
+        }
+        $fingerprinter = new SyncPlanFingerprinter();
+        $approvalService = new SyncApprovalService($approvalStore, $fingerprinter);
+
+        return new ApprovedSyncCoordinator(
+            $this->buildSafeOrchestrator(),
+            new OperationalSyncApprovalGate(
+                $approvalService,
+                $operationalConfig,
+                $confirmation
+            )
+        );
+    }
+
     private function buildSafeOrchestrator(?SyncPlanSubsetSelector $selector = null): SafeSyncOrchestrator
     {
         return new SafeSyncOrchestrator(

@@ -433,8 +433,13 @@ function string_sanitize($s) {
                 $baseline = $operation->sync_latest_completed_source_rows();
                 $pilotConfig = \OneId\App\Sync\SyncPilotConfig::fromEnvironment();
                 $fullConfig = \OneId\App\Sync\SyncFullConfig::fromEnvironment();
+                $operationalConfig = \OneId\App\Sync\SyncOperationalConfig::fromEnvironment();
                 $runtimeConfig = \OneId\App\Sync\SyncRuntimeConfig::fromEnvironment();
-                if ($pilotConfig->enabled && $fullConfig->enabled) {
+                if (count(array_filter([
+                    $pilotConfig->enabled,
+                    $fullConfig->enabled,
+                    $operationalConfig->enabled,
+                ])) > 1) {
                     throw new \RuntimeException('SYNC_MODE_CONFLICT');
                 }
                 $subsetSelector = $pilotConfig->enabled
@@ -461,11 +466,24 @@ function string_sanitize($s) {
                         $fullConfig->expectedPlanHash,
                         (string) ($previewResponse['plan_hash'] ?? '')
                     );
+                $previewResponse['operational_apply_available'] = $operationalConfig->enabled
+                    && !$pilotConfig->enabled
+                    && !$fullConfig->enabled
+                    && $runtimeConfig->canApply()
+                    && ($previewResponse['approval_ready'] ?? false) === true
+                    && array_sum($previewCounts) > 0;
                 if ($previewResponse['full_apply_available']) {
                     $previewResponse['full_confirmation'] = $fullConfig->confirmationText();
                 }
+                if ($previewResponse['operational_apply_available']) {
+                    $previewResponse['operational_confirmation'] = $operationalConfig->confirmationText(
+                        (string) ($previewResponse['plan_hash'] ?? ''),
+                        $previewCounts
+                    );
+                }
                 if (!$previewResponse['pilot_apply_available']
                     && !$previewResponse['full_apply_available']
+                    && !$previewResponse['operational_apply_available']
                 ) {
                     unset($previewResponse['approval_id']);
                 }
@@ -495,6 +513,112 @@ function string_sanitize($s) {
                     'can_apply' => false,
                     'code' => 'PREVIEW_FAILED',
                     'msg' => 'External sync preview could not be generated safely.',
+                    'correlation_id' => $correlationId,
+                ]);
+            }
+      }
+
+      if(isset( $_POST['admin_apply_operational_sync'])){
+            try {
+                $runtimeConfig = \OneId\App\Sync\SyncRuntimeConfig::fromEnvironment();
+                $pilotConfig = \OneId\App\Sync\SyncPilotConfig::fromEnvironment();
+                $fullConfig = \OneId\App\Sync\SyncFullConfig::fromEnvironment();
+                $operationalConfig = \OneId\App\Sync\SyncOperationalConfig::fromEnvironment();
+                if ($pilotConfig->enabled || $fullConfig->enabled) {
+                    throw new \RuntimeException('SYNC_MODE_CONFLICT');
+                }
+                $confirmation = is_string($_POST['operational_sync_confirmation'] ?? null)
+                    ? trim($_POST['operational_sync_confirmation'])
+                    : '';
+                $approvalStore = new \OneId\App\Sync\Adapters\SessionSyncApprovalStore();
+                $coordinator = (new \OneId\App\Sync\SyncEngineFactory(
+                    $operation,
+                    $runtimeConfig
+                ))->createOperationalCoordinator(
+                    $approvalStore,
+                    $operationalConfig,
+                    $confirmation
+                );
+                $triggeredBy = (string) ($_SESSION['login_user'] ?? '');
+                $approvalId = is_string($_POST['sync_approval_id'] ?? null)
+                    ? trim($_POST['sync_approval_id'])
+                    : '';
+                $summary = $coordinator->run(
+                    $approvalId,
+                    $triggeredBy,
+                    $triggeredBy
+                );
+                $auditMarkerRecorded = true;
+                try {
+                    $operation->syslog_record(
+                        22,
+                        sprintf(
+                            'ADMIN_SYNC_OPERATIONAL_SAFE header=%d new=%d updated=%d deactivated=%d reactivated=%d',
+                            $summary->headerId,
+                            $summary->new,
+                            $summary->updated,
+                            $summary->deactivated,
+                            $summary->reactivated
+                        ),
+                        getUserIP()
+                    );
+                } catch (\Throwable $auditException) {
+                    $auditMarkerRecorded = false;
+                    error_log(sprintf(
+                        '[ONEID_SYNC_OPERATIONAL_AUDIT] header=%d exception=%s code=AUDIT_MARKER_FAILED',
+                        $summary->headerId,
+                        get_class($auditException)
+                    ));
+                }
+                echo json_encode([
+                    'status' => 1,
+                    'code' => $auditMarkerRecorded
+                        ? 'SYNC_OPERATIONAL_APPLY_COMPLETED'
+                        : 'SYNC_OPERATIONAL_APPLY_COMPLETED_AUDIT_WARNING',
+                    'header_id' => $summary->headerId,
+                    'audit_marker_recorded' => $auditMarkerRecorded,
+                    'counts' => [
+                        'New' => $summary->new,
+                        'Update' => $summary->updated,
+                        'Deactivate' => $summary->deactivated,
+                        'Reactivate' => $summary->reactivated,
+                    ],
+                ]);
+            } catch (\Throwable $exception) {
+                $correlationId = bin2hex(random_bytes(8));
+                $knownOperationalCodes = [
+                    'SYNC_APPLY_DISABLED',
+                    'SYNC_APPLY_FLAG_INVALID',
+                    'SYNC_ENGINE_INVALID',
+                    'SYNC_FLAG_COMBINATION_INVALID',
+                    'SYNC_MODE_CONFLICT',
+                    'SYNC_OPERATIONAL_FLAG_INVALID',
+                    'SYNC_OPERATIONAL_DISABLED',
+                    'SYNC_OPERATIONAL_PLAN_HASH_INVALID',
+                    'SYNC_OPERATIONAL_CONFIRMATION_INVALID',
+                    'SYNC_APPROVAL_INVALID',
+                    'SYNC_APPROVAL_NOT_AVAILABLE',
+                    'SYNC_APPROVAL_EXPIRED',
+                    'SYNC_APPROVAL_ADMIN_MISMATCH',
+                    'SYNC_APPROVAL_PLAN_MISMATCH',
+                    'SYNC_ALREADY_RUNNING',
+                    'SYNC_SAFETY_BLOCKED',
+                    'SYNC_RECONCILIATION_MISMATCH',
+                    'SYNC_DATABASE_WRITE_FAILED',
+                ];
+                $diagnosticCode = in_array($exception->getMessage(), $knownOperationalCodes, true)
+                    ? $exception->getMessage()
+                    : 'UNEXPECTED_SYNC_OPERATIONAL_ERROR';
+                error_log(sprintf(
+                    '[ONEID_SYNC_OPERATIONAL] correlation=%s exception=%s code=%s',
+                    $correlationId,
+                    get_class($exception),
+                    $diagnosticCode
+                ));
+                echo json_encode([
+                    'status' => 0,
+                    'code' => $diagnosticCode,
+                    'msg' => 'Operational synchronization was not applied.',
                     'correlation_id' => $correlationId,
                 ]);
             }

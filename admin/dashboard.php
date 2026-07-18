@@ -695,6 +695,7 @@
                      <div class="modal-footer">
                         <button type="button" id="btn_apply_sync_pilot" class="btn btn-danger waves-effect" style="display:none">Apply controlled pilot (2 New + 1 Update)</button>
                         <button type="button" id="btn_apply_sync_full" class="btn btn-danger waves-effect" style="display:none" disabled>Apply approved full sync</button>
+                        <button type="button" id="btn_apply_sync_operational" class="btn btn-primary waves-effect" style="display:none" disabled>Apply operational sync</button>
                         <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
                      </div>
                   </form>
@@ -3513,6 +3514,8 @@
             var pilotApprovalId = '';
             var fullApprovalId = '';
             var fullConfirmation = '';
+            var operationalApprovalId = '';
+            var operationalConfirmation = '';
             $.ajax({
                type: 'POST',
                url: '../lib/q_func',
@@ -3560,11 +3563,14 @@
                   }
                   $('#btn_apply_sync_pilot').hide().prop('disabled', true);
                   $('#btn_apply_sync_full').hide().prop('disabled', true);
+                  $('#btn_apply_sync_operational').hide().prop('disabled', true);
                   $('#sync_full_confirmation_group').hide();
                   $('#sync_full_confirmation').val('');
                   pilotApprovalId = '';
                   fullApprovalId = '';
                   fullConfirmation = '';
+                  operationalApprovalId = '';
+                  operationalConfirmation = '';
                   if(response.pilot_apply_available === true
                      && typeof response.approval_id === 'string'
                      && response.approval_id.length === 64
@@ -3593,8 +3599,26 @@
                      $('#sync_pilot_notice').text('Full sync is bound to the exact approved counts and plan hash. Approval expires at ' + (response.expires_at || '-') + '.');
                   }
 
+                  if(response.operational_apply_available === true
+                     && typeof response.approval_id === 'string'
+                     && response.approval_id.length === 64
+                     && typeof response.operational_confirmation === 'string'
+                     && response.operational_confirmation.length > 12){
+                     operationalApprovalId = response.approval_id;
+                     operationalConfirmation = response.operational_confirmation;
+                     $('#sync_full_confirmation_group').show();
+                     $('#sync_full_confirmation_hint').text(operationalConfirmation);
+                     $('#btn_apply_sync_operational').show();
+                     $('#sync_preview_status').text((counts.Deactivate || 0) > 0
+                        ? 'READY FOR OPERATIONAL SYNC — DEACTIVATION CONFIRMATION REQUIRED'
+                        : 'READY FOR OPERATIONAL SYNC');
+                     $('#sync_pilot_notice').text('Operational approval is bound to this exact fresh plan and expires at ' + (response.expires_at || '-') + '.');
+                  }
+
                   $('#sync_full_confirmation').off('input').on('input', function(){
-                     $('#btn_apply_sync_full').prop('disabled', $(this).val().trim() !== fullConfirmation);
+                     var typed = $(this).val().trim();
+                     $('#btn_apply_sync_full').prop('disabled', typed !== fullConfirmation);
+                     $('#btn_apply_sync_operational').prop('disabled', typed !== operationalConfirmation);
                   });
 
                   $('#btn_apply_sync_pilot').off('click').on('click', function(){
@@ -3673,6 +3697,53 @@
                                  button.hide();
                                  $('#sync_full_confirmation_group').hide();
                                  oneidToast('Full sync request failed', 'No success has been assumed. Inspect server logs before generating another preview.', 'error', {hideAfter: 8000});
+                              }
+                           });
+                        }
+                     );
+                  });
+
+                  $('#btn_apply_sync_operational').off('click').on('click', function(){
+                     var typedConfirmation = $('#sync_full_confirmation').val().trim();
+                     if(!operationalApprovalId || typedConfirmation !== operationalConfirmation){ return; }
+                     var button = $(this);
+                     var summary = 'New=' + (counts.New || 0)
+                        + ', Update=' + (counts.Update || 0)
+                        + ', Deactivate=' + (counts.Deactivate || 0)
+                        + ', Reactivate=' + (counts.Reactivate || 0) + '.';
+                     oneidConfirm(
+                        'Apply operational sync?',
+                        summary + ' A fresh plan will be verified again before the transaction. This approval can be used once only.',
+                        'Apply sync',
+                        function(){
+                           button.prop('disabled', true).text('Applying operational sync...');
+                           $.ajax({
+                              type: 'POST',
+                              url: '../lib/q_func',
+                              dataType: 'json',
+                              data: {
+                                 admin_apply_operational_sync: '',
+                                 sync_approval_id: operationalApprovalId,
+                                 operational_sync_confirmation: typedConfirmation
+                              },
+                              success: function(applyResponse){
+                                 operationalApprovalId = '';
+                                 button.hide();
+                                 $('#sync_full_confirmation_group').hide();
+                                 if(applyResponse && applyResponse.status === 1){
+                                    var applied = applyResponse.counts || {};
+                                    var auditWarning = applyResponse.audit_marker_recorded === false ? ' Secondary audit marker failed; run reconciliation immediately.' : '';
+                                    oneidToast('Operational sync committed', 'Header ' + applyResponse.header_id + '; New=' + (applied.New || 0) + ', Update=' + (applied.Update || 0) + ', Deactivate=' + (applied.Deactivate || 0) + ', Reactivate=' + (applied.Reactivate || 0) + '.' + auditWarning, applyResponse.audit_marker_recorded === false ? 'warning' : 'success', {hideAfter: 10000});
+                                 } else {
+                                    var code = applyResponse && applyResponse.code ? applyResponse.code : 'SYNC_OPERATIONAL_APPLY_FAILED';
+                                    oneidToast('Operational sync was not applied', 'Code: ' + code + '. Generate a fresh preview before retrying.', 'error', {hideAfter: 8000});
+                                 }
+                              },
+                              error: function(){
+                                 operationalApprovalId = '';
+                                 button.hide();
+                                 $('#sync_full_confirmation_group').hide();
+                                 oneidToast('Operational sync request failed', 'No success has been assumed. Inspect server logs before generating another preview.', 'error', {hideAfter: 8000});
                               }
                            });
                         }
@@ -4565,6 +4636,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-18",
+      changes: [
+        "<b>Operational External Sync</b> membolehkan Administrator menjalankan Apply berulang selepas fresh preview tanpa count/hash private baharu atau full database dump bagi setiap batch biasa.",
+        "Setiap Apply kekal diikat kepada approval session sekali guna, exact plan fingerprint, admin aktif dan expiry 5 minit; fresh snapshot mesti sepadan sebelum transaction bermula.",
+        "Plan yang mempunyai Deactivate memerlukan typed confirmation dengan exact Deactivate count, manakala source anomaly, collision, invalid rows dan blast-radius threshold terus menyekat Apply.",
+        "Writer selamat mengekalkan advisory lock, transaction, reconciliation dan audit marker; Operational, Pilot dan Full Cutover tidak boleh aktif serentak.",
+        "Preflight dan runbook S4G ditambah untuk activation sekali sahaja, operasi setiap batch, backup berjadual serta disable segera melalui private runtime."
+      ]
+    },
+    {
+      version: "2.0.11",
       date: "2026-07-18",
       changes: [
         "Pengurusan kategori Web Apps kini menyediakan tindakan <b>Edit</b> untuk membetulkan nama kategori dengan validation, duplicate protection, transaction dan audit log yang wajib.",
