@@ -2543,6 +2543,10 @@
             $('#modal_edit_webapp_category').modal('show');
            });
 
+           $('#modal_edit_webapp_category').on('hidden.bs.modal', function(){
+            open_manage_webapp_categories();
+           });
+
            $('#form_edit_webapp_category').on('submit', function(event){
             event.preventDefault();
             var categoryId = $('#edit_webapp_category_id').val();
@@ -2571,7 +2575,6 @@
                            $('#modal_edit_webapp_category').modal('hide');
                            oneidToast('Category renamed', 'The category name was updated. Reference: ' + response.correlation_id, 'success');
                            get_service_provider_list();
-                           open_manage_webapp_categories();
                            return;
                         }
                         oneidToast('Category not renamed', 'Code: ' + (response.code || 'W5_REQUEST_FAILED') + '. Reference: ' + (response.correlation_id || 'Unavailable'), 'error');

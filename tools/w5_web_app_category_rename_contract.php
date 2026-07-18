@@ -13,6 +13,7 @@ $report(str_contains($service,'admin_rename_app_category')&&str_contains($servic
 $report(str_contains($db,'UPDATE sp_group SET sp_group_name=:name')&&str_contains($db,'sp_group_id<>0'),'database rename is prepared and system category protected');
 $report(str_contains($endpoint,'$service->rename(')&&str_contains($endpoint,"'Application category was not renamed.'"),'runtime delegates rename to hardened service');
 $report(str_contains($ui,'category-manage-edit')&&str_contains($ui,'fa fa-pencil')&&str_contains($ui,'action_rename_webapp_category'),'category manager renders edit icon and guarded AJAX action');
+$report(str_contains($ui,"$('#modal_edit_webapp_category').on('hidden.bs.modal'")&&str_contains($ui,'open_manage_webapp_categories();'),'closing category editor returns to category manager');
 $report(str_contains($ui,'webAppManagementAttribute')&&str_contains($ui,"'&quot;'"),'category names are attribute encoded');
 exec(escapeshellarg(PHP_BINARY).' '.escapeshellarg($root.'/tests/characterization/w5_safe_app_category_rename.php'),$output,$code);
 $report($code===0&&in_array('RESULT checks=9 failed=0',$output,true),'rename characterization passes');
