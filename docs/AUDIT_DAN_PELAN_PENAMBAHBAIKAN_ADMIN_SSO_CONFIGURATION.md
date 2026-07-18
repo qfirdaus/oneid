@@ -2,7 +2,7 @@
 
 **Tarikh audit:** 16 Julai 2026  
 **Skop:** Halaman Administrator — SSO Configuration  
-**Status:** AUDITED — FASA 0 HINGGA FASA 6 DILAKSANAKAN  
+**Status:** AUDITED — FASA 0 HINGGA FASA 6 DILAKSANAKAN; FASA 7 HINGGA FASA 8 DITANGGUHKAN OLEH OWNER
 **Jenis kerja:** Audit, remediasi berfasa dan UAT terkawal
 
 ## 1. Tujuan
@@ -19,6 +19,9 @@ Dokumen ini merekodkan:
 Dokumen ini bukan kebenaran untuk mengubah protocol token, database, polisi
 authentication atau consumer SSO. Perubahan tersebut tertakluk kepada keputusan
 owner dan change control.
+
+Keputusan penangguhan, task pending dan gate untuk menyambung SC7 hingga SC8
+direkod dalam `docs/SC7_SC8_PENDING_CONFIGURATION_HANDOFF.md`.
 
 ## 2. Ringkasan Eksekutif
 
@@ -451,6 +454,9 @@ check dan fail-closed behavior yang jelas.
 
 ### Fasa 7 — Admin Step-Up 2FA dan authorization khusus
 
+**Status:** DEFERRED BY OWNER pada 18 Julai 2026. Tiada feature flag, schema,
+challenge atau enforcement Step-Up/TOTP diaktifkan. Rujuk handoff SC7-SC8.
+
 **Objektif:** Melindungi konfigurasi keselamatan daripada session admin yang
 dicuri.
 
@@ -475,6 +481,10 @@ apabila kawalan diaktifkan; kedua-dua kaedah disahkan server-side dan kegagalan
 satu faktor tidak menghasilkan bypass faktor yang lain.
 
 ### Fasa 8 — UAT, controlled rollout dan monitoring
+
+**Status:** DEFERRED BY OWNER pada 18 Julai 2026. UAT khusus SC0-SC6 yang telah
+lulus kekal sah, tetapi consolidated monitoring, Step-Up rollout dan keputusan
+scheduler revocation belum ditutup. Rujuk handoff SC7-SC8.
 
 **Objektif:** Melaksanakan perubahan tanpa outage consumer atau lockout admin.
 
