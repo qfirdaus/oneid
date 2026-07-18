@@ -19,6 +19,7 @@
     "check:user-profile-acl": "php tools/m3_profile_acl_contract.php",
     "check:user-dashboard": "php tools/u1_user_dashboard_contract.php",
     "check:web-app-management": "php tools/w4_web_app_management_contract.php",
+    "check:web-app-category-rename": "php tools/w5_web_app_category_rename_contract.php",
     "check:user-provisioning": "php tools/s1_user_provisioning_contract.php",
     "check:sync-preview": "php tools/s2_sync_preview_contract.php",
     "check:sync-safety": "php tools/s3_sync_safety_contract.php",

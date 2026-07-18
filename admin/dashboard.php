@@ -293,6 +293,30 @@
             </div>
          </div>
 
+         <div id="modal_edit_webapp_category" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_edit_webapp_category" aria-hidden="true">
+            <div class="modal-dialog">
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                     <h5 class="modal-title" id="aria_modal_edit_webapp_category">Edit Application Category</h5>
+                  </div>
+                  <form id="form_edit_webapp_category">
+                     <div class="modal-body">
+                        <input type="hidden" id="edit_webapp_category_id" name="app_category_id">
+                        <div class="form-group">
+                           <label class="control-label mb-10" for="edit_webapp_category_name">Category title</label>
+                           <input type="text" class="form-control" id="edit_webapp_category_name" name="app_category_name" maxlength="100" autocomplete="off" required>
+                        </div>
+                     </div>
+                     <div class="modal-footer">
+                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary waves-effect" id="btn_save_webapp_category">Save changes</button>
+                     </div>
+                  </form>
+               </div>
+            </div>
+         </div>
+
 
 
          <div id="modal_edit_app" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_edit_app" aria-hidden="true">
@@ -2459,6 +2483,12 @@
             return $('<div>').text(value == null ? '' : String(value)).html();
            }
 
+           function webAppManagementAttribute(value){
+            return String(value == null ? '' : value).replace(/[&<>"']/g, function(character){
+               return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character];
+            });
+           }
+
            function open_manage_webapp_categories(){
             $('#modal_manage_webapp_categories').modal('show');
             $('#category_manage_loading').show();
@@ -2477,8 +2507,9 @@
                   }
                   var rows = '';
                   $.each(response, function(_, category){
-                     var categoryId = webAppManagementText(category.sp_group_id);
+                     var categoryId = webAppManagementAttribute(category.sp_group_id);
                      var categoryName = webAppManagementText(category.sp_group_name);
+                     var categoryNameAttribute = webAppManagementAttribute(category.sp_group_name);
                      var activeCount = Number(category.active_count || 0);
                      var inactiveCount = Number(category.inactive_count || 0);
                      var assignedCount = Number(category.assigned_count || 0);
@@ -2490,7 +2521,10 @@
                      rows += '<div class="category-manage-row">';
                      rows += '<div class="category-manage-name"><strong title="'+categoryName+'">'+categoryName+'</strong><small>'+webAppManagementText(reason)+'</small></div>';
                      rows += '<div class="category-manage-counts"><span><strong>'+activeCount+'</strong><small>Active</small></span><span><strong>'+inactiveCount+'</strong><small>Inactive</small></span></div>';
-                     rows += '<button type="button" class="category-manage-remove" data-category-id="'+categoryId+'" data-category-name="'+categoryName+'" '+(canRemove ? '' : 'disabled')+' title="'+(canRemove ? 'Remove empty category' : webAppManagementText(reason))+'" aria-label="'+(canRemove ? 'Remove '+categoryName : webAppManagementText(reason))+'"><i class="fa fa-trash" aria-hidden="true"></i></button>';
+                     rows += '<div class="category-manage-actions">';
+                     rows += '<button type="button" class="category-manage-edit" data-category-id="'+categoryId+'" data-category-name="'+categoryNameAttribute+'" '+(isSystem ? 'disabled' : '')+' title="'+(isSystem ? 'System category — protected' : 'Edit category name')+'" aria-label="'+(isSystem ? 'System category — protected' : 'Edit '+categoryNameAttribute)+'"><i class="fa fa-pencil" aria-hidden="true"></i></button>';
+                     rows += '<button type="button" class="category-manage-remove" data-category-id="'+categoryId+'" data-category-name="'+categoryNameAttribute+'" '+(canRemove ? '' : 'disabled')+' title="'+(canRemove ? 'Remove empty category' : webAppManagementAttribute(reason))+'" aria-label="'+(canRemove ? 'Remove '+categoryNameAttribute : webAppManagementAttribute(reason))+'"><i class="fa fa-trash" aria-hidden="true"></i></button>';
+                     rows += '</div>';
                      rows += '</div>';
                   });
                   $('#category_manage_list').html(rows);
@@ -2501,6 +2535,55 @@
                }
             });
            }
+
+           $(document).on('click', '.category-manage-edit:not(:disabled)', function(){
+            $('#edit_webapp_category_id').val(String($(this).data('category-id') || ''));
+            $('#edit_webapp_category_name').val(String($(this).data('category-name') || ''));
+            $('#modal_manage_webapp_categories').modal('hide');
+            $('#modal_edit_webapp_category').modal('show');
+           });
+
+           $('#form_edit_webapp_category').on('submit', function(event){
+            event.preventDefault();
+            var categoryId = $('#edit_webapp_category_id').val();
+            var categoryName = $('#edit_webapp_category_name').val().replace(/\s+/g, ' ').trim();
+            if (!categoryName || categoryName.length > 100) {
+               oneidToast('Category not renamed', 'Enter a category title between 1 and 100 characters.', 'error');
+               return;
+            }
+            oneidConfirm(
+               'Rename application category?',
+               'Save the category name as "' + categoryName + '"? Assigned applications will remain in this category.',
+               'Save changes',
+               function(){
+                  var button = $('#btn_save_webapp_category').prop('disabled', true);
+                  $.ajax({
+                     type: 'POST',
+                     url: '../lib/q_func',
+                     dataType: 'json',
+                     data: {
+                        action_rename_webapp_category: '',
+                        app_category_id: categoryId,
+                        app_category_name: categoryName
+                     },
+                     success: function(response){
+                        if (Number(response.status) === 1 && response.code === 'W5_CATEGORY_RENAMED') {
+                           $('#modal_edit_webapp_category').modal('hide');
+                           oneidToast('Category renamed', 'The category name was updated. Reference: ' + response.correlation_id, 'success');
+                           get_service_provider_list();
+                           open_manage_webapp_categories();
+                           return;
+                        }
+                        oneidToast('Category not renamed', 'Code: ' + (response.code || 'W5_REQUEST_FAILED') + '. Reference: ' + (response.correlation_id || 'Unavailable'), 'error');
+                     },
+                     error: function(xhr){
+                        oneidToast('Category not renamed', 'The server request failed. HTTP ' + xhr.status + '.', 'error');
+                     },
+                     complete: function(){ button.prop('disabled', false); }
+                  });
+               }
+            );
+           });
 
            $(document).on('click', '.category-manage-remove:not(:disabled)', function(){
             var categoryId = String($(this).data('category-id') || '');
@@ -5329,6 +5412,12 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         text-transform: uppercase;
       }
 
+      .category-manage-actions {
+        display: flex;
+        gap: 6px;
+      }
+
+      .category-manage-edit,
       .category-manage-remove {
         display: inline-flex;
         align-items: center;
@@ -5342,6 +5431,12 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         color: #c85b52;
       }
 
+      .category-manage-edit {
+        border-color: #b8dff0;
+        color: #087eaf;
+      }
+
+      .category-manage-edit:disabled,
       .category-manage-remove:disabled {
         border-color: #e3e8ed;
         background: #f5f7f9;

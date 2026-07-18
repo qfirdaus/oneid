@@ -348,6 +348,25 @@ function string_sanitize($s) {
         }
       }
 
+      if(isset( $_POST['action_rename_webapp_category'])){
+        try {
+          $service = new \OneId\App\Admin\WebAppCategoryService($operation);
+          echo json_encode($service->rename(
+            (string) ($_POST['app_category_id'] ?? ''),
+            (string) ($_POST['app_category_name'] ?? ''),
+            (string) $_SESSION['login_user'],
+            getUserIP()
+          ));
+        } catch (\OneId\App\Admin\WebAppManagementException $exception) {
+          echo json_encode([
+            'status'=>0,
+            'code'=>$exception->reason,
+            'msg'=>'Application category was not renamed.',
+            'correlation_id'=>$exception->correlationId,
+          ]);
+        }
+      }
+
 
       if(isset( $_POST['action_add_new_app'])){
         try {

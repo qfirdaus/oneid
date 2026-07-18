@@ -952,11 +952,29 @@ class Database {
         return $R->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function admin_find_other_app_category_by_name_for_update(string $name, int $categoryId): array|false{
+        $Q = "SELECT sp_group_id,sp_group_name FROM sp_group
+              WHERE LOWER(TRIM(sp_group_name))=LOWER(TRIM(:name))
+                AND sp_group_id<>:category_id
+              LIMIT 1 FOR UPDATE";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':name'=>$name, ':category_id'=>$categoryId]);
+        return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function admin_create_app_category(string $name): int{
         $Q = "INSERT INTO sp_group(sp_group_name,sp_group_seq)
               VALUES (:name,COALESCE((SELECT MAX(sequence_value)+1 FROM (SELECT sp_group_seq AS sequence_value FROM sp_group) seq),1))";
         $R = $this->pdo->prepare($Q);
         $R->execute([':name'=>$name]);
+        return $R->rowCount();
+    }
+
+    public function admin_rename_app_category(int $categoryId, string $name): int{
+        $Q = "UPDATE sp_group SET sp_group_name=:name
+              WHERE sp_group_id=:category_id AND sp_group_id<>0";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':name'=>$name, ':category_id'=>$categoryId]);
         return $R->rowCount();
     }
 

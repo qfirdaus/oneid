@@ -94,6 +94,7 @@ function oneid_q_func_action_map(): array
             'test_password_recovery_email',
             'preview_configuration_update',
             'action_add_new_webapp_category',
+            'action_rename_webapp_category',
             'action_remove_app_category',
             'action_add_new_app',
             'action_edit_app_info',
