@@ -4861,6 +4861,16 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
       date: "2026-07-19",
       changes: [
+        "Audit induk Admin Step-Up 2FA kini menyatukan keperluan Configuration, SC7-SC8, Password Recovery, token lifecycle dan Active Sessions.",
+        "Purpose ADMIN_ACCESS, SECURITY_CONFIGURATION_CHANGE dan ACTIVE_SESSION_REVOCATION diasingkan dengan kontrak authorization fail-closed.",
+        "Dokumen meliputi controlled bootstrap, encrypted TOTP lifecycle, structured rejection, break-glass, session revocation, UAT, monitoring dan rollout gate.",
+        "Kontrak dokumentasi SC7 memastikan audit induk dan dokumen handoff berkaitan kekal selaras; implementasi masih on hold."
+      ]
+    },
+    {
+      version: "2.5.0",
+      date: "2026-07-19",
+      changes: [
         "Pagination Audit History kini sepadan dengan Active Sessions dan berada di kanan bawah pada desktop.",
         "Ruang selepas jadual, saiz butang, hover, focus dan disabled state diseragamkan untuk paparan yang lebih kemas.",
         "Pada skrin kecil pagination kembali ke tengah bagi mengekalkan kawalan yang mudah dicapai."

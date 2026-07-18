@@ -40,7 +40,9 @@ Cron External Sync kekal task berasingan dan tidak diaktifkan oleh AS2.
 
 1. Aktifkan visibility/monitoring AS2-07 sebelum menetapkan sebarang hard cap.
 2. Owner putuskan AS2-03 berdasarkan data sesi berlebihan sebenar.
-3. Lengkapkan Admin Step-Up sebelum AS2-04 Controlled Revoke dibina.
+3. Lengkapkan Admin Step-Up sebelum AS2-04 Controlled Revoke dibina. Purpose,
+   preview, self-lockout, audit dan reconciliation muktamad dirujuk dalam
+   `docs/ADMIN_STEP_UP_2FA_AUDIT_DAN_CADANGAN.md`.
 4. Jalankan rehearsal dan observation housekeeping AS2-05 secara berasingan.
 5. Tambah revoked timestamp sebelum AS2-06 retention purge dipertimbangkan.
 6. Tutup AS2-08 hanya selepas semua SSO consumer keluar daripada compatibility

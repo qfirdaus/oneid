@@ -7,6 +7,12 @@
 berasingan. Dokumen ini tidak memberi kebenaran untuk mutation database,
 pengaktifan scheduler atau perubahan polisi live.
 
+Dokumen ini ialah register status dan gate. Reka bentuk induk, purpose matrix,
+security contract, Active-Session Revocation, break-glass, UAT dan monitoring
+Fasa 7 telah disatukan dalam
+`docs/ADMIN_STEP_UP_2FA_AUDIT_DAN_CADANGAN.md`. Jika terdapat perbezaan reka
+bentuk, dokumen induk tersebut mengatasi ringkasan dalam handoff ini.
+
 ## 1. Baseline Semasa
 
 Fasa SC0 hingga SC6 telah dilaksanakan dan kontrak semasa lulus:
@@ -27,9 +33,15 @@ ini perlu dikekalkan sepanjang tempoh penangguhan.
 
 ### SC7-01 Admin Step-Up 2FA
 
-Bangunkan server-enforced step-up untuk perubahan security configuration:
+Bangunkan server-enforced step-up mengikut dokumen induk. Purpose berasingan
+yang diluluskan untuk reka bentuk ialah:
 
-- purpose khusus `SECURITY_CONFIGURATION_CHANGE`;
+- `ADMIN_ACCESS` untuk akses admin biasa;
+- `SECURITY_CONFIGURATION_CHANGE` untuk mutation keselamatan; dan
+- `ACTIVE_SESSION_REVOCATION` untuk revoke sesi terkawal.
+
+Keperluan teras:
+
 - OTP e-mel dan Microsoft Authenticator melalui standard TOTP;
 - challenge diikat kepada admin, session, browser dan purpose;
 - step-up session maksimum 15 minit;
@@ -105,16 +117,21 @@ Sediakan monitoring dan alert bagi:
 
 ## 3. Urutan Sambung Semula
 
-Urutan yang diluluskan untuk penilaian akan datang:
+Urutan semasa untuk penilaian akan datang:
 
 1. refresh baseline, backup dan consumer inventory;
-2. mandatory change reason dan optimistic locking;
-3. Admin Step-Up OTP e-mel secara fail-closed;
-4. TOTP enrollment, verification, recovery dan encryption-key operation;
-5. Configuration History serta rejected-update audit;
-6. controlled pilot menggunakan satu admin;
-7. keputusan scheduler revocation SC5; dan
-8. monitoring, observation window serta owner acceptance SC8.
+2. sahkan purpose/action matrix dan endpoint inventory;
+3. sediakan encryption-key operation, migration dan controlled bootstrap;
+4. Admin Step-Up OTP e-mel secara fail-closed;
+5. TOTP enrollment, verification, recovery dan factor lifecycle;
+6. lengkapkan authorization/Step-Up rejected audit;
+7. controlled Active-Session Revocation;
+8. controlled pilot menggunakan satu admin;
+9. keputusan scheduler revocation SC5; dan
+10. monitoring, observation window serta owner acceptance SC8.
+
+Mandatory change reason, optimistic locking dan Configuration History tidak
+lagi berada dalam urutan pending kerana telah lengkap dan lulus UAT dalam SC3.
 
 ## 4. Gate Sebelum Pelaksanaan
 

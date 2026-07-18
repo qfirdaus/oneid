@@ -328,9 +328,9 @@ konsisten.
 
 ### Fasa 3 — Integriti database dan audit trail
 
-**Status completion (19 Julai 2026): COMPLETE IN CODE / CONTRACT PASS;
-MIGRATION DAN BROWSER UAT STAGING PENDING.** Revision locking, mandatory reason,
-structured success/rejection history, Last Changed dan History UI telah siap.
+**Status completion (19 Julai 2026): COMPLETE / CONTRACT PASS / MIGRATION DAN
+BROWSER UAT STAGING PASS.** Revision locking, mandatory reason, structured
+success/rejection history, Last Changed dan History UI telah disahkan.
 
 **Objektif:** Menjamin single-row configuration dan kebolehkesanan perubahan.
 
@@ -449,7 +449,10 @@ check dan fail-closed behavior yang jelas.
 ### Fasa 7 — Admin Step-Up 2FA dan authorization khusus
 
 **Status:** DEFERRED BY OWNER pada 18 Julai 2026. Tiada feature flag, schema,
-challenge atau enforcement Step-Up/TOTP diaktifkan. Rujuk handoff SC7-SC8.
+challenge atau enforcement Step-Up/TOTP diaktifkan. Reka bentuk menyeluruh dan
+semua audit berkaitan telah disatukan dalam
+`docs/ADMIN_STEP_UP_2FA_AUDIT_DAN_CADANGAN.md`; handoff SC7-SC8 kekal sebagai
+register status pending.
 
 **Objektif:** Melindungi konfigurasi keselamatan daripada session admin yang
 dicuri.
