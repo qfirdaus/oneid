@@ -4763,6 +4763,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-19",
+      changes: [
+        "Browser UAT AS2 bagi <code>multi_session=1</code>, revoked token tanpa perubahan polisi global dan <code>multi_session=0</code> telah dilaporkan PASS oleh owner.",
+        "UAT mengesahkan multiple session berfungsi apabila dibenarkan dan browser lama memerlukan login semula selepas token ditamatkan.",
+        "AS3 notification, idle warning, absolute-timeout warning dan revoked reason direkod sebagai UX follow-up yang ditangguhkan oleh owner.",
+        "Hard session cap, Controlled Admin Revoke, housekeeping Apply, retention 90 hari, monitoring dan penamatan compatibility refresh kekal pending dengan gate berasingan.",
+        "Release ini menutup evidence dan dokumentasi UAT AS2 tanpa mengubah database, runtime configuration atau enforcement yang telah lulus."
+      ]
+    },
+    {
+      version: "2.0.19",
       date: "2026-07-18",
       changes: [
         "Setiap action OneID yang terlindung kini mengikat PHP session kepada cookie SSO token yang masih aktif untuk pengguna tersebut.",
