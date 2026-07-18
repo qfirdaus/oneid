@@ -57,6 +57,7 @@ $report(substr_count($externalSource, 'FROM ehrmdb.dbo.SSO_Staf_Aktif') === 2 &&
 $report(substr_count($compatibilityExternalSource, 'FROM ehrmdb.dbo.SSO_Staf_Aktif') === 2 && !str_contains($compatibilityExternalSource, 'FROM stafdb'), 'compatibility integration uses ehrmdb staff view only');
 $normalizer = $source['app/Sync/ExternalRowNormalizer.php'];
 $report(str_contains($normalizer, "'idpekerja' => 'data2'") && str_contains($normalizer, "'no_matrik' => 'data4'") && str_contains($normalizer, "'jenis' => 'ext_data_source_category'"), 'pure normalizer maps FreeTDS source labels');
+$report(str_contains($normalizer, "['data2', 'data4']") && str_contains($normalizer, "preg_replace('/[\\s\\p{Pd}]+/u'"), 'student IC passport and matric values remove spaces and dashes');
 $report(substr_count($externalSource, 'ExternalRowNormalizer::normalize($myRow)') === 4, 'active integration normalizes every ODBC row');
 $report(substr_count($compatibilityExternalSource, 'ExternalRowNormalizer::normalize($myRow)') === 4, 'compatibility integration normalizes every ODBC row');
 $report(str_contains($qFunc, "'UNEXPECTED_PREVIEW_ERROR'") && str_contains($qFunc, 'code=%s'), 'preview logs allowlisted diagnostic code only');
@@ -68,7 +69,7 @@ $output = [];
 $code = 1;
 exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($root . '/tests/characterization/s2_sync_preview_zero_mutation.php') . ' 2>&1', $output, $code);
 $detail = implode(' | ', array_slice($output, -2));
-$report($code === 0 && in_array('RESULT checks=18 failed=0', $output, true), 'zero-mutation fixture passes', $detail);
+$report($code === 0 && in_array('RESULT checks=19 failed=0', $output, true), 'zero-mutation fixture passes', $detail);
 
 printf("RESULT checks=%d failed=%d\n", $checks, $failed);
 exit($failed === 0 ? 0 : 1);

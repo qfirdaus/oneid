@@ -4653,6 +4653,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
       date: "2026-07-18",
       changes: [
+        "Identiti IC/pasport pelajar dinormalisasi kepada format alfanumerik tanpa ruang atau sengkang sebelum Preview dan Apply.",
+        "Matching planner menggunakan identiti canonical pada snapshot external dan akaun sedia ada supaya cleanup menghasilkan Update pada matrik sama, bukan Deactivate dan New.",
+        "Dry-run read-only terhadap 6,485 source rows menghasilkan tepat 137 Update pada <code>data2</code>, tanpa New, Deactivate atau Reactivate.",
+        "Dua akaun staf dengan ID alternatif yang telah disahkan kekal tidak disentuh oleh cleanup khusus Pelajar.",
+        "Protected manual collision matching turut menerima bentuk identiti canonical supaya akaun manual kekal fail-closed selepas normalisasi."
+      ]
+    },
+    {
+      version: "2.0.12",
+      date: "2026-07-18",
+      changes: [
         "<b>Operational External Sync</b> membolehkan Administrator menjalankan Apply berulang selepas fresh preview tanpa count/hash private baharu atau full database dump bagi setiap batch biasa.",
         "Setiap Apply kekal diikat kepada approval session sekali guna, exact plan fingerprint, admin aktif dan expiry 5 minit; fresh snapshot mesti sepadan sebelum transaction bermula.",
         "Plan yang mempunyai Deactivate memerlukan typed confirmation dengan exact Deactivate count, manakala source anomaly, collision, invalid rows dan blast-radius threshold terus menyekat Apply.",

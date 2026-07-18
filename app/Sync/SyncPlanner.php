@@ -41,6 +41,10 @@ final class SyncPlanner
         }
 
         $normalize = static fn($value): string => trim((string) $value);
+        $normalizeStudentIdentity = static function ($value) use ($normalize): string {
+            $compacted = preg_replace('/[\s\p{Pd}]+/u', '', $normalize($value));
+            return $compacted ?? $normalize($value);
+        };
         $excluded = array_flip(array_map($normalize, $this->policy->excludedUserIds()));
         $list = array_values(array_filter($list, static function (array $row) use (
             $excluded,
@@ -75,6 +79,7 @@ final class SyncPlanner
                 $identity = $normalize($ssoRow[$identityField] ?? '');
                 if ($identity !== '') {
                     $protectedIdentityMap[$identity] = true;
+                    $protectedIdentityMap[$normalizeStudentIdentity($identity)] = true;
                 }
             }
         }
@@ -110,10 +115,15 @@ final class SyncPlanner
         $externalByStudent = [];
         foreach ($list as $row) {
             $isStudent = isset($row['ext_data_source_category'])
-                && $normalize($row['ext_data_source_category']) === 'Pelajar';
+                && in_array($normalize($row['ext_data_source_category']), [
+                    'Pelajar',
+                    'PelajarPelajar',
+                    'PentadbiranPelajar',
+                    'AkademikPelajar',
+                ], true);
             if ($isStudent) {
-                $matric = $normalize($row['data4'] ?? '');
-                $ic = $normalize($row['data2'] ?? '');
+                $matric = $normalizeStudentIdentity($row['data4'] ?? '');
+                $ic = $normalizeStudentIdentity($row['data2'] ?? '');
                 if ($matric !== '' && $ic !== '') {
                     $externalByStudent[$matric . '|' . $ic] = $row;
                 }
@@ -129,8 +139,8 @@ final class SyncPlanner
         $matchedSso = [];
         foreach ($ssoList as $sso) {
             $row = null;
-            $matric = $normalize($sso['u_id'] ?? '');
-            $ic = $normalize($sso['data2'] ?? '');
+            $matric = $normalizeStudentIdentity($sso['u_id'] ?? '');
+            $ic = $normalizeStudentIdentity($sso['data2'] ?? '');
             $studentKey = $matric . '|' . $ic;
 
             if ($matric !== '' && $ic !== '' && isset($externalByStudent[$studentKey])) {

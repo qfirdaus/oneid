@@ -31,6 +31,20 @@ final class ExternalRowNormalizer
         }
         $normalized['ext_data_source_category'] = (string) ($row['ext_data_source_category'] ?? '');
 
+        if (in_array(trim($normalized['ext_data_source_category']), [
+            'Pelajar',
+            'PelajarPelajar',
+            'PentadbiranPelajar',
+            'AkademikPelajar',
+        ], true)) {
+            // Student identity fields may contain formatted IC/passport values.
+            // Persist one canonical alphanumeric representation without spaces/dashes.
+            foreach (['data2', 'data4'] as $identityField) {
+                $compacted = preg_replace('/[\s\p{Pd}]+/u', '', trim($normalized[$identityField]));
+                $normalized[$identityField] = $compacted ?? trim($normalized[$identityField]);
+            }
+        }
+
         return $normalized;
     }
 }

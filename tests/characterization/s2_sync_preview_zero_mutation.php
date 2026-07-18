@@ -137,12 +137,19 @@ $staffNormalized = ExternalRowNormalizer::normalize([
     'DATA4' => 'IC', 'JENIS' => 'Pentadbiran',
 ]);
 $studentNormalized = ExternalRowNormalizer::normalize([
-    'NAMA' => 'Student Name', 'NO_MATRIK' => 'MAT', 'DATA2' => 'IC',
+    'NAMA' => 'Student Name', 'NO_MATRIK' => '82-53302', 'DATA2' => '-900101-01-1234',
     'NAMA_PTJ' => 'PTJ', 'PROGRAM' => 'PROGRAM',
     'EXT_DATA_SOURCE_CATEGORY' => 'Pelajar',
 ]);
 $report($staffNormalized['data2'] === 'EMP' && $staffNormalized['data3'] === 'NO' && $staffNormalized['ext_data_source_category'] === 'Pentadbiran', 'FreeTDS staff row normalized to canonical schema');
-$report($studentNormalized['data1'] === 'Student Name' && $studentNormalized['data4'] === 'MAT' && $studentNormalized['data6'] === 'PTJ', 'FreeTDS student row normalized to canonical schema');
+$report($studentNormalized['data1'] === 'Student Name' && $studentNormalized['data2'] === '900101011234' && $studentNormalized['data4'] === '8253302' && $studentNormalized['data6'] === 'PTJ', 'student IC/passport and matric identifiers are compacted');
+
+$legacyStudent = s2_row('8253302', 'Student Name', 'Pelajar', '900101-01-1234');
+$legacyStudent['u_id'] = '8253302';
+$legacyStudent['account_source'] = 'external';
+$legacyStudent['sync_protected'] = 0;
+$cleanupPlan = (new SyncPlanner(new LegacySyncPolicy()))->plan([$studentNormalized], [$legacyStudent], []);
+$report($cleanupPlan->legacyCounts() === ['New'=>0,'Update'=>1,'Deactivate'=>0,'Reactivate'=>0], 'student identity cleanup matches the existing account as one update');
 
 $emptySource = new S2Source([]);
 $emptyPersistence = new S2Persistence([]);
