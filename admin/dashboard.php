@@ -3539,6 +3539,10 @@
                   }
                   var counts = response.counts || {};
                   var pilotCounts = response.pilot_counts || {};
+                  var totalChanges = Number(counts.New || 0)
+                     + Number(counts.Update || 0)
+                     + Number(counts.Deactivate || 0)
+                     + Number(counts.Reactivate || 0);
                   $('#sync_preview_source_rows').text(response.source_rows || 0);
                   $('#sync_preview_new_update').text((counts.New || 0) + ' / ' + (counts.Update || 0));
                   $('#sync_preview_deactivate_reactivate').text((counts.Deactivate || 0) + ' / ' + (counts.Reactivate || 0));
@@ -3551,9 +3555,11 @@
                      .addClass(response.risk_level === 'blocked' ? 'badge badge-danger' : (response.risk_level === 'warning' ? 'badge badge-warning' : 'badge badge-success'))
                      .text(response.risk_level === 'blocked'
                         ? 'BLOCKED — anomaly or baseline requires review'
-                        : (response.approval_ready === true
+                        : (totalChanges === 0
+                           ? 'UP TO DATE — no changes to apply'
+                           : (response.approval_ready === true
                            ? 'READY FOR CONTROLLED PILOT — Apply remains disabled'
-                           : 'PREVIEW ONLY — no changes applied'));
+                           : 'PREVIEW ONLY — no changes applied')));
                   var warningList = $('#sync_preview_warnings').empty();
                   (response.warnings || []).forEach(function(warning){
                      $('<li>').text(warning).appendTo(warningList);
@@ -3582,7 +3588,9 @@
                      $('#btn_apply_sync_pilot').show().prop('disabled', false);
                      $('#sync_pilot_notice').text('Controlled pilot scope: exactly 2 New + 1 Update; no Deactivate or Reactivate. Approval expires at ' + (response.expires_at || '-') + '.');
                   } else {
-                     $('#sync_pilot_notice').text('Readiness preview only. Controlled Pilot Apply remains disabled.');
+                     $('#sync_pilot_notice').text(totalChanges === 0
+                        ? 'External data and OneID are already synchronized. No Apply action is required.'
+                        : 'Readiness preview only. Apply remains disabled.');
                   }
 
                   if(response.full_apply_available === true
