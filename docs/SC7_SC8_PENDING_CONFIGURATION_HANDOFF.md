@@ -69,7 +69,8 @@ Bangunkan server-enforced step-up untuk perubahan security configuration:
 
 ### SC7-06 Controlled Active-Session Revocation
 
-Listing Active Sessions telah dijadikan read-only melalui AS0. Tindakan revoke
+Listing Active Sessions telah dijadikan read-only melalui AS0 dan revoked-token
+enforcement browser telah dilaksanakan melalui AS2. Tindakan revoke
 satu sesi atau semua sesi pengguna kekal ditangguhkan sehingga Step-Up tersedia:
 
 - server-enforced Step-Up dengan purpose khusus;

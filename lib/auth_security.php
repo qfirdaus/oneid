@@ -93,3 +93,25 @@ function oneid_clear_sso_cookie(): void
     ]);
     unset($_COOKIE['sso_cre']);
 }
+
+function oneid_sso_cookie_token(): string
+{
+    $raw = trim((string) ($_COOKIE['sso_cre'] ?? ''));
+    if ($raw === '') {
+        return '';
+    }
+
+    $legacy = json_decode($raw);
+    return is_object($legacy) && isset($legacy->sso_cre)
+        ? trim((string) $legacy->sso_cre)
+        : $raw;
+}
+
+function oneid_clear_local_authenticated_session(): void
+{
+    oneid_clear_sso_cookie();
+    $_SESSION = [];
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_regenerate_id(true);
+    }
+}

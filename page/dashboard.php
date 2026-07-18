@@ -5,6 +5,7 @@
    require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
    require_once __DIR__ . '/../lib/request_security.php';
    oneid_require_authenticated_page();
+   oneid_require_active_sso_page($operation);
    $user_info = $operation->admin_search_user_account($_SESSION['login_user']);
    // echo "Xxxxx" . $_SESSION['user'];
     // echo json_encode($user_info);

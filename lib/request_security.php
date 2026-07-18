@@ -55,6 +55,25 @@ function oneid_request_csrf_token(): string
     return is_string($postToken) ? $postToken : '';
 }
 
+function oneid_authenticated_sso_token_is_active(object $operation): bool
+{
+    if (!oneid_is_authenticated() || !method_exists($operation, 'is_specific_token_active')) {
+        return false;
+    }
+
+    $token = oneid_sso_cookie_token();
+    return $token !== '' && $operation->is_specific_token_active(
+        (string) $_SESSION['login_user'],
+        $token
+    ) === true;
+}
+
+function oneid_deny_revoked_sso_token(): never
+{
+    oneid_clear_local_authenticated_session();
+    oneid_json_deny(401, 'SSO session token is no longer active');
+}
+
 function oneid_require_csrf(): void
 {
     $expectedToken = oneid_csrf_token();
@@ -175,6 +194,9 @@ function oneid_guard_q_func_request(array $post, ?object $operation = null): str
     }
 
     if ($matchedLevel !== 'public' && oneid_is_authenticated() && $operation !== null) {
+        if (!oneid_authenticated_sso_token_is_active($operation)) {
+            oneid_deny_revoked_sso_token();
+        }
         $state=$operation->get_password_change_requirement((string)$_SESSION['login_user']);
         if(!is_array($state)||(int)($state['avail_status']??0)!==1){oneid_json_deny(401,'Account is not active');}
         $_SESSION['password_change_required']=(int)($state['password_change_required']??0);
@@ -217,4 +239,17 @@ function oneid_require_admin_page(): void
         echo 'Forbidden';
         exit;
     }
+}
+
+function oneid_require_active_sso_page(object $operation): void
+{
+    if (oneid_authenticated_sso_token_is_active($operation)) {
+        return;
+    }
+
+    oneid_clear_local_authenticated_session();
+    if (!headers_sent()) {
+        header('Location: ' . APP_URL . '/', true, 302);
+    }
+    exit;
 }

@@ -69,6 +69,10 @@ Jika `multi_session=1`, release ini hanya menyediakan visibility bagi pengguna
 dengan sesi berlebihan. Had keras 5 atau 10 sesi belum dipilih dan tidak boleh
 mengubah sesi secara automatik tanpa keputusan owner.
 
+AS2 menambah enforcement token aktif pada setiap protected action/page. Oleh
+itu PHP session browser lama tidak lagi boleh digunakan selepas tokennya
+dibatalkan oleh login baharu. UAT dua browser/dua PC kekal gate berasingan.
+
 ## Admin Revoke
 
 Controlled revoke satu/semua sesi kekal deferred sehingga Admin Step-Up 2FA,

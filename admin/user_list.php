@@ -5,6 +5,7 @@ require_once __DIR__ . '/../lib/config.php';
 require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
 require_once __DIR__ . '/../lib/request_security.php';
 oneid_require_admin_page();
+oneid_require_active_sso_page($operation);
 
 $categoryId = filter_input(INPUT_GET, 'category_id', FILTER_VALIDATE_INT);
 if ($categoryId === false || $categoryId === null) {
@@ -128,5 +129,4 @@ content:counter(section);
 </style>
 </body>
 </html>
-
 

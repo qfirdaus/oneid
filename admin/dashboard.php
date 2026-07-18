@@ -6,6 +6,7 @@
    require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
    require_once __DIR__ . '/../lib/request_security.php';
    oneid_require_admin_page();
+   oneid_require_active_sso_page($operation);
    
    $widget_data = $operation->admin_widget_count();
    $sys_config = $operation->get_system_config();
@@ -4762,6 +4763,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-18",
+      changes: [
+        "Setiap action OneID yang terlindung kini mengikat PHP session kepada cookie SSO token yang masih aktif untuk pengguna tersebut.",
+        "Apabila login baharu merevoke token lama semasa multiple session dimatikan, browser lama menerima HTTP 401 pada action atau heartbeat seterusnya.",
+        "Revoked browser membersihkan cookie SSO, authenticated session state dan merotasi PHP session ID sebelum kembali ke login.",
+        "Dashboard user, dashboard admin dan report user list turut menolak direct page access menggunakan token yang telah tidak aktif.",
+        "Dokumen AS2 merekodkan baki UAT dua browser/PC, hard session cap, Admin Revoke, housekeeping, retention dan monitoring sebagai gate berasingan."
+      ]
+    },
+    {
+      version: "2.0.18",
       date: "2026-07-18",
       changes: [
         "Jadual Admin <b>Active Sessions</b> kini memastikan setiap nilai Issued At, Last Heartbeat, User, Device dan Status dipaparkan dalam satu baris.",

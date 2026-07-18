@@ -1364,7 +1364,7 @@ class Database {
         return $result;
     }
 
-	public function update_specific_token_datetime($user_id,$token_id){
+   public function update_specific_token_datetime($user_id,$token_id){
         $tokenHash = oneid_token_hash((string) $token_id);
             $Q = "UPDATE token_tbl SET token_datetime = NOW() WHERE user_id = :user_id AND (token_id=:token_hash OR token_id=:token_id) AND status=1";
             $R = $this->pdo->prepare($Q);
@@ -1374,6 +1374,14 @@ class Database {
         $R->execute();
         $result = $R->rowCount();
         return $result;
+    }
+
+    public function is_specific_token_active($user_id,$token_id){
+        $tokenHash = oneid_token_hash((string)$token_id);
+        $Q = "SELECT 1 FROM token_tbl WHERE user_id=:user_id AND status=1 AND (token_id=:token_hash OR token_id=:legacy_token) LIMIT 1";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':user_id'=>$user_id,':token_hash'=>$tokenHash,':legacy_token'=>$token_id]);
+        return $R->fetchColumn() !== false;
     }
 
     public function get_all_token_for_specific_user($user_id){
