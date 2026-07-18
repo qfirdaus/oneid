@@ -970,7 +970,7 @@
                                           <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_acl_menu" href="#tab_settings"><span>Configuration</span></a></li>
                                           <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_ver" href="#tab_versioning"><span>Version Releases</span></a></li>
                                           <?php if($_SESSION['login_user_type'] == 1){ ?>   
-                                             <li role="presentation" style="cursor: pointer !important;" >
+                                             <li role="presentation" class="pill-yellow" style="cursor: pointer !important;" >
                                                 <a id="tab_faq" href="../page/dashboard">
                                                   <span>Back to My Account<span class="inline-block"></span></span>
                                                 </a>
@@ -4859,6 +4859,14 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-19",
+      changes: [
+        "Menu Back to My Account dalam Administrator kini menggunakan warna kuning yang sama dengan menu Administrator pada dashboard pengguna.",
+        "Warna normal, hover dan focus menggunakan class pill-yellow sedia ada tanpa mengubah navigasi atau authorization."
+      ]
+    },
+    {
+      version: "2.5.1",
       date: "2026-07-19",
       changes: [
         "Audit induk Admin Step-Up 2FA kini menyatukan keperluan Configuration, SC7-SC8, Password Recovery, token lifecycle dan Active Sessions.",
