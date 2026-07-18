@@ -1450,6 +1450,30 @@
                                              <div class="admin-section-inner">
                                                 <div class="row">
                                                    <div class="col-lg-12">
+                                                      <nav class="configuration-tabs" aria-label="Configuration sections">
+                                                         <ul class="nav nav-tabs" role="tablist">
+                                                            <li class="active" role="presentation">
+                                                               <a href="#configuration_authentication" id="configuration_authentication_tab" role="tab" data-toggle="tab" aria-controls="configuration_authentication" aria-selected="true">
+                                                                  <i class="fa fa-shield" aria-hidden="true"></i>
+                                                                  <span>Authentication Policy</span>
+                                                               </a>
+                                                            </li>
+                                                            <li role="presentation">
+                                                               <a href="#configuration_recovery" id="configuration_recovery_tab" role="tab" data-toggle="tab" aria-controls="configuration_recovery" aria-selected="false">
+                                                                  <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                                                                  <span>Account Recovery</span>
+                                                               </a>
+                                                            </li>
+                                                            <li role="presentation">
+                                                               <a href="#configuration_audit" id="configuration_audit_tab" role="tab" data-toggle="tab" aria-controls="configuration_audit" aria-selected="false">
+                                                                  <i class="fa fa-history" aria-hidden="true"></i>
+                                                                  <span>Audit History</span>
+                                                               </a>
+                                                            </li>
+                                                         </ul>
+                                                      </nav>
+                                                      <div class="tab-content configuration-tab-content">
+                                                         <section class="tab-pane fade active in" id="configuration_authentication" role="tabpanel" aria-labelledby="configuration_authentication_tab">
                                                       <div class="sso-config-panel">
                                                          <div class="sso-config-header">
                                                             <div>
@@ -1515,12 +1539,9 @@
                                                             <div class="sso-config-note"><i class="fa fa-history" aria-hidden="true"></i><p id="sso_config_last_changed">No recorded configuration change.</p></div>
                                                          </div>
                                                       </div>
-                                                      <div class="sso-config-panel" style="margin-top:24px">
-                                                         <div class="sso-config-header"><div><span class="sso-config-eyebrow">Audit history</span><h4 class="sso-config-title">Configuration History</h4><p class="sso-config-intro">Success and rejected attempts, newest first. Sensitive authentication material is never displayed.</p></div><button type="button" class="sso-config-save" onclick="loadSsoConfigHistory(1)"><i class="fa fa-refresh"></i><span>Refresh</span></button></div>
-                                                         <div class="table-responsive"><table class="table mb-0"><thead><tr><th>Time</th><th>Actor</th><th>Outcome</th><th>Revision</th><th>Changes</th><th>Reason / Code</th><th>Reference</th></tr></thead><tbody id="sso_config_history_body"><tr><td colspan="7">Loading history...</td></tr></tbody></table></div>
-                                                         <div id="sso_config_history_pagination" class="active-session-pagination"></div>
-                                                      </div>
-                                                      <div class="sso-config-panel" style="margin-top:24px">
+                                                         </section>
+                                                         <section class="tab-pane fade" id="configuration_recovery" role="tabpanel" aria-labelledby="configuration_recovery_tab">
+                                                      <div class="sso-config-panel">
                                                          <div class="sso-config-header"><div><span class="sso-config-eyebrow">Account recovery</span><h4 class="sso-config-title">Password Recovery</h4><p class="sso-config-intro">Polisi penghantaran OTP Forgot Password. Ia bukan login MFA atau Admin Step-Up 2FA.</p></div><button class="sso-config-save" id="recovery_config_save_button" type="button" onclick="updatePasswordRecovery();" disabled><i class="fa fa-check"></i> <span id="recovery_config_save_label">Loading settings...</span></button></div>
                                                          <div class="sso-config-body">
                                                             <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="password_reset_email_enabled">Send password-reset OTP by email</label><p>Apabila OFF, Forgot Password tidak mencipta challenge kerana tiada saluran recovery manual yang diluluskan.</p></div></div><div class="sso-config-control"><div class="sso-config-switch"><input type="checkbox" class="js-switch js-switch-1" id="password_reset_email_enabled" data-color="#11a8df" data-size="small"/></div></div></div>
@@ -1528,6 +1549,15 @@
                                                             <div class="sso-config-row"><div class="sso-config-copy"><div><label for="password_recovery_test_email">Test delivery</label><p>Masukkan mailbox UAT yang diluluskan. Alamat penuh dan credential tidak direkod dalam audit.</p></div></div><div class="sso-config-control"><input type="email" class="form-control" id="password_recovery_test_email" placeholder="Mailbox UAT"><button type="button" class="btn btn-default btn-sm mt-10" onclick="testPasswordRecoveryEmail();">Send test</button></div></div>
                                                             <div class="sso-config-note sso-config-note-warning"><i class="fa fa-exclamation-triangle"></i><p>Recovery bagi pengguna tanpa e-mel sah adalah fail-closed. Prosedur manual belum tersedia dalam sistem.</p></div>
                                                          </div>
+                                                      </div>
+                                                         </section>
+                                                         <section class="tab-pane fade" id="configuration_audit" role="tabpanel" aria-labelledby="configuration_audit_tab">
+                                                      <div class="sso-config-panel">
+                                                         <div class="sso-config-header"><div><span class="sso-config-eyebrow">Audit history</span><h4 class="sso-config-title">Configuration History</h4><p class="sso-config-intro">Success and rejected attempts, newest first. Sensitive authentication material is never displayed.</p></div><button type="button" class="sso-config-save" onclick="loadSsoConfigHistory(1)"><i class="fa fa-refresh"></i><span>Refresh</span></button></div>
+                                                         <div class="table-responsive"><table class="table mb-0"><thead><tr><th>Time</th><th>Actor</th><th>Outcome</th><th>Revision</th><th>Changes</th><th>Reason / Code</th><th>Reference</th></tr></thead><tbody id="sso_config_history_body"><tr><td colspan="7">Loading history...</td></tr></tbody></table></div>
+                                                         <div id="sso_config_history_pagination" class="active-session-pagination"></div>
+                                                      </div>
+                                                         </section>
                                                       </div>
                                                    </div>
                                                 </div>
@@ -1647,6 +1677,14 @@
 
              $('a[href="#tab_synclog"]').on('shown.bs.tab', function(){
                 load_sync_sessions();
+             });
+
+             $('#tab_settings .configuration-tabs a[data-toggle="tab"]').on('shown.bs.tab', function(event){
+                $('#tab_settings .configuration-tabs a[data-toggle="tab"]').attr('aria-selected', 'false');
+                $(event.target).attr('aria-selected', 'true');
+                if ($(event.target).attr('href') === '#configuration_audit') {
+                   loadSsoConfigHistory(1);
+                }
              });
          });
          
@@ -4791,6 +4829,15 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-19",
+      changes: [
+        "Configuration kini menggunakan tiga tab khusus: Authentication Policy, Account Recovery dan Audit History.",
+        "Setiap tab mengekalkan form serta kawalan keselamatan sedia ada sambil mengurangkan panjang halaman dan memudahkan navigasi.",
+        "Tab responsif boleh discroll pada skrin kecil, menggunakan status aksesibiliti tab, dan memuat semula audit history apabila dibuka."
+      ]
+    },
+    {
+      version: "2.4.2",
       date: "2026-07-19",
       changes: [
         "Fasa 3 Configuration kini mewajibkan change reason dan mengikat setiap preview kepada <code>configuration_version</code> semasa.",
@@ -8037,6 +8084,70 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         }
       }
 
+      #tab_settings .configuration-tabs {
+        overflow-x: auto;
+        border-bottom: 1px solid #dfe5ec;
+        background: #fff;
+        scrollbar-width: thin;
+      }
+
+      #tab_settings .configuration-tabs .nav-tabs {
+        display: flex;
+        width: max-content;
+        min-width: 100%;
+        margin: 0;
+        border: 0;
+      }
+
+      #tab_settings .configuration-tabs .nav-tabs > li {
+        float: none;
+        margin: 0;
+      }
+
+      #tab_settings .configuration-tabs .nav-tabs > li > a {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-height: 52px;
+        margin: 0;
+        padding: 15px 22px 13px;
+        border: 0;
+        border-bottom: 3px solid transparent;
+        border-radius: 0;
+        background: transparent;
+        color: #667386;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      #tab_settings .configuration-tabs .nav-tabs > li > a:hover,
+      #tab_settings .configuration-tabs .nav-tabs > li > a:focus {
+        border-color: #b9dcea;
+        background: #f6fafc;
+        color: #176e94;
+        outline: none;
+      }
+
+      #tab_settings .configuration-tabs .nav-tabs > li.active > a,
+      #tab_settings .configuration-tabs .nav-tabs > li.active > a:hover,
+      #tab_settings .configuration-tabs .nav-tabs > li.active > a:focus {
+        border: 0;
+        border-bottom: 3px solid #159bce;
+        background: #f7fbfd;
+        color: #116f98;
+      }
+
+      #tab_settings .configuration-tabs i {
+        width: 16px;
+        color: #159bce;
+        text-align: center;
+      }
+
+      #tab_settings .configuration-tab-content > .tab-pane {
+        min-height: 560px;
+      }
+
       #tab_settings .sso-config-panel {
         background: #f7f9fc;
         padding: 30px;
@@ -8236,6 +8347,12 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       @media (max-width: 767px) {
+        #tab_settings .configuration-tabs .nav-tabs > li > a {
+          min-height: 48px;
+          padding: 13px 16px 11px;
+          font-size: 12px;
+        }
+
         #tab_settings .sso-config-panel {
           padding: 20px 15px;
         }

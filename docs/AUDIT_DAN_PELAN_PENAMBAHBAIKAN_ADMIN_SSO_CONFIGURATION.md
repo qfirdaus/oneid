@@ -2,7 +2,7 @@
 
 **Tarikh audit:** 16 Julai 2026  
 **Skop:** Halaman Administrator — SSO Configuration  
-**Status:** AUDITED — FASA 0 HINGGA FASA 6 DILAKSANAKAN; FASA 3 COMPLETION MENUNGGU MIGRATION/UAT STAGING; FASA 7 HINGGA FASA 8 DITANGGUHKAN
+**Status:** AUDITED — FASA 0 HINGGA FASA 6 DILAKSANAKAN; FASA 3 MIGRATION DAN UAT STAGING LULUS; FASA 7 HINGGA FASA 8 DITANGGUHKAN
 **Jenis kerja:** Audit, remediasi berfasa dan UAT terkawal
 
 ## 1. Tujuan

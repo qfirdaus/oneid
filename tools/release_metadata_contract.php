@@ -15,9 +15,9 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $label);
 };
 
-$report(ONEID_APP_VERSION === '2.4.2', 'central application version is 2.4.2');
+$report(ONEID_APP_VERSION === '2.4.3', 'central application version is 2.4.3');
 $report(
-    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.4.2',
+    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.4.3',
     'central copyright and footer text match the approved release'
 );
 
@@ -29,13 +29,13 @@ foreach (['index.php', 'page/dashboard.php', 'admin/dashboard.php'] as $page) {
 $adminDashboard = (string) file_get_contents($projectRoot . '/admin/dashboard.php');
 $report(
     str_contains($adminDashboard, 'version: <?php echo json_encode(ONEID_APP_VERSION); ?>')
-        && str_contains($adminDashboard, 'Fasa 3 Configuration')
-        && str_contains($adminDashboard, 'Optimistic locking')
-        && str_contains($adminDashboard, 'Structured Configuration History'),
-    'latest admin release card reads shared v2.4.2 metadata and Fasa 3 completion notes'
+        && str_contains($adminDashboard, 'tiga tab khusus')
+        && str_contains($adminDashboard, 'Authentication Policy')
+        && str_contains($adminDashboard, 'Audit History'),
+    'latest admin release card reads shared v2.4.3 metadata and Configuration tab notes'
 );
 $expectedHistory = [
-    '2.4.1','2.4.0',
+    '2.4.2','2.4.1','2.4.0',
     '2.3.4','2.3.3','2.3.2','2.3.1','2.3.0',
     '2.2.4','2.2.3','2.2.2','2.2.1','2.2.0',
     '2.1.4','2.1.3','2.1.2','2.1.1','2.1.0',
@@ -56,7 +56,7 @@ $report(
         && str_contains($adminDashboard, 'Konfigurasi SSO pentadbir diperkukuh')
         && str_contains($adminDashboard, 'WA6 menyediakan reconciliation read-only')
         && str_contains($adminDashboard, 'Controlled Pilot External Sync'),
-    'release history preserves normalized v2.4.1 through v2.0.0 in order'
+    'release history preserves normalized v2.4.2 through v2.0.0 in order'
 );
 $policy = (string) file_get_contents($projectRoot . '/docs/VERSION_NUMBERING_POLICY.md');
 $package = json_decode((string) file_get_contents($projectRoot . '/package.json'), true);

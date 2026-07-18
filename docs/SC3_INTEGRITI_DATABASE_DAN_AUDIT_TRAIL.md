@@ -2,7 +2,7 @@
 
 **Tarikh pelaksanaan:** 16 Julai 2026  
 **Skop:** Singleton `sys_config`, targeted update dan audit atomik  
-**Status:** COMPLETE IN CODE / AUTOMATED CONTRACT PASS / STAGING MIGRATION AND UAT PENDING
+**Status:** COMPLETE / AUTOMATED CONTRACT PASS / STAGING MIGRATION AND BROWSER UAT PASS (19 JULAI 2026)
 **Nilai polisi selepas migration:** Tidak berubah
 
 ## 1. Objektif
@@ -10,6 +10,11 @@
 Fasa 3 memastikan tepat satu row konfigurasi boleh wujud, preview mengikat
 revision, update menyasarkan row yang telah dikunci, reason diwajibkan dan
 success/rejection mempunyai history berstruktur.
+
+UAT staging mengesahkan mandatory reason, preview/Apply, revision increment,
+Last Changed, Configuration History dan reload PHP-FPM. Release susulan `2.4.3`
+menyusun Authentication Policy, Account Recovery dan Audit History sebagai tiga
+tab tanpa mengubah kontrak backend Fasa 3.
 
 ## 2. Baseline dan Migration
 
