@@ -643,7 +643,8 @@
                                                    </div>
                                                    <div id="sync_result_div">
                                                       <h6 class="mb-1"><i></i> Proposed changes (nothing has been applied):</h6>
-                                                      <table class="table table-borderless">
+                                                      <div class="sync-preview-table-wrap">
+                                                      <table class="table table-borderless sync-preview-table">
                                                          <tbody>
                                                             <tr>
                                                                <td>External rows:</td>
@@ -675,6 +676,7 @@
                                                             </tr>
                                                          </tbody>
                                                       </table>
+                                                      </div>
                                                       <p id="sync_pilot_notice" class="text-muted">Readiness preview only. Controlled Pilot Apply remains disabled.</p>
                                                       <div id="sync_full_confirmation_group" class="form-group" style="display:none">
                                                          <label for="sync_full_confirmation">Type the exact confirmation phrase</label>
@@ -5546,6 +5548,29 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         background: #f5f7f9;
         color: #aeb7c1;
         cursor: not-allowed;
+      }
+
+      #modal_add_new_single_user .sync-preview-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      #modal_add_new_single_user .sync-preview-table {
+        width: 100%;
+        min-width: 520px;
+        table-layout: fixed;
+      }
+
+      #modal_add_new_single_user .sync-preview-table td:first-child {
+        width: 230px;
+        white-space: nowrap;
+        font-weight: 500;
+      }
+
+      #modal_add_new_single_user .sync-preview-table td:last-child {
+        overflow-wrap: anywhere;
+        word-break: break-word;
       }
 
       .category-manage-state {
