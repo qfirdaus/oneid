@@ -15,9 +15,9 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $label);
 };
 
-$report(ONEID_APP_VERSION === '2.0.14', 'central application version is 2.0.14');
+$report(ONEID_APP_VERSION === '2.0.15', 'central application version is 2.0.15');
 $report(
-    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.0.14',
+    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.0.15',
     'central copyright and footer text match the approved release'
 );
 
@@ -29,11 +29,12 @@ foreach (['index.php', 'page/dashboard.php', 'admin/dashboard.php'] as $page) {
 $adminDashboard = (string) file_get_contents($projectRoot . '/admin/dashboard.php');
 $report(
     str_contains($adminDashboard, 'version: <?php echo json_encode(ONEID_APP_VERSION); ?>')
-        && str_contains($adminDashboard, 'soft warning bagi New melebihi 500')
-        && str_contains($adminDashboard, 'Deactivate melebihi 50')
-        && str_contains($adminDashboard, 'exact New, Update, Deactivate, Reactivate'),
-    'latest admin release card reads shared v2.0.14 metadata and threshold notes'
+        && str_contains($adminDashboard, 'satu runtime file resolver')
+        && str_contains($adminDashboard, 'configuration_audit.php')
+        && str_contains($adminDashboard, 'memeriksa 66 key'),
+    'latest admin release card reads shared v2.0.15 metadata and configuration notes'
 );
+$release214Position = strpos($adminDashboard, 'version: "2.0.14"');
 $release213Position = strpos($adminDashboard, 'version: "2.0.13"');
 $release212Position = strpos($adminDashboard, 'version: "2.0.12"');
 $release211Position = strpos($adminDashboard, 'version: "2.0.11"');
@@ -44,7 +45,8 @@ $release207Position = strpos($adminDashboard, 'version: "2.0.7"');
 $release206Position = strpos($adminDashboard, 'version: "2.0.6"');
 $release205Position = strpos($adminDashboard, 'version: "2.0.5"');
 $report(
-    $release213Position !== false
+    $release214Position !== false
+        && $release213Position !== false
         && $release212Position !== false
         && $release211Position !== false
         && $release210Position !== false
@@ -53,6 +55,7 @@ $report(
         && $release207Position !== false
         && $release206Position !== false
         && $release205Position !== false
+        && $release214Position < $release213Position
         && $release213Position < $release212Position
         && $release212Position < $release211Position
         && $release211Position < $release210Position
@@ -64,7 +67,7 @@ $report(
         && str_contains($adminDashboard, 'Konfigurasi SSO pentadbir diperkukuh')
         && str_contains($adminDashboard, 'WA6 menyediakan reconciliation read-only')
         && str_contains($adminDashboard, 'Controlled Pilot External Sync'),
-    'release history preserves v2.0.13 through v2.0.5 in order'
+    'release history preserves v2.0.14 through v2.0.5 in order'
 );
 $report(
     str_contains($adminDashboard, 'version-release-toggle')

@@ -55,10 +55,7 @@ function oneid_config(string $key, mixed $fallback = null): mixed
 
     if ($local === null) {
         $local = [];
-        $runtimeFile = getenv('ONEID_RUNTIME_FILE');
-        if ($runtimeFile === false || trim($runtimeFile) === '') {
-            $runtimeFile = PROJECT_ROOT . '/.private/runtime.php';
-        }
+        $runtimeFile = oneid_runtime_file_path();
         if (is_file($runtimeFile) && is_readable($runtimeFile)) {
             $loaded = require $runtimeFile;
             if (!is_array($loaded)) {

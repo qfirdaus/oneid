@@ -4669,6 +4669,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
       date: "2026-07-18",
       changes: [
+        "Konfigurasi dan secrets kini menggunakan satu runtime file resolver; <code>ONEID_SECRETS_FILE</code> kekal sebagai alias legacy tetapi path bercanggah akan ditolak.",
+        "Tool <code>configuration_audit.php</code> memeriksa 66 key, duplicate source key, permission, URL, timezone, SMTP, API, credentials dan mode Sync secara read-only.",
+        "Template private runtime dikemas kini dan disusun mengikut kumpulan Application, API, database, SMTP, Sync, external source dan diagnostics.",
+        "Template Nginx serta PHP-FPM UAT diselaraskan kepada project path staging <code>/var/www/oneid-uat</code>.",
+        "Configuration contract membuktikan resolver fail-closed, template lengkap, audit tanpa mutation dan perlindungan private/public kekal lulus."
+      ]
+    },
+    {
+      version: "2.0.14",
+      date: "2026-07-18",
+      changes: [
         "Operational Sync kini menggunakan soft warning bagi New melebihi 500, Update melebihi 1,000, Reactivate melebihi 100 atau jumlah perubahan melebihi 1,500.",
         "Batch besar kekal boleh di-Apply selepas semakan dan typed confirmation yang mengikat exact New, Update, Deactivate, Reactivate serta plan hash.",
         "Deactivate melebihi 50 disekat pada preview dan server Apply; plan tersebut mesti melalui Controlled Full Sync dengan kelulusan khusus.",

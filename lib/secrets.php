@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__DIR__) . '/bootstrap/paths.php';
+require_once dirname(__DIR__) . '/bootstrap/runtime_file.php';
 
 /**
  * Read runtime secrets from environment variables or a PHP file outside the
@@ -16,10 +16,7 @@ function oneid_secret(string $key, bool $required = true): string
     static $secrets = null;
 
     if ($secrets === null) {
-        $secretsFile = getenv('ONEID_SECRETS_FILE');
-        if ($secretsFile === false || trim($secretsFile) === '') {
-            $secretsFile = PROJECT_ROOT . '/.private/runtime.php';
-        }
+        $secretsFile = oneid_runtime_file_path();
 
         if (!is_file($secretsFile) || !is_readable($secretsFile)) {
             throw new RuntimeException('OneID secret store is missing or unreadable.');
