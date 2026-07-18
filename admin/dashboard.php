@@ -4765,6 +4765,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
       date: "2026-07-19",
       changes: [
+        "Penomboran release 2.x dinormalisasi kepada lima patch setiap minor: <code>.0</code> hingga <code>.4</code>, kemudian minor seterusnya bermula semula pada <code>.0</code>.",
         "Browser UAT AS2 bagi <code>multi_session=1</code>, revoked token tanpa perubahan polisi global dan <code>multi_session=0</code> telah dilaporkan PASS oleh owner.",
         "UAT mengesahkan multiple session berfungsi apabila dibenarkan dan browser lama memerlukan login semula selepas token ditamatkan.",
         "AS3 notification, idle warning, absolute-timeout warning dan revoked reason direkod sebagai UX follow-up yang ditangguhkan oleh owner.",
@@ -4773,7 +4774,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.19",
+      version: "2.3.4",
       date: "2026-07-18",
       changes: [
         "Setiap action OneID yang terlindung kini mengikat PHP session kepada cookie SSO token yang masih aktif untuk pengguna tersebut.",
@@ -4784,7 +4785,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.18",
+      version: "2.3.3",
       date: "2026-07-18",
       changes: [
         "Jadual Admin <b>Active Sessions</b> kini memastikan setiap nilai Issued At, Last Heartbeat, User, Device dan Status dipaparkan dalam satu baris.",
@@ -4795,7 +4796,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.17",
+      version: "2.3.2",
       date: "2026-07-18",
       changes: [
         "Heartbeat teknikal lima minit kini mengekalkan liveness token tanpa memperbaharui idle activity PHP; idle 30 minit dan absolute timeout 8 jam kekal berasingan.",
@@ -4806,7 +4807,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.16",
+      version: "2.3.1",
       date: "2026-07-18",
       changes: [
         "Admin <b>Active Sessions</b> kini menggunakan listing read-only sebenar; Refresh, carian, filter dan pagination tidak lagi menukar status token secara tersembunyi.",
@@ -4817,7 +4818,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.15",
+      version: "2.3.0",
       date: "2026-07-18",
       changes: [
         "Konfigurasi dan secrets kini menggunakan satu runtime file resolver; <code>ONEID_SECRETS_FILE</code> kekal sebagai alias legacy tetapi path bercanggah akan ditolak.",
@@ -4828,7 +4829,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.14",
+      version: "2.2.4",
       date: "2026-07-18",
       changes: [
         "Operational Sync kini menggunakan soft warning bagi New melebihi 500, Update melebihi 1,000, Reactivate melebihi 100 atau jumlah perubahan melebihi 1,500.",
@@ -4839,7 +4840,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.13",
+      version: "2.2.3",
       date: "2026-07-18",
       changes: [
         "Identiti IC/pasport pelajar dinormalisasi kepada format alfanumerik tanpa ruang atau sengkang sebelum Preview dan Apply.",
@@ -4850,7 +4851,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.12",
+      version: "2.2.2",
       date: "2026-07-18",
       changes: [
         "<b>Operational External Sync</b> membolehkan Administrator menjalankan Apply berulang selepas fresh preview tanpa count/hash private baharu atau full database dump bagi setiap batch biasa.",
@@ -4861,7 +4862,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.11",
+      version: "2.2.1",
       date: "2026-07-18",
       changes: [
         "Pengurusan kategori Web Apps kini menyediakan tindakan <b>Edit</b> untuk membetulkan nama kategori dengan validation, duplicate protection, transaction dan audit log yang wajib.",
@@ -4872,7 +4873,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.10",
+      version: "2.2.0",
       date: "2026-07-18",
       changes: [
         "Fasa <b>S4F Full External Sync</b> menyediakan endpoint dan UI Apply berasingan yang kekal disabled secara default serta hanya tersedia dalam maintenance window yang diluluskan.",
@@ -4883,7 +4884,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.9",
+      version: "2.1.4",
       date: "2026-07-18",
       changes: [
         "Keserasian Chrome dan Firefox dipertingkat dengan atribut <b>autocomplete</b>, username tersembunyi serta identiti medan yang lengkap untuk login, password recovery, OTP dan pertukaran kata laluan.",
@@ -4894,7 +4895,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.8",
+      version: "2.1.3",
       date: "2026-07-17",
       changes: [
         "Dashboard pengguna dan Administrator kini memaparkan pecahan <b>Jumlah, Full SSO dan Non SSO</b> berdasarkan aplikasi unik serta kontrak <code>sp_sso_support</code> yang sama dengan tindakan akses.",
@@ -4904,7 +4905,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.7",
+      version: "2.1.2",
       date: "2026-07-17",
       changes: [
         "Konfigurasi SSO pentadbir diperkukuh melalui validation, audit correlation, integriti database, token lifecycle dan pemisahan polisi <b>Password Recovery</b>.",
@@ -4920,7 +4921,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.6",
+      version: "2.1.1",
       date: "2026-07-16",
       changes: [
         "<b>Controlled Pilot External Sync</b> berjaya melaksanakan subset terkawal 2 akaun baharu dan 1 kemas kini tanpa Deactivate atau Reactivate; Apply kemudiannya dikembalikan kepada disabled.",
@@ -4933,7 +4934,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       ]
     },
     {
-      version: "2.0.5",
+      version: "2.1.0",
       date: "2026-07-14",
       changes: [
         "Audit Log kini memaparkan rekod <b>terbaharu di bahagian paling atas</b> menggunakan susunan stabil <code>datetime DESC, id DESC</code>.",

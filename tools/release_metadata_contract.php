@@ -15,9 +15,9 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $label);
 };
 
-$report(ONEID_APP_VERSION === '2.0.20', 'central application version is 2.0.20');
+$report(ONEID_APP_VERSION === '2.4.0', 'central application version is 2.4.0');
 $report(
-    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.0.20',
+    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.4.0',
     'central copyright and footer text match the approved release'
 );
 
@@ -31,58 +31,41 @@ $report(
     str_contains($adminDashboard, 'version: <?php echo json_encode(ONEID_APP_VERSION); ?>')
         && str_contains($adminDashboard, 'Browser UAT AS2')
         && str_contains($adminDashboard, 'dilaporkan PASS oleh owner')
-        && str_contains($adminDashboard, 'AS3 notification'),
-    'latest admin release card reads shared v2.0.20 metadata and AS2 UAT closure notes'
+        && str_contains($adminDashboard, 'AS3 notification')
+        && str_contains($adminDashboard, 'lima patch setiap minor'),
+    'latest admin release card reads shared v2.4.0 metadata and AS2 UAT closure notes'
 );
-$release219Position = strpos($adminDashboard, 'version: "2.0.19"');
-$release218Position = strpos($adminDashboard, 'version: "2.0.18"');
-$release217Position = strpos($adminDashboard, 'version: "2.0.17"');
-$release216Position = strpos($adminDashboard, 'version: "2.0.16"');
-$release215Position = strpos($adminDashboard, 'version: "2.0.15"');
-$release214Position = strpos($adminDashboard, 'version: "2.0.14"');
-$release213Position = strpos($adminDashboard, 'version: "2.0.13"');
-$release212Position = strpos($adminDashboard, 'version: "2.0.12"');
-$release211Position = strpos($adminDashboard, 'version: "2.0.11"');
-$release210Position = strpos($adminDashboard, 'version: "2.0.10"');
-$release209Position = strpos($adminDashboard, 'version: "2.0.9"');
-$release208Position = strpos($adminDashboard, 'version: "2.0.8"');
-$release207Position = strpos($adminDashboard, 'version: "2.0.7"');
-$release206Position = strpos($adminDashboard, 'version: "2.0.6"');
-$release205Position = strpos($adminDashboard, 'version: "2.0.5"');
+$expectedHistory = [
+    '2.3.4','2.3.3','2.3.2','2.3.1','2.3.0',
+    '2.2.4','2.2.3','2.2.2','2.2.1','2.2.0',
+    '2.1.4','2.1.3','2.1.2','2.1.1','2.1.0',
+    '2.0.4','2.0.3','2.0.2','2.0.1','2.0.0',
+];
+$previousPosition = -1;
+$historyValid = true;
+foreach ($expectedHistory as $version) {
+    $position = strpos($adminDashboard, 'version: "' . $version . '"');
+    if ($position === false || $position <= $previousPosition) {
+        $historyValid = false;
+        break;
+    }
+    $previousPosition = $position;
+}
 $report(
-    $release219Position !== false
-        && $release218Position !== false
-        && $release217Position !== false
-        && $release216Position !== false
-        && $release215Position !== false
-        && $release214Position !== false
-        && $release213Position !== false
-        && $release212Position !== false
-        && $release211Position !== false
-        && $release210Position !== false
-        && $release209Position !== false
-        && $release208Position !== false
-        && $release207Position !== false
-        && $release206Position !== false
-        && $release205Position !== false
-        && $release219Position < $release218Position
-        && $release218Position < $release217Position
-        && $release217Position < $release216Position
-        && $release216Position < $release215Position
-        && $release215Position < $release214Position
-        && $release214Position < $release213Position
-        && $release213Position < $release212Position
-        && $release212Position < $release211Position
-        && $release211Position < $release210Position
-        && $release210Position < $release209Position
-        && $release209Position < $release208Position
-        && $release208Position < $release207Position
-        && $release207Position < $release206Position
-        && $release206Position < $release205Position
+    $historyValid
         && str_contains($adminDashboard, 'Konfigurasi SSO pentadbir diperkukuh')
         && str_contains($adminDashboard, 'WA6 menyediakan reconciliation read-only')
         && str_contains($adminDashboard, 'Controlled Pilot External Sync'),
-    'release history preserves v2.0.19 through v2.0.5 in order'
+    'release history preserves normalized v2.3.4 through v2.0.0 in order'
+);
+$policy = (string) file_get_contents($projectRoot . '/docs/VERSION_NUMBERING_POLICY.md');
+$package = json_decode((string) file_get_contents($projectRoot . '/package.json'), true);
+$report(($package['version'] ?? '') === ONEID_APP_VERSION, 'package metadata matches the central application version');
+$report(
+    preg_match('/^\d+\.\d+\.[0-4]$/', ONEID_APP_VERSION) === 1
+        && str_contains($policy, 'Selepas `MAJOR.MINOR.4`')
+        && str_contains($policy, '`MAJOR.(MINOR+1).0`'),
+    'version policy caps patch at 4 and rolls the next release to a new minor series'
 );
 $report(
     str_contains($adminDashboard, 'version-release-toggle')

@@ -1,6 +1,6 @@
-# Release OneID v2.0.8 — UI, Audit dan Perancangan
+# Release OneID v2.1.3 — UI, Audit dan Perancangan
 
-**Versi:** 2.0.8
+**Versi:** 2.1.3
 **Tarikh:** 17 Julai 2026
 
 Release ini mengemas kini ringkasan UI direktori aplikasi serta merekod reka
@@ -34,7 +34,7 @@ bentuk keselamatan dan multi-language untuk pelaksanaan berfasa akan datang.
   pelaksanaan kekal `on hold`;
 - multi-language masih pada peringkat audit dan perancangan serta belum
   mengubah bahasa runtime sistem; dan
-- v2.0.8 tidak menambah schema, OTP TOTP, language switcher atau setting locale.
+- v2.1.3 tidak menambah schema, OTP TOTP, language switcher atau setting locale.
 
 ## Compatibility
 
@@ -42,4 +42,4 @@ bentuk keselamatan dan multi-language untuk pelaksanaan berfasa akan datang.
 - App ID, URL, token, session dan SSO consumer contract tidak berubah;
 - pecahan metric hanya menggunakan data `sp_sso_support` yang telah dihantar
   oleh endpoint sedia ada; dan
-- v2.0.7 kekal dalam sejarah Version Releases.
+- v2.1.2 kekal dalam sejarah Version Releases.

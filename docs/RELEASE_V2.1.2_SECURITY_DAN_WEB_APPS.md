@@ -1,9 +1,9 @@
-# Release OneID v2.0.7 — Security dan Web Apps
+# Release OneID v2.1.2 — Security dan Web Apps
 
-**Versi:** 2.0.7
+**Versi:** 2.1.2
 **Tarikh:** 17 Julai 2026
 
-Release ini menggabungkan penambahbaikan selepas v2.0.6 bagi konfigurasi SSO,
+Release ini menggabungkan penambahbaikan selepas v2.1.1 bagi konfigurasi SSO,
 Password Recovery, tukar kata laluan pengguna dan pengurusan Admin Web Apps.
 
 ## Perubahan utama

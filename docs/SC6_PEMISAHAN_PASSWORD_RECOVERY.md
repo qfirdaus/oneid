@@ -89,7 +89,7 @@ Jangan matikan delivery untuk UAT live tanpa recovery window yang dipersetujui.
 ### Resilience hotfix staging — PASS
 
 Selepas insiden login/session dan loading Forgot Password pada staging, hotfix
-v2.0.7 menambah bounded timeout, double-submit protection, session-lock release
+v2.1.2 menambah bounded timeout, double-submit protection, session-lock release
 semasa SMTP, correlation bagi semua recovery request dan operational feedback
 yang sentiasa menutup loading state.
 

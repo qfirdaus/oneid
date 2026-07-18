@@ -1,6 +1,6 @@
-# Release OneID v2.0.6 — Controlled Pilot dan UI
+# Release OneID v2.1.1 — Controlled Pilot dan UI
 
-**Versi:** 2.0.6  
+**Versi:** 2.1.1
 **Tarikh:** 16 Julai 2026
 
 Release ini merekod kejayaan Controlled Pilot External Sync bagi subset tetap
