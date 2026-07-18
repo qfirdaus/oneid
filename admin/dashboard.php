@@ -1554,7 +1554,18 @@
                                                          <section class="tab-pane fade" id="configuration_audit" role="tabpanel" aria-labelledby="configuration_audit_tab">
                                                       <div class="sso-config-panel">
                                                          <div class="sso-config-header"><div><span class="sso-config-eyebrow">Audit history</span><h4 class="sso-config-title">Configuration History</h4><p class="sso-config-intro">Success and rejected attempts, newest first. Sensitive authentication material is never displayed.</p></div><button type="button" class="sso-config-save" onclick="loadSsoConfigHistory(1)"><i class="fa fa-refresh"></i><span>Refresh</span></button></div>
-                                                         <div class="table-responsive"><table class="table mb-0"><thead><tr><th>Time</th><th>Actor</th><th>Outcome</th><th>Revision</th><th>Changes</th><th>Reason / Code</th><th>Reference</th></tr></thead><tbody id="sso_config_history_body"><tr><td colspan="7">Loading history...</td></tr></tbody></table></div>
+                                                         <div class="configuration-history-table-wrap">
+                                                            <table class="table configuration-history-table mb-0">
+                                                               <colgroup>
+                                                                  <col class="configuration-history-col-event">
+                                                                  <col class="configuration-history-col-result">
+                                                                  <col class="configuration-history-col-change">
+                                                                  <col class="configuration-history-col-reason">
+                                                               </colgroup>
+                                                               <thead><tr><th scope="col">Event</th><th scope="col">Result</th><th scope="col">Changes</th><th scope="col">Reason &amp; Reference</th></tr></thead>
+                                                               <tbody id="sso_config_history_body"><tr class="configuration-history-state-row"><td colspan="4">Loading history...</td></tr></tbody>
+                                                            </table>
+                                                         </div>
                                                          <div id="sso_config_history_pagination" class="active-session-pagination"></div>
                                                       </div>
                                                          </section>
@@ -2172,11 +2183,30 @@
 
          function loadSsoConfigHistory(page){
             $.post('../lib/q_func',{admin_get_configuration_history:'',page:page||1,page_size:10},function(response){
-               if(!response||Number(response.status)!==1){$('#sso_config_history_body').html('<tr><td colspan="7">History unavailable.</td></tr>');return;}
-               var rows='';$.each(response.data||[],function(i,item){var revision=item.version_before===null?'-':item.version_before+' -> '+item.version_after;var reason=sessionTextValue(item.change_reason||item.reason_code);var changes='-';if(item.before&&item.after){changes='Token: '+item.before.token_timeout+' -> '+item.after.token_timeout+'; Multiple: '+item.before.multi_session+' -> '+item.after.multi_session;}rows+='<tr><td>'+sessionTextValue(item.created_at)+'</td><td>'+sessionTextValue(item.actor)+'</td><td>'+sessionTextValue(item.outcome)+'</td><td>'+sessionTextValue(revision)+'</td><td>'+sessionTextValue(changes)+'</td><td title="'+sessionAttributeValue(reason)+'">'+reason+'</td><td>'+sessionTextValue(item.correlation_id)+'</td></tr>';});
-               $('#sso_config_history_body').html(rows||'<tr><td colspan="7">No configuration history recorded.</td></tr>');var meta=response.meta||{};var p=Number(meta.page||1),pages=Number(meta.total_pages||1);$('#sso_config_history_pagination').html('<button type="button" '+(p<=1?'disabled':'')+' onclick="loadSsoConfigHistory('+(p-1)+')"><i class="fa fa-chevron-left"></i></button><span>Page '+p+' of '+pages+'</span><button type="button" '+(p>=pages?'disabled':'')+' onclick="loadSsoConfigHistory('+(p+1)+')"><i class="fa fa-chevron-right"></i></button>');
-            },'json').fail(function(){$('#sso_config_history_body').html('<tr><td colspan="7">History unavailable.</td></tr>');});
+               if(!response||Number(response.status)!==1){renderSsoConfigHistoryState('History unavailable.');return;}
+               var rows='';
+               $.each(response.data||[],function(i,item){
+                  var outcome=String(item.outcome||'').toUpperCase();
+                  var outcomeClass=outcome==='SUCCESS'?'is-success':'is-rejected';
+                  var revision=item.version_before===null?'-':item.version_before+' → '+item.version_after;
+                  var reason=item.change_reason||'No change reason recorded.';
+                  var changes='<span class="configuration-history-empty">No policy mutation</span>';
+                  if(item.before&&item.after){
+                     changes='<span class="configuration-history-change"><b>Token</b> '+sessionTextValue(item.before.token_timeout)+' → '+sessionTextValue(item.after.token_timeout)+'</span>'+
+                        '<span class="configuration-history-change"><b>Multiple</b> '+(Number(item.before.multi_session)===1?'Allowed':'Not allowed')+' → '+(Number(item.after.multi_session)===1?'Allowed':'Not allowed')+'</span>';
+                  }
+                  rows+='<tr>'+
+                     '<td data-label="Event"><span class="configuration-history-primary">'+sessionTextValue(item.created_at)+'</span><span class="configuration-history-secondary"><i class="fa fa-user-o" aria-hidden="true"></i>'+sessionTextValue(item.actor)+'</span></td>'+
+                     '<td data-label="Result"><span class="configuration-history-outcome '+outcomeClass+'">'+sessionTextValue(outcome||'UNKNOWN')+'</span><span class="configuration-history-secondary">Revision '+sessionTextValue(revision)+'</span></td>'+
+                     '<td data-label="Changes">'+changes+'</td>'+
+                     '<td data-label="Reason &amp; Reference"><span class="configuration-history-reason" title="'+sessionAttributeValue(reason)+'">'+sessionTextValue(reason)+'</span><span class="configuration-history-secondary">'+sessionTextValue(item.reason_code)+' · '+sessionTextValue(item.correlation_id)+'</span></td>'+
+                     '</tr>';
+               });
+               if(rows){$('#sso_config_history_body').html(rows);}else{renderSsoConfigHistoryState('No configuration history recorded.');}
+               var meta=response.meta||{};var p=Number(meta.page||1),pages=Number(meta.total_pages||1);$('#sso_config_history_pagination').html('<button type="button" '+(p<=1?'disabled':'')+' onclick="loadSsoConfigHistory('+(p-1)+')"><i class="fa fa-chevron-left"></i></button><span>Page '+p+' of '+pages+'</span><button type="button" '+(p>=pages?'disabled':'')+' onclick="loadSsoConfigHistory('+(p+1)+')"><i class="fa fa-chevron-right"></i></button>');
+            },'json').fail(function(){renderSsoConfigHistoryState('History unavailable.');});
          }
+         function renderSsoConfigHistoryState(message){$('#sso_config_history_body').html('<tr class="configuration-history-state-row"><td colspan="4">'+sessionTextValue(message)+'</td></tr>');}
          function sessionTextValue(value){return $('<div>').text(value==null?'':value).html();}
          function sessionAttributeValue(value){return sessionTextValue(value).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
@@ -4829,6 +4859,15 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-19",
+      changes: [
+        "Audit History dipadatkan daripada tujuh kolum kepada empat kumpulan maklumat yang mudah diimbas.",
+        "Semua header dan data audit menggunakan top-left alignment, lebar kolum stabil, ellipsis serta tooltip bagi reason yang panjang.",
+        "Outcome, revision, perubahan, actor, reason code dan reference disusun secara hierarki dengan paparan responsif seperti Active Sessions."
+      ]
+    },
+    {
+      version: "2.4.3",
       date: "2026-07-19",
       changes: [
         "Configuration kini menggunakan tiga tab khusus: Authentication Policy, Account Recovery dan Audit History.",
@@ -8346,6 +8385,133 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         color: #d49b18;
       }
 
+      #tab_settings .configuration-history-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e1e6ed;
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      #tab_settings .configuration-history-table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+      }
+
+      #tab_settings .configuration-history-col-event { width: 24%; }
+      #tab_settings .configuration-history-col-result { width: 16%; }
+      #tab_settings .configuration-history-col-change { width: 28%; }
+      #tab_settings .configuration-history-col-reason { width: 32%; }
+
+      #tab_settings .configuration-history-table thead th {
+        padding: 13px 15px;
+        border: 0;
+        border-bottom: 1px solid #e8ecf1;
+        background: #f8fafc;
+        color: #657286;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .055em;
+        line-height: 1.4;
+        text-align: left;
+        text-transform: uppercase;
+        vertical-align: top;
+      }
+
+      #tab_settings .configuration-history-table tbody td {
+        padding: 15px;
+        overflow: hidden;
+        border: 0;
+        border-bottom: 1px solid #edf0f4;
+        color: #596678;
+        font-size: 11px;
+        line-height: 1.45;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      #tab_settings .configuration-history-table tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      #tab_settings .configuration-history-table tbody tr:not(.configuration-history-state-row):hover td {
+        background: #fbfdff;
+      }
+
+      #tab_settings .configuration-history-primary,
+      #tab_settings .configuration-history-secondary,
+      #tab_settings .configuration-history-change,
+      #tab_settings .configuration-history-reason {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      #tab_settings .configuration-history-primary,
+      #tab_settings .configuration-history-reason {
+        color: #34465b;
+        font-weight: 600;
+      }
+
+      #tab_settings .configuration-history-secondary {
+        margin-top: 5px;
+        color: #8490a0;
+        font-size: 10px;
+      }
+
+      #tab_settings .configuration-history-secondary i {
+        width: 14px;
+        margin-right: 4px;
+        color: #8b98a8;
+        text-align: left;
+      }
+
+      #tab_settings .configuration-history-change + .configuration-history-change {
+        margin-top: 4px;
+      }
+
+      #tab_settings .configuration-history-change b {
+        display: inline-block;
+        min-width: 52px;
+        color: #435269;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      #tab_settings .configuration-history-outcome {
+        display: inline-flex;
+        align-items: center;
+        min-height: 22px;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 9px;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      #tab_settings .configuration-history-outcome.is-success {
+        background: #e7f7ef;
+        color: #168354;
+      }
+
+      #tab_settings .configuration-history-outcome.is-rejected {
+        background: #fceceb;
+        color: #b1473f;
+      }
+
+      #tab_settings .configuration-history-empty,
+      #tab_settings .configuration-history-state-row td {
+        color: #8995a4;
+      }
+
+      #tab_settings .configuration-history-state-row td {
+        padding: 28px 15px;
+        text-align: center;
+      }
+
       @media (max-width: 767px) {
         #tab_settings .configuration-tabs .nav-tabs > li > a {
           min-height: 48px;
@@ -8383,6 +8549,45 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
         #tab_settings .sso-config-note {
           padding: 15px 20px;
+        }
+
+        #tab_settings .configuration-history-table,
+        #tab_settings .configuration-history-table tbody,
+        #tab_settings .configuration-history-table tr,
+        #tab_settings .configuration-history-table td {
+          display: block;
+          width: 100%;
+        }
+
+        #tab_settings .configuration-history-table colgroup,
+        #tab_settings .configuration-history-table thead {
+          display: none;
+        }
+
+        #tab_settings .configuration-history-table tbody tr:not(.configuration-history-state-row) {
+          padding: 10px 15px;
+          border-bottom: 1px solid #e8ecf1;
+        }
+
+        #tab_settings .configuration-history-table tbody tr:not(.configuration-history-state-row) td {
+          display: grid;
+          grid-template-columns: 112px minmax(0, 1fr);
+          gap: 12px;
+          padding: 8px 0;
+          border: 0;
+        }
+
+        #tab_settings .configuration-history-table tbody tr:not(.configuration-history-state-row) td::before {
+          content: attr(data-label);
+          color: #7b8797;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: .05em;
+          text-transform: uppercase;
+        }
+
+        #tab_settings .configuration-history-table tbody tr:not(.configuration-history-state-row) td > span {
+          grid-column: 2;
         }
       }
 

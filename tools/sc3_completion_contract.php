@@ -22,4 +22,12 @@ $report(
         && str_contains($ui, "loadSsoConfigHistory(1);"),
     'UI separates Authentication, Account Recovery and Audit History into accessible tabs'
 );
+$report(
+    str_contains($ui, 'configuration-history-table')
+        && str_contains($ui, 'configuration-history-col-event')
+        && str_contains($ui, 'configuration-history-col-reason')
+        && str_contains($ui, 'colspan="4"')
+        && str_contains($ui, 'data-label="Reason &amp; Reference"'),
+    'Audit History uses a compact four-column top-left responsive table'
+);
 printf("RESULT checks=%d failed=%d\n",$checks,$failed);exit($failed===0?0:1);
