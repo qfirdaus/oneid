@@ -7248,11 +7248,19 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         outline: none;
       }
 
-      #tab_synclog .sync-detail-table th:nth-child(1) { width: 5%; }
+      #tab_synclog .sync-detail-table th:nth-child(1) { width: 7%; }
       #tab_synclog .sync-detail-table th:nth-child(2) { width: 14%; }
       #tab_synclog .sync-detail-table th:nth-child(3) { width: 13%; }
-      #tab_synclog .sync-detail-table th:nth-child(4) { width: 49%; }
+      #tab_synclog .sync-detail-table th:nth-child(4) { width: 47%; }
       #tab_synclog .sync-detail-table th:nth-child(5) { width: 19%; }
+
+      #tab_synclog .sync-detail-table th:nth-child(1),
+      #tab_synclog .sync-detail-table td:nth-child(1) {
+        min-width: 48px;
+        overflow-wrap: normal;
+        white-space: nowrap;
+        word-break: normal;
+      }
 
       #tab_synclog .sync-row-number,
       #tab_synclog .sync-detail-user {

@@ -117,3 +117,45 @@ Change `ONEID-S4F-20260718-01` diluluskan untuk window 18 Julai 2026
 `0530-09`. Firdaus ialah change owner, rollback owner, DBA/SA on-call,
 monitoring owner dan security reviewer. Saluran insiden ialah WhatsApp dan
 maximum Apply request ialah satu. Gate window S4F-08 ditutup sebagai PASS.
+
+## Fresh Full Plan Evidence
+
+Fresh staging preview pada 18 Julai 2026 menghasilkan source `6485`, New `70`,
+Update `33`, Deactivate `1`, Reactivate `0`, protected manual `1`, collision `0`
+dan tiada planner warning. Full plan hash ialah
+`af73c50a124ff1fa28adc641c21aff2338ca49ba9529a93b112b7386997e8b5f`.
+Approval preview tersebut tamat pada `15:43:35 +08:00`; ia bukan authorization
+Apply. S4F-09 kekal pending sehingga exact plan menerima GO eksplisit dan fresh
+preview baharu dijana dalam maintenance window.
+
+Firdaus kemudian memberikan keputusan `GO S4F FULL SYNC` untuk change
+`ONEID-S4F-20260718-01`, release `ff20b0d`, exact counts `70/33/1/0`, full hash
+di atas, update manifest yang telah diterima, backup `S4D-20260718-152545` dan
+executing admin `0530-09`. Maximum Apply request kekal satu. Gate S4F-09
+ditutup sebagai PASS; fresh preview dalam window masih wajib sepadan sebelum
+butang Apply digunakan.
+
+## Rekod Runtime Activation
+
+Pada 18 Julai 2026 `16:03:59 +08:00`, AppsStagingv1 release `ff20b0d`
+berjaya reload PHP-FPM. Service aktif dengan `0` process aktif, `6` idle dan
+`0` slow request. Effective runtime ialah Apply `true`, engine `safe`, pilot
+`false`, full `true`, expected counts `70/33/1/0` dan plan hash prefix
+`af73c50a124f`. Preflight melaporkan `full_runtime_ready=yes` dan
+`mutation_statements=0`. Gate S4F-10 ditutup sebagai PASS.
+
+## Rekod Full Apply dan Reconciliation
+
+Full sync committed sebagai header `42` dengan source `6485`, New `70`, Update
+`33`, Deactivate `1` dan Reactivate `0`. Flags dipulangkan kepada
+`false/disabled/false` selepas respons dan preflight mengesahkan full runtime
+tidak lagi ready.
+
+Audit pertama menggunakan staff ID `0530-09` dan mendapati `admin_match=no`.
+Investigation read-only membuktikan header menyimpan canonical login ID
+`820705025923`; akaun itu aktif, bertaraf admin dan mempunyai approved staff ID
+`0530-09` dalam `data3`. Audit diulang menggunakan canonical login ID dan lulus:
+header status `2`, uploaded `70`, semua counts serta audit sepadan dan syslog
+marker tepat satu. Gate reconciliation S4F-11 ditutup sebagai PASS. Perbezaan
+identifier tidak menunjukkan executor berlainan dan tiada database correction
+dilakukan.
