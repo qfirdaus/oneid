@@ -4861,6 +4861,15 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
       date: "2026-07-19",
       changes: [
+        "Pagination Audit History kini sepadan dengan Active Sessions dan berada di kanan bawah pada desktop.",
+        "Ruang selepas jadual, saiz butang, hover, focus dan disabled state diseragamkan untuk paparan yang lebih kemas.",
+        "Pada skrin kecil pagination kembali ke tengah bagi mengekalkan kawalan yang mudah dicapai."
+      ]
+    },
+    {
+      version: "2.4.4",
+      date: "2026-07-19",
+      changes: [
         "Audit History dipadatkan daripada tujuh kolum kepada empat kumpulan maklumat yang mudah diimbas.",
         "Semua header dan data audit menggunakan top-left alignment, lebar kolum stabil, ellipsis serta tooltip bagi reason yang panjang.",
         "Outcome, revision, perubahan, actor, reason code dan reference disusun secara hierarki dengan paparan responsif seperti Active Sessions."
@@ -8512,6 +8521,43 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         text-align: center;
       }
 
+      #tab_settings #sso_config_history_pagination {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        min-height: 48px;
+        gap: 12px;
+        margin-top: 14px;
+        padding: 6px 0 0;
+        color: #657286;
+        font-size: 11px;
+      }
+
+      #tab_settings #sso_config_history_pagination button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        border: 1px solid #cfe1ec;
+        border-radius: 6px;
+        background: #fff;
+        color: #168fcb;
+      }
+
+      #tab_settings #sso_config_history_pagination button:hover:not(:disabled),
+      #tab_settings #sso_config_history_pagination button:focus:not(:disabled) {
+        border-color: #9dcede;
+        background: #eef8fd;
+        outline: none;
+      }
+
+      #tab_settings #sso_config_history_pagination button:disabled {
+        cursor: not-allowed;
+        opacity: .45;
+      }
+
       @media (max-width: 767px) {
         #tab_settings .configuration-tabs .nav-tabs > li > a {
           min-height: 48px;
@@ -8588,6 +8634,10 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
         #tab_settings .configuration-history-table tbody tr:not(.configuration-history-state-row) td > span {
           grid-column: 2;
+        }
+
+        #tab_settings #sso_config_history_pagination {
+          justify-content: center;
         }
       }
 

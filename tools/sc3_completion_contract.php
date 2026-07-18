@@ -30,4 +30,10 @@ $report(
         && str_contains($ui, 'data-label="Reason &amp; Reference"'),
     'Audit History uses a compact four-column top-left responsive table'
 );
+$report(
+    str_contains($ui, '#tab_settings #sso_config_history_pagination')
+        && str_contains($ui, 'justify-content: flex-end;')
+        && str_contains($ui, 'margin-top: 14px;'),
+    'Audit History pagination matches the spaced right-aligned Active Sessions controls'
+);
 printf("RESULT checks=%d failed=%d\n",$checks,$failed);exit($failed===0?0:1);

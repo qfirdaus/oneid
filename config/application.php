@@ -8,7 +8,7 @@
  */
 
 if (!defined('ONEID_APP_VERSION')) {
-    define('ONEID_APP_VERSION', '2.4.4');
+    define('ONEID_APP_VERSION', '2.5.0');
 }
 
 if (!defined('ONEID_COPYRIGHT_YEAR')) {
