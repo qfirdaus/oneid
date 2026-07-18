@@ -15,6 +15,7 @@ $report(str_contains($service,"'user_id'")&&str_contains($service,"'issued_at'")
 $report(str_contains($ui,'active_session_query')&&str_contains($ui,'active_session_status')&&str_contains($ui,'active_session_pagination'),'UI provides search, lifecycle filter and pagination');
 $report(str_contains($ui,'Issued At')&&str_contains($ui,'Last Heartbeat')&&str_contains($ui,"refresh:{label:'Refresh window'")&&str_contains($ui,"grace:{label:'Grace period'")&&str_contains($ui,"due:{label:'Due'"),'UI labels timestamps and lifecycle states accurately');
 $report(str_contains($ui,'active_session_metrics')&&str_contains($ui,'active_metric_refresh'),'UI exposes lifecycle metrics including refresh window');
+$report(str_contains($ui,"sessionAttribute(userName+' ('+userId+')')")&&!str_contains($ui,"<small>'+userId+'</small>")&&str_contains($ui,"statusTitle += ' - '"),'UI keeps escaped user ID and revocation detail in hover titles without a second data line');
 $report(str_contains($ui,'tidak menamatkan atau mengubah sesi pengguna'),'UI states the read-only behavior explicitly');
 $report(str_contains($source['tools/as0_active_sessions_preflight.php'],'status_digest_match')&&str_contains($source['tools/as0_active_sessions_preflight.php'],"['token_id','token_hash','policy_revoke_correlation']"),'preflight verifies zero status mutation and forbidden response fields');
 exec(escapeshellarg(PHP_BINARY).' '.escapeshellarg($root.'/tests/characterization/as0_active_sessions_readonly.php'),$output,$code);

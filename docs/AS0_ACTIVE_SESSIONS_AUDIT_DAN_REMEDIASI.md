@@ -46,6 +46,8 @@ listing ini dan tidak akan diaktifkan oleh remediasi AS0.
 - Persistence menggunakan explicit projection dan query berparameter.
 - Listing membezakan Current, Active, Refresh Window, Grace, Due dan Expired.
 - Jalur metrik memaparkan jumlah bagi setiap lifecycle state.
+- Setiap nilai jadual kekal satu baris. Kolum User hanya memaparkan nama;
+  ID/IC dan detail masa revocation boleh dilihat melalui hover tooltip.
 - Search, status filter dan page size 10/25/50 tersedia.
 - Preflight local mengesahkan response tanpa forbidden fields dan status digest
   token kekal sama sebelum serta selepas listing.

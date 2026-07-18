@@ -4175,6 +4175,9 @@
 				var sessionText = function(value){
 					return $('<div>').text(value == null ? '' : value).html();
 				};
+				var sessionAttribute = function(value){
+					return sessionText(value).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+				};
 
 				if (!response || Number(response.status) !== 1 || !Array.isArray(response.data) || !response.meta) {
 					$('#active_session_count').text('\u2014');
@@ -4211,15 +4214,17 @@
 						var userId = sessionText(session.user_id);
 						var deviceInfo = sessionText(session.device_info);
 						var status = statusMap[session.status] || statusMap.expired;
-						var statusDetail = (session.status === 'grace' || session.status === 'due') && session.revoke_at
-							? '<small>'+sessionText(admin_format_datetime(session.revoke_at))+'</small>' : '';
+						var statusTitle = status.label;
+						if ((session.status === 'grace' || session.status === 'due') && session.revoke_at) {
+							statusTitle += ' - '+sessionText(admin_format_datetime(session.revoke_at));
+						}
 
 						rows += '<tr>';
-						rows += '<td data-label="Issued At"><span class="active-session-cell active-session-time" title="'+issuedAt+'">'+issuedAt+'</span></td>';
-						rows += '<td data-label="Last Heartbeat"><span class="active-session-cell active-session-time" title="'+lastActivity+'">'+lastActivity+'</span></td>';
-						rows += '<td data-label="User"><span class="active-session-cell active-session-user" title="'+userName+' ('+userId+')"><i class="fa fa-user-circle-o" aria-hidden="true"></i><span>'+userName+'<small>'+userId+'</small></span></span></td>';
-						rows += '<td data-label="Device"><span class="active-session-cell active-session-device" title="'+deviceInfo+'"><i class="fa fa-desktop" aria-hidden="true"></i>'+deviceInfo+'</span></td>';
-						rows += '<td data-label="Status"><span class="active-session-status is-'+session.status+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+statusDetail+'</span></span></td>';
+						rows += '<td data-label="Issued At"><span class="active-session-cell active-session-time" title="'+sessionAttribute(issuedAt)+'">'+issuedAt+'</span></td>';
+						rows += '<td data-label="Last Heartbeat"><span class="active-session-cell active-session-time" title="'+sessionAttribute(lastActivity)+'">'+lastActivity+'</span></td>';
+						rows += '<td data-label="User"><span class="active-session-cell active-session-user" title="'+sessionAttribute(userName+' ('+userId+')')+'"><i class="fa fa-user-circle-o" aria-hidden="true"></i><span>'+userName+'</span></span></td>';
+						rows += '<td data-label="Device"><span class="active-session-cell active-session-device" title="'+sessionAttribute(deviceInfo)+'"><i class="fa fa-desktop" aria-hidden="true"></i>'+deviceInfo+'</span></td>';
+						rows += '<td data-label="Status"><span class="active-session-status is-'+session.status+'" title="'+sessionAttribute(statusTitle)+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+'</span></span></td>';
 						rows += '</tr>';
 					});
 
@@ -4757,6 +4762,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-18",
+      changes: [
+        "Jadual Admin <b>Active Sessions</b> kini memastikan setiap nilai Issued At, Last Heartbeat, User, Device dan Status dipaparkan dalam satu baris.",
+        "Kolum User hanya memaparkan nama; ID/IC penuh kekal tersedia melalui tooltip apabila tetikus berada di atas nama.",
+        "Nilai panjang menggunakan ellipsis tanpa mengubah tinggi row, dan kandungan penuh bagi masa serta peranti kekal tersedia melalui tooltip.",
+        "Masa revocation untuk status Grace atau Due dipindahkan ke tooltip status supaya badge kekal satu baris.",
+        "Contract AS0 melindungi paparan nama sahaja dan memastikan detail sensitif yang diperlukan tidak diwujudkan sebagai baris kedua."
+      ]
+    },
+    {
+      version: "2.0.17",
       date: "2026-07-18",
       changes: [
         "Heartbeat teknikal lima minit kini mengekalkan liveness token tanpa memperbaharui idle activity PHP; idle 30 minit dan absolute timeout 8 jam kekal berasingan.",
@@ -6768,23 +6784,14 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
       #tab_active_sessions .active-session-user {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
       }
 
       #tab_active_sessions .active-session-user > span {
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
-      }
-
-      #tab_active_sessions .active-session-user small,
-      #tab_active_sessions .active-session-status small {
-        display: block;
-        margin-top: 2px;
-        color: inherit;
-        font-size: 9px;
-        font-weight: 500;
-        text-transform: none;
+        white-space: nowrap;
       }
 
       #tab_active_sessions .active-session-status {
