@@ -22,8 +22,11 @@
 
 - explicit persistence projection tanpa token material dalam response;
 - endpoint read-only dengan response berstruktur;
-- lifecycle state server-side: Current, Active, Grace, Due dan Expired;
-- Issued At dan Last Activity sebagai medan berasingan;
+- lifecycle state server-side: Current, Active, Refresh Window, Grace, Due dan
+  Expired;
+- Issued At dan Last Heartbeat sebagai medan berasingan;
+- metrik lifecycle yang mengikuti carian semasa tetapi tidak dipengaruhi filter
+  status;
 - search pengguna/peranti, status filter dan pagination;
 - loading, empty, error dan pagination state yang stabil; dan
 - automated contract bagi authorization boundary, zero mutation, projection
@@ -41,7 +44,8 @@ listing ini dan tidak akan diaktifkan oleh remediasi AS0.
 ## Hasil Pelaksanaan
 
 - Persistence menggunakan explicit projection dan query berparameter.
-- Listing membezakan Current, Active, Grace, Due dan Expired.
+- Listing membezakan Current, Active, Refresh Window, Grace, Due dan Expired.
+- Jalur metrik memaparkan jumlah bagi setiap lifecycle state.
 - Search, status filter dan page size 10/25/50 tersedia.
 - Preflight local mengesahkan response tanpa forbidden fields dan status digest
   token kekal sama sebelum serta selepas listing.
@@ -53,7 +57,8 @@ listing ini dan tidak akan diaktifkan oleh remediasi AS0.
   dihantar ke browser.
 - Membuka, refresh, search, filter dan pagination menghasilkan zero mutation.
 - Current hanya menandakan token admin semasa dan ditentukan server-side.
-- Grace/Due mengikuti `policy_revoke_at`; Expired mengikuti absolute lifetime.
+- Grace/Due mengikuti `policy_revoke_at`; Refresh Window dan Expired mengikuti
+  absolute lifetime bersama compatibility window 60 minit.
 - Query dibataskan kepada page size yang allowlisted.
 - Endpoint kekal admin-only, POST, CSRF dan exactly-one-action guarded.
 - Semua contract dan regression SC4/SC5 lulus.

@@ -6,7 +6,7 @@ use InvalidArgumentException;
 
 final class ActiveSessionService
 {
-    private const STATUSES = ['all', 'current', 'active', 'grace', 'due', 'expired'];
+    private const STATUSES = ['all', 'current', 'active', 'refresh', 'grace', 'due', 'expired'];
     private const PAGE_SIZES = [10, 25, 50];
 
     public function __construct(private readonly object $operation)
@@ -44,6 +44,7 @@ final class ActiveSessionService
 
         $now = date('Y-m-d H:i:s');
         $activeCutoff = date('Y-m-d H:i:s', time() - (int) round($lifetimeHours * 3600));
+        $refreshCutoff = date('Y-m-d H:i:s', time() - (int) round($lifetimeHours * 3600) - 3600);
         $tokenHash = $currentToken === '' ? '' : oneid_token_hash($currentToken);
         $result = $this->operation->admin_list_active_sessions([
             'page' => $page,
@@ -53,11 +54,12 @@ final class ActiveSessionService
             'status' => $status,
             'now' => $now,
             'active_cutoff' => $activeCutoff,
+            'refresh_cutoff' => $refreshCutoff,
             'current_user_id' => trim($currentUserId),
             'current_token' => $currentToken,
             'current_token_hash' => $tokenHash,
         ]);
-        if (!is_array($result) || !isset($result['rows'], $result['total']) || !is_array($result['rows'])) {
+        if (!is_array($result) || !isset($result['rows'], $result['total'], $result['metrics']) || !is_array($result['rows']) || !is_array($result['metrics'])) {
             throw new InvalidArgumentException('AS0_RESULT_INVALID');
         }
 
@@ -81,6 +83,10 @@ final class ActiveSessionService
 
         $total = max(0, (int) $result['total']);
         $pages = max(1, (int) ceil($total / $pageSize));
+        $metrics = [];
+        foreach (array_slice(self::STATUSES, 1) as $state) {
+            $metrics[$state] = max(0, (int) ($result['metrics'][$state] ?? 0));
+        }
         return [
             'status' => 1,
             'code' => 'AS0_SESSIONS_LOADED',
@@ -92,6 +98,7 @@ final class ActiveSessionService
                 'total_pages' => $pages,
                 'query' => $query,
                 'status' => $status,
+                'metrics' => $metrics,
             ],
         ];
     }

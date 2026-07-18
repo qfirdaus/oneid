@@ -71,18 +71,18 @@ seperti behavior keselamatan lama, tetapi kini mempunyai state eksplisit.
 
 ### Active-session listing
 
-Senarai sesi user dan admin menggunakan absolute issuance. Token selain `active`
-ditandakan tidak aktif dan tidak dipaparkan. Senarai sesi tidak menggunakan
-compatibility refresh kerana refresh hanya berlaku melalui validation API.
+Senarai sesi user kekal menggunakan compatibility behavior asal. Listing admin
+AS0/AS1 pula read-only dan tidak lagi menukar status token ketika dibuka. Ia
+memaparkan Current, Active, Refresh Window, Grace, Due dan Expired berdasarkan
+absolute issuance, compatibility window serta `policy_revoke_at`.
 
 ### PHP session
 
-PHP session tidak berubah:
-
-- idle timeout 30 minit; dan
-- absolute timeout 8 jam.
-
-Ia kekal berasingan daripada absolute lifetime token SSO.
+PHP session kekal mempunyai idle timeout 30 minit dan absolute timeout 8 jam.
+Mulai AS1, heartbeat teknikal lima minit tidak memperbaharui idle activity;
+hanya request pengguna sebenar berbuat demikian. Kedua-dua timeout PHP kekal
+berasingan daripada absolute lifetime token SSO yang datang daripada
+Configuration.
 
 ## 6. Compatibility dan Risiko
 
@@ -111,7 +111,7 @@ Contract SC4 mengesahkan 11 perkara:
 - token baharu menyimpan issuance dan activity;
 - heartbeat tidak mengubah issuance;
 - API menggunakan policy berpusat;
-- kedua-dua senarai sesi menggunakan issuance; dan
+- senarai sesi menggunakan issuance tanpa hidden listing mutation; dan
 - live backfill tiada null serta index tersedia.
 
 Arahan:

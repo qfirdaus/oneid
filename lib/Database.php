@@ -1394,6 +1394,7 @@ class Database {
         $params=[
             ':now_value'=>(string)($filters['now']??''),
             ':active_cutoff'=>(string)($filters['active_cutoff']??''),
+            ':refresh_cutoff'=>(string)($filters['refresh_cutoff']??''),
             ':current_user_id'=>(string)($filters['current_user_id']??''),
             ':current_token'=>(string)($filters['current_token']??''),
             ':current_token_hash'=>(string)($filters['current_token_hash']??''),
@@ -1404,9 +1405,10 @@ class Database {
                      A.token_issued_at AS issued_at,A.token_datetime AS last_activity_at,
                      A.policy_revoke_at AS revoke_at,P.search_value,P.requested_status,
                      CASE
-                       WHEN A.token_issued_at>P.now_value OR A.token_issued_at<P.active_cutoff THEN 'expired'
+                       WHEN A.token_issued_at>P.now_value OR A.token_issued_at<=P.refresh_cutoff THEN 'expired'
                        WHEN A.policy_revoke_at IS NOT NULL AND A.policy_revoke_at<=P.now_value THEN 'due'
                        WHEN A.policy_revoke_at IS NOT NULL AND A.policy_revoke_at>P.now_value THEN 'grace'
+                       WHEN A.token_issued_at<P.active_cutoff THEN 'refresh'
                        WHEN A.user_id=P.current_user_id AND (A.token_id=P.current_token_hash OR A.token_id=P.current_token) THEN 'current'
                        ELSE 'active'
                      END AS lifecycle_status
@@ -1414,6 +1416,7 @@ class Database {
               LEFT JOIN user_tbl B ON B.u_id=A.user_id
               CROSS JOIN (SELECT CAST(:now_value AS DATETIME) AS now_value,
                                  CAST(:active_cutoff AS DATETIME) AS active_cutoff,
+                                 CAST(:refresh_cutoff AS DATETIME) AS refresh_cutoff,
                                  :current_user_id AS current_user_id,
                                  :current_token AS current_token,
                                  :current_token_hash AS current_token_hash,
@@ -1426,9 +1429,15 @@ class Database {
                            OR S.device_info LIKE S.search_value ESCAPE '\\\\')
                       AND (S.requested_status='all' OR S.lifecycle_status=S.requested_status)";
         $count=$this->pdo->prepare('SELECT COUNT(*)'.$filtered);$count->execute($params);$total=(int)$count->fetchColumn();
+        $metricSql="SELECT lifecycle_status,COUNT(*) total FROM (".$base.") M
+                    WHERE (M.search_value='' OR M.user_id LIKE M.search_value ESCAPE '\\\\'
+                           OR M.name LIKE M.search_value ESCAPE '\\\\'
+                           OR M.device_info LIKE M.search_value ESCAPE '\\\\') GROUP BY lifecycle_status";
+        $metricStatement=$this->pdo->prepare($metricSql);$metricStatement->execute($params);$metrics=[];
+        foreach($metricStatement->fetchAll(PDO::FETCH_ASSOC) as$metric)$metrics[(string)$metric['lifecycle_status']]=(int)$metric['total'];
         $rows=$this->pdo->prepare('SELECT user_id,name,device_info,issued_at,last_activity_at,revoke_at,lifecycle_status'.$filtered.' ORDER BY last_activity_at DESC,user_id ASC LIMIT '.$pageSize.' OFFSET '.$offset);
         $rows->execute($params);
-        return ['rows'=>$rows->fetchAll(PDO::FETCH_ASSOC),'total'=>$total];
+        return ['rows'=>$rows->fetchAll(PDO::FETCH_ASSOC),'total'=>$total,'metrics'=>$metrics];
     }
 
     public function remove_queue($no_matrix){

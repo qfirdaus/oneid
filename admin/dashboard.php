@@ -1198,6 +1198,7 @@
                                                                   <option value="all">All statuses</option>
                                                                   <option value="current">Current</option>
                                                                   <option value="active">Active</option>
+                                                                  <option value="refresh">Refresh window</option>
                                                                   <option value="grace">Grace period</option>
                                                                   <option value="due">Due for revocation</option>
                                                                   <option value="expired">Expired</option>
@@ -1208,6 +1209,14 @@
                                                                   <option value="50">50 per page</option>
                                                                </select>
                                                                <button type="button" id="active_session_search_button" class="active-session-filter-button" title="Apply session filters" aria-label="Apply session filters"><i class="fa fa-search" aria-hidden="true"></i></button>
+                                                            </div>
+                                                            <div class="active-session-metrics" id="active_session_metrics" aria-live="polite">
+                                                               <span><b id="active_metric_current">0</b>Current</span>
+                                                               <span><b id="active_metric_active">0</b>Active</span>
+                                                               <span><b id="active_metric_refresh">0</b>Refresh</span>
+                                                               <span><b id="active_metric_grace">0</b>Grace</span>
+                                                               <span><b id="active_metric_due">0</b>Due</span>
+                                                               <span><b id="active_metric_expired">0</b>Expired</span>
                                                             </div>
                                                             <div class="active-session-table-wrap">
                                                                <table class="table active-session-table mb-0">
@@ -1221,7 +1230,7 @@
                                                                   <thead>
                                                                      <tr>
                                                                         <th scope="col">Issued At</th>
-                                                                        <th scope="col">Last Activity</th>
+                                                                        <th scope="col">Last Heartbeat</th>
                                                                         <th scope="col">User</th>
                                                                         <th scope="col">Device</th>
                                                                         <th scope="col">Status</th>
@@ -4129,6 +4138,12 @@
             );
          }
 
+         function render_active_session_metrics(metrics){
+            $.each(['current','active','refresh','grace','due','expired'], function(i, state){
+               $('#active_metric_'+state).text(Number((metrics || {})[state] || 0));
+            });
+         }
+
          function get_all_user_activ_session(page){
          activeSessionPage = Number(page || activeSessionPage || 1);
          $.ajax({
@@ -4145,6 +4160,7 @@
           beforeSend: function(){
 				$('#active_session_count').text('\u2014');
 				$('#active_session_pagination').html('');
+				render_active_session_metrics({});
 				$('#app_security_session_list').show();
 				$('#security_tab_session').html(
 					'<tr class="active-session-state-row is-loading"><td colspan="5">' +
@@ -4163,10 +4179,12 @@
 				if (!response || Number(response.status) !== 1 || !Array.isArray(response.data) || !response.meta) {
 					$('#active_session_count').text('\u2014');
 					$('#active_session_pagination').html('');
+					render_active_session_metrics({});
 					$tbody.html('<tr class="active-session-state-row is-error"><td colspan="5"><span class="active-session-state-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span><strong>Unable to load active sessions</strong><small>' + sessionText(response && response.code ? response.code : 'Invalid server response') + '</small></td></tr>');
 					return;
 				}
 				var sessions = response.data;
+				render_active_session_metrics(response.meta.metrics || {});
 				if (sessions.length === 0) {
 					$('#active_session_count').text('0');
 					$tbody.html(
@@ -4181,6 +4199,7 @@
 					var statusMap = {
 						current:{label:'Current',icon:'fa-check-circle'},
 						active:{label:'Active',icon:'fa-circle'},
+						refresh:{label:'Refresh window',icon:'fa-refresh'},
 						grace:{label:'Grace period',icon:'fa-clock-o'},
 						due:{label:'Due',icon:'fa-exclamation-circle'},
 						expired:{label:'Expired',icon:'fa-times-circle'}
@@ -4197,7 +4216,7 @@
 
 						rows += '<tr>';
 						rows += '<td data-label="Issued At"><span class="active-session-cell active-session-time" title="'+issuedAt+'">'+issuedAt+'</span></td>';
-						rows += '<td data-label="Last Activity"><span class="active-session-cell active-session-time" title="'+lastActivity+'">'+lastActivity+'</span></td>';
+						rows += '<td data-label="Last Heartbeat"><span class="active-session-cell active-session-time" title="'+lastActivity+'">'+lastActivity+'</span></td>';
 						rows += '<td data-label="User"><span class="active-session-cell active-session-user" title="'+userName+' ('+userId+')"><i class="fa fa-user-circle-o" aria-hidden="true"></i><span>'+userName+'<small>'+userId+'</small></span></span></td>';
 						rows += '<td data-label="Device"><span class="active-session-cell active-session-device" title="'+deviceInfo+'"><i class="fa fa-desktop" aria-hidden="true"></i>'+deviceInfo+'</span></td>';
 						rows += '<td data-label="Status"><span class="active-session-status is-'+session.status+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+statusDetail+'</span></span></td>';
@@ -4212,6 +4231,7 @@
                        error: function (xhr, error, thrown) {
 						$('#active_session_count').text('\u2014');
 						$('#active_session_pagination').html('');
+						render_active_session_metrics({});
 						$('#security_tab_session').html(
 							'<tr class="active-session-state-row is-error"><td colspan="5">' +
 							'<span class="active-session-state-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>' +
@@ -4737,6 +4757,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-18",
+      changes: [
+        "Heartbeat teknikal lima minit kini mengekalkan liveness token tanpa memperbaharui idle activity PHP; idle 30 minit dan absolute timeout 8 jam kekal berasingan.",
+        "Admin <b>Active Sessions</b> menambah state <b>Refresh Window</b> dan metrik Current, Active, Refresh, Grace, Due serta Expired.",
+        "Timestamp UI diperjelas sebagai <b>Issued At</b> dan <b>Last Heartbeat</b>, selari dengan lifecycle absolute token dan compatibility window 60 minit.",
+        "Tool housekeeping menyediakan mod <code>--check</code> read-only serta Apply fail-closed dengan batch 500, advisory lock, transaction, typed confirmation dan exact reconciliation.",
+        "Housekeeping Apply, retention purge, cron scheduler, hard multi-session cap dan controlled admin revoke kekal disabled sehingga gate operasi masing-masing diluluskan."
+      ]
+    },
+    {
+      version: "2.0.16",
       date: "2026-07-18",
       changes: [
         "Admin <b>Active Sessions</b> kini menggunakan listing read-only sebenar; Refresh, carian, filter dan pagination tidak lagi menukar status token secara tersembunyi.",
@@ -6634,6 +6665,33 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         background: #eef8fd;
       }
 
+      #tab_active_sessions .active-session-metrics {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        border-bottom: 1px solid #e8ecf1;
+        background: #fff;
+      }
+
+      #tab_active_sessions .active-session-metrics span {
+        padding: 10px 12px;
+        border-right: 1px solid #edf0f4;
+        color: #748094;
+        font-size: 10px;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      #tab_active_sessions .active-session-metrics span:last-child {
+        border-right: 0;
+      }
+
+      #tab_active_sessions .active-session-metrics b {
+        display: block;
+        margin-bottom: 2px;
+        color: #34465b;
+        font-size: 15px;
+      }
+
       #tab_active_sessions .active-session-table-wrap {
         width: 100%;
         overflow: visible;
@@ -6757,6 +6815,11 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         color: #8a6815;
       }
 
+      #tab_active_sessions .active-session-status.is-refresh {
+        background: #e9f4fb;
+        color: #197ca8;
+      }
+
       #tab_active_sessions .active-session-status.is-due,
       #tab_active_sessions .active-session-status.is-expired {
         background: #fceceb;
@@ -6861,6 +6924,14 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
         #tab_active_sessions .active-session-pagination {
           justify-content: center;
+        }
+
+        #tab_active_sessions .active-session-metrics {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        #tab_active_sessions .active-session-metrics span:nth-child(3) {
+          border-right: 0;
         }
 
         #tab_active_sessions .active-session-table,

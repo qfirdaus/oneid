@@ -2,6 +2,22 @@
 
 require_once __DIR__ . '/auth_security.php';
 
+function oneid_is_technical_heartbeat_request(array $post): bool
+{
+    return ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST'
+        && array_keys($post) === ['update_specific_token_datetime'];
+}
+
+function oneid_session_is_expired(int $now, int $createdAt, int $lastActivity): bool
+{
+    return ($now - $lastActivity) > 1800 || ($now - $createdAt) > 28800;
+}
+
+function oneid_session_next_activity(int $now, int $lastActivity, bool $technicalHeartbeat): int
+{
+    return $technicalHeartbeat ? $lastActivity : $now;
+}
+
 function oneid_start_secure_session(): void
 {
     if (session_status() === PHP_SESSION_ACTIVE) {
@@ -27,16 +43,18 @@ function oneid_start_secure_session(): void
     $now = time();
     $createdAt = (int) ($_SESSION['oneid_session_created_at'] ?? $now);
     $lastActivity = (int) ($_SESSION['oneid_session_last_activity'] ?? $now);
-    $expired = ($now - $lastActivity) > 1800 || ($now - $createdAt) > 28800;
+    $expired = oneid_session_is_expired($now, $createdAt, $lastActivity);
+    $technicalHeartbeat = oneid_is_technical_heartbeat_request($_POST ?? []);
 
     if ($expired) {
         $_SESSION = [];
         session_regenerate_id(true);
         $createdAt = $now;
+        $lastActivity = $now;
     }
 
     $_SESSION['oneid_session_created_at'] = $createdAt;
-    $_SESSION['oneid_session_last_activity'] = $now;
+    $_SESSION['oneid_session_last_activity'] = oneid_session_next_activity($now, $lastActivity, $technicalHeartbeat);
 }
 
 function oneid_establish_authenticated_session(array $user): void
