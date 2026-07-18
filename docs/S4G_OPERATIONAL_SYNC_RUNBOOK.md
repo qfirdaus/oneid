@@ -30,6 +30,11 @@ Tetapkan nilai berikut dalam `.private/runtime.php` pada deployment sasaran:
 'ONEID_SYNC_PILOT_ENABLED' => 'false',
 'ONEID_SYNC_FULL_ENABLED' => 'false',
 'ONEID_SYNC_OPERATIONAL_ENABLED' => 'true',
+'ONEID_SYNC_OPERATIONAL_WARN_NEW' => '500',
+'ONEID_SYNC_OPERATIONAL_WARN_UPDATE' => '1000',
+'ONEID_SYNC_OPERATIONAL_WARN_REACTIVATE' => '100',
+'ONEID_SYNC_OPERATIONAL_WARN_TOTAL' => '1500',
+'ONEID_SYNC_OPERATIONAL_MAX_DEACTIVATE' => '50',
 ```
 
 Lint, reload PHP-FPM dan jalankan preflight:
@@ -69,6 +74,19 @@ php tools/s4g_operational_sync_result_audit.php \
 Writer mengambil fresh snapshot sebelum transaction. Jika fingerprint/counts
 berubah selepas Preview, Apply ditolak dan Administrator mesti menjana Preview
 baharu.
+
+## Ambang Batch Operational
+
+- Batch biasa menggunakan frasa confirmation yang mengikat exact plan hash.
+- Soft warning aktif apabila New melebihi 500, Update melebihi 1,000,
+  Reactivate melebihi 100, atau jumlah perubahan melebihi 1,500.
+- Soft warning tidak menyekat Apply. Administrator mesti menyemak batch dan
+  menaip frasa besar yang mengandungi exact New, Update, Deactivate,
+  Reactivate serta plan hash.
+- Deactivate melebihi 50 ialah hard block pada preview dan server Apply.
+  Gunakan proses Controlled Full Sync dengan kelulusan khusus untuk plan itu.
+- Semua nilai ambang boleh dioverride dalam `.private/runtime.php`. Nilai mesti
+  kekal sebagai string integer yang sah; konfigurasi tidak sah akan fail closed.
 
 ## Disable dan Rollback Operasi
 

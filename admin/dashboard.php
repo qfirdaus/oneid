@@ -3624,10 +3624,26 @@
                      $('#sync_full_confirmation_group').show();
                      $('#sync_full_confirmation_hint').text(operationalConfirmation);
                      $('#btn_apply_sync_operational').show();
-                     $('#sync_preview_status').text((counts.Deactivate || 0) > 0
-                        ? 'READY FOR OPERATIONAL SYNC — DEACTIVATION CONFIRMATION REQUIRED'
-                        : 'READY FOR OPERATIONAL SYNC');
-                     $('#sync_pilot_notice').text('Operational approval is bound to this exact fresh plan and expires at ' + (response.expires_at || '-') + '.');
+                     $('#sync_preview_status')
+                        .removeClass('badge-success badge-danger badge-warning')
+                        .addClass(response.operational_large_batch === true ? 'badge badge-warning' : 'badge badge-success')
+                        .text(response.operational_large_batch === true
+                           ? 'READY FOR LARGE OPERATIONAL SYNC — ADDITIONAL CONFIRMATION REQUIRED'
+                           : ((counts.Deactivate || 0) > 0
+                              ? 'READY FOR OPERATIONAL SYNC — DEACTIVATION CONFIRMATION REQUIRED'
+                              : 'READY FOR OPERATIONAL SYNC'));
+                     $('#sync_pilot_notice').text((response.operational_large_batch === true
+                        ? 'Large batch: exact New, Update, Deactivate, Reactivate counts and plan hash are required. '
+                        : '') + 'Operational approval expires at ' + (response.expires_at || '-') + '.');
+                  } else if(response.operational_hard_blocked === true){
+                     var thresholds = response.operational_thresholds || {};
+                     $('#sync_preview_status')
+                        .removeClass('badge-success badge-warning')
+                        .addClass('badge badge-danger')
+                        .text('BLOCKED — DEACTIVATE EXCEEDS OPERATIONAL LIMIT');
+                     $('#sync_pilot_notice').text('Deactivate=' + (counts.Deactivate || 0)
+                        + ' exceeds the Operational maximum of ' + (thresholds.max_deactivate || 0)
+                        + '. Use Controlled Full Sync approval for this plan.');
                   }
 
                   $('#sync_full_confirmation').off('input').on('input', function(){
@@ -3727,8 +3743,8 @@
                         + ', Deactivate=' + (counts.Deactivate || 0)
                         + ', Reactivate=' + (counts.Reactivate || 0) + '.';
                      oneidConfirm(
-                        'Apply operational sync?',
-                        summary + ' A fresh plan will be verified again before the transaction. This approval can be used once only.',
+                        response.operational_large_batch === true ? 'Apply large operational sync?' : 'Apply operational sync?',
+                        summary + (response.operational_large_batch === true ? ' This is a large batch requiring exact counts and plan-hash confirmation.' : '') + ' A fresh plan will be verified again before the transaction. This approval can be used once only.',
                         'Apply sync',
                         function(){
                            button.prop('disabled', true).text('Applying operational sync...');
@@ -4651,6 +4667,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-18",
+      changes: [
+        "Operational Sync kini menggunakan soft warning bagi New melebihi 500, Update melebihi 1,000, Reactivate melebihi 100 atau jumlah perubahan melebihi 1,500.",
+        "Batch besar kekal boleh di-Apply selepas semakan dan typed confirmation yang mengikat exact New, Update, Deactivate, Reactivate serta plan hash.",
+        "Deactivate melebihi 50 disekat pada preview dan server Apply; plan tersebut mesti melalui Controlled Full Sync dengan kelulusan khusus.",
+        "Nilai ambang boleh ditetapkan dalam private runtime, divalidasi secara ketat dan dipaparkan oleh preflight tanpa mendedahkan rahsia.",
+        "Runbook dan characterization contract dikemas kini untuk membezakan batch biasa, batch besar dan hard block."
+      ]
+    },
+    {
+      version: "2.0.13",
       date: "2026-07-18",
       changes: [
         "Identiti IC/pasport pelajar dinormalisasi kepada format alfanumerik tanpa ruang atau sengkang sebelum Preview dan Apply.",

@@ -457,6 +457,33 @@ function string_sanitize($s) {
                 $previewCounts = is_array($previewResponse['counts'] ?? null)
                     ? $previewResponse['counts']
                     : [];
+                $operationalHardBlocked = false;
+                if ($operationalConfig->enabled) {
+                    try {
+                        $operationalConfig->assertWithinHardLimits($previewCounts);
+                    } catch (\RuntimeException $exception) {
+                        if ($exception->getMessage() !== 'SYNC_OPERATIONAL_DEACTIVATE_LIMIT_EXCEEDED') {
+                            throw $exception;
+                        }
+                        $operationalHardBlocked = true;
+                    }
+                }
+                $previewResponse['operational_large_batch'] = $operationalConfig->enabled
+                    && $operationalConfig->isLargeBatch($previewCounts);
+                $previewResponse['operational_hard_blocked'] = $operationalHardBlocked;
+                $previewResponse['operational_thresholds'] = [
+                    'warn_new' => $operationalConfig->warnNew,
+                    'warn_update' => $operationalConfig->warnUpdate,
+                    'warn_reactivate' => $operationalConfig->warnReactivate,
+                    'warn_total' => $operationalConfig->warnTotal,
+                    'max_deactivate' => $operationalConfig->maxDeactivate,
+                ];
+                if ($previewResponse['operational_large_batch']) {
+                    $previewResponse['warnings'][] = 'Large batch requires exact counts and plan-hash confirmation.';
+                }
+                if ($operationalHardBlocked) {
+                    $previewResponse['warnings'][] = 'Deactivate count exceeds the Operational limit; use Controlled Full Sync approval.';
+                }
                 $previewResponse['full_apply_available'] = $fullConfig->enabled
                     && !$pilotConfig->enabled
                     && $runtimeConfig->canApply()
@@ -471,6 +498,7 @@ function string_sanitize($s) {
                     && !$fullConfig->enabled
                     && $runtimeConfig->canApply()
                     && ($previewResponse['approval_ready'] ?? false) === true
+                    && !$operationalHardBlocked
                     && array_sum($previewCounts) > 0;
                 if ($previewResponse['full_apply_available']) {
                     $previewResponse['full_confirmation'] = $fullConfig->confirmationText();
@@ -593,8 +621,12 @@ function string_sanitize($s) {
                     'SYNC_FLAG_COMBINATION_INVALID',
                     'SYNC_MODE_CONFLICT',
                     'SYNC_OPERATIONAL_FLAG_INVALID',
+                    'SYNC_OPERATIONAL_WARNING_THRESHOLD_INVALID',
+                    'SYNC_OPERATIONAL_DEACTIVATE_LIMIT_INVALID',
                     'SYNC_OPERATIONAL_DISABLED',
                     'SYNC_OPERATIONAL_PLAN_HASH_INVALID',
+                    'SYNC_OPERATIONAL_COUNTS_INVALID',
+                    'SYNC_OPERATIONAL_DEACTIVATE_LIMIT_EXCEEDED',
                     'SYNC_OPERATIONAL_CONFIRMATION_INVALID',
                     'SYNC_APPROVAL_INVALID',
                     'SYNC_APPROVAL_NOT_AVAILABLE',

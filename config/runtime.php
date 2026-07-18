@@ -39,6 +39,11 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_SYNC_FULL_EXPECTED_PLAN_HASH' => '',
         // Routine Apply uses a fresh, one-time preview approval; deployment opt-in is required.
         'ONEID_SYNC_OPERATIONAL_ENABLED' => 'false',
+        'ONEID_SYNC_OPERATIONAL_WARN_NEW' => '500',
+        'ONEID_SYNC_OPERATIONAL_WARN_UPDATE' => '1000',
+        'ONEID_SYNC_OPERATIONAL_WARN_REACTIVATE' => '100',
+        'ONEID_SYNC_OPERATIONAL_WARN_TOTAL' => '1500',
+        'ONEID_SYNC_OPERATIONAL_MAX_DEACTIVATE' => '50',
         'ONEID_SYNC_TRIGGERED_BY' => 'Sync Agent',
     ];
     static $local = null;
