@@ -2,14 +2,14 @@
 
 **Tarikh pelaksanaan:** 16 Julai 2026  
 **Skop:** Singleton `sys_config`, targeted update dan audit atomik  
-**Status:** IMPLEMENTED IN UAT / AUTOMATED AND MANUAL UAT VERIFIED  
+**Status:** COMPLETE IN CODE / AUTOMATED CONTRACT PASS / STAGING MIGRATION AND UAT PENDING
 **Nilai polisi selepas migration:** Tidak berubah
 
 ## 1. Objektif
 
-Fasa 3 memastikan tepat satu row konfigurasi boleh wujud, update menyasarkan row
-yang telah dikunci, dan setiap perubahan berjaya mempunyai audit before/after
-dalam transaction yang sama.
+Fasa 3 memastikan tepat satu row konfigurasi boleh wujud, preview mengikat
+revision, update menyasarkan row yang telah dikunci, reason diwajibkan dan
+success/rejection mempunyai history berstruktur.
 
 ## 2. Baseline dan Migration
 
@@ -22,6 +22,8 @@ Migration menambah:
 singleton_key TINYINT NOT NULL DEFAULT 1
 CHECK singleton_key = 1
 UNIQUE singleton_key
+configuration_version BIGINT UNSIGNED
+configuration_change_history
 ```
 
 Gabungan CHECK dan UNIQUE memastikan:
@@ -71,10 +73,14 @@ Audit mutation merekod:
 - action `update_sso_config`;
 - before/after token timeout;
 - before/after multiple-session flag;
-- before/after password-reset email flag;
 - IP melalui medan `syslog.ip_addr`;
 - timestamp database; dan
-- correlation ID.
+- correlation ID;
+- mandatory change reason; dan
+- revision before/after dalam structured Configuration History.
+
+Flag penghantaran OTP reset password mempunyai event dan lifecycle auditnya
+sendiri; ia tidak dicampurkan ke event perubahan polisi token SSO.
 
 Audit tidak mengandungi token, OTP, cookie, session ID atau credential. No-op
 tidak menghasilkan audit mutation kerana tiada nilai berubah.
@@ -154,19 +160,22 @@ Rollback aplikasi perlu dilakukan sebelum rollback schema:
 4. sahkan nilai polisi; dan
 5. jalankan contract release rollback.
 
+Migration completion turut menyediakan `20260719_sc3_completion_up.sql`, down
+migration dan `tools/sc3_completion_schema_migrate.php`.
+
 Audit history yang sah tidak perlu dipadam semasa rollback. Event 19 telah wujud
 sebelum SC3 dan dikekalkan.
 
 ## 9. Sempadan Fasa
 
 Fasa ini tidak mengubah token lifecycle, legacy refresh window, revocation,
-Password Recovery behavior, PHP session timeout atau Admin Step-Up. Audit bagi
-validation rejection juga belum ditambah; SC3 memberi jaminan atomik bagi
-mutation konfigurasi berjaya.
+Password Recovery behavior, PHP session timeout atau Admin Step-Up. Validation,
+stale revision dan Apply rejection direkod; authorization dan Step-Up rejection
+kekal sebahagian daripada Fasa 7.
 
 ## 10. Keputusan
 
-Singleton database, targeted locking/update dan audit mutation atomik telah
-dilaksanakan serta disahkan melalui UAT UI sebenar. Risiko semua row berubah,
-duplicate configuration dan perubahan berjaya tanpa audit kini ditutup bagi
-flow ini.
+Singleton database, targeted revision locking, mandatory reason, success dan
+rejected history serta History UI telah dilaksanakan. Contract concurrency
+mengesahkan preview stale tidak boleh menindih revision baharu. Migration dan
+browser UAT staging bagi completion slice masih perlu dijalankan.

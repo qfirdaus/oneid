@@ -19,17 +19,21 @@ final class Sc2FakeOperation
     public bool $auditSucceeds = true;
     public array|false $stored = [
         'id' => 1,
+        'configuration_version'=>1,
         'token_timeout' => 0.5,
         'multi_session' => 1,
         'password_reset_email_enabled' => 1,
         'future_secret' => 'must-not-be-projected',
     ];
     public array $lastUpdate = [];
+    public array $histories=[];
 
     public function get_system_config(): array|false
     {
         return $this->stored;
     }
+    public function configuration_history_latest_success(){return null;}
+    public function configuration_history_record(array $entry):int{$this->histories[]=$entry;return 1;}
 
     public function beginTransaction(): bool
     {
@@ -54,13 +58,14 @@ final class Sc2FakeOperation
         return $this->stored;
     }
 
-    public function update_configuration_by_id(int $id, string $timeout, int $multiSession): int
+    public function update_configuration_by_id(int $id, string $timeout, int $multiSession,int $version): int
     {
         $this->updates++;
         $this->lastUpdate = [$timeout, $multiSession];
         if ($this->affected === 1 && is_array($this->stored)) {
             $this->stored['token_timeout'] = $timeout;
             $this->stored['multi_session'] = $multiSession;
+            $this->stored['configuration_version']++;
         }
         return $this->affected;
     }
@@ -98,15 +103,16 @@ $read = $service->read();
 $check(
     $read['status'] === 1
         && $read['code'] === 'SC2_CONFIG_LOADED'
-        && $read['data'] === ['token_timeout' => '0.5', 'multi_session' => 1]
+        && $read['data'] === ['configuration_version'=>1,'token_timeout' => '0.5', 'multi_session' => 1]
         && !array_key_exists('future_secret', $read['data']),
-    'read response explicitly projects only the two SSO policy fields'
+    'read response projects only the two SSO policy fields and safe revision'
 );
 
 $valid = [
     'update_configuration' => '',
     'token_timeout' => '12',
     'sso_settings_multi_session' => '0',
+    'configuration_version'=>'1','change_reason'=>'Approved security policy update',
 ];
 $updated = $service->update($valid, 'admin.test', '127.0.0.1', ['affected_tokens'=>0,'affected_users'=>0]);
 $check(
@@ -118,7 +124,7 @@ $check(
     'valid values are normalized, audited and committed atomically'
 );
 
-$unchanged = $service->update($valid, 'admin.test', '127.0.0.1', ['affected_tokens'=>0,'affected_users'=>0]);
+$valid['configuration_version']='2';$unchanged = $service->update($valid, 'admin.test', '127.0.0.1', ['affected_tokens'=>0,'affected_users'=>0]);
 $check(
     $unchanged['code'] === 'SC2_CONFIG_UNCHANGED'
         && $unchanged['changed'] === false

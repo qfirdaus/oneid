@@ -143,7 +143,7 @@ class Database {
    
 
     public function get_system_config(){
-        $Q = "SELECT id, token_timeout, multi_session, password_reset_email_enabled FROM sys_config WHERE singleton_key = 1";
+        $Q = "SELECT id, configuration_version, token_timeout, multi_session, password_reset_email_enabled FROM sys_config WHERE singleton_key = 1";
         $R = $this->pdo->prepare($Q);      
         $R->execute();
         $result = $R->fetch(PDO::FETCH_ASSOC);
@@ -151,20 +151,45 @@ class Database {
     }
 
     public function get_system_config_for_update(){
-        $Q = "SELECT id, token_timeout, multi_session, password_reset_email_enabled FROM sys_config WHERE singleton_key = 1 FOR UPDATE";
+        $Q = "SELECT id, configuration_version, token_timeout, multi_session, password_reset_email_enabled FROM sys_config WHERE singleton_key = 1 FOR UPDATE";
         $R = $this->pdo->prepare($Q);
         $R->execute();
         return $R->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function update_configuration_by_id($configId,$token_timeout,$multi_session){
-        $Q = "UPDATE sys_config SET token_timeout = :token_timeout, multi_session=:multi_session WHERE id = :config_id AND singleton_key = 1";
+    public function update_configuration_by_id($configId,$token_timeout,$multi_session,$expectedVersion){
+        $Q = "UPDATE sys_config SET token_timeout=:token_timeout,multi_session=:multi_session,configuration_version=configuration_version+1 WHERE id=:config_id AND singleton_key=1 AND configuration_version=:expected_version";
         $R = $this->pdo->prepare($Q);
         $R->bindParam(':config_id', $configId, PDO::PARAM_INT);
         $R->bindParam(':token_timeout', $token_timeout);
         $R->bindParam(':multi_session', $multi_session, PDO::PARAM_INT);
+        $R->bindParam(':expected_version', $expectedVersion, PDO::PARAM_INT);
         $R->execute();
         return $R->rowCount();
+    }
+
+    public function configuration_history_record(array $entry){
+        $Q="INSERT INTO configuration_change_history(configuration_version_before,configuration_version_after,actor_id,ip_address,action_name,outcome,reason_code,change_reason,before_json,after_json,correlation_id,created_at) VALUES(:version_before,:version_after,:actor_id,:ip_address,:action_name,:outcome,:reason_code,:change_reason,:before_json,:after_json,:correlation_id,NOW())";
+        $R=$this->pdo->prepare($Q);$R->execute([
+            ':version_before'=>$entry['version_before']??null,':version_after'=>$entry['version_after']??null,
+            ':actor_id'=>$entry['actor_id'],':ip_address'=>$entry['ip_address'],':action_name'=>$entry['action_name'],
+            ':outcome'=>$entry['outcome'],':reason_code'=>$entry['reason_code'],':change_reason'=>$entry['change_reason']??null,
+            ':before_json'=>isset($entry['before'])?json_encode($entry['before'],JSON_THROW_ON_ERROR):null,
+            ':after_json'=>isset($entry['after'])?json_encode($entry['after'],JSON_THROW_ON_ERROR):null,
+            ':correlation_id'=>$entry['correlation_id'],
+        ]);return $R->rowCount();
+    }
+
+    public function configuration_history_latest_success(){
+        $R=$this->pdo->query("SELECT actor_id,created_at,configuration_version_after FROM configuration_change_history WHERE outcome='SUCCESS' ORDER BY history_id DESC LIMIT 1");
+        return $R->fetch(PDO::FETCH_ASSOC)?:null;
+    }
+
+    public function configuration_history_list($page,$pageSize){
+        $page=max(1,(int)$page);$pageSize=in_array((int)$pageSize,[10,25,50],true)?(int)$pageSize:10;$offset=($page-1)*$pageSize;
+        $total=(int)$this->pdo->query('SELECT COUNT(*) FROM configuration_change_history')->fetchColumn();
+        $Q="SELECT history_id,configuration_version_before,configuration_version_after,actor_id,action_name,outcome,reason_code,change_reason,before_json,after_json,correlation_id,created_at FROM configuration_change_history ORDER BY history_id DESC LIMIT {$pageSize} OFFSET {$offset}";
+        return ['rows'=>$this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC),'total'=>$total];
     }
 
     public function update_password_recovery_by_id($configId,$enabled){

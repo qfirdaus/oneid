@@ -108,6 +108,7 @@ function oneid_q_func_action_map(): array
             'admin_get_app_all_group',
             'admin_get_all_service_provider',
             'admin_get_sso_settings',
+            'admin_get_configuration_history',
             'admin_get_password_recovery_settings',
             'update_password_recovery',
             'test_password_recovery_email',

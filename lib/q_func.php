@@ -282,6 +282,11 @@ function string_sanitize($s) {
         }
       }
 
+      if(isset($_POST['admin_get_configuration_history'])){
+        try{$service=new \OneId\App\Admin\SsoConfigurationService($operation);echo json_encode($service->history(max(1,(int)($_POST['page']??1)),(int)($_POST['page_size']??10)));}
+        catch(\Throwable $exception){echo json_encode(['status'=>0,'code'=>'SC3_HISTORY_LOAD_FAILED','correlation_id'=>bin2hex(random_bytes(8))]);}
+      }
+
       if(isset($_POST['admin_get_password_recovery_settings'])){
         try{$service=new \OneId\App\Admin\PasswordRecoveryConfigurationService($operation);echo json_encode($service->read());}
         catch(\OneId\App\Admin\SsoConfigurationException $e){echo json_encode(['status'=>0,'code'=>$e->reason,'message'=>'Password recovery policy could not be loaded.','correlation_id'=>$e->correlationId]);}
@@ -306,10 +311,12 @@ function string_sanitize($s) {
           $_SESSION['sso_policy_preview'] = [
             'id'=>$previewId,'admin'=>(string)$_SESSION['login_user'],
             'expires_at'=>time()+300,'after'=>$preview['after'],'impact'=>$preview['impact'],
+            'configuration_version'=>$preview['configuration_version'],'change_reason'=>$preview['change_reason'],
           ];
           $preview['preview_id']=$previewId;
           echo json_encode($preview);
         } catch (\OneId\App\Admin\SsoConfigurationException $exception) {
+          $service->recordRejection($exception->reason,(string)$_SESSION['login_user'],(string)getUserIP(),$exception->correlationId,is_scalar($_POST['change_reason']??null)?trim((string)$_POST['change_reason']):null);
           echo json_encode(['status'=>0,'code'=>$exception->reason,'message'=>'Policy preview failed.','correlation_id'=>$exception->correlationId]);
         }
       }
@@ -1137,8 +1144,10 @@ function string_sanitize($s) {
         try {
           $approval = $_SESSION['sso_policy_preview'] ?? null;
           $submittedAfter = ['token_timeout'=>(string)($_POST['token_timeout']??''),'multi_session'=>(int)($_POST['sso_settings_multi_session']??-1)];
-          if (!is_array($approval) || !hash_equals((string)($approval['id']??''),(string)($_POST['policy_preview_id']??'')) || (int)($approval['expires_at']??0)<time() || (string)($approval['admin']??'')!==(string)$_SESSION['login_user'] || ($approval['after']??null)!==$submittedAfter) {
-            echo json_encode(['status'=>0,'code'=>'SC5_PREVIEW_INVALID','message'=>'A fresh matching preview is required.','correlation_id'=>bin2hex(random_bytes(8))]);
+          $submittedReason=trim((string)($_POST['change_reason']??''));$submittedVersion=(int)($_POST['configuration_version']??0);
+          if (!is_array($approval) || !hash_equals((string)($approval['id']??''),(string)($_POST['policy_preview_id']??'')) || (int)($approval['expires_at']??0)<time() || (string)($approval['admin']??'')!==(string)$_SESSION['login_user'] || ($approval['after']??null)!==$submittedAfter || (int)($approval['configuration_version']??0)!==$submittedVersion || !hash_equals((string)($approval['change_reason']??''),$submittedReason)) {
+            $correlation=bin2hex(random_bytes(8));$service=new \OneId\App\Admin\SsoConfigurationService($operation);$service->recordRejection('SC5_PREVIEW_INVALID',(string)$_SESSION['login_user'],(string)getUserIP(),$correlation,$submittedReason!==''?$submittedReason:null);
+            echo json_encode(['status'=>0,'code'=>'SC5_PREVIEW_INVALID','message'=>'A fresh matching preview is required.','correlation_id'=>$correlation]);
             unset($_SESSION['sso_policy_preview']);
             return;
           }
@@ -1151,6 +1160,7 @@ function string_sanitize($s) {
             (array)($approval['impact']??[])
           ));
         } catch (\OneId\App\Admin\SsoConfigurationException $exception) {
+          $service->recordRejection($exception->reason,(string)$_SESSION['login_user'],(string)getUserIP(),$exception->correlationId,is_scalar($_POST['change_reason']??null)?trim((string)$_POST['change_reason']):null);
           echo json_encode([
             'status'=>0,
             'code'=>$exception->reason,

@@ -38,14 +38,14 @@ Bangunkan server-enforced step-up untuk perubahan security configuration:
 - secret TOTP dienkripsi menggunakan key di luar database dan Git; dan
 - direct URL atau direct endpoint tidak boleh memintas step-up.
 
-### SC7-02 Mandatory Change Reason
+### SC7-02 Mandatory Change Reason — COMPLETE IN FASA 3
 
 - Admin wajib memberikan sebab perubahan sebelum polisi disimpan.
 - Server perlu memvalidasi panjang, format dan aksara kawalan.
 - Reason direkod bersama actor, IP, before/after dan correlation ID tanpa data
   sensitif.
 
-### SC7-03 Optimistic Locking
+### SC7-03 Optimistic Locking — COMPLETE IN FASA 3
 
 - Tambah `configuration_version` atau revision equivalent.
 - Preview perlu mengikat revision asal.
@@ -53,17 +53,17 @@ Bangunkan server-enforced step-up untuk perubahan security configuration:
   count kebetulan sama.
 - Concurrent update oleh dua admin perlu mempunyai contract dan UAT khusus.
 
-### SC7-04 Configuration History UI
+### SC7-04 Configuration History UI — COMPLETE IN FASA 3
 
 - Paparkan sejarah perubahan Configuration secara read-only.
 - Paparan minimum: masa, actor, changed fields, before/after, reason, outcome
   dan correlation ID.
 - Jangan paparkan token, OTP, session ID, cookie, password atau credential.
 
-### SC7-05 Rejected-Update Audit
+### SC7-05 Rejected-Update Audit — PARTIAL
 
-- Rekod validation rejection dan authorization/step-up rejection menggunakan
-  reason code allowlisted.
+- Validation, stale revision dan Apply rejection kini direkod menggunakan
+  reason code allowlisted. Authorization dan Step-Up rejection menunggu SC7-01.
 - Audit tidak boleh merekod payload mentah atau nilai rahsia.
 - Rejection mesti kekal zero mutation terhadap configuration state.
 

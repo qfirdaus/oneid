@@ -2,7 +2,7 @@
 
 **Tarikh audit:** 16 Julai 2026  
 **Skop:** Halaman Administrator — SSO Configuration  
-**Status:** AUDITED — FASA 0 HINGGA FASA 6 DILAKSANAKAN; FASA 7 HINGGA FASA 8 DITANGGUHKAN OLEH OWNER
+**Status:** AUDITED — FASA 0 HINGGA FASA 6 DILAKSANAKAN; FASA 3 COMPLETION MENUNGGU MIGRATION/UAT STAGING; FASA 7 HINGGA FASA 8 DITANGGUHKAN
 **Jenis kerja:** Audit, remediasi berfasa dan UAT terkawal
 
 ## 1. Tujuan
@@ -36,17 +36,14 @@ Identity Provider. Halaman ini hanya mengurus tiga polisi global dalam jadual
 | Multiple sessions | `multi_session` | Menentukan sama ada login baharu membatalkan token lama pengguna |
 | OTP email delivery | `email_OTP` | Menentukan sama ada OTP Forgot Password dihantar melalui e-mel |
 
-Kawalan authorization dan CSRF untuk endpoint ini telah tersedia. Walau
-bagaimanapun, halaman masih mempunyai kelemahan penting:
+Kawalan authorization, CSRF, validasi polisi, singleton database, optimistic
+locking, preview impak, enforcement polisi dan audit berstruktur telah tersedia.
+Penyelesaian Fasa 3 turut mewajibkan sebab perubahan serta menyediakan sejarah
+SUCCESS/REJECTED yang boleh dilihat oleh admin.
 
-- istilah UI tidak menggambarkan behavior backend dengan tepat;
-- input tidak divalidasi menggunakan polisi server-side yang ketat;
-- perubahan konfigurasi tidak direkod sebagai audit event;
-- query konfigurasi menganggap `sys_config` hanya mempunyai satu row;
-- perubahan polisi tidak semestinya dikuatkuasakan serta-merta terhadap token
-  sedia ada;
-- OTP reset password diletakkan di bawah konfigurasi SSO; dan
-- perubahan polisi keselamatan global belum memerlukan step-up authentication.
+Baki utama ialah perubahan polisi keselamatan global belum memerlukan Step-Up
+Authentication. Perkara ini kekal sebagai skop Fasa 7 dan tidak mengurangkan
+kawalan transaksi atau audit yang telah dilaksanakan dalam Fasa 3.
 
 Nama yang lebih tepat bagi halaman ini ialah **Authentication & SSO Token
 Policy**.
@@ -71,7 +68,7 @@ Admin membuka dashboard
     -> admin_get_settings()
     -> POST admin_get_sso_settings
     -> request guard mengesahkan CSRF dan role admin
-    -> SELECT * FROM sys_config
+    -> SELECT explicit fields FROM singleton sys_config
     -> nilai dipaparkan dalam UI
 ```
 
@@ -82,9 +79,9 @@ Admin memilih nilai dan menekan Save changes
     -> update_configuration()
     -> POST update_configuration
     -> request guard mengesahkan CSRF dan role admin
-    -> UPDATE sys_config tanpa WHERE
-    -> rowCount() dipulangkan
-    -> UI memaparkan Updated atau No update
+    -> preview mengikat revision dan mandatory reason
+    -> UPDATE targeted singleton jika revision masih sama
+    -> syslog dan structured history ditulis atomik
 ```
 
 ## 4. Behavior Sebenar Setiap Tetapan
@@ -134,10 +131,8 @@ Apabila `multi_session = 1`, token lama tidak dibatalkan semasa login baharu.
 Pengguna boleh mempunyai beberapa token aktif daripada browser atau peranti
 berlainan.
 
-Menukar setting daripada ON kepada OFF tidak terus membatalkan semua sesi
-berlebihan yang telah wujud. Polisi tersebut hanya digunakan pada login
-berikutnya, melainkan token lama kemudiannya tamat atau dibatalkan melalui flow
-lain.
+Menukar setting daripada ON kepada OFF menghasilkan preview impak dan
+menjadualkan token berlebihan untuk revocation selepas grace period 15 minit.
 
 ### 4.3 Password-reset OTP email delivery
 
@@ -180,34 +175,29 @@ SSO dan PHP session menggunakan tempoh berlainan.
 **Cadangan:** Namakan semula kepada `SSO token lifetime` dan paparkan perbezaan
 dengan PHP session secara jelas.
 
-### A-SC-02 — Tiada validation polisi server-side
+### A-SC-02 — Validation polisi server-side
 
 **Tahap:** Tinggi  
-**Penemuan:** Endpoint menerima terus `token_timeout`, `multi_session` dan
-`email_OTP` daripada POST tanpa whitelist domain.  
-**Impak:** Session admin atau script boleh menghantar nilai negatif, terlalu
-besar, kosong atau bukan boolean walaupun UI menyediakan pilihan sah.  
-**Cadangan:** Gunakan service khusus, whitelist timeout dan normalisasi boolean;
-tolak request tidak sah menggunakan response berstruktur.
+**Status:** SELESAI.
+**Remediasi:** Service khusus menggunakan whitelist timeout, normalisasi boolean,
+revision dan mandatory change reason. Request tidak sah ditolak menggunakan
+response domain berstruktur serta direkod sebagai sejarah REJECTED.
 
-### A-SC-03 — Tiada audit trail perubahan konfigurasi
+### A-SC-03 — Audit trail perubahan konfigurasi
 
 **Tahap:** Tinggi  
-**Penemuan:** Update tidak merekod admin, nilai lama, nilai baharu, masa, IP,
-sebab atau correlation ID.  
-**Impak:** Perubahan polisi authentication tidak boleh dikesan atau
-direkonstruksi dengan baik semasa insiden.  
-**Cadangan:** Rekod audit dalam transaction yang sama dengan perubahan.
+**Status:** SELESAI DALAM FASA 3.
+**Remediasi:** Perubahan SUCCESS direkod atomik bersama mutation. Cubaan ditolak
+direkod sebagai REJECTED. Rekod mengandungi actor, masa, IP, sebab, revision,
+before/after dan correlation ID tanpa credential atau token.
 
-### A-SC-04 — Query konfigurasi bergantung pada andaian single-row
+### A-SC-04 — Integriti singleton konfigurasi
 
 **Tahap:** Sederhana  
-**Penemuan:** `SELECT * FROM sys_config` mengambil row pertama, manakala `UPDATE
-sys_config SET ...` tidak mempunyai `WHERE`.  
-**Impak:** Jika duplicate row wujud, pembacaan menjadi tidak deterministik dan
-semua row boleh dikemas kini.  
-**Cadangan:** Gunakan primary key tetap, unique constraint dan `WHERE
-config_id = 1`.
+**Status:** SELESAI.
+**Remediasi:** Database menguatkuasakan singleton row. Read memilih medan secara
+explicit, manakala update menyasarkan ID, singleton selector dan revision yang
+dijangka.
 
 ### A-SC-05 — Maklum balas update boleh mengelirukan
 
@@ -337,6 +327,10 @@ Aktiviti:
 konsisten.
 
 ### Fasa 3 — Integriti database dan audit trail
+
+**Status completion (19 Julai 2026): COMPLETE IN CODE / CONTRACT PASS;
+MIGRATION DAN BROWSER UAT STAGING PENDING.** Revision locking, mandatory reason,
+structured success/rejection history, Last Changed dan History UI telah siap.
 
 **Objektif:** Menjamin single-row configuration dan kebolehkesanan perubahan.
 

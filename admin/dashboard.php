@@ -1508,7 +1508,17 @@
                                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
                                                                <p id="sso_config_operational_status" role="status" aria-live="polite">Loading current policy...</p>
                                                             </div>
+                                                            <div class="sso-config-row">
+                                                               <div class="sso-config-copy"><span class="sso-config-index">03</span><div><label for="sso_config_change_reason">Change reason</label><p>Wajib untuk setiap perubahan. Masukkan sebab operasi tanpa password, token, OTP atau data sensitif.</p></div></div>
+                                                               <div class="sso-config-control"><textarea class="form-control" id="sso_config_change_reason" maxlength="500" rows="3" placeholder="Minimum 10 characters"></textarea></div>
+                                                            </div>
+                                                            <div class="sso-config-note"><i class="fa fa-history" aria-hidden="true"></i><p id="sso_config_last_changed">No recorded configuration change.</p></div>
                                                          </div>
+                                                      </div>
+                                                      <div class="sso-config-panel" style="margin-top:24px">
+                                                         <div class="sso-config-header"><div><span class="sso-config-eyebrow">Audit history</span><h4 class="sso-config-title">Configuration History</h4><p class="sso-config-intro">Success and rejected attempts, newest first. Sensitive authentication material is never displayed.</p></div><button type="button" class="sso-config-save" onclick="loadSsoConfigHistory(1)"><i class="fa fa-refresh"></i><span>Refresh</span></button></div>
+                                                         <div class="table-responsive"><table class="table mb-0"><thead><tr><th>Time</th><th>Actor</th><th>Outcome</th><th>Revision</th><th>Changes</th><th>Reason / Code</th><th>Reference</th></tr></thead><tbody id="sso_config_history_body"><tr><td colspan="7">Loading history...</td></tr></tbody></table></div>
+                                                         <div id="sso_config_history_pagination" class="active-session-pagination"></div>
                                                       </div>
                                                       <div class="sso-config-panel" style="margin-top:24px">
                                                          <div class="sso-config-header"><div><span class="sso-config-eyebrow">Account recovery</span><h4 class="sso-config-title">Password Recovery</h4><p class="sso-config-intro">Polisi penghantaran OTP Forgot Password. Ia bukan login MFA atau Admin Step-Up 2FA.</p></div><button class="sso-config-save" id="recovery_config_save_button" type="button" onclick="updatePasswordRecovery();" disabled><i class="fa fa-check"></i> <span id="recovery_config_save_label">Loading settings...</span></button></div>
@@ -1994,7 +2004,11 @@
                            swal('Settings unavailable', 'The server rejected or could not complete the load request.' + loadReference, 'error');
                            return;
                         }
+                        var lastChanged=response.last_changed||null;
                         response = response.data;
+                        ssoConfigVersion=Number(response.configuration_version||0);
+                        $('#sso_config_last_changed').text(lastChanged?'Last changed by '+lastChanged.actor_id+' at '+lastChanged.created_at+' (revision '+lastChanged.configuration_version_after+').':'No recorded configuration change.');
+                        loadSsoConfigHistory(1);
                         var time_out = Number(response['token_timeout']);
                      	switch(time_out){
                            case 0.5:
@@ -2048,11 +2062,14 @@
                  });
          }
          
+         var ssoConfigVersion=0;
          function update_configuration(){
             if (ssoConfigSaving || !ssoConfigOriginal) {
                return;
             }
             var current = ssoConfigValues();
+            var changeReason=$.trim($('#sso_config_change_reason').val()||'');
+            if(changeReason.length<10){swal('Change reason required','Enter at least 10 characters describing why this policy must change.','warning');return;}
             var changes = ssoConfigChangeSummary(current);
             if (changes.length === 0) {
                swal('No changes', 'The selected policy already matches the saved values. No request was sent.', 'info');
@@ -2066,7 +2083,7 @@
             $('#sso_config_operational_status').text('Calculating affected users and tokens...');
             $.ajax({
                type:'POST',url:'../lib/q_func',dataType:'json',
-               data:{preview_configuration_update:'',sso_settings_multi_session:current.multi_session,token_timeout:current.token_timeout},
+               data:{preview_configuration_update:'',sso_settings_multi_session:current.multi_session,token_timeout:current.token_timeout,change_reason:changeReason},
                success:function(preview){
                   if(!preview || preview.code!=='SC5_PREVIEW_CREATED'){
                      swal('Preview failed','No changes were made.\nCode: '+(preview&&preview.code?preview.code:'SC5_PREVIEW_INVALID'),'error');
@@ -2074,7 +2091,7 @@
                   }
                   var impact=preview.impact||{};
                   swal({title:'Confirm policy and impact',text:changes.join('\n')+warning+'\n\nAffected users: '+Number(impact.affected_users||0)+'\nAffected tokens: '+Number(impact.affected_tokens||0)+'\nGrace period: 15 minutes',type:'warning',showCancelButton:true,confirmButtonColor:'#11a8df',confirmButtonText:'Save policy',cancelButtonText:'Cancel',closeOnConfirm:false},function(){
-                     submitSsoConfigUpdate(current,preview.preview_id);
+                     submitSsoConfigUpdate(current,preview.preview_id,preview.configuration_version,changeReason);
                   });
                },
                error:function(xhr){swal('Preview failed','No changes were made. HTTP '+xhr.status+'.','error');},
@@ -2082,14 +2099,15 @@
             });
          }
 
-         function submitSsoConfigUpdate(current,previewId){
+         function submitSsoConfigUpdate(current,previewId,configurationVersion,changeReason){
             setSsoConfigSaving(true);
             $('#sso_config_operational_status').text('Saving policy. Do not close this page.');
             $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',
-               data:{update_configuration:'',policy_preview_id:previewId,sso_settings_multi_session:current.multi_session,token_timeout:current.token_timeout},
+               data:{update_configuration:'',policy_preview_id:previewId,sso_settings_multi_session:current.multi_session,token_timeout:current.token_timeout,configuration_version:configurationVersion,change_reason:changeReason},
                      success: function (response) {
                         if(response && Number(response.status) === 1 && response.code === 'SC2_CONFIG_UPDATED'){
                            ssoConfigOriginal = current;
+                           ssoConfigVersion=Number(response.data&&response.data.configuration_version||configurationVersion+1);$('#sso_config_change_reason').val('');admin_get_settings();
                            var enforcement=response.enforcement||{};
                            $('#sso_config_operational_status').text('Policy saved. Scheduled tokens: '+Number(enforcement.scheduled_tokens||0)+(enforcement.revoke_at?' at '+enforcement.revoke_at:'.'));
                            swal('Policy saved', 'Scheduled tokens: '+Number(enforcement.scheduled_tokens||0)+'\nGrace period: 15 minutes\nReference: ' + response.correlation_id, 'success');
@@ -2113,6 +2131,16 @@
                      }
                  });
          }
+
+         function loadSsoConfigHistory(page){
+            $.post('../lib/q_func',{admin_get_configuration_history:'',page:page||1,page_size:10},function(response){
+               if(!response||Number(response.status)!==1){$('#sso_config_history_body').html('<tr><td colspan="7">History unavailable.</td></tr>');return;}
+               var rows='';$.each(response.data||[],function(i,item){var revision=item.version_before===null?'-':item.version_before+' -> '+item.version_after;var reason=sessionTextValue(item.change_reason||item.reason_code);var changes='-';if(item.before&&item.after){changes='Token: '+item.before.token_timeout+' -> '+item.after.token_timeout+'; Multiple: '+item.before.multi_session+' -> '+item.after.multi_session;}rows+='<tr><td>'+sessionTextValue(item.created_at)+'</td><td>'+sessionTextValue(item.actor)+'</td><td>'+sessionTextValue(item.outcome)+'</td><td>'+sessionTextValue(revision)+'</td><td>'+sessionTextValue(changes)+'</td><td title="'+sessionAttributeValue(reason)+'">'+reason+'</td><td>'+sessionTextValue(item.correlation_id)+'</td></tr>';});
+               $('#sso_config_history_body').html(rows||'<tr><td colspan="7">No configuration history recorded.</td></tr>');var meta=response.meta||{};var p=Number(meta.page||1),pages=Number(meta.total_pages||1);$('#sso_config_history_pagination').html('<button type="button" '+(p<=1?'disabled':'')+' onclick="loadSsoConfigHistory('+(p-1)+')"><i class="fa fa-chevron-left"></i></button><span>Page '+p+' of '+pages+'</span><button type="button" '+(p>=pages?'disabled':'')+' onclick="loadSsoConfigHistory('+(p+1)+')"><i class="fa fa-chevron-right"></i></button>');
+            },'json').fail(function(){$('#sso_config_history_body').html('<tr><td colspan="7">History unavailable.</td></tr>');});
+         }
+         function sessionTextValue(value){return $('<div>').text(value==null?'':value).html();}
+         function sessionAttributeValue(value){return sessionTextValue(value).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
          var recoveryConfigOriginal=null;
          function loadPasswordRecovery(){
@@ -4763,6 +4791,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-19",
+      changes: [
+        "Fasa 3 Configuration kini mewajibkan change reason dan mengikat setiap preview kepada <code>configuration_version</code> semasa.",
+        "Optimistic locking menolak Apply daripada preview lama supaya perubahan dua admin tidak boleh saling menindih tanpa amaran.",
+        "Structured Configuration History merekod success/rejection, actor, revision, before/after, reason code, change reason dan correlation tanpa token atau credential.",
+        "Halaman Configuration memaparkan Last Changed serta history read-only newest-first dengan pagination.",
+        "Forward/down migration dan concurrency contract tersedia; activation staging memerlukan migration check/apply sebelum reload PHP-FPM."
+      ]
+    },
+    {
+      version: "2.4.1",
       date: "2026-07-19",
       changes: [
         "Semua nama dan kandungan dokumen release aktif telah diaudit supaya menggunakan penomboran baharu; nombor legacy hanya dikekalkan dalam jadual migrasi rasmi.",

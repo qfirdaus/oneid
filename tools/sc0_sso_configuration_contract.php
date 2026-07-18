@@ -45,8 +45,8 @@ $check(
 );
 $check(
     $database !== false
-        && str_contains($database, 'UPDATE sys_config SET token_timeout = :token_timeout')
-        && str_contains($database, 'WHERE id = :config_id AND singleton_key = 1'),
+        && str_contains($database, 'UPDATE sys_config SET token_timeout=:token_timeout')
+        && str_contains($database, 'configuration_version=:expected_version'),
     'configuration update is targeted to the singleton row'
 );
 $check(

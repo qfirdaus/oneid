@@ -10,7 +10,7 @@ use OneId\App\Admin\SsoConfigurationService;
 
 final class Sc5FakeOperation
 {
-    public array $stored = ['id'=>1,'token_timeout'=>24,'multi_session'=>1,'password_reset_email_enabled'=>1];
+    public array $stored = ['id'=>1,'configuration_version'=>1,'token_timeout'=>24,'multi_session'=>1,'password_reset_email_enabled'=>1];
     public array $impact = ['affected_tokens'=>3,'affected_users'=>2,'timeout_tokens'=>2,'multiple_tokens'=>1];
     public int $scheduled = 3;
     public int $commits = 0;
@@ -18,14 +18,16 @@ final class Sc5FakeOperation
     public array $events = [];
 
     public function get_system_config(): array { return $this->stored; }
+    public function configuration_history_latest_success(){return null;}
+    public function configuration_history_record(array $entry):int{return 1;}
     public function get_system_config_for_update(): array { return $this->stored; }
     public function beginTransaction(): bool { return true; }
     public function commit(): bool { $this->commits++; return true; }
     public function rollback(): bool { $this->rollbacks++; return true; }
     public function preview_policy_revocation(string $timeout, bool $reduced, bool $disable): array { return $this->impact; }
-    public function update_configuration_by_id(int $id, string $timeout, int $multi): int
+    public function update_configuration_by_id(int $id, string $timeout, int $multi,int $version): int
     {
-        $this->stored = ['id'=>$id,'token_timeout'=>$timeout,'multi_session'=>$multi,'password_reset_email_enabled'=>1];
+        $this->stored = ['id'=>$id,'configuration_version'=>$version+1,'token_timeout'=>$timeout,'multi_session'=>$multi,'password_reset_email_enabled'=>1];
         return 1;
     }
     public function schedule_policy_revocation(string $timeout, bool $reduced, bool $disable, string $at, string $correlation): int { return $this->scheduled; }
@@ -34,10 +36,10 @@ final class Sc5FakeOperation
 
 $checks=0;$failures=0;
 $check=static function(bool $ok,string $description)use(&$checks,&$failures):void{$checks++;if(!$ok)$failures++;printf("%s: %s\n",$ok?'PASS':'FAIL',$description);};
-$payload=['update_configuration'=>'','token_timeout'=>'12','sso_settings_multi_session'=>'0'];
+$payload=['update_configuration'=>'','token_timeout'=>'12','sso_settings_multi_session'=>'0','configuration_version'=>'1','change_reason'=>'Approved controlled policy update'];
 
 $fake=new Sc5FakeOperation();$service=new SsoConfigurationService($fake);
-$preview=$service->preview(['preview_configuration_update'=>'','token_timeout'=>'12','sso_settings_multi_session'=>'0']);
+$preview=$service->preview(['preview_configuration_update'=>'','token_timeout'=>'12','sso_settings_multi_session'=>'0','change_reason'=>'Approved controlled policy update']);
 $check($preview['impact']===$fake->impact&&$preview['grace_minutes']===15,'preview reports exact impact and 15-minute grace');
 $result=$service->update($payload,'admin.test','127.0.0.1',['affected_tokens'=>3,'affected_users'=>2]);
 $check($result['enforcement']['scheduled_tokens']===3&&$result['enforcement']['grace_minutes']===15,'approved update schedules every affected token');
