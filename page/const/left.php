@@ -6,7 +6,7 @@
 						<!-- <div class="profile-cover-pic"> -->
 							<div class="profile-info text-center mb-15">
 								<div class="widget-user-image">
-								<img id="user_photos" class="img-circle elevation-2" style="width: 98px;height: 98px;" src="../img/mock1.jpg" alt="user">
+								<img id="user_photos" class="img-circle elevation-2" style="width: 98px;height: 98px;" src="profile-photo.php" alt="Profile photo">
 								</div>
 								<h5 class="mt-10 capitalize-font txt-dark"><?php echo $_SESSION['user']; ?></h5>
 								<h6 class=""><?php echo $user_info['data6']; ?></h6>

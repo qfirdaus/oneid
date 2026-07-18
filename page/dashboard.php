@@ -367,7 +367,7 @@
                                           </div>
                                        <div class="profile-info text-center mb-15">
                                           <div class="profile-img-wrap">
-                                             <img id="user_photos" class="inline-block mb-10" src="../img/mock1.jpg" alt="user"/>
+                                             <img id="user_photos" class="inline-block mb-10" src="profile-photo.php" alt="Profile photo"/>
                                              </div>	
                                           <h6 class="block mt-10 weight-500 capitalize-font txt-dark"><?php echo $_SESSION['user']; ?> (<?= (trim($user_info['data3']) == "") ? $user_info['data4'] : $user_info['data3']; ?>)</h6>
                                           <span class="block capitalize-font"><?php echo $user_info['data6']; ?></span>
@@ -605,47 +605,13 @@
             headers: {'X-CSRF-Token': <?php echo json_encode(oneid_csrf_token()); ?>}
          });
 
-          var user_id = "<?php echo $user_info['data2']; ?>";
-          var stu_id="<?php echo $user_info['data4']; ?>";
          $(document).ready(function() {
-            init_start();
              get_specific_user_app_list();
              get_specific_user_activ_session();
              check_default_password();
              startTokenRefresh();
 
          });
-
-         function init_start(){
-            checkImageExists('https://esmartcard.upnm.edu.my/img/staf/'+user_id+'.jpg', function(exists) {
-                 if (exists) {
-                   // You can set it dynamically here if needed
-                    $('#user_photos').attr('src', 'https://esmartcard.upnm.edu.my/img/staf/'+user_id+'.jpg');
-                 } else {
-                   checkImageExists('https://kemasukan.upnm.edu.my/tawaran/pelajar/student_image/'+stu_id+'.jpg', function(exists) {
-                     // alert(stu_id)
-                       if (exists) {
-                         // You can set it dynamically here if needed
-                          $('#user_photos').attr('src', 'https://kemasukan.upnm.edu.my/tawaran/pelajar/student_image/'+stu_id+'.jpg');
-                       } else {
-                          $('#user_photos').attr('src', '../img/gallery/mock1.jpg');
-                       }
-                     });
-                 }
-               });
-         }
-          function checkImageExists(url, callback) {
-           $('<img>', {
-             src: url,
-             error: function() {
-               callback(false);
-             },
-             load: function() {
-               callback(true);
-             }
-           });
-         }
-
 
         function check_default_password(sp_id){
          $.ajax({

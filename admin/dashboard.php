@@ -4861,6 +4861,16 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
       date: "2026-07-19",
       changes: [
+        "Gambar profil dashboard pengguna kini melalui resolver same-origin supaya Firefox tidak lagi membuat probe terus ke domain gambar luar.",
+        "Akaun tanpa ID gambar, ID tidak sah atau akaun TEST terus menerima fallback profile lokal tanpa request upstream.",
+        "Resolver menguatkuasakan active session, HTTPS/TLS verification, timeout, had 2MB dan decoded MIME validation sebelum gambar dipaparkan.",
+        "Kegagalan upstream, gambar tiada atau respons bukan imej menghasilkan silhouette lokal tanpa OpaqueResponseBlocking pada browser."
+      ]
+    },
+    {
+      version: "2.5.2",
+      date: "2026-07-19",
+      changes: [
         "Menu Back to My Account dalam Administrator kini menggunakan warna kuning yang sama dengan menu Administrator pada dashboard pengguna.",
         "Warna normal, hover dan focus menggunakan class pill-yellow sedia ada tanpa mengubah navigasi atau authorization."
       ]
