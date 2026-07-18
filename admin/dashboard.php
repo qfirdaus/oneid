@@ -3541,11 +3541,16 @@
                   }
                   var counts = response.counts || {};
                   var pilotCounts = response.pilot_counts || {};
+                  var safetyMetrics = response.safety_metrics || {};
                   var totalChanges = Number(counts.New || 0)
                      + Number(counts.Update || 0)
                      + Number(counts.Deactivate || 0)
                      + Number(counts.Reactivate || 0);
-                  $('#sync_preview_source_rows').text(response.source_rows || 0);
+                  $('#sync_preview_source_rows').text(
+                     (response.source_rows || 0)
+                     + ' (Staf = ' + (safetyMetrics.staff_rows || 0)
+                     + ', Pelajar = ' + (safetyMetrics.student_rows || 0) + ')'
+                  );
                   $('#sync_preview_new_update').text((counts.New || 0) + ' / ' + (counts.Update || 0));
                   $('#sync_preview_deactivate_reactivate').text((counts.Deactivate || 0) + ' / ' + (counts.Reactivate || 0));
                   $('#sync_preview_protected').text((response.protected_manual_users || 0) + ' / ' + (response.discarded_protected_collisions || 0));
