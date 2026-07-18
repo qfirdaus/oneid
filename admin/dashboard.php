@@ -5562,6 +5562,11 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         table-layout: fixed;
       }
 
+      #modal_add_new_single_user .sync-preview-table td {
+        vertical-align: top !important;
+        text-align: left !important;
+      }
+
       #modal_add_new_single_user .sync-preview-table td:first-child {
         width: 230px;
         white-space: nowrap;

@@ -16,7 +16,7 @@ $report(str_contains($q,'operational_apply_available')&&str_contains($q,"array_s
 $report(str_contains($q,'ADMIN_SYNC_OPERATIONAL_SAFE')&&str_contains($q,'SYNC_OPERATIONAL_APPLY_COMPLETED_AUDIT_WARNING'),'operational Apply emits completion and secondary audit state');
 $report(str_contains($ui,'operational_apply_available === true')&&str_contains($ui,'admin_apply_operational_sync')&&str_contains($ui,'btn_apply_sync_operational'),'UI requires server availability and typed confirmation');
 $report(str_contains($ui,'totalChanges === 0')&&str_contains($ui,'UP TO DATE — no changes to apply')&&str_contains($ui,'No Apply action is required.'),'zero-change preview renders an up-to-date state without Apply');
-$report(str_contains($ui,'sync-preview-table-wrap')&&str_contains($ui,'width: 230px')&&str_contains($ui,'white-space: nowrap'),'preview labels use a stable single-line column with narrow-screen overflow');
+$report(str_contains($ui,'sync-preview-table-wrap')&&str_contains($ui,'width: 230px')&&str_contains($ui,'white-space: nowrap')&&str_contains($ui,'vertical-align: top !important')&&str_contains($ui,'text-align: left !important'),'preview cells use a stable top-left single-line label column');
 exec(escapeshellarg(PHP_BINARY).' '.escapeshellarg($root.'/tests/characterization/s4g_operational_sync_gate.php'),$output,$code);
 $report($code===0&&in_array('RESULT checks=9 failed=0',$output,true),'operational pure characterization passes');
 printf("RESULT checks=%d failed=%d\n",$checks,$failed);exit($failed===0?0:1);
