@@ -1,7 +1,8 @@
 # OneID Version Numbering Policy
 
 **Diluluskan:** 19 Julai 2026
-**Versi semasa selepas normalisasi:** 2.4.0
+**Baseline selepas normalisasi:** 2.4.0
+**Versi semasa:** 2.4.1
 
 ## Polisi
 
@@ -42,3 +43,5 @@ tertakluk kepada polisi OneID.
 3. Pastikan patch berada antara 0 hingga 4.
 4. Pastikan release baharu ialah successor tepat kepada release sebelumnya.
 5. Jalankan `php tools/release_metadata_contract.php` sebelum commit.
+6. Jalankan `php tools/version_documentation_contract.php` untuk memastikan
+   nombor legacy tidak muncul semula di luar jadual pemetaan dokumen ini.

@@ -4765,6 +4765,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
       date: "2026-07-19",
       changes: [
+        "Semua nama dan kandungan dokumen release aktif telah diaudit supaya menggunakan penomboran baharu; nombor legacy hanya dikekalkan dalam jadual migrasi rasmi.",
+        "Contract dokumentasi baharu menolak nama fail atau kandungan Markdown yang memperkenalkan semula release <code>2.0.5</code> dan ke atas di luar polisi migrasi.",
+        "Dokumen release lama kini menggunakan canonical path <code>v2.1.0</code> hingga <code>v2.1.3</code> mengikut urutan release sebenar.",
+        "Metadata pusat dan <code>package.json</code> kini menggunakan v2.4.1, release pertama selepas baseline normalisasi v2.4.0.",
+        "Penomboran dependency pihak ketiga dan alamat IP bertitik tidak dianggap sebagai versi aplikasi OneID."
+      ]
+    },
+    {
+      version: "2.4.0",
+      date: "2026-07-19",
+      changes: [
         "Penomboran release 2.x dinormalisasi kepada lima patch setiap minor: <code>.0</code> hingga <code>.4</code>, kemudian minor seterusnya bermula semula pada <code>.0</code>.",
         "Browser UAT AS2 bagi <code>multi_session=1</code>, revoked token tanpa perubahan polisi global dan <code>multi_session=0</code> telah dilaporkan PASS oleh owner.",
         "UAT mengesahkan multiple session berfungsi apabila dibenarkan dan browser lama memerlukan login semula selepas token ditamatkan.",
