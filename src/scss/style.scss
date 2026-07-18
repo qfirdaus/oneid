@@ -78,8 +78,9 @@ Project:	Admintres
 /** Imports **/
 /****************************/
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i);
-@import "../../vendors/bower_components/bootstrap/dist/css/bootstrap.min.css";
-@import "font-awesome.min.css";	
+@import "bootstrap-legacy.css";
+@import "../../assetsM/css/fontawesome/css/all.min.css";
+@import "../../assetsM/css/fontawesome/css/v4-shims.min.css";
 @import "themify-icons.css";	
 @import "animate.css";	
 @import "simple-line-icons.css";	
@@ -856,7 +857,7 @@ ul.uo-list {
 			border:solid 1px rgba(39,43,52,.5);
 			color:$black;
 			&:hover,&:active,&:focus {
-				border:solid 1px rgb.5(39,43,52,1);
+					border:solid 1px rgba(39,43,52,1);
 			}
 		}
 		&.btn-orange {
@@ -2249,9 +2250,6 @@ a#toggle_mobile_nav {
 							&::-moz-placeholder {
 								color:$grey;
 							}
-							&:-ms-input-placeholder {
-								color:$grey;
-							}
 						}	
 					}
 				}	
@@ -2329,9 +2327,6 @@ a#toggle_mobile_nav {
 							color:$white;
 						}
 						&::-moz-placeholder {
-							color:$white;
-						}
-						&:-ms-input-placeholder {
 							color:$white;
 						}
 					}
@@ -2958,9 +2953,6 @@ footer {
 	&::-moz-placeholder {
 		text-transform: capitalize;
 	}
-	&:-ms-input-placeholder {
-	  text-transform: capitalize;
-	}
 	&.filled-input {
 		background:rgba(247,247,249,1);
 		border:none;
@@ -3567,7 +3559,6 @@ div.colorpicker {
   background-color: $white;
   border: 1px solid $light_grey;
   -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-	 -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
 		  box-shadow: 0 5px 10px rgba(0,0,0,.2);
 }
 
@@ -4611,7 +4602,6 @@ table.footable > tbody > tr.footable-empty > td {
 	font-size:14px!important;
     font-weight: 400;
     text-transform: capitalize;
-	filter: alpha(opacity=1);
 	display: inline-block;
 	color: inherit;
 	background: transparent;
@@ -5278,7 +5268,6 @@ table.footable > tbody > tr.footable-empty > td {
 }
 .fileupload input.upload {
   cursor: pointer;
-  filter: alpha(opacity=0);
   font-size: 20px;
   margin: 0;
   opacity: 0;
@@ -5447,10 +5436,6 @@ a.compose-mail {
 }
 
 .ibox-title {
-  -moz-border-bottom-colors: none;
-  -moz-border-left-colors: none;
-  -moz-border-right-colors: none;
-  -moz-border-top-colors: none;
   background-color: $white;
   border-color: #e7eaec;
   border-image: none;
@@ -5656,7 +5641,6 @@ a.compose-mail {
 		overflow:hidden;
 		 box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
 		-webkit-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
-		-moz-box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
 		z-index: 1;
 		width: 100%;
 		position:relative;
@@ -5690,7 +5674,6 @@ a.compose-mail {
 		&:hover {
 			box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
 		  -webkit-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
-		  -moz-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
 		  img {
 				@include transform(translateY(-20px));
 			}
@@ -7244,7 +7227,7 @@ button.fc-agendaWeek-button,
 	}
 	.todo-item {
 		padding: 10px 15px;
-		@iclude transition(.2s ease);
+		@include transition(.2s ease);
 		cursor:pointer;
 		&:hover {
 			background:$xtra_lighter_grey;
@@ -8630,9 +8613,6 @@ ul.inbox-nav li a:hover, ul.inbox-nav li.active a, ul.inbox-nav li a:focus {
 						color:$grey;
 					}
 					&::-moz-placeholder {
-						color:$grey;
-					}
-					&:-ms-input-placeholder {
 						color:$grey;
 					}
 				}

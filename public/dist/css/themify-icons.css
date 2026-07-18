@@ -11,7 +11,7 @@
 
 [class^="ti-"], [class*=" ti-"] {
 	font-family: 'themify';
-	speak: none;
+
 	font-style: normal;
 	font-weight: normal;
 	font-variant: normal;
@@ -20,7 +20,7 @@
 
 	/* Better Font Rendering =========== */
 	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+
 }
 
 .ti-wand:before {

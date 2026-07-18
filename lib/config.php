@@ -24,7 +24,7 @@ if (PHP_SAPI !== 'cli' && !headers_sent()) {
   header('X-Frame-Options: SAMEORIGIN');
   header('Referrer-Policy: strict-origin-when-cross-origin');
   header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
-  header("Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'");
+  header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'");
 }
 
 define('DB_DSN', oneid_secret('ONEID_DB_DSN'));

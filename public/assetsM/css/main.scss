@@ -156,12 +156,10 @@ $tooltip-color: #CCCCCC;
 // Border Radius
 @mixin roundedCorners($size) {
 	-webkit-border-radius: $size + px;
-	-moz-border-radius: $size + px;
 	border-radius: $size + px;
 }
 @mixin roundedCornersAll($size1, $size2, $size3, $size4) {
 	-webkit-border-radius: $size1 $size2 $size3 $size4;
-	-moz-border-radius: $size1 $size2 $size3 $size4;
 	border-radius: $size1 $size2 $size3 $size4;
 }
 

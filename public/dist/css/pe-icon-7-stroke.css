@@ -11,7 +11,7 @@
 
 [class^="pe-7s-"], [class*=" pe-7s-"] {
 	font-family: 'Pe-icon-7-stroke';
-	speak: none;
+
 	font-style: normal;
 	font-weight: normal;
 	font-variant: normal;
@@ -20,7 +20,7 @@
 
 	/* Better Font Rendering =========== */
 	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+
 }
 
 .pe-7s-album:before {

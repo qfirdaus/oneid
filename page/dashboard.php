@@ -22,7 +22,7 @@
       <link href="../vendors/bower_components/morris.js/morris.css" rel="stylesheet" type="text/css"/>
       <!-- vector map CSS -->
       <link href="../vendors/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet" type="text/css"/>
-      <link href="../vendors/bower_components/sweetalert/dist/sweetalert.css" rel="stylesheet" type="text/css">
+      <link href="../assetsM/css/sweetalert.css" rel="stylesheet" type="text/css">
       <link href="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css">
       <!-- Custom CSS -->
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
@@ -279,7 +279,7 @@
 
 
          <div id="modal_change_password"
-     class="modal fade"
+     class="modal"
      tabindex="-1"
      role="dialog"
      aria-labelledby="aria_modal_change_password"
@@ -294,6 +294,7 @@
                   </div>
                   <form id="form_change_password">
                      <div class="modal-body">
+                        <input type="text" name="username" value="<?php echo htmlspecialchars((string) $_SESSION['login_user'], ENT_QUOTES, 'UTF-8'); ?>" autocomplete="username" hidden>
                         <div class="row">
                            <div class="col-lg-12">
                               <div class="">
@@ -1052,8 +1053,8 @@
          $('#change_password_new_reconfirm').val('');
          $('#password_change_feedback').hide().removeClass('alert-success alert-danger alert-info');
          $('#password_change_feedback_text').text('');
-         $('#modal_change_password').modal('show');
          resetPasswordChecks();
+         $('#modal_change_password').modal('show');
          }
          
          $('#change_password_new').on('input', function() {
@@ -1948,7 +1949,7 @@
   width: 100%; 
   height: 100%; 
   border-radius: 50%; 
-  object-fit: cover; // prevent squashing
+  object-fit: cover; /* Prevent image distortion. */
 }
 
 

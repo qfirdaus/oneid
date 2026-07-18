@@ -20,10 +20,6 @@
     &::-moz-range-thumb     { box-shadow: $form-range-thumb-focus-box-shadow; }
   }
 
-  &::-moz-focus-outer {
-    border: 0;
-  }
-
   &::-webkit-slider-thumb {
     width: $form-range-thumb-width;
     height: $form-range-thumb-height;

@@ -10,7 +10,7 @@
 }
 .lg-icon {
   font-family: 'lg';
-  speak: none;
+
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
@@ -18,7 +18,7 @@
   line-height: 1;
   /* Better Font Rendering =========== */
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+
 }
 
 .lg-actions .lg-next, .lg-actions .lg-prev {
@@ -76,17 +76,7 @@
     left: 0;
   }
 }
-@-ms-keyframes lg-right-end {
-  0% {
-    left: 0;
-  }
-  50% {
-    left: -30px;
-  }
-  100% {
-    left: 0;
-  }
-}
+
 @keyframes lg-right-end {
   0% {
     left: 0;
@@ -120,17 +110,7 @@
     left: 0;
   }
 }
-@-ms-keyframes lg-left-end {
-  0% {
-    left: 0;
-  }
-  50% {
-    left: 30px;
-  }
-  100% {
-    left: 0;
-  }
-}
+
 @keyframes lg-left-end {
   0% {
     left: 0;
@@ -895,7 +875,7 @@ body:not(.lg-from-hash) .lg-outer.lg-start-zoom .lg-item.lg-complete .lg-object 
 }
 
 .group {
-  *zoom: 1;
+
 }
 
 .group:before, .group:after {

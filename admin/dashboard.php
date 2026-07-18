@@ -27,7 +27,7 @@
       <link href="../vendors/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet" type="text/css"/>
       <!-- Bootstrap Daterangepicker CSS -->
       <link href="../vendors/bower_components/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet" type="text/css"/>
-      <link href="../vendors/bower_components/sweetalert/dist/sweetalert.css" rel="stylesheet" type="text/css">
+      <link href="../assetsM/css/sweetalert.css" rel="stylesheet" type="text/css">
       <link href="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css">
       <!-- Custom CSS -->
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
@@ -85,7 +85,7 @@
                                           </div>
                                           <div class="row mr-10">
                                              <div class="form-group">
-                                                <label class="control-label mr-10" for="modal_user_profile_name">Category</label>
+                                                <label class="control-label mr-10" for="modal_user_profile_category">Category</label>
                                                 <select class="form-control modal_user_profile_input modal_user_profile_input_enable" id="modal_user_profile_category">
                                                    <option>1</option>
                                                 </select>
@@ -199,7 +199,7 @@
                                                    <i style="font-style: italic;"><small class="text-muted mb-10">Example: https://domain.com.my or https://subdomain.domain.com.my</small></i>
                                                 </div>
                                                 <div class="form-group mb-10">
-													<label class="control-label mb-10 text-left">App Category</label>
+											<label class="control-label mb-10 text-left" for="add_new_app_category">App Category</label>
 													<select class="form-control" id="add_new_app_category" name="add_new_app_category">
 													</select>
 												</div>
@@ -353,7 +353,7 @@
                                                    <input type="text" class="form-control" id="edit_app_url" name="edit_app_url" placeholder="Url of the app">
                                                 </div>
                                                 <div class="form-group">
-                                                   <label class="control-label mb-10" for="edit_app_desc">Site API Code</label>
+                                                   <label class="control-label mb-10" for="edit_app_code">Site API Code</label>
                                                    <span class="input-group-btn">
                                                    <div class="input-group mb-15"> <span class="input-group-btn">
                                                       <button type="button" class="btn  btn-primary" onclick="copyToClipboard('edit_app_code');"><i class="fa fa-copy"></i> Copy</button>
@@ -362,7 +362,7 @@
                                                    </div>
                                                 </div>
                                                 <div class="form-group mb-10">
-													<label class="control-label mb-10 text-left">App Category</label>
+											<label class="control-label mb-10 text-left" for="edit_app_category">App Category</label>
 													<select class="form-control" id="edit_app_category" name="edit_app_category">
 													</select>
 												</div>
@@ -442,7 +442,6 @@
                            </div>
                         </div>
                      </div>
-                     <input type="hidden" id="" name="">
                      <div class="modal-footer">
                         <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
                      </div>
@@ -505,7 +504,6 @@
                            </div>
                         </div>
                      </div>
-                     <input type="hidden" id="" name="">
                      <div class="modal-footer">
                         <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
                      </div>
@@ -693,11 +691,11 @@
                                           <div class="form-wrap">
                                              <div class="form-body overflow-hide">
                                                 <div class="form-group">
-                                                   <label class="control-label mb-10" for="add_new_category_name">Name @ Data 1</label>
+                                                   <label class="control-label mb-10" for="add_new_manual_user_name">Name @ Data 1</label>
                                                    <input type="text" class="form-control add_new_manual_user_input" id="add_new_manual_user_name" name="add_new_manual_user_name" placeholder="Staff/Student Name" maxlength="100" required="">
                                                 </div>
                                                 <div class="form-group">
-                                                   <label class="control-label mb-10" for="add_new_category_name">No KP / User ID / Username</label>
+                                                   <label class="control-label mb-10" for="add_new_manual_user_id">No KP / User ID / Username</label>
                                                    <input type="text" class="form-control add_new_manual_user_input" id="add_new_manual_user_id" name="add_new_manual_user_id" placeholder="User Unique ID, Staff/Student ID" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@\-]*" required="" disabled="">
                                                 </div>
                                                 <div class="form-group">
@@ -1578,7 +1576,7 @@
          
          $('#the-basics .typeahead').typeahead(
          {
-         hint: true,
+         hint: false,
          highlight: true,
          minLength: 3,
          items: 10
@@ -4401,6 +4399,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-18",
+      changes: [
+        "Keserasian Chrome dan Firefox dipertingkat dengan atribut <b>autocomplete</b>, username tersembunyi serta identiti medan yang lengkap untuk login, password recovery, OTP dan pertukaran kata laluan.",
+        "Content Security Policy, cookie pihak ketiga dan logo MyDigital ID diperbaiki dengan polisi aktif serta aset logo tempatan untuk mengelakkan warning dan permintaan luaran.",
+        "CSS login, dashboard pengguna dan dashboard pentadbir dibersihkan daripada selector, prefix, filter dan at-rule browser legacy yang tidak lagi sah tanpa mengubah fungsi antaramuka.",
+        "Aset ikon dan font diperkemas, termasuk Font Awesome, Icomoon, Dropify dan font dashboard, bagi menghapuskan warning parser serta glyph dalam browser moden.",
+        "Modal password, label borang, input OTP dan pemuatan halaman diperbaiki untuk accessibility, autofill serta prestasi layout yang lebih konsisten."
+      ]
+    },
+    {
+      version: "2.0.8",
       date: "2026-07-17",
       changes: [
         "Dashboard pengguna dan Administrator kini memaparkan pecahan <b>Jumlah, Full SSO dan Non SSO</b> berdasarkan aplikasi unik serta kontrak <code>sp_sso_support</code> yang sama dengan tindakan akses.",

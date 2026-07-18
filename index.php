@@ -21,7 +21,7 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
   <link rel="stylesheet" href="assetsM/css/main.min.css" />
   <link rel="stylesheet" href="assetsM/css/custom.css" />
   <link rel="stylesheet" href="vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" />
-  <link rel="stylesheet" href="vendors/bower_components/sweetalert/dist/sweetalert.css" />
+  <link rel="stylesheet" href="assetsM/css/sweetalert.css" />
   <link href="https://fonts.googleapis.com/css2?family=Moon+Dance&display=swap" rel="stylesheet" />
 
 </head>
@@ -53,12 +53,12 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
 
         <div class="login-form-block" style="display: flex; flex-direction: column; gap: 4px;margin-bottom: 20px;">
           <label for="username" class="login-form-label" style="margin-bottom: 4px; font-weight: 500; color: #2c2c2c;"> ID Pengguna</label>
-          <input id="username" name="username" type="text" class="login-form-control custom_input login_placeholder" placeholder="Masukkan No. Staf (XXXX-XX) / No. Pelajar" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@\-]*" />
+          <input id="username" name="username" type="text" class="login-form-control custom_input login_placeholder" placeholder="Masukkan No. Staf (XXXX-XX) / No. Pelajar" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@\-]*" autocomplete="username" />
         </div>
 
         <div class="login-form-block" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px;">
           <label for="password" class="login-form-label" style="margin-bottom: 4px; font-weight: 500; color: #2c2c2c;"> Kata Laluan</label>
-          <input id="password" name="password" type="password" placeholder="Masukkan Kata Laluan" class="login-form-control custom_input login_placeholder" />
+          <input id="password" name="password" type="password" placeholder="Masukkan Kata Laluan" class="login-form-control custom_input login_placeholder" autocomplete="current-password" />
 		  <small>Pengguna baharu perlu menggunakan fungsi Lupa Kata Laluan untuk menetapkan kata laluan pertama.</small>
         </div>
 
@@ -71,7 +71,7 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
 
         <div class="mydigitalid-preview" aria-label="MyDigital ID integration coming soon">
           <span class="mydigitalid-preview-label">Pilihan log masuk akan datang</span>
-          <img src="https://www.digital-id.my/images/logo/logo_colored.svg" alt="MyDigital ID" width="158" height="42" loading="lazy" referrerpolicy="no-referrer" />
+          <img src="img/mydigitalid_logo_colored.svg" alt="MyDigital ID" width="158" height="42" loading="lazy" />
           <small>Integrasi belum diaktifkan</small>
         </div>
 
@@ -174,7 +174,7 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
                                              <div class="form-body overflow-hide">
                                                 <div class="form-group" id="forgot_pwd_body">
                                                    <label class="form-label" for="forgot_password_id">No. Kad Pengenalan / No. Passport</label>
-                                                   <input type="text" class="form-control" id="forgot_password_id" name="forgot_password_id" placeholder="Masukkan maklumat untuk tetapan semula kata laluan" required="">
+                                                   <input type="text" class="form-control" id="forgot_password_id" name="forgot_password_id" placeholder="Masukkan maklumat untuk tetapan semula kata laluan" autocomplete="username" required="">
                                                 </div>
                                                 <div id="forgot_pwd_loading_OTP">
                                                   <div class="spinners-container text-center">
@@ -265,12 +265,12 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
                                              <div class="form-body overflow-hide" style="display: flex; flex-direction: column; align-items: center;">
                                                   <div class="form-group">
                                                     <div id="otp_inputs">
-                                                      <input type="text" maxlength="1" class="otp-input form-control" required="">
-                                                      <input type="text" maxlength="1" class="otp-input form-control" required="">
-                                                      <input type="text" maxlength="1" class="otp-input form-control" required="">
-                                                      <input type="text" maxlength="1" class="otp-input form-control" required="">
-                                                      <input type="text" maxlength="1" class="otp-input form-control" required="">
-                                                      <input type="text" maxlength="1" class="otp-input form-control" required="">
+                                                      <input type="text" id="otp_digit_1" name="otp_digit_1" maxlength="1" class="otp-input form-control" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" aria-label="Digit OTP 1" required="">
+                                                      <input type="text" id="otp_digit_2" name="otp_digit_2" maxlength="1" class="otp-input form-control" inputmode="numeric" pattern="[0-9]" autocomplete="off" aria-label="Digit OTP 2" required="">
+                                                      <input type="text" id="otp_digit_3" name="otp_digit_3" maxlength="1" class="otp-input form-control" inputmode="numeric" pattern="[0-9]" autocomplete="off" aria-label="Digit OTP 3" required="">
+                                                      <input type="text" id="otp_digit_4" name="otp_digit_4" maxlength="1" class="otp-input form-control" inputmode="numeric" pattern="[0-9]" autocomplete="off" aria-label="Digit OTP 4" required="">
+                                                      <input type="text" id="otp_digit_5" name="otp_digit_5" maxlength="1" class="otp-input form-control" inputmode="numeric" pattern="[0-9]" autocomplete="off" aria-label="Digit OTP 5" required="">
+                                                      <input type="text" id="otp_digit_6" name="otp_digit_6" maxlength="1" class="otp-input form-control" inputmode="numeric" pattern="[0-9]" autocomplete="off" aria-label="Digit OTP 6" required="">
                                                     </div>
                                                   </div>
                                                   <div class="form-group">
@@ -308,6 +308,7 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
       </div>
       <form id="form_reset_password">
         <div class="modal-body">
+          <input type="text" id="reset_password_username" name="username" autocomplete="username" hidden>
           <div class="mb-3">
             <label class="form-label" for="reset_password_new">Kata Laluan Baharu</label>
             <input type="password" class="form-control" id="reset_password_new" name="reset_password_new" minlength="12" autocomplete="new-password" required>
@@ -468,14 +469,9 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
   <!-- JavaScript dependencies -->
   <script src="assetsM/js/jquery.min.js"></script>
   <script src="assetsM/js/bootstrap.bundle.min.js"></script>
-  <script src="assetsM/js/modernizr.js"></script>
-  <script src="assetsM/js/moment.js"></script>
-  <script src="assetsM/vendor/overlay-scroll/jquery.overlayScrollbars.min.js"></script>
-  <script src="assetsM/vendor/overlay-scroll/custom-scrollbar.js"></script>
   <script src="vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
   <script src="vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
   <script src="assetsM/js/oneid-notifications.js?v=20260716-1"></script>
-  <script src="assetsM/js/main.js"></script>
 
 
 <script>
@@ -829,6 +825,7 @@ function open_forgot_password(){
                          success: function (response) {
                              if (response['result'] == "true" && response['reset_required']){
                     $('#modal_OTP').modal('hide');
+                    $('#reset_password_username').val($('#forgot_password_id').val());
                     $('#reset_password_new').val('');
                     $('#reset_password_confirm').val('');
                     $('#modal_reset_password').modal('show');

@@ -1,6 +1,6 @@
 {
   "name": "oneid-uat",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "private": true,
   "description": "OneID UAT legacy frontend build tooling",
   "scripts": {
