@@ -1169,11 +1169,11 @@
                                                             <div>
                                                                <span class="active-session-eyebrow">Access &amp; security</span>
                                                                <h4 class="active-session-title">Active Sessions</h4>
-                                                               <p class="active-session-intro">Pantau sesi pengguna yang masih aktif, masa token dan peranti yang digunakan.</p>
+                                                               <p class="active-session-intro">Pantau lifecycle sesi pengguna secara read-only berdasarkan issuance, aktiviti terakhir dan polisi revocation.</p>
                                                             </div>
                                                             <div class="active-session-actions">
                                                                <div class="active-session-count" aria-live="polite">
-                                                                  <span>Active</span>
+                                                                  <span>Results</span>
                                                                   <strong id="active_session_count">&mdash;</strong>
                                                                </div>
                                                                <button type="button" class="active-session-refresh" onclick="get_all_user_activ_session();" title="Refresh active sessions" aria-label="Refresh active sessions">
@@ -1186,20 +1186,42 @@
                                                             <div class="active-session-card-heading">
                                                                <div>
                                                                   <h5>Session list</h5>
-                                                                  <p>Senarai ini hanya untuk pemantauan dan tidak menamatkan sesi pengguna.</p>
+                                                                  <p>Refresh, carian, filter dan pagination tidak menamatkan atau mengubah sesi pengguna.</p>
                                                                </div>
+                                                            </div>
+                                                            <div class="active-session-filter" role="search">
+                                                               <div class="active-session-search-box">
+                                                                  <i class="fa fa-search" aria-hidden="true"></i>
+                                                                  <input type="search" id="active_session_query" maxlength="80" placeholder="Search user or device" aria-label="Search active sessions">
+                                                               </div>
+                                                               <select id="active_session_status" aria-label="Filter session status">
+                                                                  <option value="all">All statuses</option>
+                                                                  <option value="current">Current</option>
+                                                                  <option value="active">Active</option>
+                                                                  <option value="grace">Grace period</option>
+                                                                  <option value="due">Due for revocation</option>
+                                                                  <option value="expired">Expired</option>
+                                                               </select>
+                                                               <select id="active_session_page_size" aria-label="Results per page">
+                                                                  <option value="10">10 per page</option>
+                                                                  <option value="25" selected>25 per page</option>
+                                                                  <option value="50">50 per page</option>
+                                                               </select>
+                                                               <button type="button" id="active_session_search_button" class="active-session-filter-button" title="Apply session filters" aria-label="Apply session filters"><i class="fa fa-search" aria-hidden="true"></i></button>
                                                             </div>
                                                             <div class="active-session-table-wrap">
                                                                <table class="table active-session-table mb-0">
                                                                   <colgroup>
-                                                                     <col class="active-col-time">
+                                                                     <col class="active-col-issued">
+                                                                     <col class="active-col-activity">
                                                                      <col class="active-col-user">
                                                                      <col class="active-col-device">
                                                                      <col class="active-col-status">
                                                                   </colgroup>
                                                                   <thead>
                                                                      <tr>
-                                                                        <th scope="col">Token Date / Time</th>
+                                                                        <th scope="col">Issued At</th>
+                                                                        <th scope="col">Last Activity</th>
                                                                         <th scope="col">User</th>
                                                                         <th scope="col">Device</th>
                                                                         <th scope="col">Status</th>
@@ -1207,7 +1229,7 @@
                                                                   </thead>
                                                                   <tbody id="security_tab_session">
                                                                      <tr class="active-session-state-row is-loading">
-                                                                        <td colspan="4">
+                                                                        <td colspan="5">
                                                                            <span class="active-session-state-icon"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>
                                                                            <strong>Loading active sessions</strong>
                                                                            <small>Please wait while session data is retrieved.</small>
@@ -1216,6 +1238,7 @@
                                                                   </tbody>
                                                                </table>
                                                             </div>
+                                                            <div id="active_session_pagination" class="active-session-pagination" aria-live="polite"></div>
                                                          </div>
                                                       </div>
                                                    </div>
@@ -4089,17 +4112,42 @@
             return text;
          }
 
-         function get_all_user_activ_session(){
+         var activeSessionPage = 1;
+
+         function render_active_session_pagination(meta){
+            var page = Number(meta.page || 1);
+            var pages = Number(meta.total_pages || 1);
+            var total = Number(meta.total || 0);
+            if(total === 0){
+               $('#active_session_pagination').html('');
+               return;
+            }
+            $('#active_session_pagination').html(
+               '<button type="button" data-active-page="'+(page-1)+'" '+(page <= 1 ? 'disabled' : '')+' aria-label="Previous session page"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>'+
+               '<span>Page '+page+' of '+pages+'</span>'+
+               '<button type="button" data-active-page="'+(page+1)+'" '+(page >= pages ? 'disabled' : '')+' aria-label="Next session page"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>'
+            );
+         }
+
+         function get_all_user_activ_session(page){
+         activeSessionPage = Number(page || activeSessionPage || 1);
          $.ajax({
-         	type: 'POST',
-         	url: '../lib/q_func',
-         	dataType: "json",
-          data: {admin_get_all_token_for_all_active_user:""},
+          type: 'POST',
+          url: '../lib/q_func',
+          dataType: "json",
+          data: {
+             admin_get_all_token_for_all_active_user:"",
+             page:String(activeSessionPage),
+             page_size:String($('#active_session_page_size').val() || '25'),
+             query:String($('#active_session_query').val() || '').trim(),
+             status:String($('#active_session_status').val() || 'all')
+          },
           beforeSend: function(){
 				$('#active_session_count').text('\u2014');
+				$('#active_session_pagination').html('');
 				$('#app_security_session_list').show();
 				$('#security_tab_session').html(
-					'<tr class="active-session-state-row is-loading"><td colspan="4">' +
+					'<tr class="active-session-state-row is-loading"><td colspan="5">' +
 					'<span class="active-session-state-icon"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>' +
 					'<strong>Loading active sessions</strong>' +
 					'<small>Please wait while session data is retrieved.</small>' +
@@ -4112,10 +4160,17 @@
 					return $('<div>').text(value == null ? '' : value).html();
 				};
 
-				if (!Array.isArray(response) || response.length === 0) {
+				if (!response || Number(response.status) !== 1 || !Array.isArray(response.data) || !response.meta) {
+					$('#active_session_count').text('\u2014');
+					$('#active_session_pagination').html('');
+					$tbody.html('<tr class="active-session-state-row is-error"><td colspan="5"><span class="active-session-state-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span><strong>Unable to load active sessions</strong><small>' + sessionText(response && response.code ? response.code : 'Invalid server response') + '</small></td></tr>');
+					return;
+				}
+				var sessions = response.data;
+				if (sessions.length === 0) {
 					$('#active_session_count').text('0');
 					$tbody.html(
-						'<tr class="active-session-state-row"><td colspan="4">' +
+						'<tr class="active-session-state-row"><td colspan="5">' +
 						'<span class="active-session-state-icon"><i class="fa fa-user-times" aria-hidden="true"></i></span>' +
 						'<strong>No active sessions</strong>' +
 						'<small>No user session is currently available.</small>' +
@@ -4123,32 +4178,42 @@
 					);
 				} else {
 					var rows = '';
-					$.each(response, function (i, session) {
-						var isCurrent = session.current_token === "1";
-						var tokenDateTime = sessionText(admin_format_datetime(session.token_datetime));
+					var statusMap = {
+						current:{label:'Current',icon:'fa-check-circle'},
+						active:{label:'Active',icon:'fa-circle'},
+						grace:{label:'Grace period',icon:'fa-clock-o'},
+						due:{label:'Due',icon:'fa-exclamation-circle'},
+						expired:{label:'Expired',icon:'fa-times-circle'}
+					};
+					$.each(sessions, function (i, session) {
+						var issuedAt = sessionText(admin_format_datetime(session.issued_at));
+						var lastActivity = sessionText(admin_format_datetime(session.last_activity_at));
 						var userName = sessionText(session.name);
+						var userId = sessionText(session.user_id);
 						var deviceInfo = sessionText(session.device_info);
-						var statusText = isCurrent ? 'Current' : 'Active';
+						var status = statusMap[session.status] || statusMap.expired;
+						var statusDetail = (session.status === 'grace' || session.status === 'due') && session.revoke_at
+							? '<small>'+sessionText(admin_format_datetime(session.revoke_at))+'</small>' : '';
 
 						rows += '<tr>';
-						rows += '<td data-label="Token Date / Time"><span class="active-session-cell active-session-time" title="'+tokenDateTime+'">'+tokenDateTime+'</span></td>';
-						rows += '<td data-label="User"><span class="active-session-cell active-session-user" title="'+userName+'"><i class="fa fa-user-circle-o" aria-hidden="true"></i>'+userName+'</span></td>';
+						rows += '<td data-label="Issued At"><span class="active-session-cell active-session-time" title="'+issuedAt+'">'+issuedAt+'</span></td>';
+						rows += '<td data-label="Last Activity"><span class="active-session-cell active-session-time" title="'+lastActivity+'">'+lastActivity+'</span></td>';
+						rows += '<td data-label="User"><span class="active-session-cell active-session-user" title="'+userName+' ('+userId+')"><i class="fa fa-user-circle-o" aria-hidden="true"></i><span>'+userName+'<small>'+userId+'</small></span></span></td>';
 						rows += '<td data-label="Device"><span class="active-session-cell active-session-device" title="'+deviceInfo+'"><i class="fa fa-desktop" aria-hidden="true"></i>'+deviceInfo+'</span></td>';
-						rows += '<td data-label="Status"><span class="active-session-status '+(isCurrent ? 'is-current' : '')+'"><i class="fa '+(isCurrent ? 'fa-check-circle' : 'fa-circle')+'" aria-hidden="true"></i>'+statusText+'</span></td>';
+						rows += '<td data-label="Status"><span class="active-session-status is-'+session.status+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+statusDetail+'</span></span></td>';
 						rows += '</tr>';
 					});
 
-					$('#active_session_count').text(response.length);
+					$('#active_session_count').text(response.meta.total);
 					$tbody.html(rows);
 				}
-
-
-         
+				render_active_session_pagination(response.meta);
                        },
                        error: function (xhr, error, thrown) {
 						$('#active_session_count').text('\u2014');
+						$('#active_session_pagination').html('');
 						$('#security_tab_session').html(
-							'<tr class="active-session-state-row is-error"><td colspan="4">' +
+							'<tr class="active-session-state-row is-error"><td colspan="5">' +
 							'<span class="active-session-state-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>' +
 							'<strong>Unable to load active sessions</strong>' +
 							'<small>Please retry or check the application log.</small>' +
@@ -4157,6 +4222,11 @@
                        }
                    });
          }
+
+         $(document).on('click', '#active_session_search_button', function(){ activeSessionPage=1;get_all_user_activ_session(1); });
+         $(document).on('change', '#active_session_status, #active_session_page_size', function(){ activeSessionPage=1;get_all_user_activ_session(1); });
+         $(document).on('keydown', '#active_session_query', function(event){ if(event.key === 'Enter'){event.preventDefault();activeSessionPage=1;get_all_user_activ_session(1);} });
+         $(document).on('click', '#active_session_pagination button[data-active-page]', function(){ if(!this.disabled)get_all_user_activ_session($(this).data('active-page')); });
          
          
 
@@ -4667,6 +4737,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-18",
+      changes: [
+        "Admin <b>Active Sessions</b> kini menggunakan listing read-only sebenar; Refresh, carian, filter dan pagination tidak lagi menukar status token secara tersembunyi.",
+        "Response browser menggunakan explicit projection tanpa <code>token_id</code>, token hash atau policy correlation material.",
+        "Lifecycle sesi membezakan <b>Current, Active, Grace, Due</b> dan <b>Expired</b> berdasarkan absolute issuance serta jadual revocation SC5.",
+        "UI memisahkan <b>Issued At</b> daripada <b>Last Activity</b> serta menambah carian pengguna/peranti, status filter dan page size 10, 25 atau 50.",
+        "Contract dan preflight AS0 mengesahkan bounded query, zero mutation dan forbidden-field protection; controlled revoke kekal deferred sehingga Admin Step-Up tersedia."
+      ]
+    },
+    {
+      version: "2.0.15",
       date: "2026-07-18",
       changes: [
         "Konfigurasi dan secrets kini menggunakan satu runtime file resolver; <code>ONEID_SECRETS_FILE</code> kekal sebagai alias legacy tetapi path bercanggah akan ditolak.",
@@ -6493,6 +6574,66 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         font-size: 12px;
       }
 
+      #tab_active_sessions .active-session-filter {
+        display: grid;
+        grid-template-columns: minmax(210px, 1fr) 180px 140px 42px;
+        gap: 9px;
+        padding: 14px 20px;
+        border-bottom: 1px solid #e8ecf1;
+        background: #fbfcfe;
+      }
+
+      #tab_active_sessions .active-session-search-box {
+        position: relative;
+      }
+
+      #tab_active_sessions .active-session-search-box i {
+        position: absolute;
+        top: 50%;
+        left: 12px;
+        color: #8793a3;
+        transform: translateY(-50%);
+      }
+
+      #tab_active_sessions .active-session-filter input,
+      #tab_active_sessions .active-session-filter select {
+        width: 100%;
+        height: 38px;
+        border: 1px solid #d9e1ea;
+        border-radius: 6px;
+        background: #fff;
+        color: #425166;
+        font-size: 12px;
+      }
+
+      #tab_active_sessions .active-session-filter input {
+        padding: 8px 12px 8px 34px;
+      }
+
+      #tab_active_sessions .active-session-filter select {
+        padding: 7px 10px;
+      }
+
+      #tab_active_sessions .active-session-filter-button,
+      #tab_active_sessions .active-session-pagination button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 38px;
+        border: 1px solid #cfe1ec;
+        border-radius: 6px;
+        background: #fff;
+        color: #168fcb;
+      }
+
+      #tab_active_sessions .active-session-filter-button:hover,
+      #tab_active_sessions .active-session-filter-button:focus,
+      #tab_active_sessions .active-session-pagination button:hover:not(:disabled),
+      #tab_active_sessions .active-session-pagination button:focus:not(:disabled) {
+        border-color: #9dcede;
+        background: #eef8fd;
+      }
+
       #tab_active_sessions .active-session-table-wrap {
         width: 100%;
         overflow: visible;
@@ -6504,10 +6645,11 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         border-collapse: collapse;
       }
 
-      #tab_active_sessions .active-col-time { width: 22%; }
-      #tab_active_sessions .active-col-user { width: 28%; }
-      #tab_active_sessions .active-col-device { width: 34%; }
-      #tab_active_sessions .active-col-status { width: 16%; }
+      #tab_active_sessions .active-col-issued { width: 16%; }
+      #tab_active_sessions .active-col-activity { width: 16%; }
+      #tab_active_sessions .active-col-user { width: 24%; }
+      #tab_active_sessions .active-col-device { width: 27%; }
+      #tab_active_sessions .active-col-status { width: 17%; }
 
       #tab_active_sessions .active-session-table thead th {
         padding: 13px 15px;
@@ -6566,6 +6708,27 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         font-weight: 500;
       }
 
+      #tab_active_sessions .active-session-user {
+        display: flex;
+        align-items: flex-start;
+      }
+
+      #tab_active_sessions .active-session-user > span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      #tab_active_sessions .active-session-user small,
+      #tab_active_sessions .active-session-status small {
+        display: block;
+        margin-top: 2px;
+        color: inherit;
+        font-size: 9px;
+        font-weight: 500;
+        text-transform: none;
+      }
+
       #tab_active_sessions .active-session-status {
         display: inline-flex;
         align-items: center;
@@ -6587,6 +6750,17 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #tab_active_sessions .active-session-status.is-current {
         background: #e7f7ee;
         color: #22844f;
+      }
+
+      #tab_active_sessions .active-session-status.is-grace {
+        background: #fff7dd;
+        color: #8a6815;
+      }
+
+      #tab_active_sessions .active-session-status.is-due,
+      #tab_active_sessions .active-session-status.is-expired {
+        background: #fceceb;
+        color: #ad4a43;
       }
 
       #tab_active_sessions .active-session-status .fa-circle {
@@ -6628,6 +6802,28 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         color: #d46b62;
       }
 
+      #tab_active_sessions .active-session-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        min-height: 58px;
+        gap: 12px;
+        padding: 10px 20px;
+        border-top: 1px solid #e8ecf1;
+        color: #657286;
+        font-size: 11px;
+      }
+
+      #tab_active_sessions .active-session-pagination button {
+        width: 34px;
+        height: 34px;
+      }
+
+      #tab_active_sessions .active-session-pagination button:disabled {
+        cursor: not-allowed;
+        opacity: .45;
+      }
+
       @media (max-width: 767px) {
         #tab_active_sessions .active-session-panel {
           padding: 20px 15px;
@@ -6648,6 +6844,23 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
         #tab_active_sessions .active-session-card-heading p {
           line-height: 1.5;
+        }
+
+        #tab_active_sessions .active-session-filter {
+          grid-template-columns: 1fr 1fr;
+          padding: 12px 15px;
+        }
+
+        #tab_active_sessions .active-session-search-box {
+          grid-column: 1 / -1;
+        }
+
+        #tab_active_sessions .active-session-filter-button {
+          width: 42px;
+        }
+
+        #tab_active_sessions .active-session-pagination {
+          justify-content: center;
         }
 
         #tab_active_sessions .active-session-table,

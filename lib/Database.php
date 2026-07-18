@@ -1386,15 +1386,49 @@ class Database {
         return $result;
     }
 
-    public function get_all_token_for_all_active_user(){
-        $Q = "SELECT A.*,B.data1 as name
-                FROM token_tbl A 
-                LEFT JOIN user_tbl B ON B.u_id = A.user_id
-                WHERE A.status=1 ORDER BY A.token_datetime";
-        $R = $this->pdo->prepare($Q);        
-        $R->execute();
-        $result = $R->fetchAll(PDO::FETCH_ASSOC);
-        return $result;
+    /** @param array<string, mixed> $filters */
+    public function admin_list_active_sessions(array $filters): array{
+        $pageSize=(int)($filters['page_size']??0);$offset=(int)($filters['offset']??-1);
+        if(!in_array($pageSize,[10,25,50],true)||$offset<0)throw new InvalidArgumentException('AS0_PAGINATION_INVALID');
+        $search=str_replace(['\\','%','_'],['\\\\','\\%','\\_'],trim((string)($filters['query']??'')));
+        $params=[
+            ':now_value'=>(string)($filters['now']??''),
+            ':active_cutoff'=>(string)($filters['active_cutoff']??''),
+            ':current_user_id'=>(string)($filters['current_user_id']??''),
+            ':current_token'=>(string)($filters['current_token']??''),
+            ':current_token_hash'=>(string)($filters['current_token_hash']??''),
+            ':search_value'=>$search===''?'':'%'.$search.'%',
+            ':requested_status'=>(string)($filters['status']??'all'),
+        ];
+        $base="SELECT A.user_id,COALESCE(NULLIF(B.data1,''),A.user_id) AS name,A.device_info,
+                     A.token_issued_at AS issued_at,A.token_datetime AS last_activity_at,
+                     A.policy_revoke_at AS revoke_at,P.search_value,P.requested_status,
+                     CASE
+                       WHEN A.token_issued_at>P.now_value OR A.token_issued_at<P.active_cutoff THEN 'expired'
+                       WHEN A.policy_revoke_at IS NOT NULL AND A.policy_revoke_at<=P.now_value THEN 'due'
+                       WHEN A.policy_revoke_at IS NOT NULL AND A.policy_revoke_at>P.now_value THEN 'grace'
+                       WHEN A.user_id=P.current_user_id AND (A.token_id=P.current_token_hash OR A.token_id=P.current_token) THEN 'current'
+                       ELSE 'active'
+                     END AS lifecycle_status
+              FROM token_tbl A
+              LEFT JOIN user_tbl B ON B.u_id=A.user_id
+              CROSS JOIN (SELECT CAST(:now_value AS DATETIME) AS now_value,
+                                 CAST(:active_cutoff AS DATETIME) AS active_cutoff,
+                                 :current_user_id AS current_user_id,
+                                 :current_token AS current_token,
+                                 :current_token_hash AS current_token_hash,
+                                 :search_value AS search_value,
+                                 :requested_status AS requested_status) P
+              WHERE A.status=1";
+        $filtered=" FROM (".$base.") S
+                    WHERE (S.search_value='' OR S.user_id LIKE S.search_value ESCAPE '\\\\'
+                           OR S.name LIKE S.search_value ESCAPE '\\\\'
+                           OR S.device_info LIKE S.search_value ESCAPE '\\\\')
+                      AND (S.requested_status='all' OR S.lifecycle_status=S.requested_status)";
+        $count=$this->pdo->prepare('SELECT COUNT(*)'.$filtered);$count->execute($params);$total=(int)$count->fetchColumn();
+        $rows=$this->pdo->prepare('SELECT user_id,name,device_info,issued_at,last_activity_at,revoke_at,lifecycle_status'.$filtered.' ORDER BY last_activity_at DESC,user_id ASC LIMIT '.$pageSize.' OFFSET '.$offset);
+        $rows->execute($params);
+        return ['rows'=>$rows->fetchAll(PDO::FETCH_ASSOC),'total'=>$total];
     }
 
     public function remove_queue($no_matrix){

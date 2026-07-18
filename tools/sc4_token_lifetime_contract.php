@@ -22,7 +22,7 @@ $root=dirname(__DIR__);$db=(string)file_get_contents($root.'/lib/Database.php');
 $report(str_contains($db,'token_datetime,token_issued_at')&&str_contains($db,'NOW(),NOW()'),'new tokens store immutable issuance and mutable activity timestamps');
 $report(str_contains($db,'UPDATE token_tbl SET token_datetime = NOW()')&&!str_contains($db,'UPDATE token_tbl SET token_issued_at = NOW()'),'heartbeat updates activity timestamp without extending issuance');
 $report(str_contains($api,"['token_issued_at']")&&str_contains($api,'SsoTokenLifetimePolicy::LEGACY_REFRESH'),'integration API uses centralized absolute lifetime and compatibility refresh states');
-$report(substr_count($q,"['token_issued_at']")>=2&&substr_count($q,'SsoTokenLifetimePolicy::ACTIVE')>=2,'user and admin active-session cleanup use absolute issuance time');
+$report(substr_count($q,"['token_issued_at']")>=1&&substr_count($q,'SsoTokenLifetimePolicy::ACTIVE')>=1&&str_contains($db,'A.token_issued_at<P.active_cutoff')&&str_contains($db,'admin_list_active_sessions'),'user cleanup and read-only admin listing both use absolute issuance time');
 
 $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
 $nulls=(int)$pdo->query('SELECT COUNT(*) FROM token_tbl WHERE token_issued_at IS NULL')->fetchColumn();

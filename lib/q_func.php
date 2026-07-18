@@ -33,6 +33,7 @@ require_once dirname(__DIR__) . '/app/Admin/WebAppService.php';
 require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationException.php';
 require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/PasswordRecoveryConfigurationService.php';
+require_once dirname(__DIR__) . '/app/Admin/ActiveSessionService.php';
 require_once dirname(__DIR__) . '/app/Auth/SsoTokenLifetimePolicy.php';
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
@@ -1213,38 +1214,22 @@ function string_sanitize($s) {
       }
 
       if(isset( $_POST['admin_get_all_token_for_all_active_user'])){
-        $results = $operation->get_all_token_for_all_active_user();
-        $unset_flag = 0;
-         foreach ($results as $i => $ii) {
-          $results[$i]['device_info'] = oneid_normalize_device_info($results[$i]['device_info'] ?? '');
-          //Here will check with the system settings for token timeout
-          $tokenEvaluation = $tokenLifetimePolicy->evaluate($results[$i]['token_issued_at'],date("Y-m-d H:i:s"),(float)$token_timeout);
-          // echo $results[$i]['token_datetime'].'#'.date("Y-m-d H:i:s").'<br/>';
-          // echo $hour_diff."#";
-          if($tokenEvaluation['state'] !== \OneId\App\Auth\SsoTokenLifetimePolicy::ACTIVE){
-              $unset_flag = 1;
-              $operation->update_specific_token_status($results[$i]['user_id'],$results[$i]['token_id'],0); //expired current browser token for specific browser
-              unset($results[$i]);
-              continue;
-          }
-          // echo json_encode(array_values($acl_merged_keyed),JSON_PRETTY_PRINT);
-         /*  if(isset($_COOKIE['sso_cre'])) {
-            $cookie = json_decode($_COOKIE["sso_cre"]);            
-            if($results[$i]['token_id'] == $cookie->sso_cre){
-              $results[$i]['current_token'] = "1";
-            }else{
-              $results[$i]['current_token'] = "0";
-            }
-          }else{
-            $results[$i]['current_token'] = "0";
-          }
-           */
-        } 
-        if($unset_flag == 1){
-          echo json_encode(array_values($results),JSON_PRETTY_PRINT);
-        }else{
-          echo json_encode($results);
-
+        try{
+          $rawCookie=(string)($_COOKIE['sso_cre']??'');$decoded=json_decode($rawCookie);
+          $currentToken=is_object($decoded)&&isset($decoded->sso_cre)?(string)$decoded->sso_cre:$rawCookie;
+          $service=new \OneId\App\Admin\ActiveSessionService($operation);
+          echo json_encode($service->list(
+            $_POST,
+            (string)$_SESSION['login_user'],
+            $currentToken,
+            (float)$token_timeout
+          ));
+        }catch(\InvalidArgumentException $exception){
+          echo json_encode(['status'=>0,'code'=>$exception->getMessage(),'message'=>'Active sessions could not be loaded.']);
+        }catch(\Throwable $exception){
+          $correlation=bin2hex(random_bytes(8));
+          error_log('AS0 active session listing failed correlation='.$correlation.' exception='.get_class($exception));
+          echo json_encode(['status'=>0,'code'=>'AS0_LIST_FAILED','message'=>'Active sessions could not be loaded.','correlation_id'=>$correlation]);
         }
       }
 

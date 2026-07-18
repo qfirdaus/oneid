@@ -67,6 +67,17 @@ Bangunkan server-enforced step-up untuk perubahan security configuration:
 - Audit tidak boleh merekod payload mentah atau nilai rahsia.
 - Rejection mesti kekal zero mutation terhadap configuration state.
 
+### SC7-06 Controlled Active-Session Revocation
+
+Listing Active Sessions telah dijadikan read-only melalui AS0. Tindakan revoke
+satu sesi atau semua sesi pengguna kekal ditangguhkan sehingga Step-Up tersedia:
+
+- server-enforced Step-Up dengan purpose khusus;
+- fresh target preview tanpa token material dalam response;
+- typed confirmation dan perlindungan self-lockout;
+- targeted transaction serta mandatory audit; dan
+- result reconciliation bagi bilangan sesi yang direvoke.
+
 ### SC8-01 SC5 Revocation Scheduler Decision
 
 Runner `tools/sc5_policy_revocation_runner.php` belum dijadualkan. Lazy
