@@ -4978,6 +4978,18 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-22",
+      changes: [
+        "Admin Step-Up 2FA kini melindungi akses Administrator dan perubahan konfigurasi sensitif menggunakan OTP e-mel atau Microsoft Authenticator.",
+        "Lifecycle TOTP lengkap merangkumi enrollment QR lokal, secret terenkripsi, confirmation, anti-replay, preference per-admin serta reset dan revoke beraudit.",
+        "Grant keselamatan diikat kepada admin, session, browser dan purpose; session serta CSRF dirotasi selepas verification berjaya.",
+        "Controlled bootstrap, lifetime grant, audit berstruktur, recovery OTP e-mel, monitoring F7.6 dan rollback fail-closed telah dilaksanakan dan diuji di staging.",
+        "Issuer Authenticator boleh dibezakan mengikut environment, manakala keyring kekal di luar Git dan mesti boleh dibaca oleh akaun PHP-FPM.",
+        "Reset Authenticator menggunakan SweetAlert dan enrollment kini memberikan diagnosis keyring yang selamat tanpa mendedahkan path, secret atau OTP."
+      ]
+    },
+    {
+      version: "2.5.3",
       date: "2026-07-19",
       changes: [
         "Gambar profil dashboard pengguna kini melalui resolver same-origin supaya Firefox tidak lagi membuat probe terus ke domain gambar luar.",

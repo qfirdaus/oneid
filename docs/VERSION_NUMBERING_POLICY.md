@@ -2,7 +2,7 @@
 
 **Diluluskan:** 19 Julai 2026
 **Baseline selepas normalisasi:** 2.4.0
-**Versi semasa:** 2.4.1
+**Versi semasa:** 2.5.4
 
 ## Polisi
 

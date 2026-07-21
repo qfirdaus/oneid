@@ -15,9 +15,9 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $label);
 };
 
-$report(ONEID_APP_VERSION === '2.5.3', 'central application version is 2.5.3');
+$report(ONEID_APP_VERSION === '2.5.4', 'central application version is 2.5.4');
 $report(
-    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.5.3',
+    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.5.4',
     'central copyright and footer text match the approved release'
 );
 
@@ -29,13 +29,13 @@ foreach (['index.php', 'page/dashboard.php', 'admin/dashboard.php'] as $page) {
 $adminDashboard = (string) file_get_contents($projectRoot . '/admin/dashboard.php');
 $report(
     str_contains($adminDashboard, 'version: <?php echo json_encode(ONEID_APP_VERSION); ?>')
-        && str_contains($adminDashboard, 'resolver same-origin')
-        && str_contains($adminDashboard, 'had 2MB')
-        && str_contains($adminDashboard, 'OpaqueResponseBlocking'),
-    'latest admin release card reads shared v2.5.3 metadata and profile photo fallback notes'
+        && str_contains($adminDashboard, 'Admin Step-Up 2FA kini melindungi')
+        && str_contains($adminDashboard, 'Lifecycle TOTP lengkap')
+        && str_contains($adminDashboard, 'Reset Authenticator menggunakan SweetAlert'),
+    'latest admin release card reads shared v2.5.4 metadata and Admin 2FA notes'
 );
 $expectedHistory = [
-    '2.5.2','2.5.1','2.5.0',
+    '2.5.3','2.5.2','2.5.1','2.5.0',
     '2.4.4','2.4.3','2.4.2','2.4.1','2.4.0',
     '2.3.4','2.3.3','2.3.2','2.3.1','2.3.0',
     '2.2.4','2.2.3','2.2.2','2.2.1','2.2.0',
@@ -57,7 +57,7 @@ $report(
         && str_contains($adminDashboard, 'Konfigurasi SSO pentadbir diperkukuh')
         && str_contains($adminDashboard, 'WA6 menyediakan reconciliation read-only')
         && str_contains($adminDashboard, 'Controlled Pilot External Sync'),
-    'release history preserves normalized v2.5.2 through v2.0.0 in order'
+    'release history preserves normalized v2.5.3 through v2.0.0 in order'
 );
 $policy = (string) file_get_contents($projectRoot . '/docs/VERSION_NUMBERING_POLICY.md');
 $package = json_decode((string) file_get_contents($projectRoot . '/package.json'), true);
