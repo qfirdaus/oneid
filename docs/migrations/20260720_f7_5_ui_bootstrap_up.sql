@@ -1,0 +1,5 @@
+INSERT INTO syslog_event_conf(syslog_event_id,syslog_event_name) VALUES
+ (50,'ADMIN_MFA_METHOD_SELECTED'),
+ (51,'ADMIN_2FA_BOOTSTRAP_ENABLED'),
+ (52,'ADMIN_2FA_ENABLED'),
+ (53,'ADMIN_2FA_DISABLED');

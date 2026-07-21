@@ -35,11 +35,42 @@ require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/PasswordRecoveryConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/ActiveSessionService.php';
 require_once dirname(__DIR__) . '/app/Auth/SsoTokenLifetimePolicy.php';
+require_once dirname(__DIR__) . '/app/Auth/AdminStepUpException.php';
+require_once dirname(__DIR__) . '/app/Auth/AdminStepUpEmailSenderInterface.php';
+require_once dirname(__DIR__) . '/app/Auth/AdminStepUpEmailOtpService.php';
+require_once dirname(__DIR__) . '/app/Auth/AdminStepUpPhpMailerSender.php';
+require_once dirname(__DIR__) . '/app/Auth/TotpKeyring.php';
+require_once dirname(__DIR__) . '/app/Auth/TotpSecretCipher.php';
+require_once dirname(__DIR__) . '/app/Auth/Totp.php';
+require_once dirname(__DIR__) . '/app/Auth/AdminTotpFactorService.php';
+require_once dirname(__DIR__) . '/app/Auth/AdminStepUpTotpService.php';
+require_once dirname(__DIR__) . '/app/Auth/AdminMfaPreferenceService.php';
+require_once dirname(__DIR__) . '/app/Auth/AdminStepUpPolicyService.php';
+require_once dirname(__DIR__) . '/app/Auth/Admin2faBootstrapService.php';
+require_once dirname(__DIR__) . '/app/Mail/OneIdEmailTemplate.php';
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
 
 require_once __DIR__ . '/request_security.php';
-oneid_guard_q_func_request($_POST,$operation);
+$oneidGuardedAction=oneid_guard_q_func_request($_POST,$operation);
+
+if(str_starts_with($oneidGuardedAction,'admin_step_up_')||str_starts_with($oneidGuardedAction,'admin_totp_')||in_array($oneidGuardedAction,['admin_mfa_set_preference','admin_2fa_update_lifetime','admin_2fa_bootstrap_enable'],true)){
+  $admin=(string)$_SESSION['login_user'];$session=session_id();$ua=(string)($_SERVER['HTTP_USER_AGENT']??'');$ip=(string)($_SERVER['REMOTE_ADDR']??'');
+  try{
+    $preference=new \OneId\App\Auth\AdminMfaPreferenceService($operation);
+    if($oneidGuardedAction==='admin_step_up_status'){$purpose=strtoupper(trim((string)($_POST['purpose']??'ADMIN_ACCESS')));$results=$preference->status($admin);$decision=oneid_admin_step_up_decision($operation,$purpose);$results['purpose']=$purpose;$results['grant_valid']=$decision['allowed']&&($decision['reason']??'')==='STEP_UP_GRANTED';$results['grant_remaining_seconds']=(int)($decision['remaining_seconds']??0);}
+    elseif($oneidGuardedAction==='admin_step_up_request_email'){$results=(new \OneId\App\Auth\AdminStepUpEmailOtpService($operation,new \OneId\App\Auth\AdminStepUpPhpMailerSender()))->request($admin,(string)($_POST['purpose']??''),$session,$ua,$ip);}
+    elseif($oneidGuardedAction==='admin_step_up_verify_email'){$results=(new \OneId\App\Auth\AdminStepUpEmailOtpService($operation,new \OneId\App\Auth\AdminStepUpPhpMailerSender()))->verify($admin,(string)($_POST['purpose']??''),(string)($_POST['challenge_id']??''),(string)($_POST['code']??''),$session,$ua,$ip);$results+=oneid_complete_step_up_rotation($operation,$results['purpose'],$results['correlation_id']);}
+    elseif($oneidGuardedAction==='admin_step_up_verify_totp'){$path=(string)oneid_config('ONEID_TOTP_KEYRING_PATH','');$cipher=new \OneId\App\Auth\TotpSecretCipher(\OneId\App\Auth\TotpKeyring::fromFile($path));$results=(new \OneId\App\Auth\AdminStepUpTotpService($operation,$cipher))->verify($admin,(string)($_POST['purpose']??''),(string)($_POST['code']??''),$session,$ua,$ip);$results+=oneid_complete_step_up_rotation($operation,$results['purpose'],$results['correlation_id']);}
+    elseif($oneidGuardedAction==='admin_totp_enroll'){$path=(string)oneid_config('ONEID_TOTP_KEYRING_PATH','');$cipher=new \OneId\App\Auth\TotpSecretCipher(\OneId\App\Auth\TotpKeyring::fromFile($path));$results=(new \OneId\App\Auth\AdminTotpFactorService($operation,$cipher))->enroll($admin,(string)($_POST['current_password']??''),$session,$ua,$ip,(string)($_POST['device_label']??'Microsoft Authenticator'));}
+    elseif($oneidGuardedAction==='admin_totp_confirm'){$path=(string)oneid_config('ONEID_TOTP_KEYRING_PATH','');$cipher=new \OneId\App\Auth\TotpSecretCipher(\OneId\App\Auth\TotpKeyring::fromFile($path));$results=(new \OneId\App\Auth\AdminTotpFactorService($operation,$cipher))->confirm($admin,(int)($_POST['factor_id']??0),(string)($_POST['code']??''),$session,$ua,$ip);}
+    elseif($oneidGuardedAction==='admin_totp_revoke'){$path=(string)oneid_config('ONEID_TOTP_KEYRING_PATH','');$cipher=new \OneId\App\Auth\TotpSecretCipher(\OneId\App\Auth\TotpKeyring::fromFile($path));$results=(new \OneId\App\Auth\AdminTotpFactorService($operation,$cipher))->revoke($admin,(int)($_POST['factor_id']??0),$_POST['current_password']??null,$session,$ua,$ip,(string)($_POST['reason']??''));}
+    elseif($oneidGuardedAction==='admin_mfa_set_preference'){$results=$preference->select($admin,(string)($_POST['factor']??''),$_POST['current_password']??null,$session,$ua,$ip);}
+    elseif($oneidGuardedAction==='admin_2fa_update_lifetime'){$results=(new \OneId\App\Auth\AdminStepUpPolicyService($operation))->update($admin,$_POST['lifetime_minutes']??null,$_POST['configuration_version']??null,(string)($_POST['change_reason']??''),$ip);}
+    else{$results=(new \OneId\App\Auth\Admin2faBootstrapService($operation))->enable($admin,(string)($_POST['current_password']??''),(int)($_POST['configuration_version']??0),(string)($_POST['change_reason']??''),(string)($_POST['typed_confirmation']??''),(string)($_POST['change_id']??''),$ip);}
+  }catch(\OneId\App\Auth\AdminStepUpException $e){http_response_code(422);$results=['status'=>0,'code'=>$e->reason,'error'=>'Admin 2FA request rejected.','correlation_id'=>$e->correlationId];}
+  header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
+}
 
 $sys_config = $operation->get_system_config();
 $token_timeout = $sys_config['token_timeout'];//24 means 1 day
@@ -1596,71 +1627,23 @@ function string_sanitize($s) {
 
 
     function OTP_EMAIL_Sender($otp_code,$email,$user_name,$isTest=false,&$messageId=null){
-      
-      $html_title = $isTest ? 'Password Recovery Email Test' : 'Password Reset OTP';
-      $html_body_header = $isTest ? 'Ujian E-mel Password Recovery' : 'Tetapan Semula Kata Laluan';
-      $html_body_content = $isTest ? '<p>Ini ialah ujian penghantaran e-mel Password Recovery yang dimulakan oleh pentadbir OneID.</p>' : '<p>Sila gunakan OTP berikut untuk mengesahkan permintaan tetapan semula kata laluan:</p>';
-
-      $email_body = '
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8" />
-          <title>'.$html_title.'</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px;">
-            <tr>
-              <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; padding: 30px; border-radius: 8px;">
-                  <tr>
-                    <td align="center" style="font-size: 24px; font-weight: bold; color: #333333;">
-                      '.$html_body_header.'
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding-top: 20px; font-size: 16px; color: #555555;">
-                      '.$html_body_content.'
-                    </td>
-                  </tr>
-                  <tr>
-                    <td align="center" style="padding: 30px 0;">
-                      <div style="display: inline-block; padding: 15px 30px; font-size: 28px; letter-spacing: 5px; background-color: #f0f0f0; border-radius: 6px; color: #333333;">
-                        <strong>' . $otp_code . '</strong>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="font-size: 14px; color: #777777;">
-                      '.($isTest ? 'Tiada tindakan pengguna diperlukan.' : 'OTP sah selama 5 minit dan hanya boleh digunakan sekali.').'
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding-top: 30px; font-size: 14px; color: #999999;">
-                      Jika anda tidak membuat permohonan ini, sila abaikan e-mel ini.
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding-top: 20px; font-size: 14px; color: #999999;">
-                      Terima kasih,<br/>
-                      Pentadbir Portal OneID@UPNM<br/>
-					  E-mel: ask.oneid@upnm.edu.my
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </table>
-        </body>
-      </html>';
-
-
+      $email_body=$isTest
+        ?\OneId\App\Mail\OneIdEmailTemplate::deliveryTest($user_name)
+        :\OneId\App\Mail\OneIdEmailTemplate::otp(
+          $user_name,
+          'Account Recovery',
+          'OTP KATA LALUAN',
+          'Tetapkan semula kata laluan',
+          'Kami menerima permintaan untuk menetapkan semula kata laluan OneID anda. Gunakan kod pengesahan berikut:',
+          $otp_code
+        );
 
             $mail = new PHPMailer;
+            $mail->CharSet = 'UTF-8';
+            $mail->Encoding = 'base64';
             $mail->isSMTP(); 
             $mail->SMTPDebug = 0; 
             $mail->Timeout = 10;
-            $mail->Timelimit = 15;
             $mail->Host = (string) oneid_config('ONEID_SMTP_HOST');
             $mail->Port = (int) oneid_config('ONEID_SMTP_PORT');
             $mail->SMTPSecure = (string) oneid_config('ONEID_SMTP_ENCRYPTION');
@@ -1671,8 +1654,10 @@ function string_sanitize($s) {
             $mail->addAddress($email, $user_name);
             //$mail->addAddress('30saat@gmail.com', 'Nabil');
             $mail->Subject = $isTest ? 'OneID@UPNM - Ujian Password Recovery' : 'OneID@UPNM - OTP Lupa Kata Laluan';
-            $mail->msgHTML($email_body); // remove if you do not want to send HTML email
-            $mail->AltBody = 'HTML not supported';
+            $mail->msgHTML($email_body);
+            $mail->AltBody = $isTest
+              ?\OneId\App\Mail\OneIdEmailTemplate::deliveryTestPlainText()
+              :\OneId\App\Mail\OneIdEmailTemplate::otpPlainText('Kod OTP tetapan semula kata laluan OneID anda',$otp_code);
             $sent=(bool)$mail->send();$messageId=$sent?$mail->getLastMessageID():null;return $sent;
     }
 

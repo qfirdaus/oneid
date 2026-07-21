@@ -153,7 +153,89 @@ function oneid_q_func_action_map(): array
             'admin_get_sync_log_detail',
             'admin_reset_password_user',
         ],
+        'step_up' => [
+            'admin_step_up_status',
+            'admin_step_up_request_email',
+            'admin_step_up_verify_email',
+            'admin_step_up_verify_totp',
+        ],
+        'mfa_setup' => [
+            'admin_totp_enroll',
+            'admin_totp_confirm',
+            'admin_totp_revoke',
+            'admin_mfa_set_preference',
+            'admin_2fa_update_lifetime',
+            'admin_2fa_bootstrap_enable',
+        ],
     ];
+}
+
+function oneid_admin_action_purpose(string $action): string
+{
+    $securityConfiguration = [
+        'update_password_recovery',
+        'test_password_recovery_email',
+        'preview_configuration_update',
+        'update_configuration',
+    ];
+    return in_array($action, $securityConfiguration, true)
+        ? 'SECURITY_CONFIGURATION_CHANGE'
+        : 'ADMIN_ACCESS';
+}
+
+function oneid_admin_step_up_decision(object $operation, string $purpose): array
+{
+    $allowedPurposes = ['ADMIN_ACCESS','SECURITY_CONFIGURATION_CHANGE','ACTIVE_SESSION_REVOCATION'];
+    if (!in_array($purpose, $allowedPurposes, true) || !oneid_is_admin()) {
+        return ['allowed'=>false,'reason'=>'STEP_UP_REQUIRED','feature_enabled'=>null];
+    }
+    if (!method_exists($operation, 'admin_step_up_authorization_state')) {
+        return ['allowed'=>false,'reason'=>'STEP_UP_STATE_UNAVAILABLE','feature_enabled'=>null];
+    }
+    $sessionId = session_id();
+    if ($sessionId === '') {
+        return ['allowed'=>false,'reason'=>'STEP_UP_REQUIRED','feature_enabled'=>null];
+    }
+    $browser = hash('sha256', substr((string)($_SERVER['HTTP_USER_AGENT']??''), 0, 1000));
+    $state = $operation->admin_step_up_authorization_state(
+        (string)$_SESSION['login_user'], hash('sha256',$sessionId), $browser, $purpose
+    );
+    if (!is_array($state)||(int)($state['u_type']??0)!==1||(int)($state['avail_status']??0)!==1) {
+        return ['allowed'=>false,'reason'=>'STEP_UP_STATE_UNAVAILABLE','feature_enabled'=>null];
+    }
+    $enabled=(int)($state['admin_2fa_enabled']??1)===1;
+    if (!$enabled) {return ['allowed'=>true,'reason'=>'STEP_UP_DISABLED','feature_enabled'=>false];}
+    if ((int)($state['exact_valid']??0)>0) {return ['allowed'=>true,'reason'=>'STEP_UP_GRANTED','feature_enabled'=>true,'remaining_seconds'=>max(0,(int)($state['exact_remaining_seconds']??0))];}
+    if ((int)($state['exact_expired']??0)>0) {return ['allowed'=>false,'reason'=>'STEP_UP_EXPIRED','feature_enabled'=>true];}
+    if ((int)($state['other_valid']??0)>0) {return ['allowed'=>false,'reason'=>'STEP_UP_PURPOSE_MISMATCH','feature_enabled'=>true];}
+    return ['allowed'=>false,'reason'=>'STEP_UP_REQUIRED','feature_enabled'=>true];
+}
+
+function oneid_audit_step_up_rejection(object $operation,string $purpose,string $reason): string
+{
+    $correlation=bin2hex(random_bytes(8));$ip=(string)($_SERVER['REMOTE_ADDR']??'');
+    if(filter_var($ip,FILTER_VALIDATE_IP)===false){$ip='0.0.0.0';}
+    $detail=sprintf('admin=%s action=admin_step_up_guard purpose=%s outcome=rejected reason=%s correlation=%s',(string)($_SESSION['login_user']??''),$purpose,$reason,$correlation);
+    if(!method_exists($operation,'syslog_record')||$operation->syslog_record(40,$detail,$ip)!==1){return '';}
+    return $correlation;
+}
+
+function oneid_require_admin_step_up(object $operation,string $purpose,bool $json=true): void
+{
+    $decision=oneid_admin_step_up_decision($operation,$purpose);if($decision['allowed']){return;}
+    $correlation=oneid_audit_step_up_rejection($operation,$purpose,(string)$decision['reason']);
+    if($correlation===''){oneid_json_deny(503,'Step-up authorization unavailable');}
+    if($json){if(!headers_sent()){http_response_code(403);header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');}echo json_encode(['status'=>403,'code'=>$decision['reason'],'error'=>'Administrator step-up authentication required','purpose'=>$purpose,'correlation_id'=>$correlation]);exit;}
+    if(!headers_sent()){http_response_code(403);header('Content-Type: text/plain; charset=utf-8');header('Cache-Control: no-store');}echo 'Administrator step-up authentication required. Correlation: '.$correlation;exit;
+}
+
+function oneid_complete_step_up_rotation(object $operation,string $purpose,string $correlation): array
+{
+    $admin=(string)($_SESSION['login_user']??'');$old=session_id();$browser=hash('sha256',substr((string)($_SERVER['HTTP_USER_AGENT']??''),0,1000));
+    if($admin===''||$old===''||preg_match('/\A[a-f0-9]{16}\z/',$correlation)!==1||!session_regenerate_id(true))throw new RuntimeException('STEP_UP_SESSION_ROTATION_FAILED');
+    $new=session_id();unset($_SESSION['oneid_csrf_token']);$csrf=oneid_csrf_token();
+    if(!method_exists($operation,'admin_step_up_rebind_grant')||$operation->admin_step_up_rebind_grant($admin,$purpose,$correlation,hash('sha256',$old),hash('sha256',$new),$browser)!==1)throw new RuntimeException('STEP_UP_GRANT_REBIND_FAILED');
+    return['csrf_token'=>$csrf];
 }
 
 function oneid_guard_q_func_request(array $post, ?object $operation = null): string
@@ -185,7 +267,7 @@ function oneid_guard_q_func_request(array $post, ?object $operation = null): str
         oneid_json_deny(401, 'Authentication required');
     }
 
-    if ($matchedLevel === 'admin') {
+    if (in_array($matchedLevel, ['admin','step_up','mfa_setup'], true)) {
         if (!oneid_is_authenticated()) {
             oneid_json_deny(401, 'Authentication required');
         }
@@ -204,6 +286,12 @@ function oneid_guard_q_func_request(array $post, ?object $operation = null): str
         if($_SESSION['password_change_required']===1&&!in_array($matchedActions[0],['check_default_password','action_change_password'],true)){
             if(!headers_sent()){http_response_code(403);header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');}
             echo json_encode(['status'=>403,'code'=>'UC3_PASSWORD_CHANGE_REQUIRED','error'=>'Password change required before this action']);exit;
+        }
+        if($matchedLevel==='admin'){
+            oneid_require_admin_step_up($operation,oneid_admin_action_purpose($matchedActions[0]),true);
+        }
+        if($matchedLevel==='mfa_setup'){
+            oneid_require_admin_step_up($operation,'SECURITY_CONFIGURATION_CHANGE',true);
         }
     }
 

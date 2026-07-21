@@ -143,7 +143,7 @@ class Database {
    
 
     public function get_system_config(){
-        $Q = "SELECT id, configuration_version, token_timeout, multi_session, password_reset_email_enabled FROM sys_config WHERE singleton_key = 1";
+        $Q = "SELECT id, configuration_version, token_timeout, multi_session, password_reset_email_enabled, admin_2fa_enabled, admin_step_up_lifetime_minutes FROM sys_config WHERE singleton_key = 1";
         $R = $this->pdo->prepare($Q);      
         $R->execute();
         $result = $R->fetch(PDO::FETCH_ASSOC);
@@ -151,7 +151,7 @@ class Database {
     }
 
     public function get_system_config_for_update(){
-        $Q = "SELECT id, configuration_version, token_timeout, multi_session, password_reset_email_enabled FROM sys_config WHERE singleton_key = 1 FOR UPDATE";
+        $Q = "SELECT id, configuration_version, token_timeout, multi_session, password_reset_email_enabled, admin_2fa_enabled, admin_step_up_lifetime_minutes FROM sys_config WHERE singleton_key = 1 FOR UPDATE";
         $R = $this->pdo->prepare($Q);
         $R->execute();
         return $R->fetch(PDO::FETCH_ASSOC);
@@ -196,6 +196,13 @@ class Database {
         $Q = "UPDATE sys_config SET password_reset_email_enabled=:enabled WHERE id=:config_id AND singleton_key=1";
         $R=$this->pdo->prepare($Q);$R->execute([':config_id'=>$configId,':enabled'=>$enabled]);
         return $R->rowCount();
+    }
+
+    public function update_admin_step_up_lifetime_by_version($configId,$minutes,$expectedVersion){
+        $minutes=(int)$minutes;
+        if(!in_array($minutes,[5,10,15,30],true)){throw new InvalidArgumentException('STEP_UP_LIFETIME_INVALID');}
+        $Q="UPDATE sys_config SET admin_step_up_lifetime_minutes=:minutes,configuration_version=configuration_version+1 WHERE id=:config_id AND singleton_key=1 AND configuration_version=:expected_version";
+        $R=$this->pdo->prepare($Q);$R->execute([':minutes'=>$minutes,':config_id'=>(int)$configId,':expected_version'=>(int)$expectedVersion]);return $R->rowCount();
     }
 
     public function preview_policy_revocation($newTimeoutHours,$timeoutReduced,$disableMultiple){
@@ -1636,6 +1643,227 @@ class Database {
         $R = $this->pdo->prepare($Q);
         $R->execute([':otp_id'=>$otp_id]);
         return $R->rowCount();
+    }
+
+    public function admin_step_up_request_context_for_update($adminId){
+        $Q="SELECT u.u_type,u.avail_status,u.data1 display_name,u.data5 email,c.admin_2fa_enabled,c.admin_step_up_lifetime_minutes
+            FROM user_tbl u CROSS JOIN sys_config c
+            WHERE u.u_id=:admin_id AND c.singleton_key=1 FOR UPDATE";
+        $R=$this->pdo->prepare($Q);$R->execute([':admin_id'=>$adminId]);
+        return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_step_up_request_stats($adminId,$purpose,$sessionHash,$ipAddress){
+        $Q="SELECT
+              COALESCE(MAX(CASE WHEN admin_user_id=:admin_id AND purpose=:purpose
+                                THEN GREATEST(0,60-TIMESTAMPDIFF(SECOND,created_at,NOW())) END),0) cooldown_seconds,
+              SUM(admin_user_id=:admin_id AND purpose=:purpose AND created_at>=NOW()-INTERVAL 1 HOUR) admin_hour,
+              SUM(admin_user_id=:admin_id AND purpose=:purpose AND created_at>=NOW()-INTERVAL 1 DAY) admin_day,
+              SUM(session_binding_hash=:session_hash AND purpose=:purpose AND created_at>=NOW()-INTERVAL 1 HOUR) session_hour,
+              SUM(requesting_ip=:ip_address AND purpose=:purpose AND created_at>=NOW()-INTERVAL 1 HOUR) ip_hour
+            FROM admin_step_up_challenges";
+        $R=$this->pdo->prepare($Q);$R->execute([':admin_id'=>$adminId,':purpose'=>$purpose,':session_hash'=>$sessionHash,':ip_address'=>$ipAddress]);
+        return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_step_up_revoke_open_challenges($adminId,$purpose,$sessionHash){
+        $Q="UPDATE admin_step_up_challenges SET revoked_at=NOW()
+            WHERE admin_user_id=:admin_id AND purpose=:purpose
+              AND session_binding_hash=:session_hash
+              AND consumed_at IS NULL AND revoked_at IS NULL";
+        $R=$this->pdo->prepare($Q);$R->execute([':admin_id'=>$adminId,':purpose'=>$purpose,':session_hash'=>$sessionHash]);
+        return $R->rowCount();
+    }
+
+    public function admin_step_up_create_email_challenge(array $entry){
+        $Q="INSERT INTO admin_step_up_challenges
+            (challenge_id,admin_user_id,purpose,factor_type,otp_hash,session_binding_hash,
+             browser_digest,requesting_ip,attempts,max_attempts,resend_count,created_at,
+             sent_at,expires_at,consumed_at,revoked_at,correlation_id)
+            VALUES(:challenge_id,:admin_user_id,:purpose,'EMAIL_OTP',:otp_hash,:session_binding_hash,
+                   :browser_digest,:requesting_ip,0,5,0,NOW(),NULL,DATE_ADD(NOW(),INTERVAL 5 MINUTE),NULL,NULL,:correlation_id)";
+        $R=$this->pdo->prepare($Q);$R->execute([
+            ':challenge_id'=>$entry['challenge_id'],':admin_user_id'=>$entry['admin_user_id'],
+            ':purpose'=>$entry['purpose'],':otp_hash'=>$entry['otp_hash'],
+            ':session_binding_hash'=>$entry['session_binding_hash'],':browser_digest'=>$entry['browser_digest'],
+            ':requesting_ip'=>$entry['requesting_ip'],':correlation_id'=>$entry['correlation_id'],
+        ]);return $R->rowCount();
+    }
+
+    public function admin_step_up_mark_challenge_sent($challengeId){
+        $Q="UPDATE admin_step_up_challenges SET sent_at=NOW()
+            WHERE challenge_id=:challenge_id AND sent_at IS NULL
+              AND consumed_at IS NULL AND revoked_at IS NULL AND expires_at>NOW()";
+        $R=$this->pdo->prepare($Q);$R->execute([':challenge_id'=>$challengeId]);return $R->rowCount();
+    }
+
+    public function admin_step_up_revoke_challenge($challengeId){
+        $Q="UPDATE admin_step_up_challenges SET revoked_at=COALESCE(revoked_at,NOW())
+            WHERE challenge_id=:challenge_id AND consumed_at IS NULL";
+        $R=$this->pdo->prepare($Q);$R->execute([':challenge_id'=>$challengeId]);return $R->rowCount();
+    }
+
+    public function admin_step_up_challenge_for_update($challengeId){
+        $Q="SELECT ch.*,c.admin_2fa_enabled,c.admin_step_up_lifetime_minutes,(ch.expires_at<=NOW()) is_expired
+            FROM admin_step_up_challenges ch CROSS JOIN sys_config c
+            WHERE ch.challenge_id=:challenge_id AND c.singleton_key=1 FOR UPDATE";
+        $R=$this->pdo->prepare($Q);$R->execute([':challenge_id'=>$challengeId]);return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_step_up_record_failed_attempt($challengeId){
+        $Q="UPDATE admin_step_up_challenges
+            SET attempts=attempts+1,revoked_at=IF(attempts+1>=max_attempts,NOW(),revoked_at)
+            WHERE challenge_id=:challenge_id AND sent_at IS NOT NULL
+              AND consumed_at IS NULL AND revoked_at IS NULL AND expires_at>NOW()";
+        $R=$this->pdo->prepare($Q);$R->execute([':challenge_id'=>$challengeId]);return $R->rowCount();
+    }
+
+    public function admin_step_up_consume_challenge($challengeId){
+        $Q="UPDATE admin_step_up_challenges SET consumed_at=NOW(),otp_hash=NULL
+            WHERE challenge_id=:challenge_id AND sent_at IS NOT NULL
+              AND consumed_at IS NULL AND revoked_at IS NULL AND expires_at>NOW()
+              AND attempts<max_attempts";
+        $R=$this->pdo->prepare($Q);$R->execute([':challenge_id'=>$challengeId]);return $R->rowCount();
+    }
+
+    public function admin_step_up_create_grant(array $entry){
+        $minutes=(int)($entry['lifetime_minutes']??15);
+        if(!in_array($minutes,[5,10,15,30],true)){throw new InvalidArgumentException('STEP_UP_LIFETIME_INVALID');}
+        $Q="INSERT INTO admin_step_up_grants
+            (grant_id,admin_user_id,session_binding_hash,browser_digest,purpose,verified_factor,
+             issued_at,expires_at,revoked_at,correlation_id)
+            VALUES(:grant_id,:admin_user_id,:session_binding_hash,:browser_digest,:purpose,
+                   :verified_factor,NOW(),DATE_ADD(NOW(),INTERVAL {$minutes} MINUTE),NULL,:correlation_id)";
+        $R=$this->pdo->prepare($Q);$R->execute([
+            ':grant_id'=>$entry['grant_id'],':admin_user_id'=>$entry['admin_user_id'],
+            ':session_binding_hash'=>$entry['session_binding_hash'],':browser_digest'=>$entry['browser_digest'],
+            ':purpose'=>$entry['purpose'],':verified_factor'=>$entry['verified_factor'],
+            ':correlation_id'=>$entry['correlation_id'],
+        ]);return $R->rowCount();
+    }
+
+    public function admin_mfa_enrollment_context_for_update($adminId){
+        $Q="SELECT u_type,avail_status,u_password,data5 email FROM user_tbl
+            WHERE u_id=:admin_id FOR UPDATE";
+        $R=$this->pdo->prepare($Q);$R->execute([':admin_id'=>$adminId]);return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_mfa_revoke_pending_factors($adminId){
+        $Q="UPDATE admin_mfa_factors SET factor_status='REVOKED',revoked_at=NOW()
+            WHERE admin_user_id=:admin_id AND factor_type='TOTP' AND factor_status='PENDING'";
+        $R=$this->pdo->prepare($Q);$R->execute([':admin_id'=>$adminId]);return $R->rowCount();
+    }
+
+    public function admin_mfa_create_pending_factor(array $entry){
+        $Q="INSERT INTO admin_mfa_factors
+            (admin_user_id,factor_type,encrypted_secret,secret_nonce,key_version,factor_status,
+             device_label,created_by,correlation_id,enrollment_session_hash,enrollment_browser_digest)
+            VALUES(:admin_user_id,'TOTP',:encrypted_secret,:secret_nonce,:key_version,'PENDING',
+                   :device_label,:created_by,:correlation_id,:enrollment_session_hash,:enrollment_browser_digest)";
+        $R=$this->pdo->prepare($Q);$R->execute($entry);return (int)$this->pdo->lastInsertId();
+    }
+
+    public function admin_mfa_factor_for_update($factorId){
+        $Q="SELECT * FROM admin_mfa_factors WHERE factor_id=:factor_id FOR UPDATE";
+        $R=$this->pdo->prepare($Q);$R->execute([':factor_id'=>$factorId]);return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_mfa_confirm_factor($factorId,$timeStep){
+        $Q="UPDATE admin_mfa_factors SET factor_status='ACTIVE',confirmed_at=NOW(),last_used_at=NOW(),last_used_time_step=:time_step
+            WHERE factor_id=:factor_id AND factor_status='PENDING'";
+        $R=$this->pdo->prepare($Q);$R->execute([':factor_id'=>$factorId,':time_step'=>$timeStep]);return $R->rowCount();
+    }
+
+    public function admin_mfa_record_factor_use($factorId,$timeStep){
+        $Q="UPDATE admin_mfa_factors SET last_used_at=NOW(),last_used_time_step=:time_step
+            WHERE factor_id=:factor_id AND factor_status='ACTIVE'
+              AND (last_used_time_step IS NULL OR last_used_time_step<:time_step_guard)";
+        $R=$this->pdo->prepare($Q);$R->execute([':factor_id'=>$factorId,':time_step'=>$timeStep,':time_step_guard'=>$timeStep]);return $R->rowCount();
+    }
+
+    public function admin_step_up_has_valid_email_recovery_grant($adminId,$sessionHash,$browserDigest){
+        $Q="SELECT COUNT(*) FROM admin_step_up_grants WHERE admin_user_id=:admin_id
+            AND session_binding_hash=:session_hash AND browser_digest=:browser_digest
+            AND purpose='SECURITY_CONFIGURATION_CHANGE' AND verified_factor='EMAIL_OTP'
+            AND revoked_at IS NULL AND expires_at>NOW()";
+        $R=$this->pdo->prepare($Q);$R->execute([':admin_id'=>$adminId,':session_hash'=>$sessionHash,':browser_digest'=>$browserDigest]);return (int)$R->fetchColumn()>0;
+    }
+
+    public function admin_step_up_authorization_state($adminId,$sessionHash,$browserDigest,$purpose){
+        $Q="SELECT c.admin_2fa_enabled,u.u_type,u.avail_status,
+              SUM(g.purpose=:purpose AND g.revoked_at IS NULL AND g.expires_at>NOW()) exact_valid,
+              MAX(CASE WHEN g.purpose=:purpose_remaining AND g.revoked_at IS NULL AND g.expires_at>NOW()
+                       THEN TIMESTAMPDIFF(SECOND,NOW(),g.expires_at) ELSE 0 END) exact_remaining_seconds,
+              SUM(g.purpose=:purpose AND g.revoked_at IS NULL AND g.expires_at<=NOW()) exact_expired,
+              SUM(g.purpose<>:purpose_other AND g.revoked_at IS NULL AND g.expires_at>NOW()) other_valid
+            FROM user_tbl u CROSS JOIN sys_config c
+            LEFT JOIN admin_step_up_grants g ON g.admin_user_id=u.u_id
+              AND g.session_binding_hash=:session_hash AND g.browser_digest=:browser_digest
+            WHERE u.u_id=:admin_id AND c.singleton_key=1
+            GROUP BY c.admin_2fa_enabled,u.u_type,u.avail_status";
+        $R=$this->pdo->prepare($Q);$R->execute([':purpose'=>$purpose,':purpose_remaining'=>$purpose,':purpose_other'=>$purpose,':session_hash'=>$sessionHash,':browser_digest'=>$browserDigest,':admin_id'=>$adminId]);return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_mfa_revoke_factor($factorId){
+        $Q="UPDATE admin_mfa_factors SET factor_status='REVOKED',revoked_at=NOW()
+            WHERE factor_id=:factor_id AND factor_status IN ('PENDING','ACTIVE')";
+        $R=$this->pdo->prepare($Q);$R->execute([':factor_id'=>$factorId]);return $R->rowCount();
+    }
+
+    public function admin_mfa_clear_totp_preference($adminId){
+        $Q="DELETE FROM admin_mfa_preferences WHERE admin_user_id=:admin_id AND preferred_factor='TOTP'";
+        $R=$this->pdo->prepare($Q);$R->execute([':admin_id'=>$adminId]);return $R->rowCount();
+    }
+
+    public function admin_step_up_factor_status($adminId){
+        $Q="SELECT c.admin_2fa_enabled,c.configuration_version,c.admin_step_up_lifetime_minutes,u.u_type,u.avail_status,u.data5 email,
+              EXISTS(SELECT 1 FROM admin_mfa_factors f WHERE f.admin_user_id=u.u_id AND f.factor_type='TOTP' AND f.factor_status='ACTIVE') totp_available,
+              (SELECT factor_id FROM admin_mfa_factors f WHERE f.admin_user_id=u.u_id AND f.factor_type='TOTP' AND f.factor_status='ACTIVE' ORDER BY f.confirmed_at DESC,f.factor_id DESC LIMIT 1) totp_factor_id,
+              p.preferred_factor
+            FROM user_tbl u CROSS JOIN sys_config c LEFT JOIN admin_mfa_preferences p ON p.admin_user_id=u.u_id
+            WHERE u.u_id=:admin_id AND c.singleton_key=1";
+        $R=$this->pdo->prepare($Q);$R->execute([':admin_id'=>$adminId]);return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_mfa_active_factor_for_update($adminId){
+        $Q="SELECT * FROM admin_mfa_factors WHERE admin_user_id=:admin_id AND factor_type='TOTP' AND factor_status='ACTIVE' ORDER BY confirmed_at DESC,factor_id DESC LIMIT 1 FOR UPDATE";
+        $R=$this->pdo->prepare($Q);$R->execute([':admin_id'=>$adminId]);return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_mfa_pending_factor_for_qr($adminId,$factorId,$sessionHash,$browserDigest){
+        $Q="SELECT factor_id,admin_user_id,encrypted_secret,secret_nonce,key_version FROM admin_mfa_factors
+            WHERE factor_id=:factor_id AND admin_user_id=:admin_id AND factor_type='TOTP' AND factor_status='PENDING'
+              AND enrollment_session_hash=:session_hash AND enrollment_browser_digest=:browser";
+        $R=$this->pdo->prepare($Q);$R->execute([':factor_id'=>$factorId,':admin_id'=>$adminId,':session_hash'=>$sessionHash,':browser'=>$browserDigest]);return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_mfa_set_preference($adminId,$factor,$actor,$correlation){
+        $Q="INSERT INTO admin_mfa_preferences(admin_user_id,preferred_factor,updated_by,correlation_id)
+            VALUES(:admin_id,:factor,:actor,:correlation)
+            ON DUPLICATE KEY UPDATE preferred_factor=VALUES(preferred_factor),updated_by=VALUES(updated_by),correlation_id=VALUES(correlation_id),updated_at=NOW()";
+        $R=$this->pdo->prepare($Q);$R->execute([':admin_id'=>$adminId,':factor'=>$factor,':actor'=>$actor,':correlation'=>$correlation]);return $R->rowCount();
+    }
+
+    public function admin_step_up_rebind_grant($adminId,$purpose,$correlation,$oldSessionHash,$newSessionHash,$browserDigest){
+        $verify=$this->pdo->prepare("SELECT COUNT(*) FROM admin_step_up_grants
+            WHERE admin_user_id=:admin_id AND purpose=:purpose AND correlation_id=:correlation
+              AND session_binding_hash=:old_session AND browser_digest=:browser
+              AND revoked_at IS NULL AND expires_at>NOW()");
+        $verify->execute([':admin_id'=>$adminId,':purpose'=>$purpose,':correlation'=>$correlation,':old_session'=>$oldSessionHash,':browser'=>$browserDigest]);
+        if((int)$verify->fetchColumn()!==1){return 0;}
+
+        // Session fixation protection must not strand other, independently scoped grants.
+        // Keep each purpose unchanged; migrate only active grants from this exact session/browser.
+        $Q="UPDATE admin_step_up_grants SET session_binding_hash=:new_session
+            WHERE admin_user_id=:admin_id AND session_binding_hash=:old_session
+              AND browser_digest=:browser AND revoked_at IS NULL AND expires_at>NOW()";
+        $R=$this->pdo->prepare($Q);$R->execute([':new_session'=>$newSessionHash,':admin_id'=>$adminId,':old_session'=>$oldSessionHash,':browser'=>$browserDigest]);return $R->rowCount()>0?1:0;
+    }
+
+    public function admin_2fa_enable_by_version($configId,$expectedVersion){
+        $Q="UPDATE sys_config SET admin_2fa_enabled=1,configuration_version=configuration_version+1
+            WHERE id=:id AND singleton_key=1 AND configuration_version=:version AND admin_2fa_enabled=0";
+        $R=$this->pdo->prepare($Q);$R->execute([':id'=>$configId,':version'=>$expectedVersion]);return $R->rowCount();
     }
 
 

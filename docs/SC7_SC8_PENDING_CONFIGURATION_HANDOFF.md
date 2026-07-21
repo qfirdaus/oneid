@@ -2,10 +2,11 @@
 
 **Tarikh direkod:** 18 Julai 2026  
 **Skop:** Administrator > Configuration  
-**Status:** DEFERRED BY OWNER  
-**Keputusan:** Pelaksanaan ditangguhkan dan akan disambung melalui change scope
-berasingan. Dokumen ini tidak memberi kebenaran untuk mutation database,
-pengaktifan scheduler atau perubahan polisi live.
+**Status:** F7.6 ACCEPTED/CLOSED / AS3 DAN SC8 SCHEDULER BACKLOG BERASINGAN
+**Keputusan:** Owner menerima F7.6 pada 21 Julai 2026 selepas functional UAT dan
+observation melebihi 24 jam. Monitoring tujuh hari dikecualikan sebagai exit
+gate dan diganti dengan continuous operational monitoring. Acceptance ini tidak
+memberi kebenaran untuk Active-Session Revocation atau scheduler activation.
 
 Dokumen ini ialah register status dan gate. Reka bentuk induk, purpose matrix,
 security contract, Active-Session Revocation, break-glass, UAT dan monitoring
@@ -44,7 +45,8 @@ Keperluan teras:
 
 - OTP e-mel dan Microsoft Authenticator melalui standard TOTP;
 - challenge diikat kepada admin, session, browser dan purpose;
-- step-up session maksimum 15 minit;
+- step-up session berasingan daripada SSO, allowlist 5/10/15/30 minit dan
+  default 15 minit;
 - rate limit, resend cooldown, replay prevention dan audit;
 - enrollment, confirmation, revocation dan recovery TOTP;
 - secret TOTP dienkripsi menggunakan key di luar database dan Git; dan
@@ -157,12 +159,18 @@ Pelaksanaan tidak boleh bermula sehingga tersedia:
 
 ## 6. Exit Criteria Handoff
 
-Handoff ini hanya boleh ditutup apabila SC7 dan SC8 mempunyai implementation,
-contract, migration/rollback, controlled UAT, monitoring serta keputusan owner
-yang direkod. Sehingga itu status rasmi ialah:
+Handoff gabungan lama ini ditutup bagi skop Admin Step-Up 2FA. Baki kerja telah
+dipecahkan supaya acceptance F7.6 tidak mengaktifkan mutation atau scheduler
+secara tersirat:
 
 ```text
 SC0-SC6: COMPLETE
-SC7-SC8: DEFERRED BY OWNER
-RUNTIME CHANGE FROM THIS HANDOFF: NONE
+F7.6 ADMIN STEP-UP 2FA: ACCEPTED / CLOSED
+AS3 ACTIVE-SESSION REVOCATION: SEPARATE BACKLOG
+SC8 REVOCATION SCHEDULER: SEPARATE DECISION BACKLOG
+MONITORING: CONTINUOUS OPERATIONAL PROCESS
 ```
+
+Rujuk `docs/AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_BACKLOG.md` dan
+`docs/SC8_REVOCATION_SCHEDULER_DECISION_BACKLOG.md` sebelum membuka development
+scope baharu.

@@ -74,11 +74,16 @@
 /* if your navbar is ~9999 */
 .modal-backdrop{ z-index:10000 !important; }
 .modal{ z-index:10001 !important; }
+.admin-entry-loader{position:fixed;inset:0;z-index:12000;display:none;align-items:center;justify-content:center;background:rgba(11,24,43,.72);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.admin-entry-loader.is-visible{display:flex}.admin-entry-loader-card{width:min(420px,calc(100% - 40px));padding:34px 30px;text-align:center;background:#fff;border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.3)}
+.admin-entry-loader-shield{width:58px;height:66px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:25px;background:linear-gradient(145deg,#174d91,#2f82d0);clip-path:polygon(50% 0,94% 17%,88% 72%,50% 100%,12% 72%,6% 17%)}
+.admin-entry-loader-ring{width:42px;height:42px;margin:0 auto 18px;border:4px solid #dce8f5;border-top-color:#256bb2;border-radius:50%;animation:admin-entry-spin .75s linear infinite}.admin-entry-loader-title{margin:0 0 7px;color:#172b4d;font-size:18px;font-weight:700}.admin-entry-loader-text{margin:0;color:#64748b;font-size:14px}@keyframes admin-entry-spin{to{transform:rotate(360deg)}}
 
 
       </style>
    </head>
    <body>
+      <div id="adminEntryLoader" class="admin-entry-loader" role="status" aria-live="polite" aria-hidden="true"><div class="admin-entry-loader-card"><div class="admin-entry-loader-shield"><i class="fa fa-lock"></i></div><div class="admin-entry-loader-ring"></div><p class="admin-entry-loader-title">Menyemak akses Administrator</p><p class="admin-entry-loader-text">Sila tunggu sementara OneID mengesahkan sesi keselamatan anda.</p></div></div>
       <!--Preloader-->
       <div class="preloader-it">
          <div class="la-anim-1"></div>
@@ -385,7 +390,7 @@
                                       <ul role="tablist" class="nav nav-pills ver-nav-pills" id="myTabs_8">
                                         <?php if($_SESSION['login_user_type'] == 1){ ?>
                                           <li role="presentation" class="pill-yellow" style="cursor: pointer !important;" >
-                                          <a id="tab_faq" href="../admin/dashboard">
+                                          <a id="administrator_entry" href="admin-step-up?purpose=ADMIN_ACCESS">
                                             <span>Administrator<span class="inline-block"></span></span>
                                           </a>
                                         </li>
@@ -1923,5 +1928,21 @@
 
 
    </style>
+   <script>
+   (function(){
+      var entry=document.getElementById('administrator_entry'),loader=document.getElementById('adminEntryLoader');
+      if(!entry||!loader)return;
+      entry.addEventListener('click',async function(event){
+         event.preventDefault();if(loader.classList.contains('is-visible'))return;
+         loader.classList.add('is-visible');loader.setAttribute('aria-hidden','false');
+         var stepUrl=<?=json_encode(APP_URL.'/page/admin-step-up?purpose=ADMIN_ACCESS')?>;
+         try{
+            var response=await fetch(<?=json_encode(APP_URL.'/lib/q_func.php')?>,{method:'POST',headers:{'X-CSRF-Token':<?=json_encode(oneid_csrf_token())?>,'Accept':'application/json'},body:new URLSearchParams({_csrf_token:<?=json_encode(oneid_csrf_token())?>,admin_step_up_status:'1',purpose:'ADMIN_ACCESS'})});
+            var result=await response.json();
+            window.location.replace(response.ok&&result.grant_valid?<?=json_encode(APP_URL.'/admin/dashboard')?>:stepUrl);
+         }catch(error){window.location.replace(stepUrl);}
+      });
+   })();
+   </script>
    </body>
 </html>

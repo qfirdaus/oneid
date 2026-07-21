@@ -22,6 +22,8 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_SMTP_PORT' => 587,
         'ONEID_SMTP_ENCRYPTION' => 'tls',
         'ONEID_SMTP_FROM_NAME' => 'sysadmin@upnm',
+        // Required only when TOTP endpoints are wired; key material remains outside the repository.
+        'ONEID_TOTP_KEYRING_PATH' => '',
         'ONEID_LEGACY_MD5_DEADLINE' => '2026-10-13 23:59:59 Asia/Kuala_Lumpur',
         'ONEID_SYNC_APPLY_ENABLED' => 'false',
         'ONEID_SYNC_ENGINE' => 'disabled',

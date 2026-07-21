@@ -1,0 +1,1 @@
+-- Event dictionary rows 50-53 remain so historical audit records stay readable.

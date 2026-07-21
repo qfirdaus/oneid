@@ -2,11 +2,12 @@
 
 **Tarikh audit:** 16 Julai 2026  
 **Tarikh semakan menyeluruh:** 19 Julai 2026
-**Status:** CONSOLIDATED AUDIT COMPLETE / OWNER APPROVED IN PRINCIPLE / IMPLEMENTATION ON HOLD
+**Status:** F7.1-F7.6 IMPLEMENTED / VERIFIED / ACCEPTED — OPERATIONAL MONITORING
 **Skop:** Akses Administrator, perubahan security configuration dan controlled
 active-session revocation
-**Keputusan semasa:** Dua kaedah diluluskan secara prinsip; pelaksanaan
-ditangguhkan sehingga owner bersedia menyambung Fasa 7
+**Keputusan semasa:** Dua kaedah diluluskan secara prinsip. Owner mengarahkan
+F7.0 readiness dimulakan pada 20 Julai 2026; schema, runtime dan activation
+kekal tidak berubah sehingga semua gate F7.0 ditutup.
 
 ## 1. Objektif
 
@@ -49,6 +50,20 @@ Baseline yang mesti dikekalkan sepanjang implementasi:
 
 Admin Step-Up tidak boleh melemahkan atau menggantikan mana-mana kawalan ini.
 OTP Forgot Password tidak boleh diterima sebagai challenge Step-Up.
+
+Keputusan owner 20 Julai 2026 menetapkan bahawa tiada faktor default global.
+Setiap admin boleh memilih sendiri `EMAIL_OTP` atau `TOTP` sebagai kaedah
+pilihan selepas faktor berkenaan tersedia dan disahkan. Sistem tidak boleh
+memaksa salah satu kaedah sebagai default, tetapi tetap menguatkuasakan
+availability, confirmation, purpose binding, rate limit dan fail-closed.
+
+Owner turut menetapkan bahawa pembangunan dan UAT Fasa 7 dikendalikan serta
+diuji sepenuhnya oleh seorang pemilik, staff reference `0530-09`, tanpa admin
+kedua. Peranan executing, rollback, DBA/backup, monitoring, security review,
+pilot dan acceptance disatukan bagi environment ini. Risiko separation-of-duty
+diterima dengan automated tests, checksum evidence, tested restore/rollback,
+fail-closed flag, audit dan keputusan eksplisit owner. Model ini tidak terpakai
+secara automatik kepada production.
 
 ### 2.1 Keadaan akses semasa
 
@@ -95,6 +110,22 @@ digunakan sebagai toggle atau faktor Admin Step-Up.
 Fasa 8 monitoring, controlled rollout dan keputusan scheduler turut direkod
 kerana ia menjadi exit gate operasi Fasa 7, walaupun scheduler SC5 bukan
 komponen Step-Up.
+
+### 2.3 Subfasa pelaksanaan rasmi
+
+| Subfasa | Skop | Exit gate |
+|---|---|---|
+| F7.0 | Readiness, owner decision, endpoint inventory, pilot, backup, key custody, break-glass dan monitoring | Semua prerequisite direkod `PASS/APPROVED`; keputusan `GO F7.1` |
+| F7.1 | Schema fail-closed, challenge/grant/factor store dan encryption foundation | Migration forward/rollback serta compatibility flag-OFF lulus |
+| F7.2 | Enjin challenge dan OTP e-mel | Purpose/session binding, expiry, attempt, resend, rate limit dan delivery lulus |
+| F7.3 | Microsoft Authenticator melalui TOTP | Enrollment, confirmation, encrypted secret, anti-replay, revoke dan recovery lulus |
+| F7.4 | Enforcement server-side | Semua halaman/action admin dan direct bypass dilindungi mengikut purpose |
+| F7.5 | UI, controlled bootstrap dan operational recovery | Flow pilot, toggle, current password, confirmation dan break-glass lulus |
+| F7.6 | UAT, monitoring, controlled pilot dan rollout | Owner `ACCEPT` atau rollback lengkap selepas observation window |
+
+Subfasa mesti bergerak mengikut urutan. F7.1 boleh memasang schema hanya selepas
+F7.0 memberikan `GO`; feature flag kekal `OFF` sehingga F7.6. Rekod pelaksanaan
+F7.0 berada dalam `docs/F7_0_READINESS_ADMIN_STEP_UP_2FA.md`.
 
 ## 3. Risiko Jika Hanya Dilaksanakan pada UI
 
@@ -270,13 +301,14 @@ notifikasi keselamatan melalui e-mel.
 | Maksimum verification | 5 cubaan |
 | Resend cooldown | 60 saat |
 | Had permintaan | 5 sejam, 10 sehari |
-| Tempoh step-up session | 15 minit |
+| Tempoh step-up session | 5, 10, 15 atau 30 minit; default 15 minit |
 | Penggunaan OTP | Sekali sahaja |
 | Tempoh kod TOTP | 30 saat |
 | Toleransi masa TOTP | Window kecil yang didokumenkan dan diuji |
 
 Step-up dibatalkan apabila logout, login semula, role berubah, setting 2FA
-berubah, authenticated session bertukar atau tempoh 15 minit tamat.
+berubah, authenticated session bertukar atau tempoh grant yang dikonfigurasi
+tamat. Perubahan tempoh hanya terpakai kepada grant baharu.
 
 Selepas verification berjaya, session ID dan CSRF token perlu dirotasi.
 
@@ -506,14 +538,43 @@ owner GO lengkap.
 
 ## 14. Keputusan Semasa
 
-Owner telah bersetuju dengan OTP e-mel, tempoh step-up 15 minit, server-side
+Owner telah bersetuju dengan OTP e-mel, default step-up 15 minit, server-side
 enforcement dan penambahan pilihan Microsoft Authenticator melalui TOTP. Selagi
 step-up masih sah, kembali daripada My Account tidak memerlukan OTP baharu;
 selepas expiry, logout, login semula atau pertukaran session, verification perlu
 diulang.
 
-Implementation belum dimulakan dan kekal **on hold** atas arahan owner. Dokumen
-ini ialah baseline tunggal pelaksanaan Fasa 7 apabila kerja disambung semula.
+Pada 20 Julai 2026, tempoh step-up dijadikan polisi berasingan daripada SSO
+token lifetime dengan allowlist 5, 10, 15 dan 30 minit. Nilai UAT kekal 15
+minit. Perubahan memerlukan `SECURITY_CONFIGURATION_CHANGE`, change reason,
+optimistic locking dan audit atomik; grant sedia ada tidak dipanjangkan.
+
+F7.0 readiness telah dimulakan pada 20 Julai 2026. Owner kemudian mengarahkan
+pembangunan F7.1 secara dormant sebelum baki operational gate ditutup. Forward
+dan rollback migration serta encryption foundation telah dibina, diuji dalam
+database sementara dan diaplikasi kepada UAT selepas fresh backup/restore. Live
+verification mengesahkan `admin_2fa_enabled=0`; feature kekal tidak aktif.
+F7.2 email OTP challenge engine, persistence extension dan audit dictionary turut
+dipasang serta diterima selepas feature-OFF, negative dan rollback-persistence
+contracts lulus tanpa menghantar e-mel live.
+F7.3 TOTP factor lifecycle turut dipasang dan disahkan melalui RFC 6238,
+anti-replay, isolated migration serta rollback-persistence contract. Tiada faktor
+sebenar didaftarkan dan feature kekal OFF. F7.4 server-side enforcement kini
+melindungi 2 halaman dan 48 action admin dengan exact-purpose, session dan
+browser-bound authorization; direct-bypass contracts lulus. F7.5 UI, local QR,
+API, preference, session/CSRF rotation dan controlled-bootstrap gate telah dibina
+secara dormant. Owner kemudian melengkapkan enrollment dan controlled bootstrap
+pada 20 Julai 2026; pilot feature kini ON. Functional UAT F7.6 kemudian lulus
+untuk owner tunggal, termasuk OTP e-mel, TOTP, reset/enrollment semula, QR
+berjenama, preference, grant/session rotation dan purpose isolation. Observation
+24 jam bermula pada activation `2026-07-20 19:11:29 MYT` dan final snapshot
+selepas 27.90 jam lulus. Owner menerima F7.6 pada 21 Julai 2026 selepas semakan
+UI/fungsi. Monitoring tujuh hari dikecualikan sebagai exit gate dan diganti
+dengan continuous operational monitoring. Rekod F7.6 berada dalam
+`docs/F7_6_UAT_CONTROLLED_ROLLOUT_DAN_OBSERVATION.md`. Dokumen ini ialah baseline
+tunggal pelaksanaan Fasa 7.
 Tiada Microsoft Entra push notification berada dalam skop semasa. Task SC7-02,
-SC7-03 dan SC7-04 sudah complete dalam Fasa 3; SC7-01, baki SC7-05 dan SC7-06
-kekal pending sehingga change scope baharu diluluskan.
+SC7-03 dan SC7-04 sudah complete dalam Fasa 3; SC7-01 Admin Step-Up 2FA kini
+diterima. Controlled Active-Session Revocation dan scheduler kekal sebagai task
+berasingan dalam `docs/AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_BACKLOG.md` dan
+`docs/SC8_REVOCATION_SCHEDULER_DECISION_BACKLOG.md`.

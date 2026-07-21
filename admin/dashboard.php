@@ -7,6 +7,7 @@
    require_once __DIR__ . '/../lib/request_security.php';
    oneid_require_admin_page();
    oneid_require_active_sso_page($operation);
+   oneid_require_admin_step_up($operation, 'ADMIN_ACCESS', false);
    
    $widget_data = $operation->admin_widget_count();
    $sys_config = $operation->get_system_config();
@@ -1465,6 +1466,12 @@
                                                                </a>
                                                             </li>
                                                             <li role="presentation">
+                                                               <a href="#configuration_admin_2fa" id="configuration_admin_2fa_tab" role="tab" data-toggle="tab" aria-controls="configuration_admin_2fa" aria-selected="false">
+                                                                  <i class="fa fa-mobile" aria-hidden="true"></i>
+                                                                  <span>Admin 2FA</span>
+                                                               </a>
+                                                            </li>
+                                                            <li role="presentation">
                                                                <a href="#configuration_audit" id="configuration_audit_tab" role="tab" data-toggle="tab" aria-controls="configuration_audit" aria-selected="false">
                                                                   <i class="fa fa-history" aria-hidden="true"></i>
                                                                   <span>Audit History</span>
@@ -1548,6 +1555,22 @@
                                                             <div class="sso-config-note"><i class="fa fa-heartbeat"></i><p id="recovery_smtp_status" role="status">Checking SMTP configuration...</p></div>
                                                             <div class="sso-config-row"><div class="sso-config-copy"><div><label for="password_recovery_test_email">Test delivery</label><p>Masukkan mailbox UAT yang diluluskan. Alamat penuh dan credential tidak direkod dalam audit.</p></div></div><div class="sso-config-control"><input type="email" class="form-control" id="password_recovery_test_email" placeholder="Mailbox UAT"><button type="button" class="btn btn-default btn-sm mt-10" onclick="testPasswordRecoveryEmail();">Send test</button></div></div>
                                                             <div class="sso-config-note sso-config-note-warning"><i class="fa fa-exclamation-triangle"></i><p>Recovery bagi pengguna tanpa e-mel sah adalah fail-closed. Prosedur manual belum tersedia dalam sistem.</p></div>
+                                                         </div>
+                                                      </div>
+                                                         </section>
+                                                         <section class="tab-pane fade" id="configuration_admin_2fa" role="tabpanel" aria-labelledby="configuration_admin_2fa_tab">
+                                                      <div class="sso-config-panel">
+                                                         <div class="sso-config-header">
+                                                            <div><span class="sso-config-eyebrow">Administrator security</span><h4 class="sso-config-title">Kaedah 2FA Pilihan</h4><p class="sso-config-intro">Tetapkan kaedah yang akan dipaparkan dahulu apabila akaun anda perlu membuat pengesahan Administrator.</p></div>
+                                                            <button class="sso-config-save" id="admin_mfa_preference_save_button" type="button" onclick="saveAdminMfaPreference();" disabled><i class="fa fa-check"></i> <span id="admin_mfa_preference_save_label">Loading settings...</span></button>
+                                                         </div>
+                                                         <div class="sso-config-body">
+                                                            <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="admin_mfa_preferred_factor">Kaedah yang dipaparkan dahulu</label><p>Pilihan ini tidak mengunci kaedah authentication. Microsoft Authenticator dan OTP e-mel masih boleh dipilih pada halaman pengesahan jika kedua-duanya tersedia.</p></div></div><div class="sso-config-control sso-config-select-wrap"><select class="form-control" id="admin_mfa_preferred_factor"><option value="TOTP">Microsoft Authenticator</option><option value="EMAIL_OTP">OTP e-mel</option></select></div></div>
+                                                            <div class="sso-config-note"><i class="fa fa-info-circle"></i><p id="admin_mfa_preference_status" role="status" aria-live="polite">Loading current preference...</p></div>
+                                                            <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="admin_step_up_lifetime_minutes">Tempoh pengesahan Administrator</label><p>Grant baharu kekal sah untuk purpose yang sama dalam pelayar ini. Perubahan tidak memanjangkan grant yang telah dikeluarkan.</p></div></div><div class="sso-config-control"><select class="form-control" id="admin_step_up_lifetime_minutes"><option value="5">5 minit</option><option value="10">10 minit</option><option value="15">15 minit (disyorkan)</option><option value="30">30 minit</option></select><textarea class="form-control mt-10" id="admin_step_up_lifetime_reason" maxlength="500" rows="2" placeholder="Sebab perubahan (minimum 10 aksara)"></textarea><button type="button" class="btn btn-default btn-sm mt-10" id="admin_step_up_lifetime_save_button" onclick="saveAdminStepUpLifetime();" disabled><i class="fa fa-clock-o"></i> <span id="admin_step_up_lifetime_save_label">Loading policy...</span></button></div></div>
+                                                            <div class="sso-config-note"><i class="fa fa-clock-o"></i><p id="admin_step_up_lifetime_status" role="status" aria-live="polite">Loading current lifetime...</p></div>
+                                                            <div class="sso-config-row" id="admin_mfa_enrollment_action" style="display:none"><div class="sso-config-copy"><span class="sso-config-index">03</span><div><label>Microsoft Authenticator belum didaftarkan</label><p>Mulakan enrollment baharu. Sistem akan meminta OTP e-mel sebelum memaparkan QR dan setup key.</p></div></div><div class="sso-config-control"><button type="button" class="btn btn-primary" onclick="window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;intent=totp_enroll';"><i class="fa fa-qrcode"></i> Daftar Authenticator</button></div></div>
+                                                            <div class="sso-config-note sso-config-note-warning"><i class="fa fa-shield"></i><p>Menyimpan kaedah pilihan atau tempoh grant memerlukan pengesahan <strong>Security Configuration Change</strong>. Tempoh hanya boleh ditetapkan kepada 5, 10, 15 atau 30 minit.</p></div>
                                                          </div>
                                                       </div>
                                                          </section>
@@ -1682,6 +1705,7 @@
          admin_get_all_user_category(0);		
          admin_get_settings();	
          loadPasswordRecovery();
+         loadAdminMfaPreference();
          get_all_user_activ_session();
 		 
              startTokenRefresh();
@@ -1696,7 +1720,27 @@
                 if ($(event.target).attr('href') === '#configuration_audit') {
                    loadSsoConfigHistory(1);
                 }
+                if ($(event.target).attr('href') === '#configuration_admin_2fa') {
+                   loadAdminMfaPreference();
+                }
              });
+             var requestedConfiguration=new URLSearchParams(window.location.search).get('configuration');
+             if(requestedConfiguration==='admin_2fa'){
+                $('a[href="#tab_settings"]').tab('show');
+                $('#configuration_admin_2fa_tab').tab('show');
+                if(window.history&&window.history.replaceState){window.history.replaceState({},document.title,window.location.pathname);}
+             }
+             if(requestedConfiguration==='account_recovery'){
+                $('a[href="#tab_settings"]').tab('show');
+                $('#configuration_recovery_tab').tab('show');
+                var pendingRecoveryTest=sessionStorage.getItem('oneid_password_recovery_test_email');
+                if(pendingRecoveryTest){
+                   $('#password_recovery_test_email').val(pendingRecoveryTest);
+                   sessionStorage.removeItem('oneid_password_recovery_test_email');
+                   swal('Pengesahan berjaya','Alamat ujian dikekalkan. Klik Send test sekali lagi untuk menghantar e-mel.','success');
+                }
+                if(window.history&&window.history.replaceState){window.history.replaceState({},document.title,window.location.pathname);}
+             }
          });
          
          $('#the-basics .typeahead').typeahead(
@@ -2234,8 +2278,81 @@
          function testPasswordRecoveryEmail(){
             var recipient=$.trim($('#password_recovery_test_email').val());if(!recipient){swal('Recipient required','Enter an approved UAT mailbox.','warning');return;}
             swal({title:'Send recovery test?',text:'A non-OTP test email will be sent to the entered mailbox.',type:'warning',showCancelButton:true,confirmButtonText:'Send test',closeOnConfirm:false},function(){
-               $.post('../lib/q_func',{test_password_recovery_email:'',recipient_email:recipient},function(r){swal(Number(r.status)===1?'Accepted by SMTP':'Test failed',(Number(r.status)===1?'The SMTP server accepted the message. Check Inbox, Junk and Quarantine; this is not proof of mailbox delivery.':'The SMTP server did not accept the message.')+'\nCode: '+r.code+(r.message_id?'\nMessage-ID: '+r.message_id:'')+'\nReference: '+r.correlation_id,Number(r.status)===1?'success':'error');},'json').fail(function(){swal('Test failed','Server request failed.','error');});
+               $.post('../lib/q_func',{test_password_recovery_email:'',recipient_email:recipient},function(r){swal(Number(r.status)===1?'Accepted by SMTP':'Test failed',(Number(r.status)===1?'The SMTP server accepted the message. Check Inbox, Junk and Quarantine; this is not proof of mailbox delivery.':'The SMTP server did not accept the message.')+'\nCode: '+r.code+(r.message_id?'\nMessage-ID: '+r.message_id:'')+'\nReference: '+r.correlation_id,Number(r.status)===1?'success':'error');},'json').fail(function(xhr){
+                  var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';
+                  if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){
+                     sessionStorage.setItem('oneid_password_recovery_test_email',recipient);
+                     swal({title:'Pengesahan diperlukan',text:'Sahkan Security Configuration Change sebelum menghantar e-mel ujian.',type:'warning',confirmButtonText:'Authenticate now',closeOnConfirm:true},function(){window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=account_recovery';});
+                  }else{
+                     swal('Test failed','Server request failed. HTTP '+xhr.status+(code?'\nCode: '+code:''),'error');
+                  }
+               });
             });
+         }
+
+         var adminMfaPreferenceOriginal=null,adminMfaSecurityGrantValid=false,adminMfaPreferenceSaving=false,adminStepUpLifetimeOriginal=null,adminMfaConfigurationVersion=0,adminStepUpLifetimeSaving=false;
+         function adminMfaPreferenceLabel(value){return value==='TOTP'?'Microsoft Authenticator':'OTP e-mel';}
+         function loadAdminMfaPreference(){
+            $('#admin_mfa_preference_save_button').prop('disabled',true);
+            $('#admin_mfa_preference_save_label').text('Loading settings...');
+            $.post('../lib/q_func',{admin_step_up_status:'',purpose:'SECURITY_CONFIGURATION_CHANGE'},function(r){
+               if(!r||Number(r.status)!==1){adminMfaPreferenceOriginal=null;$('#admin_mfa_preference_save_label').text('Settings unavailable');$('#admin_mfa_preference_status').text('Kaedah pilihan semasa tidak dapat dimuatkan.');return;}
+               adminMfaPreferenceOriginal=r.preferred_factor||'EMAIL_OTP';
+               adminStepUpLifetimeOriginal=Number(r.admin_step_up_lifetime_minutes||15);
+               adminMfaConfigurationVersion=Number(r.configuration_version||0);
+               adminMfaSecurityGrantValid=Boolean(r.grant_valid);
+               $('#admin_mfa_preferred_factor').val(adminMfaPreferenceOriginal);
+               $('#admin_step_up_lifetime_minutes').val(String(adminStepUpLifetimeOriginal));
+               $('#admin_step_up_lifetime_status').text('Tempoh semasa: '+adminStepUpLifetimeOriginal+' minit. Hanya grant baharu menggunakan nilai ini.');
+               $('#admin_step_up_lifetime_save_button').prop('disabled',false);$('#admin_step_up_lifetime_save_label').text('Save lifetime');
+               $('#admin_mfa_preferred_factor option[value="TOTP"]').prop('disabled',!r.totp_available);
+               $('#admin_mfa_enrollment_action').toggle(!r.totp_available);
+               $('#admin_mfa_preference_status').text('Kaedah pilihan semasa: '+adminMfaPreferenceLabel(adminMfaPreferenceOriginal)+'. Authenticator: '+(r.totp_available?'aktif':'tidak tersedia')+'; e-mel: '+(r.masked_email||'tidak tersedia')+'.');
+               var pendingFactor=sessionStorage.getItem('oneid_mfa_pending_factor');
+               if(adminMfaSecurityGrantValid&&(pendingFactor==='EMAIL_OTP'||(pendingFactor==='TOTP'&&r.totp_available))){$('#admin_mfa_preferred_factor').val(pendingFactor);$('#admin_mfa_preference_status').append(' Pengesahan selesai; preference sedang disimpan.');setTimeout(function(){persistAdminMfaPreference(pendingFactor);},0);}
+               var pendingLifetime=sessionStorage.getItem('oneid_admin_step_up_pending_lifetime'),pendingLifetimeReason=sessionStorage.getItem('oneid_admin_step_up_pending_reason');
+               if(adminMfaSecurityGrantValid&&pendingLifetime&&pendingLifetimeReason){$('#admin_step_up_lifetime_minutes').val(pendingLifetime);$('#admin_step_up_lifetime_reason').val(pendingLifetimeReason);$('#admin_step_up_lifetime_status').append(' Pengesahan selesai; polisi sedang disimpan.');setTimeout(function(){persistAdminStepUpLifetime(Number(pendingLifetime),pendingLifetimeReason);},0);}
+               $('#admin_mfa_preference_save_button').prop('disabled',false);
+               $('#admin_mfa_preference_save_label').text('Save preference');
+            },'json').fail(function(){adminMfaPreferenceOriginal=null;$('#admin_mfa_preference_save_label').text('Settings unavailable');$('#admin_mfa_preference_status').text('Kaedah pilihan semasa tidak dapat dimuatkan.');});
+         }
+         function saveAdminStepUpLifetime(){
+            if(adminStepUpLifetimeOriginal===null||adminStepUpLifetimeSaving)return;
+            var minutes=Number($('#admin_step_up_lifetime_minutes').val()),reason=$.trim($('#admin_step_up_lifetime_reason').val());
+            if(minutes===adminStepUpLifetimeOriginal){swal('No changes','Tempoh pengesahan Administrator sudah '+minutes+' minit.','info');return;}
+            if(reason.length<10){swal('Reason required','Masukkan sebab perubahan sekurang-kurangnya 10 aksara.','warning');return;}
+            swal({title:'Ubah tempoh pengesahan?',text:'Grant baharu akan sah selama '+minutes+' minit. Grant sedia ada tidak berubah.',type:'warning',showCancelButton:true,confirmButtonText:'Save lifetime',closeOnConfirm:false},function(){
+               if(!adminMfaSecurityGrantValid){sessionStorage.setItem('oneid_admin_step_up_pending_lifetime',String(minutes));sessionStorage.setItem('oneid_admin_step_up_pending_reason',reason);window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_2fa';return;}
+               persistAdminStepUpLifetime(minutes,reason);
+            });
+         }
+         function persistAdminStepUpLifetime(minutes,reason){
+            if(adminStepUpLifetimeSaving)return;adminStepUpLifetimeSaving=true;$('#admin_step_up_lifetime_save_button').prop('disabled',true);$('#admin_step_up_lifetime_save_label').text('Saving...');
+            $.post('../lib/q_func',{admin_2fa_update_lifetime:'',lifetime_minutes:minutes,configuration_version:adminMfaConfigurationVersion,change_reason:reason},function(r){
+               if(r&&Number(r.status)===1&&(r.code==='STEP_UP_LIFETIME_UPDATED'||r.code==='STEP_UP_LIFETIME_UNCHANGED')){adminStepUpLifetimeOriginal=Number(r.lifetime_minutes);adminMfaConfigurationVersion=Number(r.configuration_version);sessionStorage.removeItem('oneid_admin_step_up_pending_lifetime');sessionStorage.removeItem('oneid_admin_step_up_pending_reason');$('#admin_step_up_lifetime_reason').val('');$('#admin_step_up_lifetime_status').text('Tempoh semasa: '+adminStepUpLifetimeOriginal+' minit. Hanya grant baharu menggunakan nilai ini.');swal(r.code==='STEP_UP_LIFETIME_UPDATED'?'Lifetime saved':'No changes',(r.code==='STEP_UP_LIFETIME_UPDATED'?'Tempoh baharu terpakai pada grant selepas pengesahan berikutnya.':'Polisi sudah menggunakan nilai ini.')+'\nReference: '+r.correlation_id,r.code==='STEP_UP_LIFETIME_UPDATED'?'success':'info');}
+               else{sessionStorage.removeItem('oneid_admin_step_up_pending_lifetime');sessionStorage.removeItem('oneid_admin_step_up_pending_reason');swal('Lifetime not saved','Code: '+(r&&r.code?r.code:'STEP_UP_RESPONSE_INVALID'),'error');}
+            },'json').fail(function(xhr){var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){sessionStorage.setItem('oneid_admin_step_up_pending_lifetime',String(minutes));sessionStorage.setItem('oneid_admin_step_up_pending_reason',reason);window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_2fa';}else{sessionStorage.removeItem('oneid_admin_step_up_pending_lifetime');sessionStorage.removeItem('oneid_admin_step_up_pending_reason');swal('Lifetime not saved','Server request failed. HTTP '+xhr.status+(code?'\nCode: '+code:''),'error');}}).always(function(){adminStepUpLifetimeSaving=false;$('#admin_step_up_lifetime_save_button').prop('disabled',false);$('#admin_step_up_lifetime_save_label').text('Save lifetime');});
+         }
+         function saveAdminMfaPreference(){
+            if(adminMfaPreferenceOriginal===null||adminMfaPreferenceSaving)return;
+            var factor=$('#admin_mfa_preferred_factor').val();
+            if(factor===adminMfaPreferenceOriginal){swal('No changes','Kaedah pilihan sudah menggunakan '+adminMfaPreferenceLabel(factor)+'.','info');return;}
+            if(!adminMfaSecurityGrantValid){sessionStorage.setItem('oneid_mfa_pending_factor',factor);window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_2fa';return;}
+            swal({title:'Simpan kaedah 2FA pilihan?',text:adminMfaPreferenceLabel(factor)+' akan dipaparkan dahulu pada pengesahan Administrator. Kaedah lain masih boleh dipilih.',type:'warning',showCancelButton:true,confirmButtonText:'Save preference',closeOnConfirm:false},function(){
+               persistAdminMfaPreference(factor);
+            });
+         }
+         function persistAdminMfaPreference(factor){
+               if(adminMfaPreferenceSaving)return;adminMfaPreferenceSaving=true;
+               $('#admin_mfa_preference_save_button').prop('disabled',true);$('#admin_mfa_preference_save_label').text('Saving...');
+               $.post('../lib/q_func',{admin_mfa_set_preference:'',factor:factor},function(r){
+                  if(r&&Number(r.status)===1&&r.code==='MFA_PREFERENCE_UPDATED'){adminMfaPreferenceOriginal=factor;adminMfaSecurityGrantValid=true;sessionStorage.removeItem('oneid_mfa_pending_factor');$('#admin_mfa_preference_status').text('Kaedah pilihan semasa: '+adminMfaPreferenceLabel(factor)+'.');swal('Preference saved','Kaedah ini akan dipaparkan dahulu pada pengesahan berikutnya.\nReference: '+r.correlation_id,'success');}
+                  else{swal('Preference not saved','Code: '+(r&&r.code?r.code:'MFA_PREFERENCE_RESPONSE_INVALID'),'error');}
+               },'json').fail(function(xhr){
+                  var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';
+                  if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){swal({title:'Pengesahan diperlukan',text:'Sahkan Security Configuration Change sebelum menyimpan tetapan ini.',type:'warning',confirmButtonText:'Authenticate now',closeOnConfirm:true},function(){window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_2fa';});}
+                  else{swal('Preference not saved','Server request failed. HTTP '+xhr.status+'.','error');}
+               }).always(function(){adminMfaPreferenceSaving=false;$('#admin_mfa_preference_save_button').prop('disabled',false);$('#admin_mfa_preference_save_label').text('Save preference');});
          }
          
          function open_category_listing(uc_id,uc_text){

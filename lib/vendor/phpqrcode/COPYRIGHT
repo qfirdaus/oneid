@@ -1,0 +1,27 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: PHP QR Code
+Upstream-Contact: Dominik Dzienia <deltalab at poczta dot fm>
+Source: http://phpqrcode.sourceforge.net/
+
+Files: *
+Copyright: 2010 Dominik Dzienia <deltalab at poczta dot fm>
+           2006, 2007, 2008, 2009 Kentaro Fukuchi <fukuchi@megaui.net>
+License: LGPL-3
+
+Files: phpqrcode.php bindings/tcpdf/qrcode.php
+Copyright: 2010 Dominik Dzienia <deltalab at poczta dot fm>
+           2006, 2007, 2008, 2009 Kentaro Fukuchi <fukuchi@megaui.net>
+           2002, 2003, 2004, 2006 Phil Karn, KA9Q
+License: LGPL-3
+
+Files: debian/*
+Copyright: 2013 Tilburg University
+License: LGPL-3
+
+License: LGPL-3
+ This library is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Lesser General Public License as published by the Free
+ Software Foundation; either version 3 of the License, or any later version.
+ .
+ On Debian systems, the complete text of the Lesser General Public License can
+ be found in `/usr/share/common-licenses/LGPL-3'.
