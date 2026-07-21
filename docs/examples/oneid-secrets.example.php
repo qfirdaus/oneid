@@ -30,6 +30,8 @@ return [
     'ONEID_SMTP_PORT' => '587',
     'ONEID_SMTP_ENCRYPTION' => 'tls',
     'ONEID_SMTP_FROM_NAME' => 'sysadmin@upnm',
+    'ONEID_TOTP_KEYRING_PATH' => '',
+    'ONEID_TOTP_ISSUER' => 'OneID@UPNM UAT',
     'ONEID_SMTP_USERNAME' => '',
     'ONEID_SMTP_PASSWORD' => '',
 

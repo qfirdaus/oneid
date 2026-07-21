@@ -11,12 +11,13 @@ final class AdminTotpFactorService
     /** @var callable(): int */
     private $clock;
 
-    public function __construct(private readonly object $operation,private readonly TotpSecretCipher $cipher,?callable $clock=null)
+    public function __construct(private readonly object $operation,private readonly TotpSecretCipher $cipher,?callable $clock=null,private readonly string $issuer='OneID@UPNM')
     {$this->clock=$clock??static fn():int=>time();}
 
     public function enroll(string $adminId,string $currentPassword,string $sessionId,string $userAgent,string $ipAddress,string $label='Microsoft Authenticator'):array
     {
-        $cid=bin2hex(random_bytes(8));$admin=$this->id($adminId,$cid);$session=$this->binding($sessionId,$cid);$browser=hash('sha256',substr($userAgent,0,1000));$ip=$this->ip($ipAddress,$cid);$label=trim($label);
+        $cid=bin2hex(random_bytes(8));$admin=$this->id($adminId,$cid);$session=$this->binding($sessionId,$cid);$browser=hash('sha256',substr($userAgent,0,1000));$ip=$this->ip($ipAddress,$cid);$label=trim($label);$issuer=trim($this->issuer);
+        if($issuer===''||strlen($issuer)>64)throw new AdminStepUpException('TOTP_ISSUER_INVALID',$cid);
         if($label===''||strlen($label)>100)throw new AdminStepUpException('TOTP_LABEL_INVALID',$cid);
         $secret=Totp::generateSecret();$encrypted=$this->cipher->encrypt($secret);$started=false;
         try{$this->operation->beginTransaction();$started=true;$context=$this->operation->admin_mfa_enrollment_context_for_update($admin);
@@ -26,7 +27,7 @@ final class AdminTotpFactorService
             $factorId=$this->operation->admin_mfa_create_pending_factor(['admin_user_id'=>$admin,'encrypted_secret'=>$encrypted['ciphertext'],'secret_nonce'=>$encrypted['nonce'],'key_version'=>$encrypted['key_version'],'device_label'=>$label,'created_by'=>$admin,'correlation_id'=>$cid,'enrollment_session_hash'=>$session,'enrollment_browser_digest'=>$browser]);
             if(!is_int($factorId)||$factorId<1)throw new AdminStepUpException('TOTP_ENROLLMENT_CREATE_FAILED',$cid);
             $this->audit(44,$admin,'enrolled_pending',$cid,$ip);$this->operation->commit();$started=false;
-            return['status'=>1,'code'=>'TOTP_ENROLLMENT_PENDING','factor_id'=>$factorId,'secret'=>$secret,'provisioning_uri'=>Totp::provisioningUri('OneID@UPNM',$admin,$secret),'correlation_id'=>$cid];
+            return['status'=>1,'code'=>'TOTP_ENROLLMENT_PENDING','factor_id'=>$factorId,'secret'=>$secret,'provisioning_uri'=>Totp::provisioningUri($issuer,$admin,$secret),'correlation_id'=>$cid];
         }catch(AdminStepUpException $e){if($started)$this->operation->rollback();throw$e;}catch(Throwable $e){if($started)$this->operation->rollback();throw new AdminStepUpException('TOTP_ENROLLMENT_FAILED',$cid);}
     }
 

@@ -42,3 +42,16 @@ Automated test tidak menghantar e-mel atau mengaktifkan feature. Owner `0530-09`
 telah menjalankan enrollment dan bootstrap secara interaktif. Functional UAT
 ditutup dalam F7.6; observation 24 jam dan enhanced monitoring masih perlu
 dilengkapkan sebelum keputusan akhir `ACCEPT`.
+
+## Patch issuer environment dan reset Authenticator
+
+Patch susulan menjadikan issuer QR configurable melalui
+`ONEID_TOTP_ISSUER`. Nilai yang disyorkan ialah `OneID@UPNM UAT` bagi staging,
+`OneID@UPNM Local` bagi WSL dan `OneID@UPNM` bagi production. URL aplikasi tidak
+menentukan kod TOTP; issuer hanya membezakan label akaun dalam Authenticator.
+
+Configuration Admin 2FA kini menyediakan `Reset Authenticator` apabila faktor
+TOTP aktif. Flow reset memaksa verification OTP e-mel bagi purpose
+`SECURITY_CONFIGURATION_CHANGE`, meminta reason serta confirmation, menggunakan
+endpoint revoke beraudit sedia ada, kemudian membawa admin kepada enrollment QR
+baharu. Keyring tidak dipadam atau diganti oleh reset ini.
