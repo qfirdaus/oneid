@@ -138,12 +138,12 @@ hilang dan dicadangkan untuk deactivation.
 |---|---|
 | Host | `172.16.2.224` |
 | Port | `3308` |
-| DBMS | MySQL |
+| DBMS | MySQL `8.4.7` |
 | Database | `upnm` |
 | Username | Private configuration — nilai sebenar tidak direkod dalam dokumen |
 | Password | Tidak direkod dalam dokumen atau repository |
 | View dibenarkan | `student_basic_info` |
-| Access | Read-only/`SELECT` sahaja |
+| Access | Evidence semasa: `SELECT ON upnm.*`; read-only tetapi belum terhad kepada view sahaja |
 
 Credential sebenar mesti disimpan melalui environment variable atau
 `.private/runtime.php`. Credential, DSN penuh dan connection error terperinci
@@ -153,53 +153,98 @@ tidak boleh direkod ke Git, UI atau application log.
 
 | Field | Type | Nullable |
 |---|---|---|
-| `Nama` | `varchar(255)` | Ya |
-| `No. Kad Pengenalan` | `varchar(255)` | Ya |
-| `No. Matrik` | `varchar(255)` | Ya |
-| `Emel Alfateh` | `varchar(255)` | Ya |
-| `Program` | `varchar(255)` | Ya |
-| `Fakulti` | `varchar(255)` | Ya |
+| `nama` | `varchar(255)` | Ya |
+| `no_kad_pengenalan` | `varchar(255)` | Ya |
+| `no_matrik` | `varchar(255)` | Ya |
+| `emel_alfateh` | `varchar(255)` | Ya |
+| `program` | `varchar(255)` | Ya |
+| `fakulti` | `varchar(255)` | Ya |
+| `status_code` | `varchar(255)` | Tidak; default `Pending` |
+| `status_description` | `varchar(100)` | Ya |
 
-Semua field nullable. Oleh itu, kelulusan schema sahaja tidak membuktikan
-kualiti atau keunikan identity.
+Walaupun `status_code` tidak nullable, default teks `Pending` tidak selari dengan
+domain kod angka `1` hingga `6`. Contract sebenar mesti menetapkan bahawa nilai
+yang dihantar kepada OneID menggunakan representasi kod yang konsisten. Field
+identity dan profile yang nullable juga bermaksud kelulusan schema sahaja tidak
+membuktikan kualiti atau keunikan identity.
+
+### 4.2.1 Keputusan populasi active view ODL
+
+Keputusan owner pada 22 Julai 2026 menetapkan hanya status berikut berada dalam
+active view yang dibaca oleh OneID:
+
+| Kod | Status external | Makna kepada OneID |
+|---:|---|---|
+| `2` | `Active` | Rekod hadir; akaun kekal atau menjadi aktif |
+| `4` | `Suspended` | Rekod hadir; akaun kekal aktif |
+| `5` | `Deferred` | Rekod hadir; akaun kekal aktif |
+
+Status berikut tidak berada dalam active view:
+
+| Kod | Status external | Kesan kepada sync |
+|---:|---|---|
+| `1` | `Pending` | Tidak diwujudkan; jika sebelumnya aktif, menjadi calon deactivation apabila hilang daripada view |
+| `3` | `Inactive` | Menjadi calon deactivation apabila hilang daripada view |
+| `6` | `Withdrawn` | Menjadi calon deactivation apabila hilang daripada view |
+
+Polisi ini mengikuti kontrak sync pelajar OneID semasa: datasource menentukan
+populasi `AKTIF`, manakala OneID menganggap setiap row yang hadir sebagai aktif.
+Sync semasa turut mengekalkan pelajar `GANTUNG PENGAJIAN` dan
+`TANGGUH PENGAJIAN` dalam populasi aktif. OneID tidak memetakan enam status
+external terus kepada `user_tbl.avail_status`.
+
+Active view ODL mesti melaksanakan eligibility rule yang setara dengan:
+
+```sql
+WHERE status_code IN ('2', '4', '5')
+```
+
+Jika source menyimpan label dan bukan kod, normalisasi perlu dilakukan oleh
+sistem ODL sebelum row dipaparkan kepada OneID. Empty, unknown atau conflicting
+status tidak boleh dimasukkan ke active view.
 
 ### 4.3 Mapping ODL kepada kontrak OneID
 
 | External ODL | Canonical sync | OneID |
 |---|---|---|
-| `Nama` | `data1` | `user_tbl.data1` |
-| `No. Kad Pengenalan` | `data2` | `user_tbl.data2` |
+| `nama` | `data1` | `user_tbl.data1` |
+| `no_kad_pengenalan` | `data2` | `user_tbl.data2` |
 | Tiada | `data3 = ''` | `user_tbl.data3` |
-| `No. Matrik` | `data4` | `user_tbl.data4` dan `u_id` |
-| `Emel Alfateh` | `data5` | `user_tbl.data5` |
-| `Fakulti` | `data6` | `user_tbl.data6` |
-| `Program` | `data7` | `user_tbl.data7` |
+| `no_matrik` | `data4` | `user_tbl.data4` dan `u_id` |
+| `emel_alfateh` | `data5` | `user_tbl.data5` |
+| `fakulti` | `data6` | `user_tbl.data6` |
+| `program` | `data7` | `user_tbl.data7` |
 | Tiada | `data8`–`data12 = ''` | `user_tbl.data8`–`data12` |
 | Nilai sistem | `ext_data_source_category = Pelajar` | `u_category = 10` |
 | Nilai sistem | `source_code = STUDENT_ODL` | Source provenance |
+| `status_code` | Validasi eligibility active view | Tidak disalin terus ke `user_tbl.avail_status` |
+| `status_description` | Tidak diperlukan untuk mutation | Tidak disimpan sebagai profile OneID |
 
 Contoh query tetap read-only:
 
 ```sql
 SELECT
-    COALESCE(`Nama`, '') AS data1,
-    COALESCE(`No. Kad Pengenalan`, '') AS data2,
+    COALESCE(`nama`, '') AS data1,
+    COALESCE(`no_kad_pengenalan`, '') AS data2,
     '' AS data3,
-    COALESCE(`No. Matrik`, '') AS data4,
-    COALESCE(`Emel Alfateh`, '') AS data5,
-    COALESCE(`Fakulti`, '') AS data6,
-    COALESCE(`Program`, '') AS data7,
+    COALESCE(`no_matrik`, '') AS data4,
+    COALESCE(`emel_alfateh`, '') AS data5,
+    COALESCE(`fakulti`, '') AS data6,
+    COALESCE(`program`, '') AS data7,
     '' AS data8,
     '' AS data9,
     '' AS data10,
     '' AS data11,
     '' AS data12,
-    'Pelajar' AS ext_data_source_category
+    'Pelajar' AS ext_data_source_category,
+    `status_code` AS external_status_code
 FROM `student_basic_info`
+WHERE `status_code` IN ('2', '4', '5')
 ```
 
 `source_code` hendaklah ditambah oleh adapter aplikasi, bukan bergantung pada
-nilai dalam view.
+nilai dalam view. Klausa status dalam contoh ialah defense-in-depth; active view
+ODL sendiri tetap bertanggungjawab memulangkan hanya kod `2`, `4` dan `5`.
 
 ## 5. Model source provenance sasaran
 
@@ -370,6 +415,35 @@ Preview data-quality mesti mengira sekurang-kurangnya:
 PII penuh tidak boleh dipaparkan dalam Preview. Sample hendaklah menggunakan
 digest atau identity yang dimask.
 
+### 6.4 Evidence aggregate feasibility awal
+
+Aggregate read-only `student_basic_info` pada 22 Julai 2026 menghasilkan:
+
+| Metric | Hasil |
+|---|---:|
+| Total row | 49 |
+| Active (`2`) | 49 |
+| Suspended (`4`) | 0 |
+| Deferred (`5`) | 0 |
+| Invalid status | 0 |
+| Matrik kosong | 0 |
+| IC kosong | 1 |
+| E-mel kosong | 0 |
+| Duplicate Matrik groups | 0 |
+| Duplicate Matrik + IC groups | 0 |
+
+Semua maximum length yang diukur berada dalam had live OneID. Satu row tanpa IC
+tidak memenuhi matching contract Matrik + IC. Owner menerima finding ini sebagai
+remediation team ODL dengan syarat tiada pelajar tanpa IC; aggregate semula mesti
+menunjukkan `blank_ic = 0` sebelum Preview data sebenar atau pilot. Evidence asal
+`blank_ic = 1` dikekalkan untuk integriti audit.
+
+Account runtime tidak mempunyai privilege `SHOW VIEW`; ini tidak diperlukan
+untuk operasi `SELECT`. Pada 22 Julai 2026, owner mengesahkan view menapis
+`status_code IN ('2','4','5')`; pengesahan ini bersama aggregate numeric semasa
+diterima sebagai evidence status contract. Definisi DBA masih diperlukan hanya
+untuk configuration/version evidence, bukan sebagai runtime privilege.
+
 ## 7. Polisi multi-source dan collision
 
 ### 7.1 Kehadiran dalam beberapa sumber
@@ -398,6 +472,24 @@ Semua student memberships tidak aktif
 
 Kelayakan tidak bermaksud deactivation automatik. Ia masih tertakluk kepada
 Preview, approval, threshold, protection dan reconciliation.
+
+### 7.2.1 Lifecycle status ODL dalam sync
+
+OneID mengesan lifecycle melalui presence dalam active view, bukan dengan
+menulis kod status external terus ke akaun:
+
+| Perubahan external | Presence active view | Tindakan OneID yang layak dirancang |
+|---|---|---|
+| Tiada rekod → `2`, `4` atau `5` | Muncul | `NEW` jika Matrik belum pernah wujud |
+| Kekal `2`, `4` atau `5` | Kekal | Tiada tindakan atau `UPDATE` profile |
+| `2`, `4` atau `5` → `1`, `3` atau `6` | Hilang | `DEACTIVATE` selepas semua safety gate |
+| `1`, `3` atau `6` → `2`, `4` atau `5` | Muncul semula | `REACTIVATE` bagi Matrik yang tidak aktif |
+
+Deactivation tidak memadam pengguna; ia menukar `user_tbl.avail_status` kepada
+`0`. Reactivation memerlukan No. Matrik yang stabil dan mengembalikan status
+akaun kepada `1`. Pertukaran pengguna aktif kepada `Pending` mempunyai kesan
+yang sama seperti keluar daripada active view dan oleh itu menjadi calon
+deactivation. Keputusan ini mesti kekal kelihatan dalam Preview sebelum Apply.
 
 ### 7.3 Identity conflict
 
@@ -675,6 +767,12 @@ atau behavior sedia ada sebelum parity dibuktikan.
 Semua fasa pelaksanaan di bawah ialah pelan kemungkinan sahaja dan kekal
 `NOT STARTED`. Tiada Fasa 0 atau seterusnya boleh dimulakan sehingga Gate F
 diluluskan secara eksplisit.
+
+Gate F telah dibuka pada 22 Julai 2026. Evidence, acceptance item dan keputusan
+semasa direkod dalam
+[`ODL_GATE_F_FEASIBILITY_REGISTER.md`](ODL_GATE_F_FEASIBILITY_REGISTER.md).
+Keputusan semasa ialah `REWORK / MORE EVIDENCE REQUIRED`; pembukaan Gate tidak
+memberikan authorization untuk connection atau implementation.
 
 Minimum evidence Gate F:
 
@@ -1000,8 +1098,9 @@ Sebelum implementation melepasi fasa berkaitan, owner mesti mengesahkan:
 10. Apakah retention period untuk membership history dan audit metadata?
 11. Apakah business outcome sync: provisioning sahaja, profile refresh,
     activation/deactivation, atau kombinasi tertentu?
-12. Apakah definisi tepat pelajar `active`, termasuk intake, deferment,
-    suspension, completion, withdrawal, alumni dan pending registration?
+12. Baki definisi lifecycle di luar keputusan active view: adakah terdapat
+    exception atau grace period bagi pertukaran kepada Pending, Inactive atau
+    Withdrawn sebelum deactivation?
 13. Apakah freshness/SLA view, waktu refresh dan cara mengenal snapshot separa?
 14. Adakah `No. Matrik` kekal sepanjang hayat dan unik merentas UG/ODL/PG?
 15. Field profil manakah authoritative bagi setiap source dan apakah polisi
@@ -1065,16 +1164,21 @@ Pada semakan 22 Julai 2026:
 | Perkara | Status |
 |---|---|
 | Business/data requirements | Dalam siasatan |
+| Status eligibility active view | Diputuskan: hanya `2 Active`, `4 Suspended`, `5 Deferred` |
+| Status dikecualikan daripada active view | Diputuskan: `1 Pending`, `3 Inactive`, `6 Withdrawn` |
+| Active → Pending | Diputuskan: menjadi calon deactivation kerana Pending tidak berada dalam active view |
 | Authority dan completeness view ODL | Belum disahkan |
-| Identity/profile conflict policy | Belum diputuskan |
-| Provenance dan immutable history design | Cadangan untuk dinilai |
-| Source lifecycle/deactivation semantics | Belum diputuskan |
-| Security/network/TLS/read-only evidence | Belum diperoleh |
+| Identity/profile conflict policy | Provisional: block dan semak manual |
+| Aggregate data-quality awal | 49 row; duplicate=0; satu IC kosong diterima dengan syarat `blank_ic=0` sebelum Preview/pilot |
+| Field length compatibility | Disahkan bagi snapshot awal |
+| Provenance dan immutable history design | Provisional: logical design dipersetujui; schema belum diluluskan |
+| Source lifecycle/deactivation semantics | Status `1`, `3`, `6` keluar daripada view dan menjadi calon deactivation; tiada grace period |
+| Security/network/TLS/read-only evidence | Partial: TLSv1.3/AES-256-GCM berjaya; grant read-only masih terlalu luas; origin OneID UAT belum disahkan |
 | Migration atau implementation approval | Tidak diberikan |
 | Connection kepada ODL datasource | Tidak dibenarkan oleh dokumen ini |
 | Preview menggunakan data ODL sebenar | Tidak dibenarkan oleh dokumen ini |
 | Pilot atau Full Apply | Tidak dibenarkan |
-| Gate F | Belum lulus |
+| Gate F | Dibuka; `REWORK / MORE EVIDENCE REQUIRED` — keputusan provisional masih akan direview |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence
