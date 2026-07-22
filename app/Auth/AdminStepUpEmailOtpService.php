@@ -6,6 +6,8 @@ namespace OneId\App\Auth;
 
 use Throwable;
 
+require_once __DIR__ . '/AdminStepUpRateLimitConfig.php';
+
 final class AdminStepUpEmailOtpService
 {
     private const PURPOSES = [
@@ -16,9 +18,13 @@ final class AdminStepUpEmailOtpService
 
     public function __construct(
         private readonly object $operation,
-        private readonly AdminStepUpEmailSenderInterface $sender
+        private readonly AdminStepUpEmailSenderInterface $sender,
+        ?AdminStepUpRateLimitConfig $rateLimits = null
     ) {
+        $this->rateLimits = $rateLimits ?? AdminStepUpRateLimitConfig::fromRuntime();
     }
+
+    private readonly AdminStepUpRateLimitConfig $rateLimits;
 
     /** @return array<string, mixed> */
     public function request(
@@ -74,11 +80,7 @@ final class AdminStepUpEmailOtpService
             if ((int) ($stats['cooldown_seconds'] ?? 0) > 0) {
                 throw new AdminStepUpException('STEP_UP_RESEND_COOLDOWN', $correlationId);
             }
-            if ((int) ($stats['admin_hour'] ?? 0) >= 5
-                || (int) ($stats['admin_day'] ?? 0) >= 10
-                || (int) ($stats['session_hour'] ?? 0) >= 5
-                || (int) ($stats['ip_hour'] ?? 0) >= 20
-            ) {
+            if ($this->rateLimits->exceeded($stats)) {
                 throw new AdminStepUpException('STEP_UP_RATE_LIMITED', $correlationId);
             }
 

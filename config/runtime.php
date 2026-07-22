@@ -25,6 +25,10 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         // Required only when TOTP endpoints are wired; key material remains outside the repository.
         'ONEID_TOTP_KEYRING_PATH' => '',
         'ONEID_TOTP_ISSUER' => 'OneID@UPNM',
+        'ONEID_STEP_UP_EMAIL_ADMIN_HOURLY_LIMIT' => '10',
+        'ONEID_STEP_UP_EMAIL_ADMIN_DAILY_LIMIT' => '30',
+        'ONEID_STEP_UP_EMAIL_SESSION_HOURLY_LIMIT' => '10',
+        'ONEID_STEP_UP_EMAIL_IP_HOURLY_LIMIT' => '50',
         'ONEID_LEGACY_MD5_DEADLINE' => '2026-10-13 23:59:59 Asia/Kuala_Lumpur',
         'ONEID_SYNC_APPLY_ENABLED' => 'false',
         'ONEID_SYNC_ENGINE' => 'disabled',
