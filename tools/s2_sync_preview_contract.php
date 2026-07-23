@@ -58,7 +58,11 @@ $report(str_contains($normalizer, "'idpekerja' => 'data2'") && str_contains($nor
 $report(str_contains($normalizer, "['data2', 'data4']") && str_contains($normalizer, "preg_replace('/[\\s\\p{Pd}]+/u'"), 'student IC passport and matric values remove spaces and dashes');
 $report(substr_count($externalSource, 'ExternalRowNormalizer::normalize($myRow)') === 4, 'active integration normalizes every ODBC row');
 $report(str_contains($qFunc, "'UNEXPECTED_PREVIEW_ERROR'") && str_contains($qFunc, 'code=%s'), 'preview logs allowlisted diagnostic code only');
-$report(str_contains($dashboard, "data: {admin_preview_sync_user:''}"), 'dashboard posts preview action');
+$report(
+    str_contains($dashboard, "admin_preview_sync_user:''")
+        && str_contains($dashboard, 'sync_source_code:sourceCode'),
+    'dashboard posts source-bound preview action'
+);
 $report(str_contains($dashboard, "sync_approval_id:pilotApprovalId"), 'dashboard mutation requires one-time pilot approval');
 $report(str_contains($dashboard, 'Controlled Pilot Apply remains disabled'), 'dashboard explains fail-closed pilot boundary');
 

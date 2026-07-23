@@ -20,7 +20,10 @@ $report(str_contains($ui,'operational_apply_available === true')&&str_contains($
 $report(str_contains($ui,'READY FOR LARGE OPERATIONAL SYNC')&&str_contains($ui,'BLOCKED — DEACTIVATE EXCEEDS OPERATIONAL LIMIT'),'UI distinguishes soft warning from hard block');
 $report(str_contains($ui,'totalChanges === 0')&&str_contains($ui,'UP TO DATE — no changes to apply')&&str_contains($ui,'No Apply action is required.'),'zero-change preview renders an up-to-date state without Apply');
 $report(str_contains($ui,'sync-preview-table-wrap')&&str_contains($ui,'width: 230px')&&str_contains($ui,'white-space: nowrap')&&str_contains($ui,'vertical-align: top !important')&&str_contains($ui,'text-align: left !important'),'preview cells use a stable top-left single-line label column');
-$report(str_contains($ui,'response.safety_metrics || {}')&&str_contains($ui,"' (Staf = '")&&str_contains($ui,"', Pelajar = '"),'external rows display server-derived staff and student counts');
+$report(
+    str_contains($ui, "(response.source_rows || 0) + ' (' + sourceLabels[sourceCode] + ')'"),
+    'external rows display the selected source only'
+);
 exec(escapeshellarg(PHP_BINARY).' '.escapeshellarg($root.'/tests/characterization/s4g_operational_sync_gate.php'),$output,$code);
 $report($code===0&&in_array('RESULT checks=16 failed=0',$output,true),'operational pure characterization passes');
 printf("RESULT checks=%d failed=%d\n",$checks,$failed);exit($failed===0?0:1);

@@ -511,22 +511,31 @@ function string_sanitize($s) {
 
       if(isset( $_POST['admin_preview_sync_user'])){
             try {
+                $syncScope = \OneId\App\Sync\SyncSourceScope::fromCode(
+                    trim((string) ($_POST['sync_source_code'] ?? ''))
+                );
+                $syncPersistence = new \OneId\App\Sync\Adapters\SourceScopedSyncPersistenceAdapter(
+                    new \OneId\App\Sync\Adapters\DatabaseSyncPersistenceAdapter($operation),
+                    $syncScope->categoryIds
+                );
                 $approvalStore = new \OneId\App\Sync\Adapters\SessionSyncApprovalStore();
                 $approvalService = new \OneId\App\Sync\SyncApprovalService(
                     $approvalStore,
                     new \OneId\App\Sync\SyncPlanFingerprinter()
                 );
                 $previewService = new \OneId\App\Sync\SyncPreviewService(
-                    new \OneId\App\Sync\Adapters\ExternalApiUserSource(),
-                    new \OneId\App\Sync\Adapters\DatabaseSyncPersistenceAdapter($operation),
+                    $syncScope->source,
+                    $syncPersistence,
                     new \OneId\App\Sync\SyncPlanner(
                         new \OneId\App\Sync\Adapters\LegacySyncPolicy()
                     ),
                     300,
                     5.0,
-                    new \OneId\App\Sync\SyncSafetyPolicy()
+                    new \OneId\App\Sync\SyncSafetyPolicy(
+                        requiredSourceCode: $syncScope->sourceCode
+                    )
                 );
-                $baseline = $operation->sync_latest_completed_source_rows();
+                $baseline = $syncScope->baselineRows;
                 $pilotConfig = \OneId\App\Sync\SyncPilotConfig::fromEnvironment();
                 $fullConfig = \OneId\App\Sync\SyncFullConfig::fromEnvironment();
                 $operationalConfig = \OneId\App\Sync\SyncOperationalConfig::fromEnvironment();
@@ -547,6 +556,7 @@ function string_sanitize($s) {
                     $approvalService,
                     $subsetSelector
                 );
+                $previewResponse['source_code'] = $syncScope->sourceCode;
                 $previewResponse['pilot_apply_available'] = $pilotConfig->enabled
                     && $runtimeConfig->canApply()
                     && ($previewResponse['approval_ready'] ?? false) === true;
@@ -621,6 +631,10 @@ function string_sanitize($s) {
                     'EXTERNAL_STAFF_QUERY_FAILED',
                     'EXTERNAL_STUDENT_QUERY_FAILED',
                     'EMPTY_EXTERNAL_SNAPSHOT',
+                    'EXTERNAL_STAFF_EMPTY',
+                    'EXTERNAL_STUDENT_EMPTY',
+                    'SYNC_SOURCE_INVALID',
+                    'SYNC_SOURCE_BASELINE_INVALID',
                 ];
                 $diagnosticCode = in_array($exception->getMessage(), $knownPreviewCodes, true)
                     ? $exception->getMessage()
@@ -644,6 +658,8 @@ function string_sanitize($s) {
 
       if(isset( $_POST['admin_apply_operational_sync'])){
             try {
+                $syncSourceCode = trim((string) ($_POST['sync_source_code'] ?? ''));
+                \OneId\App\Sync\SyncSourceScope::fromCode($syncSourceCode);
                 $runtimeConfig = \OneId\App\Sync\SyncRuntimeConfig::fromEnvironment();
                 $pilotConfig = \OneId\App\Sync\SyncPilotConfig::fromEnvironment();
                 $fullConfig = \OneId\App\Sync\SyncFullConfig::fromEnvironment();
@@ -661,7 +677,8 @@ function string_sanitize($s) {
                 ))->createOperationalCoordinator(
                     $approvalStore,
                     $operationalConfig,
-                    $confirmation
+                    $confirmation,
+                    $syncSourceCode
                 );
                 $triggeredBy = (string) ($_SESSION['login_user'] ?? '');
                 $approvalId = is_string($_POST['sync_approval_id'] ?? null)
@@ -733,6 +750,8 @@ function string_sanitize($s) {
                     'SYNC_SAFETY_BLOCKED',
                     'SYNC_RECONCILIATION_MISMATCH',
                     'SYNC_DATABASE_WRITE_FAILED',
+                    'SYNC_SOURCE_INVALID',
+                    'SYNC_SOURCE_BASELINE_INVALID',
                 ];
                 $diagnosticCode = in_array($exception->getMessage(), $knownOperationalCodes, true)
                     ? $exception->getMessage()
@@ -754,6 +773,8 @@ function string_sanitize($s) {
 
       if(isset( $_POST['admin_apply_full_sync'])){
             try {
+                $syncSourceCode = trim((string) ($_POST['sync_source_code'] ?? ''));
+                \OneId\App\Sync\SyncSourceScope::fromCode($syncSourceCode);
                 $runtimeConfig = \OneId\App\Sync\SyncRuntimeConfig::fromEnvironment();
                 $pilotConfig = \OneId\App\Sync\SyncPilotConfig::fromEnvironment();
                 $fullConfig = \OneId\App\Sync\SyncFullConfig::fromEnvironment();
@@ -770,7 +791,11 @@ function string_sanitize($s) {
                 $coordinator = (new \OneId\App\Sync\SyncEngineFactory(
                     $operation,
                     $runtimeConfig
-                ))->createFullCoordinator($approvalStore, $fullConfig);
+                ))->createFullCoordinator(
+                    $approvalStore,
+                    $fullConfig,
+                    $syncSourceCode
+                );
                 $triggeredBy = (string) ($_SESSION['login_user'] ?? '');
                 $approvalId = is_string($_POST['sync_approval_id'] ?? null)
                     ? trim($_POST['sync_approval_id'])
@@ -841,6 +866,8 @@ function string_sanitize($s) {
                     'SYNC_SAFETY_BLOCKED',
                     'SYNC_RECONCILIATION_MISMATCH',
                     'SYNC_DATABASE_WRITE_FAILED',
+                    'SYNC_SOURCE_INVALID',
+                    'SYNC_SOURCE_BASELINE_INVALID',
                 ];
                 $diagnosticCode = in_array($exception->getMessage(), $knownFullCodes, true)
                     ? $exception->getMessage()
@@ -862,13 +889,19 @@ function string_sanitize($s) {
 
       if(isset( $_POST['admin_add_sync_user'])){
             try {
+                $syncSourceCode = trim((string) ($_POST['sync_source_code'] ?? ''));
+                \OneId\App\Sync\SyncSourceScope::fromCode($syncSourceCode);
                 $runtimeConfig = \OneId\App\Sync\SyncRuntimeConfig::fromEnvironment();
                 $pilotConfig = \OneId\App\Sync\SyncPilotConfig::fromEnvironment();
                 $approvalStore = new \OneId\App\Sync\Adapters\SessionSyncApprovalStore();
                 $coordinator = (new \OneId\App\Sync\SyncEngineFactory(
                     $operation,
                     $runtimeConfig
-                ))->createPilotCoordinator($approvalStore, $pilotConfig);
+                ))->createPilotCoordinator(
+                    $approvalStore,
+                    $pilotConfig,
+                    $syncSourceCode
+                );
                 $triggeredBy = (string) ($_SESSION['login_user'] ?? '');
                 $approvalId = is_string($_POST['sync_approval_id'] ?? null)
                     ? trim($_POST['sync_approval_id'])
@@ -923,6 +956,8 @@ function string_sanitize($s) {
                     'SYNC_ALREADY_RUNNING',
                     'SYNC_SAFETY_BLOCKED',
                     'SYNC_RECONCILIATION_MISMATCH',
+                    'SYNC_SOURCE_INVALID',
+                    'SYNC_SOURCE_BASELINE_INVALID',
                 ];
                 $diagnosticCode = in_array($exception->getMessage(), $knownApplyCodes, true)
                     ? $exception->getMessage()

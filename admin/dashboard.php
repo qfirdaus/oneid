@@ -606,10 +606,10 @@
                                                 <p id="sync_status_msg" class="text-muted text-center mt-10" style="display:none;"></p>
                                              </div>
                                              <div class="form-group">
-                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="preview_external_sync_view('STAFF_HR');"><i class="fa fa-briefcase"></i> Staff External Sync <span id="external_notice_staff" class="external-action-notice" style="display:none"></span></button>
+                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="pick_preview_sync_user('STAFF_HR');"><i class="fa fa-briefcase"></i> Staff External Sync <span id="external_notice_staff" class="external-action-notice" style="display:none"></span></button>
                                              </div>
                                              <div class="form-group">
-                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="preview_external_sync_view('STUDENT_UG');"><i class="fa fa-graduation-cap"></i> Undergraduate External Sync <span id="external_notice_ug" class="external-action-notice" style="display:none"></span></button>
+                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="pick_preview_sync_user('STUDENT_UG');"><i class="fa fa-graduation-cap"></i> Undergraduate External Sync <span id="external_notice_ug" class="external-action-notice" style="display:none"></span></button>
                                              </div>
                                              <div class="form-group">
                                                 <button class="btn btn-info btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="preview_external_sync_view('STUDENT_ODL_PG');"><i class="fa fa-eye"></i> ODL External Sync (Read Only Shadow Preview) <span id="external_notice_odl" class="external-action-notice" style="display:none"></span></button>
@@ -3892,7 +3892,14 @@
                }, 100);
             });
          
-         function pick_preview_sync_user(){
+         function pick_preview_sync_user(sourceCode){
+            var sourceLabels = {
+               STAFF_HR: 'Staff External Sync',
+               STUDENT_UG: 'Undergraduate External Sync'
+            };
+            if(!sourceLabels[sourceCode]){
+               return;
+            }
             var pilotApprovalId = '';
             var fullApprovalId = '';
             var fullConfirmation = '';
@@ -3902,12 +3909,18 @@
                type: 'POST',
                url: '../lib/q_func',
                dataType: "json",
-               data: {admin_preview_sync_user:''},
+               data: {
+                  admin_preview_sync_user:'',
+                  sync_source_code:sourceCode
+               },
                beforeSend: function(){
                   $('#btn_sync').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Previewing...');
                   $('#sync_status_msg').show().text('Generating read-only preview...');
                   $('#modal_open_add_user_option').modal('hide');
                   $('#modal_add_new_single_user').modal('show');
+                  $('#aria_modal_add_new_single_user').text(
+                     sourceLabels[sourceCode] + ' — Preview and Apply'
+                  );
                   $('#sync_progress_id').show();
                   $('#sync_result_div').hide();
                },
@@ -3927,9 +3940,7 @@
                      + Number(counts.Deactivate || 0)
                      + Number(counts.Reactivate || 0);
                   $('#sync_preview_source_rows').text(
-                     (response.source_rows || 0)
-                     + ' (Staf = ' + (safetyMetrics.staff_rows || 0)
-                     + ', Pelajar = ' + (safetyMetrics.student_rows || 0) + ')'
+                     (response.source_rows || 0) + ' (' + sourceLabels[sourceCode] + ')'
                   );
                   $('#sync_preview_new_update').text((counts.New || 0) + ' / ' + (counts.Update || 0));
                   $('#sync_preview_deactivate_reactivate').text((counts.Deactivate || 0) + ' / ' + (counts.Reactivate || 0));
@@ -4045,7 +4056,11 @@
                         type: 'POST',
                         url: '../lib/q_func',
                         dataType: 'json',
-                        data: {admin_add_sync_user:'', sync_approval_id:pilotApprovalId},
+                        data: {
+                           admin_add_sync_user:'',
+                           sync_approval_id:pilotApprovalId,
+                           sync_source_code:sourceCode
+                        },
                         success: function(applyResponse){
                            pilotApprovalId = '';
                            button.hide();
@@ -4088,7 +4103,8 @@
                               data: {
                                  admin_apply_full_sync: '',
                                  sync_approval_id: fullApprovalId,
-                                 full_sync_confirmation: typedConfirmation
+                                 full_sync_confirmation: typedConfirmation,
+                                 sync_source_code: sourceCode
                               },
                               success: function(applyResponse){
                                  fullApprovalId = '';
@@ -4135,7 +4151,8 @@
                               data: {
                                  admin_apply_operational_sync: '',
                                  sync_approval_id: operationalApprovalId,
-                                 operational_sync_confirmation: typedConfirmation
+                                 operational_sync_confirmation: typedConfirmation,
+                                 sync_source_code: sourceCode
                               },
                               success: function(applyResponse){
                                  operationalApprovalId = '';
@@ -4167,7 +4184,9 @@
                   $('#sync_preview_status').text('Preview failed. Please try again.').addClass('badge badge-danger');
                },
                complete: function(){
-                  $('#btn_sync').prop('disabled', false).html('<i class="fa fa-search"></i> Undergraduate External Sync');
+                  $('#btn_sync').prop('disabled', false).html(
+                     '<i class="fa fa-search"></i> ' + sourceLabels[sourceCode]
+                  );
                   $('#sync_status_msg').hide().text('');
                }
             });

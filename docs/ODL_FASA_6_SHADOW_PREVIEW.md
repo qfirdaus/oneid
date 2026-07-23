@@ -48,9 +48,15 @@ preview_digest=13c2ae876287574dd4af3e1b22c21e4c6ff5646db03c400602ec9a64c460ffa8
 Dashboard memisahkan paparan kepada:
 
 - `External Sync Summary` — perbandingan Staff, UG dan ODL;
-- `Staff External Sync` — metrik Staff sahaja;
-- `Undergraduate External Sync` — metrik UG sahaja;
+- `Staff External Sync` — Preview dan guarded Apply untuk Staff sahaja;
+- `Undergraduate External Sync` — Preview dan guarded Apply untuk UG sahaja;
 - `ODL External Sync` — metrik ODL sahaja.
+
+Staff dan UG menggunakan operational approval sedia ada, tetapi source kini
+diikat pada Preview, approval dan fresh writer plan. Active-user reads turut
+ditapis mengikut kategori sumber supaya Apply Staff tidak mencadangkan
+deactivation UG, dan sebaliknya. `External Sync Summary` dan ODL kekal
+read-only; automatic scheduler kekal disabled.
 
 Membership dan candidate counts turut dipecahkan mengikut `source_code`.
 Legacy combined Apply tidak didedahkan melalui menu source-specific ini.
@@ -74,7 +80,7 @@ Production orchestrator parity: 18/18
 Baseline checksum `lib/q_func.php` dikemas kini kepada:
 
 ```text
-e310108ddb89aa0a8a15c1dce3605e15f31a1eb60150f3a579c68905dda9d8eb
+0d57e3c50b4ab08173b10830d874c596f88a92d03e4d1f7a13054f635de5d33f
 ```
 
 Perubahan checksum adalah disebabkan endpoint Shadow Preview read-only yang

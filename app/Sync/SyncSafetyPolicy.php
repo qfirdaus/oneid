@@ -11,7 +11,8 @@ final class SyncSafetyPolicy
     public function __construct(
         private float $maxDeactivationPercent = 5.0,
         private float $maxSourceShrinkPercent = 20.0,
-        private float $maxInvalidPercent = 1.0
+        private float $maxInvalidPercent = 1.0,
+        private ?string $requiredSourceCode = null
     ) {
     }
 
@@ -58,8 +59,18 @@ final class SyncSafetyPolicy
         }
 
         if ($sourceRows === 0) $blocking[] = 'EMPTY_SOURCE';
-        if ($staffRows === 0) $blocking[] = 'STAFF_SOURCE_MISSING';
-        if ($studentRows === 0) $blocking[] = 'STUDENT_SOURCE_MISSING';
+        if (($this->requiredSourceCode === null
+                || $this->requiredSourceCode === 'STAFF_HR')
+            && $staffRows === 0
+        ) {
+            $blocking[] = 'STAFF_SOURCE_MISSING';
+        }
+        if (($this->requiredSourceCode === null
+                || $this->requiredSourceCode === 'STUDENT_UG')
+            && $studentRows === 0
+        ) {
+            $blocking[] = 'STUDENT_SOURCE_MISSING';
+        }
         if ($deactivationPercent > $this->maxDeactivationPercent) {
             $blocking[] = 'DEACTIVATION_THRESHOLD_EXCEEDED';
         }

@@ -8,6 +8,7 @@ use OneId\App\Sync\Adapters\DatabaseSyncRunLock;
 use OneId\App\Sync\Adapters\ExternalApiUserSource;
 use OneId\App\Sync\Adapters\LegacySyncPolicy;
 use OneId\App\Sync\Adapters\SecureInitialPasswordFactory;
+use OneId\App\Sync\Adapters\SourceScopedSyncPersistenceAdapter;
 use OneId\App\Sync\Contracts\SyncApprovalStoreInterface;
 use RuntimeException;
 
@@ -36,7 +37,8 @@ final class SyncEngineFactory
 
     public function createPilotCoordinator(
         SyncApprovalStoreInterface $approvalStore,
-        SyncPilotConfig $pilotConfig
+        SyncPilotConfig $pilotConfig,
+        ?string $sourceCode = null
     ): ApprovedSyncCoordinator {
         if (!$this->config->canApply()) {
             throw new RuntimeException('SYNC_APPLY_DISABLED');
@@ -47,14 +49,15 @@ final class SyncEngineFactory
         $selector = new SyncPlanSubsetSelector($pilotConfig);
 
         return new ApprovedSyncCoordinator(
-            $this->buildSafeOrchestrator($selector),
+            $this->buildSafeOrchestrator($selector, $sourceCode),
             new SyncApprovalService($approvalStore, new SyncPlanFingerprinter())
         );
     }
 
     public function createFullCoordinator(
         SyncApprovalStoreInterface $approvalStore,
-        SyncFullConfig $fullConfig
+        SyncFullConfig $fullConfig,
+        ?string $sourceCode = null
     ): ApprovedSyncCoordinator {
         if (!$this->config->canApply()) {
             throw new RuntimeException('SYNC_APPLY_DISABLED');
@@ -66,7 +69,7 @@ final class SyncEngineFactory
         $approvalService = new SyncApprovalService($approvalStore, $fingerprinter);
 
         return new ApprovedSyncCoordinator(
-            $this->buildSafeOrchestrator(),
+            $this->buildSafeOrchestrator(null, $sourceCode),
             new FullSyncApprovalGate($approvalService, $fullConfig, $fingerprinter)
         );
     }
@@ -74,7 +77,8 @@ final class SyncEngineFactory
     public function createOperationalCoordinator(
         SyncApprovalStoreInterface $approvalStore,
         SyncOperationalConfig $operationalConfig,
-        string $confirmation
+        string $confirmation,
+        ?string $sourceCode = null
     ): ApprovedSyncCoordinator {
         if (!$this->config->canApply()) {
             throw new RuntimeException('SYNC_APPLY_DISABLED');
@@ -86,7 +90,7 @@ final class SyncEngineFactory
         $approvalService = new SyncApprovalService($approvalStore, $fingerprinter);
 
         return new ApprovedSyncCoordinator(
-            $this->buildSafeOrchestrator(),
+            $this->buildSafeOrchestrator(null, $sourceCode),
             new OperationalSyncApprovalGate(
                 $approvalService,
                 $operationalConfig,
@@ -95,18 +99,41 @@ final class SyncEngineFactory
         );
     }
 
-    private function buildSafeOrchestrator(?SyncPlanSubsetSelector $selector = null): SafeSyncOrchestrator
+    private function buildSafeOrchestrator(
+        ?SyncPlanSubsetSelector $selector = null,
+        ?string $sourceCode = null
+    ): SafeSyncOrchestrator
     {
+        [$source, $persistence] = $this->sourceScope($sourceCode);
         return new SafeSyncOrchestrator(
-            new ExternalApiUserSource(),
-            new DatabaseSyncPersistenceAdapter($this->operation),
+            $source,
+            $persistence,
             new DatabaseSyncReconciliationReader($this->operation),
             new DatabaseSyncRunLock($this->operation),
             new SyncPlanner(new LegacySyncPolicy()),
-            new SyncSafetyPolicy(),
+            new SyncSafetyPolicy(
+                requiredSourceCode: $sourceCode
+            ),
             new SyncReconciler(),
             new SecureInitialPasswordFactory(),
             $selector
         );
+    }
+
+    /** @return array{Contracts\ExternalUserSourceInterface,Contracts\SyncPersistenceInterface} */
+    private function sourceScope(?string $sourceCode): array
+    {
+        $persistence = new DatabaseSyncPersistenceAdapter($this->operation);
+        if ($sourceCode === null) {
+            return [new ExternalApiUserSource(), $persistence];
+        }
+        $scope = SyncSourceScope::fromCode($sourceCode);
+        return [
+            $scope->source,
+            new SourceScopedSyncPersistenceAdapter(
+                $persistence,
+                $scope->categoryIds
+            ),
+        ];
     }
 }

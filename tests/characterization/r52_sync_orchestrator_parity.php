@@ -355,7 +355,7 @@ $report($references === [], 'no production orchestrator wiring', implode(',', $r
 $runtimeHashes = [
     'lib/sync_user_runner.php' => '965fd187492e1f120b074601746b031474405480f234412e458f64189108c8bb',
     'lib/Database.php' => '71b51b7a9443bc3b83361be8b80c2ea464694af5454bbb38bfb80ad6ab3a1cce',
-    'lib/q_func.php' => 'e310108ddb89aa0a8a15c1dce3605e15f31a1eb60150f3a579c68905dda9d8eb',
+    'lib/q_func.php' => '0d57e3c50b4ab08173b10830d874c596f88a92d03e4d1f7a13054f635de5d33f',
 ];
 foreach ($runtimeHashes as $file => $expectedHash) {
     $actualHash = hash_file('sha256', $projectRoot . '/' . $file);
