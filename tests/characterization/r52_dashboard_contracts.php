@@ -4,10 +4,10 @@ return [
     [
         'name' => 'user dashboard',
         'file' => 'page/dashboard.php',
-        'loc' => 1261,
-        'q_func_calls' => 7,
-        'function_declarations' => 15,
-        'script_tags' => 12,
+        'loc' => 1948,
+        'q_func_calls' => 8,
+        'function_declarations' => 22,
+        'script_tags' => 14,
         'fragments' => [
             'oneid_require_authenticated_page();',
             "include __DIR__ . '/const/top.php'",
@@ -20,9 +20,9 @@ return [
     [
         'name' => 'admin dashboard',
         'file' => 'admin/dashboard.php',
-        'loc' => 3924,
-        'q_func_calls' => 41,
-        'function_declarations' => 62,
+        'loc' => 9204,
+        'q_func_calls' => 48,
+        'function_declarations' => 102,
         'script_tags' => 18,
         'fragments' => [
             'oneid_require_admin_page();',

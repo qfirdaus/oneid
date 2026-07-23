@@ -23,7 +23,7 @@ PROCEED WITH CONDITIONS
 Syarat utama: credential kekal dalam private runtime secret store; adapter
 memaksa TLS; `viewer@%` dan broad SELECT diterima untuk UAT sahaja; Apply kekal
 disabled; security review baharu diperlukan sebelum production; ODL data owner
-dan OneID operations owner mesti dinamakan sebelum Shadow Preview.
+dan OneID operations owner ialah Firdaus.
 
 ## 2. Datasource candidate
 
@@ -38,11 +38,11 @@ untuk environment UAT:
 | Port | `3308` | TESTED |
 | DBMS | MySQL `8.4.7` | CONFIRMED; driver OneID `pdo_mysql` tersedia |
 | Database | `upnm` | TESTED read-only |
-| View | `student_basic_info` | RECORDED; authority/completeness belum disahkan |
-| Username | Private configuration | DIBERIKAN; grant belum disahkan |
-| Password | Belum dibekalkan dan tidak boleh direkod dalam Git/dokumen | PENDING |
-| Network/TLS | Belum ada evidence route, firewall atau TLS mode | PENDING |
-| Database grant | Perlu bukti `SELECT` sahaja kepada view diluluskan | PENDING |
+| View | `student_basic_info` | Authority/business population CONFIRMED |
+| Username | Private configuration | TESTED read-only |
+| Password | Private runtime secret; tidak direkod dalam Git/dokumen | CONFIRMED handling policy |
+| Network/TLS | Origin OneID staging disahkan; TLSv1.3/AES-256-GCM | PASS |
+| Database grant | Read-only PASS; broad SELECT/`viewer@%` accepted UAT condition | CONDITIONAL |
 
 ### 2.1 Topologi environment semasa
 
@@ -66,15 +66,15 @@ network menterjemahkannya), bukan IP server `oneiddb`.
 
 | Perkara | Nilai semasa | Status Gate |
 |---|---|---|
-| Data owner | `CTL, ODL` | RECORDED; nama/jawatan pegawai pengesah belum diberikan |
+| Data owner | Firdaus | CONFIRMED |
 | DBA | `Firdaus` | RECORDED |
 | View version | `MySQL 8.4.7` diberikan, tetapi ini versi DBMS dan bukan versi definisi view | PENDING |
 | Refresh/SLA | Live standard view; tiada scheduled refresh. Freshness/consistency source tables dan partial-load behavior belum dibuktikan | PARTIAL |
 | Result aggregate | Baseline 49 row mempunyai 1 IC kosong; rerun 23 Julai menunjukkan 52 row dan semua blank metric = 0 | PASS bagi mandatory-field completeness |
 | Grant evidence | `USAGE`; `SELECT ON moodle.*` dan `upnm.*`; tiada write/DDL/admin privilege | PASS read-only; broad scope dan `viewer@%` ialah UAT accepted condition |
 | TLS evidence | Dari OneID staging `172.16.2.153`: TLS `1.3`, cipher `TLS_AES_256_GCM_SHA384` | PASS |
-| Change/access ticket | `N/A` diberikan; waiver/acceptance daripada owner belum direkod | PENDING |
-| Approved by | `Firdaus` | RECORDED; skop/authority approval perlu disahkan |
+| Change/access ticket | `N/A`; accepted dalam approval Gate F UAT | ACCEPTED CONDITION |
+| Approved by | Firdaus, System Analyst/DBA | APPROVED |
 
 ### 2.3 Semakan evidence teknikal — 22 Julai 2026
 

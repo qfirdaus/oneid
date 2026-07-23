@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Feasibility study — keperluan dan reka bentuk masih dalam siasatan; belum diluluskan untuk implementasi
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0 baseline ditutup; Fasa 1 schema provenance dormant ialah langkah seterusnya
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -764,15 +764,15 @@ atau behavior sedia ada sebelum parity dibuktikan.
 
 ### Gate F — Penutupan feasibility study dan authorization to proceed
 
-Semua fasa pelaksanaan di bawah ialah pelan kemungkinan sahaja dan kekal
-`NOT STARTED`. Tiada Fasa 0 atau seterusnya boleh dimulakan sehingga Gate F
-diluluskan secara eksplisit.
+Gate F telah diluluskan sebagai `PROCEED WITH CONDITIONS` pada 23 Julai 2026.
+Fasa 0 telah ditutup melalui baseline/characterization read-only. Fasa selepas
+itu hanya boleh dimulakan mengikut exit gate dan authorization masing-masing.
 
 Gate F telah dibuka pada 22 Julai 2026. Evidence, acceptance item dan keputusan
 semasa direkod dalam
 [`ODL_GATE_F_FEASIBILITY_REGISTER.md`](ODL_GATE_F_FEASIBILITY_REGISTER.md).
-Keputusan semasa ialah `REWORK / MORE EVIDENCE REQUIRED`; pembukaan Gate tidak
-memberikan authorization untuk connection atau implementation.
+Keputusan semasa ialah `PROCEED WITH CONDITIONS`. Rujuk Gate register bagi skop
+yang dibenarkan, accepted UAT conditions dan larangan Apply/production.
 
 Minimum evidence Gate F:
 
@@ -806,7 +806,7 @@ Setiap fasa memerlukan change record, ujian, bukti exit gate dan rollback sendir
 Fasa seterusnya tidak boleh dimulakan hanya kerana code telah ditulis; exit gate
 mesti benar-benar lulus.
 
-### Fasa 0 — Baseline dan characterization
+### Fasa 0 — Baseline dan characterization — `PASS / CLOSED`
 
 Aktiviti:
 
@@ -825,7 +825,10 @@ Exit gate:
 
 Rollback: tiada runtime change.
 
-### Fasa 1 — Schema provenance additive dan dormant
+Closure evidence:
+[`ODL_FASA_0_BASELINE_DAN_CHARACTERIZATION_CLOSURE.md`](ODL_FASA_0_BASELINE_DAN_CHARACTERIZATION_CLOSURE.md).
+
+### Fasa 1 — Schema provenance additive dan dormant — `NEXT / NOT STARTED`
 
 Aktiviti:
 
@@ -844,7 +847,7 @@ Exit gate:
 
 Rollback: jalankan down migration hanya jika jadual masih dormant dan kosong.
 
-### Fasa 2 — Backfill provenance sumber sedia ada
+### Fasa 2 — Backfill provenance sumber sedia ada — `NOT STARTED`
 
 Aktiviti:
 
@@ -872,7 +875,7 @@ Exit gate:
 Rollback: padam hanya membership daripada correlation/change set backfill;
 jangan padam atau deactivate pengguna.
 
-### Fasa 3 — Adapter ODL read-only
+### Fasa 3 — Adapter ODL read-only — `PREREQUISITES PARTIAL / IMPLEMENTATION NOT STARTED`
 
 Aktiviti:
 
@@ -898,7 +901,7 @@ Exit gate:
 
 Rollback: disable/remove private configuration dan adapter wiring dormant.
 
-### Fasa 4 — ODL data-quality audit
+### Fasa 4 — ODL data-quality audit — `FEASIBILITY BASELINE PARTIAL / NOT STARTED`
 
 Aktiviti:
 
@@ -917,7 +920,7 @@ Exit gate:
 
 Rollback: tiada mutation; hapus artifact sensitif mengikut retention policy.
 
-### Fasa 5 — Source-aware planner dan safety
+### Fasa 5 — Source-aware planner dan safety — `NOT STARTED`
 
 Aktiviti:
 
@@ -940,7 +943,7 @@ Exit gate:
 Rollback: feature gate kembali kepada baseline aggregator/planner; schema kekal
 dormant untuk audit.
 
-### Fasa 6 — Shadow Preview ODL
+### Fasa 6 — Shadow Preview ODL — `NOT STARTED`
 
 Aktiviti:
 
@@ -959,7 +962,7 @@ Exit gate:
 
 Rollback: disable ODL Preview gate; tiada data pengguna perlu dipulihkan.
 
-### Fasa 7 — Controlled Pilot Apply
+### Fasa 7 — Controlled Pilot Apply — `NOT AUTHORIZED`
 
 Aktiviti:
 
@@ -980,7 +983,7 @@ Exit gate:
 Rollback: revert pilot change set berdasarkan correlation ID; jangan membuat
 bulk delete atau broad deactivation.
 
-### Fasa 8 — Controlled Full Apply
+### Fasa 8 — Controlled Full Apply — `NOT AUTHORIZED`
 
 Aktiviti:
 
@@ -1000,7 +1003,7 @@ Exit gate:
 Rollback: disable ODL source gate, restore targeted change set atau restore point
 mengikut severity dan runbook yang telah diuji.
 
-### Fasa 9 — Operational rollout
+### Fasa 9 — Operational rollout — `NOT AUTHORIZED`
 
 Aktiviti:
 
@@ -1017,7 +1020,7 @@ Exit gate:
 - owner on-call dan escalation path tersedia;
 - scheduled run kekal fail-closed.
 
-### Fasa 10 — Template postgraduate
+### Fasa 10 — Template postgraduate — `NOT STARTED`
 
 Aktiviti masa hadapan:
 
@@ -1079,7 +1082,13 @@ ODL_SNAPSHOT_CHANGED_AFTER_APPROVAL
 - Error kepada UI tidak memaparkan host internals, SQL atau credential.
 - Dependency/driver MySQL yang digunakan disahkan tersedia dan disokong.
 
-## 17. Keputusan owner yang masih diperlukan
+## 17. Keputusan owner dan perkara yang masih diperlukan
+
+Keputusan feasibility bagi population, identity, status, TLS, read-only access,
+secret handling, provenance, failure threshold, ownership dan approval telah
+direkod dalam Gate F register pada 23 Julai 2026. Senarai asal di bawah kekal
+sebagai traceability; perkara implementasi/schema/pilot masih memerlukan exit
+gate fasa masing-masing dan tidak dianggap diluluskan oleh Gate F.
 
 Sebelum implementation melepasi fasa berkaitan, owner mesti mengesahkan:
 
@@ -1159,26 +1168,28 @@ read-only Preview dan tidak dibenarkan membuat mutation kepada akaun OneID.
 
 ## 20. Status feasibility dan change control
 
-Pada semakan 22 Julai 2026:
+Pada semakan 23 Julai 2026:
 
 | Perkara | Status |
 |---|---|
-| Business/data requirements | Dalam siasatan |
+| Business/data requirements | Disahkan bagi skop UAT read-only |
 | Status eligibility active view | Diputuskan: hanya `2 Active`, `4 Suspended`, `5 Deferred` |
 | Status dikecualikan daripada active view | Diputuskan: `1 Pending`, `3 Inactive`, `6 Withdrawn` |
 | Active → Pending | Diputuskan: menjadi calon deactivation kerana Pending tidak berada dalam active view |
-| Authority dan completeness view ODL | Belum disahkan |
-| Identity/profile conflict policy | Provisional: block dan semak manual |
-| Aggregate data-quality awal | 49 row; duplicate=0; satu IC kosong diterima dengan syarat `blank_ic=0` sebelum Preview/pilot |
+| Authority dan completeness view ODL | Disahkan: postgraduate diterima dan mempunyai No. Matrik; e-mel boleh tiba lewat |
+| Identity/profile conflict policy | Disahkan: block dan semak manual; blank e-mel tidak memadam nilai sedia ada |
+| Aggregate data-quality awal | Baseline diterima 53 row; blank Matrik=0 dan blank IC=0 |
 | Field length compatibility | Disahkan bagi snapshot awal |
-| Provenance dan immutable history design | Provisional: logical design dipersetujui; schema belum diluluskan |
+| Provenance dan immutable history design | Polisi `STUDENT_ODL_PG` dipersetujui; schema Fasa 1 belum dilaksanakan |
 | Source lifecycle/deactivation semantics | Status `1`, `3`, `6` keluar daripada view dan menjadi calon deactivation; tiada grace period |
-| Security/network/TLS/read-only evidence | Partial: TLSv1.3/AES-256-GCM berjaya; grant read-only masih terlalu luas; origin OneID UAT belum disahkan |
-| Migration atau implementation approval | Tidak diberikan |
-| Connection kepada ODL datasource | Tidak dibenarkan oleh dokumen ini |
-| Preview menggunakan data ODL sebenar | Tidak dibenarkan oleh dokumen ini |
+| Security/network/TLS/read-only evidence | PASS UAT: origin `172.16.2.153`, TLSv1.3/AES-256-GCM, read-only; broad SELECT/`viewer@%` accepted UAT condition |
+| Migration atau implementation approval | Fasa 1 schema dormant dibenarkan; setiap fasa masih memerlukan exit gate |
+| Connection kepada ODL datasource | Connection test read-only dibenarkan dan lulus |
+| Preview menggunakan data ODL sebenar | Shadow Preview hanya selepas Fasa 1–5 lulus |
 | Pilot atau Full Apply | Tidak dibenarkan |
-| Gate F | Dibuka; `REWORK / MORE EVIDENCE REQUIRED` — keputusan provisional masih akan direview |
+| Gate F | `PROCEED WITH CONDITIONS` — diluluskan Firdaus, System Analyst/DBA |
+| Fasa 0 | `PASS / CLOSED` |
+| Fasa seterusnya | Fasa 1 — schema provenance additive dan dormant |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence
