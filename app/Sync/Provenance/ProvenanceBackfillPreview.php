@@ -7,6 +7,95 @@ namespace OneId\App\Sync\Provenance;
 final class ProvenanceBackfillPreview
 {
     /**
+     * Return raw candidate mappings only after an exact approved safe preview
+     * is reproduced. Callers must never serialize this result to logs/UI.
+     *
+     * @param list<array<string,mixed>> $externalRows
+     * @param list<array<string,mixed>> $users
+     * @param list<array<string,mixed>> $memberships
+     * @return list<array{u_id:string,external_user_id:string}>
+     */
+    public function candidatesForApprovedBackfill(
+        string $sourceCode,
+        array $externalRows,
+        array $users,
+        array $memberships,
+        int $expectedCandidates,
+        string $expectedDigest
+    ): array {
+        $safe = $this->preview($sourceCode, $externalRows, $users, $memberships);
+        if ((int) $safe['blocking_findings'] !== 0
+            || (int) $safe['candidate_memberships'] !== $expectedCandidates
+            || !hash_equals($expectedDigest, (string) $safe['plan_digest'])
+        ) {
+            throw new \RuntimeException('PROVENANCE_BACKFILL_APPROVAL_MISMATCH');
+        }
+
+        $normalize = static function (mixed $value): string {
+            $trimmed = trim((string) $value);
+            $compacted = preg_replace('/[\s\p{Pd}]+/u', '', $trimmed);
+
+            return $compacted ?? $trimmed;
+        };
+        $validPairs = [];
+        foreach ($externalRows as $row) {
+            $category = trim((string) ($row['ext_data_source_category'] ?? ''));
+            if (!in_array($category, [
+                'Pelajar',
+                'PelajarPelajar',
+                'PentadbiranPelajar',
+                'AkademikPelajar',
+            ], true)) {
+                continue;
+            }
+            $matric = $normalize($row['data4'] ?? '');
+            $ic = $normalize($row['data2'] ?? '');
+            if ($matric !== '' && $ic !== '') {
+                $validPairs[$matric . '|' . $ic] = [
+                    'matric' => $matric,
+                    'ic' => $ic,
+                ];
+            }
+        }
+
+        $usersByPair = [];
+        foreach ($users as $user) {
+            if (($user['account_source'] ?? '') === 'manual'
+                && (int) ($user['sync_protected'] ?? 0) === 1
+            ) {
+                continue;
+            }
+            $matric = $normalize($user['u_id'] ?? '');
+            $ic = $normalize($user['data2'] ?? '');
+            if ($matric !== '' && $ic !== '') {
+                $usersByPair[$matric . '|' . $ic][] = $matric;
+            }
+        }
+
+        $candidates = [];
+        foreach ($validPairs as $pair => $identity) {
+            $matches = $usersByPair[$pair] ?? [];
+            if (count($matches) !== 1) {
+                continue;
+            }
+            $candidates[] = [
+                'u_id' => $matches[0],
+                'external_user_id' => $identity['matric'],
+            ];
+        }
+        usort(
+            $candidates,
+            static fn(array $left, array $right): int =>
+                strcmp($left['u_id'], $right['u_id'])
+        );
+        if (count($candidates) !== $expectedCandidates) {
+            throw new \RuntimeException('PROVENANCE_BACKFILL_CANDIDATE_MISMATCH');
+        }
+
+        return $candidates;
+    }
+
+    /**
      * @param list<array<string,mixed>> $externalRows
      * @param list<array<string,mixed>> $users
      * @param list<array<string,mixed>> $memberships

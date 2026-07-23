@@ -71,7 +71,7 @@ if ($identityTable) {
 $complete = $sourceTable
     && $identityTable
     && $sourceState === 'student|dormant|0|1'
-    && $memberships === 0;
+    && $memberships !== null;
 $absent = $installedTables === 0;
 
 printf(

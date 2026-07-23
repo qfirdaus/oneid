@@ -20,7 +20,7 @@ if (!function_exists('odbc_connect')) {
     exit(1);
 }
 
-$proposedSourceCode = 'STUDENT_ASIS_ACTIVE';
+$proposedSourceCode = 'STUDENT_UG';
 $connection = odbc_connect(
     oneid_secret('ONEID_STUDENT_SYNC_ODBC_DSN'),
     oneid_secret('ONEID_STUDENT_SYNC_ODBC_USERNAME'),

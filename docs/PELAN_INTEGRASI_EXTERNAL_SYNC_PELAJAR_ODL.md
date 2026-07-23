@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–1 ditutup; Fasa 2 preview/backfill provenance ialah langkah seterusnya
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–2 ditutup; Fasa 3 adapter ODL read-only ialah langkah seterusnya
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -855,7 +855,7 @@ Rollback: jalankan down migration hanya jika jadual masih dormant dan kosong.
 Closure evidence:
 [`ODL_FASA_1_SCHEMA_PROVENANCE_DORMANT_CLOSURE.md`](ODL_FASA_1_SCHEMA_PROVENANCE_DORMANT_CLOSURE.md).
 
-### Fasa 2 — Backfill provenance sumber sedia ada — `IN PROGRESS / PREVIEW COMPLETE / OWNER DECISION REQUIRED`
+### Fasa 2 — Backfill provenance sumber sedia ada — `PASS / CLOSED`
 
 Aktiviti:
 
@@ -885,9 +885,9 @@ jangan padam atau deactivate pengguna.
 
 Preview evidence:
 [`ODL_FASA_2_PROVENANCE_BACKFILL_PREVIEW.md`](ODL_FASA_2_PROVENANCE_BACKFILL_PREVIEW.md).
-Preview read-only menemukan 5,423 exact candidate memberships, zero blocking
-identity finding dan 29 profile-variant review groups. Live backfill belum
-dibenarkan sehingga authority/nama source dan exact counts diluluskan owner.
+Owner mengesahkan `STUDENT_UG` dan meluluskan exact Preview. Backfill
+transactional selesai dengan 5,423 memberships, zero blocking identity finding,
+29 profile-variant review groups yang tidak ditulis, dan zero user mutation.
 
 ### Fasa 3 — Adapter ODL read-only — `PREREQUISITES PARTIAL / IMPLEMENTATION NOT STARTED`
 
@@ -1204,8 +1204,8 @@ Pada semakan 23 Julai 2026:
 | Gate F | `PROCEED WITH CONDITIONS` — diluluskan Firdaus, System Analyst/DBA |
 | Fasa 0 | `PASS / CLOSED` |
 | Fasa 1 | `PASS / CLOSED` — schema live dormant, zero membership |
-| Fasa 2 | Preview complete: 5,423 candidates, zero blocking identity finding; source authority/count approval pending |
-| Fasa seterusnya | Lengkapkan owner decision Fasa 2 sebelum isolated/live backfill |
+| Fasa 2 | `PASS / CLOSED` — `STUDENT_UG` dormant, 5,423 memberships, zero user mutation |
+| Fasa seterusnya | Fasa 3 — Adapter ODL read-only |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence

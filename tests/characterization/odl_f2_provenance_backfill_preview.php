@@ -42,7 +42,7 @@ $user = static fn(
 
 $previewer = new ProvenanceBackfillPreview();
 $result = $previewer->preview(
-    'STUDENT_ASIS_ACTIVE',
+    'STUDENT_UG',
     [
         $row('A-001', '900101-01-1234'),
         $row('A002', '900202021234'),
@@ -78,12 +78,12 @@ $report(is_string($result['plan_digest']) && strlen($result['plan_digest']) === 
 $report(!str_contains(json_encode($result), '900101011234'), 'result contains no raw identity');
 
 $existing = $previewer->preview(
-    'STUDENT_ASIS_ACTIVE',
+    'STUDENT_UG',
     [$row('A001', '900101011234')],
     [$user('A001', '900101011234')],
     [[
         'u_id' => 'A001',
-        'source_code' => 'STUDENT_ASIS_ACTIVE',
+        'source_code' => 'STUDENT_UG',
         'external_user_id' => 'A001',
     ]]
 );
@@ -91,19 +91,19 @@ $report($existing['existing_memberships'] === 1, 'existing exact membership is i
 $report($existing['candidate_memberships'] === 0, 'existing membership is not planned again');
 
 $conflict = $previewer->preview(
-    'STUDENT_ASIS_ACTIVE',
+    'STUDENT_UG',
     [$row('A001', '900101011234')],
     [$user('A001', '900101011234')],
     [[
         'u_id' => 'OTHER',
-        'source_code' => 'STUDENT_ASIS_ACTIVE',
+        'source_code' => 'STUDENT_UG',
         'external_user_id' => 'A001',
     ]]
 );
 $report($conflict['membership_conflicts'] === 1 && $conflict['status'] === 'blocked', 'membership conflict fails closed');
 
 $profileVariant = $previewer->preview(
-    'STUDENT_ASIS_ACTIVE',
+    'STUDENT_UG',
     [
         $row('VARIANT', '901010101234'),
         array_merge($row('VARIANT', '901010101234'), ['data5' => 'different@example.test']),
@@ -126,6 +126,46 @@ try {
     $invalidCodeRejected = $exception->getMessage() === 'PROVENANCE_SOURCE_CODE_INVALID';
 }
 $report($invalidCodeRejected, 'source code is allowlisted');
+
+$approvedRows = [$row('A001', '900101011234')];
+$approvedUsers = [$user('A001', '900101011234')];
+$approvedPreview = $previewer->preview(
+    'STUDENT_UG',
+    $approvedRows,
+    $approvedUsers,
+    []
+);
+$approvedCandidates = $previewer->candidatesForApprovedBackfill(
+    'STUDENT_UG',
+    $approvedRows,
+    $approvedUsers,
+    [],
+    1,
+    (string) $approvedPreview['plan_digest']
+);
+$report(
+    $approvedCandidates === [[
+        'u_id' => 'A001',
+        'external_user_id' => 'A001',
+    ]],
+    'raw candidates require exact approved count and digest'
+);
+
+$approvalMismatchRejected = false;
+try {
+    $previewer->candidatesForApprovedBackfill(
+        'STUDENT_UG',
+        $approvedRows,
+        $approvedUsers,
+        [],
+        2,
+        (string) $approvedPreview['plan_digest']
+    );
+} catch (RuntimeException $exception) {
+    $approvalMismatchRejected = $exception->getMessage()
+        === 'PROVENANCE_BACKFILL_APPROVAL_MISMATCH';
+}
+$report($approvalMismatchRejected, 'candidate extraction fails on approval mismatch');
 
 printf("RESULT checks=%d failed=%d\n", $checks, $failed);
 exit($failed === 0 ? 0 : 1);

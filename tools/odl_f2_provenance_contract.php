@@ -13,6 +13,9 @@ $preview = (string) file_get_contents(
 $tool = (string) file_get_contents(
     $root . '/tools/odl_f2_provenance_backfill_preview.php'
 );
+$writer = (string) file_get_contents(
+    $root . '/tools/odl_f2_provenance_backfill.php'
+);
 $runtime = '';
 foreach ([
     'lib/q_func.php',
@@ -61,13 +64,13 @@ $report(
     'CLI contains no mutation statement'
 );
 $report(
-    str_contains($tool, "'STUDENT_ASIS_ACTIVE'")
-        && !str_contains($tool, "'STUDENT_UG'"),
-    'unconfirmed source uses neutral proposed code'
+    str_contains($tool, "'STUDENT_UG'")
+        && !str_contains($tool, "'STUDENT_ASIS_ACTIVE'"),
+    'owner-confirmed undergraduate source code is fixed'
 );
 $report(
     !str_contains($runtime, 'ProvenanceBackfillPreview')
-        && !str_contains($runtime, 'STUDENT_ASIS_ACTIVE'),
+        && !str_contains($runtime, 'STUDENT_UG'),
     'Fasa 2 preview remains outside runtime wiring'
 );
 $report(
@@ -75,6 +78,34 @@ $report(
         && !str_contains($preview, "'identities'")
         && !str_contains($preview, "'u_ids'"),
     'result exposes aggregate digest without identity lists'
+);
+$report(
+    str_contains($writer, 'ODL_F2_EXPECTED_SOURCE_ROWS = 5452')
+        && str_contains($writer, 'ODL_F2_EXPECTED_CANDIDATES = 5423')
+        && str_contains($writer, 'ODL_F2_EXPECTED_REVIEW_FINDINGS = 29')
+        && str_contains($writer, 'ODL_F2_EXPECTED_DIGEST'),
+    'writer binds exact approved preview counts and digest'
+);
+$report(
+    str_contains($writer, 'GET_LOCK(:lock_name, 0)')
+        && str_contains($writer, 'beginTransaction()')
+        && str_contains($writer, 'rollBack()')
+        && str_contains($writer, 'ODL_F2_BACKFILL_RECONCILIATION_FAILED'),
+    'writer is lock transaction and reconciliation bound'
+);
+$report(
+    !preg_match(
+        '/(?:INSERT\s+INTO|UPDATE|DELETE\s+FROM)\s+user_tbl\b/i',
+        $writer
+    )
+        && str_contains($writer, 'user_mutations=0'),
+    'writer cannot mutate user_tbl'
+);
+$report(
+    str_contains($writer, "lifecycle_state='dormant'")
+        && str_contains($writer, 'ODL_F2_ODL_SOURCE_NOT_DORMANT')
+        && str_contains($writer, 'ODL_F2_CHANGE_ID_REQUIRED'),
+    'writer preserves dormant lifecycle and requires change ID'
 );
 
 $output = [];
@@ -90,7 +121,7 @@ exec(
 );
 $report(
     $exitCode === 0
-        && in_array('RESULT checks=20 failed=0', $output, true),
+        && in_array('RESULT checks=22 failed=0', $output, true),
     'characterization fixture passes'
 );
 

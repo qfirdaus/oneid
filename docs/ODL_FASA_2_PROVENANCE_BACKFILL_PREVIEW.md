@@ -2,13 +2,13 @@
 
 **Tarikh:** 23 Julai 2026
 
-**Status:** `PREVIEW COMPLETE / OWNER DECISION REQUIRED / NO BACKFILL`
+**Status:** `PASS / CLOSED`
 
 ## 1. Skop
 
 Preview read-only menilai calon provenance bagi student source semasa
-`asisdb..v210_sso_student_aktif`. Source code sementara ialah
-`STUDENT_ASIS_ACTIVE` sehingga owner mengesahkan nama dan authoritative scope.
+`asisdb..v210_sso_student_aktif`. Owner mengesahkan source ini khusus
+undergraduate dan meluluskan source code `STUDENT_UG`.
 
 Preview:
 
@@ -82,31 +82,79 @@ Inactive OneID match dilaporkan berasingan dan Fasa 2 tidak mengubah
 ## 5. Verification
 
 ```text
-Characterization fixture: 20/20 PASS
-Static zero-mutation/runtime-wiring contract: 8/8 PASS
+Characterization fixture: 22/22 PASS
+Static zero-mutation/runtime-wiring/writer contract: 12/12 PASS
+Isolated transaction/rollback rehearsal: 2/2 PASS
 Live Preview: can_apply=false
 Raw identity in result: none
 Membership writes: 0
 User/profile/status writes: 0
 ```
 
-## 6. Keputusan diperlukan
+## 6. Keputusan owner
 
-Sebelum isolated backfill writer atau live backfill boleh disediakan:
+Owner mengesahkan `asisdb..v210_sso_student_aktif` ialah undergraduate sahaja,
+meluluskan source code `STUDENT_UG`, dan menerima exact Preview:
 
-1. Owner perlu mengesahkan sama ada
-   `asisdb..v210_sso_student_aktif` ialah:
-   - undergraduate sahaja; atau
-   - active student source yang lebih luas.
-2. Owner perlu meluluskan source code:
-   - `STUDENT_UG` jika view dijamin undergraduate sahaja; atau
-   - `STUDENT_ASIS_ACTIVE` jika scope lebih luas/tidak eksklusif.
-3. Owner perlu menerima exact Preview:
-   - 5,423 candidate memberships;
-   - zero blocking findings;
-   - 29 profile review findings yang tidak ditulis.
+- 5,423 candidate memberships;
+- zero blocking findings;
+- 29 profile review findings yang tidak ditulis.
 
-Tiada live backfill dibenarkan sebelum tiga keputusan ini direkodkan. Selepas
-approval, source registry masih perlu ditambah secara dormant dan backfill mesti
-melalui isolated transaction/rollback rehearsal serta exact-count
-reconciliation.
+Backfill masih mesti melalui isolated transaction/rollback rehearsal, fresh
+exact-count/digest guard dan post-commit reconciliation.
+
+## 7. Backfill execution
+
+**Change ID:** `ONEID-ODL-F2-20260723-01`
+
+Fresh Preview sebelum transaction tepat sepadan dengan approval:
+
+```text
+source_rows=5452
+candidate_memberships=5423
+blocking_findings=0
+review_findings=29
+plan_digest=5b5185e2a79d1b46127298fbd3f60303647cf69db71b19c4f0cc4c9b12a7874b
+```
+
+Writer menggunakan advisory lock, satu database transaction, exact
+count/digest guard dan post-insert reconciliation. Hasil:
+
+```text
+source=STUDENT_UG
+memberships_inserted=5423
+memberships_reconciled=5423
+user_mutations=0
+lifecycle=dormant
+```
+
+`STUDENT_ODL_PG` kekal `dormant` dengan zero membership.
+
+## 8. Post-backfill idempotency
+
+Preview selepas commit:
+
+```text
+existing_memberships=5423
+candidate_memberships=0
+membership_conflicts=0
+blocking_findings=0
+status=review
+```
+
+Ini membuktikan exact membership tidak dirancang semula. Profile-review groups
+kekal 29 dan tidak ditulis kepada `user_tbl`.
+
+## 9. Rollback
+
+Guarded rollback hanya dibenarkan jika `STUDENT_UG` masih dormant dan exact
+5,423 membership masih wujud:
+
+```bash
+ONEID_ODL_F2_CHANGE_ID=ONEID-ODL-F2-20260723-01 \
+php tools/odl_f2_provenance_backfill.php --rollback
+```
+
+Rollback memadam membership/source `STUDENT_UG` sahaja dan tidak mengubah
+`user_tbl`. Jangan jalankan selepas lifecycle berubah atau fasa source-aware
+bermula tanpa approval/reconciliation baharu.
