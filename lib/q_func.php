@@ -453,6 +453,60 @@ function string_sanitize($s) {
         echo json_encode($results);
       }
 
+      if(isset($_POST['admin_preview_odl_shadow'])){
+            try {
+                $shadowConfig = \OneId\App\Sync\Odl\OdlShadowPreviewConfig::fromPrivateRuntime();
+                $readPdo = new \PDO(DB_DSN, DB_USERNAME, DB_PASSWORD, [
+                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+                    \PDO::ATTR_EMULATE_PREPARES => false,
+                ]);
+                $shadowService = new \OneId\App\Sync\Odl\OdlShadowPreviewService(
+                    $shadowConfig,
+                    new \OneId\App\Sync\Odl\OdlStudentSource(
+                        \OneId\App\Sync\Odl\OdlSourceConfig::fromPrivateRuntime()
+                    ),
+                    new \OneId\App\Sync\Odl\UgStudentSource(),
+                    new \OneId\App\Sync\Odl\OdlShadowPreviewReader($readPdo),
+                    new \OneId\App\Sync\SourceAware\SourceAwareStudentPlanner(
+                        new \OneId\App\Sync\SourceAware\SourceAwareSafetyPolicy()
+                    )
+                );
+                echo json_encode($shadowService->preview());
+            } catch (\Throwable $exception) {
+                $correlationId = bin2hex(random_bytes(8));
+                $known = [
+                    'ODL_SHADOW_PREVIEW_DISABLED',
+                    'ODL_SHADOW_PREVIEW_FLAG_INVALID',
+                    'ODL_SHADOW_BASELINE_INVALID',
+                    'ODL_PDO_MYSQL_TLS_UNAVAILABLE',
+                    'ODL_SOURCE_CONNECTION_FAILED',
+                    'ODL_TLS_NOT_ACTIVE',
+                    'ODL_SOURCE_QUERY_FAILED',
+                    'ODBC_EXTENSION_UNAVAILABLE',
+                    'EXTERNAL_STUDENT_CONNECTION_FAILED',
+                    'EXTERNAL_STUDENT_QUERY_FAILED',
+                ];
+                $code = in_array($exception->getMessage(), $known, true)
+                    ? $exception->getMessage()
+                    : 'ODL_SHADOW_PREVIEW_FAILED';
+                error_log(sprintf(
+                    '[ONEID_ODL_SHADOW] correlation=%s exception=%s code=%s',
+                    $correlationId,
+                    get_class($exception),
+                    $code
+                ));
+                echo json_encode([
+                    'status' => 0,
+                    'mode' => 'odl_shadow_preview',
+                    'can_apply' => false,
+                    'code' => $code,
+                    'correlation_id' => $correlationId,
+                    'mutation_statements' => 0,
+                ]);
+            }
+      }
+
 
       if(isset( $_POST['admin_preview_sync_user'])){
             try {

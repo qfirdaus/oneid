@@ -606,6 +606,9 @@
                                                 <p id="sync_status_msg" class="text-muted text-center mt-10" style="display:none;"></p>
                                              </div>
                                              <div class="form-group">
+                                                <button id="btn_odl_shadow" class="btn btn-info btn-outline btn-block" type="button" onclick="preview_odl_shadow();"><i class="fa fa-eye"></i> ODL Shadow Preview (read-only)</button>
+                                             </div>
+                                             <div class="form-group">
                                                 <button class="btn  btn-primary btn-outline btn-block" type="button" onclick="pick_add_single_user();"><i class="fa fa-plus"></i> Manual Add User</button>
                                              </div>
                                           </div>
@@ -4037,6 +4040,57 @@
                complete: function(){
                   $('#btn_sync').prop('disabled', false).html('<i class="fa fa-search"></i> Preview external sync');
                   $('#sync_status_msg').hide().text('');
+               }
+            });
+         }
+
+         function preview_odl_shadow(){
+            $.ajax({
+               type: 'POST',
+               url: '../lib/q_func',
+               dataType: 'json',
+               data: {admin_preview_odl_shadow:''},
+               beforeSend: function(){
+                  $('#btn_odl_shadow').prop('disabled', true)
+                     .html('<i class="fa fa-spinner fa-spin"></i> Shadow preview...');
+               },
+               success: function(response){
+                  if(!response || response.status !== 1 || response.mode !== 'odl_shadow_preview'){
+                     var code = response && response.code ? response.code : 'ODL_SHADOW_PREVIEW_FAILED';
+                     swal('ODL Shadow Preview blocked', 'No data was changed. Code: ' + code, 'error');
+                     return;
+                  }
+                  var rows = response.source_rows || {};
+                  var metrics = response.metrics || {};
+                  var actionCounts = response.action_counts || {};
+                  var membershipCounts = actionCounts.membership || {};
+                  var accountCounts = actionCounts.account || {};
+                  var summary = 'ODL rows: ' + Number(rows.STUDENT_ODL_PG || 0)
+                     + '\nUG rows: ' + Number(rows.STUDENT_UG || 0)
+                     + '\nKeep membership: ' + Number(membershipCounts.KEEP_MEMBERSHIP_ACTIVE || 0)
+                     + '\nAdd membership: ' + Number(membershipCounts.ADD_MEMBERSHIP || 0)
+                     + '\nCandidate new: ' + Number(accountCounts.CANDIDATE_NEW || 0)
+                     + '\nCandidate deactivate: ' + Number(accountCounts.CANDIDATE_DEACTIVATE || 0)
+                     + '\nRisk: ' + String(response.risk_level || 'blocked')
+                     + '\nApply: DISABLED'
+                     + '\nMutation statements: ' + Number(response.mutation_statements || 0)
+                     + '\nDigest: ' + String(response.preview_digest || '-');
+                  var blocks = response.blocking_codes || [];
+                  if(blocks.length > 0){
+                     summary += '\nBlocking codes: ' + blocks.join(', ');
+                  }
+                  swal(
+                     'ODL Shadow Preview',
+                     summary,
+                     response.risk_level === 'normal' ? 'success' : 'warning'
+                  );
+               },
+               error: function(){
+                  swal('ODL Shadow Preview failed', 'No data was changed. Inspect the server correlation log.', 'error');
+               },
+               complete: function(){
+                  $('#btn_odl_shadow').prop('disabled', false)
+                     .html('<i class="fa fa-eye"></i> ODL Shadow Preview (read-only)');
                }
             });
          }

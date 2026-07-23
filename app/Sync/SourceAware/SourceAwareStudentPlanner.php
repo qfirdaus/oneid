@@ -45,12 +45,21 @@ final class SourceAwareStudentPlanner
                 foreach (['data1', 'data5', 'data6', 'data7'] as $field) {
                     $value = trim((string) ($row[$field] ?? ''));
                     if ($value !== '') {
-                        $profiles[$pair][$field][$value] = true;
+                        $profiles[$pair][$code][$field][$value] = true;
                     }
                 }
             }
         }
-        foreach ($profiles as $fields) {
+        foreach ($profiles as $sourceProfiles) {
+            if (count($sourceProfiles) < 2) {
+                continue;
+            }
+            $fields = [];
+            foreach ($sourceProfiles as $profile) {
+                foreach ($profile as $field => $values) {
+                    $fields[$field] = array_replace($fields[$field] ?? [], $values);
+                }
+            }
             foreach ($fields as $values) {
                 if (count($values) > 1) {
                     return $this->blocked($decision->metrics, 'STUDENT_PROFILE_CONFLICT');

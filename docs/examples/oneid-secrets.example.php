@@ -94,6 +94,9 @@ return [
     'ONEID_ODL_MYSQL_PASSWORD' => '',
     'ONEID_ODL_MYSQL_SSL_CA' => '',
     'ONEID_ODL_MYSQL_CONNECT_TIMEOUT' => '',
+    'ONEID_ODL_SHADOW_PREVIEW_ENABLED' => 'false',
+    'ONEID_ODL_SHADOW_ODL_BASELINE_ROWS' => '',
+    'ONEID_ODL_SHADOW_UG_BASELINE_ROWS' => '',
 
     // SKP source
     'ONEID_SKP_ODBC_DSN' => '',

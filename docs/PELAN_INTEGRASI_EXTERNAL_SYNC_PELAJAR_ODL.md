@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–4 ditutup; Fasa 5 source-aware planner siap secara dormant dan menunggu staging verification
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–5 ditutup; Fasa 6 Shadow Preview ODL lulus di WSL dan menunggu staging verification
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -946,7 +946,7 @@ Implementation evidence:
 Baseline WSL dan staging ialah 53 row status aktif `2`, digest sepadan, zero
 blocking/review findings, zero raw PII dan zero mutation.
 
-### Fasa 5 — Source-aware planner dan safety — `WSL READY / STAGING VERIFICATION PENDING`
+### Fasa 5 — Source-aware planner dan safety — `CLOSED`
 
 Aktiviti:
 
@@ -974,7 +974,7 @@ Implementation evidence:
 Planner kekal pure, dormant dan hanya menghasilkan safe Preview projection.
 Semua outage/anomaly menghasilkan zero membership/account action.
 
-### Fasa 6 — Shadow Preview ODL — `NOT STARTED`
+### Fasa 6 — Shadow Preview ODL — `WSL PASSED / STAGING VERIFICATION PENDING`
 
 Aktiviti:
 
@@ -992,6 +992,11 @@ Exit gate:
 - plan counts diluluskan untuk pilot.
 
 Rollback: disable ODL Preview gate; tiada data pengguna perlu dipulihkan.
+
+Implementation evidence:
+[`ODL_FASA_6_SHADOW_PREVIEW.md`](ODL_FASA_6_SHADOW_PREVIEW.md).
+Shadow Preview mempunyai endpoint/UI berasingan, aggregate-only response,
+feature gate private dan tiada approval atau Apply capability.
 
 ### Fasa 7 — Controlled Pilot Apply — `NOT AUTHORIZED`
 

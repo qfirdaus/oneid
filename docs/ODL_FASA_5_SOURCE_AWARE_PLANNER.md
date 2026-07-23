@@ -2,7 +2,7 @@
 
 **Tarikh:** 23 Julai 2026
 
-**Status:** `WSL READY / STAGING VERIFICATION PENDING`
+**Status:** `CLOSED — WSL AND STAGING TESTS PASSED`
 
 ## Skop siap
 
