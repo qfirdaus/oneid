@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–2 ditutup; Fasa 3 adapter ODL read-only ialah langkah seterusnya
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–2 ditutup; Fasa 3 adapter ODL read-only siap secara kod dan menunggu private runtime preflight
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -889,7 +889,7 @@ Owner mengesahkan `STUDENT_UG` dan meluluskan exact Preview. Backfill
 transactional selesai dengan 5,423 memberships, zero blocking identity finding,
 29 profile-variant review groups yang tidak ditulis, dan zero user mutation.
 
-### Fasa 3 — Adapter ODL read-only — `PREREQUISITES PARTIAL / IMPLEMENTATION NOT STARTED`
+### Fasa 3 — Adapter ODL read-only — `IMPLEMENTATION READY / RUNTIME PREFLIGHT PENDING`
 
 Aktiviti:
 
@@ -914,6 +914,14 @@ Exit gate:
 - tiada mutation pada OneID atau external DB.
 
 Rollback: disable/remove private configuration dan adapter wiring dormant.
+
+Implementation evidence:
+[`ODL_FASA_3_ADAPTER_READ_ONLY.md`](ODL_FASA_3_ADAPTER_READ_ONLY.md).
+Adapter, private configuration contract dan unit/contract tests telah tersedia
+secara dormant. Ia belum disambungkan kepada Preview, Apply atau scheduler.
+Exit gate connection/fixed-view read masih menunggu tujuh nilai private runtime,
+termasuk password dan CA TLS, kemudian pelaksanaan
+`php tools/odl_f3_runtime_preflight.php` dari OneID UAT.
 
 ### Fasa 4 — ODL data-quality audit — `FEASIBILITY BASELINE PARTIAL / NOT STARTED`
 

@@ -86,6 +86,15 @@ return [
     'ONEID_STUDENT_LOOKUP_ODBC_USERNAME' => '',
     'ONEID_STUDENT_LOOKUP_ODBC_PASSWORD' => '',
 
+    // ODL Postgraduate MySQL source (private runtime only)
+    'ONEID_ODL_MYSQL_HOST' => '',
+    'ONEID_ODL_MYSQL_PORT' => '',
+    'ONEID_ODL_MYSQL_DATABASE' => '',
+    'ONEID_ODL_MYSQL_USERNAME' => '',
+    'ONEID_ODL_MYSQL_PASSWORD' => '',
+    'ONEID_ODL_MYSQL_SSL_CA' => '',
+    'ONEID_ODL_MYSQL_CONNECT_TIMEOUT' => '',
+
     // SKP source
     'ONEID_SKP_ODBC_DSN' => '',
     'ONEID_SKP_ODBC_USERNAME' => '',

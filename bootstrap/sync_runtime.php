@@ -42,6 +42,8 @@ foreach ([
     'app/Sync/Adapters/LegacySyncPolicy.php',
     'app/Sync/Adapters/SecureInitialPasswordFactory.php',
     'app/Sync/Adapters/SessionSyncApprovalStore.php',
+    'app/Sync/Odl/OdlSourceConfig.php',
+    'app/Sync/Odl/OdlStudentSource.php',
     'app/Sync/SyncEngineFactory.php',
 ] as $oneidSyncFile) {
     require_once $oneidSyncRoot . '/' . $oneidSyncFile;
