@@ -629,7 +629,7 @@
             <div class="modal-dialog modal-lg oneid-sync-preview-dialog">
                <div class="modal-content">
                   <div class="modal-header">
-                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                     <button type="button" class="close oneid-return-add-user-options" data-dismiss="modal" aria-hidden="true">×</button>
                      <h5 class="modal-title" id="aria_modal_add_new_single_user">External Sync Preview (Read-only)</h5>
                   </div>
                   <form id="form_add_new_category">
@@ -703,7 +703,7 @@
                         <button type="button" id="btn_apply_sync_pilot" class="btn btn-danger waves-effect" style="display:none">Apply controlled pilot (2 New + 1 Update)</button>
                         <button type="button" id="btn_apply_sync_full" class="btn btn-danger waves-effect" style="display:none" disabled>Apply approved full sync</button>
                         <button type="button" id="btn_apply_sync_operational" class="btn btn-primary waves-effect" style="display:none" disabled>Apply operational sync</button>
-                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-default waves-effect oneid-return-add-user-options" data-dismiss="modal">Close</button>
                      </div>
                   </form>
                </div>
@@ -715,7 +715,7 @@
             <div class="modal-dialog modal-lg oneid-sync-preview-dialog">
                <div class="modal-content">
                   <div class="modal-header">
-                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                     <button type="button" class="close oneid-return-add-user-options" data-dismiss="modal" aria-hidden="true">×</button>
                      <h5 class="modal-title" id="aria_modal_odl_shadow_preview">ODL External Sync — Read Only Shadow Preview</h5>
                   </div>
                   <div class="modal-body">
@@ -742,7 +742,7 @@
                      </div>
                   </div>
                   <div class="modal-footer">
-                     <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                     <button type="button" class="btn btn-default waves-effect oneid-return-add-user-options" data-dismiss="modal">Close</button>
                   </div>
                </div>
             </div>
@@ -751,7 +751,7 @@
             <div class="modal-dialog">
                <div class="modal-content">
                   <div class="modal-header">
-                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                     <button type="button" class="close oneid-return-add-user-options" data-dismiss="modal" aria-hidden="true">×</button>
                      <h5 class="modal-title" id="aria_modal_add_new_user_manual">Add User - Manual</h5>
                   </div>
                   <form id="form_add_new_user_manual">
@@ -850,7 +850,7 @@
                         </div>
                      </div>
                      <div class="modal-footer">
-                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-default waves-effect oneid-return-add-user-options" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-primary waves-effect">Add</button>
                      </div>
                   </form>
@@ -3798,6 +3798,22 @@
          $(".add_new_manual_user_input").prop('disabled', false);
          $(".add_new_manual_user_input_loading_text").hide();
          }
+
+         $(document).on('click', '.oneid-return-add-user-options', function(){
+            $(this).closest('.modal').data('return-add-user-options', true);
+         });
+
+         $('#modal_add_new_single_user, #modal_odl_shadow_preview, #modal_add_new_user_manual')
+            .on('hidden.bs.modal', function(){
+               var childModal = $(this);
+               if(childModal.data('return-add-user-options') !== true){
+                  return;
+               }
+               childModal.removeData('return-add-user-options');
+               window.setTimeout(function(){
+                  $('#modal_open_add_user_option').modal('show');
+               }, 100);
+            });
          
          function pick_preview_sync_user(){
             var pilotApprovalId = '';
