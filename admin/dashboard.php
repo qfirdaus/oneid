@@ -5303,6 +5303,21 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-23",
+      changes: [
+        "External Sync kini dipisahkan kepada Summary, Staff, Undergraduate dan ODL supaya status serta tindakan setiap sumber tidak bercampur.",
+        "Staff dan Undergraduate menggunakan Preview serta Operational Apply berasingan yang diikat kepada source, one-time approval dan fresh writer plan sebelum transaksi.",
+        "Planner mengehadkan active-user scope mengikut kategori sumber supaya Apply Staff tidak mencadangkan deactivation UG dan Apply UG tidak menyentuh Staff.",
+        "ODL Postgregraduate diperkenalkan melalui provenance schema, source STUDENT_ODL_PG, adapter MySQL read-only, TLS fail-closed, data-quality audit dan source-aware safety planner.",
+        "ODL External Sync kekal Read Only Shadow Preview; Apply, mutation dan automatic scheduler ODL masih disabled.",
+        "Parent modal memaparkan badge tindakan hanya apabila terdapat New, Update, Reactivate, Deactivate, calon ODL atau source yang memerlukan semakan.",
+        "Preview modal diperluas, paparan source diseragamkan dan penutupan child modal kembali kepada pilihan External Sync atau Manual Add User.",
+        "Endpoint external lama yang dikuarantin kekal tidak boleh digunakan dan semua external database reads melalui polisi read-only.",
+        "Had request, verification dan lockout OTP e-mel Admin 2FA kini boleh dikonfigurasi melalui private runtime tanpa mendedahkan secret."
+      ]
+    },
+    {
+      version: "2.5.4",
       date: "2026-07-22",
       changes: [
         "Admin Step-Up 2FA kini melindungi akses Administrator dan perubahan konfigurasi sensitif menggunakan OTP e-mel atau Microsoft Authenticator.",
