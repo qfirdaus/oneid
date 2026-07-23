@@ -94,7 +94,10 @@ final class SourceScopedSyncPersistenceAdapter implements SyncPersistenceInterfa
     ): void {
         $userId = (string) ($row['data4'] ?? '');
         if ($this->assertWritableIdentity !== null) {
-            ($this->assertWritableIdentity)($userId);
+            ($this->assertWritableIdentity)(
+                $userId,
+                (string) ($row['data2'] ?? '')
+            );
         }
         $this->inner->insertExternalUser($row, $categoryId, $passwordHash, $changeHash);
         if ($this->recordMembership !== null) {

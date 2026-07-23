@@ -25,7 +25,8 @@ final class SyncPreviewService
         private SyncPlanner $planner,
         private int $expirySeconds = 300,
         private float $deactivationThresholdPercent = 5.0,
-        ?SyncSafetyPolicy $safetyPolicy = null
+        ?SyncSafetyPolicy $safetyPolicy = null,
+        private ?\Closure $externalRowsValidator = null
     ) {
         $this->safetyPolicy = $safetyPolicy
             ?? new SyncSafetyPolicy($this->deactivationThresholdPercent);
@@ -115,6 +116,9 @@ final class SyncPreviewService
         $externalRows = $this->source->fetchAll();
         if ($externalRows === []) {
             throw new RuntimeException('EMPTY_EXTERNAL_SNAPSHOT');
+        }
+        if ($this->externalRowsValidator !== null) {
+            ($this->externalRowsValidator)($externalRows);
         }
 
         $activeUsers = $this->persistence->activeUsers();

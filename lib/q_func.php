@@ -514,6 +514,11 @@ function string_sanitize($s) {
                 $syncScope = \OneId\App\Sync\SyncSourceScope::fromCode(
                     trim((string) ($_POST['sync_source_code'] ?? ''))
                 );
+                $isOdlOperational = $syncScope->sourceCode
+                    === \OneId\App\Sync\Odl\OdlStudentSource::SOURCE_CODE;
+                $odlOperationalConfig = $isOdlOperational
+                    ? \OneId\App\Sync\Odl\OdlOperationalConfig::fromPrivateRuntime()
+                    : null;
                 $syncPersistence = new \OneId\App\Sync\Adapters\SourceScopedSyncPersistenceAdapter(
                     new \OneId\App\Sync\Adapters\DatabaseSyncPersistenceAdapter($operation),
                     $syncScope->categoryIds,
@@ -539,13 +544,21 @@ function string_sanitize($s) {
                     $syncScope->source,
                     $syncPersistence,
                     new \OneId\App\Sync\SyncPlanner(
-                        new \OneId\App\Sync\Adapters\LegacySyncPolicy()
+                        new \OneId\App\Sync\Adapters\LegacySyncPolicy(),
+                        $syncScope->preserveExistingEmailOnBlank
                     ),
                     300,
                     5.0,
                     new \OneId\App\Sync\SyncSafetyPolicy(
                         requiredSourceCode: $syncScope->sourceCode
-                    )
+                    ),
+                    $isOdlOperational
+                        ? fn(array $rows) =>
+                            $operation->sync_assert_source_snapshot_isolated(
+                                $rows,
+                                $syncScope->sourceCode
+                            )
+                        : null
                 );
                 $baseline = $syncScope->baselineRows;
                 $pilotConfig = \OneId\App\Sync\SyncPilotConfig::fromEnvironment();
@@ -615,6 +628,8 @@ function string_sanitize($s) {
                     && !$pilotConfig->enabled
                     && !$fullConfig->enabled
                     && $runtimeConfig->canApply()
+                    && (!$isOdlOperational
+                        || $odlOperationalConfig->applyEnabled)
                     && ($previewResponse['approval_ready'] ?? false) === true
                     && !$operationalHardBlocked
                     && array_sum($previewCounts) > 0;
@@ -647,6 +662,11 @@ function string_sanitize($s) {
                     'EXTERNAL_STUDENT_EMPTY',
                     'SYNC_SOURCE_INVALID',
                     'SYNC_SOURCE_BASELINE_INVALID',
+                    'ODL_OPERATIONAL_PREVIEW_DISABLED',
+                    'ODL_OPERATIONAL_FLAG_INVALID',
+                    'ODL_OPERATIONAL_FLAG_COMBINATION_INVALID',
+                    'SYNC_CROSS_SOURCE_IDENTITY_COLLISION',
+                    'SYNC_SOURCE_MEMBERSHIP_CONFLICT',
                 ];
                 $diagnosticCode = in_array($exception->getMessage(), $knownPreviewCodes, true)
                     ? $exception->getMessage()
@@ -672,6 +692,12 @@ function string_sanitize($s) {
             try {
                 $syncSourceCode = trim((string) ($_POST['sync_source_code'] ?? ''));
                 \OneId\App\Sync\SyncSourceScope::fromCode($syncSourceCode);
+                if ($syncSourceCode
+                    === \OneId\App\Sync\Odl\OdlStudentSource::SOURCE_CODE
+                ) {
+                    \OneId\App\Sync\Odl\OdlOperationalConfig::fromPrivateRuntime()
+                        ->assertApplyEnabled();
+                }
                 $runtimeConfig = \OneId\App\Sync\SyncRuntimeConfig::fromEnvironment();
                 $pilotConfig = \OneId\App\Sync\SyncPilotConfig::fromEnvironment();
                 $fullConfig = \OneId\App\Sync\SyncFullConfig::fromEnvironment();
@@ -764,6 +790,9 @@ function string_sanitize($s) {
                     'SYNC_DATABASE_WRITE_FAILED',
                     'SYNC_SOURCE_INVALID',
                     'SYNC_SOURCE_BASELINE_INVALID',
+                    'ODL_OPERATIONAL_APPLY_DISABLED',
+                    'ODL_OPERATIONAL_FLAG_INVALID',
+                    'ODL_OPERATIONAL_FLAG_COMBINATION_INVALID',
                 ];
                 $diagnosticCode = in_array($exception->getMessage(), $knownOperationalCodes, true)
                     ? $exception->getMessage()

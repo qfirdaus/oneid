@@ -12,7 +12,10 @@ use OneId\App\Sync\DTO\SyncPlan;
  */
 final class SyncPlanner
 {
-    public function __construct(private SyncPolicyInterface $policy)
+    public function __construct(
+        private SyncPolicyInterface $policy,
+        private bool $preserveExistingEmailOnBlank = false
+    )
     {
     }
 
@@ -174,6 +177,12 @@ final class SyncPlanner
         foreach ($matchedSso as $update) {
             $old = $ssoByUid[$update['u_id']] ?? null;
             if ($old) {
+                if ($this->preserveExistingEmailOnBlank
+                    && trim((string) ($update['data5'] ?? '')) === ''
+                    && trim((string) ($old['data5'] ?? '')) !== ''
+                ) {
+                    $update['data5'] = $old['data5'];
+                }
                 $changedFields = SyncDataTransformer::getChangedFields($old, $update);
                 if ($changedFields !== '') {
                     $fields = explode(',', $changedFields);

@@ -11,14 +11,14 @@ $adapter = (string) file_get_contents(
     $root . '/app/Sync/Adapters/SourceScopedSyncPersistenceAdapter.php'
 );
 $checks = [
-    'UI routes Staff and UG to guarded preview and Apply flow' =>
+    'UI routes Staff UG and ODL to guarded preview and Apply flow' =>
         str_contains($ui, "pick_preview_sync_user('STAFF_HR')")
         && str_contains($ui, "pick_preview_sync_user('STUDENT_UG')")
+        && str_contains($ui, "pick_preview_sync_user('STUDENT_ODL_PG')")
         && str_contains($ui, 'sync_source_code:sourceCode')
         && str_contains($ui, 'sync_source_code: sourceCode'),
-    'Summary and ODL remain on read-only shadow preview' =>
-        str_contains($ui, "preview_external_sync_view('SUMMARY')")
-        && str_contains($ui, "preview_external_sync_view('STUDENT_ODL_PG')"),
+    'Summary remains on aggregate read-only shadow preview' =>
+        str_contains($ui, "preview_external_sync_view('SUMMARY')"),
     'preview and every Apply endpoint require a source scope' =>
         substr_count($q, 'SyncSourceScope::fromCode(') === 4
         && substr_count($q, '$syncSourceCode') >= 9,
@@ -26,9 +26,10 @@ $checks = [
         str_contains($factory, 'buildSafeOrchestrator(null, $sourceCode)')
         && str_contains($factory, 'buildSafeOrchestrator($selector, $sourceCode)')
         && str_contains($factory, 'SyncSourceScope::fromCode($sourceCode)'),
-    'only Staff and UG sources are accepted' =>
+    'Staff UG and ODL sources are accepted' =>
         str_contains($scope, 'StaffSource::SOURCE_CODE')
         && str_contains($scope, 'UgStudentSource::SOURCE_CODE')
+        && str_contains($scope, 'OdlStudentSource::SOURCE_CODE')
         && str_contains($scope, "SYNC_SOURCE_INVALID"),
     'planner reads are category and provenance scoped before deactivation decisions' =>
         str_contains($adapter, 'in_array(')

@@ -110,7 +110,10 @@ final class SyncEngineFactory
             $persistence,
             new DatabaseSyncReconciliationReader($this->operation),
             new DatabaseSyncRunLock($this->operation),
-            new SyncPlanner(new LegacySyncPolicy()),
+            new SyncPlanner(
+                new LegacySyncPolicy(),
+                $sourceCode === \OneId\App\Sync\Odl\OdlStudentSource::SOURCE_CODE
+            ),
             new SyncSafetyPolicy(
                 requiredSourceCode: $sourceCode
             ),
@@ -147,9 +150,9 @@ final class SyncEngineFactory
                         )
                     : null,
                 $provenanceEnforced
-                    ? fn(string $userId) =>
+                    ? fn(string $userId,string $identityNumber) =>
                         $this->operation->sync_assert_source_identity_writable(
-                            $userId, $scope->sourceCode
+                            $userId, $scope->sourceCode, $identityNumber
                         )
                     : null,
                 $provenanceEnforced

@@ -55,6 +55,7 @@ foreach ([
     'app/Sync/Provenance/StaffProvenancePreview.php',
     'app/Sync/Odl/OdlDataQualityAudit.php',
     'app/Sync/Odl/OdlSourceConfig.php',
+    'app/Sync/Odl/OdlOperationalConfig.php',
     'app/Sync/Odl/OdlStudentSource.php',
     'app/Sync/Odl/OdlShadowPreviewConfig.php',
     'app/Sync/Odl/UgStudentSource.php',

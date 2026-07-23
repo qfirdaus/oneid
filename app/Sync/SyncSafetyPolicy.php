@@ -66,7 +66,10 @@ final class SyncSafetyPolicy
             $blocking[] = 'STAFF_SOURCE_MISSING';
         }
         if (($this->requiredSourceCode === null
-                || $this->requiredSourceCode === 'STUDENT_UG')
+                || in_array($this->requiredSourceCode, [
+                    'STUDENT_UG',
+                    'STUDENT_ODL_PG',
+                ], true))
             && $studentRows === 0
         ) {
             $blocking[] = 'STUDENT_SOURCE_MISSING';

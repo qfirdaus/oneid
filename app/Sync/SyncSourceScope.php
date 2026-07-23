@@ -4,6 +4,9 @@ namespace OneId\App\Sync;
 
 use OneId\App\Sync\Contracts\ExternalUserSourceInterface;
 use OneId\App\Sync\Odl\StaffSource;
+use OneId\App\Sync\Odl\OdlOperationalConfig;
+use OneId\App\Sync\Odl\OdlSourceConfig;
+use OneId\App\Sync\Odl\OdlStudentSource;
 use OneId\App\Sync\Odl\UgStudentSource;
 
 final class SyncSourceScope
@@ -14,7 +17,8 @@ final class SyncSourceScope
         public readonly ExternalUserSourceInterface $source,
         public readonly array $categoryIds,
         public readonly int $baselineRows,
-        public readonly bool $provenanceEnforced
+        public readonly bool $provenanceEnforced,
+        public readonly bool $preserveExistingEmailOnBlank
     ) {}
 
     public static function fromCode(string $sourceCode): self
@@ -29,6 +33,11 @@ final class SyncSourceScope
                 new UgStudentSource(),
                 [10, 11, 12],
                 'ONEID_ODL_SHADOW_UG_BASELINE_ROWS',
+            ],
+            OdlStudentSource::SOURCE_CODE => [
+                self::odlSource(),
+                [10],
+                'ONEID_ODL_SHADOW_ODL_BASELINE_ROWS',
             ],
             default => throw new \RuntimeException('SYNC_SOURCE_INVALID'),
         };
@@ -49,8 +58,16 @@ final class SyncSourceScope
             $categories,
             (int) $rawBaseline,
             $sourceCode === UgStudentSource::SOURCE_CODE
+                || $sourceCode === OdlStudentSource::SOURCE_CODE
                 || ($sourceCode === StaffSource::SOURCE_CODE
-                    && $staffProvenance === 'true')
+                    && $staffProvenance === 'true'),
+            $sourceCode === OdlStudentSource::SOURCE_CODE
         );
+    }
+
+    private static function odlSource(): OdlStudentSource
+    {
+        OdlOperationalConfig::fromPrivateRuntime()->assertPreviewEnabled();
+        return new OdlStudentSource(OdlSourceConfig::fromPrivateRuntime());
     }
 }

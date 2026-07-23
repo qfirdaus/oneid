@@ -491,17 +491,30 @@ class Database {
         return $R->fetchAll(PDO::FETCH_COLUMN, 0) ?: [];
     }
 
-    public function sync_assert_source_identity_writable(string $userId,string $sourceCode){
+    public function sync_assert_source_identity_writable(
+        string $userId,string $sourceCode,string $identityNumber=''
+    ){
+        $normalizedIdentity=preg_replace('/[\\s\\p{Pd}]+/u','',trim($identityNumber))
+            ?:trim($identityNumber);
         $Q = "SELECT u.u_id,
                      SUM(i.source_code=:source_code) AS same_source
               FROM user_tbl u
               LEFT JOIN user_external_identity i ON i.u_id=u.u_id
-              WHERE u.u_id=:u_id GROUP BY u.u_id FOR UPDATE";
+              WHERE u.u_id=:u_id
+                 OR (:identity_nonempty<>'' AND
+                     REPLACE(REPLACE(TRIM(u.data2),'-',''),' ','')=:identity_value)
+              GROUP BY u.u_id FOR UPDATE";
         $R = $this->pdo->prepare($Q);
-        $R->execute([':u_id'=>$userId,':source_code'=>$sourceCode]);
-        $row=$R->fetch(PDO::FETCH_ASSOC);
-        if($row!==false&&(int)$row['same_source']<1){
-            throw new RuntimeException('SYNC_CROSS_SOURCE_IDENTITY_COLLISION');
+        $R->execute([
+            ':u_id'=>$userId,
+            ':source_code'=>$sourceCode,
+            ':identity_nonempty'=>$normalizedIdentity,
+            ':identity_value'=>$normalizedIdentity,
+        ]);
+        foreach($R->fetchAll(PDO::FETCH_ASSOC) as$row){
+            if((int)$row['same_source']<1){
+                throw new RuntimeException('SYNC_CROSS_SOURCE_IDENTITY_COLLISION');
+            }
         }
         $Q = "SELECT u_id FROM user_external_identity
               WHERE source_code=:source_code AND external_user_id=:external_user_id
@@ -514,6 +527,46 @@ class Database {
         $owner=$R->fetchColumn();
         if($owner!==false&&!hash_equals((string)$owner,$userId)){
             throw new RuntimeException('SYNC_SOURCE_MEMBERSHIP_CONFLICT');
+        }
+    }
+
+    public function sync_assert_source_snapshot_isolated(array $rows,string $sourceCode){
+        $identityQuery=$this->pdo->prepare(
+             "SELECT COUNT(*) FROM user_tbl u
+             WHERE (u.u_id=:u_id OR
+                    (:identity_nonempty<>'' AND
+                     REPLACE(REPLACE(TRIM(u.data2),'-',''),' ','')=:identity_value))
+               AND NOT EXISTS(
+                   SELECT 1 FROM user_external_identity i
+                   WHERE i.u_id=u.u_id AND i.source_code=:source_code
+               )"
+        );
+        $membershipQuery=$this->pdo->prepare(
+            "SELECT u_id FROM user_external_identity
+             WHERE source_code=:source_code AND external_user_id=:external_user_id"
+        );
+        foreach($rows as$row){
+            $userId=trim((string)($row['data4']??''));
+            $identity=preg_replace(
+                '/[\\s\\p{Pd}]+/u','',trim((string)($row['data2']??''))
+            )?:trim((string)($row['data2']??''));
+            $identityQuery->execute([
+                ':u_id'=>$userId,
+                ':identity_nonempty'=>$identity,
+                ':identity_value'=>$identity,
+                ':source_code'=>$sourceCode,
+            ]);
+            if((int)$identityQuery->fetchColumn()>0){
+                throw new RuntimeException('SYNC_CROSS_SOURCE_IDENTITY_COLLISION');
+            }
+            $membershipQuery->execute([
+                ':source_code'=>$sourceCode,
+                ':external_user_id'=>$userId,
+            ]);
+            $owner=$membershipQuery->fetchColumn();
+            if($owner!==false&&!hash_equals((string)$owner,$userId)){
+                throw new RuntimeException('SYNC_SOURCE_MEMBERSHIP_CONFLICT');
+            }
         }
     }
 

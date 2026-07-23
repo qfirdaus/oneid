@@ -612,7 +612,7 @@
                                                 <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="pick_preview_sync_user('STUDENT_UG');"><i class="fa fa-graduation-cap"></i> Undergraduate External Sync <span id="external_notice_ug" class="external-action-notice" style="display:none"></span></button>
                                              </div>
                                              <div class="form-group">
-                                                <button class="btn btn-info btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="preview_external_sync_view('STUDENT_ODL_PG');"><i class="fa fa-eye"></i> ODL External Sync (Read Only Shadow Preview) <span id="external_notice_odl" class="external-action-notice" style="display:none"></span></button>
+                                                <button class="btn btn-info btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="pick_preview_sync_user('STUDENT_ODL_PG');"><i class="fa fa-refresh"></i> ODL External Sync <span id="external_notice_odl" class="external-action-notice" style="display:none"></span></button>
                                              </div>
                                              <div class="form-group">
                                                 <button class="btn  btn-primary btn-outline btn-block" type="button" onclick="pick_add_single_user();"><i class="fa fa-plus"></i> Manual Add User</button>
@@ -3895,7 +3895,8 @@
          function pick_preview_sync_user(sourceCode){
             var sourceLabels = {
                STAFF_HR: 'Staff External Sync',
-               STUDENT_UG: 'Undergraduate External Sync'
+               STUDENT_UG: 'Undergraduate External Sync',
+               STUDENT_ODL_PG: 'ODL External Sync'
             };
             if(!sourceLabels[sourceCode]){
                return;
