@@ -37,7 +37,8 @@ $r($blocked(fn()=>(new OdlFullPlanner())->plan(
  [['u_id'=>'O1','source_code'=>'STUDENT_ODL_PG','external_user_id'=>'O1','source_active'=>1]],
  $config
 ))==='ODL_FULL_CROSS_SOURCE_IDENTITY_CONFLICT','identity conflict blocks');
-$r($blocked(fn()=>OdlFullConfig::fromValues('true','true','3','2','1'))==='ODL_FULL_APPLY_NOT_AUTHORIZED','Apply flag cannot be enabled');
+$r($blocked(fn()=>OdlFullConfig::fromValues('false','true','3','2','1'))==='ODL_FULL_FLAG_COMBINATION_INVALID','Apply cannot run without Preview');
+$r(OdlFullConfig::fromValues('true','true','3','2','1')->applyEnabled,'authorized Apply config is explicit');
 $r($blocked(fn()=>(new OdlFullPlanner())->plan(
  [$row('O1','IC1'),$row('O2','IC2'),$row('O3','IC3')],
  [['u_id'=>'O1','data2'=>'IC1','account_source'=>'external','sync_protected'=>0]],

@@ -33,7 +33,9 @@ final class OdlFullConfig
         foreach([$preview,$apply]as$flag)if(!in_array($flag,['true','false'],true)){
             throw new \RuntimeException('ODL_FULL_FLAG_INVALID');
         }
-        if($apply==='true')throw new \RuntimeException('ODL_FULL_APPLY_NOT_AUTHORIZED');
+        if($apply==='true'&&$preview!=='true'){
+            throw new \RuntimeException('ODL_FULL_FLAG_COMBINATION_INVALID');
+        }
         $values=[];
         foreach([$sourceRows,$new,$keep]as$raw){
             if(preg_match('/^(?:0|[1-9][0-9]*)$/',$raw)!==1){
@@ -41,6 +43,6 @@ final class OdlFullConfig
             }
             $values[]=(int)$raw;
         }
-        return new self($preview==='true',false,...$values);
+        return new self($preview==='true',$apply==='true',...$values);
     }
 }

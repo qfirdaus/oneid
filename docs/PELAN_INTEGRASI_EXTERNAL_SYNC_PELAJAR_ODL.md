@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–7 `PASS / CLOSED`; Fasa 8 `FULL PREVIEW READY / APPLY NOT AUTHORIZED`
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–7 `PASS / CLOSED`; Fasa 8 `FULL APPLY COMPLETE / CLOSURE PENDING`
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -1040,7 +1040,7 @@ disabled dan private allowlist dikosongkan; scheduler, Full Apply dan production
 kekal tidak dibenarkan. Rujuk
 [`ODL_FASA_7_CONTROLLED_PILOT_IMPLEMENTATION.md`](ODL_FASA_7_CONTROLLED_PILOT_IMPLEMENTATION.md).
 
-### Fasa 8 — Controlled Full Apply — `FULL PREVIEW READY / APPLY NOT AUTHORIZED`
+### Fasa 8 — Controlled Full Apply — `FULL APPLY COMPLETE / CLOSURE PENDING`
 
 Cross-source isolation hardening telah ditutup `PASS / CLOSED` sebelum Fasa 8
 diberi authorization. Implementation dan aggregate-only Preview disediakan di
@@ -1070,7 +1070,17 @@ mutation. Plan hash ialah
 `4215ca6cae2b56374a4c3df591483b8dc076fc78a51a9f4336c84f544255ac17`;
 Preview digest ialah
 `f3cfc6855a01769490eba24dee1ea696d58a23527d45fbacd73a70110b03529e`.
-Full Apply masih memerlukan authorization exact-plan yang berasingan. Rujuk
+Exact-plan Full Apply telah diluluskan di bawah
+`ONEID-ODL-F8-20260724-01`, backup
+`ONEID-UAT-BACKUP-20260724-01`, untuk change window 24 Julai 2026,
+12:30 AM–1:00 AM MYT. One-shot Apply menghasilkan tepat 50 user, 50
+`STUDENT_ODL_PG` membership dan 50 audit event dengan correlation
+`fd405ef23c4ff844`; tindakan lain sifar. Independent reconciliation mengesahkan
+active source scope Staff 1061, UG 5423 dan ODL 53. Post-Apply Shadow Preview
+menunjukkan semua 53 ODL sebagai `KEEP`, zero candidate baharu dan zero block.
+Apply flag dikembalikan kepada disabled; automatic scheduler dan production
+kekal tidak dibenarkan. Observation, login/ACL smoke test dan approval closure
+masih diperlukan. Rujuk
 [`ODL_FASA_8_CONTROLLED_FULL_PREVIEW.md`](ODL_FASA_8_CONTROLLED_FULL_PREVIEW.md).
 
 Exit gate:

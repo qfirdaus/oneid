@@ -1,14 +1,14 @@
-# ODL Fasa 8 — Controlled Full Preview
+# ODL Fasa 8 — Controlled Full Apply
 
-**Status:** `FULL PREVIEW READY / APPLY NOT AUTHORIZED`
+**Status:** `FULL APPLY COMPLETE / OBSERVATION AND CLOSURE PENDING`
 
 **Environment:** UAT
 
 ## Boundary
 
-Fasa ini membenarkan implementation dan read-only Full Preview sahaja. Full
-Apply, automatic scheduler, production dan semua user mutation tidak
-dibenarkan.
+Implementation bermula sebagai read-only Full Preview. Exact-plan Full Apply
+kemudiannya dibenarkan untuk UAT, sumber `STUDENT_ODL_PG` dan tindakan `NEW`
+sahaja. Automatic scheduler dan production kekal tidak dibenarkan.
 
 Expected snapshot dikunci kepada:
 
@@ -44,6 +44,30 @@ preview digest=f3cfc6855a01769490eba24dee1ea696d58a23527d45fbacd73a70110b03529e
 snapshot sha256=4a10fa94920dd02211035b9eb32e31d83c77cc0430605fed32b5e0913bef34f1
 ```
 
-Characterization `7/7` dan Full Preview contract `10/10` lulus. Apply config
-ditolak walaupun cuba ditetapkan `true`; tiada web endpoint atau scheduler
-diwiring.
+## Controlled Full Apply evidence
+
+Authorization:
+
+```text
+change reference=ONEID-ODL-F8-20260724-01
+backup reference=ONEID-UAT-BACKUP-20260724-01
+change window=24 Julai 2026, 12:30 AM–1:00 AM MYT
+allowed action=NEW sahaja
+```
+
+One-shot Apply pada 24 Julai 2026 menghasilkan:
+
+```text
+correlation=fd405ef23c4ff844
+new users=50
+ODL memberships=50
+audit events=50
+other actions=0
+post-Apply active scope: STAFF_HR=1061, STUDENT_UG=5423, STUDENT_ODL_PG=53
+```
+
+Independent reconciliation sepadan `50/50/50`. Post-Apply Shadow Preview
+menunjukkan kesemua 53 ODL sebagai `KEEP`, zero candidate baharu, zero blocking
+code dan zero mutation. Apply flag dikembalikan kepada `false` selepas one-shot;
+tiada web Apply endpoint atau scheduler diwiring. Fasa memerlukan observation,
+login/ACL smoke test dan approval closure pemilik.

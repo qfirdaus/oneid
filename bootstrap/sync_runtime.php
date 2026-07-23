@@ -43,6 +43,7 @@ foreach ([
     'app/Sync/Adapters/ExternalApiUserSource.php',
     'app/Sync/Adapters/DatabaseSyncPersistenceAdapter.php',
     'app/Sync/Adapters/PdoOdlPilotPersistenceAdapter.php',
+    'app/Sync/Adapters/PdoOdlFullPersistenceAdapter.php',
     'app/Sync/Adapters/SourceScopedSyncPersistenceAdapter.php',
     'app/Sync/Adapters/DatabaseSyncReconciliationReader.php',
     'app/Sync/Adapters/DatabaseSyncRunLock.php',
