@@ -1,6 +1,6 @@
 # Cross-source isolation hardening
 
-**Status:** `BACKFILL RECONCILED / CLOSURE PENDING`
+**Status:** `PASS / CLOSED`
 
 **Environment:** UAT
 
@@ -86,4 +86,23 @@ STUDENT_ODL_PG=3
 Staff actions=0
 UG actions=0
 ODL=50 candidate new / 3 keep
+```
+
+## Closure
+
+Staging UI Preview mengesahkan Staff dan UG masing-masing mempunyai zero action,
+ODL mempunyai `50 candidate new / 3 keep`, semua source mempunyai zero
+deactivation, risk normal dan zero blocking code. Protected manual account
+kekal sebagai collision guard dan bukan mutation target.
+
+```text
+Cross-source isolation verification: PASS
+STAFF_HR scope: 1061
+STUDENT_UG scope: 5423
+STUDENT_ODL_PG scope: 3
+Manual protected isolation: PASS
+Decision: PASS / CLOSED
+Approver: Firdaus, System Analyst/DBA
+Approval date: 24 Julai 2026
+Evidence reference: ONEID-SOURCE-ISOLATION-20260723-01
 ```
