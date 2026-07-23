@@ -65,7 +65,9 @@ Preview tanpa mutation.
 - endpoint external lama yang dikuarantin kekal tidak boleh dicapai;
 - read external source kekal melalui polisi query read-only;
 - had request, verification dan lockout OTP e-mel Admin 2FA boleh ditetapkan
-  melalui private runtime configuration.
+  melalui private runtime configuration;
+- refresh halaman admin selepas grant Administrator tamat membersihkan sesi
+  lokal dan redirect ke login tanpa memaparkan respons guard berbentuk teks.
 
 ## Hasil semakan WSL
 
