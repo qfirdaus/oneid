@@ -479,6 +479,80 @@ class Database {
         return $rows ? $rows : [];
     }
 
+    public function sync_get_inactive_user_ids_by_source(string $sourceCode){
+        if (!preg_match('/^[A-Z0-9_]{1,64}$/', $sourceCode)) {
+            throw new InvalidArgumentException('Invalid sync source code');
+        }
+        $Q = "SELECT i.u_id FROM user_external_identity i
+              JOIN user_tbl u ON u.u_id=i.u_id
+              WHERE i.source_code=:source_code AND u.avail_status=0";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':source_code'=>$sourceCode]);
+        return $R->fetchAll(PDO::FETCH_COLUMN, 0) ?: [];
+    }
+
+    public function sync_assert_source_identity_writable(string $userId,string $sourceCode){
+        $Q = "SELECT u.u_id,
+                     SUM(i.source_code=:source_code) AS same_source
+              FROM user_tbl u
+              LEFT JOIN user_external_identity i ON i.u_id=u.u_id
+              WHERE u.u_id=:u_id GROUP BY u.u_id FOR UPDATE";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':u_id'=>$userId,':source_code'=>$sourceCode]);
+        $row=$R->fetch(PDO::FETCH_ASSOC);
+        if($row!==false&&(int)$row['same_source']<1){
+            throw new RuntimeException('SYNC_CROSS_SOURCE_IDENTITY_COLLISION');
+        }
+        $Q = "SELECT u_id FROM user_external_identity
+              WHERE source_code=:source_code AND external_user_id=:external_user_id
+              FOR UPDATE";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([
+            ':source_code'=>$sourceCode,
+            ':external_user_id'=>$userId,
+        ]);
+        $owner=$R->fetchColumn();
+        if($owner!==false&&!hash_equals((string)$owner,$userId)){
+            throw new RuntimeException('SYNC_SOURCE_MEMBERSHIP_CONFLICT');
+        }
+    }
+
+    public function sync_upsert_source_membership(
+        string $userId,string $sourceCode,string $externalUserId,string $sourceHash
+    ){
+        $Q = "INSERT INTO user_external_identity(
+                  u_id,source_code,external_user_id,source_active,source_hash,
+                  first_seen_at,last_seen_at,last_sync_at
+              ) VALUES(
+                  :u_id,:source_code,:external_user_id,1,:source_hash,
+                  NOW(),NOW(),NOW()
+              )
+              ON DUPLICATE KEY UPDATE
+                  source_active=1,source_hash=:source_hash,
+                  last_seen_at=NOW(),last_sync_at=NOW()";
+        $R=$this->pdo->prepare($Q);
+        $R->execute([
+            ':u_id'=>$userId,':source_code'=>$sourceCode,
+            ':external_user_id'=>$externalUserId,':source_hash'=>$sourceHash,
+        ]);
+    }
+
+    public function sync_deactivate_source_membership(string $userId,string $sourceCode){
+        $Q="UPDATE user_external_identity SET source_active=0,last_sync_at=NOW()
+            WHERE u_id=:u_id AND source_code=:source_code AND source_active=1";
+        $R=$this->pdo->prepare($Q);
+        $R->execute([':u_id'=>$userId,':source_code'=>$sourceCode]);
+        if($R->rowCount()!==1)throw new RuntimeException('SYNC_SOURCE_MEMBERSHIP_DEACTIVATE_MISMATCH');
+    }
+
+    public function sync_has_other_active_source(string $userId,string $sourceCode):bool{
+        $Q="SELECT COUNT(*) FROM user_external_identity
+            WHERE u_id=:u_id AND source_code<>:source_code AND source_active=1";
+        $R=$this->pdo->prepare($Q);
+        $R->execute([':u_id'=>$userId,':source_code'=>$sourceCode]);
+        return (int)$R->fetchColumn()>0;
+    }
+
     public function beginTransaction(){
         return $this->pdo->beginTransaction();
     }

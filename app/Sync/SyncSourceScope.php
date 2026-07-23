@@ -13,7 +13,8 @@ final class SyncSourceScope
         public readonly string $sourceCode,
         public readonly ExternalUserSourceInterface $source,
         public readonly array $categoryIds,
-        public readonly int $baselineRows
+        public readonly int $baselineRows,
+        public readonly bool $provenanceEnforced
     ) {}
 
     public static function fromCode(string $sourceCode): self
@@ -35,11 +36,21 @@ final class SyncSourceScope
         if (preg_match('/^[1-9][0-9]*$/', $rawBaseline) !== 1) {
             throw new \RuntimeException('SYNC_SOURCE_BASELINE_INVALID');
         }
+        $staffProvenance = (string) \oneid_config(
+            'ONEID_SYNC_STAFF_PROVENANCE_ENABLED',
+            'false'
+        );
+        if (!in_array($staffProvenance, ['true', 'false'], true)) {
+            throw new \RuntimeException('SYNC_STAFF_PROVENANCE_FLAG_INVALID');
+        }
         return new self(
             $sourceCode,
             $source,
             $categories,
-            (int) $rawBaseline
+            (int) $rawBaseline,
+            $sourceCode === UgStudentSource::SOURCE_CODE
+                || ($sourceCode === StaffSource::SOURCE_CODE
+                    && $staffProvenance === 'true')
         );
     }
 }

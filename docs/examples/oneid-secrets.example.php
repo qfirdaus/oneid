@@ -72,6 +72,7 @@ return [
     'ONEID_ODL_PILOT_APPLY_ENABLED' => 'false',
     // Exactly three SHA-256 digests of normalized "matric|IC"; never raw PII.
     'ONEID_ODL_PILOT_IDENTITY_DIGESTS' => '',
+    'ONEID_SYNC_STAFF_PROVENANCE_ENABLED' => 'false',
 
     // Backup and restore rehearsal
     'ONEID_REHEARSAL_ALLOWED_SERVER_HOSTNAME' => '',

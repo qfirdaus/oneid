@@ -128,15 +128,46 @@ final class SyncEngineFactory
             return [new ExternalApiUserSource(), $persistence];
         }
         $scope = SyncSourceScope::fromCode($sourceCode);
+        $provenanceEnforced = $scope->provenanceEnforced;
         return [
             $scope->source,
             new SourceScopedSyncPersistenceAdapter(
                 $persistence,
                 $scope->categoryIds,
-                $scope->sourceCode === \OneId\App\Sync\Odl\UgStudentSource::SOURCE_CODE
+                $provenanceEnforced
                     ? fn(): array =>
                         $this->operation->sync_get_active_user_ids_by_source(
                             $scope->sourceCode
+                        )
+                    : null,
+                $provenanceEnforced
+                    ? fn(): array =>
+                        $this->operation->sync_get_inactive_user_ids_by_source(
+                            $scope->sourceCode
+                        )
+                    : null,
+                $provenanceEnforced
+                    ? fn(string $userId) =>
+                        $this->operation->sync_assert_source_identity_writable(
+                            $userId, $scope->sourceCode
+                        )
+                    : null,
+                $provenanceEnforced
+                    ? fn(string $userId,string $externalId,string $hash) =>
+                        $this->operation->sync_upsert_source_membership(
+                            $userId,$scope->sourceCode,$externalId,$hash
+                        )
+                    : null,
+                $provenanceEnforced
+                    ? fn(string $userId) =>
+                        $this->operation->sync_deactivate_source_membership(
+                            $userId,$scope->sourceCode
+                        )
+                    : null,
+                $provenanceEnforced
+                    ? fn(string $userId): bool =>
+                        $this->operation->sync_has_other_active_source(
+                            $userId,$scope->sourceCode
                         )
                     : null
             ),

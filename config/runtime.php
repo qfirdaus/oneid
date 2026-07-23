@@ -54,6 +54,7 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         // ODL F7 implementation is dormant until separate Preview/Apply approvals.
         'ONEID_ODL_PILOT_PREVIEW_ENABLED' => 'false',
         'ONEID_ODL_PILOT_APPLY_ENABLED' => 'false',
+        'ONEID_SYNC_STAFF_PROVENANCE_ENABLED' => 'false',
         'ONEID_SYNC_TRIGGERED_BY' => 'Sync Agent',
     ];
     static $local = null;

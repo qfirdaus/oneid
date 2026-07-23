@@ -517,10 +517,15 @@ function string_sanitize($s) {
                 $syncPersistence = new \OneId\App\Sync\Adapters\SourceScopedSyncPersistenceAdapter(
                     new \OneId\App\Sync\Adapters\DatabaseSyncPersistenceAdapter($operation),
                     $syncScope->categoryIds,
-                    $syncScope->sourceCode
-                        === \OneId\App\Sync\Odl\UgStudentSource::SOURCE_CODE
+                    $syncScope->provenanceEnforced
                         ? fn(): array =>
                             $operation->sync_get_active_user_ids_by_source(
+                                $syncScope->sourceCode
+                            )
+                        : null,
+                    $syncScope->provenanceEnforced
+                        ? fn(): array =>
+                            $operation->sync_get_inactive_user_ids_by_source(
                                 $syncScope->sourceCode
                             )
                         : null

@@ -22,7 +22,12 @@ final class SourceScopePersistenceFixture implements SyncPersistenceInterface
             ['u_id' => 'ug-a', 'u_category' => 10],
             ['u_id' => 'ug-b', 'u_category' => 11],
             ['u_id' => 'ug-c', 'u_category' => 12],
-            ['u_id' => 'manual', 'u_category' => 6],
+            [
+                'u_id' => 'manual',
+                'u_category' => 6,
+                'account_source' => 'manual',
+                'sync_protected' => 1,
+            ],
         ];
     }
     public function inactiveUserIds(): array { return ['inactive']; }
@@ -49,9 +54,11 @@ $ugIds = array_column($ug->activeUsers(), 'u_id');
 
 $checks = [
     'Staff scope contains staff categories only' =>
-        $staffIds === ['staff-a', 'staff-b'],
+        $staffIds === ['staff-a', 'staff-b', 'manual'],
     'UG scope requires category and active STUDENT_UG membership' =>
-        $ugIds === ['ug-a', 'ug-b'],
+        $ugIds === ['ug-a', 'ug-b', 'manual'],
+    'protected manual account remains visible to collision policy' =>
+        in_array('manual', $ugIds, true),
     'inactive identity read remains available for reactivation matching' =>
         $ug->inactiveUserIds() === ['inactive'],
     'Staff-only safety does not require a UG snapshot' =>

@@ -50,6 +50,7 @@ foreach ([
     'app/Sync/Adapters/SessionSyncApprovalStore.php',
     'app/Sync/ExternalRowNormalizer.php',
     'app/Sync/Provenance/ProvenanceBackfillPreview.php',
+    'app/Sync/Provenance/StaffProvenancePreview.php',
     'app/Sync/Odl/OdlDataQualityAudit.php',
     'app/Sync/Odl/OdlSourceConfig.php',
     'app/Sync/Odl/OdlStudentSource.php',

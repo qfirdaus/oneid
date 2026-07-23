@@ -37,7 +37,7 @@ $checks = [
         && str_contains($adapter, '$this->inner->activeUsers()'),
     'UG Preview endpoint uses active source membership scope' =>
         str_contains($q, 'sync_get_active_user_ids_by_source(')
-        && str_contains($q, 'UgStudentSource::SOURCE_CODE')
+        && str_contains($q, '$syncScope->provenanceEnforced')
         && str_contains($q, '$syncScope->sourceCode'),
 ];
 $failed = 0;
@@ -54,7 +54,7 @@ exec(
     $output,
     $code
 );
-$passed = $code === 0 && in_array('RESULT checks=5 failed=0', $output, true);
+$passed = $code === 0 && in_array('RESULT checks=6 failed=0', $output, true);
 $failed += $passed ? 0 : 1;
 printf("%s source-scoped persistence characterization\n", $passed ? 'PASS' : 'FAIL');
 printf("RESULT checks=%d failed=%d\n", count($checks) + 1, $failed);

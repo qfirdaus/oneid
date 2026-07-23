@@ -1042,6 +1042,15 @@ kekal tidak dibenarkan. Rujuk
 
 ### Fasa 8 — Controlled Full Apply — `NOT AUTHORIZED`
 
+Cross-source isolation hardening mesti ditutup sebelum Fasa 8 diberi
+authorization. Implementation dan aggregate-only Preview telah disediakan di
+bawah `ONEID-SOURCE-ISOLATION-20260723-01`. UG kini source-bound pada read,
+fresh-plan dan persistence; ODL kekal fixed-source; manual account kekal
+protected. Staff Preview menghasilkan 1061 exact candidate memberships dengan
+zero blocking finding dan zero mutation. Live registry/backfill `STAFF_HR`
+masih belum dibenarkan, maka Staff provenance gate kekal `false`. Rujuk
+[`CROSS_SOURCE_ISOLATION_HARDENING.md`](CROSS_SOURCE_ISOLATION_HARDENING.md).
+
 Aktiviti:
 
 - gunakan approved expected counts dan plan hash;

@@ -10,11 +10,19 @@ use OneId\App\Sync\Contracts\SyncPersistenceInterface;
  */
 final class SourceScopedSyncPersistenceAdapter implements SyncPersistenceInterface
 {
+    /** @var null|array<string,true> */
+    private ?array $sourceUsers = null;
+
     /** @param list<int> $categoryIds */
     public function __construct(
         private readonly SyncPersistenceInterface $inner,
         private readonly array $categoryIds,
-        private readonly ?\Closure $activeSourceUserIds = null
+        private readonly ?\Closure $activeSourceUserIds = null,
+        private readonly ?\Closure $inactiveSourceUserIds = null,
+        private readonly ?\Closure $assertWritableIdentity = null,
+        private readonly ?\Closure $recordMembership = null,
+        private readonly ?\Closure $deactivateMembership = null,
+        private readonly ?\Closure $hasOtherActiveSource = null
     ) {}
 
     public function begin(): void { $this->inner->begin(); }
@@ -24,12 +32,10 @@ final class SourceScopedSyncPersistenceAdapter implements SyncPersistenceInterfa
 
     public function activeUsers(): array
     {
-        $sourceUsers = $this->activeSourceUserIds === null
-            ? null
-            : array_fill_keys(($this->activeSourceUserIds)(), true);
+        $sourceUsers = $this->sourceUserSet();
         return array_values(array_filter(
             $this->inner->activeUsers(),
-            fn(array $user): bool =>
+            fn(array $user): bool => (
                 in_array(
                     (int) ($user['u_category'] ?? 0),
                     $this->categoryIds,
@@ -37,23 +43,36 @@ final class SourceScopedSyncPersistenceAdapter implements SyncPersistenceInterfa
                 )
                 && ($sourceUsers === null
                     || isset($sourceUsers[(string) ($user['u_id'] ?? '')]))
+            ) || (
+                ($user['account_source'] ?? '') === 'manual'
+                && (int) ($user['sync_protected'] ?? 0) === 1
+            )
         ));
     }
 
     public function inactiveUserIds(): array
     {
-        // Inactive identities are used only to distinguish NEW from REACTIVATE.
-        // The current legacy API does not expose inactive categories.
-        return $this->inner->inactiveUserIds();
+        return $this->inactiveSourceUserIds === null
+            ? $this->inner->inactiveUserIds()
+            : ($this->inactiveSourceUserIds)();
     }
 
     public function deactivateUser(string $userId): void
     {
-        $this->inner->deactivateUser($userId);
+        $this->assertSourceOwned($userId);
+        if ($this->deactivateMembership !== null) {
+            ($this->deactivateMembership)($userId);
+        }
+        if ($this->hasOtherActiveSource === null
+            || !($this->hasOtherActiveSource)($userId)
+        ) {
+            $this->inner->deactivateUser($userId);
+        }
     }
 
     public function updateUser(string $userId, array $row, string $changeHash): void
     {
+        $this->assertSourceOwned($userId);
         $this->inner->updateUser($userId, $row, $changeHash);
     }
 
@@ -73,7 +92,14 @@ final class SourceScopedSyncPersistenceAdapter implements SyncPersistenceInterfa
         string $passwordHash,
         string $changeHash
     ): void {
+        $userId = (string) ($row['data4'] ?? '');
+        if ($this->assertWritableIdentity !== null) {
+            ($this->assertWritableIdentity)($userId);
+        }
         $this->inner->insertExternalUser($row, $categoryId, $passwordHash, $changeHash);
+        if ($this->recordMembership !== null) {
+            ($this->recordMembership)($userId, $userId, $changeHash);
+        }
     }
 
     public function markStagedUser(int $headerId, int $bodyId, int $status): void
@@ -107,5 +133,25 @@ final class SourceScopedSyncPersistenceAdapter implements SyncPersistenceInterfa
     public function header(int $headerId): array
     {
         return $this->inner->header($headerId);
+    }
+
+    /** @return null|array<string,true> */
+    private function sourceUserSet(): ?array
+    {
+        if ($this->activeSourceUserIds === null) {
+            return null;
+        }
+        return $this->sourceUsers ??= array_fill_keys(
+            ($this->activeSourceUserIds)(),
+            true
+        );
+    }
+
+    private function assertSourceOwned(string $userId): void
+    {
+        $sourceUsers = $this->sourceUserSet();
+        if ($sourceUsers !== null && !isset($sourceUsers[$userId])) {
+            throw new \RuntimeException('SYNC_SOURCE_OWNERSHIP_VIOLATION');
+        }
     }
 }
