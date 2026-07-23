@@ -227,10 +227,9 @@ function oneid_require_admin_step_up(object $operation,string $purpose,bool $jso
     $correlation=oneid_audit_step_up_rejection($operation,$purpose,(string)$decision['reason']);
     if($correlation===''){oneid_json_deny(503,'Step-up authorization unavailable');}
     if($json){if(!headers_sent()){http_response_code(403);header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');}echo json_encode(['status'=>403,'code'=>$decision['reason'],'error'=>'Administrator step-up authentication required','purpose'=>$purpose,'correlation_id'=>$correlation]);exit;}
-    oneid_clear_local_authenticated_session();
     if(!headers_sent()){
         header('Cache-Control: no-store');
-        header('Location: '.APP_URL.'/',true,302);
+        header('Location: '.APP_URL.'/page/dashboard',true,302);
     }
     exit;
 }

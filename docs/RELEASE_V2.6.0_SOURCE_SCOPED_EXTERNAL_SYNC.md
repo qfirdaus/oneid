@@ -66,8 +66,9 @@ Preview tanpa mutation.
 - read external source kekal melalui polisi query read-only;
 - had request, verification dan lockout OTP e-mel Admin 2FA boleh ditetapkan
   melalui private runtime configuration;
-- refresh halaman admin selepas grant Administrator tamat membersihkan sesi
-  lokal dan redirect ke login tanpa memaparkan respons guard berbentuk teks.
+- refresh halaman admin selepas grant Administrator tamat kembali ke dashboard
+  pengguna jika sesi OneID masih aktif; login hanya diperlukan apabila token
+  OneID turut tamat.
 
 ## Hasil semakan WSL
 
