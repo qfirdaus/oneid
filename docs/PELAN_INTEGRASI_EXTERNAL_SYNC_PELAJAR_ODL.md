@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–7 `PASS / CLOSED`; Fasa 8 `NOT AUTHORIZED`
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–7 `PASS / CLOSED`; Fasa 8 `FULL PREVIEW READY / APPLY NOT AUTHORIZED`
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -1040,7 +1040,7 @@ disabled dan private allowlist dikosongkan; scheduler, Full Apply dan production
 kekal tidak dibenarkan. Rujuk
 [`ODL_FASA_7_CONTROLLED_PILOT_IMPLEMENTATION.md`](ODL_FASA_7_CONTROLLED_PILOT_IMPLEMENTATION.md).
 
-### Fasa 8 — Controlled Full Apply — `NOT AUTHORIZED`
+### Fasa 8 — Controlled Full Apply — `FULL PREVIEW READY / APPLY NOT AUTHORIZED`
 
 Cross-source isolation hardening telah ditutup `PASS / CLOSED` sebelum Fasa 8
 diberi authorization. Implementation dan aggregate-only Preview disediakan di
@@ -1063,6 +1063,15 @@ Aktiviti:
 - jalankan full Apply dalam change window;
 - reconcile user, membership, audit dan source totals;
 - mulakan observation window.
+
+Implementation dan read-only Full Preview menghasilkan tiga snapshot stabil:
+`53 source rows`, `50 NEW`, `3 KEEP`, semua tindakan lain sifar dan zero
+mutation. Plan hash ialah
+`4215ca6cae2b56374a4c3df591483b8dc076fc78a51a9f4336c84f544255ac17`;
+Preview digest ialah
+`f3cfc6855a01769490eba24dee1ea696d58a23527d45fbacd73a70110b03529e`.
+Full Apply masih memerlukan authorization exact-plan yang berasingan. Rujuk
+[`ODL_FASA_8_CONTROLLED_FULL_PREVIEW.md`](ODL_FASA_8_CONTROLLED_FULL_PREVIEW.md).
 
 Exit gate:
 
@@ -1266,7 +1275,7 @@ Pada semakan 23 Julai 2026:
 | Fasa 4 | `PASS / CLOSED` — data-quality audit WSL/staging lulus |
 | Fasa 5 | `PASS / CLOSED` — source-aware planner dan safety lulus |
 | Fasa 6 | `PASS / CLOSED` — tiga snapshot staging stabil; `ONEID-ODL-F6-20260723-01` |
-| Fasa seterusnya | Fasa 8 Controlled Full Apply — authorization baharu diperlukan |
+| Fasa seterusnya | Fasa 8 Controlled Full Apply — exact-plan authorization diperlukan |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence
