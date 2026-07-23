@@ -5304,19 +5304,29 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 	   const releaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-24",
+      changes: [
+        "ODL Fasa 7 Controlled Pilot selesai dengan tiga akaun NEW, provenance STUDENT_ODL_PG, reconciliation tepat serta login dan ACL smoke test PASS.",
+        "ODL Fasa 8 Controlled Full Apply selesai untuk 50 akaun NEW; keseluruhan 53 membership ODL aktif dan semua tindakan bukan NEW kekal sifar.",
+        "Cross-source isolation kini meliputi Staff, Undergraduate, ODL dan akaun manual supaya Preview serta Apply tidak mencampurkan ownership sumber.",
+        "Fasa 9 menyediakan ODL Manual Operational Preview melalui modal Admin yang sama seperti Undergraduate dengan plan hash, expiry dan action counts.",
+        "ODL operational Apply mempunyai private gate berasingan dan kekal disabled sehingga exact-plan authorization diterima.",
+        "Matrik, IC dan external membership collision diblock sebelum approval; persistence turut menyemak semula ownership dalam transaction.",
+        "E-mel kosong daripada ODL tidak memadam e-mel OneID sedia ada, manakala akaun manual kekal protected.",
+        "External Sync Summary kekal read-only dan notifikasi parent modal dipaparkan hanya apabila sesuatu sumber mempunyai tindakan atau block.",
+        "Automatic scheduler, unattended mutation dan production rollout ODL kekal disabled.",
+        "Dokumen audit merekod Fasa 0 hingga 8 PASS/CLOSED serta Fasa 9 Preview Ready di bawah ONEID-ODL-F9-20260724-01."
+      ]
+    },
+    {
+      version: "2.6.0",
       date: "2026-07-23",
       changes: [
-        "External Sync kini dipisahkan kepada Summary, Staff, Undergraduate dan ODL supaya status serta tindakan setiap sumber tidak bercampur.",
-        "Staff dan Undergraduate menggunakan Preview serta Operational Apply berasingan yang diikat kepada source, one-time approval dan fresh writer plan sebelum transaksi.",
-        "Planner mengehadkan active-user scope mengikut kategori sumber supaya Apply Staff tidak mencadangkan deactivation UG dan Apply UG tidak menyentuh Staff.",
-        "ODL Postgregraduate diperkenalkan melalui provenance schema, source STUDENT_ODL_PG, adapter MySQL read-only, TLS fail-closed, data-quality audit dan source-aware safety planner.",
-        "ODL External Sync kekal Read Only Shadow Preview; Apply, mutation dan automatic scheduler ODL masih disabled.",
-        "Parent modal memaparkan badge tindakan hanya apabila terdapat New, Update, Reactivate, Deactivate, calon ODL atau source yang memerlukan semakan.",
-        "Preview modal diperluas, paparan source diseragamkan dan penutupan child modal kembali kepada pilihan External Sync atau Manual Add User.",
-        "Endpoint external lama yang dikuarantin kekal tidak boleh digunakan dan semua external database reads melalui polisi read-only.",
-        "Had request, verification dan lockout OTP e-mel Admin 2FA kini boleh dikonfigurasi melalui private runtime tanpa mendedahkan secret.",
-        "Apabila grant Administrator tamat tetapi sesi OneID masih aktif, refresh halaman admin kembali ke dashboard pengguna; login hanya diperlukan apabila sesi OneID turut tamat.",
-        "ODL Fasa 7 implementation menyediakan exact-three NEW-only planner, dormant writer, audit, reconciliation dan targeted rollback; Pilot Preview dan Apply sebenar kekal disabled."
+        "External Sync dipisahkan kepada Summary, Staff, Undergraduate dan ODL supaya status serta tindakan setiap sumber tidak bercampur.",
+        "Staff dan Undergraduate menggunakan Preview serta Operational Apply berasingan yang diikat kepada source, one-time approval dan fresh writer plan.",
+        "ODL postgraduate diperkenalkan melalui provenance schema, adapter MySQL read-only, TLS fail-closed, data-quality audit dan Shadow Preview.",
+        "Parent modal menerima notifikasi source-specific, Preview modal diperluas dan child modal kembali kepada pilihan utama apabila ditutup.",
+        "ODL Apply dan automatic scheduler kekal disabled pada baseline release ini."
       ]
     },
     {
