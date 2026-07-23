@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–2 ditutup; Fasa 3 adapter ODL read-only siap secara kod dan menunggu private runtime preflight
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–4 ditutup; Fasa 5 source-aware planner siap secara dormant dan menunggu staging verification
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -889,7 +889,7 @@ Owner mengesahkan `STUDENT_UG` dan meluluskan exact Preview. Backfill
 transactional selesai dengan 5,423 memberships, zero blocking identity finding,
 29 profile-variant review groups yang tidak ditulis, dan zero user mutation.
 
-### Fasa 3 — Adapter ODL read-only — `WSL PREFLIGHT PASSED / STAGING PREFLIGHT PENDING`
+### Fasa 3 — Adapter ODL read-only — `CLOSED`
 
 Aktiviti:
 
@@ -919,11 +919,10 @@ Implementation evidence:
 [`ODL_FASA_3_ADAPTER_READ_ONLY.md`](ODL_FASA_3_ADAPTER_READ_ONLY.md).
 Adapter, private configuration contract dan unit/contract tests telah tersedia
 secara dormant. Ia belum disambungkan kepada Preview, Apply atau scheduler.
-Development preflight WSL lulus dengan 53 row, zero blank matrik/IC, zero wrong
-category/source dan zero mutation. Selepas source code dipush dan dipull ke
-OneID UAT, preflight yang sama mesti diulang dengan private runtime staging.
+Preflight WSL dan staging lulus dengan 53 row, zero blank matrik/IC, zero wrong
+category/source dan zero mutation.
 
-### Fasa 4 — ODL data-quality audit — `WSL AUDIT PASSED / STAGING AUDIT PENDING`
+### Fasa 4 — ODL data-quality audit — `CLOSED`
 
 Aktiviti:
 
@@ -944,10 +943,10 @@ Rollback: tiada mutation; hapus artifact sensitif mengikut retention policy.
 
 Implementation evidence:
 [`ODL_FASA_4_DATA_QUALITY_AUDIT.md`](ODL_FASA_4_DATA_QUALITY_AUDIT.md).
-Baseline WSL ialah 53 row status aktif `2`, zero blocking/review findings,
-zero raw PII dan zero mutation. Audit yang sama mesti diulang di staging.
+Baseline WSL dan staging ialah 53 row status aktif `2`, digest sepadan, zero
+blocking/review findings, zero raw PII dan zero mutation.
 
-### Fasa 5 — Source-aware planner dan safety — `NOT STARTED`
+### Fasa 5 — Source-aware planner dan safety — `WSL READY / STAGING VERIFICATION PENDING`
 
 Aktiviti:
 
@@ -969,6 +968,11 @@ Exit gate:
 
 Rollback: feature gate kembali kepada baseline aggregator/planner; schema kekal
 dormant untuk audit.
+
+Implementation evidence:
+[`ODL_FASA_5_SOURCE_AWARE_PLANNER.md`](ODL_FASA_5_SOURCE_AWARE_PLANNER.md).
+Planner kekal pure, dormant dan hanya menghasilkan safe Preview projection.
+Semua outage/anomaly menghasilkan zero membership/account action.
 
 ### Fasa 6 — Shadow Preview ODL — `NOT STARTED`
 

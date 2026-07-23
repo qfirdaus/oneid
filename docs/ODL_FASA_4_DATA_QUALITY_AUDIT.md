@@ -4,7 +4,7 @@
 
 **Environment:** WSL development
 
-**Status:** `WSL AUDIT PASSED / STAGING AUDIT PENDING`
+**Status:** `CLOSED — WSL AND STAGING AUDIT PASSED`
 
 ## Kawalan
 
@@ -63,8 +63,7 @@ php tools/odl_f4_data_quality_audit.php
 
 ## Baki exit gate
 
-Selepas commit dipush dan dipull ke staging, ulang audit dengan private runtime
-staging. Baseline staging mesti direview jika row count, digest atau sebarang
-finding berubah. Tiada Apply dibenarkan oleh Fasa 4.
+Audit staging menghasilkan baseline dan digest yang sama dengan WSL. Tiada
+Apply dibenarkan oleh Fasa 4.
 
 **Change ID:** `ONEID-ODL-F4-20260723-01`

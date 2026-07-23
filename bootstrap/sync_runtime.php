@@ -17,6 +17,8 @@ foreach ([
     'app/Sync/DTO/SyncSafetyDecision.php',
     'app/Sync/DTO/SyncApproval.php',
     'app/Sync/DTO/SyncApprovalReceipt.php',
+    'app/Sync/DTO/SourceSnapshot.php',
+    'app/Sync/DTO/SourceAwarePlan.php',
     'app/Sync/SyncDataTransformer.php',
     'app/Sync/SyncPlanner.php',
     'app/Sync/SyncSafetyPolicy.php',
@@ -47,6 +49,8 @@ foreach ([
     'app/Sync/Odl/OdlDataQualityAudit.php',
     'app/Sync/Odl/OdlSourceConfig.php',
     'app/Sync/Odl/OdlStudentSource.php',
+    'app/Sync/SourceAware/SourceAwareSafetyPolicy.php',
+    'app/Sync/SourceAware/SourceAwareStudentPlanner.php',
     'app/Sync/SyncEngineFactory.php',
 ] as $oneidSyncFile) {
     require_once $oneidSyncRoot . '/' . $oneidSyncFile;

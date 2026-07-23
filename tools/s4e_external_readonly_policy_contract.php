@@ -9,7 +9,6 @@ $root = dirname(__DIR__);
 $policy = (string) file_get_contents($root . '/lib/readonly_odbc.php');
 $callers = [
     'lib/external_data_source_API.php',
-    'lib/skp_api.php',
     'tools/s4d_external_readonly_evidence.php',
 ];
 $checks = 0;
@@ -34,6 +33,12 @@ foreach ($callers as $file) {
     );
     $report(!str_contains($withoutWrapperNames, 'odbc_exec(') && !str_contains($withoutWrapperNames, 'odbc_prepare('), $file . ' has no direct ODBC execution or prepare');
 }
+$report(
+    !is_file($root . '/lib/skp_api.php')
+        && !is_file($root . '/skp_api.php')
+        && !is_file($root . '/public/skp_api.php'),
+    'quarantined SKP endpoints remain absent'
+);
 
 $output = [];
 $code = 1;
@@ -42,4 +47,3 @@ $report($code === 0 && in_array('RESULT checks=20 failed=0', $output, true), 'pu
 
 printf("RESULT checks=%d failed=%d\n", $checks, $failed);
 exit($failed === 0 ? 0 : 1);
-

@@ -4,7 +4,7 @@
 
 **Environment:** OneID UAT
 
-**Status:** `WSL PREFLIGHT PASSED / STAGING PREFLIGHT PENDING`
+**Status:** `CLOSED — WSL AND STAGING PREFLIGHT PASSED`
 
 ## Skop yang siap
 
