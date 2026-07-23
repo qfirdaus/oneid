@@ -855,7 +855,7 @@ Rollback: jalankan down migration hanya jika jadual masih dormant dan kosong.
 Closure evidence:
 [`ODL_FASA_1_SCHEMA_PROVENANCE_DORMANT_CLOSURE.md`](ODL_FASA_1_SCHEMA_PROVENANCE_DORMANT_CLOSURE.md).
 
-### Fasa 2 — Backfill provenance sumber sedia ada — `NEXT / NOT STARTED`
+### Fasa 2 — Backfill provenance sumber sedia ada — `IN PROGRESS / PREVIEW COMPLETE / OWNER DECISION REQUIRED`
 
 Aktiviti:
 
@@ -882,6 +882,12 @@ Exit gate:
 
 Rollback: padam hanya membership daripada correlation/change set backfill;
 jangan padam atau deactivate pengguna.
+
+Preview evidence:
+[`ODL_FASA_2_PROVENANCE_BACKFILL_PREVIEW.md`](ODL_FASA_2_PROVENANCE_BACKFILL_PREVIEW.md).
+Preview read-only menemukan 5,423 exact candidate memberships, zero blocking
+identity finding dan 29 profile-variant review groups. Live backfill belum
+dibenarkan sehingga authority/nama source dan exact counts diluluskan owner.
 
 ### Fasa 3 — Adapter ODL read-only — `PREREQUISITES PARTIAL / IMPLEMENTATION NOT STARTED`
 
@@ -1198,7 +1204,8 @@ Pada semakan 23 Julai 2026:
 | Gate F | `PROCEED WITH CONDITIONS` — diluluskan Firdaus, System Analyst/DBA |
 | Fasa 0 | `PASS / CLOSED` |
 | Fasa 1 | `PASS / CLOSED` — schema live dormant, zero membership |
-| Fasa seterusnya | Fasa 2 — Preview/backfill provenance sumber sedia ada |
+| Fasa 2 | Preview complete: 5,423 candidates, zero blocking identity finding; source authority/count approval pending |
+| Fasa seterusnya | Lengkapkan owner decision Fasa 2 sebelum isolated/live backfill |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence
