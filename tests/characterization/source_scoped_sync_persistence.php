@@ -39,15 +39,19 @@ final class SourceScopePersistenceFixture implements SyncPersistenceInterface
 
 $fixture = new SourceScopePersistenceFixture();
 $staff = new SourceScopedSyncPersistenceAdapter($fixture, [2, 3]);
-$ug = new SourceScopedSyncPersistenceAdapter($fixture, [10, 11, 12]);
+$ug = new SourceScopedSyncPersistenceAdapter(
+    $fixture,
+    [10, 11, 12],
+    static fn(): array => ['ug-a', 'ug-b']
+);
 $staffIds = array_column($staff->activeUsers(), 'u_id');
 $ugIds = array_column($ug->activeUsers(), 'u_id');
 
 $checks = [
     'Staff scope contains staff categories only' =>
         $staffIds === ['staff-a', 'staff-b'],
-    'UG scope contains student categories only' =>
-        $ugIds === ['ug-a', 'ug-b', 'ug-c'],
+    'UG scope requires category and active STUDENT_UG membership' =>
+        $ugIds === ['ug-a', 'ug-b'],
     'inactive identity read remains available for reactivation matching' =>
         $ug->inactiveUserIds() === ['inactive'],
     'Staff-only safety does not require a UG snapshot' =>

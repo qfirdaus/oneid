@@ -84,4 +84,30 @@ final class OdlShadowPreviewReader
         )->fetchAll(\PDO::FETCH_COLUMN, 0);
         return $rows ?: [];
     }
+
+    /** @return list<string> */
+    public function activeUserIdsBySource(string $sourceCode): array
+    {
+        if (preg_match('/^[A-Z0-9_]{1,64}$/', $sourceCode) !== 1) {
+            throw new \InvalidArgumentException('SYNC_SOURCE_INVALID');
+        }
+        if ($this->membershipsReader !== null) {
+            return array_values(array_map(
+                static fn(array $membership): string =>
+                    (string) ($membership['u_id'] ?? ''),
+                array_filter(
+                    ($this->membershipsReader)(),
+                    static fn(array $membership): bool =>
+                        ($membership['source_code'] ?? '') === $sourceCode
+                        && (int) ($membership['source_active'] ?? 0) === 1
+                )
+            ));
+        }
+        $query = $this->pdo->prepare(
+            'SELECT u_id FROM user_external_identity
+             WHERE source_code=:source_code AND source_active=1'
+        );
+        $query->execute([':source_code' => $sourceCode]);
+        return $query->fetchAll(\PDO::FETCH_COLUMN, 0) ?: [];
+    }
 }

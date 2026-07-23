@@ -132,7 +132,13 @@ final class SyncEngineFactory
             $scope->source,
             new SourceScopedSyncPersistenceAdapter(
                 $persistence,
-                $scope->categoryIds
+                $scope->categoryIds,
+                $scope->sourceCode === \OneId\App\Sync\Odl\UgStudentSource::SOURCE_CODE
+                    ? fn(): array =>
+                        $this->operation->sync_get_active_user_ids_by_source(
+                            $scope->sourceCode
+                        )
+                    : null
             ),
         ];
     }

@@ -30,9 +30,10 @@ $checks = [
         str_contains($scope, 'StaffSource::SOURCE_CODE')
         && str_contains($scope, 'UgStudentSource::SOURCE_CODE')
         && str_contains($scope, "SYNC_SOURCE_INVALID"),
-    'planner reads are category scoped before deactivation decisions' =>
+    'planner reads are category and provenance scoped before deactivation decisions' =>
         str_contains($adapter, 'in_array(')
         && str_contains($adapter, "\$user['u_category']")
+        && str_contains($adapter, '$activeSourceUserIds')
         && str_contains($adapter, '$this->inner->activeUsers()'),
 ];
 $failed = 0;

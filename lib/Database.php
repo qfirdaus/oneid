@@ -466,6 +466,19 @@ class Database {
         return $rows ? $rows : [];
     }
 
+    public function sync_get_active_user_ids_by_source(string $sourceCode){
+        if (!preg_match('/^[A-Z0-9_]{1,64}$/', $sourceCode)) {
+            throw new InvalidArgumentException('Invalid sync source code');
+        }
+        $Q = "SELECT u_id
+              FROM user_external_identity
+              WHERE source_code = :source_code AND source_active = 1";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':source_code' => $sourceCode]);
+        $rows = $R->fetchAll(PDO::FETCH_COLUMN, 0);
+        return $rows ? $rows : [];
+    }
+
     public function beginTransaction(){
         return $this->pdo->beginTransaction();
     }

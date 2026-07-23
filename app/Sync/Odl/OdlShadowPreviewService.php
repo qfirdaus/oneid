@@ -97,6 +97,10 @@ final class OdlShadowPreviewService
     {
         $activeUsers = $this->reader->legacyActiveUsers();
         $inactiveUsers = $this->reader->legacyInactiveUserIds();
+        $activeUgUsers = array_fill_keys(
+            $this->reader->activeUserIdsBySource(UgStudentSource::SOURCE_CODE),
+            true
+        );
         $planner = new SyncPlanner(new LegacySyncPolicy());
         $staffPlan = $planner->plan(
             $staffRows,
@@ -113,6 +117,7 @@ final class OdlShadowPreviewService
                 $activeUsers,
                 static fn(array $user): bool =>
                     in_array((int) ($user['u_category'] ?? 0), [10, 11, 12], true)
+                    && isset($activeUgUsers[(string) ($user['u_id'] ?? '')])
             )),
             $inactiveUsers
         );

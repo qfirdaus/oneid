@@ -13,7 +13,8 @@ final class SourceScopedSyncPersistenceAdapter implements SyncPersistenceInterfa
     /** @param list<int> $categoryIds */
     public function __construct(
         private readonly SyncPersistenceInterface $inner,
-        private readonly array $categoryIds
+        private readonly array $categoryIds,
+        private readonly ?\Closure $activeSourceUserIds = null
     ) {}
 
     public function begin(): void { $this->inner->begin(); }
@@ -23,13 +24,19 @@ final class SourceScopedSyncPersistenceAdapter implements SyncPersistenceInterfa
 
     public function activeUsers(): array
     {
+        $sourceUsers = $this->activeSourceUserIds === null
+            ? null
+            : array_fill_keys(($this->activeSourceUserIds)(), true);
         return array_values(array_filter(
             $this->inner->activeUsers(),
-            fn(array $user): bool => in_array(
-                (int) ($user['u_category'] ?? 0),
-                $this->categoryIds,
-                true
-            )
+            fn(array $user): bool =>
+                in_array(
+                    (int) ($user['u_category'] ?? 0),
+                    $this->categoryIds,
+                    true
+                )
+                && ($sourceUsers === null
+                    || isset($sourceUsers[(string) ($user['u_id'] ?? '')]))
         ));
     }
 
