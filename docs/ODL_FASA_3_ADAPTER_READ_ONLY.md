@@ -14,8 +14,9 @@
 - Hasil dinormalisasi kepada kontrak student sedia ada dengan
   `source_code = STUDENT_ODL_PG` dan kategori `Pelajar`.
 - Sambungan PDO tidak persistent, native prepare digunakan dan timeout terhad.
-- TLS adalah fail-closed: CA wajib, sijil server wajib disahkan, dan sesi mesti
-  mempunyai `Ssl_version` serta `Ssl_cipher`.
+- TLS adalah fail-closed: sesi mesti mempunyai `Ssl_version` serta
+  `Ssl_cipher` sebelum data dibaca. CA adalah optional untuk UAT; jika diberi,
+  sijil server turut disahkan.
 - Connection, query, empty source dan invalid row menghasilkan kegagalan nyata;
   ia tidak ditukar menjadi empty success.
 - Adapter hanya dimuatkan sebagai definisi kelas. Tiada wiring kepada Preview,
@@ -34,8 +35,7 @@
 - Ujian terdahulu membuktikan UPDATE dan DELETE ditolak.
 
 Sambungan manual tersebut membuktikan route dan TLS tersedia, tetapi tidak
-menggantikan runtime preflight adapter kerana adapter mewajibkan CA dan
-pengesahan sijil server.
+menggantikan runtime preflight adapter.
 
 ## Development dan deployment flow
 
@@ -63,12 +63,12 @@ ujian, screenshot atau log.
 'ONEID_ODL_MYSQL_DATABASE' => 'upnm',
 'ONEID_ODL_MYSQL_USERNAME' => 'viewer',
 'ONEID_ODL_MYSQL_PASSWORD' => '<private>',
-'ONEID_ODL_MYSQL_SSL_CA' => '/absolute/private/path/mysql-ca.pem',
+'ONEID_ODL_MYSQL_SSL_CA' => '', // optional UAT
 'ONEID_ODL_MYSQL_CONNECT_TIMEOUT' => '5',
 ```
 
-Fail CA mesti boleh dibaca oleh account servis OneID dan berada di luar
-direktori `public`.
+Jika CA dibekalkan kemudian, gunakan absolute path. Fail CA mesti boleh dibaca
+oleh account servis OneID dan berada di luar direktori `public`.
 
 ## Runtime exit check WSL
 

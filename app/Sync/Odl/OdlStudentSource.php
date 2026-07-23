@@ -68,9 +68,7 @@ SQL;
     /** @return list<array<string,mixed>> */
     private function fetchFromMySql(): array
     {
-        if (!defined('PDO::MYSQL_ATTR_SSL_CA')
-            || !defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')
-        ) {
+        if (!defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
             throw new \RuntimeException('ODL_PDO_MYSQL_TLS_UNAVAILABLE');
         }
 
@@ -80,20 +78,28 @@ SQL;
             $this->config->port,
             $this->config->database
         );
+        $options = [
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            \PDO::ATTR_EMULATE_PREPARES => false,
+            \PDO::ATTR_PERSISTENT => false,
+            \PDO::ATTR_TIMEOUT => $this->config->connectTimeout,
+            \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+        ];
+        if ($this->config->sslCaPath !== '') {
+            if (!defined('PDO::MYSQL_ATTR_SSL_CA')) {
+                throw new \RuntimeException('ODL_PDO_MYSQL_TLS_UNAVAILABLE');
+            }
+            $options[\PDO::MYSQL_ATTR_SSL_CA] = $this->config->sslCaPath;
+            $options[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = true;
+        }
+
         try {
             $pdo = new \PDO(
                 $dsn,
                 $this->config->username,
                 $this->config->password,
-                [
-                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-                    \PDO::ATTR_EMULATE_PREPARES => false,
-                    \PDO::ATTR_PERSISTENT => false,
-                    \PDO::ATTR_TIMEOUT => $this->config->connectTimeout,
-                    \PDO::MYSQL_ATTR_SSL_CA => $this->config->sslCaPath,
-                    \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true,
-                ]
+                $options
             );
         } catch (\PDOException $exception) {
             throw new \RuntimeException(

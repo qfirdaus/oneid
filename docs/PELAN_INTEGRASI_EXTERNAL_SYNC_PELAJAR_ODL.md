@@ -919,8 +919,8 @@ Implementation evidence:
 [`ODL_FASA_3_ADAPTER_READ_ONLY.md`](ODL_FASA_3_ADAPTER_READ_ONLY.md).
 Adapter, private configuration contract dan unit/contract tests telah tersedia
 secara dormant. Ia belum disambungkan kepada Preview, Apply atau scheduler.
-Development preflight connection/fixed-view read masih menunggu tujuh nilai
-private runtime WSL, termasuk password dan CA TLS, kemudian pelaksanaan
+Development preflight connection/fixed-view read masih menunggu enam nilai
+private runtime WSL; CA TLS adalah optional untuk UAT. Selepas itu, jalankan
 `php tools/odl_f3_runtime_preflight.php` dari WSL. Selepas source code dipush
 dan dipull ke OneID UAT, preflight yang sama mesti diulang dengan private
 runtime staging.

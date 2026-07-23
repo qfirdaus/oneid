@@ -32,12 +32,14 @@ final class OdlSourceConfig
         if ($connectTimeout < 1 || $connectTimeout > 30) {
             throw new \InvalidArgumentException('ODL_CONFIG_TIMEOUT_INVALID');
         }
-        $realCaPath = realpath($sslCaPath);
-        if ($realCaPath === false || !is_file($realCaPath) || !is_readable($realCaPath)) {
-            throw new \InvalidArgumentException('ODL_CONFIG_SSL_CA_INVALID');
-        }
-        if (str_starts_with($realCaPath, dirname(__DIR__, 3) . '/public/')) {
-            throw new \InvalidArgumentException('ODL_CONFIG_SSL_CA_PUBLIC');
+        if ($sslCaPath !== '') {
+            $realCaPath = realpath($sslCaPath);
+            if ($realCaPath === false || !is_file($realCaPath) || !is_readable($realCaPath)) {
+                throw new \InvalidArgumentException('ODL_CONFIG_SSL_CA_INVALID');
+            }
+            if (str_starts_with($realCaPath, dirname(__DIR__, 3) . '/public/')) {
+                throw new \InvalidArgumentException('ODL_CONFIG_SSL_CA_PUBLIC');
+            }
         }
     }
 
@@ -52,13 +54,20 @@ final class OdlSourceConfig
             'ODL_CONFIG_TIMEOUT_INVALID'
         );
 
+        $sslCa = '';
+        try {
+            $sslCa = trim(\oneid_secret('ONEID_ODL_MYSQL_SSL_CA'));
+        } catch (\Throwable) {
+            // CA is optional in UAT; an active encrypted session remains mandatory.
+        }
+
         return new self(
             trim(\oneid_secret('ONEID_ODL_MYSQL_HOST')),
             $port,
             trim(\oneid_secret('ONEID_ODL_MYSQL_DATABASE')),
             trim(\oneid_secret('ONEID_ODL_MYSQL_USERNAME')),
             \oneid_secret('ONEID_ODL_MYSQL_PASSWORD'),
-            trim(\oneid_secret('ONEID_ODL_MYSQL_SSL_CA')),
+            $sslCa,
             $timeout
         );
     }

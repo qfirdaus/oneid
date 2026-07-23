@@ -47,7 +47,7 @@ $report(
     str_contains($source, 'PDO::MYSQL_ATTR_SSL_CA')
         && str_contains($source, 'PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')
         && str_contains($source, 'ODL_TLS_NOT_ACTIVE'),
-    'adapter requires verified TLS and active cipher'
+    'adapter supports optional CA and requires active TLS cipher'
 );
 $report(
     str_contains($source, 'PDO::ATTR_PERSISTENT => false')
@@ -113,7 +113,7 @@ foreach ($output as $line) {
     }
 }
 $report(
-    $exitCode === 0 && $resultLine === 'RESULT checks=16 failed=0',
+    $exitCode === 0 && $resultLine === 'RESULT checks=17 failed=0',
     'adapter characterization passes'
 );
 

@@ -43,6 +43,16 @@ try {
         5
     );
     $report($config->port === 3308 && $config->connectTimeout === 5, 'valid private config accepted');
+    $configWithoutCa = new OdlSourceConfig(
+        '172.16.2.224',
+        3308,
+        'upnm',
+        'viewer',
+        'private-test-value',
+        '',
+        5
+    );
+    $report($configWithoutCa->sslCaPath === '', 'UAT config accepts optional CA');
 
     $capturedQuery = '';
     $source = new OdlStudentSource(
