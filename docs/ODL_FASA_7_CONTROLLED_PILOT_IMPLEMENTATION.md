@@ -2,7 +2,7 @@
 
 **Tarikh authorization:** 23 Julai 2026
 
-**Status:** `PILOT APPLIED / CLOSURE PENDING`
+**Status:** `PASS / CLOSED`
 
 **Environment:** UAT
 
@@ -130,6 +130,17 @@ Production: not authorized
 Apply flag dipulangkan kepada `false` sebaik sahaja transaction dan independent
 reconciliation selesai. Cubaan runner tanpa typed execution token ditolak.
 
-Closure masih memerlukan activation/reset yang diluluskan dan satu login/ACL
-smoke test bagi pilot account. Initial password dijana secara rawak dan hanya
-hash disimpan; tiada plaintext credential tersedia dalam log atau output.
+Login/ACL smoke test kemudiannya disahkan `PASS` oleh Firdaus, System
+Analyst/DBA. Akaun yang diuji berfungsi sebagai `Pelajar/10` dengan membership
+`STUDENT_ODL_PG`.
+
+```text
+Decision: PASS / CLOSED
+Approval date: 23 Julai 2026
+Evidence reference: ONEID-ODL-F7-20260723-01
+Correlation ID: 0763c8dd60a3cc21
+```
+
+Initial password dijana secara rawak dan hanya hash disimpan; tiada plaintext
+credential tersedia dalam log atau output. Selepas closure, Pilot Preview dan
+Apply dikembalikan kepada `false` dan private digest allowlist dikosongkan.
