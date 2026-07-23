@@ -3811,7 +3811,16 @@
          function external_action_total(actionCounts, sourceCode){
             var total = 0;
             var counts = actionCounts[sourceCode] || {};
-            Object.keys(counts).forEach(function(action){
+            var actionable = [
+               'NEW',
+               'CANDIDATE_NEW',
+               'UPDATE',
+               'REACTIVATE',
+               'DEACTIVATE',
+               'CANDIDATE_DEACTIVATE',
+               'ADD_MEMBERSHIP'
+            ];
+            actionable.forEach(function(action){
                total += Number(counts[action] || 0);
             });
             return total;
@@ -5314,6 +5323,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         "Matrik, IC dan external membership collision diblock sebelum approval; persistence turut menyemak semula ownership dalam transaction.",
         "E-mel kosong daripada ODL tidak memadam e-mel OneID sedia ada, manakala akaun manual kekal protected.",
         "External Sync Summary kekal read-only dan notifikasi parent modal dipaparkan hanya apabila sesuatu sumber mempunyai tindakan atau block.",
+        "Badge External Sync hanya mengira tindakan sebenar; rekod KEEP yang telah synchronized tidak lagi menghasilkan loceng palsu.",
         "Automatic scheduler, unattended mutation dan production rollout ODL kekal disabled.",
         "Dokumen audit merekod Fasa 0 hingga 8 PASS/CLOSED serta Fasa 9 Preview Ready di bawah ONEID-ODL-F9-20260724-01."
       ]

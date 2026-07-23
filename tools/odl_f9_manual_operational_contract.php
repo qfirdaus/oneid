@@ -29,6 +29,15 @@ $ui=(string)file_get_contents($root.'/admin/dashboard.php');
 $r(str_contains($ui,"pick_preview_sync_user('STUDENT_ODL_PG')")
  &&str_contains($ui,"STUDENT_ODL_PG: 'ODL External Sync'"),
  'Admin routes ODL through guarded Preview and Apply modal');
+$badgeStart=strpos($ui,'function external_action_total(');
+$badgeEnd=strpos($ui,'function show_external_action_notice(',$badgeStart?:0);
+$badgeFunction=$badgeStart!==false&&$badgeEnd!==false
+ ?substr($ui,$badgeStart,$badgeEnd-$badgeStart):'';
+$r(str_contains($badgeFunction,"'CANDIDATE_NEW'")
+ &&str_contains($badgeFunction,"'CANDIDATE_DEACTIVATE'")
+ &&str_contains($badgeFunction,"'ADD_MEMBERSHIP'")
+ &&!str_contains($badgeFunction,'KEEP_ACCOUNT_ACTIVE'),
+ 'notification badge counts actionable changes and excludes KEEP');
 $runtime=(string)file_get_contents($root.'/config/runtime.php');
 $r(str_contains($runtime,"'ONEID_ODL_OPERATIONAL_PREVIEW_ENABLED' => 'false'")
  &&str_contains($runtime,"'ONEID_ODL_OPERATIONAL_APPLY_ENABLED' => 'false'"),
