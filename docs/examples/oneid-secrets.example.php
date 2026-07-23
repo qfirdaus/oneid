@@ -67,6 +67,12 @@ return [
     'ONEID_SYNC_PILOT_DEACTIVATE_LIMIT' => '0',
     'ONEID_SYNC_PILOT_REACTIVATE_LIMIT' => '0',
 
+    // ODL Controlled Pilot: implementation defaults remain fail-closed.
+    'ONEID_ODL_PILOT_PREVIEW_ENABLED' => 'false',
+    'ONEID_ODL_PILOT_APPLY_ENABLED' => 'false',
+    // Exactly three SHA-256 digests of normalized "matric|IC"; never raw PII.
+    'ONEID_ODL_PILOT_IDENTITY_DIGESTS' => '',
+
     // Backup and restore rehearsal
     'ONEID_REHEARSAL_ALLOWED_SERVER_HOSTNAME' => '',
     'ONEID_REHEARSAL_ALLOWED_SOURCE_DATABASE' => '',

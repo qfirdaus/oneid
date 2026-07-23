@@ -5314,7 +5314,8 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         "Preview modal diperluas, paparan source diseragamkan dan penutupan child modal kembali kepada pilihan External Sync atau Manual Add User.",
         "Endpoint external lama yang dikuarantin kekal tidak boleh digunakan dan semua external database reads melalui polisi read-only.",
         "Had request, verification dan lockout OTP e-mel Admin 2FA kini boleh dikonfigurasi melalui private runtime tanpa mendedahkan secret.",
-        "Apabila grant Administrator tamat tetapi sesi OneID masih aktif, refresh halaman admin kembali ke dashboard pengguna; login hanya diperlukan apabila sesi OneID turut tamat."
+        "Apabila grant Administrator tamat tetapi sesi OneID masih aktif, refresh halaman admin kembali ke dashboard pengguna; login hanya diperlukan apabila sesi OneID turut tamat.",
+        "ODL Fasa 7 implementation menyediakan exact-three NEW-only planner, dormant writer, audit, reconciliation dan targeted rollback; Pilot Preview dan Apply sebenar kekal disabled."
       ]
     },
     {

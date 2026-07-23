@@ -49,6 +49,9 @@ Preview tanpa mutation.
 - Shadow Preview memaparkan Staff, UG dan ODL secara source-specific serta
   digest, health, shrink, membership dan calon tindakan;
 - ODL Apply, mutation pengguna dan automatic scheduler kekal disabled.
+- Fasa 7 implementation menyediakan exact-three NEW-only planner, dormant
+  transactional writer, audit event, reconciliation dan targeted rollback;
+  Pilot Preview/Apply sebenar masih tidak diaktifkan.
 
 ## Penambahbaikan UI dan notifikasi
 

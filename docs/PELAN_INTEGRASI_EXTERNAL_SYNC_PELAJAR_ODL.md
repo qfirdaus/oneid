@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–6 `PASS / CLOSED`; Fasa 7 Controlled Pilot Apply `NOT AUTHORIZED`
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–6 `PASS / CLOSED`; Fasa 7 implementation complete, Pilot Preview/Apply `NOT AUTHORIZED`
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -1002,7 +1002,7 @@ staging dalam observation window UAT pendek adalah identik: Staff 1061, UG
 mutation. Firdaus, System Analyst/DBA meluluskan closure pada 23 Julai 2026
 melalui evidence `ONEID-ODL-F6-20260723-01`.
 
-### Fasa 7 — Controlled Pilot Apply — `NOT AUTHORIZED`
+### Fasa 7 — Controlled Pilot Apply — `IMPLEMENTATION COMPLETE / EXECUTION NOT AUTHORIZED`
 
 Aktiviti:
 
@@ -1022,6 +1022,14 @@ Exit gate:
 
 Rollback: revert pilot change set berdasarkan correlation ID; jangan membuat
 bulk delete atau broad deactivation.
+
+Implementation-only authorization diterima pada 23 Julai 2026 untuk tepat tiga
+pelajar ODL dan tindakan `NEW` sahaja. Exact-three private digest config,
+NEW-only planner, dormant transactional writer, provenance event migration,
+one-time approval boundary, reconciliation dan targeted rollback telah dibina
+serta lulus isolated rehearsal. Tiada migration live, endpoint Apply, pilot
+Preview atau mutation UAT diaktifkan. Rujuk
+[`ODL_FASA_7_CONTROLLED_PILOT_IMPLEMENTATION.md`](ODL_FASA_7_CONTROLLED_PILOT_IMPLEMENTATION.md).
 
 ### Fasa 8 — Controlled Full Apply — `NOT AUTHORIZED`
 
@@ -1235,7 +1243,7 @@ Pada semakan 23 Julai 2026:
 | Fasa 4 | `PASS / CLOSED` — data-quality audit WSL/staging lulus |
 | Fasa 5 | `PASS / CLOSED` — source-aware planner dan safety lulus |
 | Fasa 6 | `PASS / CLOSED` — tiga snapshot staging stabil; `ONEID-ODL-F6-20260723-01` |
-| Fasa seterusnya | Fasa 7 — Controlled Pilot Apply, `NOT AUTHORIZED` |
+| Fasa seterusnya | Fasa 7 Pilot Preview — implementation tersedia, authorization belum diberi |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence

@@ -51,6 +51,9 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_SYNC_OPERATIONAL_WARN_REACTIVATE' => '100',
         'ONEID_SYNC_OPERATIONAL_WARN_TOTAL' => '1500',
         'ONEID_SYNC_OPERATIONAL_MAX_DEACTIVATE' => '50',
+        // ODL F7 implementation is dormant until separate Preview/Apply approvals.
+        'ONEID_ODL_PILOT_PREVIEW_ENABLED' => 'false',
+        'ONEID_ODL_PILOT_APPLY_ENABLED' => 'false',
         'ONEID_SYNC_TRIGGERED_BY' => 'Sync Agent',
     ];
     static $local = null;
