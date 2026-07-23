@@ -35,6 +35,10 @@ $checks = [
         && str_contains($adapter, "\$user['u_category']")
         && str_contains($adapter, '$activeSourceUserIds')
         && str_contains($adapter, '$this->inner->activeUsers()'),
+    'UG Preview endpoint uses active source membership scope' =>
+        str_contains($q, 'sync_get_active_user_ids_by_source(')
+        && str_contains($q, 'UgStudentSource::SOURCE_CODE')
+        && str_contains($q, '$syncScope->sourceCode'),
 ];
 $failed = 0;
 foreach ($checks as $label => $passed) {

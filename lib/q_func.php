@@ -516,7 +516,14 @@ function string_sanitize($s) {
                 );
                 $syncPersistence = new \OneId\App\Sync\Adapters\SourceScopedSyncPersistenceAdapter(
                     new \OneId\App\Sync\Adapters\DatabaseSyncPersistenceAdapter($operation),
-                    $syncScope->categoryIds
+                    $syncScope->categoryIds,
+                    $syncScope->sourceCode
+                        === \OneId\App\Sync\Odl\UgStudentSource::SOURCE_CODE
+                        ? fn(): array =>
+                            $operation->sync_get_active_user_ids_by_source(
+                                $syncScope->sourceCode
+                            )
+                        : null
                 );
                 $approvalStore = new \OneId\App\Sync\Adapters\SessionSyncApprovalStore();
                 $approvalService = new \OneId\App\Sync\SyncApprovalService(
