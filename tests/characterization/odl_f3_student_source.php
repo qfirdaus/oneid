@@ -68,6 +68,7 @@ try {
                 'DATA6' => 'Faculty',
                 'DATA7' => 'Programme',
                 'EXT_DATA_SOURCE_CATEGORY' => 'Pelajar',
+                'EXTERNAL_STATUS_CODE' => '2',
             ]];
         }
     );
@@ -77,6 +78,7 @@ try {
     $report($rows[0]['data2'] === '900101011234', 'ODL IC is canonicalized');
     $report($rows[0]['data4'] === 'PG001', 'ODL Matrik is canonicalized');
     $report($rows[0]['ext_data_source_category'] === 'Pelajar', 'ODL remains Pelajar');
+    $report($rows[0]['external_status_code'] === '2', 'ODL eligibility status retained for audit');
     $report($rows[0]['source_code'] === 'STUDENT_ODL_PG', 'ODL source code is application-owned');
 
     $emptyRejected = false;

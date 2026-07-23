@@ -25,8 +25,10 @@ SELECT
     '' AS data10,
     '' AS data11,
     '' AS data12,
-    'Pelajar' AS ext_data_source_category
+    'Pelajar' AS ext_data_source_category,
+    status_code AS external_status_code
 FROM student_basic_info
+WHERE status_code IN (2, 4, 5)
 SQL;
 
     /** @var null|\Closure(OdlSourceConfig,string):array<int,array<string,mixed>> */
@@ -58,6 +60,10 @@ SQL;
                 throw new \RuntimeException('ODL_SOURCE_ROW_INVALID');
             }
             $canonical = ExternalRowNormalizer::normalize($row);
+            $lower = array_change_key_case($row, CASE_LOWER);
+            $canonical['external_status_code'] = trim(
+                (string) ($lower['external_status_code'] ?? '')
+            );
             $canonical['source_code'] = self::SOURCE_CODE;
             $normalized[] = $canonical;
         }

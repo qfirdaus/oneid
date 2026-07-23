@@ -37,6 +37,7 @@ $report(
 $report(
     str_contains($source, 'FROM student_basic_info')
         && substr_count($source, 'FROM student_basic_info') === 1
+        && str_contains($source, 'WHERE status_code IN (2, 4, 5)')
         && !preg_match(
             '/\b(?:INSERT|UPDATE|DELETE|REPLACE|ALTER|CREATE|DROP|TRUNCATE)\b/i',
             OdlStudentSourceQuery::value($source)
@@ -113,7 +114,7 @@ foreach ($output as $line) {
     }
 }
 $report(
-    $exitCode === 0 && $resultLine === 'RESULT checks=17 failed=0',
+    $exitCode === 0 && $resultLine === 'RESULT checks=18 failed=0',
     'adapter characterization passes'
 );
 

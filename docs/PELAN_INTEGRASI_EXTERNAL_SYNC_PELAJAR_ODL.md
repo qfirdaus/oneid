@@ -923,7 +923,7 @@ Development preflight WSL lulus dengan 53 row, zero blank matrik/IC, zero wrong
 category/source dan zero mutation. Selepas source code dipush dan dipull ke
 OneID UAT, preflight yang sama mesti diulang dengan private runtime staging.
 
-### Fasa 4 — ODL data-quality audit — `FEASIBILITY BASELINE PARTIAL / NOT STARTED`
+### Fasa 4 — ODL data-quality audit — `WSL AUDIT PASSED / STAGING AUDIT PENDING`
 
 Aktiviti:
 
@@ -941,6 +941,11 @@ Exit gate:
 - data owner mengesahkan view ialah active/authoritative scope yang betul.
 
 Rollback: tiada mutation; hapus artifact sensitif mengikut retention policy.
+
+Implementation evidence:
+[`ODL_FASA_4_DATA_QUALITY_AUDIT.md`](ODL_FASA_4_DATA_QUALITY_AUDIT.md).
+Baseline WSL ialah 53 row status aktif `2`, zero blocking/review findings,
+zero raw PII dan zero mutation. Audit yang sama mesti diulang di staging.
 
 ### Fasa 5 — Source-aware planner dan safety — `NOT STARTED`
 
