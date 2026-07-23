@@ -711,6 +711,42 @@
             </div>
             <!-- /.modal-dialog -->
          </div>
+         <div id="modal_odl_shadow_preview" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_odl_shadow_preview" aria-hidden="true">
+            <div class="modal-dialog modal-lg oneid-sync-preview-dialog">
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                     <h5 class="modal-title" id="aria_modal_odl_shadow_preview">ODL External Sync — Read Only Shadow Preview</h5>
+                  </div>
+                  <div class="modal-body">
+                     <div id="odl_shadow_progress" class="progress progress-lg">
+                        <div class="progress-bar progress-bar-info active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%" role="progressbar">Generating ODL read-only shadow preview...</div>
+                     </div>
+                     <div id="odl_shadow_result" style="display:none">
+                        <h6 class="mb-1">Preview result (nothing has been applied):</h6>
+                        <div class="sync-preview-table-wrap">
+                           <table class="table table-borderless sync-preview-table">
+                              <tbody>
+                                 <tr><td>Source rows (ODL / UG):</td><td id="odl_shadow_rows">-</td></tr>
+                                 <tr><td>Membership (Keep / Add):</td><td id="odl_shadow_membership">-</td></tr>
+                                 <tr><td>Candidate (New / Deactivate):</td><td id="odl_shadow_candidates">-</td></tr>
+                                 <tr><td>Accounts kept active:</td><td id="odl_shadow_keep_active">-</td></tr>
+                                 <tr><td>Risk / Apply / Mutation:</td><td id="odl_shadow_safety">-</td></tr>
+                                 <tr><td>Preview digest:</td><td id="odl_shadow_digest">-</td></tr>
+                                 <tr><td>Preview status:</td><td><span id="odl_shadow_status" class="users-view-status">-</span></td></tr>
+                                 <tr><td>Blocking codes:</td><td><ul id="odl_shadow_blocks" class="pl-15"></ul></td></tr>
+                              </tbody>
+                           </table>
+                        </div>
+                        <p class="text-muted">Shadow Preview sahaja. Apply dan automatic scheduler kekal disabled.</p>
+                     </div>
+                  </div>
+                  <div class="modal-footer">
+                     <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                  </div>
+               </div>
+            </div>
+         </div>
          <div id="modal_add_new_user_manual" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_add_new_user_manual" aria-hidden="true">
             <div class="modal-dialog">
                <div class="modal-content">
@@ -4053,11 +4089,19 @@
                beforeSend: function(){
                   $('#btn_odl_shadow').prop('disabled', true)
                      .html('<i class="fa fa-spinner fa-spin"></i> Shadow preview...');
+                  $('#modal_open_add_user_option').modal('hide');
+                  $('#modal_odl_shadow_preview').modal('show');
+                  $('#odl_shadow_progress').show();
+                  $('#odl_shadow_result').hide();
                },
                success: function(response){
+                  $('#odl_shadow_progress').hide();
+                  $('#odl_shadow_result').show();
                   if(!response || response.status !== 1 || response.mode !== 'odl_shadow_preview'){
                      var code = response && response.code ? response.code : 'ODL_SHADOW_PREVIEW_FAILED';
-                     swal('ODL Shadow Preview blocked', 'No data was changed. Code: ' + code, 'error');
+                     $('#odl_shadow_status').removeClass('badge-success badge-warning')
+                        .addClass('badge badge-danger').text('FAILED — no data changed');
+                     $('#odl_shadow_blocks').empty().append($('<li>').text(code));
                      return;
                   }
                   var rows = response.source_rows || {};
@@ -4065,27 +4109,49 @@
                   var actionCounts = response.action_counts || {};
                   var membershipCounts = actionCounts.membership || {};
                   var accountCounts = actionCounts.account || {};
-                  var summary = 'ODL rows: ' + Number(rows.STUDENT_ODL_PG || 0)
-                     + '\nUG rows: ' + Number(rows.STUDENT_UG || 0)
-                     + '\nKeep membership: ' + Number(membershipCounts.KEEP_MEMBERSHIP_ACTIVE || 0)
-                     + '\nAdd membership: ' + Number(membershipCounts.ADD_MEMBERSHIP || 0)
-                     + '\nCandidate new: ' + Number(accountCounts.CANDIDATE_NEW || 0)
-                     + '\nCandidate deactivate: ' + Number(accountCounts.CANDIDATE_DEACTIVATE || 0)
-                     + '\nRisk: ' + String(response.risk_level || 'blocked')
-                     + '\nApply: DISABLED'
-                     + '\nMutation statements: ' + Number(response.mutation_statements || 0)
-                     + '\nDigest: ' + String(response.preview_digest || '-');
                   var blocks = response.blocking_codes || [];
-                  if(blocks.length > 0){
-                     summary += '\nBlocking codes: ' + blocks.join(', ');
-                  }
-                  swal(
-                     'ODL Shadow Preview',
-                     summary,
-                     response.risk_level === 'normal' ? 'success' : 'warning'
+                  $('#odl_shadow_rows').text(
+                     Number(rows.STUDENT_ODL_PG || 0) + ' / '
+                     + Number(rows.STUDENT_UG || 0)
                   );
+                  $('#odl_shadow_membership').text(
+                     Number(membershipCounts.KEEP_MEMBERSHIP_ACTIVE || 0) + ' / '
+                     + Number(membershipCounts.ADD_MEMBERSHIP || 0)
+                  );
+                  $('#odl_shadow_candidates').text(
+                     Number(accountCounts.CANDIDATE_NEW || 0) + ' / '
+                     + Number(accountCounts.CANDIDATE_DEACTIVATE || 0)
+                  );
+                  $('#odl_shadow_keep_active').text(
+                     Number(accountCounts.KEEP_ACCOUNT_ACTIVE || 0)
+                  );
+                  $('#odl_shadow_safety').text(
+                     String(response.risk_level || 'blocked').toUpperCase()
+                     + ' / DISABLED / ' + Number(response.mutation_statements || 0)
+                  );
+                  $('#odl_shadow_digest').css({
+                     'overflow-wrap':'anywhere',
+                     'word-break':'break-all'
+                  }).text(String(response.preview_digest || '-'));
+                  $('#odl_shadow_status')
+                     .removeClass('badge-danger badge-warning badge-success')
+                     .addClass(response.risk_level === 'normal'
+                        ? 'badge badge-success' : 'badge badge-warning')
+                     .text(response.risk_level === 'normal'
+                        ? 'SHADOW PREVIEW READY — READ ONLY'
+                        : 'BLOCKED — REVIEW REQUIRED');
+                  var blockList = $('#odl_shadow_blocks').empty();
+                  if(blocks.length === 0){
+                     $('<li>').text('No blocking code detected.').appendTo(blockList);
+                  } else {
+                     blocks.forEach(function(block){
+                        $('<li>').text(block).appendTo(blockList);
+                     });
+                  }
                },
                error: function(xhr){
+                  $('#odl_shadow_progress').hide();
+                  $('#odl_shadow_result').show();
                   var response = xhr.responseJSON || null;
                   if(!response && xhr.responseText){
                      try {
@@ -4096,13 +4162,11 @@
                      ? response.code
                      : 'HTTP_' + String(xhr.status || 0);
                   var correlation = response && response.correlation_id
-                     ? '\nReference: ' + response.correlation_id
-                     : '';
-                  swal(
-                     'ODL Shadow Preview failed',
-                     'No data was changed.\nCode: ' + code + correlation,
-                     'error'
-                  );
+                     ? ' — Reference: ' + response.correlation_id : '';
+                  $('#odl_shadow_status').removeClass('badge-success badge-warning')
+                     .addClass('badge badge-danger').text('FAILED — no data changed');
+                  $('#odl_shadow_blocks').empty()
+                     .append($('<li>').text(code + correlation));
                },
                complete: function(){
                   $('#btn_odl_shadow').prop('disabled', false)
@@ -6130,7 +6194,8 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         cursor: not-allowed;
       }
 
-      #modal_add_new_single_user .sync-preview-table-wrap {
+      #modal_add_new_single_user .sync-preview-table-wrap,
+      #modal_odl_shadow_preview .sync-preview-table-wrap {
         width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -6149,12 +6214,14 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          padding-right: 18px;
       }
 
-      #modal_add_new_single_user .oneid-sync-preview-dialog {
+      #modal_add_new_single_user .oneid-sync-preview-dialog,
+      #modal_odl_shadow_preview .oneid-sync-preview-dialog {
          width: min(1100px, calc(100vw - 30px));
          max-width: 1100px;
       }
 
-      #modal_add_new_single_user .modal-content {
+      #modal_add_new_single_user .modal-content,
+      #modal_odl_shadow_preview .modal-content {
          overflow-wrap: anywhere;
       }
 
@@ -6164,24 +6231,28 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          }
       }
 
-      #modal_add_new_single_user .sync-preview-table {
+      #modal_add_new_single_user .sync-preview-table,
+      #modal_odl_shadow_preview .sync-preview-table {
         width: 100%;
         min-width: 520px;
         table-layout: fixed;
       }
 
-      #modal_add_new_single_user .sync-preview-table td {
+      #modal_add_new_single_user .sync-preview-table td,
+      #modal_odl_shadow_preview .sync-preview-table td {
         vertical-align: top !important;
         text-align: left !important;
       }
 
-      #modal_add_new_single_user .sync-preview-table td:first-child {
+      #modal_add_new_single_user .sync-preview-table td:first-child,
+      #modal_odl_shadow_preview .sync-preview-table td:first-child {
         width: 230px;
         white-space: nowrap;
         font-weight: 500;
       }
 
-      #modal_add_new_single_user .sync-preview-table td:last-child {
+      #modal_add_new_single_user .sync-preview-table td:last-child,
+      #modal_odl_shadow_preview .sync-preview-table td:last-child {
         overflow-wrap: anywhere;
         word-break: break-word;
       }

@@ -24,8 +24,10 @@ $report(str_contains($endpoint, "'can_apply' => false") && str_contains($endpoin
 $report(
     str_contains($ui, 'ODL External Sync (Read Only Shadow Preview)')
         && str_contains($ui, 'Undergraduate External Sync')
+        && str_contains($ui, 'modal_odl_shadow_preview')
+        && str_contains($ui, 'SHADOW PREVIEW READY — READ ONLY')
         && str_contains($ui, "data: {admin_preview_odl_shadow:''}"),
-    'wide read-only admin controls wired'
+    'wide read-only admin modal wired'
 );
 $report(!preg_match('/\b(?:INSERT|UPDATE|DELETE|REPLACE|ALTER|DROP|TRUNCATE)\b/i', $runner), 'CLI runner contains no mutation SQL');
 $report(str_contains($runner, 'OdlShadowPreviewService') && str_contains($runner, 'can_apply=false'), 'CLI uses same service and fail-safe output');
