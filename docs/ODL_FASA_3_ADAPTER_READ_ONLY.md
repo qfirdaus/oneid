@@ -37,11 +37,25 @@ Sambungan manual tersebut membuktikan route dan TLS tersedia, tetapi tidak
 menggantikan runtime preflight adapter kerana adapter mewajibkan CA dan
 pengesahan sijil server.
 
-## Private runtime yang masih diperlukan
+## Development dan deployment flow
 
-Nilai berikut mesti ditambah terus oleh administrator ke `.private/runtime.php`
-atau secret store setara. Password dan kandungan private secret tidak boleh
-dimasukkan ke Git, output ujian, screenshot atau log.
+Urutan pelaksanaan yang diluluskan:
+
+1. develop dan jalankan semua ujian dari WSL pada local PC;
+2. isi `.private/runtime.php` WSL secara local untuk runtime preflight;
+3. setelah preflight WSL lulus, commit dan push hanya source code ke Git;
+4. pull commit dari Git ke OneID staging;
+5. isi secret staging secara berasingan pada `.private/runtime.php` staging;
+6. ulang runtime preflight dari staging sebelum sebarang fasa seterusnya.
+
+`.private/runtime.php` diabaikan oleh Git. Secret WSL tidak dihantar ke staging
+melalui repository dan setiap environment memiliki runtime secret sendiri.
+
+## Private runtime WSL yang masih diperlukan
+
+Nilai berikut mesti ditambah terus ke `.private/runtime.php` dalam WSL.
+Password dan kandungan private secret tidak boleh dimasukkan ke Git, output
+ujian, screenshot atau log.
 
 ```php
 'ONEID_ODL_MYSQL_HOST' => '172.16.2.224',
@@ -56,9 +70,9 @@ dimasukkan ke Git, output ujian, screenshot atau log.
 Fail CA mesti boleh dibaca oleh account servis OneID dan berada di luar
 direktori `public`.
 
-## Runtime exit check
+## Runtime exit check WSL
 
-Jalankan dari server OneID UAT:
+Jalankan dari root repository dalam WSL:
 
 ```bash
 php tools/odl_f3_runtime_preflight.php
@@ -77,6 +91,10 @@ Kriteria lulus:
 Script hanya memaparkan aggregate dan kod kegagalan yang disanitasi. Ia tidak
 memaparkan credential atau data peribadi.
 
+Kelulusan WSL membuktikan adapter, konfigurasi dan connectivity dari development
+environment. Ia tidak menggantikan preflight staging kerana source IP, route,
+CA trust dan runtime secret staging mungkin berbeza.
+
 ## Ujian
 
 ```bash
@@ -92,7 +110,9 @@ Semasa implementasi:
 
 ## Baki exit gate
 
-Fasa 3 belum ditutup sehingga runtime preflight sebenar berjaya menggunakan
-private configuration. Apply dan automatic sync kekal disabled.
+Implementation Fasa 3 belum dianggap sedia untuk staging sehingga runtime
+preflight WSL berjaya. Selepas deployment, exit gate environment staging pula
+memerlukan preflight yang sama menggunakan private configuration staging.
+Apply dan automatic sync kekal disabled.
 
 **Change ID:** `ONEID-ODL-F3-20260723-01`

@@ -919,9 +919,11 @@ Implementation evidence:
 [`ODL_FASA_3_ADAPTER_READ_ONLY.md`](ODL_FASA_3_ADAPTER_READ_ONLY.md).
 Adapter, private configuration contract dan unit/contract tests telah tersedia
 secara dormant. Ia belum disambungkan kepada Preview, Apply atau scheduler.
-Exit gate connection/fixed-view read masih menunggu tujuh nilai private runtime,
-termasuk password dan CA TLS, kemudian pelaksanaan
-`php tools/odl_f3_runtime_preflight.php` dari OneID UAT.
+Development preflight connection/fixed-view read masih menunggu tujuh nilai
+private runtime WSL, termasuk password dan CA TLS, kemudian pelaksanaan
+`php tools/odl_f3_runtime_preflight.php` dari WSL. Selepas source code dipush
+dan dipull ke OneID UAT, preflight yang sama mesti diulang dengan private
+runtime staging.
 
 ### Fasa 4 — ODL data-quality audit — `FEASIBILITY BASELINE PARTIAL / NOT STARTED`
 
