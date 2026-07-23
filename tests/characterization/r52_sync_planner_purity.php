@@ -150,7 +150,7 @@ $report(
 $runtimeHashes = [
     'lib/sync_user_runner.php' => '965fd187492e1f120b074601746b031474405480f234412e458f64189108c8bb',
     'lib/Database.php' => '71b51b7a9443bc3b83361be8b80c2ea464694af5454bbb38bfb80ad6ab3a1cce',
-    'lib/q_func.php' => '308b1e581eb9f876fc9cd5a2e2562dcf1b1faf521725843d88702c2bfbbe6257',
+    'lib/q_func.php' => 'e310108ddb89aa0a8a15c1dce3605e15f31a1eb60150f3a579c68905dda9d8eb',
 ];
 foreach ($runtimeHashes as $file => $expectedHash) {
     $actualHash = hash_file('sha256', $projectRoot . '/' . $file);

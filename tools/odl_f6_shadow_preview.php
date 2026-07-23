@@ -11,6 +11,7 @@ use OneId\App\Sync\Odl\OdlShadowPreviewReader;
 use OneId\App\Sync\Odl\OdlShadowPreviewService;
 use OneId\App\Sync\Odl\OdlSourceConfig;
 use OneId\App\Sync\Odl\OdlStudentSource;
+use OneId\App\Sync\Odl\StaffSource;
 use OneId\App\Sync\Odl\UgStudentSource;
 use OneId\App\Sync\SourceAware\SourceAwareSafetyPolicy;
 use OneId\App\Sync\SourceAware\SourceAwareStudentPlanner;
@@ -23,6 +24,7 @@ try {
     ]);
     $service = new OdlShadowPreviewService(
         OdlShadowPreviewConfig::fromPrivateRuntime(),
+        new StaffSource(),
         new OdlStudentSource(OdlSourceConfig::fromPrivateRuntime()),
         new UgStudentSource(),
         new OdlShadowPreviewReader($pdo),

@@ -24,13 +24,18 @@ $report(str_contains($endpoint, "'can_apply' => false") && str_contains($endpoin
 $report(
     str_contains($ui, 'ODL External Sync (Read Only Shadow Preview)')
         && str_contains($ui, 'Undergraduate External Sync')
+        && str_contains($ui, 'Staff External Sync')
+        && str_contains($ui, 'External Sync Summary')
+        && str_contains($ui, "preview_external_sync_view('STAFF_HR')")
+        && str_contains($ui, "preview_external_sync_view('STUDENT_UG')")
+        && str_contains($ui, "preview_external_sync_view('STUDENT_ODL_PG')")
         && str_contains($ui, 'modal_odl_shadow_preview')
         && str_contains($ui, 'SHADOW PREVIEW READY — READ ONLY')
         && substr_count($ui, 'oneid-return-add-user-options') === 7
         && str_contains($ui, "on('hidden.bs.modal'")
         && str_contains($ui, "$('#modal_open_add_user_option').modal('show')")
         && str_contains($ui, "data: {admin_preview_odl_shadow:''}"),
-    'wide read-only modal and parent return navigation wired'
+    'summary and source-specific read-only modal navigation wired'
 );
 $report(!preg_match('/\b(?:INSERT|UPDATE|DELETE|REPLACE|ALTER|DROP|TRUNCATE)\b/i', $runner), 'CLI runner contains no mutation SQL');
 $report(str_contains($runner, 'OdlShadowPreviewService') && str_contains($runner, 'can_apply=false'), 'CLI uses same service and fail-safe output');

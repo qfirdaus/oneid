@@ -10,6 +10,7 @@ final class OdlShadowPreviewService
 {
     public function __construct(
         private readonly OdlShadowPreviewConfig $config,
+        private readonly ExternalUserSourceInterface $staff,
         private readonly ExternalUserSourceInterface $odl,
         private readonly ExternalUserSourceInterface $ug,
         private readonly OdlShadowPreviewReader $reader,
@@ -22,8 +23,17 @@ final class OdlShadowPreviewService
         if (!$this->config->enabled) {
             throw new \RuntimeException('ODL_SHADOW_PREVIEW_DISABLED');
         }
+        $staffSnapshot = $this->snapshot(
+            StaffSource::SOURCE_CODE,
+            'staff',
+            $this->staff,
+            $this->config->staffBaselineRows,
+            ['EXTERNAL_STAFF_CONNECTION_FAILED', 'ODBC_EXTENSION_UNAVAILABLE'],
+            ['EXTERNAL_STAFF_QUERY_FAILED']
+        );
         $odlSnapshot = $this->snapshot(
             OdlStudentSource::SOURCE_CODE,
+            'student',
             $this->odl,
             $this->config->odlBaselineRows,
             ['ODL_SOURCE_CONNECTION_FAILED'],
@@ -31,13 +41,14 @@ final class OdlShadowPreviewService
         );
         $ugSnapshot = $this->snapshot(
             UgStudentSource::SOURCE_CODE,
+            'student',
             $this->ug,
             $this->config->ugBaselineRows,
             ['EXTERNAL_STUDENT_CONNECTION_FAILED', 'ODBC_EXTENSION_UNAVAILABLE'],
             ['EXTERNAL_STUDENT_QUERY_FAILED']
         );
         $plan = $this->planner->plan(
-            [$ugSnapshot, $odlSnapshot],
+            [$staffSnapshot, $ugSnapshot, $odlSnapshot],
             $this->reader->users(),
             $this->reader->memberships()
         );
@@ -51,6 +62,7 @@ final class OdlShadowPreviewService
         $safe['mode'] = 'odl_shadow_preview';
         $safe['risk_level'] = $plan->allowed ? 'normal' : 'blocked';
         $safe['source_rows'] = [
+            StaffSource::SOURCE_CODE => count($staffSnapshot->rows),
             UgStudentSource::SOURCE_CODE => count($ugSnapshot->rows),
             OdlStudentSource::SOURCE_CODE => count($odlSnapshot->rows),
         ];
@@ -61,21 +73,30 @@ final class OdlShadowPreviewService
         return $safe;
     }
 
-    /** @param list<array<string,mixed>> $actions @return array<string,int> */
+    /** @param list<array<string,mixed>> $actions @return array<string,mixed> */
     private function actionCounts(array $actions): array
     {
-        $counts = [];
+        $total = [];
+        $bySource = [];
         foreach ($actions as $action) {
             $name = (string) ($action['action'] ?? 'UNKNOWN');
-            $counts[$name] = ($counts[$name] ?? 0) + 1;
+            $source = (string) ($action['source_code'] ?? 'UNKNOWN');
+            $total[$name] = ($total[$name] ?? 0) + 1;
+            $bySource[$source][$name] = ($bySource[$source][$name] ?? 0) + 1;
         }
-        ksort($counts, SORT_STRING);
-        return $counts;
+        ksort($total, SORT_STRING);
+        ksort($bySource, SORT_STRING);
+        foreach ($bySource as &$counts) {
+            ksort($counts, SORT_STRING);
+        }
+        unset($counts);
+        return ['total' => $total, 'by_source' => $bySource];
     }
 
     /** @param list<string> $connectionCodes @param list<string> $queryCodes */
     private function snapshot(
         string $sourceCode,
+        string $sourceFamily,
         ExternalUserSourceInterface $source,
         int $baseline,
         array $connectionCodes,
@@ -84,23 +105,27 @@ final class OdlShadowPreviewService
         try {
             $rows = $source->fetchAll();
             return new SourceSnapshot(
-                $sourceCode, 'student', 'success', $rows, $baseline
+                $sourceCode, $sourceFamily, 'success', $rows, $baseline
             );
         } catch (\Throwable $exception) {
             $message = $exception->getMessage();
             if (in_array($message, $connectionCodes, true)) {
                 return new SourceSnapshot(
-                    $sourceCode, 'student', 'connection_failed', [], $baseline
+                    $sourceCode, $sourceFamily, 'connection_failed', [], $baseline
                 );
             }
             if (in_array($message, $queryCodes, true)) {
                 return new SourceSnapshot(
-                    $sourceCode, 'student', 'query_failed', [], $baseline
+                    $sourceCode, $sourceFamily, 'query_failed', [], $baseline
                 );
             }
-            if (in_array($message, ['ODL_SOURCE_EMPTY', 'EXTERNAL_STUDENT_EMPTY'], true)) {
+            if (in_array($message, [
+                'ODL_SOURCE_EMPTY',
+                'EXTERNAL_STUDENT_EMPTY',
+                'EXTERNAL_STAFF_EMPTY',
+            ], true)) {
                 return new SourceSnapshot(
-                    $sourceCode, 'student', 'success', [], $baseline
+                    $sourceCode, $sourceFamily, 'success', [], $baseline
                 );
             }
             throw $exception;

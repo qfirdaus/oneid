@@ -602,11 +602,17 @@
                                        <div class="form-wrap">
                                           <div class="form-body overflow-hide">
                                              <div class="form-group">
-                                                <button id="btn_sync" class="btn btn-primary btn-outline btn-block oneid-sync-choice" type="button" onclick="pick_preview_sync_user();"><i class="fa fa-search"></i> Undergraduate External Sync</button>
+                                                <button id="btn_external_summary" class="btn btn-primary btn-outline btn-block oneid-sync-choice" type="button" onclick="preview_external_sync_view('SUMMARY');"><i class="fa fa-dashboard"></i> External Sync Summary</button>
                                                 <p id="sync_status_msg" class="text-muted text-center mt-10" style="display:none;"></p>
                                              </div>
                                              <div class="form-group">
-                                                <button id="btn_odl_shadow" class="btn btn-info btn-outline btn-block oneid-sync-choice" type="button" onclick="preview_odl_shadow();"><i class="fa fa-eye"></i> ODL External Sync (Read Only Shadow Preview)</button>
+                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="preview_external_sync_view('STAFF_HR');"><i class="fa fa-briefcase"></i> Staff External Sync</button>
+                                             </div>
+                                             <div class="form-group">
+                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="preview_external_sync_view('STUDENT_UG');"><i class="fa fa-graduation-cap"></i> Undergraduate External Sync</button>
+                                             </div>
+                                             <div class="form-group">
+                                                <button class="btn btn-info btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="preview_external_sync_view('STUDENT_ODL_PG');"><i class="fa fa-eye"></i> ODL External Sync (Read Only Shadow Preview)</button>
                                              </div>
                                              <div class="form-group">
                                                 <button class="btn  btn-primary btn-outline btn-block" type="button" onclick="pick_add_single_user();"><i class="fa fa-plus"></i> Manual Add User</button>
@@ -716,7 +722,7 @@
                <div class="modal-content">
                   <div class="modal-header">
                      <button type="button" class="close oneid-return-add-user-options" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_odl_shadow_preview">ODL External Sync — Read Only Shadow Preview</h5>
+                     <h5 class="modal-title" id="aria_modal_odl_shadow_preview">External Sync Preview — Read Only</h5>
                   </div>
                   <div class="modal-body">
                      <div id="odl_shadow_progress" class="progress progress-lg">
@@ -727,7 +733,8 @@
                         <div class="sync-preview-table-wrap">
                            <table class="table table-borderless sync-preview-table">
                               <tbody>
-                                 <tr><td>Source rows (ODL / UG):</td><td id="odl_shadow_rows">-</td></tr>
+                                 <tr><td id="external_preview_rows_label">Source rows:</td><td id="odl_shadow_rows">-</td></tr>
+                                 <tr><td>Source health / shrink:</td><td id="external_preview_health">-</td></tr>
                                  <tr><td>Membership (Keep / Add):</td><td id="odl_shadow_membership">-</td></tr>
                                  <tr><td>Candidate (New / Deactivate):</td><td id="odl_shadow_candidates">-</td></tr>
                                  <tr><td>Accounts kept active:</td><td id="odl_shadow_keep_active">-</td></tr>
@@ -4096,17 +4103,27 @@
             });
          }
 
-         function preview_odl_shadow(){
+         function preview_external_sync_view(sourceView){
+            var viewLabels = {
+               SUMMARY: 'External Sync Summary',
+               STAFF_HR: 'Staff External Sync',
+               STUDENT_UG: 'Undergraduate External Sync',
+               STUDENT_ODL_PG: 'ODL External Sync'
+            };
+            var selectedView = viewLabels[sourceView] ? sourceView : 'SUMMARY';
             $.ajax({
                type: 'POST',
                url: '../lib/q_func',
                dataType: 'json',
                data: {admin_preview_odl_shadow:''},
                beforeSend: function(){
-                  $('#btn_odl_shadow').prop('disabled', true)
-                     .html('<i class="fa fa-spinner fa-spin"></i> Shadow preview...');
+                  $('#btn_external_summary, .external-source-preview-button')
+                     .prop('disabled', true);
                   $('#modal_open_add_user_option').modal('hide');
                   $('#modal_odl_shadow_preview').modal('show');
+                  $('#aria_modal_odl_shadow_preview').text(
+                     viewLabels[selectedView] + ' — Read Only Preview'
+                  );
                   $('#odl_shadow_progress').show();
                   $('#odl_shadow_result').hide();
                },
@@ -4122,14 +4139,43 @@
                   }
                   var rows = response.source_rows || {};
                   var metrics = response.metrics || {};
+                  var sourceMetrics = metrics.sources || {};
                   var actionCounts = response.action_counts || {};
-                  var membershipCounts = actionCounts.membership || {};
-                  var accountCounts = actionCounts.account || {};
+                  var membershipActions = actionCounts.membership || {};
+                  var accountActions = actionCounts.account || {};
+                  var membershipBySource = membershipActions.by_source || {};
+                  var accountBySource = accountActions.by_source || {};
+                  var membershipCounts = selectedView === 'SUMMARY'
+                     ? (membershipActions.total || {})
+                     : (membershipBySource[selectedView] || {});
+                  var accountCounts = selectedView === 'SUMMARY'
+                     ? (accountActions.total || {})
+                     : (accountBySource[selectedView] || {});
                   var blocks = response.blocking_codes || [];
-                  $('#odl_shadow_rows').text(
-                     Number(rows.STUDENT_ODL_PG || 0) + ' / '
-                     + Number(rows.STUDENT_UG || 0)
-                  );
+                  if(selectedView === 'SUMMARY'){
+                     $('#external_preview_rows_label').text('Source rows (Staff / UG / ODL):');
+                     $('#odl_shadow_rows').text(
+                        Number(rows.STAFF_HR || 0) + ' / '
+                        + Number(rows.STUDENT_UG || 0) + ' / '
+                        + Number(rows.STUDENT_ODL_PG || 0)
+                     );
+                     $('#external_preview_health').text(
+                        'Staff ' + String((sourceMetrics.STAFF_HR || {}).status || 'unknown').toUpperCase()
+                        + ' (' + Number((sourceMetrics.STAFF_HR || {}).shrink_percent || 0) + '%)'
+                        + ' / UG ' + String((sourceMetrics.STUDENT_UG || {}).status || 'unknown').toUpperCase()
+                        + ' (' + Number((sourceMetrics.STUDENT_UG || {}).shrink_percent || 0) + '%)'
+                        + ' / ODL ' + String((sourceMetrics.STUDENT_ODL_PG || {}).status || 'unknown').toUpperCase()
+                        + ' (' + Number((sourceMetrics.STUDENT_ODL_PG || {}).shrink_percent || 0) + '%)'
+                     );
+                  } else {
+                     var selectedMetrics = sourceMetrics[selectedView] || {};
+                     $('#external_preview_rows_label').text('Source rows:');
+                     $('#odl_shadow_rows').text(Number(rows[selectedView] || 0));
+                     $('#external_preview_health').text(
+                        String(selectedMetrics.status || 'unknown').toUpperCase()
+                        + ' / ' + Number(selectedMetrics.shrink_percent || 0) + '%'
+                     );
+                  }
                   $('#odl_shadow_membership').text(
                      Number(membershipCounts.KEEP_MEMBERSHIP_ACTIVE || 0) + ' / '
                      + Number(membershipCounts.ADD_MEMBERSHIP || 0)
@@ -4185,8 +4231,8 @@
                      .append($('<li>').text(code + correlation));
                },
                complete: function(){
-                  $('#btn_odl_shadow').prop('disabled', false)
-                     .html('<i class="fa fa-eye"></i> ODL External Sync (Read Only Shadow Preview)');
+                  $('#btn_external_summary, .external-source-preview-button')
+                     .prop('disabled', false);
                }
             });
          }

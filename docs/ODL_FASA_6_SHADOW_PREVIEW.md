@@ -21,6 +21,7 @@ WSL menggunakan:
 
 ```php
 'ONEID_ODL_SHADOW_PREVIEW_ENABLED' => 'true',
+'ONEID_ODL_SHADOW_STAFF_BASELINE_ROWS' => '1061',
 'ONEID_ODL_SHADOW_ODL_BASELINE_ROWS' => '53',
 'ONEID_ODL_SHADOW_UG_BASELINE_ROWS' => '5452',
 ```
@@ -32,6 +33,7 @@ pull. Gate hanya menerima literal `true` atau `false`.
 
 ```text
 risk_level=normal
+STAFF_HR rows=1061
 STUDENT_UG rows=5452
 STUDENT_ODL_PG rows=53
 KEEP_MEMBERSHIP_ACTIVE=5423
@@ -40,8 +42,18 @@ CANDIDATE_NEW=53
 blocking_codes=[]
 can_apply=false
 mutation_statements=0
-preview_digest=1ea0244ebcc482003b7bc482240ca692f2dcf077d24c04e8407aa68edbe0fed3
+preview_digest=13c2ae876287574dd4af3e1b22c21e4c6ff5646db03c400602ec9a64c460ffa8
 ```
+
+Dashboard memisahkan paparan kepada:
+
+- `External Sync Summary` — perbandingan Staff, UG dan ODL;
+- `Staff External Sync` — metrik Staff sahaja;
+- `Undergraduate External Sync` — metrik UG sahaja;
+- `ODL External Sync` — metrik ODL sahaja.
+
+Membership dan candidate counts turut dipecahkan mengikut `source_code`.
+Legacy combined Apply tidak didedahkan melalui menu source-specific ini.
 
 Tiada raw action array, nama, IC, nombor matrik atau e-mel dihantar kepada
 browser.
@@ -62,7 +74,7 @@ Production orchestrator parity: 18/18
 Baseline checksum `lib/q_func.php` dikemas kini kepada:
 
 ```text
-308b1e581eb9f876fc9cd5a2e2562dcf1b1faf521725843d88702c2bfbbe6257
+e310108ddb89aa0a8a15c1dce3605e15f31a1eb60150f3a579c68905dda9d8eb
 ```
 
 Perubahan checksum adalah disebabkan endpoint Shadow Preview read-only yang

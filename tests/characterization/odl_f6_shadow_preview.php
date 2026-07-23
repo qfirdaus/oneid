@@ -34,7 +34,9 @@ function f6_service(OdlShadowPreviewConfig $config, ExternalUserSourceInterface 
         static fn(): array => []
     );
     return new OdlShadowPreviewService(
-        $config, $odl, $ug, $reader,
+        $config,
+        new F6Source([f6_row('STAFF_HR', 'STAFF1', 'STAFFIC')]),
+        $odl, $ug, $reader,
         new SourceAwareStudentPlanner(new SourceAwareSafetyPolicy())
     );
 }
@@ -46,7 +48,7 @@ $report = static function (bool $ok, string $label) use (&$checks, &$failed): vo
 $disabled = false;
 try {
     f6_service(
-        OdlShadowPreviewConfig::fromValues('false', '', ''),
+        OdlShadowPreviewConfig::fromValues('false', '', '', ''),
         new F6Source([]), new F6Source([])
     )->preview();
 } catch (RuntimeException $e) {
@@ -55,13 +57,20 @@ try {
 $report($disabled, 'feature gate defaults to fail-closed behaviour');
 
 $healthy = f6_service(
-    OdlShadowPreviewConfig::fromValues('true', '1', '1'),
+    OdlShadowPreviewConfig::fromValues('true', '1', '1', '1'),
     new F6Source([f6_row('STUDENT_ODL_PG', 'ODL1', 'IC1')]),
     new F6Source([f6_row('STUDENT_UG', 'UG1', 'IC2')])
 )->preview();
 $report($healthy['status'] === 1 && $healthy['mode'] === 'odl_shadow_preview', 'healthy shadow preview returned');
 $report($healthy['can_apply'] === false && $healthy['mutation_statements'] === 0, 'shadow preview cannot apply');
-$report($healthy['source_rows'] === ['STUDENT_UG' => 1, 'STUDENT_ODL_PG' => 1], 'per-source counts exposed');
+$report(
+    $healthy['source_rows'] === [
+        'STAFF_HR' => 1,
+        'STUDENT_UG' => 1,
+        'STUDENT_ODL_PG' => 1,
+    ],
+    'per-source counts exposed'
+);
 $encoded = json_encode($healthy, JSON_UNESCAPED_SLASHES);
 $report(is_string($encoded) && !str_contains($encoded, 'Private Name') && !str_contains($encoded, 'private@example.test') && !str_contains($encoded, 'IC1'), 'raw PII excluded');
 $report(!array_key_exists('approval_id', $healthy) && !array_key_exists('approval_ready', $healthy), 'no approval capability exposed');
@@ -69,19 +78,22 @@ $report(strlen((string) $healthy['preview_digest']) === 64, 'preview digest gene
 $report(!isset($healthy['membership_actions']) && !isset($healthy['account_actions']), 'browser response is aggregate only');
 
 $outage = f6_service(
-    OdlShadowPreviewConfig::fromValues('true', '53', '1'),
+    OdlShadowPreviewConfig::fromValues('true', '1', '53', '1'),
     new F6Source([], 'ODL_SOURCE_CONNECTION_FAILED'),
     new F6Source([f6_row('STUDENT_UG', 'UG1', 'IC2')])
 )->preview();
 $report($outage['risk_level'] === 'blocked', 'ODL outage returns blocked preview');
 $report(in_array('ODL_CONNECTION_FAILED', $outage['blocking_codes'], true), 'ODL outage code exposed');
 $report(
-    $outage['action_counts'] === ['membership' => [], 'account' => []],
+    $outage['action_counts'] === [
+        'membership' => ['total' => [], 'by_source' => []],
+        'account' => ['total' => [], 'by_source' => []],
+    ],
     'outage produces zero actions'
 );
 
 $invalidFlag = false;
-try { OdlShadowPreviewConfig::fromValues('TRUE', '53', '5452'); }
+try { OdlShadowPreviewConfig::fromValues('TRUE', '1061', '53', '5452'); }
 catch (RuntimeException $e) { $invalidFlag = $e->getMessage() === 'ODL_SHADOW_PREVIEW_FLAG_INVALID'; }
 $report($invalidFlag, 'loose feature flag rejected');
 

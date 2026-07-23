@@ -463,6 +463,7 @@ function string_sanitize($s) {
                 ]);
                 $shadowService = new \OneId\App\Sync\Odl\OdlShadowPreviewService(
                     $shadowConfig,
+                    new \OneId\App\Sync\Odl\StaffSource(),
                     new \OneId\App\Sync\Odl\OdlStudentSource(
                         \OneId\App\Sync\Odl\OdlSourceConfig::fromPrivateRuntime()
                     ),
