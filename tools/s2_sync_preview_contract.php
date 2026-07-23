@@ -20,7 +20,6 @@ $files = [
     'app/Sync/SyncPlanner.php',
     'app/Sync/SyncPreviewService.php',
     'lib/external_data_source_API.php',
-    'lib/skp_api.php',
     'lib/request_security.php',
     'lib/q_func.php',
     'admin/dashboard.php',
@@ -42,7 +41,6 @@ $guard = $source['lib/request_security.php'];
 $qFunc = $source['lib/q_func.php'];
 $dashboard = $source['admin/dashboard.php'];
 $externalSource = $source['lib/external_data_source_API.php'];
-$compatibilityExternalSource = $source['lib/skp_api.php'];
 
 $report(str_contains($guard, "'admin_preview_sync_user'"), 'preview action is admin-authorized');
 $report(str_contains($planner, 'protectedManualUsers') && str_contains($planner, 'discardedProtectedCollisions'), 'planner enforces S1 provenance protection');
@@ -54,12 +52,11 @@ $report(str_contains($qFunc, "if(isset( \$_POST['admin_preview_sync_user']))"), 
 $report(str_contains($qFunc, 'SyncRuntimeConfig::fromEnvironment()') && !str_contains($qFunc, 'run_admin_sync_user($operation'), 'Apply uses strict safe runtime path and cannot select legacy writer');
 $report(str_contains($externalSource, "throw new RuntimeException('ODBC_EXTENSION_UNAVAILABLE')") && str_contains($externalSource, "throw new RuntimeException('EXTERNAL_STAFF_CONNECTION_FAILED')") && !str_contains(substr($externalSource, 0, strpos($externalSource, 'function EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER')), 'exit;'), 'preview source fails with catchable diagnostic codes');
 $report(substr_count($externalSource, 'FROM ehrmdb.dbo.SSO_Staf_Aktif') === 2 && !str_contains($externalSource, 'FROM stafdb'), 'active integration uses ehrmdb staff view only');
-$report(substr_count($compatibilityExternalSource, 'FROM ehrmdb.dbo.SSO_Staf_Aktif') === 2 && !str_contains($compatibilityExternalSource, 'FROM stafdb'), 'compatibility integration uses ehrmdb staff view only');
+$report(!is_file($root . '/lib/skp_api.php') && !is_file($root . '/skp_api.php') && !is_file($root . '/public/skp_api.php'), 'quarantined SKP endpoints remain absent');
 $normalizer = $source['app/Sync/ExternalRowNormalizer.php'];
 $report(str_contains($normalizer, "'idpekerja' => 'data2'") && str_contains($normalizer, "'no_matrik' => 'data4'") && str_contains($normalizer, "'jenis' => 'ext_data_source_category'"), 'pure normalizer maps FreeTDS source labels');
 $report(str_contains($normalizer, "['data2', 'data4']") && str_contains($normalizer, "preg_replace('/[\\s\\p{Pd}]+/u'"), 'student IC passport and matric values remove spaces and dashes');
 $report(substr_count($externalSource, 'ExternalRowNormalizer::normalize($myRow)') === 4, 'active integration normalizes every ODBC row');
-$report(substr_count($compatibilityExternalSource, 'ExternalRowNormalizer::normalize($myRow)') === 4, 'compatibility integration normalizes every ODBC row');
 $report(str_contains($qFunc, "'UNEXPECTED_PREVIEW_ERROR'") && str_contains($qFunc, 'code=%s'), 'preview logs allowlisted diagnostic code only');
 $report(str_contains($dashboard, "data: {admin_preview_sync_user:''}"), 'dashboard posts preview action');
 $report(str_contains($dashboard, "sync_approval_id:pilotApprovalId"), 'dashboard mutation requires one-time pilot approval');

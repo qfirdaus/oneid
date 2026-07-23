@@ -149,8 +149,8 @@ $report(
 
 $runtimeHashes = [
     'lib/sync_user_runner.php' => '965fd187492e1f120b074601746b031474405480f234412e458f64189108c8bb',
-    'lib/Database.php' => '4657eb89a7d90514cb13b842dba6a4453d1ac320b3fceb5e0d06f2c91426a41a',
-    'lib/q_func.php' => '213dadbc6ad77ded818aa92d2e979c0b2b13afc1022b8289c5938b6883905f41',
+    'lib/Database.php' => '71b51b7a9443bc3b83361be8b80c2ea464694af5454bbb38bfb80ad6ab3a1cce',
+    'lib/q_func.php' => '9f53ef34248c9a8f93f26757d75b4fa1563882b8b4a59a785637c7de8e1d2ee9',
 ];
 foreach ($runtimeHashes as $file => $expectedHash) {
     $actualHash = hash_file('sha256', $projectRoot . '/' . $file);

@@ -186,9 +186,11 @@ $report(
 );
 $qFuncSource = (string) file_get_contents($projectRoot . '/lib/q_func.php');
 $report(
-    str_contains($qFuncSource, 'createApprovedCoordinator($approvalStore)')
+    str_contains($qFuncSource, 'createOperationalCoordinator(')
+        && str_contains($qFuncSource, 'createFullCoordinator(')
+        && str_contains($qFuncSource, 'createPilotCoordinator(')
         && !str_contains($qFuncSource, 'run_admin_sync_user($operation'),
-    'S4D q_func selects approved coordinator, not legacy writer'
+    'q_func selects approval-bound coordinators, not legacy writer'
 );
 $report(!is_file($projectRoot . '/cron/run_sync.php'), 'retired cron absent from runtime');
 
