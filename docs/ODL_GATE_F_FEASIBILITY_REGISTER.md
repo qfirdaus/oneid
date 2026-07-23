@@ -370,8 +370,10 @@ Read-only `information_schema` evidence pada 22 Julai 2026:
 | `data4` | `varchar(100)` | Matrik profile maksimum 100, tetapi `u_id` menghadkan 20 |
 | `data5`–`data7` | `varchar(100)` | E-mel, fakulti dan program maksimum 100 aksara |
 
-Jadual `external_source`, `user_external_identity`,
-`external_source_snapshot` dan `user_external_identity_event` belum wujud.
+Fasa 1 memasang `external_source` dan `user_external_identity` secara additive
+dengan `STUDENT_ODL_PG` dormant serta zero membership.
+`external_source_snapshot` dan `user_external_identity_event` belum wujud dan
+kekal skop fasa source-aware/history yang berasingan.
 
 ## 4. Baseline code/test evidence
 

@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0 baseline ditutup; Fasa 1 schema provenance dormant ialah langkah seterusnya
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–1 ditutup; Fasa 2 preview/backfill provenance ialah langkah seterusnya
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -56,7 +56,7 @@ Kategori dan sumber ialah dua konsep berasingan:
 |---|---|
 | Kategori semua pelajar | `user_tbl.u_category = 10` (`Pelajar`) |
 | Sumber undergraduate sedia ada | `STUDENT_UG` |
-| Sumber ODL baharu | `STUDENT_ODL` |
+| Sumber ODL baharu | `STUDENT_ODL_PG` |
 | Sumber postgraduate masa hadapan | `STUDENT_PG` |
 | Sumber staf sedia ada | `STAFF_EHRM` |
 | Akaun daripada integrasi | `account_source = external` |
@@ -216,7 +216,7 @@ status tidak boleh dimasukkan ke active view.
 | `program` | `data7` | `user_tbl.data7` |
 | Tiada | `data8`–`data12 = ''` | `user_tbl.data8`–`data12` |
 | Nilai sistem | `ext_data_source_category = Pelajar` | `u_category = 10` |
-| Nilai sistem | `source_code = STUDENT_ODL` | Source provenance |
+| Nilai sistem | `source_code = STUDENT_ODL_PG` | Source provenance |
 | `status_code` | Validasi eligibility active view | Tidak disalin terus ke `user_tbl.avail_status` |
 | `status_description` | Tidak diperlukan untuk mutation | Tidak disimpan sebagai profile OneID |
 
@@ -248,9 +248,10 @@ ODL sendiri tetap bertanggungjawab memulangkan hanya kod `2`, `4` dan `5`.
 
 ## 5. Model source provenance sasaran
 
-Model dalam seksyen ini ialah logical proposal, bukan migration-ready schema.
-Nama jadual, type, collation, engine, foreign key, retention dan transaction
-boundary mesti disahkan terhadap schema live sebelum migration disediakan.
+Model current-state dalam seksyen ini telah dilaksanakan oleh Fasa 1. Migration
+canonical ialah `20260723_odl_f1_provenance_up.sql`; type, collation, engine dan
+foreign key telah disahkan terhadap schema live. Snapshot/event history kekal
+untuk fasa source-aware yang berasingan.
 
 ### 5.1 Jadual `external_source`
 
@@ -262,8 +263,10 @@ Cadangan logical schema:
 ```sql
 CREATE TABLE external_source (
     source_code VARCHAR(50) NOT NULL,
-    source_name VARCHAR(255) NOT NULL,
+    source_name VARCHAR(100) NOT NULL,
     source_family VARCHAR(30) NOT NULL,
+    lifecycle_state VARCHAR(16) NOT NULL DEFAULT 'dormant',
+    is_required TINYINT(1) NOT NULL DEFAULT 0,
     avail_status TINYINT(1) NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
@@ -277,7 +280,7 @@ Proposed initial registry:
 |---|---|---|
 | `STAFF_EHRM` | Staff EHRM | `staff` |
 | `STUDENT_UG` | Undergraduate Student | `student` |
-| `STUDENT_ODL` | Open Distance Learning Student | `student` |
+| `STUDENT_ODL_PG` | ODL Postgraduate Student | `student` |
 
 Nama `STUDENT_UG` mesti disahkan dengan owner sumber semasa. Jika view semasa
 sebenarnya merangkumi lebih daripada undergraduate, source code perlu dinamakan
@@ -292,9 +295,9 @@ Cadangan logical schema:
 ```sql
 CREATE TABLE user_external_identity (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    u_id VARCHAR(255) NOT NULL,
+    u_id VARCHAR(20) NOT NULL,
     source_code VARCHAR(50) NOT NULL,
-    external_user_id VARCHAR(255) NOT NULL,
+    external_user_id VARCHAR(20) NOT NULL,
     source_active TINYINT(1) NOT NULL DEFAULT 1,
     source_hash CHAR(64) NULL,
     first_seen_at DATETIME NOT NULL,
@@ -306,6 +309,8 @@ CREATE TABLE user_external_identity (
     UNIQUE KEY uq_source_external_identity (source_code, external_user_id),
     UNIQUE KEY uq_user_source (u_id, source_code),
     KEY idx_user_source_active (u_id, source_active),
+    CONSTRAINT fk_external_identity_user
+        FOREIGN KEY (u_id) REFERENCES user_tbl(u_id),
     CONSTRAINT fk_external_identity_source
         FOREIGN KEY (source_code) REFERENCES external_source(source_code)
 );
@@ -453,7 +458,7 @@ Seorang pengguna boleh mempunyai beberapa memberships:
 | `u_id` | Source | Status |
 |---|---|---|
 | `123456` | `STUDENT_UG` | Tidak aktif |
-| `123456` | `STUDENT_ODL` | Aktif |
+| `123456` | `STUDENT_ODL_PG` | Aktif |
 | `123456` | `STUDENT_PG` | Aktif pada masa hadapan |
 
 Akaun OneID kekal satu dan masih menggunakan kategori Pelajar.
@@ -536,7 +541,7 @@ Aggregator mesti menerima hasil terstruktur, bukan hanya satu array tanpa asal:
 ```text
 STAFF_EHRM  : success | failed, row count, snapshot digest
 STUDENT_UG  : success | failed, row count, snapshot digest
-STUDENT_ODL : success | failed, row count, snapshot digest
+STUDENT_ODL_PG : success | failed, row count, snapshot digest
 ```
 
 Jika mana-mana source wajib gagal, Apply keseluruhan mesti block. Source failure
@@ -620,7 +625,7 @@ Tanggungjawab adapter:
 - menggunakan exception mode;
 - menjalankan hanya query tetap `SELECT` kepada `student_basic_info`;
 - memetakan dan menormalisasi row kepada kontrak canonical;
-- menambah `source_code = STUDENT_ODL` dalam metadata aplikasi;
+- menambah `source_code = STUDENT_ODL_PG` dalam metadata aplikasi;
 - menutup reference connection selepas fetch;
 - memulangkan diagnostic code tersanitasi;
 - tidak memulangkan empty snapshot apabila query sebenarnya gagal.
@@ -828,7 +833,7 @@ Rollback: tiada runtime change.
 Closure evidence:
 [`ODL_FASA_0_BASELINE_DAN_CHARACTERIZATION_CLOSURE.md`](ODL_FASA_0_BASELINE_DAN_CHARACTERIZATION_CLOSURE.md).
 
-### Fasa 1 — Schema provenance additive dan dormant — `NEXT / NOT STARTED`
+### Fasa 1 — Schema provenance additive dan dormant — `PASS / CLOSED`
 
 Aktiviti:
 
@@ -847,7 +852,10 @@ Exit gate:
 
 Rollback: jalankan down migration hanya jika jadual masih dormant dan kosong.
 
-### Fasa 2 — Backfill provenance sumber sedia ada — `NOT STARTED`
+Closure evidence:
+[`ODL_FASA_1_SCHEMA_PROVENANCE_DORMANT_CLOSURE.md`](ODL_FASA_1_SCHEMA_PROVENANCE_DORMANT_CLOSURE.md).
+
+### Fasa 2 — Backfill provenance sumber sedia ada — `NEXT / NOT STARTED`
 
 Aktiviti:
 
@@ -1180,16 +1188,17 @@ Pada semakan 23 Julai 2026:
 | Identity/profile conflict policy | Disahkan: block dan semak manual; blank e-mel tidak memadam nilai sedia ada |
 | Aggregate data-quality awal | Baseline diterima 53 row; blank Matrik=0 dan blank IC=0 |
 | Field length compatibility | Disahkan bagi snapshot awal |
-| Provenance dan immutable history design | Polisi `STUDENT_ODL_PG` dipersetujui; schema Fasa 1 belum dilaksanakan |
+| Provenance dan immutable history design | Polisi `STUDENT_ODL_PG` dipersetujui; schema Fasa 1 dipasang dormant dengan zero membership |
 | Source lifecycle/deactivation semantics | Status `1`, `3`, `6` keluar daripada view dan menjadi calon deactivation; tiada grace period |
 | Security/network/TLS/read-only evidence | PASS UAT: origin `172.16.2.153`, TLSv1.3/AES-256-GCM, read-only; broad SELECT/`viewer@%` accepted UAT condition |
-| Migration atau implementation approval | Fasa 1 schema dormant dibenarkan; setiap fasa masih memerlukan exit gate |
+| Migration atau implementation approval | Fasa 1 selesai; setiap fasa seterusnya masih memerlukan exit gate |
 | Connection kepada ODL datasource | Connection test read-only dibenarkan dan lulus |
 | Preview menggunakan data ODL sebenar | Shadow Preview hanya selepas Fasa 1–5 lulus |
 | Pilot atau Full Apply | Tidak dibenarkan |
 | Gate F | `PROCEED WITH CONDITIONS` — diluluskan Firdaus, System Analyst/DBA |
 | Fasa 0 | `PASS / CLOSED` |
-| Fasa seterusnya | Fasa 1 — schema provenance additive dan dormant |
+| Fasa 1 | `PASS / CLOSED` — schema live dormant, zero membership |
+| Fasa seterusnya | Fasa 2 — Preview/backfill provenance sumber sedia ada |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence
