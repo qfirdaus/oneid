@@ -20,9 +20,9 @@ return [
     [
         'name' => 'admin dashboard',
         'file' => 'admin/dashboard.php',
-        'loc' => 9449,
-        'q_func_calls' => 49,
-        'function_declarations' => 103,
+        'loc' => 9568,
+        'q_func_calls' => 50,
+        'function_declarations' => 106,
         'script_tags' => 18,
         'fragments' => [
             'oneid_require_admin_page();',

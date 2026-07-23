@@ -44,4 +44,44 @@ final class OdlShadowPreviewReader
              FROM user_external_identity'
         )->fetchAll(\PDO::FETCH_ASSOC);
     }
+
+    /** @return list<array<string,mixed>> */
+    public function legacyActiveUsers(): array
+    {
+        if ($this->usersReader !== null) {
+            return array_values(array_filter(
+                ($this->usersReader)(),
+                static fn(array $user): bool =>
+                    (int) ($user['avail_status'] ?? 1) === 1
+            ));
+        }
+        return $this->pdo->query(
+            "SELECT u_id,u_category,avail_status,
+                    data1,data2,data3,data4,data5,data6,
+                    data7,data8,data9,data10,data11,data12,
+                    u_changes_hash,'1' AS source,
+                    account_source,sync_protected
+             FROM user_tbl
+             WHERE avail_status=1"
+        )->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /** @return list<string> */
+    public function legacyInactiveUserIds(): array
+    {
+        if ($this->usersReader !== null) {
+            return array_values(array_map(
+                static fn(array $user): string => (string) ($user['u_id'] ?? ''),
+                array_filter(
+                    ($this->usersReader)(),
+                    static fn(array $user): bool =>
+                        (int) ($user['avail_status'] ?? 1) === 0
+                )
+            ));
+        }
+        $rows = $this->pdo->query(
+            'SELECT u_id FROM user_tbl WHERE avail_status=0'
+        )->fetchAll(\PDO::FETCH_COLUMN, 0);
+        return $rows ?: [];
+    }
 }

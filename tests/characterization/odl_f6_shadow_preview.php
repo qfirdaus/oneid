@@ -20,12 +20,26 @@ final class F6Source implements ExternalUserSourceInterface {
     }
 }
 function f6_row(string $source, string $matric, string $ic): array {
-    return [
+    return array_merge(array_fill_keys([
+        'data1', 'data2', 'data3', 'data4', 'data5', 'data6',
+        'data7', 'data8', 'data9', 'data10', 'data11', 'data12',
+    ], ''), [
         'source_code' => $source, 'data1' => 'Private Name',
         'data2' => $ic, 'data4' => $matric, 'data5' => 'private@example.test',
         'data6' => 'Faculty', 'data7' => 'Programme',
         'ext_data_source_category' => 'Pelajar',
-    ];
+    ]);
+}
+function f6_staff_row(string $identity): array {
+    return array_merge(array_fill_keys([
+        'data1', 'data2', 'data3', 'data4', 'data5', 'data6',
+        'data7', 'data8', 'data9', 'data10', 'data11', 'data12',
+    ], ''), [
+        'source_code' => 'STAFF_HR', 'data1' => 'Private Staff',
+        'data2' => '', 'data4' => $identity, 'data5' => 'staff@example.test',
+        'data6' => 'Department', 'data7' => 'Position',
+        'ext_data_source_category' => 'Pentadbiran',
+    ]);
 }
 function f6_service(OdlShadowPreviewConfig $config, ExternalUserSourceInterface $odl, ExternalUserSourceInterface $ug): OdlShadowPreviewService {
     $reader = new OdlShadowPreviewReader(
@@ -35,7 +49,7 @@ function f6_service(OdlShadowPreviewConfig $config, ExternalUserSourceInterface 
     );
     return new OdlShadowPreviewService(
         $config,
-        new F6Source([f6_row('STAFF_HR', 'STAFF1', 'STAFFIC')]),
+        new F6Source([f6_staff_row('STAFFIC')]),
         $odl, $ug, $reader,
         new SourceAwareStudentPlanner(new SourceAwareSafetyPolicy())
     );
@@ -76,6 +90,12 @@ $report(is_string($encoded) && !str_contains($encoded, 'Private Name') && !str_c
 $report(!array_key_exists('approval_id', $healthy) && !array_key_exists('approval_ready', $healthy), 'no approval capability exposed');
 $report(strlen((string) $healthy['preview_digest']) === 64, 'preview digest generated');
 $report(!isset($healthy['membership_actions']) && !isset($healthy['account_actions']), 'browser response is aggregate only');
+$report(
+    ($healthy['sync_action_counts']['STAFF_HR']['NEW'] ?? 0) === 1
+    && ($healthy['sync_action_counts']['STUDENT_UG']['NEW'] ?? 0) === 1
+    && ($healthy['sync_action_counts']['STUDENT_ODL_PG']['CANDIDATE_NEW'] ?? 0) === 1,
+    'actionable notification counts separated by source'
+);
 
 $outage = f6_service(
     OdlShadowPreviewConfig::fromValues('true', '1', '53', '1'),
@@ -90,6 +110,14 @@ $report(
         'account' => ['total' => [], 'by_source' => []],
     ],
     'outage produces zero actions'
+);
+$report(
+    $outage['sync_action_counts'] === [
+        'STAFF_HR' => [],
+        'STUDENT_UG' => [],
+        'STUDENT_ODL_PG' => [],
+    ],
+    'blocked preview exposes no actionable notification'
 );
 
 $invalidFlag = false;

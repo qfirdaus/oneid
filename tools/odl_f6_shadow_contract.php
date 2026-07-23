@@ -34,6 +34,11 @@ $report(
         && str_contains($ui, 'Generating Undergraduate External Sync read-only preview...')
         && str_contains($ui, 'Generating ODL External Sync read-only shadow preview...')
         && str_contains($ui, 'Summary sahaja. Tiada fungsi Apply pada paparan ini.')
+        && str_contains($ui, 'refresh_external_sync_notifications()')
+        && str_contains($ui, 'response.sync_action_counts || {}')
+        && str_contains($ui, 'Actions requiring review:')
+        && str_contains($ui, 'external-action-notice')
+        && str_contains($ui, 'fa-exclamation-triangle')
         && str_contains($ui, 'modal_odl_shadow_preview')
         && str_contains($ui, 'SHADOW PREVIEW READY — READ ONLY')
         && substr_count($ui, 'oneid-return-add-user-options') === 7
@@ -46,6 +51,6 @@ $report(!preg_match('/\b(?:INSERT|UPDATE|DELETE|REPLACE|ALTER|DROP|TRUNCATE)\b/i
 $report(str_contains($runner, 'OdlShadowPreviewService') && str_contains($runner, 'can_apply=false'), 'CLI uses same service and fail-safe output');
 $output = []; $code = 1;
 exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($root . '/tests/characterization/odl_f6_shadow_preview.php') . ' 2>&1', $output, $code);
-$report($code === 0 && in_array('RESULT checks=12 failed=0', $output, true), 'shadow characterization passes');
+$report($code === 0 && in_array('RESULT checks=14 failed=0', $output, true), 'shadow characterization passes');
 printf("RESULT checks=%d failed=%d\n", $checks, $failed);
 exit($failed === 0 ? 0 : 1);

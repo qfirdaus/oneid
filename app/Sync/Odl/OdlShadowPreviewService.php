@@ -3,8 +3,10 @@ declare(strict_types=1);
 namespace OneId\App\Sync\Odl;
 
 use OneId\App\Sync\Contracts\ExternalUserSourceInterface;
+use OneId\App\Sync\Adapters\LegacySyncPolicy;
 use OneId\App\Sync\DTO\SourceSnapshot;
 use OneId\App\Sync\SourceAware\SourceAwareStudentPlanner;
+use OneId\App\Sync\SyncPlanner;
 
 final class OdlShadowPreviewService
 {
@@ -57,6 +59,19 @@ final class OdlShadowPreviewService
             'membership' => $this->actionCounts($plan->membershipActions),
             'account' => $this->actionCounts($plan->accountActions),
         ];
+        $safe['sync_action_counts'] = $plan->allowed
+            ? $this->legacyActionCounts(
+                array_merge($staffSnapshot->rows, $ugSnapshot->rows),
+                $this->reader->memberships()
+            )
+            : [
+                StaffSource::SOURCE_CODE => [],
+                UgStudentSource::SOURCE_CODE => [],
+                OdlStudentSource::SOURCE_CODE => [],
+            ];
+        $safe['sync_action_counts'][OdlStudentSource::SOURCE_CODE] =
+            $safe['action_counts']['account']['by_source']
+                [OdlStudentSource::SOURCE_CODE] ?? [];
         unset($safe['membership_actions'], $safe['account_actions']);
         $safe['status'] = 1;
         $safe['mode'] = 'odl_shadow_preview';
@@ -71,6 +86,57 @@ final class OdlShadowPreviewService
             json_encode($safe, JSON_UNESCAPED_SLASHES) ?: ''
         );
         return $safe;
+    }
+
+    /**
+     * @param list<array<string,mixed>> $rows
+     * @param list<array<string,mixed>> $memberships
+     * @return array<string,array<string,int>>
+     */
+    private function legacyActionCounts(array $rows, array $memberships): array
+    {
+        $legacy = (new SyncPlanner(new LegacySyncPolicy()))->plan(
+            $rows,
+            $this->reader->legacyActiveUsers(),
+            $this->reader->legacyInactiveUserIds()
+        );
+        $ugUsers = [];
+        foreach ($memberships as $membership) {
+            if (($membership['source_code'] ?? '') === UgStudentSource::SOURCE_CODE
+                && (int) ($membership['source_active'] ?? 0) === 1
+            ) {
+                $ugUsers[(string) ($membership['u_id'] ?? '')] = true;
+            }
+        }
+        $counts = [
+            StaffSource::SOURCE_CODE => [],
+            UgStudentSource::SOURCE_CODE => [],
+            OdlStudentSource::SOURCE_CODE => [],
+        ];
+        foreach ($legacy->actions as $action) {
+            $name = (string) ($action['action'] ?? 'UNKNOWN');
+            $category = trim((string) (
+                $action['row']['ext_data_source_category'] ?? ''
+            ));
+            $student = in_array($category, [
+                'Pelajar',
+                'PelajarPelajar',
+                'PentadbiranPelajar',
+                'AkademikPelajar',
+            ], true);
+            if ($name === 'DEACTIVATE' && $category === '') {
+                $student = isset($ugUsers[(string) ($action['u_id'] ?? '')]);
+            }
+            $source = $student
+                ? UgStudentSource::SOURCE_CODE
+                : StaffSource::SOURCE_CODE;
+            $counts[$source][$name] = ($counts[$source][$name] ?? 0) + 1;
+        }
+        foreach ($counts as &$sourceCounts) {
+            ksort($sourceCounts, SORT_STRING);
+        }
+        unset($sourceCounts);
+        return $counts;
     }
 
     /** @param list<array<string,mixed>> $actions @return array<string,mixed> */

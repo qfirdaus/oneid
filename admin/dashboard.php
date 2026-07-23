@@ -602,17 +602,17 @@
                                        <div class="form-wrap">
                                           <div class="form-body overflow-hide">
                                              <div class="form-group">
-                                                <button id="btn_external_summary" class="btn btn-primary btn-outline btn-block oneid-sync-choice" type="button" onclick="preview_external_sync_view('SUMMARY');"><i class="fa fa-dashboard"></i> External Sync Summary</button>
+                                                <button id="btn_external_summary" class="btn btn-primary btn-outline btn-block oneid-sync-choice" type="button" onclick="preview_external_sync_view('SUMMARY');"><i class="fa fa-dashboard"></i> External Sync Summary <span id="external_notice_summary" class="external-action-notice" style="display:none"></span></button>
                                                 <p id="sync_status_msg" class="text-muted text-center mt-10" style="display:none;"></p>
                                              </div>
                                              <div class="form-group">
-                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="preview_external_sync_view('STAFF_HR');"><i class="fa fa-briefcase"></i> Staff External Sync</button>
+                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="preview_external_sync_view('STAFF_HR');"><i class="fa fa-briefcase"></i> Staff External Sync <span id="external_notice_staff" class="external-action-notice" style="display:none"></span></button>
                                              </div>
                                              <div class="form-group">
-                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="preview_external_sync_view('STUDENT_UG');"><i class="fa fa-graduation-cap"></i> Undergraduate External Sync</button>
+                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="preview_external_sync_view('STUDENT_UG');"><i class="fa fa-graduation-cap"></i> Undergraduate External Sync <span id="external_notice_ug" class="external-action-notice" style="display:none"></span></button>
                                              </div>
                                              <div class="form-group">
-                                                <button class="btn btn-info btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="preview_external_sync_view('STUDENT_ODL_PG');"><i class="fa fa-eye"></i> ODL External Sync (Read Only Shadow Preview)</button>
+                                                <button class="btn btn-info btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="preview_external_sync_view('STUDENT_ODL_PG');"><i class="fa fa-eye"></i> ODL External Sync (Read Only Shadow Preview) <span id="external_notice_odl" class="external-action-notice" style="display:none"></span></button>
                                              </div>
                                              <div class="form-group">
                                                 <button class="btn  btn-primary btn-outline btn-block" type="button" onclick="pick_add_single_user();"><i class="fa fa-plus"></i> Manual Add User</button>
@@ -735,6 +735,7 @@
                               <tbody>
                                  <tr><td id="external_preview_rows_label">Source rows:</td><td id="odl_shadow_rows">-</td></tr>
                                  <tr><td>Source health / shrink:</td><td id="external_preview_health">-</td></tr>
+                                 <tr><td>Actions requiring review:</td><td id="external_preview_sync_actions">-</td></tr>
                                  <tr><td>Membership (Keep / Add):</td><td id="odl_shadow_membership">-</td></tr>
                                  <tr><td>Candidate (New / Deactivate):</td><td id="odl_shadow_candidates">-</td></tr>
                                  <tr><td>Accounts kept active:</td><td id="odl_shadow_keep_active">-</td></tr>
@@ -3804,6 +3805,75 @@
          $('#modal_open_add_user_option').modal('show');
          $(".add_new_manual_user_input").prop('disabled', false);
          $(".add_new_manual_user_input_loading_text").hide();
+         refresh_external_sync_notifications();
+         }
+
+         function external_action_total(actionCounts, sourceCode){
+            var total = 0;
+            var counts = actionCounts[sourceCode] || {};
+            Object.keys(counts).forEach(function(action){
+               total += Number(counts[action] || 0);
+            });
+            return total;
+         }
+
+         function show_external_action_notice(selector, count, blocked){
+            var notice = $(selector);
+            if(count < 1 && blocked !== true){
+               notice.hide().empty();
+               return;
+            }
+            notice
+               .toggleClass('external-action-notice-danger', blocked === true)
+               .attr('title', blocked === true
+                  ? 'Source requires administrator review'
+                  : count + ' source action(s) require review')
+               .html(
+                  '<i class="fa '
+                  + (blocked === true ? 'fa-exclamation-triangle' : 'fa-bell')
+                  + '"></i> ' + (count > 0 ? String(count) : '!')
+               )
+               .show();
+         }
+
+         function refresh_external_sync_notifications(){
+            $.ajax({
+               type: 'POST',
+               url: '../lib/q_func',
+               dataType: 'json',
+               data: {admin_preview_odl_shadow:''},
+               success: function(response){
+                  if(!response || response.status !== 1){
+                     $('.external-action-notice').hide().empty();
+                     return;
+                  }
+                  var actions = response.sync_action_counts || {};
+                  var blocks = response.blocking_codes || [];
+                  var staff = external_action_total(actions, 'STAFF_HR');
+                  var ug = external_action_total(actions, 'STUDENT_UG');
+                  var odl = external_action_total(actions, 'STUDENT_ODL_PG');
+                  var staffBlocked = blocks.some(function(code){
+                     return String(code).indexOf('STAFF_HR_') === 0;
+                  });
+                  var ugBlocked = blocks.some(function(code){
+                     return String(code).indexOf('STUDENT_UG_') === 0;
+                  });
+                  var odlBlocked = blocks.some(function(code){
+                     return String(code).indexOf('ODL_') === 0;
+                  });
+                  show_external_action_notice('#external_notice_staff', staff, staffBlocked);
+                  show_external_action_notice('#external_notice_ug', ug, ugBlocked);
+                  show_external_action_notice('#external_notice_odl', odl, odlBlocked);
+                  show_external_action_notice(
+                     '#external_notice_summary',
+                     staff + ug + odl,
+                     blocks.length > 0
+                  );
+               },
+               error: function(){
+                  $('.external-action-notice').hide().empty();
+               }
+            });
          }
 
          $(document).on('click', '.oneid-return-add-user-options', function(){
@@ -4155,6 +4225,7 @@
                   var metrics = response.metrics || {};
                   var sourceMetrics = metrics.sources || {};
                   var actionCounts = response.action_counts || {};
+                  var syncActionCounts = response.sync_action_counts || {};
                   var membershipActions = actionCounts.membership || {};
                   var accountActions = actionCounts.account || {};
                   var membershipBySource = membershipActions.by_source || {};
@@ -4166,6 +4237,19 @@
                      ? (accountActions.total || {})
                      : (accountBySource[selectedView] || {});
                   var blocks = response.blocking_codes || [];
+                  var selectedSyncActions = {};
+                  if(selectedView === 'SUMMARY'){
+                     Object.keys(syncActionCounts).forEach(function(sourceCode){
+                        var sourceActions = syncActionCounts[sourceCode] || {};
+                        Object.keys(sourceActions).forEach(function(action){
+                           selectedSyncActions[action] =
+                              Number(selectedSyncActions[action] || 0)
+                              + Number(sourceActions[action] || 0);
+                        });
+                     });
+                  } else {
+                     selectedSyncActions = syncActionCounts[selectedView] || {};
+                  }
                   if(selectedView === 'SUMMARY'){
                      $('#external_preview_rows_label').text('Source rows (Staff / UG / ODL):');
                      $('#odl_shadow_rows').text(
@@ -4190,6 +4274,18 @@
                         + ' / ' + Number(selectedMetrics.shrink_percent || 0) + '%'
                      );
                   }
+                  $('#external_preview_sync_actions').text(
+                     'New ' + Number(
+                        Number(selectedSyncActions.NEW || 0)
+                        + Number(selectedSyncActions.CANDIDATE_NEW || 0)
+                     )
+                     + ' / Update ' + Number(selectedSyncActions.UPDATE || 0)
+                     + ' / Reactivate ' + Number(selectedSyncActions.REACTIVATE || 0)
+                     + ' / Deactivate ' + Number(
+                        Number(selectedSyncActions.DEACTIVATE || 0)
+                        + Number(selectedSyncActions.CANDIDATE_DEACTIVATE || 0)
+                     )
+                  );
                   $('#odl_shadow_membership').text(
                      Number(membershipCounts.KEEP_MEMBERSHIP_ACTIVE || 0) + ' / '
                      + Number(membershipCounts.ADD_MEMBERSHIP || 0)
@@ -6288,6 +6384,29 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          overflow: visible;
          padding-left: 18px;
          padding-right: 18px;
+      }
+
+      #modal_open_add_user_option .external-action-notice {
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         min-width: 26px;
+         height: 22px;
+         margin-left: 8px;
+         padding: 0 7px;
+         border-radius: 11px;
+         background: #f0a325;
+         color: #fff;
+         font-size: 11px;
+         font-weight: 700;
+         line-height: 1;
+         box-shadow: 0 2px 6px rgba(240, 163, 37, .35);
+         vertical-align: middle;
+      }
+
+      #modal_open_add_user_option .external-action-notice-danger {
+         background: #d9534f;
+         box-shadow: 0 2px 6px rgba(217, 83, 79, .35);
       }
 
       #modal_add_new_single_user .oneid-sync-preview-dialog,
