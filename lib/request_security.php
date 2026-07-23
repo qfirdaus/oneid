@@ -120,6 +120,7 @@ function oneid_q_func_action_map(): array
             'action_edit_app_info',
             'admin_search_user_account',
             'admin_preview_sync_user',
+            'admin_preview_odl_shadow',
             'admin_add_sync_user',
             'admin_apply_full_sync',
             'admin_apply_operational_sync',

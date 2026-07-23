@@ -580,7 +580,7 @@
             <!-- /.modal-dialog -->
          </div>
          <div id="modal_open_add_user_option" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_open_add_user_option" aria-hidden="true">
-            <div class="modal-dialog modal-sm" >
+            <div class="modal-dialog modal-md oneid-add-user-dialog" >
                <div class="modal-content">
                   <div class="modal-body">
                      <div class="row">
@@ -602,11 +602,11 @@
                                        <div class="form-wrap">
                                           <div class="form-body overflow-hide">
                                              <div class="form-group">
-                                                <button id="btn_sync" class="btn  btn-primary btn-outline btn-block" type="button" onclick="pick_preview_sync_user();"><i class="fa fa-search"></i> Preview external sync</button>
+                                                <button id="btn_sync" class="btn btn-primary btn-outline btn-block oneid-sync-choice" type="button" onclick="pick_preview_sync_user();"><i class="fa fa-search"></i> Undergraduate External Sync</button>
                                                 <p id="sync_status_msg" class="text-muted text-center mt-10" style="display:none;"></p>
                                              </div>
                                              <div class="form-group">
-                                                <button id="btn_odl_shadow" class="btn btn-info btn-outline btn-block" type="button" onclick="preview_odl_shadow();"><i class="fa fa-eye"></i> ODL Shadow Preview (read-only)</button>
+                                                <button id="btn_odl_shadow" class="btn btn-info btn-outline btn-block oneid-sync-choice" type="button" onclick="preview_odl_shadow();"><i class="fa fa-eye"></i> ODL External Sync (Read Only Shadow Preview)</button>
                                              </div>
                                              <div class="form-group">
                                                 <button class="btn  btn-primary btn-outline btn-block" type="button" onclick="pick_add_single_user();"><i class="fa fa-plus"></i> Manual Add User</button>
@@ -626,7 +626,7 @@
             <!-- /.modal-dialog -->
          </div>
          <div id="modal_add_new_single_user" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_add_new_single_user" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg oneid-sync-preview-dialog">
                <div class="modal-content">
                   <div class="modal-header">
                      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -4038,7 +4038,7 @@
                   $('#sync_preview_status').text('Preview failed. Please try again.').addClass('badge badge-danger');
                },
                complete: function(){
-                  $('#btn_sync').prop('disabled', false).html('<i class="fa fa-search"></i> Preview external sync');
+                  $('#btn_sync').prop('disabled', false).html('<i class="fa fa-search"></i> Undergraduate External Sync');
                   $('#sync_status_msg').hide().text('');
                }
             });
@@ -4085,12 +4085,28 @@
                      response.risk_level === 'normal' ? 'success' : 'warning'
                   );
                },
-               error: function(){
-                  swal('ODL Shadow Preview failed', 'No data was changed. Inspect the server correlation log.', 'error');
+               error: function(xhr){
+                  var response = xhr.responseJSON || null;
+                  if(!response && xhr.responseText){
+                     try {
+                        response = JSON.parse(xhr.responseText);
+                     } catch(ignore) {}
+                  }
+                  var code = response && response.code
+                     ? response.code
+                     : 'HTTP_' + String(xhr.status || 0);
+                  var correlation = response && response.correlation_id
+                     ? '\nReference: ' + response.correlation_id
+                     : '';
+                  swal(
+                     'ODL Shadow Preview failed',
+                     'No data was changed.\nCode: ' + code + correlation,
+                     'error'
+                  );
                },
                complete: function(){
                   $('#btn_odl_shadow').prop('disabled', false)
-                     .html('<i class="fa fa-eye"></i> ODL Shadow Preview (read-only)');
+                     .html('<i class="fa fa-eye"></i> ODL External Sync (Read Only Shadow Preview)');
                }
             });
          }
@@ -6118,6 +6134,34 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+      }
+
+      #modal_open_add_user_option .oneid-add-user-dialog {
+         width: min(620px, calc(100vw - 30px));
+         max-width: 620px;
+      }
+
+      #modal_open_add_user_option .oneid-sync-choice {
+         min-height: 44px;
+         white-space: nowrap;
+         overflow: visible;
+         padding-left: 18px;
+         padding-right: 18px;
+      }
+
+      #modal_add_new_single_user .oneid-sync-preview-dialog {
+         width: min(1100px, calc(100vw - 30px));
+         max-width: 1100px;
+      }
+
+      #modal_add_new_single_user .modal-content {
+         overflow-wrap: anywhere;
+      }
+
+      @media (max-width: 640px) {
+         #modal_open_add_user_option .oneid-sync-choice {
+            white-space: normal;
+         }
       }
 
       #modal_add_new_single_user .sync-preview-table {
