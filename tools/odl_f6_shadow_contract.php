@@ -29,6 +29,11 @@ $report(
         && str_contains($ui, "preview_external_sync_view('STAFF_HR')")
         && str_contains($ui, "preview_external_sync_view('STUDENT_UG')")
         && str_contains($ui, "preview_external_sync_view('STUDENT_ODL_PG')")
+        && str_contains($ui, 'Generating External Sync Summary...')
+        && str_contains($ui, 'Generating Staff External Sync read-only preview...')
+        && str_contains($ui, 'Generating Undergraduate External Sync read-only preview...')
+        && str_contains($ui, 'Generating ODL External Sync read-only shadow preview...')
+        && str_contains($ui, 'Summary sahaja. Tiada fungsi Apply pada paparan ini.')
         && str_contains($ui, 'modal_odl_shadow_preview')
         && str_contains($ui, 'SHADOW PREVIEW READY — READ ONLY')
         && substr_count($ui, 'oneid-return-add-user-options') === 7

@@ -726,7 +726,7 @@
                   </div>
                   <div class="modal-body">
                      <div id="odl_shadow_progress" class="progress progress-lg">
-                        <div class="progress-bar progress-bar-info active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%" role="progressbar">Generating ODL read-only shadow preview...</div>
+                        <div id="external_preview_progress_text" class="progress-bar progress-bar-info active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%" role="progressbar">Generating external sync preview...</div>
                      </div>
                      <div id="odl_shadow_result" style="display:none">
                         <h6 class="mb-1">Preview result (nothing has been applied):</h6>
@@ -745,7 +745,7 @@
                               </tbody>
                            </table>
                         </div>
-                        <p class="text-muted">Shadow Preview sahaja. Apply dan automatic scheduler kekal disabled.</p>
+                        <p id="external_preview_boundary_note" class="text-muted">Read-only Preview sahaja. Apply dan automatic scheduler kekal disabled.</p>
                      </div>
                   </div>
                   <div class="modal-footer">
@@ -4110,6 +4110,12 @@
                STUDENT_UG: 'Undergraduate External Sync',
                STUDENT_ODL_PG: 'ODL External Sync'
             };
+            var progressLabels = {
+               SUMMARY: 'Generating External Sync Summary...',
+               STAFF_HR: 'Generating Staff External Sync read-only preview...',
+               STUDENT_UG: 'Generating Undergraduate External Sync read-only preview...',
+               STUDENT_ODL_PG: 'Generating ODL External Sync read-only shadow preview...'
+            };
             var selectedView = viewLabels[sourceView] ? sourceView : 'SUMMARY';
             $.ajax({
                type: 'POST',
@@ -4123,6 +4129,14 @@
                   $('#modal_odl_shadow_preview').modal('show');
                   $('#aria_modal_odl_shadow_preview').text(
                      viewLabels[selectedView] + ' — Read Only Preview'
+                  );
+                  $('#external_preview_progress_text').text(
+                     progressLabels[selectedView]
+                  );
+                  $('#external_preview_boundary_note').text(
+                     selectedView === 'SUMMARY'
+                        ? 'Summary sahaja. Tiada fungsi Apply pada paparan ini.'
+                        : 'Source-specific read-only Preview. Apply dan automatic scheduler kekal disabled dalam fasa semasa.'
                   );
                   $('#odl_shadow_progress').show();
                   $('#odl_shadow_result').hide();
