@@ -889,7 +889,7 @@ Owner mengesahkan `STUDENT_UG` dan meluluskan exact Preview. Backfill
 transactional selesai dengan 5,423 memberships, zero blocking identity finding,
 29 profile-variant review groups yang tidak ditulis, dan zero user mutation.
 
-### Fasa 3 — Adapter ODL read-only — `IMPLEMENTATION READY / RUNTIME PREFLIGHT PENDING`
+### Fasa 3 — Adapter ODL read-only — `WSL PREFLIGHT PASSED / STAGING PREFLIGHT PENDING`
 
 Aktiviti:
 
@@ -919,11 +919,9 @@ Implementation evidence:
 [`ODL_FASA_3_ADAPTER_READ_ONLY.md`](ODL_FASA_3_ADAPTER_READ_ONLY.md).
 Adapter, private configuration contract dan unit/contract tests telah tersedia
 secara dormant. Ia belum disambungkan kepada Preview, Apply atau scheduler.
-Development preflight connection/fixed-view read masih menunggu enam nilai
-private runtime WSL; CA TLS adalah optional untuk UAT. Selepas itu, jalankan
-`php tools/odl_f3_runtime_preflight.php` dari WSL. Selepas source code dipush
-dan dipull ke OneID UAT, preflight yang sama mesti diulang dengan private
-runtime staging.
+Development preflight WSL lulus dengan 53 row, zero blank matrik/IC, zero wrong
+category/source dan zero mutation. Selepas source code dipush dan dipull ke
+OneID UAT, preflight yang sama mesti diulang dengan private runtime staging.
 
 ### Fasa 4 — ODL data-quality audit — `FEASIBILITY BASELINE PARTIAL / NOT STARTED`
 

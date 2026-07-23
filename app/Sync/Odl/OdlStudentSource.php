@@ -68,7 +68,9 @@ SQL;
     /** @return list<array<string,mixed>> */
     private function fetchFromMySql(): array
     {
-        if (!defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
+        if (!defined('PDO::MYSQL_ATTR_SSL_CA')
+            || !defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')
+        ) {
             throw new \RuntimeException('ODL_PDO_MYSQL_TLS_UNAVAILABLE');
         }
 
@@ -84,15 +86,10 @@ SQL;
             \PDO::ATTR_EMULATE_PREPARES => false,
             \PDO::ATTR_PERSISTENT => false,
             \PDO::ATTR_TIMEOUT => $this->config->connectTimeout,
-            \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+            \PDO::MYSQL_ATTR_SSL_CA => $this->config->sslCaPath,
+            \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT =>
+                $this->config->sslCaPath !== '',
         ];
-        if ($this->config->sslCaPath !== '') {
-            if (!defined('PDO::MYSQL_ATTR_SSL_CA')) {
-                throw new \RuntimeException('ODL_PDO_MYSQL_TLS_UNAVAILABLE');
-            }
-            $options[\PDO::MYSQL_ATTR_SSL_CA] = $this->config->sslCaPath;
-            $options[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = true;
-        }
 
         try {
             $pdo = new \PDO(

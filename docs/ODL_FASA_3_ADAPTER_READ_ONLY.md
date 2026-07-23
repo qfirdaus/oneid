@@ -4,7 +4,7 @@
 
 **Environment:** OneID UAT
 
-**Status:** `IMPLEMENTATION READY / RUNTIME PREFLIGHT PENDING`
+**Status:** `WSL PREFLIGHT PASSED / STAGING PREFLIGHT PENDING`
 
 ## Skop yang siap
 
@@ -95,6 +95,18 @@ Kelulusan WSL membuktikan adapter, konfigurasi dan connectivity dari development
 environment. Ia tidak menggantikan preflight staging kerana source IP, route,
 CA trust dan runtime secret staging mungkin berbeza.
 
+### Keputusan WSL
+
+Preflight WSL pada 23 Julai 2026:
+
+```text
+RESULT ready=yes rows=53 blank_matric=0 blank_ic=0 wrong_category=0 wrong_source=0 mutation_statements=0
+```
+
+Password kekal dalam `.private/runtime.php` yang diabaikan oleh Git. CA tidak
+digunakan untuk UAT WSL; adapter memaksa sesi TLS dan membuktikan versi serta
+cipher aktif sebelum fixed view dibaca.
+
 ## Ujian
 
 ```bash
@@ -110,9 +122,8 @@ Semasa implementasi:
 
 ## Baki exit gate
 
-Implementation Fasa 3 belum dianggap sedia untuk staging sehingga runtime
-preflight WSL berjaya. Selepas deployment, exit gate environment staging pula
-memerlukan preflight yang sama menggunakan private configuration staging.
-Apply dan automatic sync kekal disabled.
+Implementation Fasa 3 kini sedia untuk dihantar ke staging. Selepas deployment,
+exit gate environment staging memerlukan preflight yang sama menggunakan
+private configuration staging. Apply dan automatic sync kekal disabled.
 
 **Change ID:** `ONEID-ODL-F3-20260723-01`
