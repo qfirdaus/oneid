@@ -432,7 +432,7 @@ Preview, approval, threshold, protection dan reconciliation.
 | GF-12 | Network dan TLS diluluskan | Ujian dari OneID staging `172.16.2.153` ke ODL `172.16.2.224:3308`: TLSv1.3, `TLS_AES_256_GCM_SHA384`; origin disahkan melalui `USER()` | Infrastructure/security owner | PASS — adapter mesti kekalkan TLS fail-closed |
 | GF-13 | Read-only grant dibuktikan | `SHOW GRANTS`: hanya USAGE dan SELECT pada `moodle.*`/`upnm.*`; negative UPDATE/DELETE test ditolak. Tiada write/DDL/admin privilege | Firdaus | PASS bagi read-only; broad SELECT dan `viewer@%` diterima sebagai UAT condition, perlu remediation/waiver sebelum production |
 | GF-14 | Secret handling diluluskan | Private runtime secret store; tiada credential dalam Git/source/screenshot/log; akses terhad; rotation semasa incident/perubahan pegawai/polisi | Firdaus, System Analyst/DBA | CONFIRMED |
-| GF-15 | Runtime baseline bersih | Rebaseline 23 Julai 2026: 10 suite, 219 checks, 0 failure; SKP quarantine dan approval-bound coordinator disahkan | OneID code owner | PASS LOCALLY — rekod commit/reference akhir |
+| GF-15 | Runtime baseline bersih | Rebaseline 23 Julai 2026: 10 suite, 219 checks, 0 failure; SKP quarantine dan approval-bound coordinator disahkan; commit `2e9133d` | OneID code owner | PASS |
 | GF-16 | Pilot/rollback strategy diterima | Sync actions dipersetujui secara provisional; draft backup, Deactivate=0 dan correlation rollback tersedia | OneID/business owner | PROVISIONAL |
 | GF-17 | Capacity/schedule/operations | Manual Shadow Preview; automatic sync/Apply disabled; failure/empty/shrink block dan log; retry manual; ODL data owner, OneID operations owner, DBA dan escalation: Firdaus | Firdaus | CONFIRMED |
 | GF-18 | Named final approver | Firdaus, System Analyst/DBA; 23 Julai 2026; change/access reference `N/A` | Firdaus | APPROVED — PROCEED WITH CONDITIONS |
@@ -471,9 +471,8 @@ Hasil semakan:
 | SKP quarantine contract | PASS |
 | Legacy writer exclusion | PASS |
 
-Blocker teknikal lokal GF-15 kini selesai pada working tree. Commit/reference
-akhir masih perlu direkod apabila perubahan diluluskan. Baki evidence luaran
-hendaklah dikumpul menggunakan
+Blocker teknikal lokal GF-15 selesai dan direkod dalam commit `2e9133d`.
+Evidence closure dirangkum menggunakan
 [`ODL_GATE_F_BLOCKER_CLOSURE_PACK.md`](ODL_GATE_F_BLOCKER_CLOSURE_PACK.md).
 
 ### 5.3 Approval akhir — 23 Julai 2026
@@ -505,8 +504,8 @@ disahkan stabil. `viewer@%` dan broad SELECT diterima sebagai syarat UAT sahaja.
 
 ## 6. Baki syarat selepas approval
 
-ODL data owner dan OneID operations owner ialah Firdaus. Commit/reference bagi
-baseline dan characterization lokal hendaklah direkod selepas commit selesai.
+ODL data owner dan OneID operations owner ialah Firdaus. Baseline dan
+characterization lokal direkod dalam commit `2e9133d`.
 
 Sebelum production, grant `viewer@%`, broad database SELECT dan keseluruhan
 security/operations design mesti direview semula. Approval Gate F ini bukan
