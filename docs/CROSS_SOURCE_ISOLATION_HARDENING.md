@@ -1,6 +1,6 @@
 # Cross-source isolation hardening
 
-**Status:** `IMPLEMENTATION COMPLETE / LIVE STAFF BACKFILL NOT AUTHORIZED`
+**Status:** `BACKFILL RECONCILED / CLOSURE PENDING`
 
 **Environment:** UAT
 
@@ -42,5 +42,48 @@ mutation_statements=0
 plan_digest=25bbb78c5ab62b980064adf1c79a2a5d686df491ca7230f2fca636e6c5cb3c94
 ```
 
-No migration or membership backfill was executed. Staff enforcement must not be
-enabled until registration and exact-digest backfill receive separate approval.
+## UAT registration and backfill
+
+Registration dan exact `1061` membership backfill diluluskan menggunakan:
+
+```text
+Backup: ONEID-UAT-BACKUP-20260723-02
+Window: 23 Julai 2026, 11:45 PM–11:59 PM MYT
+Change: ONEID-SOURCE-ISOLATION-20260723-01
+```
+
+Run pertama menghasilkan count 1061 tetapi independent semantic reconciliation
+mengesan extractor tidak mengulangi category filter Preview. Keseluruhan 1061
+membership dan dormant registry dirollback; `user_tbl` kekal tidak berubah.
+Extractor dibetulkan dan regression ditambah untuk shared Staff/student
+identity.
+
+Run kedua direconcile seperti berikut:
+
+```text
+STAFF_HR registry=dormant
+memberships=1061
+active memberships=1061
+distinct users=1061
+distinct external IDs=1061
+existing reconciliation=1061
+conflict=0
+blocking=0
+user mutations=0
+```
+
+Reconciliation turut menemui dan membetulkan comparison-only defects bagi
+hyphenated dan numeric-only identifiers. Tiada data diubah untuk kedua-dua
+defect tersebut. Staff provenance gate hanya diaktifkan selepas semantic
+reconciliation mencapai 1061/1061.
+
+Final active source scopes:
+
+```text
+STAFF_HR=1061
+STUDENT_UG=5423
+STUDENT_ODL_PG=3
+Staff actions=0
+UG actions=0
+ODL=50 candidate new / 3 keep
+```

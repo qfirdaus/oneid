@@ -8,6 +8,7 @@ $r=static function(bool$ok,string$label)use(&$checks,&$failed):void{
 $files=[
  'app/Sync/Provenance/StaffProvenancePreview.php',
  'tools/source_isolation_staff_preview.php',
+ 'tools/source_isolation_staff_backfill.php',
  'tests/characterization/source_isolation_matrix.php',
 ];
 foreach($files as$file){$out=[];$code=1;exec(escapeshellarg(PHP_BINARY).' -l '.escapeshellarg($root.'/'.$file),$out,$code);$r($code===0,'source and lint '.$file);}
@@ -24,6 +25,11 @@ $factory=(string)file_get_contents($root.'/app/Sync/SyncEngineFactory.php');
 $r(str_contains($factory,'sync_get_inactive_user_ids_by_source')&&str_contains($factory,'sync_assert_source_identity_writable')&&str_contains($factory,'sync_has_other_active_source'),'factory wires read and write source guards');
 $runtime=(string)file_get_contents($root.'/config/runtime.php');
 $r(str_contains($runtime,"'ONEID_SYNC_STAFF_PROVENANCE_ENABLED' => 'false'"),'Staff enforcement gate defaults fail-closed');
+$backfill=(string)file_get_contents($root.'/tools/source_isolation_staff_backfill.php');
+$r(str_contains($backfill,'STAFF_BACKFILL_AUTHORIZATION_REQUIRED')
+ &&str_contains($backfill,'STAFF_BACKFILL_OUTSIDE_WINDOW')
+ &&str_contains($backfill,'userFingerprint'),
+ 'Staff backfill binds authorization window and user checksum');
 $out=[];$code=1;exec(escapeshellarg(PHP_BINARY).' '.escapeshellarg($root.'/tests/characterization/source_isolation_matrix.php').' 2>&1',$out,$code);
-$r($code===0&&in_array('RESULT checks=6 failed=0',$out,true),'cross-source isolation matrix passes');
+$r($code===0&&in_array('RESULT checks=9 failed=0',$out,true),'cross-source isolation matrix passes');
 printf("RESULT checks=%d failed=%d\n",$checks,$failed);exit($failed===0?0:1);

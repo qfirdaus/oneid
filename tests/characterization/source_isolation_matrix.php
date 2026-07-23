@@ -52,11 +52,38 @@ $ok['new account records source membership transactionally']=
     $membership===['UG2','UG2','hash'];
 $p=(new StaffProvenancePreview())->preview(
     [['data4'=>'IC1','ext_data_source_category'=>'Akademik']],
-    [['u_id'=>'S1','u_category'=>2,'data4'=>'IC1','account_source'=>'external','sync_protected'=>0]],
+    [
+        ['u_id'=>'S1','u_category'=>2,'data4'=>'IC1','account_source'=>'external','sync_protected'=>0],
+        ['u_id'=>'ODL-SAME','u_category'=>10,'data4'=>'IC1','account_source'=>'external','sync_protected'=>0],
+    ],
     []
 );
 $ok['Staff Preview is aggregate-only candidate']=$p['candidate_memberships']===1
     &&$p['can_apply']===false&&$p['mutation_statements']===0
     &&!str_contains(json_encode($p),'IC1');
+$approved=(new StaffProvenancePreview())->candidatesForApprovedBackfill(
+    [['data4'=>'IC1','ext_data_source_category'=>'Akademik']],
+    [
+        ['u_id'=>'S1','u_category'=>2,'data4'=>'IC1','account_source'=>'external','sync_protected'=>0],
+        ['u_id'=>'ODL-SAME','u_category'=>10,'data4'=>'IC1','account_source'=>'external','sync_protected'=>0],
+    ],
+    [],1,(string)$p['plan_digest']
+);
+$ok['Staff extractor cannot select student account with same identity']=
+    count($approved)===1&&$approved[0]['u_id']==='S1';
+$hyphen=(new StaffProvenancePreview())->preview(
+    [['data4'=>'IC-2','ext_data_source_category'=>'Pentadbiran']],
+    [['u_id'=>'IC-2','u_category'=>3,'data4'=>'IC-2','account_source'=>'external','sync_protected'=>0]],
+    [['u_id'=>'IC-2','source_code'=>'STAFF_HR','external_user_id'=>'IC2']]
+);
+$ok['Staff membership reconciliation normalizes user and external IDs']=
+    $hyphen['existing_memberships']===1&&$hyphen['membership_conflicts']===0;
+$numeric=(new StaffProvenancePreview())->preview(
+    [['data4'=>'900101011234','ext_data_source_category'=>'Akademik']],
+    [['u_id'=>'900101011234','u_category'=>2,'data4'=>'900101011234','account_source'=>'external','sync_protected'=>0]],
+    [['u_id'=>'900101011234','source_code'=>'STAFF_HR','external_user_id'=>'900101011234']]
+);
+$ok['Numeric-only Staff identity retains string comparison']=
+    $numeric['existing_memberships']===1&&$numeric['membership_conflicts']===0;
 $failed=0;foreach($ok as$label=>$pass){$failed+=$pass?0:1;printf("%s %s\n",$pass?'PASS':'FAIL',$label);}
 printf("RESULT checks=%d failed=%d\n",count($ok),$failed);exit($failed===0?0:1);

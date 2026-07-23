@@ -1047,8 +1047,10 @@ authorization. Implementation dan aggregate-only Preview telah disediakan di
 bawah `ONEID-SOURCE-ISOLATION-20260723-01`. UG kini source-bound pada read,
 fresh-plan dan persistence; ODL kekal fixed-source; manual account kekal
 protected. Staff Preview menghasilkan 1061 exact candidate memberships dengan
-zero blocking finding dan zero mutation. Live registry/backfill `STAFF_HR`
-masih belum dibenarkan, maka Staff provenance gate kekal `false`. Rujuk
+zero blocking finding dan zero mutation. Registry/backfill `STAFF_HR`
+kemudiannya diluluskan dan direconcile tepat 1061 membership dengan zero user
+mutation. Staff provenance gate diaktifkan selepas semantic reconciliation
+lulus; closure owner masih diperlukan. Rujuk
 [`CROSS_SOURCE_ISOLATION_HARDENING.md`](CROSS_SOURCE_ISOLATION_HARDENING.md).
 
 Aktiviti:
