@@ -2,7 +2,13 @@
 
 **Tarikh:** 23 Julai 2026
 
-**Status:** `WSL PASSED / STAGING VERIFICATION PENDING`
+**Status:** `PASS / CLOSED`
+
+**Approver:** Firdaus, System Analyst/DBA
+
+**Approval date:** 23 Julai 2026
+
+**Evidence reference:** `ONEID-ODL-F6-20260723-01`
 
 ## Boundary
 
@@ -29,7 +35,7 @@ WSL menggunakan:
 Nilai staging mesti dimasukkan terus ke `.private/runtime.php` staging selepas
 pull. Gate hanya menerima literal `true` atau `false`.
 
-## Live WSL result
+## Accepted staging result
 
 ```text
 risk_level=normal
@@ -42,7 +48,7 @@ CANDIDATE_NEW=53
 blocking_codes=[]
 can_apply=false
 mutation_statements=0
-preview_digest=13c2ae876287574dd4af3e1b22c21e4c6ff5646db03c400602ec9a64c460ffa8
+preview_digest=8e72e0facec0af64119aaccc097fe7f99fdb014f6f9a9d540490e75b5f163355
 ```
 
 Dashboard memisahkan paparan kepada:
@@ -67,8 +73,8 @@ browser.
 ## Tests
 
 ```text
-Fasa 6 characterization: 12/12
-Fasa 6 contract: 8/8
+Fasa 6 characterization: 14/14
+Fasa 6 contract: 9/9
 Dashboard characterization: 21/21
 Legacy planner purity: 17/17
 Legacy orchestrator parity: 17/17
@@ -86,7 +92,7 @@ Baseline checksum `lib/q_func.php` dikemas kini kepada:
 Perubahan checksum adalah disebabkan endpoint Shadow Preview read-only yang
 baharu. `lib/Database.php` dan `lib/sync_user_runner.php` tidak berubah.
 
-## Staging verification
+## Staging verification dan closure
 
 Selepas pull dan private runtime dikemas kini:
 
@@ -96,9 +102,30 @@ php tools/odl_f6_shadow_contract.php
 php tools/odl_f6_shadow_preview.php
 ```
 
-Live staging result mesti kekal aggregate-only, `can_apply=false` dan
-`mutation_statements=0`. Perbezaan row count, action count, blocking code atau
-digest perlu direview sebelum Fasa 6 ditutup.
+Staging menghasilkan tiga snapshot dalam observation window UAT pendek:
+
+| Snapshot | Masa +08 | Staff | UG | ODL | ODL candidate new | Risk | Blocks | Mutation |
+|---|---:|---:|---:|---:|---:|---|---:|---:|
+| 1 | 21:16:28 | 1061 | 5452 | 53 | 53 | normal | 0 | 0 |
+| 2 | 21:19:13 | 1061 | 5452 | 53 | 53 | normal | 0 | 0 |
+| 3 | 21:19:16 | 1061 | 5452 | 53 | 53 | normal | 0 | 0 |
+
+Ketiga-tiga fail mempunyai checksum SHA-256 yang sama:
+
+```text
+a3563da05bd021ac53d1856c82bd78a83914fdf4bd601bde1371b025c6adfa3f
+```
+
+Ketiga-tiga response turut mempunyai preview digest yang sama:
+
+```text
+8e72e0facec0af64119aaccc097fe7f99fdb014f6f9a9d540490e75b5f163355
+```
+
+Firdaus menerima observation window UAT pendek ini dan mengesahkan ketiga-tiga
+snapshot stabil, blocking code sifar serta mutation sifar. Fasa 6 ditutup
+sebagai `PASS / CLOSED`. Closure ini tidak memberikan authorization kepada
+Controlled Pilot Apply, Full Apply atau scheduler ODL.
 
 Rollback ialah menetapkan:
 

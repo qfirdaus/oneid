@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–5 ditutup; Fasa 6 Shadow Preview ODL lulus di WSL dan menunggu staging verification
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–6 `PASS / CLOSED`; Fasa 7 Controlled Pilot Apply `NOT AUTHORIZED`
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -974,7 +974,7 @@ Implementation evidence:
 Planner kekal pure, dormant dan hanya menghasilkan safe Preview projection.
 Semua outage/anomaly menghasilkan zero membership/account action.
 
-### Fasa 6 — Shadow Preview ODL — `WSL PASSED / STAGING VERIFICATION PENDING`
+### Fasa 6 — Shadow Preview ODL — `PASS / CLOSED`
 
 Aktiviti:
 
@@ -996,7 +996,11 @@ Rollback: disable ODL Preview gate; tiada data pengguna perlu dipulihkan.
 Implementation evidence:
 [`ODL_FASA_6_SHADOW_PREVIEW.md`](ODL_FASA_6_SHADOW_PREVIEW.md).
 Shadow Preview mempunyai endpoint/UI berasingan, aggregate-only response,
-feature gate private dan tiada approval atau Apply capability.
+feature gate private dan tiada approval atau Apply capability. Tiga snapshot
+staging dalam observation window UAT pendek adalah identik: Staff 1061, UG
+5452, ODL 53, ODL candidate new 53, risk normal, zero blocking code dan zero
+mutation. Firdaus, System Analyst/DBA meluluskan closure pada 23 Julai 2026
+melalui evidence `ONEID-ODL-F6-20260723-01`.
 
 ### Fasa 7 — Controlled Pilot Apply — `NOT AUTHORIZED`
 
@@ -1221,13 +1225,17 @@ Pada semakan 23 Julai 2026:
 | Security/network/TLS/read-only evidence | PASS UAT: origin `172.16.2.153`, TLSv1.3/AES-256-GCM, read-only; broad SELECT/`viewer@%` accepted UAT condition |
 | Migration atau implementation approval | Fasa 1 selesai; setiap fasa seterusnya masih memerlukan exit gate |
 | Connection kepada ODL datasource | Connection test read-only dibenarkan dan lulus |
-| Preview menggunakan data ODL sebenar | Shadow Preview hanya selepas Fasa 1–5 lulus |
+| Preview menggunakan data ODL sebenar | PASS — tiga snapshot staging stabil, digest identik, zero blocking/mutation |
 | Pilot atau Full Apply | Tidak dibenarkan |
 | Gate F | `PROCEED WITH CONDITIONS` — diluluskan Firdaus, System Analyst/DBA |
 | Fasa 0 | `PASS / CLOSED` |
 | Fasa 1 | `PASS / CLOSED` — schema live dormant, zero membership |
 | Fasa 2 | `PASS / CLOSED` — `STUDENT_UG` dormant, 5,423 memberships, zero user mutation |
-| Fasa seterusnya | Fasa 3 — Adapter ODL read-only |
+| Fasa 3 | `PASS / CLOSED` — adapter read-only dan TLS preflight WSL/staging lulus |
+| Fasa 4 | `PASS / CLOSED` — data-quality audit WSL/staging lulus |
+| Fasa 5 | `PASS / CLOSED` — source-aware planner dan safety lulus |
+| Fasa 6 | `PASS / CLOSED` — tiga snapshot staging stabil; `ONEID-ODL-F6-20260723-01` |
+| Fasa seterusnya | Fasa 7 — Controlled Pilot Apply, `NOT AUTHORIZED` |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence

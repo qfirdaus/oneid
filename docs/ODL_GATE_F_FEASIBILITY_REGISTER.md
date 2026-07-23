@@ -439,6 +439,19 @@ Preview, approval, threshold, protection dan reconciliation.
 | GF-17 | Capacity/schedule/operations | Manual Shadow Preview; automatic sync/Apply disabled; failure/empty/shrink block dan log; retry manual; ODL data owner, OneID operations owner, DBA dan escalation: Firdaus | Firdaus | CONFIRMED |
 | GF-18 | Named final approver | Firdaus, System Analyst/DBA; 23 Julai 2026; change/access reference `N/A` | Firdaus | APPROVED — PROCEED WITH CONDITIONS |
 
+### 4.1 Closure Fasa 6
+
+Firdaus, System Analyst/DBA menerima tiga snapshot staging dalam observation
+window UAT pendek dan meluluskan Fasa 6 sebagai `PASS / CLOSED` pada 23 Julai
+2026. Ketiga-tiga snapshot merekod Staff 1061, UG 5452, ODL 53, ODL candidate
+new 53, risk normal, zero blocking code dan zero mutation. Checksum fail serta
+preview digest adalah identik. Evidence reference:
+`ONEID-ODL-F6-20260723-01`.
+
+Closure Fasa 6 tidak mengubah keputusan Gate F yang melarang ODL Pilot Apply,
+Full Apply, production rollout dan automatic scheduler tanpa authorization
+baharu.
+
 ### 5.1 Audit runtime checksum
 
 Expected baseline dijumpai dalam sejarah Git:
