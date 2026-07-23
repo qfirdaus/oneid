@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–7 `PASS / CLOSED`; Fasa 8 `FULL APPLY COMPLETE / CLOSURE PENDING`
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–8 `PASS / CLOSED`; Fasa 9 `NOT AUTHORIZED`
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -1040,7 +1040,7 @@ disabled dan private allowlist dikosongkan; scheduler, Full Apply dan production
 kekal tidak dibenarkan. Rujuk
 [`ODL_FASA_7_CONTROLLED_PILOT_IMPLEMENTATION.md`](ODL_FASA_7_CONTROLLED_PILOT_IMPLEMENTATION.md).
 
-### Fasa 8 — Controlled Full Apply — `FULL APPLY COMPLETE / CLOSURE PENDING`
+### Fasa 8 — Controlled Full Apply — `PASS / CLOSED`
 
 Cross-source isolation hardening telah ditutup `PASS / CLOSED` sebelum Fasa 8
 diberi authorization. Implementation dan aggregate-only Preview disediakan di
@@ -1079,8 +1079,10 @@ Exact-plan Full Apply telah diluluskan di bawah
 active source scope Staff 1061, UG 5423 dan ODL 53. Post-Apply Shadow Preview
 menunjukkan semua 53 ODL sebagai `KEEP`, zero candidate baharu dan zero block.
 Apply flag dikembalikan kepada disabled; automatic scheduler dan production
-kekal tidak dibenarkan. Observation, login/ACL smoke test dan approval closure
-masih diperlukan. Rujuk
+kekal tidak dibenarkan. Post-Apply observation dan login/ACL smoke test
+disahkan `PASS`, kategori akaun `Pelajar/10` dan active ODL membership 53.
+Firdaus, System Analyst/DBA menerima keputusan `PASS / CLOSED` pada 24 Julai
+2026 melalui evidence `ONEID-ODL-F8-20260724-01`. Rujuk
 [`ODL_FASA_8_CONTROLLED_FULL_PREVIEW.md`](ODL_FASA_8_CONTROLLED_FULL_PREVIEW.md).
 
 Exit gate:
@@ -1276,7 +1278,7 @@ Pada semakan 23 Julai 2026:
 | Migration atau implementation approval | Fasa 1 selesai; setiap fasa seterusnya masih memerlukan exit gate |
 | Connection kepada ODL datasource | Connection test read-only dibenarkan dan lulus |
 | Preview menggunakan data ODL sebenar | PASS — tiga snapshot staging stabil, digest identik, zero blocking/mutation |
-| Pilot atau Full Apply | Tidak dibenarkan |
+| Pilot atau Full Apply | F7 Pilot dan F8 Controlled Full Apply selesai UAT; production tidak dibenarkan |
 | Gate F | `PROCEED WITH CONDITIONS` — diluluskan Firdaus, System Analyst/DBA |
 | Fasa 0 | `PASS / CLOSED` |
 | Fasa 1 | `PASS / CLOSED` — schema live dormant, zero membership |
@@ -1285,7 +1287,9 @@ Pada semakan 23 Julai 2026:
 | Fasa 4 | `PASS / CLOSED` — data-quality audit WSL/staging lulus |
 | Fasa 5 | `PASS / CLOSED` — source-aware planner dan safety lulus |
 | Fasa 6 | `PASS / CLOSED` — tiga snapshot staging stabil; `ONEID-ODL-F6-20260723-01` |
-| Fasa seterusnya | Fasa 8 Controlled Full Apply — exact-plan authorization diperlukan |
+| Fasa 7 | `PASS / CLOSED` — tiga Pilot NEW; `ONEID-ODL-F7-20260723-01` |
+| Fasa 8 | `PASS / CLOSED` — 50 Full NEW, ODL active membership 53; `ONEID-ODL-F8-20260724-01` |
+| Fasa seterusnya | Fasa 9 Operational rollout — authorization baharu diperlukan |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence

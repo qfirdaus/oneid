@@ -1,6 +1,6 @@
 # ODL Fasa 8 — Controlled Full Apply
 
-**Status:** `FULL APPLY COMPLETE / OBSERVATION AND CLOSURE PENDING`
+**Status:** `PASS / CLOSED`
 
 **Environment:** UAT
 
@@ -69,5 +69,9 @@ post-Apply active scope: STAFF_HR=1061, STUDENT_UG=5423, STUDENT_ODL_PG=53
 Independent reconciliation sepadan `50/50/50`. Post-Apply Shadow Preview
 menunjukkan kesemua 53 ODL sebagai `KEEP`, zero candidate baharu, zero blocking
 code dan zero mutation. Apply flag dikembalikan kepada `false` selepas one-shot;
-tiada web Apply endpoint atau scheduler diwiring. Fasa memerlukan observation,
-login/ACL smoke test dan approval closure pemilik.
+tiada web Apply endpoint atau scheduler diwiring.
+
+Post-Apply observation dan login/ACL smoke test disahkan `PASS`, kategori akaun
+ialah `Pelajar/10` dan active ODL membership ialah 53. Firdaus, System
+Analyst/DBA menerima keputusan `PASS / CLOSED` pada 24 Julai 2026 melalui
+evidence `ONEID-ODL-F8-20260724-01`.
