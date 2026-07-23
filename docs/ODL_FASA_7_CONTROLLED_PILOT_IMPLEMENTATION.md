@@ -2,7 +2,7 @@
 
 **Tarikh authorization:** 23 Julai 2026
 
-**Status:** `IMPLEMENTATION COMPLETE / EXECUTION NOT AUTHORIZED`
+**Status:** `PILOT APPLIED / CLOSURE PENDING`
 
 **Environment:** UAT
 
@@ -105,3 +105,31 @@ Apply sebenar masih memerlukan keputusan baharu yang menyatakan exact Preview
 digest, plan hash, tiga identity digest, backup reference, change window,
 rollback owner dan typed authorization. Full Apply, production dan automatic
 scheduler kekal tidak dibenarkan.
+
+## UAT Pilot execution evidence
+
+Pilot Preview dan Apply telah diberi authorization berasingan oleh Firdaus,
+System Analyst/DBA pada 23 Julai 2026. Tiga calon `NEW` dipilih secara rawak
+daripada 53 source rows; hanya digest identiti disimpan dalam private runtime.
+
+```text
+Backup reference: ONEID-UAT-BACKUP-20260723-01
+Change reference: ONEID-ODL-F7-20260723-01
+Change window: 23 Julai 2026, 10:00 PM–10:30 PM MYT
+Plan hash: afaa7e87a2bfc1029b5f849a4eceb97f4dbb93ccc399fd24b923e915b4802b25
+Preview digest: 496a8e71c8089e90087f2b5d63aaf98352f0d9915993b5840e211590e79d29f4
+Correlation ID: 0763c8dd60a3cc21
+Planned: New=3, Update=0, Deactivate=0, Reactivate=0
+Executed: users=3, memberships=3, events=3
+Reconciled: category 10=3, external account=3, STUDENT_ODL_PG=3
+Automatic scheduler: disabled
+Full Apply: disabled
+Production: not authorized
+```
+
+Apply flag dipulangkan kepada `false` sebaik sahaja transaction dan independent
+reconciliation selesai. Cubaan runner tanpa typed execution token ditolak.
+
+Closure masih memerlukan activation/reset yang diluluskan dan satu login/ACL
+smoke test bagi pilot account. Initial password dijana secara rawak dan hanya
+hash disimpan; tiada plaintext credential tersedia dalam log atau output.

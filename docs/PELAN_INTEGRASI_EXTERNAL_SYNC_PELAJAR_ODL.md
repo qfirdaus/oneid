@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–6 `PASS / CLOSED`; Fasa 7 implementation complete, Pilot Preview/Apply `NOT AUTHORIZED`
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–6 `PASS / CLOSED`; Fasa 7 `PILOT APPLIED / CLOSURE PENDING`
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -1002,7 +1002,7 @@ staging dalam observation window UAT pendek adalah identik: Staff 1061, UG
 mutation. Firdaus, System Analyst/DBA meluluskan closure pada 23 Julai 2026
 melalui evidence `ONEID-ODL-F6-20260723-01`.
 
-### Fasa 7 — Controlled Pilot Apply — `IMPLEMENTATION COMPLETE / EXECUTION NOT AUTHORIZED`
+### Fasa 7 — Controlled Pilot Apply — `PILOT APPLIED / CLOSURE PENDING`
 
 Aktiviti:
 
@@ -1025,10 +1025,17 @@ bulk delete atau broad deactivation.
 
 Implementation-only authorization diterima pada 23 Julai 2026 untuk tepat tiga
 pelajar ODL dan tindakan `NEW` sahaja. Exact-three private digest config,
-NEW-only planner, dormant transactional writer, provenance event migration,
-one-time approval boundary, reconciliation dan targeted rollback telah dibina
-serta lulus isolated rehearsal. Tiada migration live, endpoint Apply, pilot
-Preview atau mutation UAT diaktifkan. Rujuk
+NEW-only planner, transactional writer, provenance event migration, one-time
+approval boundary, reconciliation dan targeted rollback telah dibina serta
+lulus isolated rehearsal.
+
+Pilot Preview dan one-shot Apply UAT kemudiannya diluluskan secara berasingan.
+Plan `New=3` dan tindakan lain sifar telah menghasilkan tepat tiga users, tiga
+membership `STUDENT_ODL_PG` dan tiga event di bawah correlation
+`0763c8dd60a3cc21`. Independent reconciliation mengesahkan ketiga-tiganya
+kategori 10 dan external account. Apply dikembalikan kepada disabled; scheduler,
+Full Apply dan production kekal tidak dibenarkan. Closure menunggu satu
+activation/reset dan login/ACL smoke test yang diluluskan. Rujuk
 [`ODL_FASA_7_CONTROLLED_PILOT_IMPLEMENTATION.md`](ODL_FASA_7_CONTROLLED_PILOT_IMPLEMENTATION.md).
 
 ### Fasa 8 — Controlled Full Apply — `NOT AUTHORIZED`
@@ -1243,7 +1250,7 @@ Pada semakan 23 Julai 2026:
 | Fasa 4 | `PASS / CLOSED` — data-quality audit WSL/staging lulus |
 | Fasa 5 | `PASS / CLOSED` — source-aware planner dan safety lulus |
 | Fasa 6 | `PASS / CLOSED` — tiga snapshot staging stabil; `ONEID-ODL-F6-20260723-01` |
-| Fasa seterusnya | Fasa 7 Pilot Preview — implementation tersedia, authorization belum diberi |
+| Fasa seterusnya | Tutup Fasa 7 selepas activation/reset dan login/ACL smoke test pilot diluluskan |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence
