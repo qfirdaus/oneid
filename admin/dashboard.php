@@ -587,7 +587,7 @@
                         <div class="panel panel-primary card-view">
                            <div class="panel-heading">
                               <div class="pull-left">
-                                 <h6 class="panel-title txt-light">Add User</h6>
+                                 <h6 class="panel-title txt-light">Sync User</h6>
                               </div>
                               <div class="clearfix"></div>
                            </div>
