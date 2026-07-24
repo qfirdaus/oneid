@@ -1,6 +1,6 @@
 # ODL Fasa 9A — Manual Action Coverage
 
-**Status:** `IMPLEMENTED / PREVIEW TEST DATA PENDING`
+**Status:** `RUN A PASS / RUN B REACTIVATE DEFERRED`
 
 **Environment:** UAT
 
@@ -57,3 +57,37 @@ masih memerlukan authorization khusus.
 4. Team ODL kembalikan rekod deactivated ke active view.
 5. Run B: satu REACTIVATE.
 6. Reconcile, login/ACL smoke test dan tutup F9A.
+
+## Run A evidence
+
+Team ODL menyediakan satu perubahan profil bukan identity dan mengeluarkan satu
+rekod daripada active view. Exact Preview menghasilkan:
+
+```text
+source rows=70
+New=0
+Update=1
+Deactivate=1
+Reactivate=0
+plan hash=a9bb07fb8ac231cbdf74b64cd4ec2475198f28e6ae6b0c46da32a42891a9b049
+```
+
+Apply diluluskan melalui `ONEID-ODL-F9A-20260724-02`, backup
+`ONEID-UAT-BACKUP-20260724-03` dan change window 24 Julai 2026,
+6:00 PM–6:30 PM MYT. Header 52 merekod tepat satu UPDATE dan satu DEACTIVATE.
+Post-Apply Preview kembali zero action. Operational reconciliation, audit
+counts dan syslog lulus. Read-only rollback readiness menghasilkan
+`rollback_ready=true`, zero blocking code dan zero mutation. Apply dikembalikan
+kepada `false`.
+
+## Deferred Run B
+
+Run B memerlukan Team ODL mengaktifkan semula rekod yang sama supaya Preview
+menghasilkan satu REACTIVATE. Team ODL tidak tersedia selepas Run A, maka Run B
+direkod `DEFERRED` sehingga owner boleh berkomunikasi semula dengan mereka.
+
+Keputusan ini bukan test failure dan bukan blocker teknikal. Jangan mengubah
+data OneID secara manual untuk memalsukan precondition REACTIVATE. Apabila Team
+ODL tersedia, mereka perlu mengembalikan rekod ke active view menggunakan
+Matrik dan IC asal. Fresh Preview, exact-plan authorization, backup dan change
+window baharu tetap diperlukan.

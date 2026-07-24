@@ -1115,7 +1115,7 @@ action; login/ACL kategori `Pelajar/10` serta membership `STUDENT_ODL_PG`
 lulus. Apply dikembalikan kepada disabled. Firdaus, System Analyst/DBA menutup
 Fasa 9 `PASS / CLOSED` pada 24 Julai 2026.
 
-### Fasa 9A — Manual action coverage — `IMPLEMENTED / PREVIEW TEST DATA PENDING`
+### Fasa 9A — Manual action coverage — `RUN A PASS / RUN B DEFERRED`
 
 Implementation dan Preview untuk UPDATE, DEACTIVATE serta REACTIVATE dibenarkan
 melalui `ONEID-ODL-F9A-20260724-01`. Exact-plan gate kini reusable tetapi setiap
@@ -1124,6 +1124,13 @@ ODL UPDATE memelihara Matrik/IC dan blank e-mel tidak memadam nilai sedia ada.
 Rollback-readiness check adalah read-only; scheduler dan production kekal
 disabled. Rujuk
 [`ODL_FASA_9A_MANUAL_ACTION_COVERAGE.md`](ODL_FASA_9A_MANUAL_ACTION_COVERAGE.md).
+
+Run A telah lulus melalui header 52 dengan satu UPDATE dan satu DEACTIVATE,
+zero tindakan lain, reconciliation/syslog PASS serta rollback readiness
+`true`. Apply dikembalikan kepada disabled. Run B REACTIVATE ditangguhkan kerana
+Team ODL belum tersedia untuk mengembalikan rekod yang sama ke active view.
+Penangguhan ini ialah external dependency, bukan kegagalan teknikal. Run B
+memerlukan fresh Preview dan authorization baharu apabila Team ODL tersedia.
 
 Aktiviti:
 
@@ -1318,8 +1325,8 @@ Pada semakan 23 Julai 2026:
 | Fasa 7 | `PASS / CLOSED` — tiga Pilot NEW; `ONEID-ODL-F7-20260723-01` |
 | Fasa 8 | `PASS / CLOSED` — 50 Full NEW, ODL active membership 53; `ONEID-ODL-F8-20260724-01` |
 | Fasa 9 | `PASS / CLOSED` — header 50, 18 NEW, active ODL 71; `ONEID-ODL-F9-20260724-02` |
-| Fasa 9A | `IMPLEMENTED / PREVIEW TEST DATA PENDING` — Update/Deactivate/Reactivate coverage |
-| Fasa seterusnya | Team ODL sediakan Run A test data; live Apply memerlukan exact-plan authorization |
+| Fasa 9A | `RUN A PASS / RUN B DEFERRED` — header 52: Update 1, Deactivate 1; Reactivate menunggu Team ODL |
+| Fasa seterusnya | Sambung Run B apabila Team ODL mengaktifkan semula rekod; fresh authorization diperlukan |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence
