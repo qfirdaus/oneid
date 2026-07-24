@@ -1,6 +1,6 @@
 # ODL Fasa 9 — Manual Operational Sync
 
-**Status:** `IMPLEMENTED / PREVIEW READY / APPLY NOT AUTHORIZED`
+**Status:** `PASS / CLOSED`
 
 **Environment:** UAT
 
@@ -64,3 +64,38 @@ mutation statements=0
 Characterization dan contract mesti lulus sebelum staging pull. Staging Admin
 Preview perlu disahkan berasingan. Sebarang live Apply pertama Fasa 9
 memerlukan exact-plan authorization baharu.
+
+## Controlled manual Apply dan closure
+
+Pasukan ODL menambah 18 rekod baharu. Fresh Preview UAT menghasilkan exact plan:
+
+```text
+source rows=71
+New=18
+Update=0
+Deactivate=0
+Reactivate=0
+plan hash=6ee2d37e099b72b31cea8cea5d8228e43087b92770f1102442235701b771c5fd
+```
+
+Apply diluluskan melalui `ONEID-ODL-F9-20260724-02`, backup
+`ONEID-UAT-BACKUP-20260724-02` dan revised change window 24 Julai 2026,
+3:10 PM–3:40 PM MYT. Operational Apply menghasilkan header `50`, tepat 18
+`NEW` dan zero tindakan lain.
+
+Independent reconciliation mengesahkan:
+
+```text
+active STUDENT_ODL_PG memberships=71
+header total_new=18
+header total_updated=0
+header total_deactivated=0
+header total_reactivated=0
+change log NEW=18
+```
+
+Post-Apply Preview menunjukkan 71 source rows dan semua action count sifar.
+Login/ACL smoke test lulus dengan kategori `Pelajar/10` dan membership
+`STUDENT_ODL_PG`. Apply flag dikembalikan kepada `false`. Firdaus, System
+Analyst/DBA meluluskan `PASS / CLOSED` pada 24 Julai 2026 melalui evidence
+`ONEID-ODL-F9-20260724-02`.

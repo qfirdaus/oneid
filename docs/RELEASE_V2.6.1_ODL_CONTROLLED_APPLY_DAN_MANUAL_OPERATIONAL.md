@@ -3,7 +3,7 @@
 **Versi:** 2.6.1  
 **Tarikh release:** 24 Julai 2026  
 **Environment sasaran:** UAT  
-**Status:** Fasa 0–8 `PASS / CLOSED`; Fasa 9 `PREVIEW READY`
+**Status:** Fasa 0–9 `PASS / CLOSED`
 
 ## Ringkasan
 
@@ -51,6 +51,11 @@ production rollout kekal disabled.
 
 Live F9 Preview menghasilkan 53 source rows, 53 active scope, zero action, zero
 blocking code dan zero mutation. Apply serta scheduler ialah `false`.
+
+Selepas pasukan ODL menambah data terkawal, F9 exact-plan Apply menghasilkan
+header 50 dengan 18 `NEW`, zero tindakan lain dan 71 active ODL memberships.
+Post-Apply Preview kembali zero action dan login/ACL smoke test lulus. Evidence
+closure ialah `ONEID-ODL-F9-20260724-02`; Apply dikembalikan kepada `false`.
 
 ## Batas release
 

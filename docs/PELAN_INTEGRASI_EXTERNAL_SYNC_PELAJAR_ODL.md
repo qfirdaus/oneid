@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–8 `PASS / CLOSED`; Fasa 9 `IMPLEMENTED / PREVIEW READY / APPLY NOT AUTHORIZED`
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–9 `PASS / CLOSED`; automatic scheduler dan production `NOT AUTHORIZED`
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -1095,7 +1095,7 @@ Exit gate:
 Rollback: disable ODL source gate, restore targeted change set atau restore point
 mengikut severity dan runbook yang telah diuji.
 
-### Fasa 9 — Operational rollout — `IMPLEMENTED / PREVIEW READY / APPLY NOT AUTHORIZED`
+### Fasa 9 — Manual operational rollout — `PASS / CLOSED`
 
 Implementation dan Preview manual/on-demand melalui Admin dibenarkan melalui
 `ONEID-ODL-F9-20260724-01`. ODL kini menggunakan guarded operational modal yang
@@ -1106,6 +1106,14 @@ memadam nilai OneID. WSL live Preview menunjukkan 53 source rows, 53 active
 scope, zero action, zero block dan zero mutation. Automatic scheduler dan
 production kekal tidak dibenarkan. Rujuk
 [`ODL_FASA_9_MANUAL_OPERATIONAL_SYNC.md`](ODL_FASA_9_MANUAL_OPERATIONAL_SYNC.md).
+
+Controlled Manual Apply kemudiannya diluluskan melalui
+`ONEID-ODL-F9-20260724-02`. Exact plan `71 rows / 18 NEW / zero tindakan lain`
+dikomit sebagai header 50. Reconciliation mengesahkan 71 active ODL
+memberships dan change log tepat 18 `NEW`. Post-Apply Preview menunjukkan zero
+action; login/ACL kategori `Pelajar/10` serta membership `STUDENT_ODL_PG`
+lulus. Apply dikembalikan kepada disabled. Firdaus, System Analyst/DBA menutup
+Fasa 9 `PASS / CLOSED` pada 24 Julai 2026.
 
 Aktiviti:
 
@@ -1299,8 +1307,8 @@ Pada semakan 23 Julai 2026:
 | Fasa 6 | `PASS / CLOSED` — tiga snapshot staging stabil; `ONEID-ODL-F6-20260723-01` |
 | Fasa 7 | `PASS / CLOSED` — tiga Pilot NEW; `ONEID-ODL-F7-20260723-01` |
 | Fasa 8 | `PASS / CLOSED` — 50 Full NEW, ODL active membership 53; `ONEID-ODL-F8-20260724-01` |
-| Fasa 9 | `IMPLEMENTED / PREVIEW READY / APPLY NOT AUTHORIZED` — manual Admin flow; `ONEID-ODL-F9-20260724-01` |
-| Fasa seterusnya | Staging Preview F9 dan exact-plan authorization hanya apabila terdapat action |
+| Fasa 9 | `PASS / CLOSED` — header 50, 18 NEW, active ODL 71; `ONEID-ODL-F9-20260724-02` |
+| Fasa seterusnya | Automatic scheduler/cronjob atau production rollout memerlukan authorization baharu |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence
