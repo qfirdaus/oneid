@@ -657,13 +657,19 @@
          </div>
          <div id="modal_add_new_single_user" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_add_new_single_user" aria-hidden="true">
             <div class="modal-dialog modal-lg oneid-sync-preview-dialog">
-               <div class="modal-content">
-                  <div class="modal-header">
-                     <button type="button" class="close oneid-return-add-user-options" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_add_new_single_user">Semakan Sinkronisasi Pengguna</h5>
+               <div class="modal-content oneid-sync-child-modal">
+                  <div class="modal-header oneid-sync-child-header">
+                     <div class="oneid-sync-child-heading">
+                        <span class="oneid-sync-child-heading-icon"><i class="fa fa-refresh"></i></span>
+                        <div>
+                           <h5 class="modal-title" id="aria_modal_add_new_single_user">Semakan Sinkronisasi Pengguna</h5>
+                           <p>Semak semua perubahan dengan teliti sebelum melaksanakan sinkronisasi.</p>
+                        </div>
+                     </div>
+                     <button type="button" class="close oneid-sync-child-close oneid-return-add-user-options" data-dismiss="modal" aria-hidden="true">×</button>
                   </div>
                   <form id="form_add_new_category">
-                     <div class="modal-body">
+                     <div class="modal-body oneid-sync-child-body">
                         <div class="row">
                            <div class="col-lg-12">
                               <div class="">
@@ -751,7 +757,7 @@
                            </div>
                         </div>
                      </div>
-                     <div class="modal-footer">
+                     <div class="modal-footer oneid-sync-child-footer">
                         <button type="button" id="btn_apply_sync_pilot" class="btn btn-danger waves-effect" style="display:none">Apply controlled pilot (2 New + 1 Update)</button>
                         <button type="button" id="btn_apply_sync_full" class="btn btn-danger waves-effect" style="display:none" disabled>Laksanakan sinkronisasi yang diluluskan</button>
                         <button type="button" id="btn_apply_sync_operational" class="btn btn-primary waves-effect" style="display:none" disabled>Laksanakan sinkronisasi</button>
@@ -765,12 +771,18 @@
          </div>
          <div id="modal_odl_shadow_preview" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_odl_shadow_preview" aria-hidden="true">
             <div class="modal-dialog modal-lg oneid-sync-preview-dialog">
-               <div class="modal-content">
-                  <div class="modal-header">
-                     <button type="button" class="close oneid-return-add-user-options" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_odl_shadow_preview">Ringkasan Sinkronisasi Pengguna</h5>
+               <div class="modal-content oneid-sync-child-modal">
+                  <div class="modal-header oneid-sync-child-header oneid-sync-summary-header">
+                     <div class="oneid-sync-child-heading">
+                        <span class="oneid-sync-child-heading-icon"><i class="fa fa-dashboard"></i></span>
+                        <div>
+                           <h5 class="modal-title" id="aria_modal_odl_shadow_preview">Ringkasan Sinkronisasi Pengguna</h5>
+                           <p>Paparan menyeluruh status sumber dan tindakan yang memerlukan perhatian.</p>
+                        </div>
+                     </div>
+                     <button type="button" class="close oneid-sync-child-close oneid-return-add-user-options" data-dismiss="modal" aria-hidden="true">×</button>
                   </div>
-                  <div class="modal-body">
+                  <div class="modal-body oneid-sync-child-body">
                      <div id="odl_shadow_progress" class="progress progress-lg">
                         <div id="external_preview_progress_text" class="progress-bar progress-bar-info active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%" role="progressbar">Sedang menyediakan ringkasan...</div>
                      </div>
@@ -809,21 +821,27 @@
                         <p id="external_preview_boundary_note" class="text-muted">Ringkasan ini untuk semakan sahaja. Tiada perubahan data boleh dilaksanakan dari paparan ini.</p>
                      </div>
                   </div>
-                  <div class="modal-footer">
+                  <div class="modal-footer oneid-sync-child-footer">
                      <button type="button" class="btn btn-default waves-effect oneid-return-add-user-options" data-dismiss="modal">Tutup</button>
                   </div>
                </div>
             </div>
          </div>
          <div id="modal_add_new_user_manual" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_add_new_user_manual" aria-hidden="true">
-            <div class="modal-dialog">
-               <div class="modal-content">
-                  <div class="modal-header">
-                     <button type="button" class="close oneid-return-add-user-options" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_add_new_user_manual">Add User - Manual</h5>
+            <div class="modal-dialog oneid-manual-user-dialog">
+               <div class="modal-content oneid-sync-child-modal oneid-manual-user-modal">
+                  <div class="modal-header oneid-sync-child-header oneid-sync-manual-header">
+                     <div class="oneid-sync-child-heading">
+                        <span class="oneid-sync-child-heading-icon"><i class="fa fa-user-plus"></i></span>
+                        <div>
+                           <h5 class="modal-title" id="aria_modal_add_new_user_manual">Tambah Pengguna Secara Manual</h5>
+                           <p>Daftar satu akaun yang tiada dalam sumber sinkronisasi.</p>
+                        </div>
+                     </div>
+                     <button type="button" class="close oneid-sync-child-close oneid-return-add-user-options" data-dismiss="modal" aria-hidden="true">×</button>
                   </div>
                   <form id="form_add_new_user_manual">
-                     <div class="modal-body">
+                     <div class="modal-body oneid-sync-child-body">
                         <div class="row">
                            <div class="col-lg-12">
                               <div class="">
@@ -833,15 +851,15 @@
                                           <div class="form-wrap">
                                              <div class="form-body overflow-hide">
                                                 <div class="form-group">
-                                                   <label class="control-label mb-10" for="add_new_manual_user_name">Name @ Data 1</label>
-                                                   <input type="text" class="form-control add_new_manual_user_input" id="add_new_manual_user_name" name="add_new_manual_user_name" placeholder="Staff/Student Name" maxlength="100" required="">
+                                                   <label class="control-label mb-10" for="add_new_manual_user_name">Nama penuh</label>
+                                                   <input type="text" class="form-control add_new_manual_user_input" id="add_new_manual_user_name" name="add_new_manual_user_name" placeholder="Nama penuh staf atau pelajar" maxlength="100" required="">
                                                 </div>
                                                 <div class="form-group">
-                                                   <label class="control-label mb-10" for="add_new_manual_user_id">No KP / User ID / Username</label>
-                                                   <input type="text" class="form-control add_new_manual_user_input" id="add_new_manual_user_id" name="add_new_manual_user_id" placeholder="User Unique ID, Staff/Student ID" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@\-]*" required="" disabled="">
+                                                   <label class="control-label mb-10" for="add_new_manual_user_id">No. KP / ID pengguna / nama pengguna</label>
+                                                   <input type="text" class="form-control add_new_manual_user_input" id="add_new_manual_user_id" name="add_new_manual_user_id" placeholder="ID unik staf atau pelajar" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@\-]*" required="" disabled="">
                                                 </div>
                                                 <div class="form-group">
-                                                   <label class="control-label mb-10" for="add_new_manual_user_category">Category</label>
+                                                   <label class="control-label mb-10" for="add_new_manual_user_category">Kategori pengguna</label>
                                                    <select class="form-control add_new_manual_user_input" id="add_new_manual_user_category" name="add_new_manual_user_category" required="">
                                                    </select>
                                                 </div>
@@ -851,7 +869,7 @@
                                                          <div class="panel-heading" role="tab" id="heading_10">
                                                             <a role="button" data-toggle="collapse" data-parent="#accordion_2" href="#collapse_10" aria-expanded="false" class="collapsed">
                                                                <div class="icon-ac-wrap pr-20"><span class="plus-ac"><i class="ti-plus"></i></span><span class="minus-ac"><i class="ti-minus"></i></span></div>
-                                                               Add Additional Data
+                                                               Maklumat tambahan
                                                             </a>
                                                          </div>
                                                          <div id="collapse_10" class="panel-collapse collapse" role="tabpanel" aria-expanded="false" style="height: 0px;">
@@ -902,7 +920,7 @@
                                                    </div>
                                                 </div>
                                                 <div class="alert alert-warning alert-dismissable alert-style-1 add_new_manual_user_input_loading_text">
-                                                   <i class="zmdi zmdi-alert-circle-o"></i><span class="text-center">Checking User ID, wait a moment..</span>
+                                                   <i class="zmdi zmdi-alert-circle-o"></i><span class="text-center">Sedang menyemak ID pengguna...</span>
                                                    <div class="progress" class="col-sm-7" >
                                                       <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
                                                       </div>
@@ -917,9 +935,9 @@
                            </div>
                         </div>
                      </div>
-                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default waves-effect oneid-return-add-user-options" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary waves-effect">Add</button>
+                     <div class="modal-footer oneid-sync-child-footer">
+                        <button type="button" class="btn btn-default waves-effect oneid-return-add-user-options" data-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-primary waves-effect"><i class="fa fa-plus"></i> Tambah pengguna</button>
                      </div>
                   </form>
                </div>
@@ -6804,13 +6822,187 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
       #modal_add_new_single_user .oneid-sync-preview-dialog,
       #modal_odl_shadow_preview .oneid-sync-preview-dialog {
-         width: min(1100px, calc(100vw - 30px));
-         max-width: 1100px;
+         width: min(880px, calc(100vw - 30px));
+         max-width: 880px;
+      }
+
+      #modal_add_new_user_manual .oneid-manual-user-dialog {
+         width: min(680px, calc(100vw - 30px));
+         max-width: 680px;
       }
 
       #modal_add_new_single_user .modal-content,
       #modal_odl_shadow_preview .modal-content {
          overflow-wrap: anywhere;
+      }
+
+      .oneid-sync-child-modal {
+         overflow: hidden;
+         border: 0;
+         border-radius: 12px;
+         background: #fff;
+         box-shadow: 0 20px 55px rgba(28, 46, 66, .28);
+      }
+
+      .oneid-sync-child-header {
+         display: flex;
+         align-items: flex-start;
+         justify-content: space-between;
+         min-height: 86px;
+         padding: 20px 22px;
+         border: 0;
+         background: linear-gradient(135deg, #087eaf 0%, #1398d0 100%);
+         color: #fff;
+      }
+
+      .oneid-sync-summary-header {
+         background: linear-gradient(135deg, #5d4bb7 0%, #7662d0 100%);
+      }
+
+      .oneid-sync-manual-header {
+         background: linear-gradient(135deg, #247956 0%, #32a071 100%);
+      }
+
+      .oneid-sync-child-heading {
+         display: flex;
+         align-items: center;
+         min-width: 0;
+      }
+
+      .oneid-sync-child-heading-icon {
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         flex: 0 0 42px;
+         width: 42px;
+         height: 42px;
+         margin-right: 13px;
+         border: 1px solid rgba(255, 255, 255, .35);
+         border-radius: 10px;
+         background: rgba(255, 255, 255, .15);
+         font-size: 17px;
+      }
+
+      .oneid-sync-child-heading h5 {
+         margin: 0 0 4px;
+         color: #fff;
+         font-size: 16px;
+         font-weight: 700;
+         line-height: 1.35;
+      }
+
+      .oneid-sync-child-heading p {
+         margin: 0;
+         color: rgba(255, 255, 255, .84);
+         font-size: 11px;
+         line-height: 1.45;
+      }
+
+      .oneid-sync-child-close {
+         margin: -3px -3px 0 12px;
+         color: #fff;
+         font-size: 25px;
+         font-weight: 300;
+         line-height: 1;
+         opacity: .85;
+         text-shadow: none;
+      }
+
+      .oneid-sync-child-close:hover,
+      .oneid-sync-child-close:focus {
+         color: #fff;
+         opacity: 1;
+      }
+
+      .oneid-sync-child-body {
+         padding: 22px;
+         background: #f6f8fb;
+      }
+
+      #modal_add_new_single_user .oneid-sync-child-body > .row,
+      #modal_add_new_user_manual .oneid-sync-child-body > .row {
+         margin: 0;
+      }
+
+      #modal_add_new_single_user .oneid-sync-child-body .col-lg-12,
+      #modal_add_new_single_user .oneid-sync-child-body .col-sm-12,
+      #modal_add_new_user_manual .oneid-sync-child-body .col-lg-12,
+      #modal_add_new_user_manual .oneid-sync-child-body .col-sm-12 {
+         padding-right: 0;
+         padding-left: 0;
+      }
+
+      #modal_add_new_single_user #sync_result_div,
+      #modal_odl_shadow_preview #odl_shadow_result,
+      #modal_add_new_user_manual .form-body {
+         padding: 20px;
+         border: 1px solid #e0e7ee;
+         border-radius: 9px;
+         background: #fff;
+         box-shadow: 0 2px 8px rgba(45, 64, 82, .05);
+      }
+
+      #modal_add_new_single_user #sync_result_div > h6,
+      #modal_odl_shadow_preview #odl_shadow_result > h6 {
+         margin: 2px 0 10px;
+         color: #3b4b5d;
+         font-size: 12px;
+         font-weight: 700;
+      }
+
+      .oneid-sync-child-footer {
+         display: flex;
+         align-items: center;
+         justify-content: flex-end;
+         min-height: 68px;
+         padding: 14px 22px;
+         border-top: 1px solid #e4e9ef;
+         background: #fff;
+      }
+
+      .oneid-sync-child-footer .btn {
+         min-width: 105px;
+         min-height: 38px;
+         margin-left: 8px;
+         border-radius: 6px;
+         font-weight: 600;
+      }
+
+      .oneid-sync-child-footer .btn-default {
+         border-color: #d7dfe7;
+         background: #f5f7f9;
+         color: #52606d;
+      }
+
+      #modal_add_new_user_manual .control-label {
+         color: #445366;
+         font-size: 12px;
+         font-weight: 600;
+      }
+
+      #modal_add_new_user_manual .form-control,
+      #modal_add_new_single_user #sync_full_confirmation {
+         min-height: 42px;
+         border-color: #d8e1e9;
+         border-radius: 6px;
+         box-shadow: none;
+      }
+
+      #modal_add_new_user_manual .form-control:focus,
+      #modal_add_new_single_user #sync_full_confirmation:focus {
+         border-color: #1594cc;
+         box-shadow: 0 0 0 3px rgba(21, 148, 204, .10);
+      }
+
+      #modal_add_new_user_manual .accordion-struct .panel {
+         overflow: hidden;
+         border: 1px solid #dce4eb;
+         border-radius: 7px;
+         box-shadow: none;
+      }
+
+      #modal_add_new_user_manual .accordion-struct .panel-heading {
+         background: #f5f8fa;
       }
 
       .oneid-sync-admin-summary {
@@ -6861,6 +7053,32 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       @media (max-width: 640px) {
+         .oneid-sync-child-header,
+         .oneid-sync-child-body,
+         .oneid-sync-child-footer {
+            padding-left: 15px;
+            padding-right: 15px;
+         }
+
+         .oneid-sync-child-heading p {
+            display: none;
+         }
+
+         #modal_add_new_single_user #sync_result_div,
+         #modal_odl_shadow_preview #odl_shadow_result,
+         #modal_add_new_user_manual .form-body {
+            padding: 14px;
+         }
+
+         .oneid-sync-child-footer {
+            flex-wrap: wrap;
+         }
+
+         .oneid-sync-child-footer .btn {
+            flex: 1 1 auto;
+            margin-top: 5px;
+         }
+
          #modal_open_add_user_option .oneid-sync-parent-header,
          #modal_open_add_user_option .oneid-sync-parent-body {
             padding-left: 16px;
