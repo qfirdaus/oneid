@@ -1115,7 +1115,7 @@ action; login/ACL kategori `Pelajar/10` serta membership `STUDENT_ODL_PG`
 lulus. Apply dikembalikan kepada disabled. Firdaus, System Analyst/DBA menutup
 Fasa 9 `PASS / CLOSED` pada 24 Julai 2026.
 
-### Fasa 9A — Manual action coverage — `RUN A PASS / RUN B DEFERRED`
+### Fasa 9A — Manual action coverage — `PASS / CLOSED`
 
 Implementation dan Preview untuk UPDATE, DEACTIVATE serta REACTIVATE dibenarkan
 melalui `ONEID-ODL-F9A-20260724-01`. Exact-plan gate kini reusable tetapi setiap
@@ -1131,6 +1131,14 @@ zero tindakan lain, reconciliation/syslog PASS serta rollback readiness
 Team ODL belum tersedia untuk mengembalikan rekod yang sama ke active view.
 Penangguhan ini ialah external dependency, bukan kegagalan teknikal. Run B
 memerlukan fresh Preview dan authorization baharu apabila Team ODL tersedia.
+
+Team ODL kemudiannya mengaktifkan semula rekod sama. Run B diluluskan melalui
+`ONEID-ODL-F9A-20260724-03` dan menghasilkan header 53 dengan satu REACTIVATE,
+zero tindakan lain, reconciliation/syslog PASS serta rollback readiness
+`true`. Post-Apply Preview kembali zero action. Status akaun Active, kategori
+`Pelajar/10`, active ODL membership, login dan ACL semuanya PASS. Apply kembali
+disabled. F9A ditutup `PASS / CLOSED` dengan coverage NEW, UPDATE, DEACTIVATE
+dan REACTIVATE lengkap.
 
 Aktiviti:
 
@@ -1325,8 +1333,8 @@ Pada semakan 23 Julai 2026:
 | Fasa 7 | `PASS / CLOSED` — tiga Pilot NEW; `ONEID-ODL-F7-20260723-01` |
 | Fasa 8 | `PASS / CLOSED` — 50 Full NEW, ODL active membership 53; `ONEID-ODL-F8-20260724-01` |
 | Fasa 9 | `PASS / CLOSED` — header 50, 18 NEW, active ODL 71; `ONEID-ODL-F9-20260724-02` |
-| Fasa 9A | `RUN A PASS / RUN B DEFERRED` — header 52: Update 1, Deactivate 1; Reactivate menunggu Team ODL |
-| Fasa seterusnya | Sambung Run B apabila Team ODL mengaktifkan semula rekod; fresh authorization diperlukan |
+| Fasa 9A | `PASS / CLOSED` — NEW header 50; Update/Deactivate header 52; Reactivate header 53 |
+| Fasa seterusnya | Automatic scheduler/cronjob atau production rollout memerlukan authorization baharu |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence

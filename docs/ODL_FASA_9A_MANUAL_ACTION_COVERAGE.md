@@ -1,6 +1,6 @@
 # ODL Fasa 9A — Manual Action Coverage
 
-**Status:** `RUN A PASS / RUN B REACTIVATE DEFERRED`
+**Status:** `PASS / CLOSED`
 
 **Environment:** UAT
 
@@ -91,3 +91,37 @@ data OneID secara manual untuk memalsukan precondition REACTIVATE. Apabila Team
 ODL tersedia, mereka perlu mengembalikan rekod ke active view menggunakan
 Matrik dan IC asal. Fresh Preview, exact-plan authorization, backup dan change
 window baharu tetap diperlukan.
+
+## Run B evidence dan closure
+
+Team ODL kemudiannya mengaktifkan semula rekod yang sama menggunakan Matrik dan
+IC asal. Fresh Preview menghasilkan:
+
+```text
+source rows=71
+New=0
+Update=0
+Deactivate=0
+Reactivate=1
+plan hash=dc60ea1959c442465aaf496ac320275b1972fb6463161bce8aa2a6445df5e378
+```
+
+Apply diluluskan melalui `ONEID-ODL-F9A-20260724-03`, backup
+`ONEID-UAT-BACKUP-20260724-04` dan change window 24 Julai 2026,
+7:45 PM–8:15 PM MYT. Header 53 merekod tepat satu REACTIVATE dan zero tindakan
+lain. Reconciliation, audit counts, operational syslog dan read-only rollback
+readiness semuanya lulus. Post-Apply Preview kembali kepada 71 source rows dan
+zero action.
+
+Smoke test mengesahkan akaun Active, kategori `Pelajar/10`, membership
+`STUDENT_ODL_PG` aktif, login PASS dan ACL PASS. Apply WSL serta staging
+dikembalikan kepada `false`.
+
+F9A kini membuktikan full manual action coverage:
+
+- NEW: F9 header 50;
+- UPDATE dan DEACTIVATE: F9A header 52;
+- REACTIVATE: F9A header 53.
+
+Keputusan: `PASS / CLOSED`, evidence `ONEID-ODL-F9A-20260724-03`, diluluskan
+Firdaus, System Analyst/DBA pada 24 Julai 2026.

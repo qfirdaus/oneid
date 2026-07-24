@@ -5327,7 +5327,8 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         "External Sync Summary kekal read-only dan notifikasi parent modal dipaparkan hanya apabila sesuatu sumber mempunyai tindakan atau block.",
         "Badge External Sync hanya mengira tindakan sebenar; rekod KEEP yang telah synchronized tidak lagi menghasilkan loceng palsu.",
         "Automatic scheduler, unattended mutation dan production rollout ODL kekal disabled.",
-        "Dokumen audit merekod Fasa 0 hingga 9 PASS/CLOSED; F9 menambah 18 akaun melalui header 50 dan ditutup di bawah ONEID-ODL-F9-20260724-02."
+        "Dokumen audit merekod Fasa 0 hingga 9 PASS/CLOSED; F9 menambah 18 akaun melalui header 50 dan ditutup di bawah ONEID-ODL-F9-20260724-02.",
+        "F9A melengkapkan manual action coverage: UPDATE dan DEACTIVATE melalui header 52 serta REACTIVATE melalui header 53 dengan reconciliation, rollback readiness dan smoke test PASS."
       ]
     },
     {

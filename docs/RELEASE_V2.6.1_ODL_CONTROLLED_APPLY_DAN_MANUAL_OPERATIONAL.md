@@ -57,6 +57,11 @@ header 50 dengan 18 `NEW`, zero tindakan lain dan 71 active ODL memberships.
 Post-Apply Preview kembali zero action dan login/ACL smoke test lulus. Evidence
 closure ialah `ONEID-ODL-F9-20260724-02`; Apply dikembalikan kepada `false`.
 
+F9A melengkapkan full manual action coverage. Header 52 merekod satu UPDATE dan
+satu DEACTIVATE; header 53 merekod satu REACTIVATE. Kedua-dua run lulus
+reconciliation, syslog dan rollback-readiness checks. Post-Apply Preview kembali
+zero action dan login/ACL smoke test lulus. Apply kekal disabled.
+
 ## Batas release
 
 - F9 live Apply pertama memerlukan perubahan sumber sebenar, fresh Preview dan
