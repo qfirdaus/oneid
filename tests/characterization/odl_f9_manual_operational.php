@@ -26,10 +26,10 @@ $authorized=OdlOperationalConfig::fromValues(
  'true','true','71','18','0','0','0',
  '6ee2d37e099b72b31cea8cea5d8228e43087b92770f1102442235701b771c5fd',
  'ONEID-ODL-F9-20260724-02','ONEID-UAT-BACKUP-20260724-02',
- '2026-07-24T13:50:00+08:00','2026-07-24T14:30:00+08:00'
+ '2026-07-24T15:10:00+08:00','2026-07-24T15:40:00+08:00'
 );
 $authorized->assertWithinChangeWindow(
- new DateTimeImmutable('2026-07-24T14:00:00+08:00')
+ new DateTimeImmutable('2026-07-24T15:20:00+08:00')
 );
 $authorized->assertApprovedPlan(
  71,['New'=>18,'Update'=>0,'Deactivate'=>0,'Reactivate'=>0],

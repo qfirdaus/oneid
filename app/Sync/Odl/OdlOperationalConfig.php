@@ -58,8 +58,8 @@ final class OdlOperationalConfig
             if(preg_match('/^[a-f0-9]{64}$/',$planHash)!==1
                 ||$changeReference!== 'ONEID-ODL-F9-20260724-02'
                 ||$backupReference!=='ONEID-UAT-BACKUP-20260724-02'
-                ||$windowStart!== '2026-07-24T13:50:00+08:00'
-                ||$windowEnd!== '2026-07-24T14:30:00+08:00'){
+                ||$windowStart!== '2026-07-24T15:10:00+08:00'
+                ||$windowEnd!== '2026-07-24T15:40:00+08:00'){
                 throw new \RuntimeException('ODL_OPERATIONAL_AUTHORIZATION_INVALID');
             }
         }
