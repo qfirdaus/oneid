@@ -17,8 +17,8 @@ $report(str_contains($q,'operational_large_batch')&&str_contains($q,'operational
 $report(str_contains($q,'ADMIN_SYNC_OPERATIONAL_SAFE')&&str_contains($q,'SYNC_OPERATIONAL_APPLY_COMPLETED_AUDIT_WARNING'),'operational Apply emits completion and secondary audit state');
 $report(str_contains($source['tools/s4g_operational_sync_result_audit.php'],'ADMIN_SYNC_OPERATIONAL_SAFE')&&str_contains($source['tools/s4g_operational_sync_result_audit.php'],'mutation_statements=0'),'result audit reconciles the operational marker read-only');
 $report(str_contains($ui,'operational_apply_available === true')&&str_contains($ui,'admin_apply_operational_sync')&&str_contains($ui,'btn_apply_sync_operational'),'UI requires server availability and typed confirmation');
-$report(str_contains($ui,'READY FOR LARGE OPERATIONAL SYNC')&&str_contains($ui,'BLOCKED — DEACTIVATE EXCEEDS OPERATIONAL LIMIT'),'UI distinguishes soft warning from hard block');
-$report(str_contains($ui,'totalChanges === 0')&&str_contains($ui,'UP TO DATE — no changes to apply')&&str_contains($ui,'No Apply action is required.'),'zero-change preview renders an up-to-date state without Apply');
+$report(str_contains($ui,'PERUBAHAN BESAR — PENGESAHAN TAMBAHAN DIPERLUKAN')&&str_contains($ui,'PROSES DISEKAT — JUMLAH NYAHAKTIF MELEBIHI HAD'),'UI distinguishes soft warning from hard block');
+$report(str_contains($ui,'totalChanges === 0')&&str_contains($ui,'TIADA PERUBAHAN DIPERLUKAN')&&str_contains($ui,'Tiada tindakan diperlukan.'),'zero-change preview renders an up-to-date state without Apply');
 $report(str_contains($ui,'sync-preview-table-wrap')&&str_contains($ui,'width: 230px')&&str_contains($ui,'white-space: nowrap')&&str_contains($ui,'vertical-align: top !important')&&str_contains($ui,'text-align: left !important'),'preview cells use a stable top-left single-line label column');
 $report(
     str_contains($ui, "(response.source_rows || 0) + ' (' + sourceLabels[sourceCode] + ')'"),

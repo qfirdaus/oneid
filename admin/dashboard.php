@@ -602,17 +602,17 @@
                                        <div class="form-wrap">
                                           <div class="form-body overflow-hide">
                                              <div class="form-group">
-                                                <button id="btn_external_summary" class="btn btn-primary btn-outline btn-block oneid-sync-choice" type="button" onclick="preview_external_sync_view('SUMMARY');"><i class="fa fa-dashboard"></i> External Sync Summary <span id="external_notice_summary" class="external-action-notice" style="display:none"></span></button>
+                                                <button id="btn_external_summary" class="btn btn-primary btn-outline btn-block oneid-sync-choice" type="button" onclick="preview_external_sync_view('SUMMARY');"><i class="fa fa-dashboard"></i> Ringkasan Sinkronisasi Pengguna <span id="external_notice_summary" class="external-action-notice" style="display:none"></span></button>
                                                 <p id="sync_status_msg" class="text-muted text-center mt-10" style="display:none;"></p>
                                              </div>
                                              <div class="form-group">
-                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="pick_preview_sync_user('STAFF_HR');"><i class="fa fa-briefcase"></i> Staff External Sync <span id="external_notice_staff" class="external-action-notice" style="display:none"></span></button>
+                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="pick_preview_sync_user('STAFF_HR');"><i class="fa fa-briefcase"></i> Sinkronisasi Pengguna Staf <span id="external_notice_staff" class="external-action-notice" style="display:none"></span></button>
                                              </div>
                                              <div class="form-group">
-                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="pick_preview_sync_user('STUDENT_UG');"><i class="fa fa-graduation-cap"></i> Undergraduate External Sync <span id="external_notice_ug" class="external-action-notice" style="display:none"></span></button>
+                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="pick_preview_sync_user('STUDENT_UG');"><i class="fa fa-graduation-cap"></i> Sinkronisasi Pelajar Prasiswazah <span id="external_notice_ug" class="external-action-notice" style="display:none"></span></button>
                                              </div>
                                              <div class="form-group">
-                                                <button class="btn btn-info btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="pick_preview_sync_user('STUDENT_ODL_PG');"><i class="fa fa-refresh"></i> ODL External Sync <span id="external_notice_odl" class="external-action-notice" style="display:none"></span></button>
+                                                <button class="btn btn-info btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="pick_preview_sync_user('STUDENT_ODL_PG');"><i class="fa fa-refresh"></i> Sinkronisasi Pelajar ODL <span id="external_notice_odl" class="external-action-notice" style="display:none"></span></button>
                                              </div>
                                              <div class="form-group">
                                                 <button class="btn  btn-primary btn-outline btn-block" type="button" onclick="pick_add_single_user();"><i class="fa fa-plus"></i> Manual Add User</button>
@@ -636,7 +636,7 @@
                <div class="modal-content">
                   <div class="modal-header">
                      <button type="button" class="close oneid-return-add-user-options" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_add_new_single_user">External Sync Preview (Read-only)</h5>
+                     <h5 class="modal-title" id="aria_modal_add_new_single_user">Semakan Sinkronisasi Pengguna</h5>
                   </div>
                   <form id="form_add_new_category">
                      <div class="modal-body">
@@ -650,47 +650,69 @@
                                              <div class="form-body overflow-hide">
                                                 <div class="form-group">
                                                    <div class="progress progress-lg" id="sync_progress_id">
-                                                      <div class="progress-bar progress-bar-primary active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%" role="progressbar"> Generating read-only preview... </div>
+                                                      <div class="progress-bar progress-bar-primary active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%" role="progressbar"> Sedang menyediakan semakan... </div>
                                                    </div>
                                                    <div id="sync_result_div">
-                                                      <h6 class="mb-1"><i></i> Proposed changes (nothing has been applied):</h6>
+                                                      <div id="sync_admin_summary" class="alert alert-info oneid-sync-admin-summary" role="status"></div>
+                                                      <h6 class="mb-1"><i></i> Perubahan yang dikenal pasti (belum dilaksanakan):</h6>
                                                       <div class="sync-preview-table-wrap">
                                                       <table class="table table-borderless sync-preview-table">
                                                          <tbody>
                                                             <tr>
-                                                               <td>External rows:</td>
+                                                               <td>Jumlah rekod daripada sumber:</td>
                                                                <td><span id="sync_preview_source_rows"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>New / Update:</td>
-                                                               <td><span id="sync_preview_new_update"></span></td>
+                                                               <td>Pengguna baharu:</td>
+                                                               <td><span id="sync_preview_new"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>Deactivate / Reactivate:</td>
-                                                               <td><span id="sync_preview_deactivate_reactivate"></span></td>
+                                                               <td>Maklumat perlu dikemas kini:</td>
+                                                               <td><span id="sync_preview_update"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>Protected manual / collisions:</td>
-                                                               <td><span id="sync_preview_protected"></span></td>
+                                                               <td>Akaun perlu dinyahaktifkan:</td>
+                                                               <td><span id="sync_preview_deactivate"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>Plan hash / expiry:</td>
-                                                               <td><span id="sync_preview_hash_expiry"></span></td>
+                                                               <td>Akaun perlu diaktifkan semula:</td>
+                                                               <td><span id="sync_preview_reactivate"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>Preview status:</td>
+                                                               <td>Akaun manual yang dilindungi:</td>
+                                                               <td><span id="sync_preview_protected_manual"></span></td>
+                                                            </tr>
+                                                            <tr>
+                                                               <td>Konflik identiti:</td>
+                                                               <td><span id="sync_preview_collisions"></span></td>
+                                                            </tr>
+                                                            <tr>
+                                                               <td>Status semakan:</td>
                                                                <td><span id="sync_preview_status" class="users-view-status"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>Warnings:</td>
+                                                               <td>Perhatian:</td>
                                                                <td><ul id="sync_preview_warnings" class="pl-15"></ul></td>
                                                             </tr>
                                                          </tbody>
                                                       </table>
                                                       </div>
+                                                      <details class="oneid-sync-technical-details">
+                                                         <summary><i class="fa fa-info-circle"></i> Maklumat teknikal dan rujukan audit</summary>
+                                                         <div class="sync-preview-table-wrap mt-10">
+                                                            <table class="table table-borderless sync-preview-table">
+                                                               <tbody>
+                                                                  <tr>
+                                                                     <td>Rujukan pelan / sah sehingga:</td>
+                                                                     <td><span id="sync_preview_hash_expiry"></span></td>
+                                                                  </tr>
+                                                               </tbody>
+                                                            </table>
+                                                         </div>
+                                                      </details>
                                                       <p id="sync_pilot_notice" class="text-muted">Readiness preview only. Controlled Pilot Apply remains disabled.</p>
                                                       <div id="sync_full_confirmation_group" class="form-group" style="display:none">
-                                                         <label for="sync_full_confirmation">Type the exact confirmation phrase</label>
+                                                         <label for="sync_full_confirmation">Untuk mengesahkan tindakan ini, masukkan frasa berikut tepat seperti dipaparkan:</label>
                                                          <input type="text" id="sync_full_confirmation" name="sync_full_confirmation" class="form-control" autocomplete="off" spellcheck="false">
                                                          <small id="sync_full_confirmation_hint" class="text-muted"></small>
                                                       </div>
@@ -707,9 +729,9 @@
                      </div>
                      <div class="modal-footer">
                         <button type="button" id="btn_apply_sync_pilot" class="btn btn-danger waves-effect" style="display:none">Apply controlled pilot (2 New + 1 Update)</button>
-                        <button type="button" id="btn_apply_sync_full" class="btn btn-danger waves-effect" style="display:none" disabled>Apply approved full sync</button>
-                        <button type="button" id="btn_apply_sync_operational" class="btn btn-primary waves-effect" style="display:none" disabled>Apply operational sync</button>
-                        <button type="button" class="btn btn-default waves-effect oneid-return-add-user-options" data-dismiss="modal">Close</button>
+                        <button type="button" id="btn_apply_sync_full" class="btn btn-danger waves-effect" style="display:none" disabled>Laksanakan sinkronisasi yang diluluskan</button>
+                        <button type="button" id="btn_apply_sync_operational" class="btn btn-primary waves-effect" style="display:none" disabled>Laksanakan sinkronisasi</button>
+                        <button type="button" class="btn btn-default waves-effect oneid-return-add-user-options" data-dismiss="modal">Tutup</button>
                      </div>
                   </form>
                </div>
@@ -722,35 +744,49 @@
                <div class="modal-content">
                   <div class="modal-header">
                      <button type="button" class="close oneid-return-add-user-options" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_odl_shadow_preview">External Sync Preview — Read Only</h5>
+                     <h5 class="modal-title" id="aria_modal_odl_shadow_preview">Ringkasan Sinkronisasi Pengguna</h5>
                   </div>
                   <div class="modal-body">
                      <div id="odl_shadow_progress" class="progress progress-lg">
-                        <div id="external_preview_progress_text" class="progress-bar progress-bar-info active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%" role="progressbar">Generating external sync preview...</div>
+                        <div id="external_preview_progress_text" class="progress-bar progress-bar-info active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%" role="progressbar">Sedang menyediakan ringkasan...</div>
                      </div>
                      <div id="odl_shadow_result" style="display:none">
-                        <h6 class="mb-1">Preview result (nothing has been applied):</h6>
+                        <div id="external_preview_admin_summary" class="alert alert-info oneid-sync-admin-summary" role="status"></div>
+                        <h6 class="mb-1">Status setiap sumber:</h6>
                         <div class="sync-preview-table-wrap">
                            <table class="table table-borderless sync-preview-table">
                               <tbody>
-                                 <tr><td id="external_preview_rows_label">Source rows:</td><td id="odl_shadow_rows">-</td></tr>
-                                 <tr><td>Source health / shrink:</td><td id="external_preview_health">-</td></tr>
-                                 <tr><td>Actions requiring review:</td><td id="external_preview_sync_actions">-</td></tr>
-                                 <tr><td>Membership (Keep / Add):</td><td id="odl_shadow_membership">-</td></tr>
-                                 <tr><td>Candidate (New / Deactivate):</td><td id="odl_shadow_candidates">-</td></tr>
-                                 <tr><td>Accounts kept active:</td><td id="odl_shadow_keep_active">-</td></tr>
-                                 <tr><td>Risk / Apply / Mutation:</td><td id="odl_shadow_safety">-</td></tr>
-                                 <tr><td>Preview digest:</td><td id="odl_shadow_digest">-</td></tr>
-                                 <tr><td>Preview status:</td><td><span id="odl_shadow_status" class="users-view-status">-</span></td></tr>
-                                 <tr><td>Blocking codes:</td><td><ul id="odl_shadow_blocks" class="pl-15"></ul></td></tr>
+                                 <tr><td>Sumber pengguna:</td><td>Jumlah rekod</td><td>Perlu tindakan</td><td>Status</td></tr>
+                                 <tr><td>Staf</td><td id="external_summary_staff_rows">-</td><td id="external_summary_staff_actions">-</td><td id="external_summary_staff_status">-</td></tr>
+                                 <tr><td>Pelajar Prasiswazah</td><td id="external_summary_ug_rows">-</td><td id="external_summary_ug_actions">-</td><td id="external_summary_ug_status">-</td></tr>
+                                 <tr><td>Pelajar ODL</td><td id="external_summary_odl_rows">-</td><td id="external_summary_odl_actions">-</td><td id="external_summary_odl_status">-</td></tr>
                               </tbody>
                            </table>
                         </div>
-                        <p id="external_preview_boundary_note" class="text-muted">Read-only Preview sahaja. Apply dan automatic scheduler kekal disabled.</p>
+                        <details class="oneid-sync-technical-details">
+                           <summary><i class="fa fa-info-circle"></i> Maklumat teknikal dan rujukan audit</summary>
+                           <div class="sync-preview-table-wrap mt-10">
+                              <table class="table table-borderless sync-preview-table">
+                                 <tbody>
+                                    <tr><td id="external_preview_rows_label">Jumlah rekod sumber:</td><td id="odl_shadow_rows">-</td></tr>
+                                    <tr><td>Status sumber / perubahan berbanding semakan terdahulu:</td><td id="external_preview_health">-</td></tr>
+                                    <tr><td>Perubahan memerlukan semakan:</td><td id="external_preview_sync_actions">-</td></tr>
+                                    <tr><td>Keahlian dikekalkan / ditambah:</td><td id="odl_shadow_membership">-</td></tr>
+                                    <tr><td>Calon baharu / nyahaktif:</td><td id="odl_shadow_candidates">-</td></tr>
+                                    <tr><td>Akaun kekal aktif:</td><td id="odl_shadow_keep_active">-</td></tr>
+                                    <tr><td>Tahap risiko / Apply / perubahan data:</td><td id="odl_shadow_safety">-</td></tr>
+                                    <tr><td>Rujukan audit Preview:</td><td id="odl_shadow_digest">-</td></tr>
+                                    <tr><td>Status teknikal:</td><td><span id="odl_shadow_status" class="users-view-status">-</span></td></tr>
+                                    <tr><td>Sebab proses disekat:</td><td><ul id="odl_shadow_blocks" class="pl-15"></ul></td></tr>
+                                 </tbody>
+                              </table>
+                           </div>
+                        </details>
+                        <p id="external_preview_boundary_note" class="text-muted">Ringkasan ini untuk semakan sahaja. Tiada perubahan data boleh dilaksanakan dari paparan ini.</p>
                      </div>
                   </div>
                   <div class="modal-footer">
-                     <button type="button" class="btn btn-default waves-effect oneid-return-add-user-options" data-dismiss="modal">Close</button>
+                     <button type="button" class="btn btn-default waves-effect oneid-return-add-user-options" data-dismiss="modal">Tutup</button>
                   </div>
                </div>
             </div>
@@ -3835,14 +3871,25 @@
             notice
                .toggleClass('external-action-notice-danger', blocked === true)
                .attr('title', blocked === true
-                  ? 'Source requires administrator review'
-                  : count + ' source action(s) require review')
+                  ? 'Sumber memerlukan semakan admin'
+                  : count + ' perubahan memerlukan tindakan admin')
                .html(
                   '<i class="fa '
                   + (blocked === true ? 'fa-exclamation-triangle' : 'fa-bell')
                   + '"></i> ' + (count > 0 ? String(count) : '!')
                )
                .show();
+         }
+
+         function sync_admin_warning_text(warning){
+            var messages = {
+               'SOURCE_BASELINE_UNAVAILABLE': 'Perbandingan dengan jumlah rekod terdahulu tidak tersedia.',
+               'Invalid external rows were excluded from the preview.': 'Sebahagian rekod sumber tidak lengkap atau tidak sah dan tidak akan diproses.',
+               'Policy-excluded identities were excluded from the preview.': 'Sebahagian rekod tidak memenuhi polisi sinkronisasi dan tidak akan diproses.',
+               'Deactivation threshold exceeded; apply must remain blocked.': 'Jumlah akaun yang akan dinyahaktifkan melebihi had keselamatan. Proses tidak boleh diteruskan.',
+               'External identities colliding with protected manual accounts were excluded.': 'Terdapat konflik dengan akaun yang ditambah secara manual. Rekod tersebut dilindungi dan tidak akan diproses.'
+            };
+            return messages[String(warning)] || String(warning);
          }
 
          function refresh_external_sync_notifications(){
@@ -3903,9 +3950,9 @@
          
          function pick_preview_sync_user(sourceCode){
             var sourceLabels = {
-               STAFF_HR: 'Staff External Sync',
-               STUDENT_UG: 'Undergraduate External Sync',
-               STUDENT_ODL_PG: 'ODL External Sync'
+               STAFF_HR: 'Sinkronisasi Pengguna Staf',
+               STUDENT_UG: 'Sinkronisasi Pelajar Prasiswazah',
+               STUDENT_ODL_PG: 'Sinkronisasi Pelajar ODL'
             };
             if(!sourceLabels[sourceCode]){
                return;
@@ -3929,7 +3976,7 @@
                   $('#modal_open_add_user_option').modal('hide');
                   $('#modal_add_new_single_user').modal('show');
                   $('#aria_modal_add_new_single_user').text(
-                     sourceLabels[sourceCode] + ' — Preview and Apply'
+                     sourceLabels[sourceCode] + ' — Semak dan Laksanakan'
                   );
                   $('#sync_progress_id').show();
                   $('#sync_result_div').hide();
@@ -3938,8 +3985,11 @@
                   $('#sync_progress_id').hide();
                   $('#sync_result_div').show();
                   if(!response || response.status !== 1 || response.mode !== 'preview'){
-                     var reference = response && response.correlation_id ? ' Reference: ' + response.correlation_id : '';
-                     $('#sync_preview_status').text('Preview failed.' + reference).addClass('badge badge-danger');
+                     var reference = response && response.correlation_id ? ' Rujukan: ' + response.correlation_id : '';
+                     $('#sync_admin_summary').removeClass('alert-info alert-warning alert-success')
+                        .addClass('alert-danger')
+                        .html('<strong>Semakan tidak berjaya.</strong> Tiada perubahan data dilaksanakan.' + reference);
+                     $('#sync_preview_status').text('SEMAKAN GAGAL' + reference).addClass('badge badge-danger');
                      return;
                   }
                   var counts = response.counts || {};
@@ -3952,9 +4002,12 @@
                   $('#sync_preview_source_rows').text(
                      (response.source_rows || 0) + ' (' + sourceLabels[sourceCode] + ')'
                   );
-                  $('#sync_preview_new_update').text((counts.New || 0) + ' / ' + (counts.Update || 0));
-                  $('#sync_preview_deactivate_reactivate').text((counts.Deactivate || 0) + ' / ' + (counts.Reactivate || 0));
-                  $('#sync_preview_protected').text((response.protected_manual_users || 0) + ' / ' + (response.discarded_protected_collisions || 0));
+                  $('#sync_preview_new').text(counts.New || 0);
+                  $('#sync_preview_update').text(counts.Update || 0);
+                  $('#sync_preview_deactivate').text(counts.Deactivate || 0);
+                  $('#sync_preview_reactivate').text(counts.Reactivate || 0);
+                  $('#sync_preview_protected_manual').text(response.protected_manual_users || 0);
+                  $('#sync_preview_collisions').text(response.discarded_protected_collisions || 0);
                   $('#sync_preview_hash_expiry')
                      .css({'overflow-wrap':'anywhere','word-break':'break-all'})
                      .text(String(response.plan_hash || '-') + ' / ' + (response.expires_at || '-'));
@@ -3962,20 +4015,30 @@
                      .removeClass('badge-danger badge-warning badge-success')
                      .addClass(response.risk_level === 'blocked' ? 'badge badge-danger' : (response.risk_level === 'warning' ? 'badge badge-warning' : 'badge badge-success'))
                      .text(response.risk_level === 'blocked'
-                        ? 'BLOCKED — anomaly or baseline requires review'
+                        ? 'PROSES DISEKAT — semakan lanjut diperlukan'
                         : (totalChanges === 0
-                           ? 'UP TO DATE — no changes to apply'
+                           ? 'TIADA PERUBAHAN DIPERLUKAN'
                            : (response.approval_ready === true
                            ? (sourceCode === 'STUDENT_ODL_PG'
-                              ? 'PREVIEW READY — APPLY AUTHORIZATION REQUIRED'
-                              : 'READY FOR CONTROLLED PILOT — Apply remains disabled')
-                           : 'PREVIEW ONLY — no changes applied')));
+                              ? 'PERUBAHAN TERSEDIA — KELULUSAN DIPERLUKAN'
+                              : 'PERUBAHAN TERSEDIA — PELAKSANAAN BELUM DIBENARKAN')
+                           : 'SEMAKAN SAHAJA — TIADA PERUBAHAN DILAKSANAKAN')));
+                  $('#sync_admin_summary')
+                     .removeClass('alert-danger alert-warning alert-success alert-info')
+                     .addClass(response.risk_level === 'blocked'
+                        ? 'alert-danger'
+                        : (totalChanges === 0 ? 'alert-success' : 'alert-warning'))
+                     .html(response.risk_level === 'blocked'
+                        ? '<strong>Sinkronisasi tidak boleh diteruskan.</strong> Sila semak bahagian Perhatian atau hubungi pegawai teknikal.'
+                        : (totalChanges === 0
+                           ? '<strong>Data telah diselaraskan.</strong> Tiada tindakan diperlukan oleh admin.'
+                           : '<strong>' + totalChanges + ' perubahan memerlukan semakan admin.</strong> Pastikan semua bilangan di bawah adalah betul sebelum meneruskan.'));
                   var warningList = $('#sync_preview_warnings').empty();
                   (response.warnings || []).forEach(function(warning){
-                     $('<li>').text(warning).appendTo(warningList);
+                     $('<li>').text(sync_admin_warning_text(warning)).appendTo(warningList);
                   });
                   if((response.warnings || []).length === 0){
-                     $('<li>').text('No planner warning detected.').appendTo(warningList);
+                     $('<li>').text('Tiada perkara yang memerlukan perhatian.').appendTo(warningList);
                   }
                   $('#btn_apply_sync_pilot').hide().prop('disabled', true);
                   $('#btn_apply_sync_full').hide().prop('disabled', true);
@@ -3999,8 +4062,8 @@
                      $('#sync_pilot_notice').text('Controlled pilot scope: exactly 2 New + 1 Update; no Deactivate or Reactivate. Approval expires at ' + (response.expires_at || '-') + '.');
                   } else {
                      $('#sync_pilot_notice').text(totalChanges === 0
-                        ? 'External data and OneID are already synchronized. No Apply action is required.'
-                        : 'Readiness preview only. Apply remains disabled.');
+                        ? 'Data sumber dan OneID telah diselaraskan. Tiada tindakan diperlukan.'
+                        : 'Semakan sahaja. Pelaksanaan perubahan masih belum dibenarkan.');
                   }
 
                   if(response.full_apply_available === true
@@ -4013,8 +4076,8 @@
                      $('#sync_full_confirmation_group').show();
                      $('#sync_full_confirmation_hint').text(fullConfirmation);
                      $('#btn_apply_sync_full').show();
-                     $('#sync_preview_status').text('READY FOR APPROVED FULL SYNC');
-                     $('#sync_pilot_notice').text('Full sync is bound to the exact approved counts and plan hash. Approval expires at ' + (response.expires_at || '-') + '.');
+                     $('#sync_preview_status').text('SEDIA UNTUK SINKRONISASI YANG DILULUSKAN');
+                     $('#sync_pilot_notice').text('Kelulusan ini terikat pada bilangan perubahan dan rujukan pelan yang dipaparkan. Kelulusan sah sehingga ' + (response.expires_at || '-') + '.');
                   }
 
                   if(response.operational_apply_available === true
@@ -4031,22 +4094,22 @@
                         .removeClass('badge-success badge-danger badge-warning')
                         .addClass(response.operational_large_batch === true ? 'badge badge-warning' : 'badge badge-success')
                         .text(response.operational_large_batch === true
-                           ? 'READY FOR LARGE OPERATIONAL SYNC — ADDITIONAL CONFIRMATION REQUIRED'
+                           ? 'PERUBAHAN BESAR — PENGESAHAN TAMBAHAN DIPERLUKAN'
                            : ((counts.Deactivate || 0) > 0
-                              ? 'READY FOR OPERATIONAL SYNC — DEACTIVATION CONFIRMATION REQUIRED'
-                              : 'READY FOR OPERATIONAL SYNC'));
+                              ? 'SEDIA DILAKSANAKAN — PENGESAHAN NYAHAKTIF DIPERLUKAN'
+                              : 'SEDIA UNTUK DILAKSANAKAN'));
                      $('#sync_pilot_notice').text((response.operational_large_batch === true
-                        ? 'Large batch: exact New, Update, Deactivate, Reactivate counts and plan hash are required. '
-                        : '') + 'Operational approval expires at ' + (response.expires_at || '-') + '.');
+                        ? 'Jumlah perubahan adalah besar. Semak semua bilangan dengan teliti. '
+                        : '') + 'Kelulusan sah sehingga ' + (response.expires_at || '-') + '.');
                   } else if(response.operational_hard_blocked === true){
                      var thresholds = response.operational_thresholds || {};
                      $('#sync_preview_status')
                         .removeClass('badge-success badge-warning')
                         .addClass('badge badge-danger')
-                        .text('BLOCKED — DEACTIVATE EXCEEDS OPERATIONAL LIMIT');
-                     $('#sync_pilot_notice').text('Deactivate=' + (counts.Deactivate || 0)
-                        + ' exceeds the Operational maximum of ' + (thresholds.max_deactivate || 0)
-                        + '. Use Controlled Full Sync approval for this plan.');
+                        .text('PROSES DISEKAT — JUMLAH NYAHAKTIF MELEBIHI HAD');
+                     $('#sync_pilot_notice').text('Jumlah akaun yang akan dinyahaktifkan ialah ' + (counts.Deactivate || 0)
+                        + ', melebihi had ' + (thresholds.max_deactivate || 0)
+                        + '. Kelulusan khas diperlukan sebelum proses boleh diteruskan.');
                   }
 
                   $('#sync_full_confirmation').off('input').on('input', function(){
@@ -4151,11 +4214,11 @@
                         + ', Deactivate=' + (counts.Deactivate || 0)
                         + ', Reactivate=' + (counts.Reactivate || 0) + '.';
                      oneidConfirm(
-                        response.operational_large_batch === true ? 'Apply large operational sync?' : 'Apply operational sync?',
-                        summary + (response.operational_large_batch === true ? ' This is a large batch requiring exact counts and plan-hash confirmation.' : '') + ' A fresh plan will be verified again before the transaction. This approval can be used once only.',
-                        'Apply sync',
+                        response.operational_large_batch === true ? 'Laksanakan sinkronisasi berskala besar?' : 'Laksanakan sinkronisasi?',
+                        summary + (response.operational_large_batch === true ? ' Jumlah perubahan adalah besar dan memerlukan pengesahan tambahan.' : '') + ' Sistem akan menyemak semula data sebelum melaksanakan perubahan. Kelulusan ini hanya boleh digunakan sekali.',
+                        'Laksanakan',
                         function(){
-                           button.prop('disabled', true).text('Applying operational sync...');
+                           button.prop('disabled', true).text('Sedang melaksanakan sinkronisasi...');
                            $.ajax({
                               type: 'POST',
                               url: '../lib/q_func',
@@ -4172,18 +4235,18 @@
                                  $('#sync_full_confirmation_group').hide();
                                  if(applyResponse && applyResponse.status === 1){
                                     var applied = applyResponse.counts || {};
-                                    var auditWarning = applyResponse.audit_marker_recorded === false ? ' Secondary audit marker failed; run reconciliation immediately.' : '';
-                                    oneidToast('Operational sync committed', 'Header ' + applyResponse.header_id + '; New=' + (applied.New || 0) + ', Update=' + (applied.Update || 0) + ', Deactivate=' + (applied.Deactivate || 0) + ', Reactivate=' + (applied.Reactivate || 0) + '.' + auditWarning, applyResponse.audit_marker_recorded === false ? 'warning' : 'success', {hideAfter: 10000});
+                                    var auditWarning = applyResponse.audit_marker_recorded === false ? ' Rekod audit tambahan gagal direkodkan; jalankan semakan rekonsiliasi dengan segera.' : '';
+                                    oneidToast('Sinkronisasi berjaya dilaksanakan', 'Rujukan ' + applyResponse.header_id + '; Baharu=' + (applied.New || 0) + ', Kemas kini=' + (applied.Update || 0) + ', Nyahaktif=' + (applied.Deactivate || 0) + ', Aktif semula=' + (applied.Reactivate || 0) + '.' + auditWarning, applyResponse.audit_marker_recorded === false ? 'warning' : 'success', {hideAfter: 10000});
                                  } else {
                                     var code = applyResponse && applyResponse.code ? applyResponse.code : 'SYNC_OPERATIONAL_APPLY_FAILED';
-                                    oneidToast('Operational sync was not applied', 'Code: ' + code + '. Generate a fresh preview before retrying.', 'error', {hideAfter: 8000});
+                                    oneidToast('Sinkronisasi tidak dilaksanakan', 'Rujukan teknikal: ' + code + '. Buat semakan baharu sebelum mencuba semula.', 'error', {hideAfter: 8000});
                                  }
                               },
                               error: function(){
                                  operationalApprovalId = '';
                                  button.hide();
                                  $('#sync_full_confirmation_group').hide();
-                                 oneidToast('Operational sync request failed', 'No success has been assumed. Inspect server logs before generating another preview.', 'error', {hideAfter: 8000});
+                                 oneidToast('Permintaan sinkronisasi gagal', 'Tiada perubahan dianggap berjaya. Hubungi pegawai teknikal sebelum membuat semakan baharu.', 'error', {hideAfter: 8000});
                               }
                            });
                         }
@@ -4193,7 +4256,10 @@
                error: function () {
                   $('#sync_progress_id').hide();
                   $('#sync_result_div').show();
-                  $('#sync_preview_status').text('Preview failed. Please try again.').addClass('badge badge-danger');
+                  $('#sync_admin_summary').removeClass('alert-info alert-warning alert-success')
+                     .addClass('alert-danger')
+                     .html('<strong>Semakan tidak berjaya.</strong> Tiada perubahan data dilaksanakan.');
+                  $('#sync_preview_status').text('SEMAKAN GAGAL — SILA CUBA SEMULA').addClass('badge badge-danger');
                },
                complete: function(){
                   $('#btn_sync').prop('disabled', false).html(
@@ -4206,16 +4272,16 @@
 
          function preview_external_sync_view(sourceView){
             var viewLabels = {
-               SUMMARY: 'External Sync Summary',
-               STAFF_HR: 'Staff External Sync',
-               STUDENT_UG: 'Undergraduate External Sync',
-               STUDENT_ODL_PG: 'ODL External Sync'
+               SUMMARY: 'Ringkasan Sinkronisasi Pengguna',
+               STAFF_HR: 'Sinkronisasi Pengguna Staf',
+               STUDENT_UG: 'Sinkronisasi Pelajar Prasiswazah',
+               STUDENT_ODL_PG: 'Sinkronisasi Pelajar ODL'
             };
             var progressLabels = {
-               SUMMARY: 'Generating External Sync Summary...',
-               STAFF_HR: 'Generating Staff External Sync read-only preview...',
-               STUDENT_UG: 'Generating Undergraduate External Sync read-only preview...',
-               STUDENT_ODL_PG: 'Generating ODL External Sync read-only shadow preview...'
+               SUMMARY: 'Sedang menyediakan ringkasan sinkronisasi...',
+               STAFF_HR: 'Sedang menyemak data Staf...',
+               STUDENT_UG: 'Sedang menyemak data Pelajar Prasiswazah...',
+               STUDENT_ODL_PG: 'Sedang menyemak data Pelajar ODL...'
             };
             var selectedView = viewLabels[sourceView] ? sourceView : 'SUMMARY';
             $.ajax({
@@ -4229,15 +4295,15 @@
                   $('#modal_open_add_user_option').modal('hide');
                   $('#modal_odl_shadow_preview').modal('show');
                   $('#aria_modal_odl_shadow_preview').text(
-                     viewLabels[selectedView] + ' — Read Only Preview'
+                     viewLabels[selectedView] + ' — Semakan Sahaja'
                   );
                   $('#external_preview_progress_text').text(
                      progressLabels[selectedView]
                   );
                   $('#external_preview_boundary_note').text(
                      selectedView === 'SUMMARY'
-                        ? 'Summary sahaja. Tiada fungsi Apply pada paparan ini.'
-                        : 'Source-specific read-only Preview. Apply dan automatic scheduler kekal disabled dalam fasa semasa.'
+                        ? 'Ringkasan ini untuk semakan sahaja. Tiada perubahan data boleh dilaksanakan dari paparan ini.'
+                        : 'Semakan sumber sahaja. Tiada perubahan data dilaksanakan.'
                   );
                   $('#odl_shadow_progress').show();
                   $('#odl_shadow_result').hide();
@@ -4247,8 +4313,12 @@
                   $('#odl_shadow_result').show();
                   if(!response || response.status !== 1 || response.mode !== 'odl_shadow_preview'){
                      var code = response && response.code ? response.code : 'ODL_SHADOW_PREVIEW_FAILED';
+                     $('#external_preview_admin_summary')
+                        .removeClass('alert-info alert-warning alert-success')
+                        .addClass('alert-danger')
+                        .html('<strong>Ringkasan tidak dapat disediakan.</strong> Tiada perubahan data dilaksanakan. Rujukan teknikal tersedia di bawah.');
                      $('#odl_shadow_status').removeClass('badge-success badge-warning')
-                        .addClass('badge badge-danger').text('FAILED — no data changed');
+                        .addClass('badge badge-danger').text('SEMAKAN GAGAL — TIADA DATA DIUBAH');
                      $('#odl_shadow_blocks').empty().append($('<li>').text(code));
                      return;
                   }
@@ -4281,8 +4351,45 @@
                   } else {
                      selectedSyncActions = syncActionCounts[selectedView] || {};
                   }
+                  var sourceSummary = [
+                     {code: 'STAFF_HR', row: 'staff', blockPrefix: 'STAFF_HR_'},
+                     {code: 'STUDENT_UG', row: 'ug', blockPrefix: 'STUDENT_UG_'},
+                     {code: 'STUDENT_ODL_PG', row: 'odl', blockPrefix: 'ODL_'}
+                  ];
+                  var totalSummaryActions = 0;
+                  var blockedSourceCount = 0;
+                  sourceSummary.forEach(function(source){
+                     var actionTotal = external_action_total(syncActionCounts, source.code);
+                     var isBlocked = blocks.some(function(code){
+                        return String(code).indexOf(source.blockPrefix) === 0;
+                     });
+                     totalSummaryActions += actionTotal;
+                     blockedSourceCount += isBlocked ? 1 : 0;
+                     $('#external_summary_' + source.row + '_rows').text(Number(rows[source.code] || 0));
+                     $('#external_summary_' + source.row + '_actions').text(actionTotal);
+                     $('#external_summary_' + source.row + '_status')
+                        .removeClass('text-danger text-warning text-success')
+                        .addClass(isBlocked
+                           ? 'text-danger'
+                           : (actionTotal > 0 ? 'text-warning' : 'text-success'))
+                        .html(isBlocked
+                           ? '<i class="fa fa-exclamation-circle"></i> Semakan diperlukan'
+                           : (actionTotal > 0
+                              ? '<i class="fa fa-bell"></i> Tindakan diperlukan'
+                              : '<i class="fa fa-check-circle"></i> Terkini'));
+                  });
+                  $('#external_preview_admin_summary')
+                     .removeClass('alert-danger alert-warning alert-success alert-info')
+                     .addClass(blockedSourceCount > 0
+                        ? 'alert-danger'
+                        : (totalSummaryActions > 0 ? 'alert-warning' : 'alert-success'))
+                     .html(blockedSourceCount > 0
+                        ? '<strong>' + blockedSourceCount + ' sumber memerlukan semakan.</strong> Jangan jalankan sinkronisasi bagi sumber yang bermasalah.'
+                        : (totalSummaryActions > 0
+                           ? '<strong>' + totalSummaryActions + ' perubahan memerlukan tindakan admin.</strong> Buka sumber berkenaan untuk membuat semakan.'
+                           : '<strong>Semua sumber telah disemak.</strong> Tiada perubahan yang perlu dilaksanakan.'));
                   if(selectedView === 'SUMMARY'){
-                     $('#external_preview_rows_label').text('Source rows (Staff / UG / ODL):');
+                     $('#external_preview_rows_label').text('Jumlah rekod (Staf / Prasiswazah / ODL):');
                      $('#odl_shadow_rows').text(
                         Number(rows.STAFF_HR || 0) + ' / '
                         + Number(rows.STUDENT_UG || 0) + ' / '
@@ -4306,13 +4413,13 @@
                      );
                   }
                   $('#external_preview_sync_actions').text(
-                     'New ' + Number(
+                     'Baharu ' + Number(
                         Number(selectedSyncActions.NEW || 0)
                         + Number(selectedSyncActions.CANDIDATE_NEW || 0)
                      )
-                     + ' / Update ' + Number(selectedSyncActions.UPDATE || 0)
-                     + ' / Reactivate ' + Number(selectedSyncActions.REACTIVATE || 0)
-                     + ' / Deactivate ' + Number(
+                     + ' / Kemas kini ' + Number(selectedSyncActions.UPDATE || 0)
+                     + ' / Aktif semula ' + Number(selectedSyncActions.REACTIVATE || 0)
+                     + ' / Nyahaktif ' + Number(
                         Number(selectedSyncActions.DEACTIVATE || 0)
                         + Number(selectedSyncActions.CANDIDATE_DEACTIVATE || 0)
                      )
@@ -4341,11 +4448,11 @@
                      .addClass(response.risk_level === 'normal'
                         ? 'badge badge-success' : 'badge badge-warning')
                      .text(response.risk_level === 'normal'
-                        ? 'SHADOW PREVIEW READY — READ ONLY'
-                        : 'BLOCKED — REVIEW REQUIRED');
+                        ? 'SEMAKAN BERJAYA — BACA SAHAJA'
+                        : 'PROSES DISEKAT — SEMAKAN DIPERLUKAN');
                   var blockList = $('#odl_shadow_blocks').empty();
                   if(blocks.length === 0){
-                     $('<li>').text('No blocking code detected.').appendTo(blockList);
+                     $('<li>').text('Tiada sebab sekatan dikesan.').appendTo(blockList);
                   } else {
                      blocks.forEach(function(block){
                         $('<li>').text(block).appendTo(blockList);
@@ -4367,7 +4474,11 @@
                   var correlation = response && response.correlation_id
                      ? ' — Reference: ' + response.correlation_id : '';
                   $('#odl_shadow_status').removeClass('badge-success badge-warning')
-                     .addClass('badge badge-danger').text('FAILED — no data changed');
+                     .addClass('badge badge-danger').text('SEMAKAN GAGAL — TIADA DATA DIUBAH');
+                  $('#external_preview_admin_summary')
+                     .removeClass('alert-info alert-warning alert-success')
+                     .addClass('alert-danger')
+                     .html('<strong>Ringkasan tidak dapat disediakan.</strong> Tiada perubahan data dilaksanakan. Hubungi pegawai teknikal dengan rujukan di bawah.');
                   $('#odl_shadow_blocks').empty()
                      .append($('<li>').text(code + correlation));
                },
@@ -6478,6 +6589,49 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #modal_add_new_single_user .modal-content,
       #modal_odl_shadow_preview .modal-content {
          overflow-wrap: anywhere;
+      }
+
+      .oneid-sync-admin-summary {
+         margin-bottom: 18px;
+         font-size: 14px;
+         line-height: 1.55;
+      }
+
+      .oneid-sync-technical-details {
+         margin: 16px 0;
+         border: 1px solid #dfe6ec;
+         border-radius: 5px;
+         background: #f8fafb;
+      }
+
+      .oneid-sync-technical-details summary {
+         padding: 12px 14px;
+         color: #52606d;
+         font-weight: 600;
+         cursor: pointer;
+      }
+
+      .oneid-sync-technical-details[open] summary {
+         border-bottom: 1px solid #dfe6ec;
+      }
+
+      .oneid-sync-technical-details .sync-preview-table-wrap {
+         padding: 0 14px 8px;
+      }
+
+      #modal_odl_shadow_preview .sync-preview-table tr:first-child td {
+         color: #33475b;
+         font-weight: 700;
+         background: #f4f7fa;
+      }
+
+      #modal_odl_shadow_preview .sync-preview-table td:nth-child(2),
+      #modal_odl_shadow_preview .sync-preview-table td:nth-child(3) {
+         text-align: center !important;
+      }
+
+      #modal_odl_shadow_preview .sync-preview-table td:nth-child(4) {
+         min-width: 180px;
       }
 
       @media (max-width: 640px) {

@@ -20,9 +20,9 @@ return [
     [
         'name' => 'admin dashboard',
         'file' => 'admin/dashboard.php',
-        'loc' => 9628,
+        'loc' => 9782,
         'q_func_calls' => 50,
-        'function_declarations' => 106,
+        'function_declarations' => 107,
         'script_tags' => 18,
         'fragments' => [
             'oneid_require_admin_page();',
@@ -31,8 +31,8 @@ return [
             'admin_preview_sync_user',
             'admin_preview_odl_shadow',
             'oneid-return-add-user-options',
-            'External Sync Summary',
-            'Staff External Sync',
+            'Ringkasan Sinkronisasi Pengguna',
+            'Sinkronisasi Pengguna Staf',
             'admin_get_sync_sessions',
             'admin_get_sync_log_detail',
             'window.open("./user_list.php?category_id=',
