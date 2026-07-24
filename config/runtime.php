@@ -62,6 +62,16 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         // F9 manual ODL operational sync. Apply requires a separate exact-plan approval.
         'ONEID_ODL_OPERATIONAL_PREVIEW_ENABLED' => 'false',
         'ONEID_ODL_OPERATIONAL_APPLY_ENABLED' => 'false',
+        'ONEID_ODL_OPERATIONAL_EXPECTED_SOURCE_ROWS' => '0',
+        'ONEID_ODL_OPERATIONAL_EXPECTED_NEW' => '0',
+        'ONEID_ODL_OPERATIONAL_EXPECTED_UPDATE' => '0',
+        'ONEID_ODL_OPERATIONAL_EXPECTED_DEACTIVATE' => '0',
+        'ONEID_ODL_OPERATIONAL_EXPECTED_REACTIVATE' => '0',
+        'ONEID_ODL_OPERATIONAL_EXPECTED_PLAN_HASH' => '',
+        'ONEID_ODL_OPERATIONAL_CHANGE_REFERENCE' => '',
+        'ONEID_ODL_OPERATIONAL_BACKUP_REFERENCE' => '',
+        'ONEID_ODL_OPERATIONAL_WINDOW_START' => '',
+        'ONEID_ODL_OPERATIONAL_WINDOW_END' => '',
         'ONEID_SYNC_STAFF_PROVENANCE_ENABLED' => 'false',
         'ONEID_SYNC_TRIGGERED_BY' => 'Sync Agent',
     ];

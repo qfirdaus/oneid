@@ -49,5 +49,5 @@ $r(str_contains($runner,"'mutation_statements']=0")
  &&!preg_match('/\\b(?:INSERT\\s+INTO|UPDATE\\s+\\w+\\s+SET|DELETE\\s+FROM|REPLACE\\s+INTO|ALTER\\s+TABLE|DROP\\s+TABLE|TRUNCATE\\s+TABLE)\\b/i',$runner),
  'CLI Preview is zero mutation');
 $o=[];$c=1;exec(escapeshellarg(PHP_BINARY).' '.escapeshellarg($root.'/tests/characterization/odl_f9_manual_operational.php').' 2>&1',$o,$c);
-$r($c===0&&in_array('RESULT checks=6 failed=0',$o,true),'F9 characterization passes');
+$r($c===0&&in_array('RESULT checks=8 failed=0',$o,true),'F9 characterization passes');
 printf("RESULT checks=%d failed=%d\n",$checks,$failed);exit($failed===0?0:1);

@@ -22,6 +22,25 @@ $r($blocked,'ODL Apply cannot be enabled without Preview');
 $blocked=false;try{OdlOperationalConfig::fromValues('true','false')->assertApplyEnabled();}
 catch(RuntimeException$e){$blocked=$e->getMessage()==='ODL_OPERATIONAL_APPLY_DISABLED';}
 $r($blocked,'ODL Apply remains fail-closed');
+$authorized=OdlOperationalConfig::fromValues(
+ 'true','true','71','18','0','0','0',
+ '6ee2d37e099b72b31cea8cea5d8228e43087b92770f1102442235701b771c5fd',
+ 'ONEID-ODL-F9-20260724-02','ONEID-UAT-BACKUP-20260724-02',
+ '2026-07-24T13:50:00+08:00','2026-07-24T14:30:00+08:00'
+);
+$authorized->assertWithinChangeWindow(
+ new DateTimeImmutable('2026-07-24T14:00:00+08:00')
+);
+$authorized->assertApprovedPlan(
+ 71,['New'=>18,'Update'=>0,'Deactivate'=>0,'Reactivate'=>0],
+ '6ee2d37e099b72b31cea8cea5d8228e43087b92770f1102442235701b771c5fd'
+);
+$r($authorized->applyEnabled,'exact authorized F9 plan is accepted in window');
+$blocked=false;try{$authorized->assertApprovedPlan(
+ 72,['New'=>19,'Update'=>0,'Deactivate'=>0,'Reactivate'=>0],
+ '6ee2d37e099b72b31cea8cea5d8228e43087b92770f1102442235701b771c5fd'
+);}catch(RuntimeException$e){$blocked=$e->getMessage()==='ODL_OPERATIONAL_EXACT_PLAN_MISMATCH';}
+$r($blocked,'changed F9 plan is blocked');
 
 $old=[[
  'u_id'=>'ODL1','u_category'=>10,'avail_status'=>1,'data1'=>'Student',

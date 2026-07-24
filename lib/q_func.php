@@ -633,6 +633,23 @@ function string_sanitize($s) {
                     && ($previewResponse['approval_ready'] ?? false) === true
                     && !$operationalHardBlocked
                     && array_sum($previewCounts) > 0;
+                if ($previewResponse['operational_apply_available']
+                    && $isOdlOperational
+                ) {
+                    try {
+                        $odlOperationalConfig->assertWithinChangeWindow();
+                        $odlOperationalConfig->assertApprovedPlan(
+                            (int) ($previewResponse['source_rows'] ?? 0),
+                            $previewCounts,
+                            (string) ($previewResponse['plan_hash'] ?? '')
+                        );
+                    } catch (\RuntimeException $exception) {
+                        $previewResponse['operational_apply_available'] = false;
+                        $previewResponse['blocking_codes'][] = $exception->getMessage();
+                        $previewResponse['warnings'][] = $exception->getMessage();
+                        $previewResponse['risk_level'] = 'blocked';
+                    }
+                }
                 if ($previewResponse['full_apply_available']) {
                     $previewResponse['full_confirmation'] = $fullConfig->confirmationText();
                 }
@@ -667,6 +684,10 @@ function string_sanitize($s) {
                     'ODL_OPERATIONAL_FLAG_COMBINATION_INVALID',
                     'SYNC_CROSS_SOURCE_IDENTITY_COLLISION',
                     'SYNC_SOURCE_MEMBERSHIP_CONFLICT',
+                    'ODL_OPERATIONAL_EXPECTED_COUNTS_INVALID',
+                    'ODL_OPERATIONAL_AUTHORIZATION_INVALID',
+                    'ODL_OPERATIONAL_EXACT_PLAN_MISMATCH',
+                    'ODL_OPERATIONAL_OUTSIDE_CHANGE_WINDOW',
                 ];
                 $diagnosticCode = in_array($exception->getMessage(), $knownPreviewCodes, true)
                     ? $exception->getMessage()
@@ -695,8 +716,10 @@ function string_sanitize($s) {
                 if ($syncSourceCode
                     === \OneId\App\Sync\Odl\OdlStudentSource::SOURCE_CODE
                 ) {
-                    \OneId\App\Sync\Odl\OdlOperationalConfig::fromPrivateRuntime()
-                        ->assertApplyEnabled();
+                    $odlOperationalConfig =
+                        \OneId\App\Sync\Odl\OdlOperationalConfig::fromPrivateRuntime();
+                    $odlOperationalConfig->assertApplyEnabled();
+                    $odlOperationalConfig->assertWithinChangeWindow();
                 }
                 $runtimeConfig = \OneId\App\Sync\SyncRuntimeConfig::fromEnvironment();
                 $pilotConfig = \OneId\App\Sync\SyncPilotConfig::fromEnvironment();
@@ -793,6 +816,10 @@ function string_sanitize($s) {
                     'ODL_OPERATIONAL_APPLY_DISABLED',
                     'ODL_OPERATIONAL_FLAG_INVALID',
                     'ODL_OPERATIONAL_FLAG_COMBINATION_INVALID',
+                    'ODL_OPERATIONAL_EXPECTED_COUNTS_INVALID',
+                    'ODL_OPERATIONAL_AUTHORIZATION_INVALID',
+                    'ODL_OPERATIONAL_EXACT_PLAN_MISMATCH',
+                    'ODL_OPERATIONAL_OUTSIDE_CHANGE_WINDOW',
                 ];
                 $diagnosticCode = in_array($exception->getMessage(), $knownOperationalCodes, true)
                     ? $exception->getMessage()

@@ -3966,7 +3966,9 @@
                         : (totalChanges === 0
                            ? 'UP TO DATE — no changes to apply'
                            : (response.approval_ready === true
-                           ? 'READY FOR CONTROLLED PILOT — Apply remains disabled'
+                           ? (sourceCode === 'STUDENT_ODL_PG'
+                              ? 'PREVIEW READY — APPLY AUTHORIZATION REQUIRED'
+                              : 'READY FOR CONTROLLED PILOT — Apply remains disabled')
                            : 'PREVIEW ONLY — no changes applied')));
                   var warningList = $('#sync_preview_warnings').empty();
                   (response.warnings || []).forEach(function(warning){

@@ -6,19 +6,41 @@ final class OdlOperationalConfig
 {
     private function __construct(
         public readonly bool $previewEnabled,
-        public readonly bool $applyEnabled
+        public readonly bool $applyEnabled,
+        public readonly int $expectedSourceRows,
+        /** @var array{New:int,Update:int,Deactivate:int,Reactivate:int} */
+        public readonly array $expectedCounts,
+        public readonly string $expectedPlanHash,
+        public readonly string $changeReference,
+        public readonly string $backupReference,
+        public readonly string $windowStart,
+        public readonly string $windowEnd
     ) {}
 
     public static function fromPrivateRuntime(): self
     {
         return self::fromValues(
             (string) \oneid_config('ONEID_ODL_OPERATIONAL_PREVIEW_ENABLED', 'false'),
-            (string) \oneid_config('ONEID_ODL_OPERATIONAL_APPLY_ENABLED', 'false')
+            (string) \oneid_config('ONEID_ODL_OPERATIONAL_APPLY_ENABLED', 'false'),
+            (string) \oneid_config('ONEID_ODL_OPERATIONAL_EXPECTED_SOURCE_ROWS', '0'),
+            (string) \oneid_config('ONEID_ODL_OPERATIONAL_EXPECTED_NEW', '0'),
+            (string) \oneid_config('ONEID_ODL_OPERATIONAL_EXPECTED_UPDATE', '0'),
+            (string) \oneid_config('ONEID_ODL_OPERATIONAL_EXPECTED_DEACTIVATE', '0'),
+            (string) \oneid_config('ONEID_ODL_OPERATIONAL_EXPECTED_REACTIVATE', '0'),
+            (string) \oneid_config('ONEID_ODL_OPERATIONAL_EXPECTED_PLAN_HASH', ''),
+            (string) \oneid_config('ONEID_ODL_OPERATIONAL_CHANGE_REFERENCE', ''),
+            (string) \oneid_config('ONEID_ODL_OPERATIONAL_BACKUP_REFERENCE', ''),
+            (string) \oneid_config('ONEID_ODL_OPERATIONAL_WINDOW_START', ''),
+            (string) \oneid_config('ONEID_ODL_OPERATIONAL_WINDOW_END', '')
         );
     }
 
-    public static function fromValues(string $preview, string $apply): self
-    {
+    public static function fromValues(
+        string $preview,string $apply,string $sourceRows='0',string $new='0',
+        string $update='0',string $deactivate='0',string $reactivate='0',
+        string $planHash='',string $changeReference='',string $backupReference='',
+        string $windowStart='',string $windowEnd=''
+    ): self {
         foreach ([$preview, $apply] as $flag) {
             if (!in_array($flag, ['true', 'false'], true)) {
                 throw new \RuntimeException('ODL_OPERATIONAL_FLAG_INVALID');
@@ -27,7 +49,26 @@ final class OdlOperationalConfig
         if ($apply === 'true' && $preview !== 'true') {
             throw new \RuntimeException('ODL_OPERATIONAL_FLAG_COMBINATION_INVALID');
         }
-        return new self($preview === 'true', $apply === 'true');
+        foreach([$sourceRows,$new,$update,$deactivate,$reactivate]as$value){
+            if(preg_match('/^(?:0|[1-9][0-9]*)$/',$value)!==1){
+                throw new \RuntimeException('ODL_OPERATIONAL_EXPECTED_COUNTS_INVALID');
+            }
+        }
+        if($apply==='true'){
+            if(preg_match('/^[a-f0-9]{64}$/',$planHash)!==1
+                ||$changeReference!== 'ONEID-ODL-F9-20260724-02'
+                ||$backupReference!=='ONEID-UAT-BACKUP-20260724-02'
+                ||$windowStart!== '2026-07-24T13:50:00+08:00'
+                ||$windowEnd!== '2026-07-24T14:30:00+08:00'){
+                throw new \RuntimeException('ODL_OPERATIONAL_AUTHORIZATION_INVALID');
+            }
+        }
+        return new self(
+            $preview==='true',$apply==='true',(int)$sourceRows,
+            ['New'=>(int)$new,'Update'=>(int)$update,
+             'Deactivate'=>(int)$deactivate,'Reactivate'=>(int)$reactivate],
+            $planHash,$changeReference,$backupReference,$windowStart,$windowEnd
+        );
     }
 
     public function assertPreviewEnabled(): void
@@ -41,6 +82,27 @@ final class OdlOperationalConfig
     {
         if (!$this->applyEnabled) {
             throw new \RuntimeException('ODL_OPERATIONAL_APPLY_DISABLED');
+        }
+    }
+
+    /** @param array{New:int,Update:int,Deactivate:int,Reactivate:int} $counts */
+    public function assertApprovedPlan(int $sourceRows,array $counts,string $planHash):void
+    {
+        $this->assertApplyEnabled();
+        if($sourceRows!==$this->expectedSourceRows
+            ||$counts!==$this->expectedCounts
+            ||!hash_equals($this->expectedPlanHash,$planHash)){
+            throw new \RuntimeException('ODL_OPERATIONAL_EXACT_PLAN_MISMATCH');
+        }
+    }
+
+    public function assertWithinChangeWindow(?\DateTimeImmutable $now=null):void
+    {
+        $this->assertApplyEnabled();
+        $now??=new \DateTimeImmutable('now',new \DateTimeZone('Asia/Kuala_Lumpur'));
+        if($now<new \DateTimeImmutable($this->windowStart)
+            ||$now>new \DateTimeImmutable($this->windowEnd)){
+            throw new \RuntimeException('ODL_OPERATIONAL_OUTSIDE_CHANGE_WINDOW');
         }
     }
 }
