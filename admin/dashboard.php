@@ -5470,6 +5470,23 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
       date: "2026-07-24",
       changes: [
+        "ODL Fasa 9 Manual Operational Sync ditutup selepas exact-plan Apply menambah 18 akaun NEW melalui header 50; active membership STUDENT_ODL_PG meningkat kepada 71.",
+        "F9A melengkapkan semua tindakan manual ODL: UPDATE dan DEACTIVATE melalui header 52 serta REACTIVATE melalui header 53 dengan reconciliation dan rollback readiness PASS.",
+        "Post-Apply Preview kembali zero action; akaun ujian kekal kategori Pelajar/10, membership ODL aktif serta login dan ACL smoke test PASS.",
+        "Badge sumber kini hanya memaparkan tindakan sebenar dan tidak lagi mengira rekod KEEP yang telah diselaraskan.",
+        "Menu Add User dinamakan semula kepada Sync User dan setiap sumber Staff, Prasiswazah serta ODL mengekalkan Preview/Apply yang terasing.",
+        "Paparan External Sync menggunakan istilah mesra admin, keputusan berorientasikan tindakan dan bahagian teknikal tertutup untuk rujukan audit.",
+        "Ringkasan Sync memaparkan jumlah rekod, tindakan dan status berasingan bagi Staff, Prasiswazah dan ODL tanpa fungsi Apply.",
+        "Parent modal Sync User serta semua child modal Summary, Preview/Apply dan Manual Add User direka semula dengan warna konsisten, layout responsif dan hierarchy visual profesional.",
+        "Label akaun manual dilindungi dan konflik identiti kini diasingkan supaya status keselamatan lebih mudah difahami.",
+        "Exact confirmation, source isolation, transaction safety dan audit gate tidak diubah oleh penambahbaikan UI.",
+        "Automatic scheduler, unattended mutation dan production rollout ODL kekal disabled."
+      ]
+    },
+    {
+      version: "2.6.1",
+      date: "2026-07-24",
+      changes: [
         "ODL Fasa 7 Controlled Pilot selesai dengan tiga akaun NEW, provenance STUDENT_ODL_PG, reconciliation tepat serta login dan ACL smoke test PASS.",
         "ODL Fasa 8 Controlled Full Apply selesai untuk 50 akaun NEW; keseluruhan 53 membership ODL aktif dan semua tindakan bukan NEW kekal sifar.",
         "Cross-source isolation kini meliputi Staff, Undergraduate, ODL dan akaun manual supaya Preview serta Apply tidak mencampurkan ownership sumber.",
@@ -5478,10 +5495,8 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         "Matrik, IC dan external membership collision diblock sebelum approval; persistence turut menyemak semula ownership dalam transaction.",
         "E-mel kosong daripada ODL tidak memadam e-mel OneID sedia ada, manakala akaun manual kekal protected.",
         "External Sync Summary kekal read-only dan notifikasi parent modal dipaparkan hanya apabila sesuatu sumber mempunyai tindakan atau block.",
-        "Badge External Sync hanya mengira tindakan sebenar; rekod KEEP yang telah synchronized tidak lagi menghasilkan loceng palsu.",
         "Automatic scheduler, unattended mutation dan production rollout ODL kekal disabled.",
-        "Dokumen audit merekod Fasa 0 hingga 9 PASS/CLOSED; F9 menambah 18 akaun melalui header 50 dan ditutup di bawah ONEID-ODL-F9-20260724-02.",
-        "F9A melengkapkan manual action coverage: UPDATE dan DEACTIVATE melalui header 52 serta REACTIVATE melalui header 53 dengan reconciliation, rollback readiness dan smoke test PASS."
+        "Dokumen audit merekod Fasa 0 hingga 8 PASS/CLOSED serta Fasa 9 Preview Ready di bawah ONEID-ODL-F9-20260724-01."
       ]
     },
     {
