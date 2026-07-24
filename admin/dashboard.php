@@ -581,49 +581,73 @@
          </div>
          <div id="modal_open_add_user_option" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_open_add_user_option" aria-hidden="true">
             <div class="modal-dialog modal-md oneid-add-user-dialog" >
-               <div class="modal-content">
-                  <div class="modal-body">
-                     <div class="row">
-                        <div class="panel panel-primary card-view">
-                           <div class="panel-heading">
-                              <div class="pull-left">
-                                 <h6 class="panel-title txt-light">Sync User</h6>
-                              </div>
-                              <div class="clearfix"></div>
-                           </div>
+               <div class="modal-content oneid-sync-parent-modal">
+                  <div class="oneid-sync-parent-header">
+                     <div class="oneid-sync-parent-heading">
+                        <span class="oneid-sync-parent-heading-icon"><i class="fa fa-refresh"></i></span>
+                        <div>
+                           <h5 id="aria_modal_open_add_user_option">Sinkronisasi Pengguna</h5>
+                           <p>Semak dan selaraskan akaun OneID mengikut sumber data.</p>
                         </div>
                      </div>
-                     <div class="row">
-                        <div class="col-lg-12">
-                           <div class="">
-                              <div class="panel-wrapper collapse in">
-                                 <div class="panel-body pa-0">
-                                    <div class="col-sm-12 col-xs-12">
-                                       <div class="form-wrap">
-                                          <div class="form-body overflow-hide">
-                                             <div class="form-group">
-                                                <button id="btn_external_summary" class="btn btn-primary btn-outline btn-block oneid-sync-choice" type="button" onclick="preview_external_sync_view('SUMMARY');"><i class="fa fa-dashboard"></i> Ringkasan Sinkronisasi Pengguna <span id="external_notice_summary" class="external-action-notice" style="display:none"></span></button>
-                                                <p id="sync_status_msg" class="text-muted text-center mt-10" style="display:none;"></p>
-                                             </div>
-                                             <div class="form-group">
-                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="pick_preview_sync_user('STAFF_HR');"><i class="fa fa-briefcase"></i> Sinkronisasi Pengguna Staf <span id="external_notice_staff" class="external-action-notice" style="display:none"></span></button>
-                                             </div>
-                                             <div class="form-group">
-                                                <button class="btn btn-primary btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="pick_preview_sync_user('STUDENT_UG');"><i class="fa fa-graduation-cap"></i> Sinkronisasi Pelajar Prasiswazah <span id="external_notice_ug" class="external-action-notice" style="display:none"></span></button>
-                                             </div>
-                                             <div class="form-group">
-                                                <button class="btn btn-info btn-outline btn-block oneid-sync-choice external-source-preview-button" type="button" onclick="pick_preview_sync_user('STUDENT_ODL_PG');"><i class="fa fa-refresh"></i> Sinkronisasi Pelajar ODL <span id="external_notice_odl" class="external-action-notice" style="display:none"></span></button>
-                                             </div>
-                                             <div class="form-group">
-                                                <button class="btn  btn-primary btn-outline btn-block" type="button" onclick="pick_add_single_user();"><i class="fa fa-plus"></i> Manual Add User</button>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
+                     <button type="button" class="close oneid-sync-parent-close" data-dismiss="modal" aria-label="Tutup">×</button>
+                  </div>
+                  <div class="modal-body oneid-sync-parent-body">
+                     <div class="oneid-sync-menu-section">
+                        <span class="oneid-sync-menu-section-label">Ringkasan</span>
+                        <button id="btn_external_summary" class="btn btn-block oneid-sync-choice oneid-sync-menu-card oneid-sync-menu-summary" type="button" onclick="preview_external_sync_view('SUMMARY');">
+                           <span class="oneid-sync-menu-icon"><i class="fa fa-dashboard"></i></span>
+                           <span class="oneid-sync-menu-copy">
+                              <strong>Ringkasan Sinkronisasi Pengguna</strong>
+                              <small>Lihat status dan tindakan bagi semua sumber.</small>
+                           </span>
+                           <span id="external_notice_summary" class="external-action-notice" style="display:none"></span>
+                           <i class="fa fa-chevron-right oneid-sync-menu-arrow"></i>
+                        </button>
+                        <p id="sync_status_msg" class="text-muted text-center mt-10" style="display:none;"></p>
+                     </div>
+
+                     <div class="oneid-sync-menu-section">
+                        <span class="oneid-sync-menu-section-label">Sinkronisasi mengikut sumber</span>
+                        <button class="btn btn-block oneid-sync-choice oneid-sync-menu-card oneid-sync-menu-source external-source-preview-button" type="button" onclick="pick_preview_sync_user('STAFF_HR');">
+                           <span class="oneid-sync-menu-icon"><i class="fa fa-briefcase"></i></span>
+                           <span class="oneid-sync-menu-copy">
+                              <strong>Sinkronisasi Pengguna Staf</strong>
+                              <small>Semak perubahan daripada sumber data staf.</small>
+                           </span>
+                           <span id="external_notice_staff" class="external-action-notice" style="display:none"></span>
+                           <i class="fa fa-chevron-right oneid-sync-menu-arrow"></i>
+                        </button>
+                        <button class="btn btn-block oneid-sync-choice oneid-sync-menu-card oneid-sync-menu-source external-source-preview-button" type="button" onclick="pick_preview_sync_user('STUDENT_UG');">
+                           <span class="oneid-sync-menu-icon"><i class="fa fa-graduation-cap"></i></span>
+                           <span class="oneid-sync-menu-copy">
+                              <strong>Sinkronisasi Pelajar Prasiswazah</strong>
+                              <small>Semak perubahan daripada sumber pelajar prasiswazah.</small>
+                           </span>
+                           <span id="external_notice_ug" class="external-action-notice" style="display:none"></span>
+                           <i class="fa fa-chevron-right oneid-sync-menu-arrow"></i>
+                        </button>
+                        <button class="btn btn-block oneid-sync-choice oneid-sync-menu-card oneid-sync-menu-source external-source-preview-button" type="button" onclick="pick_preview_sync_user('STUDENT_ODL_PG');">
+                           <span class="oneid-sync-menu-icon"><i class="fa fa-refresh"></i></span>
+                           <span class="oneid-sync-menu-copy">
+                              <strong>Sinkronisasi Pelajar ODL</strong>
+                              <small>Semak perubahan daripada sumber pelajar ODL.</small>
+                           </span>
+                           <span id="external_notice_odl" class="external-action-notice" style="display:none"></span>
+                           <i class="fa fa-chevron-right oneid-sync-menu-arrow"></i>
+                        </button>
+                     </div>
+
+                     <div class="oneid-sync-menu-section oneid-sync-menu-section-last">
+                        <span class="oneid-sync-menu-section-label">Tindakan manual</span>
+                        <button class="btn btn-block oneid-sync-menu-card oneid-sync-menu-manual" type="button" onclick="pick_add_single_user();">
+                           <span class="oneid-sync-menu-icon"><i class="fa fa-user-plus"></i></span>
+                           <span class="oneid-sync-menu-copy">
+                              <strong>Tambah Pengguna Secara Manual</strong>
+                              <small>Daftar satu akaun yang tiada dalam sumber sinkronisasi.</small>
+                           </span>
+                           <i class="fa fa-chevron-right oneid-sync-menu-arrow"></i>
+                        </button>
                      </div>
                   </div>
                </div>
@@ -6545,16 +6569,213 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #modal_open_add_user_option .oneid-add-user-dialog {
-         width: min(620px, calc(100vw - 30px));
-         max-width: 620px;
+         width: min(680px, calc(100vw - 30px));
+         max-width: 680px;
       }
 
-      #modal_open_add_user_option .oneid-sync-choice {
-         min-height: 44px;
-         white-space: nowrap;
+      #modal_open_add_user_option .oneid-sync-parent-modal {
+         overflow: hidden;
+         border: 0;
+         border-radius: 12px;
+         background: #fff;
+         box-shadow: 0 20px 55px rgba(28, 46, 66, .28);
+      }
+
+      #modal_open_add_user_option .oneid-sync-parent-header {
+         display: flex;
+         align-items: flex-start;
+         justify-content: space-between;
+         padding: 22px 24px;
+         background: linear-gradient(135deg, #087eaf 0%, #1398d0 100%);
+         color: #fff;
+      }
+
+      #modal_open_add_user_option .oneid-sync-parent-heading {
+         display: flex;
+         align-items: center;
+         min-width: 0;
+      }
+
+      #modal_open_add_user_option .oneid-sync-parent-heading-icon {
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         flex: 0 0 42px;
+         width: 42px;
+         height: 42px;
+         margin-right: 14px;
+         border: 1px solid rgba(255, 255, 255, .35);
+         border-radius: 10px;
+         background: rgba(255, 255, 255, .15);
+         font-size: 18px;
+      }
+
+      #modal_open_add_user_option .oneid-sync-parent-heading h5 {
+         margin: 0 0 4px;
+         color: #fff;
+         font-size: 17px;
+         font-weight: 700;
+         letter-spacing: .01em;
+      }
+
+      #modal_open_add_user_option .oneid-sync-parent-heading p {
+         margin: 0;
+         color: rgba(255, 255, 255, .85);
+         font-size: 12px;
+         line-height: 1.45;
+      }
+
+      #modal_open_add_user_option .oneid-sync-parent-close {
+         margin: -4px -4px 0 12px;
+         color: #fff;
+         font-size: 25px;
+         font-weight: 300;
+         line-height: 1;
+         opacity: .85;
+         text-shadow: none;
+      }
+
+      #modal_open_add_user_option .oneid-sync-parent-close:hover,
+      #modal_open_add_user_option .oneid-sync-parent-close:focus {
+         color: #fff;
+         opacity: 1;
+      }
+
+      #modal_open_add_user_option .oneid-sync-parent-body {
+         padding: 22px 24px 24px;
+         background: #f6f8fb;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-section {
+         margin-bottom: 20px;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-section-last {
+         margin-bottom: 0;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-section-label {
+         display: block;
+         margin: 0 0 8px 2px;
+         color: #778493;
+         font-size: 10px;
+         font-weight: 700;
+         letter-spacing: .08em;
+         text-transform: uppercase;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-card {
+         display: flex;
+         align-items: center;
+         width: 100%;
+         min-height: 62px;
+         margin-top: 9px;
+         padding: 10px 14px;
          overflow: visible;
-         padding-left: 18px;
-         padding-right: 18px;
+         border: 1px solid #dce4ec;
+         border-radius: 8px;
+         background: #fff;
+         color: #344358;
+         text-align: left;
+         white-space: normal;
+         box-shadow: 0 2px 7px rgba(45, 64, 82, .05);
+         transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-card:hover,
+      #modal_open_add_user_option .oneid-sync-menu-card:focus {
+         transform: translateY(-1px);
+         outline: 0;
+         box-shadow: 0 7px 18px rgba(45, 64, 82, .12);
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-icon {
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         flex: 0 0 40px;
+         width: 40px;
+         height: 40px;
+         margin-right: 13px;
+         border-radius: 9px;
+         font-size: 16px;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-copy {
+         display: block;
+         flex: 1 1 auto;
+         min-width: 0;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-copy strong,
+      #modal_open_add_user_option .oneid-sync-menu-copy small {
+         display: block;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-copy strong {
+         margin-bottom: 3px;
+         color: #2e3e50;
+         font-size: 13px;
+         font-weight: 700;
+         line-height: 1.35;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-copy small {
+         color: #7b8794;
+         font-size: 11px;
+         font-weight: 400;
+         line-height: 1.4;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-arrow {
+         flex: 0 0 auto;
+         margin-left: 12px;
+         color: #a8b3bf;
+         font-size: 11px;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-summary {
+         border-color: #d9d2f6;
+         background: #faf9ff;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-summary:hover,
+      #modal_open_add_user_option .oneid-sync-menu-summary:focus {
+         border-color: #8170d6;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-summary .oneid-sync-menu-icon {
+         background: #eeeafd;
+         color: #6753c5;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-source {
+         border-color: #cfe5f1;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-source:hover,
+      #modal_open_add_user_option .oneid-sync-menu-source:focus {
+         border-color: #1594cc;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-source .oneid-sync-menu-icon {
+         background: #e6f5fb;
+         color: #087eaf;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-manual {
+         border-color: #cde8dc;
+         background: #f8fcfa;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-manual:hover,
+      #modal_open_add_user_option .oneid-sync-menu-manual:focus {
+         border-color: #32a071;
+      }
+
+      #modal_open_add_user_option .oneid-sync-menu-manual .oneid-sync-menu-icon {
+         background: #e5f5ed;
+         color: #25865e;
       }
 
       #modal_open_add_user_option .external-action-notice {
@@ -6563,7 +6784,8 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          justify-content: center;
          min-width: 26px;
          height: 22px;
-         margin-left: 8px;
+         flex: 0 0 auto;
+         margin-left: 10px;
          padding: 0 7px;
          border-radius: 11px;
          background: #f0a325;
@@ -6639,8 +6861,22 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       @media (max-width: 640px) {
-         #modal_open_add_user_option .oneid-sync-choice {
-            white-space: normal;
+         #modal_open_add_user_option .oneid-sync-parent-header,
+         #modal_open_add_user_option .oneid-sync-parent-body {
+            padding-left: 16px;
+            padding-right: 16px;
+         }
+
+         #modal_open_add_user_option .oneid-sync-menu-card {
+            padding: 10px;
+         }
+
+         #modal_open_add_user_option .oneid-sync-menu-icon {
+            margin-right: 10px;
+         }
+
+         #modal_open_add_user_option .oneid-sync-menu-copy small {
+            display: none;
          }
       }
 
