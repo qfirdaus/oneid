@@ -1115,6 +1115,16 @@ action; login/ACL kategori `Pelajar/10` serta membership `STUDENT_ODL_PG`
 lulus. Apply dikembalikan kepada disabled. Firdaus, System Analyst/DBA menutup
 Fasa 9 `PASS / CLOSED` pada 24 Julai 2026.
 
+### Fasa 9A — Manual action coverage — `IMPLEMENTED / PREVIEW TEST DATA PENDING`
+
+Implementation dan Preview untuk UPDATE, DEACTIVATE serta REACTIVATE dibenarkan
+melalui `ONEID-ODL-F9A-20260724-01`. Exact-plan gate kini reusable tetapi setiap
+live Apply masih memerlukan authorization, backup dan change window tersendiri.
+ODL UPDATE memelihara Matrik/IC dan blank e-mel tidak memadam nilai sedia ada.
+Rollback-readiness check adalah read-only; scheduler dan production kekal
+disabled. Rujuk
+[`ODL_FASA_9A_MANUAL_ACTION_COVERAGE.md`](ODL_FASA_9A_MANUAL_ACTION_COVERAGE.md).
+
 Aktiviti:
 
 - tetapkan jadual sync dan ownership;
@@ -1308,7 +1318,8 @@ Pada semakan 23 Julai 2026:
 | Fasa 7 | `PASS / CLOSED` — tiga Pilot NEW; `ONEID-ODL-F7-20260723-01` |
 | Fasa 8 | `PASS / CLOSED` — 50 Full NEW, ODL active membership 53; `ONEID-ODL-F8-20260724-01` |
 | Fasa 9 | `PASS / CLOSED` — header 50, 18 NEW, active ODL 71; `ONEID-ODL-F9-20260724-02` |
-| Fasa seterusnya | Automatic scheduler/cronjob atau production rollout memerlukan authorization baharu |
+| Fasa 9A | `IMPLEMENTED / PREVIEW TEST DATA PENDING` — Update/Deactivate/Reactivate coverage |
+| Fasa seterusnya | Team ODL sediakan Run A test data; live Apply memerlukan exact-plan authorization |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence

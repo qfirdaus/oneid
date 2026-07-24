@@ -545,7 +545,8 @@ function string_sanitize($s) {
                     $syncPersistence,
                     new \OneId\App\Sync\SyncPlanner(
                         new \OneId\App\Sync\Adapters\LegacySyncPolicy(),
-                        $syncScope->preserveExistingEmailOnBlank
+                        $syncScope->preserveExistingEmailOnBlank,
+                        $isOdlOperational
                     ),
                     300,
                     5.0,
@@ -686,6 +687,7 @@ function string_sanitize($s) {
                     'SYNC_SOURCE_MEMBERSHIP_CONFLICT',
                     'ODL_OPERATIONAL_EXPECTED_COUNTS_INVALID',
                     'ODL_OPERATIONAL_AUTHORIZATION_INVALID',
+                    'ODL_OPERATIONAL_WINDOW_INVALID',
                     'ODL_OPERATIONAL_EXACT_PLAN_MISMATCH',
                     'ODL_OPERATIONAL_OUTSIDE_CHANGE_WINDOW',
                 ];
@@ -818,6 +820,7 @@ function string_sanitize($s) {
                     'ODL_OPERATIONAL_FLAG_COMBINATION_INVALID',
                     'ODL_OPERATIONAL_EXPECTED_COUNTS_INVALID',
                     'ODL_OPERATIONAL_AUTHORIZATION_INVALID',
+                    'ODL_OPERATIONAL_WINDOW_INVALID',
                     'ODL_OPERATIONAL_EXACT_PLAN_MISMATCH',
                     'ODL_OPERATIONAL_OUTSIDE_CHANGE_WINDOW',
                 ];

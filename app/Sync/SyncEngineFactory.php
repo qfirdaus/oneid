@@ -112,6 +112,7 @@ final class SyncEngineFactory
             new DatabaseSyncRunLock($this->operation),
             new SyncPlanner(
                 new LegacySyncPolicy(),
+                $sourceCode === \OneId\App\Sync\Odl\OdlStudentSource::SOURCE_CODE,
                 $sourceCode === \OneId\App\Sync\Odl\OdlStudentSource::SOURCE_CODE
             ),
             new SyncSafetyPolicy(

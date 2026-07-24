@@ -14,7 +14,8 @@ final class SyncPlanner
 {
     public function __construct(
         private SyncPolicyInterface $policy,
-        private bool $preserveExistingEmailOnBlank = false
+        private bool $preserveExistingEmailOnBlank = false,
+        private bool $preserveStudentIdentityOnUpdate = false
     )
     {
     }
@@ -177,6 +178,10 @@ final class SyncPlanner
         foreach ($matchedSso as $update) {
             $old = $ssoByUid[$update['u_id']] ?? null;
             if ($old) {
+                if ($this->preserveStudentIdentityOnUpdate) {
+                    $update['data2'] = $old['data2'] ?? $update['data2'];
+                    $update['data4'] = $old['data4'] ?? $update['data4'];
+                }
                 if ($this->preserveExistingEmailOnBlank
                     && trim((string) ($update['data5'] ?? '')) === ''
                     && trim((string) ($old['data5'] ?? '')) !== ''

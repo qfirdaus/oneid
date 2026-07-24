@@ -41,6 +41,21 @@ $blocked=false;try{$authorized->assertApprovedPlan(
  '6ee2d37e099b72b31cea8cea5d8228e43087b92770f1102442235701b771c5fd'
 );}catch(RuntimeException$e){$blocked=$e->getMessage()==='ODL_OPERATIONAL_EXACT_PLAN_MISMATCH';}
 $r($blocked,'changed F9 plan is blocked');
+$f9a=OdlOperationalConfig::fromValues(
+ 'true','true','70','0','1','1','0',
+ str_repeat('a',64),'ONEID-ODL-F9A-20260724-01',
+ 'ONEID-UAT-BACKUP-20260724-03',
+ '2026-07-24T16:00:00+08:00','2026-07-24T16:30:00+08:00'
+);
+$r($f9a->applyEnabled&&$f9a->expectedCounts['Update']===1
+ &&$f9a->expectedCounts['Deactivate']===1,
+ 'reusable F9A exact-plan authorization is accepted');
+$blocked=false;try{OdlOperationalConfig::fromValues(
+ 'true','true','70','0','1','1','0',str_repeat('a',64),
+ 'ONEID-ODL-F9A-20260724-01','ONEID-UAT-BACKUP-20260724-03',
+ '2026-07-24T16:00:00+08:00','2026-07-24T17:30:00+08:00'
+);}catch(RuntimeException$e){$blocked=$e->getMessage()==='ODL_OPERATIONAL_WINDOW_INVALID';}
+$r($blocked,'authorization window longer than one hour is rejected');
 
 $old=[[
  'u_id'=>'ODL1','u_category'=>10,'avail_status'=>1,'data1'=>'Student',
@@ -58,6 +73,15 @@ $row=[
 $plan=(new SyncPlanner(new LegacySyncPolicy(),true))->plan([$row],$old,[]);
 $r(($plan->legacyCounts()['Update']??-1)===0,
  'blank ODL email does not erase existing OneID email');
+$identityRow=$row;$identityRow['data2']='IC-1';$identityRow['data7']='P2';
+$identityPlan=(new SyncPlanner(new LegacySyncPolicy(),true,true))
+ ->plan([$identityRow],$old,[]);
+$identityAction=$identityPlan->actions[0]??[];
+$r(($identityAction['action']??'')==='UPDATE'
+ &&($identityAction['row']['data2']??'')==='IC1'
+ &&($identityAction['row']['data4']??'')==='ODL1'
+ &&($identityAction['changed_fields']??'')==='data7',
+ 'ODL UPDATE preserves Matrik and IC while allowing profile fields');
 $decision=(new SyncSafetyPolicy(requiredSourceCode:'STUDENT_ODL_PG'))
  ->assess([$row],$old,$plan,1);
 $r($decision->allowed,'ODL-only safety accepts student source without Staff rows');

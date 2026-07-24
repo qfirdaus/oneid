@@ -55,12 +55,24 @@ final class OdlOperationalConfig
             }
         }
         if($apply==='true'){
-            if(preg_match('/^[a-f0-9]{64}$/',$planHash)!==1
-                ||$changeReference!== 'ONEID-ODL-F9-20260724-02'
-                ||$backupReference!=='ONEID-UAT-BACKUP-20260724-02'
-                ||$windowStart!== '2026-07-24T15:10:00+08:00'
-                ||$windowEnd!== '2026-07-24T15:40:00+08:00'){
+            if((int)$sourceRows<1
+                ||array_sum(array_map('intval',[$new,$update,$deactivate,$reactivate]))<1
+                ||preg_match('/^[a-f0-9]{64}$/',$planHash)!==1
+                ||preg_match('/^ONEID-ODL-F9A?-[0-9]{8}-[0-9]{2}$/',$changeReference)!==1
+                ||preg_match('/^ONEID-UAT-BACKUP-[0-9]{8}-[0-9]{2}$/',$backupReference)!==1){
                 throw new \RuntimeException('ODL_OPERATIONAL_AUTHORIZATION_INVALID');
+            }
+            try{
+                $start=new \DateTimeImmutable($windowStart);
+                $end=new \DateTimeImmutable($windowEnd);
+            }catch(\Throwable){
+                throw new \RuntimeException('ODL_OPERATIONAL_WINDOW_INVALID');
+            }
+            $duration=$end->getTimestamp()-$start->getTimestamp();
+            if($start->format('P')!=='+08:00'||$end->format('P')!=='+08:00'
+                ||$start->format('Y-m-d')!==$end->format('Y-m-d')
+                ||$duration<300||$duration>3600){
+                throw new \RuntimeException('ODL_OPERATIONAL_WINDOW_INVALID');
             }
         }
         return new self(
