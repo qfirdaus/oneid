@@ -6839,20 +6839,28 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       .oneid-sync-child-modal {
          overflow: hidden;
          border: 0;
-         border-radius: 12px;
+         border-radius: 12px !important;
          background: #fff;
          box-shadow: 0 20px 55px rgba(28, 46, 66, .28);
       }
 
       .oneid-sync-child-header {
-         display: flex;
-         align-items: flex-start;
-         justify-content: space-between;
+         display: grid;
+         grid-template-columns: minmax(0, 1fr) 32px;
+         align-items: center;
+         column-gap: 16px;
          min-height: 86px;
          padding: 20px 22px;
          border: 0;
+         border-radius: 12px 12px 0 0 !important;
          background: linear-gradient(135deg, #087eaf 0%, #1398d0 100%);
          color: #fff;
+      }
+
+      .oneid-sync-child-header:before,
+      .oneid-sync-child-header:after {
+         display: none !important;
+         content: none !important;
       }
 
       .oneid-sync-summary-header {
@@ -6866,6 +6874,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       .oneid-sync-child-heading {
          display: flex;
          align-items: center;
+         width: 100%;
          min-width: 0;
       }
 
@@ -6899,13 +6908,23 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       .oneid-sync-child-close {
-         margin: -3px -3px 0 12px;
+         position: static !important;
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         float: none !important;
+         justify-self: end;
+         width: 32px;
+         height: 32px;
+         margin: 0 !important;
+         padding: 0 !important;
          color: #fff;
          font-size: 25px;
          font-weight: 300;
          line-height: 1;
          opacity: .85;
          text-shadow: none;
+         transform: none !important;
       }
 
       .oneid-sync-child-close:hover,
@@ -6957,6 +6976,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          min-height: 68px;
          padding: 14px 22px;
          border-top: 1px solid #e4e9ef;
+         border-radius: 0 0 12px 12px;
          background: #fff;
       }
 

@@ -41,6 +41,9 @@ $report(
         && str_contains($ui, 'fa-exclamation-triangle')
         && str_contains($ui, 'modal_odl_shadow_preview')
         && str_contains($ui, 'Maklumat teknikal dan rujukan audit')
+        && str_contains($ui, '.oneid-sync-child-header:before')
+        && str_contains($ui, 'border-radius: 12px !important')
+        && str_contains($ui, 'grid-template-columns: minmax(0, 1fr) 32px')
         && substr_count($ui, 'oneid-return-add-user-options') === 7
         && str_contains($ui, "on('hidden.bs.modal'")
         && str_contains($ui, "$('#modal_open_add_user_option').modal('show')")
