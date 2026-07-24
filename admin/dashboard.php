@@ -1189,8 +1189,8 @@
                                                                   <span>New category</span>
                                                                </button>
                                                                <button class="user-category-action is-primary" type="button" onclick="add_new_user_option();">
-                                                                  <i class="fa fa-user-plus" aria-hidden="true"></i>
-                                                                  <span>Add user</span>
+                                                                  <i class="fa fa-refresh" aria-hidden="true"></i>
+                                                                  <span>Sync User</span>
                                                                </button>
                                                                <button class="user-category-refresh" type="button" onclick="admin_get_all_user_category(0);" title="Refresh user categories" aria-label="Refresh user categories">
                                                                   <i class="fa fa-refresh" aria-hidden="true"></i>
