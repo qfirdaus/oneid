@@ -6670,6 +6670,42 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         word-break: break-word;
       }
 
+      #modal_odl_shadow_preview .oneid-sync-technical-details .sync-preview-table {
+         min-width: 0;
+         table-layout: fixed;
+      }
+
+      #modal_odl_shadow_preview .oneid-sync-technical-details .sync-preview-table td:first-child {
+         width: 320px;
+         padding-right: 28px;
+         white-space: normal;
+         line-height: 1.45;
+      }
+
+      #modal_odl_shadow_preview .oneid-sync-technical-details .sync-preview-table td:last-child {
+         padding-left: 14px;
+         line-height: 1.45;
+      }
+
+      @media (max-width: 640px) {
+         #modal_odl_shadow_preview .oneid-sync-technical-details .sync-preview-table,
+         #modal_odl_shadow_preview .oneid-sync-technical-details .sync-preview-table tbody,
+         #modal_odl_shadow_preview .oneid-sync-technical-details .sync-preview-table tr,
+         #modal_odl_shadow_preview .oneid-sync-technical-details .sync-preview-table td {
+            display: block;
+            width: 100%;
+         }
+
+         #modal_odl_shadow_preview .oneid-sync-technical-details .sync-preview-table td:first-child {
+            width: 100%;
+            padding: 12px 8px 4px;
+         }
+
+         #modal_odl_shadow_preview .oneid-sync-technical-details .sync-preview-table td:last-child {
+            padding: 4px 8px 12px;
+         }
+      }
+
       .category-manage-state {
         padding: 25px 15px;
         color: #718093;
