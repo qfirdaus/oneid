@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–9 `PASS / CLOSED`; automatic scheduler dan production `NOT AUTHORIZED`
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–9A `PASS / CLOSED`; automatic scheduler dan production `NOT AUTHORIZED`
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -15,6 +15,11 @@
 > diluluskan, change request, arahan sambungan datasource, atau kebenaran untuk
 > migration, backfill, coding, deployment, Preview terhadap data sebenar atau
 > Apply. Semua kandungan boleh berubah selepas keperluan disahkan.
+
+> **Status semasa:** Dokumen ini berkembang daripada feasibility study kepada
+> rekod pelaksanaan UAT. Fasa 0–9A telah selesai. Kenyataan provisional dalam
+> seksyen awal hendaklah dibaca sebagai sejarah penilaian; keputusan muktamad
+> dan baki kerja semasa direkod dalam Seksyen 20 dan Future Work.
 
 ## 1. Tujuan
 
@@ -36,12 +41,10 @@ Pelaksanaan mesti:
 - menggunakan Preview, approval, transaction, lock, reconciliation dan rollback
   sebelum sebarang Full Apply.
 
-Dokumen ini masih pada peringkat feasibility study. Ia tidak memberikan
-kebenaran untuk menjalankan migration, menyimpan credential, menghubungi
-datasource, memulakan implementation atau mengaktifkan Preview/Apply. Sebelum
-bergerak ke pelaksanaan, owner dokumen mesti mengesahkan bahawa keperluan,
-keputusan reka bentuk, risiko, dependency, data ownership dan acceptance gates
-telah lengkap serta berada dalam keadaan `in order`.
+Dokumen ini bermula sebagai feasibility study. Kenyataan larangan dalam seksyen
+awal merekod baseline sebelum authorization. Pelaksanaan Fasa 0–9A kemudiannya
+dibenarkan melalui approval berasingan dan telah ditutup `PASS / CLOSED`.
+Sebarang kerja Future Work masih memerlukan authorization baharu.
 
 ## 2. Hipotesis dan keputusan reka bentuk untuk pengesahan
 
@@ -58,7 +61,7 @@ Kategori dan sumber ialah dua konsep berasingan:
 | Sumber undergraduate sedia ada | `STUDENT_UG` |
 | Sumber ODL baharu | `STUDENT_ODL_PG` |
 | Sumber postgraduate masa hadapan | `STUDENT_PG` |
-| Sumber staf sedia ada | `STAFF_EHRM` |
+| Sumber staf sedia ada | `STAFF_HR` |
 | Akaun daripada integrasi | `account_source = external` |
 | Akaun manual | `account_source = manual` dan tiada source membership external |
 
@@ -278,7 +281,7 @@ Proposed initial registry:
 
 | `source_code` | `source_name` | `source_family` |
 |---|---|---|
-| `STAFF_EHRM` | Staff EHRM | `staff` |
+| `STAFF_HR` | Staff HR | `staff` |
 | `STUDENT_UG` | Undergraduate Student | `student` |
 | `STUDENT_ODL_PG` | ODL Postgraduate Student | `student` |
 
@@ -539,7 +542,7 @@ untuk keseluruhan profil. Tiada pemenang atau merge rule boleh diinfer oleh code
 Aggregator mesti menerima hasil terstruktur, bukan hanya satu array tanpa asal:
 
 ```text
-STAFF_EHRM  : success | failed, row count, snapshot digest
+STAFF_HR    : success | failed, row count, snapshot digest
 STUDENT_UG  : success | failed, row count, snapshot digest
 STUDENT_ODL_PG : success | failed, row count, snapshot digest
 ```
@@ -860,7 +863,7 @@ Closure evidence:
 Aktiviti:
 
 - sahkan makna sebenar sumber undergraduate semasa;
-- Preview calon mapping `STAFF_EHRM` dan `STUDENT_UG`;
+- Preview calon mapping `STAFF_HR` dan `STUDENT_UG`;
 - exclude manual/protected accounts;
 - laporkan ambiguous identities;
 - backfill secara transaction dan batch terkawal;
@@ -1127,10 +1130,10 @@ disabled. Rujuk
 
 Run A telah lulus melalui header 52 dengan satu UPDATE dan satu DEACTIVATE,
 zero tindakan lain, reconciliation/syslog PASS serta rollback readiness
-`true`. Apply dikembalikan kepada disabled. Run B REACTIVATE ditangguhkan kerana
-Team ODL belum tersedia untuk mengembalikan rekod yang sama ke active view.
-Penangguhan ini ialah external dependency, bukan kegagalan teknikal. Run B
-memerlukan fresh Preview dan authorization baharu apabila Team ODL tersedia.
+`true`. Apply dikembalikan kepada disabled. Run B REACTIVATE pada awalnya
+ditangguhkan sementara menunggu Team ODL mengembalikan rekod yang sama ke active
+view. Dependency tersebut kemudiannya diselesaikan dan tidak lagi menjadi baki
+kerja.
 
 Team ODL kemudiannya mengaktifkan semula rekod sama. Run B diluluskan melalui
 `ONEID-ODL-F9A-20260724-03` dan menghasilkan header 53 dengan satu REACTIVATE,
@@ -1140,16 +1143,26 @@ zero tindakan lain, reconciliation/syslog PASS serta rollback readiness
 disabled. F9A ditutup `PASS / CLOSED` dengan coverage NEW, UPDATE, DEACTIVATE
 dan REACTIVATE lengkap.
 
-Aktiviti:
+### Future Work — `DEFERRED / NOT CURRENT BLOCKER`
 
-- tetapkan jadual sync dan ownership;
-- simpan accepted baseline per source;
-- alert untuk connection failure, empty source, shrink dan collision;
-- dokumentasikan retry, incident, rollback dan credential rotation;
+Manual ODL sync UAT telah lengkap dan Future Work berikut tidak menghalang
+penggunaan manual melalui Admin. Kerja ini hanya dimulakan selepas authorization
+baharu dan penjadualan semula mengikut keutamaan organisasi:
+
+- lengkapkan runbook operator dan sign-off handoff;
+- formalkan accepted baseline serta proses perubahan baseline per source;
+- bina dan uji monitoring/alert untuk connection failure, empty source, shrink
+  dan collision;
+- lengkapkan incident, retry, rollback dan credential-rotation runbook;
 - tetapkan log retention dan PII policy;
-- handoff dashboard/runbook kepada operator.
+- lakukan backup restore rehearsal;
+- bina Scheduled Preview/monitor-only secara fail-closed;
+- nilai automatic Apply hanya melalui authorization berasingan;
+- lakukan production security/operations review, kecilkan broad grant dan host
+  `%`, atau dapatkan waiver yang diluluskan; dan
+- mulakan Fasa 10 hanya jika datasource `STUDENT_PG` diperlukan.
 
-Exit gate:
+Exit gate Future Work:
 
 - monitoring dan alert diuji;
 - owner on-call dan escalation path tersedia;
@@ -1318,7 +1331,7 @@ Pada semakan 23 Julai 2026:
 | Provenance dan immutable history design | Polisi `STUDENT_ODL_PG` dipersetujui; schema Fasa 1 dipasang dormant dengan zero membership |
 | Source lifecycle/deactivation semantics | Status `1`, `3`, `6` keluar daripada view dan menjadi calon deactivation; tiada grace period |
 | Security/network/TLS/read-only evidence | PASS UAT: origin `172.16.2.153`, TLSv1.3/AES-256-GCM, read-only; broad SELECT/`viewer@%` accepted UAT condition |
-| Migration atau implementation approval | Fasa 1 selesai; setiap fasa seterusnya masih memerlukan exit gate |
+| Migration atau implementation approval | Fasa 1–9A selesai mengikut authorization dan exit gate masing-masing |
 | Connection kepada ODL datasource | Connection test read-only dibenarkan dan lulus |
 | Preview menggunakan data ODL sebenar | PASS — tiga snapshot staging stabil, digest identik, zero blocking/mutation |
 | Pilot atau Full Apply | F7 Pilot dan F8 Controlled Full Apply selesai UAT; production tidak dibenarkan |
@@ -1334,7 +1347,8 @@ Pada semakan 23 Julai 2026:
 | Fasa 8 | `PASS / CLOSED` — 50 Full NEW, ODL active membership 53; `ONEID-ODL-F8-20260724-01` |
 | Fasa 9 | `PASS / CLOSED` — header 50, 18 NEW, active ODL 71; `ONEID-ODL-F9-20260724-02` |
 | Fasa 9A | `PASS / CLOSED` — NEW header 50; Update/Deactivate header 52; Reactivate header 53 |
-| Fasa seterusnya | Automatic scheduler/cronjob atau production rollout memerlukan authorization baharu |
+| Future Work | Monitoring/alert, runbook/handoff, retention/PII, restore rehearsal, Scheduled Preview, automatic Apply dan production memerlukan authorization baharu |
+| Fasa 10 | `NOT STARTED / DEFERRED` — hanya jika datasource `STUDENT_PG` diperlukan |
 
 Dokumen hendaklah dikemas kini apabila hasil siasatan atau keputusan owner
 diterima. Setiap keputusan baru perlu merekod tarikh, owner/approver, evidence

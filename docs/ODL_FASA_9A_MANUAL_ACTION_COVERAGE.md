@@ -80,17 +80,17 @@ counts dan syslog lulus. Read-only rollback readiness menghasilkan
 `rollback_ready=true`, zero blocking code dan zero mutation. Apply dikembalikan
 kepada `false`.
 
-## Deferred Run B
+## Historical dependency — Run B resolved
 
 Run B memerlukan Team ODL mengaktifkan semula rekod yang sama supaya Preview
-menghasilkan satu REACTIVATE. Team ODL tidak tersedia selepas Run A, maka Run B
-direkod `DEFERRED` sehingga owner boleh berkomunikasi semula dengan mereka.
+menghasilkan satu REACTIVATE. Team ODL tidak tersedia sejurus selepas Run A,
+maka Run B pernah direkod `DEFERRED`. Dependency ini kemudian diselesaikan dan
+tidak lagi menjadi baki kerja.
 
-Keputusan ini bukan test failure dan bukan blocker teknikal. Jangan mengubah
-data OneID secara manual untuk memalsukan precondition REACTIVATE. Apabila Team
-ODL tersedia, mereka perlu mengembalikan rekod ke active view menggunakan
-Matrik dan IC asal. Fresh Preview, exact-plan authorization, backup dan change
-window baharu tetap diperlukan.
+Penangguhan tersebut bukan test failure dan bukan blocker teknikal. Data OneID
+tidak diubah secara manual untuk memalsukan precondition REACTIVATE; Team ODL
+mengembalikan rekod ke active view menggunakan Matrik dan IC asal, diikuti
+fresh Preview, exact-plan authorization, backup dan change window baharu.
 
 ## Run B evidence dan closure
 

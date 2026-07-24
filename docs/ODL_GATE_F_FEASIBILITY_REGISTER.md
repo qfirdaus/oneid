@@ -68,8 +68,8 @@ network menterjemahkannya), bukan IP server `oneiddb`.
 |---|---|---|
 | Data owner | Firdaus | CONFIRMED |
 | DBA | `Firdaus` | RECORDED |
-| View version | `MySQL 8.4.7` diberikan, tetapi ini versi DBMS dan bukan versi definisi view | PENDING |
-| Refresh/SLA | Live standard view; tiada scheduled refresh. Freshness/consistency source tables dan partial-load behavior belum dibuktikan | PARTIAL |
+| View version | `MySQL 8.4.7` ialah versi DBMS; perubahan definisi view dikawal melalui snapshot digest dan exact-plan Preview | ACCEPTED CONDITION UAT; formal view change reference ialah Future Work sebelum production |
+| Refresh/SLA | Live standard view; e-mel diakui late-arriving dan identity wajib diblock jika blank; failure/empty/shrink dikawal fail-closed | ACCEPTED CONDITION UAT; formal source SLA ialah Future Work |
 | Result aggregate | Baseline 49 row mempunyai 1 IC kosong; rerun 23 Julai menunjukkan 52 row dan semua blank metric = 0 | PASS bagi mandatory-field completeness |
 | Grant evidence | `USAGE`; `SELECT ON moodle.*` dan `upnm.*`; tiada write/DDL/admin privilege | PASS read-only; broad scope dan `viewer@%` ialah UAT accepted condition |
 | TLS evidence | Dari OneID staging `172.16.2.153`: TLS `1.3`, cipher `TLS_AES_256_GCM_SHA384` | PASS |
@@ -81,7 +81,10 @@ network menterjemahkannya), bukan IP server `oneiddb`.
 #### DBMS dan view version
 
 `MySQL 8.4.7` diterima sebagai versi database server. Ia tidak version-kan
-definisi `student_basic_info`. View version masih memerlukan salah satu daripada:
+definisi `student_basic_info`. Bagi UAT, risiko perubahan view dikawal melalui
+data-quality audit, snapshot digest, accepted counts dan exact-plan Preview.
+Formal view change control berikut direkod sebagai Future Work sebelum
+production:
 
 - application/schema release version;
 - deployment/change reference dan timestamp; atau
@@ -396,9 +399,9 @@ checksum tidak boleh ditukar hanya untuk menjadikan test hijau.
 
 ## 5. Gate decision register
 
-Owner memberikan jawapan berikut pada 22 Julai 2026 tetapi menyatakan sebahagian
-jawapan masih belum pasti dan akan direview semula. Oleh itu keputusan ini
-direkod sebagai `PROVISIONAL` dan bukan approval muktamad:
+Jadual berikut ialah snapshot keputusan awal pada 22 Julai 2026. Item
+provisional dalam snapshot ini telah diselesaikan melalui authorization dan
+evidence F7–F9A; register acceptance selepas jadual ialah disposition semasa.
 
 | Decision | Jawapan provisional |
 |---|---|
@@ -420,7 +423,7 @@ Preview, approval, threshold, protection dan reconciliation.
 
 | ID | Acceptance item | Evidence/status semasa | Owner diperlukan | Keputusan |
 |---|---|---|---|---|
-| GF-01 | Business outcome sync dipersetujui | Owner bersetuju NEW/UPDATE/REACTIVATE/DEACTIVATE tetapi jawapan akan direview | Business owner | PROVISIONAL |
+| GF-01 | Business outcome sync dipersetujui | NEW dibuktikan melalui header 50; UPDATE/DEACTIVATE melalui header 52; REACTIVATE melalui header 53 | Firdaus, System Analyst/DBA | CONFIRMED / PASS |
 | GF-02 | Population active view dipersetujui | Kod `2`, `4`, `5` masuk; `1`, `3`, `6` keluar | Business/data owner | CONFIRMED |
 | GF-03 | Pending transition behavior diterima | Active → Pending menjadi calon deactivation kerana Pending tidak berada dalam active view | Business/OneID owner | CONFIRMED |
 | GF-04 | Grace period/exception diputuskan | Tiada grace period bagi Pending, Inactive atau Withdrawn | Business owner | CONFIRMED |
@@ -429,14 +432,14 @@ Preview, approval, threshold, protection dan reconciliation.
 | GF-07 | Identity uniqueness/stability | Rerun 23 Julai berkembang 52 → 53 row; dua bacaan terkini blank Matrik=0 dan blank IC=0; duplicate baseline kekal 0 | ODL data owner | PASS bagi mandatory fields; duplicate perlu kekal dipantau |
 | GF-08 | Field length compatible | Semua maximum length snapshot berada dalam had live OneID | ODL data owner | CONFIRMED |
 | GF-09 | Profile authority UG vs ODL | View disahkan 100% postgraduate tanpa UG. Blank source e-mel tidak memadam nilai sedia ada; identity/profile conflict diblock untuk semakan manual | Business/data owner | CONFIRMED |
-| GF-10 | Multi-source provenance diputuskan | `STUDENT_ODL_PG`; kategori 10; multi-membership; any-active-source activation; source/event history; ODL tidak mengubah password/kategori/ACL | OneID system owner/DBA | CONFIRMED bagi policy; schema migration perlu review berasingan |
+| GF-10 | Multi-source provenance diputuskan | `STUDENT_ODL_PG`; kategori 10; multi-membership; any-active-source activation; source/event history; schema migration dan backfill Fasa 1–2 selesai | OneID system owner/DBA | CONFIRMED / PASS |
 | GF-11 | Source failure/completeness policy | Baseline 53; failure/empty/blank identity diblock; shrink melebihi 20% diblock; blank e-mel dibenarkan; source failure tidak boleh deactivate | OneID system owner | CONFIRMED |
 | GF-12 | Network dan TLS diluluskan | Ujian dari OneID staging `172.16.2.153` ke ODL `172.16.2.224:3308`: TLSv1.3, `TLS_AES_256_GCM_SHA384`; origin disahkan melalui `USER()` | Infrastructure/security owner | PASS — adapter mesti kekalkan TLS fail-closed |
 | GF-13 | Read-only grant dibuktikan | `SHOW GRANTS`: hanya USAGE dan SELECT pada `moodle.*`/`upnm.*`; negative UPDATE/DELETE test ditolak. Tiada write/DDL/admin privilege | Firdaus | PASS bagi read-only; broad SELECT dan `viewer@%` diterima sebagai UAT condition, perlu remediation/waiver sebelum production |
 | GF-14 | Secret handling diluluskan | Private runtime secret store; tiada credential dalam Git/source/screenshot/log; akses terhad; rotation semasa incident/perubahan pegawai/polisi | Firdaus, System Analyst/DBA | CONFIRMED |
 | GF-15 | Runtime baseline bersih | Rebaseline 23 Julai 2026: 10 suite, 219 checks, 0 failure; SKP quarantine dan approval-bound coordinator disahkan; commit `2e9133d` | OneID code owner | PASS |
-| GF-16 | Pilot/rollback strategy diterima | Sync actions dipersetujui secara provisional; draft backup, Deactivate=0 dan correlation rollback tersedia | OneID/business owner | PROVISIONAL |
-| GF-17 | Capacity/schedule/operations | Manual Shadow Preview; automatic sync/Apply disabled; failure/empty/shrink block dan log; retry manual; ODL data owner, OneID operations owner, DBA dan escalation: Firdaus | Firdaus | CONFIRMED |
+| GF-16 | Pilot/rollback strategy diterima | F7/F8/F9/F9A menggunakan backup reference, exact plan, reconciliation dan rollback-readiness; login/ACL smoke test lulus | Firdaus, System Analyst/DBA | CONFIRMED / PASS bagi UAT |
+| GF-17 | Capacity/schedule/operations | Manual/on-demand melalui Admin; Apply fail-closed secara default; failure/empty/shrink block dan log; owner serta escalation Firdaus | Firdaus | CONFIRMED bagi manual UAT; automation ialah Future Work |
 | GF-18 | Named final approver | Firdaus, System Analyst/DBA; 23 Julai 2026; change/access reference `N/A` | Firdaus | APPROVED — PROCEED WITH CONDITIONS |
 
 ### 4.1 Closure Fasa 6
@@ -451,6 +454,10 @@ preview digest adalah identik. Evidence reference:
 Closure Fasa 6 tidak mengubah keputusan Gate F yang melarang ODL Pilot Apply,
 Full Apply, production rollout dan automatic scheduler tanpa authorization
 baharu.
+
+Larangan ini ialah baseline Gate F. F7–F9A kemudiannya menerima authorization
+UAT berasingan bagi exact plan masing-masing dan semuanya telah ditutup
+`PASS / CLOSED`. Ia tidak memberi kebenaran kepada scheduler atau production.
 
 ### 5.1 Audit runtime checksum
 
@@ -517,14 +524,32 @@ Operational policy ialah Manual Shadow Preview, automatic sync/Apply disabled,
 failure/empty/shrink diblock dan dilog, serta retry manual hanya selepas source
 disahkan stabil. `viewer@%` dan broad SELECT diterima sebagai syarat UAT sahaja.
 
-## 6. Baki syarat selepas approval
+Keputusan ini ialah baseline Gate F pada 23 Julai 2026. Authorization F7–F9A
+yang direkod selepas tarikh tersebut membenarkan mutation UAT bagi exact plan
+tertentu dan semuanya telah ditutup `PASS / CLOSED`. Baseline ini tidak
+digantikan bagi automatic scheduler, unattended Apply atau production; ketiga-
+tiganya kekal tidak dibenarkan.
+
+## 6. Future Work selepas penutupan F9A
 
 ODL data owner dan OneID operations owner ialah Firdaus. Baseline dan
 characterization lokal direkod dalam commit `2e9133d`.
 
-Sebelum production, grant `viewer@%`, broad database SELECT dan keseluruhan
-security/operations design mesti direview semula. Approval Gate F ini bukan
-production waiver.
+Manual sync ODL UAT tidak mempunyai baki functional blocker. Perkara berikut
+ditangguhkan dan bukan current blocker:
+
+- formalkan version/change reference bagi definisi view dan source SLA;
+- lengkapkan monitoring, alert, operator handoff dan incident runbook;
+- tetapkan retention log, metadata provenance dan polisi PII;
+- jalankan backup restore rehearsal;
+- bina Scheduled Preview/monitor-only sebelum mempertimbangkan automatic Apply;
+- sebelum production, gantikan atau kecilkan `viewer@%` dan broad database
+  `SELECT`, kemudian jalankan security/operations review atau dapatkan waiver;
+- production rollout memerlukan authorization baharu; dan
+- `STUDENT_PG`/Fasa 10 kekal di luar skop sehingga datasource diperlukan.
+
+Approval Gate F ini bukan production waiver. Automatic scheduler, unattended
+Apply dan production kekal `NOT AUTHORIZED`.
 
 ## 7. Syarat menutup Gate F
 
