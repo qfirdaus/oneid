@@ -754,7 +754,7 @@
                         <div id="external_preview_admin_summary" class="alert alert-info oneid-sync-admin-summary" role="status"></div>
                         <h6 class="mb-1">Status setiap sumber:</h6>
                         <div class="sync-preview-table-wrap">
-                           <table class="table table-borderless sync-preview-table">
+                           <table class="table table-borderless sync-preview-table external-summary-source-table">
                               <tbody>
                                  <tr><td>Sumber pengguna:</td><td>Jumlah rekod</td><td>Perlu tindakan</td><td>Status</td></tr>
                                  <tr><td>Staf</td><td id="external_summary_staff_rows">-</td><td id="external_summary_staff_actions">-</td><td id="external_summary_staff_status">-</td></tr>
@@ -6619,19 +6619,23 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          padding: 0 14px 8px;
       }
 
-      #modal_odl_shadow_preview .sync-preview-table tr:first-child td {
+      #modal_odl_shadow_preview .external-summary-source-table tr:first-child td {
          color: #33475b;
          font-weight: 700;
          background: #f4f7fa;
       }
 
-      #modal_odl_shadow_preview .sync-preview-table td:nth-child(2),
-      #modal_odl_shadow_preview .sync-preview-table td:nth-child(3) {
+      #modal_odl_shadow_preview .external-summary-source-table td:nth-child(2),
+      #modal_odl_shadow_preview .external-summary-source-table td:nth-child(3) {
          text-align: center !important;
       }
 
-      #modal_odl_shadow_preview .sync-preview-table td:nth-child(4) {
+      #modal_odl_shadow_preview .external-summary-source-table td:nth-child(4) {
          min-width: 180px;
+      }
+
+      #modal_odl_shadow_preview .oneid-sync-technical-details .sync-preview-table td {
+         text-align: left !important;
       }
 
       @media (max-width: 640px) {
