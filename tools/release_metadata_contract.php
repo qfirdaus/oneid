@@ -15,9 +15,9 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $label);
 };
 
-$report(ONEID_APP_VERSION === '2.6.2', 'central application version is 2.6.2');
+$report(ONEID_APP_VERSION === '2.6.3', 'central application version is 2.6.3');
 $report(
-    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.6.2',
+    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.6.3',
     'central copyright and footer text match the approved release'
 );
 
@@ -29,11 +29,10 @@ foreach (['index.php', 'page/dashboard.php', 'admin/dashboard.php'] as $page) {
 $adminDashboard = (string) file_get_contents($projectRoot . '/admin/dashboard.php');
 $report(
     str_contains($adminDashboard, 'version: <?php echo json_encode(ONEID_APP_VERSION); ?>')
-        && str_contains($adminDashboard, 'ODL Fasa 9 Manual Operational Sync ditutup')
-        && str_contains($adminDashboard, 'F9A melengkapkan semua tindakan manual ODL')
-        && str_contains($adminDashboard, 'semua child modal Summary, Preview/Apply dan Manual Add User')
-        && str_contains($adminDashboard, 'Automatic scheduler, unattended mutation'),
-    'latest admin release card reads shared v2.6.2 metadata and completed ODL/UI notes'
+        && str_contains($adminDashboard, 'Infrastruktur locale BM/English dilengkapkan')
+        && str_contains($adminDashboard, 'Administrator Version Releases mempunyai parity 37/37')
+        && str_contains($adminDashboard, 'Audit pre-ML9 merekonsiliasi semua fasa multilingual'),
+    'latest admin release card reads shared v2.6.3 multilingual metadata'
 );
 $expectedHistory = [
     '2.6.1','2.6.0',

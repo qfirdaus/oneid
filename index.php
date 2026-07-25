@@ -3,13 +3,25 @@ require_once __DIR__ . '/lib/session_security.php';
 oneid_start_secure_session();
 require_once __DIR__ . '/lib/request_security.php';
 require_once __DIR__ . '/lib/SSO_IDP_INC.php';
+require_once __DIR__ . '/lib/shared_faq.php';
+$requestedLocale = $_GET['locale'] ?? null;
+if ($requestedLocale !== null) {
+  if (oneid_set_session_locale((string) $requestedLocale)) {
+    oneid_set_guest_locale_cookie((string) $requestedLocale);
+    if (($_SESSION['login_status'] ?? '') === 'true') {
+      oneid_promote_authenticated_locale((string) ($_SESSION['login_user'] ?? ''));
+    }
+  }
+  header('Location: ' . APP_URL . '/', true, 303);
+  exit;
+}
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?=htmlspecialchars(oneid_current_locale(), ENT_QUOTES, 'UTF-8')?>">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ONEID@UPNM - Gerbang Tunggal ke Sistem Digital UPNM</title>
+  <title><?=htmlspecialchars(oneid_translate('login.page_title'), ENT_QUOTES, 'UTF-8')?></title>
 
   <!-- Favicon -->
   <link rel="shortcut icon" href="img/favicon.png" />
@@ -38,41 +50,39 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
       <form id="loginform">
         <div style="text-align: center; margin-bottom: 12px;">          
           <img src="img/logo_oneid.png" alt="UPNM Logo" style="width: 80%; height: auto !important;" />
-          <img src="img/logoupnm_2.png" alt="UPNM Logo" style="width: 40%; height: auto !important;" />
+          <img src="img/logo_upnm_30.png" alt="UPNM 30 Tahun Logo" style="width: 40%; height: auto !important;" />
         </div>
-
         <div class="text-center mb-4">
           <h5 class="txt-heading text-center txt-dark mb-5 ">
             <!-- <u><font class="custom_link">S</font></u>atu <u><font class="custom_link">L</font></u>ogin, <u><font class="custom_link">S</font></u>emua <u><font class="custom_link">A</font></u>kses (SSO) -->
-             Gerbang Tunggal ke Sistem Digital UPNM<br>
-             <i><span class="txt-slogan">Your Gateway to UPNM's Digital Ecosystem</span></i>
+             <?=htmlspecialchars(oneid_translate('login.gateway'), ENT_QUOTES, 'UTF-8')?>
           </h5>
         </div>
 
         <div id="login_status"></div>
 
         <div class="login-form-block" style="display: flex; flex-direction: column; gap: 4px;margin-bottom: 20px;">
-          <label for="username" class="login-form-label" style="margin-bottom: 4px; font-weight: 500; color: #2c2c2c;"> ID Pengguna</label>
-          <input id="username" name="username" type="text" class="login-form-control custom_input login_placeholder" placeholder="Masukkan No. Staf (XXXX-XX) / No. Pelajar" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@\-]*" autocomplete="username" />
+          <label for="username" class="login-form-label" style="margin-bottom: 4px; font-weight: 500; color: #2c2c2c;"> <?=htmlspecialchars(oneid_translate('login.user_id'), ENT_QUOTES, 'UTF-8')?></label>
+          <input id="username" name="username" type="text" class="login-form-control custom_input login_placeholder" placeholder="<?=htmlspecialchars(oneid_translate('login.user_id_placeholder'), ENT_QUOTES, 'UTF-8')?>" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@\-]*" autocomplete="username" />
         </div>
 
         <div class="login-form-block" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px;">
-          <label for="password" class="login-form-label" style="margin-bottom: 4px; font-weight: 500; color: #2c2c2c;"> Kata Laluan</label>
-          <input id="password" name="password" type="password" placeholder="Masukkan Kata Laluan" class="login-form-control custom_input login_placeholder" autocomplete="current-password" />
-		  <small>Pengguna baharu perlu menggunakan fungsi Lupa Kata Laluan untuk menetapkan kata laluan pertama.</small>
+          <label for="password" class="login-form-label" style="margin-bottom: 4px; font-weight: 500; color: #2c2c2c;"> <?=htmlspecialchars(oneid_translate('login.password'), ENT_QUOTES, 'UTF-8')?></label>
+          <input id="password" name="password" type="password" placeholder="<?=htmlspecialchars(oneid_translate('login.password_placeholder'), ENT_QUOTES, 'UTF-8')?>" class="login-form-control custom_input login_placeholder" autocomplete="current-password" />
+		  <small><?=htmlspecialchars(oneid_translate('login.new_user_help'), ENT_QUOTES, 'UTF-8')?></small>
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-3" >
-          <a style="cursor: pointer;" class="text-primary" onclick="open_forgot_password()">Lupa Kata Laluan?</a>
+          <a style="cursor: pointer;" class="text-primary" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></a>
           <button type="submit" class="btn btn-warning px-4">
-            <i class="icon-login me-1 animate__animated animate__swing animate__infinite infinite"></i> Log Masuk
+            <i class="icon-login me-1 animate__animated animate__swing animate__infinite infinite"></i> <?=htmlspecialchars(oneid_translate('login.submit'), ENT_QUOTES, 'UTF-8')?>
           </button>
         </div>
 
-        <div class="mydigitalid-preview" aria-label="MyDigital ID integration coming soon">
-          <span class="mydigitalid-preview-label">Pilihan log masuk akan datang</span>
+        <div class="mydigitalid-preview" aria-label="<?=htmlspecialchars(oneid_translate('login.future_option'), ENT_QUOTES, 'UTF-8')?>">
+          <span class="mydigitalid-preview-label"><?=htmlspecialchars(oneid_translate('login.future_option'), ENT_QUOTES, 'UTF-8')?></span>
           <img src="img/mydigitalid_logo_colored.svg" alt="MyDigital ID" width="158" height="42" loading="lazy" />
-          <small>Integrasi belum diaktifkan</small>
+          <small><?=htmlspecialchars(oneid_translate('login.integration_disabled'), ENT_QUOTES, 'UTF-8')?></small>
         </div>
 
         <input type="hidden" name="auth" value="auth">
@@ -89,22 +99,32 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
     <!-- RIGHT SIDE: Slider + Contact order-1 order-md-2 -->
     <div class="col-md-8 bg-light px-4 py-4">
        <!-- MENU ATAS -->
-      <div class="mb-3 pb-2 border-bottom">
-        <div class="d-flex justify-content-start gap-3 txt-heading">
-          <a href="./public_docs/MANUAL_SALAM.pdf" class="menu_link" target="_blank" rel="noopener">Manual Pengguna</a>
-          <a href="#" class="menu_link" data-bs-toggle="modal" data-bs-target="#faqModal">Soalan Lazim</a>
-          <a href="https://directory.upnm.edu.my/" target="_blank" class="menu_link">Direktori UPNM</a>
+      <div class="login-topbar mb-3 pb-2 border-bottom">
+        <div class="login-topbar-links txt-heading">
+          <a href="./public_docs/MANUAL_SALAM.pdf" class="menu_link" target="_blank" rel="noopener"><?=htmlspecialchars(oneid_translate('login.menu.manual'), ENT_QUOTES, 'UTF-8')?></a>
+          <a href="#" class="menu_link" data-bs-toggle="modal" data-bs-target="#faqModal"><?=htmlspecialchars(oneid_translate('faq.link'), ENT_QUOTES, 'UTF-8')?></a>
+          <a href="https://directory.upnm.edu.my/" target="_blank" rel="noopener" class="menu_link"><?=htmlspecialchars(oneid_translate('login.menu.directory'), ENT_QUOTES, 'UTF-8')?></a>
         </div>
+        <nav class="login-locale-switcher" aria-label="<?=htmlspecialchars(oneid_translate('login.language_label'), ENT_QUOTES, 'UTF-8')?>">
+          <i class="fa-solid fa-globe" aria-hidden="true"></i>
+          <a class="<?=oneid_current_locale() === 'ms' ? 'is-active' : ''?>" href="?locale=ms" lang="ms" hreflang="ms" title="Bahasa Melayu" aria-label="Bahasa Melayu" aria-current="<?=oneid_current_locale() === 'ms' ? 'true' : 'false'?>">BM</a>
+          <a class="<?=oneid_current_locale() === 'en' ? 'is-active' : ''?>" href="?locale=en" lang="en" hreflang="en" title="English" aria-label="English" aria-current="<?=oneid_current_locale() === 'en' ? 'true' : 'false'?>">EN</a>
+        </nav>
       </div>
+      <?php if (oneid_current_locale() === 'en'): ?>
+        <div class="alert alert-info py-2 px-3 small" role="status">
+          <?=htmlspecialchars(oneid_translate('login.manual_fallback_notice'), ENT_QUOTES, 'UTF-8')?>
+        </div>
+      <?php endif; ?>
 
       <!-- Slider -->
       <div id="carouselExample" class="carousel slide mb-4" data-bs-ride="carousel">
         <div class="carousel-inner rounded">
           <div class="carousel-item active">
-            <img src="assetsM/images/banner6.png" class="w-100 slider-img" alt="Slider">
+            <img src="assetsM/images/banner6.png" class="w-100 slider-img" alt="OneID@UPNM">
           </div>
           <div class="carousel-item">
-            <img src="assetsM/images/banner7.png" class="w-100 slider-img" alt="Slider">
+            <img src="assetsM/images/banner7.png" class="w-100 slider-img" alt="OneID@UPNM">
           </div>
          <!-- <div class="carousel-item">
             <img src="assetsM/images/banner5.png" class="w-100 slider-img" alt="Slider">
@@ -120,10 +140,10 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
 
       <!-- Contact Info -->
       <div class="px-2">
-        <h5 class="txt-heading"><i class="fa-solid fa-bullhorn fa-corporate-red "></i> Hubungi Kami</h5>
+        <h5 class="txt-heading"><i class="fa-solid fa-bullhorn fa-corporate-red "></i> <?=htmlspecialchars(oneid_translate('login.contact.title'), ENT_QUOTES, 'UTF-8')?></h5>
         <hr>
         <div class="row" style="margin-bottom:10px">
-          <div class="col-md-12"><strong>Perkhidmatan Sokongan OneID@UPNM</strong><br><small></small></div>
+          <div class="col-md-12"><strong><?=htmlspecialchars(oneid_translate('login.contact.service'), ENT_QUOTES, 'UTF-8')?></strong><br><small></small></div>
         </div>
         <div class="row" style="margin-bottom:10px">
           <div class="col-md-3">
@@ -134,10 +154,10 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
         <div class="row" style="margin-bottom:10px">
           <div class="col-md-12">
             <i class="fa-solid fa-location-dot fa-corporate-red"></i> 
-            <small>Bahagian Teknologi Maklumat & Komunikasi, Universiti Pertahanan Nasional Malaysia (UPNM)</small>
+            <small><?=htmlspecialchars(oneid_translate('login.contact.department'), ENT_QUOTES, 'UTF-8')?></small>
             <br>
             <i class="fa-solid"></i> 
-            <small>Kem Perdana Sungai Besi, 57000 Kuala Lumpur</small>
+            <small><?=htmlspecialchars(oneid_translate('login.contact.address'), ENT_QUOTES, 'UTF-8')?></small>
           </div>
         </div>
         <div class="row" style="margin-bottom:10px">
@@ -163,51 +183,51 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
                             <div class="modal-content">
                               <div class="modal-header">
                                 <h5 class="modal-title" id="modal_forgot_password_label">
-                                  Lupa Kata Laluan
+                                  <?=htmlspecialchars(oneid_translate('recovery.title'), ENT_QUOTES, 'UTF-8')?>
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                  aria-label="Close"></button>
+                                  aria-label="<?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?>"></button>
                               </div>
                               <form id="form_forgot_password">
                               <div class="modal-body">
                                 <div class="form-wrap">
                                              <div class="form-body overflow-hide">
                                                 <div class="form-group" id="forgot_pwd_body">
-                                                   <label class="form-label" for="forgot_password_id">No. Kad Pengenalan / No. Passport</label>
-                                                   <input type="text" class="form-control" id="forgot_password_id" name="forgot_password_id" placeholder="Masukkan maklumat untuk tetapan semula kata laluan" autocomplete="username" required="">
+                                                   <label class="form-label" for="forgot_password_id"><?=htmlspecialchars(oneid_translate('recovery.identity_label'), ENT_QUOTES, 'UTF-8')?></label>
+                                                   <input type="text" class="form-control" id="forgot_password_id" name="forgot_password_id" placeholder="<?=htmlspecialchars(oneid_translate('recovery.identity_placeholder'), ENT_QUOTES, 'UTF-8')?>" autocomplete="username" required="">
                                                 </div>
                                                 <div id="forgot_pwd_loading_OTP">
                                                   <div class="spinners-container text-center">
                                                     <div class="spinner-grow text-green" role="status">
-                                                      <span class="visually-hidden">Loading...</span>
+                                                      <span class="visually-hidden"><?=htmlspecialchars(oneid_translate('login.loading'), ENT_QUOTES, 'UTF-8')?></span>
                                                     </div>
                                                     <div class="spinner-grow text-red" role="status">
-                                                      <span class="visually-hidden">Loading...</span>
+                                                      <span class="visually-hidden"><?=htmlspecialchars(oneid_translate('login.loading'), ENT_QUOTES, 'UTF-8')?></span>
                                                     </div>
                                                     <div class="spinner-grow text-blue" role="status">
-                                                      <span class="visually-hidden">Loading...</span>
+                                                      <span class="visually-hidden"><?=htmlspecialchars(oneid_translate('login.loading'), ENT_QUOTES, 'UTF-8')?></span>
                                                     </div>
                                                     <div class="spinner-grow text-blue" role="status">
-                                                      <span class="visually-hidden">Loading...</span>
+                                                      <span class="visually-hidden"><?=htmlspecialchars(oneid_translate('login.loading'), ENT_QUOTES, 'UTF-8')?></span>
                                                     </div>
                                                     <div class="spinner-grow text-red" role="status">
-                                                      <span class="visually-hidden">Loading...</span>
+                                                      <span class="visually-hidden"><?=htmlspecialchars(oneid_translate('login.loading'), ENT_QUOTES, 'UTF-8')?></span>
                                                     </div>
                                                     <div class="spinner-grow text-green" role="status">
-                                                      <span class="visually-hidden">Loading...</span>
+                                                      <span class="visually-hidden"><?=htmlspecialchars(oneid_translate('login.loading'), ENT_QUOTES, 'UTF-8')?></span>
                                                     </div>
                                                   </div>
-                                                  <center><p>Sila tunggu sebentar. Permohonan OTP sedang diproses.</p></center>
+                                                  <p class="text-center"><?=htmlspecialchars(oneid_translate('recovery.processing'), ENT_QUOTES, 'UTF-8')?></p>
                                                 </div>
                                              </div>
                                           </div>
                               </div>
                               <div class="modal-footer" id="forgot_pwd_footer">
                                 <button type="button" class="btn btn-dark" data-bs-dismiss="modal">
-                                  Tutup
+                                  <?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?>
                                 </button>
                                 <button type="submit" class="btn btn-info">
-                                  Set Semula
+                                  <?=htmlspecialchars(oneid_translate('recovery.reset'), ENT_QUOTES, 'UTF-8')?>
                                 </button>
                               </div>
                             </form>
@@ -224,7 +244,7 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
                             <div class="modal-content">
                               <div class="modal-header">
                                 <h5 class="modal-title" id="modal_OTP_label">
-                                  One Time Passcode (OTP) 
+                                  <?=htmlspecialchars(oneid_translate('otp.title'), ENT_QUOTES, 'UTF-8')?>
                                 </h5>
                               </div>
                               <form id="form_otp">
@@ -236,25 +256,25 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
                               <div id="otp_modal_loading_OTP">
                                                   <div class="spinners-container text-center">
                                                     <div class="spinner-grow text-green" role="status">
-                                                      <span class="visually-hidden">Loading...</span>
+                                                      <span class="visually-hidden"><?=htmlspecialchars(oneid_translate('login.loading'), ENT_QUOTES, 'UTF-8')?></span>
                                                     </div>
                                                     <div class="spinner-grow text-red" role="status">
-                                                      <span class="visually-hidden">Loading...</span>
+                                                      <span class="visually-hidden"><?=htmlspecialchars(oneid_translate('login.loading'), ENT_QUOTES, 'UTF-8')?></span>
                                                     </div>
                                                     <div class="spinner-grow text-blue" role="status">
-                                                      <span class="visually-hidden">Loading...</span>
+                                                      <span class="visually-hidden"><?=htmlspecialchars(oneid_translate('login.loading'), ENT_QUOTES, 'UTF-8')?></span>
                                                     </div>
                                                     <div class="spinner-grow text-blue" role="status">
-                                                      <span class="visually-hidden">Loading...</span>
+                                                      <span class="visually-hidden"><?=htmlspecialchars(oneid_translate('login.loading'), ENT_QUOTES, 'UTF-8')?></span>
                                                     </div>
                                                     <div class="spinner-grow text-red" role="status">
-                                                      <span class="visually-hidden">Loading...</span>
+                                                      <span class="visually-hidden"><?=htmlspecialchars(oneid_translate('login.loading'), ENT_QUOTES, 'UTF-8')?></span>
                                                     </div>
                                                     <div class="spinner-grow text-green" role="status">
-                                                      <span class="visually-hidden">Loading...</span>
+                                                      <span class="visually-hidden"><?=htmlspecialchars(oneid_translate('login.loading'), ENT_QUOTES, 'UTF-8')?></span>
                                                     </div>
                                                   </div>
-                                <center><p>Sila tunggu sebentar. Permohonan OTP sedang diproses.</p></center>
+                                <p class="text-center"><?=htmlspecialchars(oneid_translate('recovery.processing'), ENT_QUOTES, 'UTF-8')?></p>
                                 
                               </div>
                               <div  id="otp_modal_body">
@@ -265,12 +285,9 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
                                              <div class="form-body overflow-hide" style="display: flex; flex-direction: column; align-items: center;">
                                                   <div class="form-group">
                                                     <div id="otp_inputs">
-                                                      <input type="text" id="otp_digit_1" name="otp_digit_1" maxlength="1" class="otp-input form-control" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" aria-label="Digit OTP 1" required="">
-                                                      <input type="text" id="otp_digit_2" name="otp_digit_2" maxlength="1" class="otp-input form-control" inputmode="numeric" pattern="[0-9]" autocomplete="off" aria-label="Digit OTP 2" required="">
-                                                      <input type="text" id="otp_digit_3" name="otp_digit_3" maxlength="1" class="otp-input form-control" inputmode="numeric" pattern="[0-9]" autocomplete="off" aria-label="Digit OTP 3" required="">
-                                                      <input type="text" id="otp_digit_4" name="otp_digit_4" maxlength="1" class="otp-input form-control" inputmode="numeric" pattern="[0-9]" autocomplete="off" aria-label="Digit OTP 4" required="">
-                                                      <input type="text" id="otp_digit_5" name="otp_digit_5" maxlength="1" class="otp-input form-control" inputmode="numeric" pattern="[0-9]" autocomplete="off" aria-label="Digit OTP 5" required="">
-                                                      <input type="text" id="otp_digit_6" name="otp_digit_6" maxlength="1" class="otp-input form-control" inputmode="numeric" pattern="[0-9]" autocomplete="off" aria-label="Digit OTP 6" required="">
+                                                      <?php for ($otpDigit = 1; $otpDigit <= 6; $otpDigit++): ?>
+                                                      <input type="text" id="otp_digit_<?=$otpDigit?>" name="otp_digit_<?=$otpDigit?>" maxlength="1" class="otp-input form-control" inputmode="numeric" pattern="[0-9]" autocomplete="<?=$otpDigit === 1 ? 'one-time-code' : 'off'?>" aria-label="<?=htmlspecialchars(oneid_translate('otp.digit_label', ['digit' => $otpDigit]), ENT_QUOTES, 'UTF-8')?>" required="">
+                                                      <?php endfor; ?>
                                                     </div>
                                                   </div>
                                                   <div class="form-group">
@@ -289,10 +306,10 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
                               </div>
                               <div class="modal-footer" id="otp_modal_footer">
                                 <button type="button" class="btn btn-dark" data-bs-dismiss="modal">
-                                  Tutup
+                                  <?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?>
                                 </button>
-                                <button type="submit" class="btn btn-info" id="btn_otp_submit">Hantar OTP</button>
-                                <button type="button" class="btn btn-info" id="btn_otp_request" onclick="resend_request_OTP();">Mohon OTP</button>
+                                <button type="submit" class="btn btn-info" id="btn_otp_submit"><?=htmlspecialchars(oneid_translate('otp.submit'), ENT_QUOTES, 'UTF-8')?></button>
+                                <button type="button" class="btn btn-info" id="btn_otp_request" onclick="resend_request_OTP();"><?=htmlspecialchars(oneid_translate('otp.request'), ENT_QUOTES, 'UTF-8')?></button>
                               </div>
                             </form>
                             </div>
@@ -304,24 +321,24 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modal_reset_password_label">Tetapkan Kata Laluan Baharu</h5>
+        <h5 class="modal-title" id="modal_reset_password_label"><?=htmlspecialchars(oneid_translate('password.new_title'), ENT_QUOTES, 'UTF-8')?></h5>
       </div>
       <form id="form_reset_password">
         <div class="modal-body">
           <input type="text" id="reset_password_username" name="username" autocomplete="username" hidden>
           <div class="mb-3">
-            <label class="form-label" for="reset_password_new">Kata Laluan Baharu</label>
+            <label class="form-label" for="reset_password_new"><?=htmlspecialchars(oneid_translate('password.new'), ENT_QUOTES, 'UTF-8')?></label>
             <input type="password" class="form-control" id="reset_password_new" name="reset_password_new" minlength="12" autocomplete="new-password" required>
           </div>
           <div class="mb-3">
-            <label class="form-label" for="reset_password_confirm">Sahkan Kata Laluan Baharu</label>
+            <label class="form-label" for="reset_password_confirm"><?=htmlspecialchars(oneid_translate('password.confirm'), ENT_QUOTES, 'UTF-8')?></label>
             <input type="password" class="form-control" id="reset_password_confirm" name="reset_password_confirm" minlength="12" autocomplete="new-password" required>
           </div>
-          <small>Minimum 12 aksara serta mengandungi huruf besar, huruf kecil, nombor dan simbol.</small>
+          <small><?=htmlspecialchars(oneid_translate('password.rule'), ENT_QUOTES, 'UTF-8')?></small>
           <div id="reset_password_message" class="mt-3"></div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-info">Simpan Kata Laluan</button>
+          <button type="submit" class="btn btn-info"><?=htmlspecialchars(oneid_translate('password.save'), ENT_QUOTES, 'UTF-8')?></button>
         </div>
       </form>
     </div>
@@ -332,130 +349,16 @@ require_once __DIR__ . '/lib/SSO_IDP_INC.php';
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="faqModalLabel">Soalan Lazim</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        <h5 class="modal-title" id="faqModalLabel"><?=htmlspecialchars(oneid_translate('faq.title'), ENT_QUOTES, 'UTF-8')?></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?>"></button>
       </div>
       <div class="modal-body">
 
-         <div class="accordion" id="faqAccordion">
-
-  <!-- FAQ 1 -->
-  <div class="accordion-item">
-    <h2 class="accordion-header" id="heading1">
-      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
-        Apakah OneID@UPNM?
-      </button>
-    </h2>
-    <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-      <div class="accordion-body">
-        OneID@UPNM ialah satu platform Single Sign-On (SSO) yang memudahkan pengguna mengakses pelbagai sistem dengan satu log masuk sahaja. Sistem atau aplikasi yang belum diintegrasikan akan disediakan dalam bentuk pautan agar tetap boleh diakses melalui OneID@UPNM.
-      </div>
-    </div>
-  </div>
-
-  <!-- FAQ 2 -->
-  <div class="accordion-item">
-    <h2 class="accordion-header" id="heading2">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
-        Siapakah yang boleh menggunakan OneID@UPNM ini?
-      </button>
-    </h2>
-    <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-      <div class="accordion-body">
-        Semua warga UPNM – iaitu staf yang berdaftar dalam Sistem Maklumat Staf dan pelajar yang berdaftar dalam Sistem Maklumat Pelajar.
-      </div>
-    </div>
-  </div>
-
-  <!-- FAQ 3 -->
-  <div class="accordion-item">
-    <h2 class="accordion-header" id="heading3">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
-        Bagaimanakah cara untuk log masuk ke OneID@UPNM?
-      </button>
-    </h2>
-    <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-      <div class="accordion-body">
-        Log masuk nombor staf (format sebenar) atau nombor pelajar sebagai ID pengguna, dan nombor kad pengenalan (tanpa sengkang) sebagai kata laluan awal. Selepas log masuk pertama, anda perlu menukar kata laluan mengikut piawaian keselamatan.
-      </div>
-    </div>
-  </div>
-
-  <!-- FAQ 4 -->
-  <div class="accordion-item">
-    <h2 class="accordion-header" id="heading4">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4">
-        Adakah sistem ini selamat?
-      </button>
-    </h2>
-    <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-      <div class="accordion-body">
-        Ya. OneID@UPNM dibangunkan dengan piawaian keselamatan terkini, termasuk penggunaan token API untuk pengesahan, ciri log keluar automatik (session timeout) bagi mengelakkan akses tanpa kebenaran, serta pengesahan akaun OneID melalui emel rasmi UPNM untuk memastikan identiti pengguna yang sah.
-      </div>
-    </div>
-  </div>
-
-  <!-- FAQ 5 -->
-  <div class="accordion-item">
-    <h2 class="accordion-header" id="heading5">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5">
-        Bolehkah saya log masuk di lebih dari satu peranti pada masa yang sama?
-      </button>
-    </h2>
-    <div id="collapse5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-      <div class="accordion-body">
-        Ya, anda boleh log masuk pada beberapa peranti dalam masa yang sama. Namun, demi keselamatan data, log keluar (logout) dari peranti yang tidak digunakan amat digalakkan.
-      </div>
-    </div>
-  </div>
-
-  <!-- FAQ 6 -->
-  <div class="accordion-item">
-    <h2 class="accordion-header" id="heading6">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6">
-        Jika saya keluar/log out dari satu aplikasi, adakah saya akan log out dari semua?
-      </button>
-    </h2>
-    <div id="collapse6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-      <div class="accordion-body">
-        Tidak. Log keluar dari satu aplikasi hanya akan menamatkan sesi untuk aplikasi tersebut sahaja. Aplikasi lain yang anda akses melalui OneID masih kekal aktif.
-      </div>
-    </div>
-  </div>
-
-  <!-- FAQ 7 -->
-  <div class="accordion-item">
-    <h2 class="accordion-header" id="heading7">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse7">
-        Apa yang perlu saya buat jika terlupa kata laluan?
-      </button>
-    </h2>
-    <div id="collapse7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-      <div class="accordion-body">
-        Jika anda terlupa kata laluan, klik butang “Forgot Password” di laman utama OneID@UPNM. Sistem akan menghantar kod OTP ke e-mel rasmi UPNM anda. Selepas anda masukkan kod tersebut, sistem akan membawa anda ke halaman untuk menetapkan semula kata laluan baharu sebelum boleh teruskan akses ke sistem.
-      </div>
-    </div>
-  </div>
-
-  <!-- FAQ 8 -->
-  <div class="accordion-item">
-    <h2 class="accordion-header" id="heading8">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse8">
-        Apa syarat kata laluan yang dibenarkan?
-      </button>
-    </h2>
-    <div id="collapse8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-      <div class="accordion-body">
-        Kata laluan mestilah minimum 12 aksara, mengandungi kombinasi huruf besar dan huruf kecil, nombor, serta simbol khas.
-      </div>
-    </div>
-  </div>
-
-</div>
+         <?=oneid_render_login_faq()?>
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Tutup</button>
+        <button type="button" class="btn btn-dark" data-bs-dismiss="modal"><?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?></button>
       </div>
     </div>
   </div>
@@ -494,7 +397,7 @@ function showLoginInlineError(message) {
       '<i class="zmdi zmdi-block pr-15 pull-left"></i>' +
       '<p class="pull-left"></p><div class="clearfix"></div>' +
     '</div>'
-  ).find('p').text(message || 'Log masuk tidak berjaya.');
+  ).find('p').text(message || pilotI18n.loginFailed);
 }
 
 // ===== Client-side login limiter (cookie-based) =====
@@ -524,7 +427,7 @@ window.LoginLimiter = (function () {
 
   function lockUI(remainSec){
     $btn.prop('disabled', true);
-    $msg.html('<div class="alert alert-warning p-2 m-0">Terlalu banyak cubaan. Akaun anda telah dikunci. Sila log masuk semula selepas 2 minit.</div>');
+    $msg.html('<div class="alert alert-warning p-2 m-0"></div>').find('.alert').text(pilotI18n.loginLocked);
   }
   function clearUI(){ $btn.prop('disabled', false); $msg.empty(); }
 
@@ -549,7 +452,9 @@ window.LoginLimiter = (function () {
 
     var left = Math.max(THRESHOLD - rec.count, 0);
     if (left > 0) {
-      $msg.html('<div class="alert alert-danger p-2 m-0">ID/Kata laluan salah. Baki percubaan: '+left+'.</div>');
+      $msg.html('<div class="alert alert-danger p-2 m-0"></div>').find('.alert').text(
+        pilotI18n.loginRemainingAttempts.replace('{count}', left)
+      );
     }
     if (rec.count >= THRESHOLD && now < rec.until && !rec.blocked) {
       rec.blocked = true; // de-dupe
@@ -570,6 +475,29 @@ window.LoginLimiter = (function () {
 </script>
  
  <script>
+const pilotI18n = <?=json_encode([
+  'loginRequiredUser' => oneid_translate('login.required_user'),
+  'loginRequiredPassword' => oneid_translate('login.required_password'),
+  'loginProcessing' => oneid_translate('login.processing'),
+  'loginInvalid' => oneid_translate('login.invalid'),
+  'loginSuccess' => oneid_translate('login.success'),
+  'loginTimeout' => oneid_translate('login.timeout'),
+  'loginServerError' => oneid_translate('login.server_error'),
+  'loginFailed' => oneid_translate('login.failed'),
+  'loginLocked' => oneid_translate('login.locked'),
+  'loginRemainingAttempts' => oneid_translate('login.remaining_attempts', ['count' => '{count}']),
+  'requestAccepted' => oneid_translate('recovery.request_accepted'),
+  'requestRejected' => oneid_translate('recovery.request_rejected'),
+  'requestInterrupted' => oneid_translate('recovery.request_interrupted'),
+  'recoveryTimeout' => oneid_translate('recovery.timeout'),
+  'recoveryServerError' => oneid_translate('recovery.server_error'),
+  'otpExpires' => oneid_translate('otp.expires', ['seconds' => '{seconds}']),
+  'otpExpired' => oneid_translate('otp.expired'),
+  'otpIncomplete' => oneid_translate('otp.incomplete'),
+  'otpReady' => oneid_translate('otp.ready'),
+  'passwordResetFailed' => oneid_translate('password.reset_failed'),
+  'reference' => oneid_translate('common.reference'),
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
    $(function(){
   LoginLimiter.check($('#username').val());
   $('#username').on('input', function(){ LoginLimiter.check(this.value); });
@@ -587,11 +515,11 @@ $loginform.on('submit', function(ev){
     // === NEW: abort if currently locked ===
     if (LoginLimiter.check(username) || $loginform.data('submitting')) return;
     if (!String(username || '').trim()) {
-      showLoginInlineError('Sila masukkan ID Pengguna.');
+      showLoginInlineError(pilotI18n.loginRequiredUser);
       return;
     }
     if (!String(password || '')) {
-      showLoginInlineError('Sila masukkan Kata Laluan.');
+      showLoginInlineError(pilotI18n.loginRequiredPassword);
       return;
     }
 
@@ -605,24 +533,24 @@ $loginform.on('submit', function(ev){
                 data: data,
                 beforeSend: function(){
                   $loginform.data('submitting', true).find(':submit').prop('disabled', true);
-                  $('#login_status').html('<div class="alert alert-info alert-dismissable alert-style-1">Log masuk sedang diproses. Sila tunggu sebentar.</div>');
+                  $('#login_status').html('<div class="alert alert-info alert-dismissable alert-style-1"></div>').find('.alert').text(pilotI18n.loginProcessing);
                 },
                 success: function (response) {
                     if (response['login_status'] == 0){
                       // === NEW: count a failure ===
                       LoginLimiter.onFailure(username);
-                        showLoginInlineError(response['login_response_msg'] || 'ID Pengguna atau Kata Laluan tidak sah.');
+                        showLoginInlineError(response['login_response_msg'] || pilotI18n.loginInvalid);
 
                     }else{
                         // === NEW: clear counter on success ===
                         LoginLimiter.onSuccess(username);
-                        $('#login_status').html('<div class="alert alert-success alert-dismissable"><i class="zmdi zmdi-check pr-15 pull-left"></i><p class="pull-left">Log masuk berjaya.</p><div class="clearfix"></div></div>');
+                        $('#login_status').html('<div class="alert alert-success alert-dismissable"><i class="zmdi zmdi-check pr-15 pull-left"></i><p class="pull-left"></p><div class="clearfix"></div></div>').find('p').text(pilotI18n.loginSuccess);
                         window.location.href = response['redirect_uri'];
                     }
 
             },
             error: function (xhr, error, thrown) {
-                showLoginInlineError(error === 'timeout' ? 'Permintaan log masuk tamat tempoh. Cuba semula.' : 'Respons pelayan tidak dapat diterima.');
+                showLoginInlineError(error === 'timeout' ? pilotI18n.loginTimeout : pilotI18n.loginServerError);
             },
             complete: function(){
                 $loginform.data('submitting', false).find(':submit').prop('disabled', false);
@@ -649,7 +577,7 @@ function open_forgot_password(){
          var form_forgot_password = $('#form_forgot_password');
          var recoveryRequestInFlight = false;
          function recoveryReference(response){
-           return response && response.correlation_id ? '\nReference: ' + response.correlation_id : '';
+           return response && response.correlation_id ? '\n' + pilotI18n.reference + ': ' + response.correlation_id : '';
          }
          function finishRecoveryLoading(){
            recoveryRequestInFlight = false;
@@ -682,13 +610,13 @@ function open_forgot_password(){
                               setTimeout(function() {
                     $('#modal_OTP').modal('show');
                 }, 500);
-                    oneidPublicAlert('Permintaan diterima', response['msg'] + recoveryReference(response), 'success');
+                    oneidPublicAlert(pilotI18n.requestAccepted, response['msg'] + recoveryReference(response), 'success');
                      OTP_startCountdown();
                      $("#btn_otp_request").hide();
                      $("#btn_otp_submit").show();
                 }else{                 
                 // alert();       
-                     oneidPublicAlert('Permintaan tidak dapat diproses', response['msg'] + recoveryReference(response), 'error');
+                     oneidPublicAlert(pilotI18n.requestRejected, response['msg'] + recoveryReference(response), 'error');
                              }
                 
             $('#forgot_pwd_body').show();
@@ -699,7 +627,7 @@ function open_forgot_password(){
             $('#otp_modal_loading_OTP').hide();
                      },
                      error: function (xhr, error, thrown) {
-                       oneidPublicAlert('Permintaan tergendala', error === 'timeout' ? 'Penghantaran mengambil masa terlalu lama. Status kejayaan tidak diandaikan.' : 'Respons pelayan tidak dapat diterima. Status kejayaan tidak diandaikan.', 'error');
+                       oneidPublicAlert(pilotI18n.requestInterrupted, error === 'timeout' ? pilotI18n.recoveryTimeout : pilotI18n.recoveryServerError, 'error');
                      },
                      complete: finishRecoveryLoading
                  });
@@ -714,12 +642,12 @@ function open_forgot_password(){
         var now = new Date().getTime();
         var remaining = Math.max(0, Math.floor((otpEndTime - now) / 1000));
 
-        $('#countdown_OTP').text("OTP Expires in " + remaining + " Second");
+        $('#countdown_OTP').text(pilotI18n.otpExpires.replace('{seconds}', remaining));
 
         if (remaining <= 0) {
             clearInterval(countdownTimer);
             countdownTimer = null;
-            $('#countdown_OTP').text("OTP had expired. Please request another OTP.");
+            $('#countdown_OTP').text(pilotI18n.otpExpired);
             $("#btn_otp_request").show();
             $("#btn_otp_submit").hide();
             OTP_resetCountdown();
@@ -772,14 +700,14 @@ function open_forgot_password(){
                               setTimeout(function() {
                     $('#modal_OTP').modal('show');
                 }, 500);
-                    oneidPublicAlert('Permintaan diterima', response['msg'] + recoveryReference(response), 'success');
+                    oneidPublicAlert(pilotI18n.requestAccepted, response['msg'] + recoveryReference(response), 'success');
                      OTP_startCountdown();
                      $("#btn_otp_request").hide();
                      $("#btn_otp_submit").show();
                  
                 }else{                 
                 // alert();       
-                     oneidPublicAlert('Permintaan tidak dapat diproses', response['msg'] + recoveryReference(response), 'error');
+                     oneidPublicAlert(pilotI18n.requestRejected, response['msg'] + recoveryReference(response), 'error');
                              }
 
               $('#otp_modal_body').show();
@@ -788,7 +716,7 @@ function open_forgot_password(){
          
                      },
                      error: function (xhr, error, thrown) {
-                       oneidPublicAlert('Permintaan tergendala', error === 'timeout' ? 'Penghantaran mengambil masa terlalu lama. Status kejayaan tidak diandaikan.' : 'Respons pelayan tidak dapat diterima. Status kejayaan tidak diandaikan.', 'error');
+                       oneidPublicAlert(pilotI18n.requestInterrupted, error === 'timeout' ? pilotI18n.recoveryTimeout : pilotI18n.recoveryServerError, 'error');
                      },
                      complete: finishRecoveryLoading
                  });
@@ -805,10 +733,10 @@ function open_forgot_password(){
         });
 
         if (otp.length < 6) {
-          $('#otp_message').css('color', 'red').text('Please complete all 6 digits.');
+          $('#otp_message').css('color', 'red').text(pilotI18n.otpIncomplete);
           return;
         } else {
-          $('#otp_message').css('color', 'green').text('OTP lengkap dan sedia untuk dihantar.');
+          $('#otp_message').css('color', 'green').text(pilotI18n.otpReady);
         }
 
              var data = $('#form_otp').serializeArray();
@@ -867,7 +795,7 @@ function open_forgot_password(){
           }
         },
         error: function(xhr){
-          var message = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : 'Unable to reset password.';
+          var message = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : pilotI18n.passwordResetFailed;
           $('#reset_password_message').removeClass('text-success').addClass('text-danger').text(message);
         }
       });
@@ -1035,8 +963,70 @@ $('#otp_inputs').on('paste', function(e) {
     border-right: 0;
   }
 
-  /* 🔸 Responsive tweaks */
-  @media (max-width: 767.98px) {
+  .login-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    min-height: 51px;
+  }
+
+  .login-topbar-links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    min-width: 0;
+  }
+
+  .login-locale-switcher {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid #d7e0e8;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, .82);
+    box-shadow: 0 2px 8px rgba(42, 63, 84, .06);
+  }
+
+  .login-locale-switcher > i {
+    margin: 0 4px 0 6px;
+    color: #6d7d8c;
+    font-size: 11px;
+  }
+
+  .login-locale-switcher a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 27px;
+    padding: 0 8px;
+    border-radius: 15px;
+    color: #657483;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+    transition: color .18s ease, background .18s ease, box-shadow .18s ease;
+  }
+
+  .login-locale-switcher a:hover,
+  .login-locale-switcher a:focus-visible {
+    color: #007fb5;
+    background: #eef8fc;
+    outline: none;
+  }
+
+  .login-locale-switcher a.is-active {
+    color: #fff;
+    background: #078fca;
+    box-shadow: 0 2px 6px rgba(7, 143, 202, .25);
+  }
+
+	  /* 🔸 Responsive tweaks */
+	  @media (max-width: 767.98px) {
     .row > .col-md-6 {
       width: 100%;
       max-width: 100%;
@@ -1076,10 +1066,28 @@ $('#otp_inputs').on('paste', function(e) {
       text-align: center;
     }
 
-    .bg-warning.text-dark img {
-      margin-bottom: 0.5rem;
-    }
-  }
+	    .bg-warning.text-dark img {
+	      margin-bottom: 0.5rem;
+	    }
+
+      .login-topbar {
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .login-topbar-links {
+        flex-wrap: wrap;
+        gap: 8px 16px;
+      }
+
+      .login-topbar-links .menu_link {
+        white-space: nowrap;
+      }
+
+      .login-locale-switcher {
+        margin-left: auto;
+      }
+	  }
 
 #loginform input.login-form-control {
     background-color: #ffffff !important;   /* white background */

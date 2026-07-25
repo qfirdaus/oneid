@@ -25,13 +25,16 @@ final class AdminStepUpPhpMailerSender implements AdminStepUpEmailSenderInterfac
             return false;
         }
 
+        $locale = \oneid_current_locale();
         $body = \OneId\App\Mail\OneIdEmailTemplate::otp(
             $displayName,
-            'Administrator Security',
-            'PENGESAHAN 2FA',
-            'Sahkan akses Administrator',
-            'Kami menerima permintaan untuk mengakses fungsi keselamatan Administrator OneID. Gunakan kod pengesahan berikut:',
-            $otp
+            \oneid_translate('email.admin.context'),
+            \oneid_translate('email.admin.badge'),
+            \oneid_translate('email.admin.headline'),
+            \oneid_translate('email.admin.intro'),
+            $otp,
+            null,
+            $locale
         );
 
         try {
@@ -52,11 +55,12 @@ final class AdminStepUpPhpMailerSender implements AdminStepUpEmailSenderInterfac
                 (string) \oneid_config('ONEID_SMTP_FROM_NAME')
             );
             $mail->addAddress($email, $displayName);
-            $mail->Subject = 'Kod Pengesahan Administrator OneID@UPNM';
+            $mail->Subject = \oneid_translate('email.admin.subject');
             $mail->msgHTML($body);
             $mail->AltBody = \OneId\App\Mail\OneIdEmailTemplate::otpPlainText(
-                'Kod pengesahan akses Administrator OneID anda',
-                $otp
+                \oneid_translate('email.admin.headline'),
+                $otp,
+                $locale
             );
             return (bool) $mail->send();
         } catch (Throwable) {

@@ -147,6 +147,7 @@ class Database {
         $R = $this->pdo->prepare($Q);      
         $R->execute();
         $result = $R->fetch(PDO::FETCH_ASSOC);
+        try{$locale=$this->pdo->query("SELECT default_locale FROM sys_config WHERE singleton_key=1")->fetchColumn();$result['default_locale']=$locale;}catch(\Throwable $exception){$result['default_locale']=null;}
         return $result;
     }
 
@@ -154,7 +155,7 @@ class Database {
         $Q = "SELECT id, configuration_version, token_timeout, multi_session, password_reset_email_enabled, admin_2fa_enabled, admin_step_up_lifetime_minutes FROM sys_config WHERE singleton_key = 1 FOR UPDATE";
         $R = $this->pdo->prepare($Q);
         $R->execute();
-        return $R->fetch(PDO::FETCH_ASSOC);
+        $result=$R->fetch(PDO::FETCH_ASSOC);try{$locale=$this->pdo->query("SELECT default_locale FROM sys_config WHERE singleton_key=1 FOR UPDATE")->fetchColumn();$result['default_locale']=$locale;}catch(\Throwable $exception){$result['default_locale']=null;}return $result;
     }
 
     public function update_configuration_by_id($configId,$token_timeout,$multi_session,$expectedVersion){
@@ -166,6 +167,11 @@ class Database {
         $R->bindParam(':expected_version', $expectedVersion, PDO::PARAM_INT);
         $R->execute();
         return $R->rowCount();
+    }
+
+    public function update_default_locale_by_version($configId,$locale,$expectedVersion){
+        $Q="UPDATE sys_config SET default_locale=:locale,configuration_version=configuration_version+1 WHERE id=:config_id AND singleton_key=1 AND configuration_version=:expected_version";
+        $R=$this->pdo->prepare($Q);$R->execute([':locale'=>$locale,':config_id'=>$configId,':expected_version'=>$expectedVersion]);return $R->rowCount();
     }
 
     public function configuration_history_record(array $entry){

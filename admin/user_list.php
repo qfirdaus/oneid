@@ -11,7 +11,7 @@ oneid_require_admin_step_up($operation, 'ADMIN_ACCESS', false);
 $categoryId = filter_input(INPUT_GET, 'category_id', FILTER_VALIDATE_INT);
 if ($categoryId === false || $categoryId === null) {
     http_response_code(400);
-    exit('Invalid category');
+    exit(oneid_translate('admin.user_list.invalid_category'));
 }
 $categoryName = htmlspecialchars((string) ($_GET['category_name'] ?? ''), ENT_QUOTES, 'UTF-8');
 $userlist = $operation->admin_get_specific_category_user_listing($categoryId);
@@ -23,7 +23,7 @@ $userlist = $operation->admin_get_specific_category_user_listing($categoryId);
 // echo json_encode($get_move_info);
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="<?=htmlspecialchars(oneid_current_locale(), ENT_QUOTES, 'UTF-8')?>">
 <head>
 
     <meta charset="utf-8">
@@ -54,14 +54,14 @@ $userlist = $operation->admin_get_specific_category_user_listing($categoryId);
 
 
                             <center>                            
-                                <p><b>Category : <?php echo $categoryName; ?></b></p>
-                                <p><b>User List</b></p> 
+                                <p><b><?=htmlspecialchars(oneid_translate('admin.user_list.category'), ENT_QUOTES, 'UTF-8')?> : <?php echo $categoryName; ?></b></p>
+                                <p><b><?=htmlspecialchars(oneid_translate('admin.user_list.title'), ENT_QUOTES, 'UTF-8')?></b></p>
                             </center>                                    
                         </div>
                     </div>
                     <hr  style="border: 0.5px solid #000;" />
                     <div style="position:relative;top: -20px;">
-                    <h6>Report generated on <?php $dates = new DateTime();
+                    <h6><?=htmlspecialchars(oneid_translate('admin.user_list.generated'), ENT_QUOTES, 'UTF-8')?> <?php $dates = new DateTime();
                                 echo $dates->format( 'Y.m.d' );?></h6>
                     </div>
 
@@ -74,15 +74,15 @@ $userlist = $operation->admin_get_specific_category_user_listing($categoryId);
                             <tr style="height: 15px;"/>
                             <tr>
                                 <td align="left"><b>#</b></td>
-                                <td align="left"><b>ID</b></td>
-                                <td align="left"><b>Name</b></td>
-                                <td align='left'><b>Description</b></td>
+                                <td align="left"><b><?=htmlspecialchars(oneid_translate('admin.user_list.id'), ENT_QUOTES, 'UTF-8')?></b></td>
+                                <td align="left"><b><?=htmlspecialchars(oneid_translate('admin.user_list.name'), ENT_QUOTES, 'UTF-8')?></b></td>
+                                <td align='left'><b><?=htmlspecialchars(oneid_translate('admin.user_list.description'), ENT_QUOTES, 'UTF-8')?></b></td>
                             </tr>
                             <tr style="height: 15px;"/>  
                             <?php if(count($userlist) == 0) { ?>
                                 
                                 <tr style="border-bottom: dotted 1px black;">
-                                    <td align="left" colspan="3">No data yet</td>
+                                    <td align="left" colspan="3"><?=htmlspecialchars(oneid_translate('admin.user_list.empty'), ENT_QUOTES, 'UTF-8')?></td>
                                 </tr>
                                 
                             <?php }else{  $count = 1; ?>

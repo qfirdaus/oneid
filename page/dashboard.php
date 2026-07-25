@@ -4,18 +4,27 @@
    require_once __DIR__ . '/../lib/config.php';
    require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
    require_once __DIR__ . '/../lib/request_security.php';
+   require_once __DIR__ . '/../lib/shared_faq.php';
    oneid_require_authenticated_page();
    oneid_require_active_sso_page($operation);
+   if (isset($_GET['locale'])) {
+      if (oneid_set_session_locale((string) $_GET['locale'])) {
+         oneid_set_guest_locale_cookie((string) $_GET['locale']);
+         oneid_promote_authenticated_locale((string) $_SESSION['login_user']);
+      }
+      header('Location: ' . APP_URL . '/page/dashboard', true, 303);
+      exit;
+   }
    $user_info = $operation->admin_search_user_account($_SESSION['login_user']);
    // echo "Xxxxx" . $_SESSION['user'];
     // echo json_encode($user_info);
    ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?=htmlspecialchars(oneid_current_locale(), ENT_QUOTES, 'UTF-8')?>">
    <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-      <title>ONEID@UPNM - Gerbang Tunggal ke Sistem Digital UPNM</title>
+      <title><?=htmlspecialchars(oneid_translate('dashboard.title'), ENT_QUOTES, 'UTF-8')?></title>
       <!-- Favicon -->
       <link rel="shortcut icon" href="favicon.ico">
       <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -27,6 +36,7 @@
       <link href="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css">
       <!-- Custom CSS -->
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
 
       <style>
       /* Keep navbar on top */
@@ -79,11 +89,10 @@
 .admin-entry-loader-shield{width:58px;height:66px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:25px;background:linear-gradient(145deg,#174d91,#2f82d0);clip-path:polygon(50% 0,94% 17%,88% 72%,50% 100%,12% 72%,6% 17%)}
 .admin-entry-loader-ring{width:42px;height:42px;margin:0 auto 18px;border:4px solid #dce8f5;border-top-color:#256bb2;border-radius:50%;animation:admin-entry-spin .75s linear infinite}.admin-entry-loader-title{margin:0 0 7px;color:#172b4d;font-size:18px;font-weight:700}.admin-entry-loader-text{margin:0;color:#64748b;font-size:14px}@keyframes admin-entry-spin{to{transform:rotate(360deg)}}
 
-
       </style>
    </head>
    <body>
-      <div id="adminEntryLoader" class="admin-entry-loader" role="status" aria-live="polite" aria-hidden="true"><div class="admin-entry-loader-card"><div class="admin-entry-loader-shield"><i class="fa fa-lock"></i></div><div class="admin-entry-loader-ring"></div><p class="admin-entry-loader-title">Menyemak akses Administrator</p><p class="admin-entry-loader-text">Sila tunggu sementara OneID mengesahkan sesi keselamatan anda.</p></div></div>
+      <div id="adminEntryLoader" class="admin-entry-loader" role="status" aria-live="polite" aria-hidden="true"><div class="admin-entry-loader-card"><div class="admin-entry-loader-shield"><i class="fa fa-lock"></i></div><div class="admin-entry-loader-ring"></div><p class="admin-entry-loader-title"><?=htmlspecialchars(oneid_translate('dashboard.admin_check_title'), ENT_QUOTES, 'UTF-8')?></p><p class="admin-entry-loader-text"><?=htmlspecialchars(oneid_translate('dashboard.admin_check_text'), ENT_QUOTES, 'UTF-8')?></p></div></div>
       <!--Preloader-->
       <div class="preloader-it">
          <div class="la-anim-1"></div>
@@ -98,7 +107,7 @@
                                     <div class="modal-content">
                                        <div class="modal-body">
                                           <div class="alert alert-info alert-style-1">
-                                             <i class="zmdi zmdi-info-outline"></i>Selamat Datang ke Portal OneID@UPNM. Sila tukar kata laluan baharu yang lebih selamat.
+                                             <i class="zmdi zmdi-info-outline"></i><?=htmlspecialchars(oneid_translate('dashboard.first_password_notice'), ENT_QUOTES, 'UTF-8')?>
                                           </div>
                                           <h5 class="modal-title"></h5>
                                        </div>
@@ -115,168 +124,16 @@
     <div class="modal-content">
 
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
-        <h5 class="modal-title" id="faqModalLabel">Soalan Lazim (FAQ) — OneID@UPNM</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="<?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?>">×</button>
+        <h5 class="modal-title" id="faqModalLabel"><?=htmlspecialchars(oneid_translate('faq.title'), ENT_QUOTES, 'UTF-8')?> — OneID@UPNM</h5>
       </div>
 
       <div class="modal-body modal-body-scroll">
-        <!-- Accordion (Bootstrap 3 panel-group) -->
-        <div class="panel-group" id="faqAccordion" role="tablist" aria-multiselectable="false">
-
-          <!-- FAQ 1 -->
-          <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="faq_h1">
-              <h6 class="panel-title">
-                <a role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faq_c1"
-                   aria-expanded="true" aria-controls="faq_c1">
-                  Apakah OneID@UPNM?
-                </a>
-              </h6>
-            </div>
-            <div id="faq_c1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="faq_h1">
-              <div class="panel-body">
-                OneID@UPNM ialah satu platform Single Sign-On (SSO) yang memudahkan pengguna mengakses pelbagai sistem
-                dengan satu log masuk sahaja. Sistem atau aplikasi yang belum diintegrasikan akan disediakan dalam bentuk
-                pautan agar tetap boleh diakses melalui OneID@UPNM.
-              </div>
-            </div>
-          </div>
-
-          <!-- FAQ 2 -->
-          <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="faq_h2">
-              <h6 class="panel-title">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faq_c2"
-                   aria-expanded="false" aria-controls="faq_c2">
-                  Siapakah yang boleh menggunakan OneID@UPNM ini?
-                </a>
-              </h6>
-            </div>
-            <div id="faq_c2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq_h2">
-              <div class="panel-body">
-                Semua warga UPNM – iaitu staf yang berdaftar dalam Sistem Maklumat Staf dan pelajar yang berdaftar dalam
-                Sistem Maklumat Pelajar.
-              </div>
-            </div>
-          </div>
-
-          <!-- FAQ 3 -->
-          <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="faq_h3">
-              <h6 class="panel-title">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faq_c3"
-                   aria-expanded="false" aria-controls="faq_c3">
-                  Bagaimanakah cara untuk log masuk ke OneID@UPNM?
-                </a>
-              </h6>
-            </div>
-            <div id="faq_c3" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq_h3">
-              <div class="panel-body">
-                Log masuk nombor staf (format sebenar) atau nombor pelajar sebagai ID pengguna, dan nombor kad
-                pengenalan (tanpa sengkang) sebagai kata laluan awal. Selepas log masuk pertama, anda perlu menukar
-                kata laluan mengikut piawaian keselamatan.
-              </div>
-            </div>
-          </div>
-
-          <!-- FAQ 4 -->
-          <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="faq_h4">
-              <h6 class="panel-title">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faq_c4"
-                   aria-expanded="false" aria-controls="faq_c4">
-                  Adakah sistem ini selamat?
-                </a>
-              </h6>
-            </div>
-            <div id="faq_c4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq_h4">
-              <div class="panel-body">
-                Ya. OneID@UPNM dibangunkan dengan piawaian keselamatan terkini, termasuk penggunaan token API untuk
-                pengesahan, ciri log keluar automatik (session timeout) bagi mengelakkan akses tanpa kebenaran, serta
-                pengesahan akaun OneID melalui emel rasmi UPNM untuk memastikan identiti pengguna yang sah.
-              </div>
-            </div>
-          </div>
-
-          <!-- FAQ 5 -->
-          <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="faq_h5">
-              <h6 class="panel-title">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faq_c5"
-                   aria-expanded="false" aria-controls="faq_c5">
-                  Bolehkah saya log masuk di lebih dari satu peranti pada masa yang sama?
-                </a>
-              </h6>
-            </div>
-            <div id="faq_c5" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq_h5">
-              <div class="panel-body">
-                Ya, anda boleh log masuk pada beberapa peranti dalam masa yang sama. Namun, demi keselamatan data, log
-                keluar (logout) dari peranti yang tidak digunakan amat digalakkan.
-              </div>
-            </div>
-          </div>
-
-          <!-- FAQ 6 -->
-          <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="faq_h6">
-              <h6 class="panel-title">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faq_c6"
-                   aria-expanded="false" aria-controls="faq_c6">
-                  Jika saya keluar/log out dari satu aplikasi, adakah saya akan log out dari semua?
-                </a>
-              </h6>
-            </div>
-            <div id="faq_c6" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq_h6">
-              <div class="panel-body">
-                Tidak. Log keluar dari satu aplikasi hanya akan menamatkan sesi untuk aplikasi tersebut sahaja. Aplikasi
-                lain yang anda akses melalui OneID masih kekal aktif.
-              </div>
-            </div>
-          </div>
-
-          <!-- FAQ 7 -->
-          <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="faq_h7">
-              <h6 class="panel-title">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faq_c7"
-                   aria-expanded="false" aria-controls="faq_c7">
-                  Apa yang perlu saya buat jika terlupa kata laluan?
-                </a>
-              </h6>
-            </div>
-            <div id="faq_c7" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq_h7">
-              <div class="panel-body">
-                Jika anda terlupa kata laluan, klik butang “Forgot Password” di laman utama OneID@UPNM. Sistem akan
-                menghantar kod OTP ke e-mel rasmi UPNM anda. Selepas anda masukkan kod tersebut, sistem akan membawa
-                anda ke halaman untuk menetapkan semula kata laluan baharu sebelum boleh teruskan akses ke sistem.
-              </div>
-            </div>
-          </div>
-
-          <!-- FAQ 8 -->
-          <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="faq_h8">
-              <h6 class="panel-title">
-                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#faqAccordion" href="#faq_c8"
-                   aria-expanded="false" aria-controls="faq_c8">
-                  Apa syarat kata laluan yang dibenarkan?
-                </a>
-              </h6>
-            </div>
-            <div id="faq_c8" class="panel-collapse collapse" role="tabpanel" aria-labelledby="faq_h8">
-              <div class="panel-body">
-                Kata laluan mestilah minimum 12 aksara, mengandungi kombinasi huruf besar dan huruf kecil, nombor, serta
-                simbol khas.
-              </div>
-            </div>
-          </div>
-
-        </div>
-        <!-- /Accordion -->
+        <?=oneid_render_dashboard_faq()?>
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-info" data-dismiss="modal">Tutup</button>
+        <button type="button" class="btn btn-info" data-dismiss="modal"><?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?></button>
       </div>
 
     </div>
@@ -296,7 +153,7 @@
                <div class="modal-content">
                   <div class="modal-header">
                     <!-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> -->
-                     <h5 class="modal-title" id="aria_modal_change_password">Tukar Kata Laluan</h5>
+                     <h5 class="modal-title" id="aria_modal_change_password"><?=htmlspecialchars(oneid_translate('dashboard.password.title'), ENT_QUOTES, 'UTF-8')?></h5>
                   </div>
                   <form id="form_change_password">
                      <div class="modal-body">
@@ -310,29 +167,29 @@
                                           <div class="form-wrap">
                                              <div class="form-body overflow-hide">
                                                 <div class="form-group">
-                                                   <label class="control-label mb-10" for="change_password_current"><span id="default_pwd_text">Kata Laluan Semasa</span></label>
+                                                   <label class="control-label mb-10" for="change_password_current"><span id="default_pwd_text"><?=htmlspecialchars(oneid_translate('dashboard.password.current'), ENT_QUOTES, 'UTF-8')?></span></label>
                                                    <input type="password" class="form-control" id="change_password_current" name="change_password_current" autocomplete="current-password" required>
                                                 </div>
                                                 <hr/>
                                                 <div class="form-group">
-                                                   <label class="control-label mb-10" for="change_password_new">Kata Laluan Baharu</label>
+                                                   <label class="control-label mb-10" for="change_password_new"><?=htmlspecialchars(oneid_translate('dashboard.password.new'), ENT_QUOTES, 'UTF-8')?></label>
                                                    <input type="password" class="form-control" id="change_password_new" name="change_password_new" autocomplete="new-password" minlength="12" required>
                                                 </div>
                                                 <div class="form-group">
-                                                   <label class="control-label mb-10" for="change_password_new_reconfirm">Sahkan Kata Laluan Baharu</label>
+                                                   <label class="control-label mb-10" for="change_password_new_reconfirm"><?=htmlspecialchars(oneid_translate('dashboard.password.confirm'), ENT_QUOTES, 'UTF-8')?></label>
                                                    <input type="password" class="form-control" id="change_password_new_reconfirm" name="change_password_new_reconfirm" autocomplete="new-password" minlength="12" required>
                                                 </div>
                                                 <ul id="password-requirements" style="list-style: none; padding-left: 0; margin-top: 10px;">
-														  <li id="p_length">❌ Sekurang-kurangnya 12 aksara</li>
-																<li id="p_lowercase">❌ Sekurang-kurangnya satu huruf kecil</li>
-																<li id="p_uppercase">❌ Sekurang-kurangnya satu huruf besar</li>
-																<li id="p_number">❌ Sekurang-kurangnya satu nombor</li>
-																<li id="p_special">❌ Sekurang-kurangnya satu aksara khas</li>
+														  <li id="p_length">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.length'), ENT_QUOTES, 'UTF-8')?></li>
+																<li id="p_lowercase">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.lowercase'), ENT_QUOTES, 'UTF-8')?></li>
+																<li id="p_uppercase">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.uppercase'), ENT_QUOTES, 'UTF-8')?></li>
+																<li id="p_number">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.number'), ENT_QUOTES, 'UTF-8')?></li>
+																<li id="p_special">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.special'), ENT_QUOTES, 'UTF-8')?></li>
             												</ul>
                                              </div>
                                              <div id="password_change_feedback" class="alert" role="alert" aria-live="assertive" style="display:none;user-select:text;-webkit-user-select:text;">
                                                 <p id="password_change_feedback_text" style="white-space:pre-wrap;margin-bottom:8px;"></p>
-                                                <button type="button" class="btn btn-xs btn-default" id="password_change_copy_button" onclick="copyPasswordChangeFeedback();"><i class="fa fa-copy" aria-hidden="true"></i> Salin mesej</button>
+                                                <button type="button" class="btn btn-xs btn-default" id="password_change_copy_button" onclick="copyPasswordChangeFeedback();"><i class="fa fa-copy" aria-hidden="true"></i> <?=htmlspecialchars(oneid_translate('dashboard.password.copy'), ENT_QUOTES, 'UTF-8')?></button>
                                              </div>
                                           </div>
                                        </div>
@@ -345,9 +202,9 @@
                      <div class="modal-footer">
                         <!--<button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>-->
 						
-                        <button type="button" class="btn btn-danger waves-effect" id="chge_pwd_logout" onclick="logout();">Log Keluar</button>
-                        <button type="submit" class="btn btn-primary waves-effect" id="btn_change_password_submit"><span id="change_password_submit_label">Tukar</span></button>
-                        <button id="btn_close_changePW" type="button" class="btn btn-secondary text-primary" data-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-danger waves-effect" id="chge_pwd_logout" onclick="logout();"><?=htmlspecialchars(oneid_translate('dashboard.menu.logout'), ENT_QUOTES, 'UTF-8')?></button>
+                        <button type="submit" class="btn btn-primary waves-effect" id="btn_change_password_submit"><span id="change_password_submit_label"><?=htmlspecialchars(oneid_translate('dashboard.password.change'), ENT_QUOTES, 'UTF-8')?></span></button>
+                        <button id="btn_close_changePW" type="button" class="btn btn-secondary text-primary" data-dismiss="modal"><?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?></button>
                      </div>
                   </form>
                </div>
@@ -372,18 +229,19 @@
                                           </div>
                                        <div class="profile-info text-center mb-15">
                                           <div class="profile-img-wrap">
-                                             <img id="user_photos" class="inline-block mb-10" src="profile-photo.php" alt="Profile photo"/>
+                                             <img id="user_photos" class="inline-block mb-10" src="profile-photo.php" alt="<?=htmlspecialchars(oneid_translate('dashboard.profile_photo'), ENT_QUOTES, 'UTF-8')?>"/>
                                              </div>	
                                           <h6 class="block mt-10 weight-500 capitalize-font txt-dark"><?php echo $_SESSION['user']; ?> (<?= (trim($user_info['data3']) == "") ? $user_info['data4'] : $user_info['data3']; ?>)</h6>
                                           <span class="block capitalize-font"><?php echo $user_info['data6']; ?></span>
                                           <span class="block capitalize-font"><?php echo $user_info['data7']; ?></span>
                                           <span class="time block truncate txt-grey"></span>
+                                          <nav class="profile-locale-switcher" aria-label="<?=htmlspecialchars(oneid_translate('dashboard.language'), ENT_QUOTES, 'UTF-8')?>">
+                                             <i class="fa fa-globe" aria-hidden="true"></i>
+                                             <a class="<?=oneid_current_locale() === 'ms' ? 'is-active' : ''?>" href="?locale=ms" lang="ms" hreflang="ms" title="Bahasa Melayu" aria-label="Bahasa Melayu" aria-current="<?=oneid_current_locale() === 'ms' ? 'true' : 'false'?>">BM</a>
+                                             <a class="<?=oneid_current_locale() === 'en' ? 'is-active' : ''?>" href="?locale=en" lang="en" hreflang="en" title="English" aria-label="English" aria-current="<?=oneid_current_locale() === 'en' ? 'true' : 'false'?>">EN</a>
+                                          </nav>
                                        </div>
                                     </div>
-
-
-
-
 
                                     <div class="pills-struct vertical-pills mt-40">
                                       <!-- Vertical nav -->
@@ -397,17 +255,17 @@
                                        <?php } ?>
                                         <li class="active" role="presentation">
                                           <a aria-expanded="true" data-toggle="tab" role="tab" id="follo_tab_8" href="#follo_8">
-                                            <span>Sistem Aplikasi <span class="inline-block" id="follo_data_list_count_text"></span></span>
+                                            <span><?=htmlspecialchars(oneid_translate('dashboard.menu.applications'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block" id="follo_data_list_count_text"></span></span>
                                           </a>
                                         </li>
                                         <li role="presentation" style="cursor: pointer !important;" onclick="window.open('https://directory.upnm.edu.my/', '_blank'); return false;">
                                           <a id="tab_faq" >
-                                            <span>Direktori Staf <span class="inline-block"></span></span>
+                                            <span><?=htmlspecialchars(oneid_translate('dashboard.menu.staff_directory'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block"></span></span>
                                           </a>
                                         </li>
                                         <li role="presentation" style="cursor: pointer !important;" onclick="open_faq();">
                                           <a id="tab_faq" >
-                                            <span>Soalan Lazim (FAQ) <span class="inline-block"></span></span>
+                                            <span><?=htmlspecialchars(oneid_translate('dashboard.menu.faq'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block"></span></span>
                                           </a>
                                         </li>
                                         <!--<li role="presentation">
@@ -417,12 +275,12 @@
                                         </li>-->
                                        <li role="presentation" style="cursor: pointer !important;" onclick="open_change_password(0);">
                                           <a id="tab_chang_pwd" >
-                                            <span>Tukar Katalaluan <span class="inline-block"></span></span>
+                                            <span><?=htmlspecialchars(oneid_translate('dashboard.menu.change_password'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block"></span></span>
                                           </a>
                                         </li>
                                         <li role="presentation" style="cursor: pointer !important;" >
                                           <a id="tab_faq" href="logout">
-                                            <span>Log Keluar<span class="inline-block"></span></span>
+                                            <span><?=htmlspecialchars(oneid_translate('dashboard.menu.logout'), ENT_QUOTES, 'UTF-8')?><span class="inline-block"></span></span>
                                           </a>
                                         </li>
                                       </ul>
@@ -462,26 +320,26 @@
                                        <div class="user-app-panel">
                                           <div class="user-app-header">
                                              <div>
-                                                <span class="user-app-eyebrow">My application directory</span>
-                                                <h4 class="user-app-title">Sistem Aplikasi</h4>
-                                                <p class="user-app-intro">Akses semua sistem yang telah diberikan kepada akaun anda.</p>
+                                                <span class="user-app-eyebrow"><?=htmlspecialchars(oneid_translate('dashboard.apps.eyebrow'), ENT_QUOTES, 'UTF-8')?></span>
+                                                <h4 class="user-app-title"><?=htmlspecialchars(oneid_translate('dashboard.apps.title'), ENT_QUOTES, 'UTF-8')?></h4>
+                                                <p class="user-app-intro"><?=htmlspecialchars(oneid_translate('dashboard.apps.intro'), ENT_QUOTES, 'UTF-8')?></p>
                                              </div>
                                              <div class="user-app-header-actions">
-                                                <div class="user-app-summary" aria-live="polite" aria-label="Ringkasan aplikasi">
+                                                <div class="user-app-summary" aria-live="polite" aria-label="<?=htmlspecialchars(oneid_translate('dashboard.apps.summary_label'), ENT_QUOTES, 'UTF-8')?>">
                                                    <div class="user-app-count">
-                                                      <span>Jumlah</span>
+                                                      <span><?=htmlspecialchars(oneid_translate('dashboard.apps.total'), ENT_QUOTES, 'UTF-8')?></span>
                                                       <strong id="user_app_count">&mdash;</strong>
                                                    </div>
                                                    <div class="user-app-count is-sso">
-                                                      <span>Full SSO</span>
+                                                      <span><?=htmlspecialchars(oneid_translate('dashboard.apps.full_sso'), ENT_QUOTES, 'UTF-8')?></span>
                                                       <strong id="user_app_sso_count">&mdash;</strong>
                                                    </div>
                                                    <div class="user-app-count is-non-sso">
-                                                      <span>Non SSO</span>
+                                                      <span><?=htmlspecialchars(oneid_translate('dashboard.apps.non_sso'), ENT_QUOTES, 'UTF-8')?></span>
                                                       <strong id="user_app_non_sso_count">&mdash;</strong>
                                                    </div>
                                                 </div>
-                                                <button type="button" class="user-app-refresh" onclick="get_specific_user_app_list();" title="Refresh applications" aria-label="Refresh applications">
+                                                <button type="button" class="user-app-refresh" onclick="get_specific_user_app_list();" title="<?=htmlspecialchars(oneid_translate('dashboard.apps.refresh'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('dashboard.apps.refresh'), ENT_QUOTES, 'UTF-8')?>">
                                                    <i class="fa fa-refresh" aria-hidden="true"></i>
                                                 </button>
                                              </div>
@@ -489,13 +347,13 @@
 
                                           <div class="user-app-category-card">
                                              <div>
-                                                <h5>Application categories</h5>
+                                                <h5><?=htmlspecialchars(oneid_translate('dashboard.apps.categories'), ENT_QUOTES, 'UTF-8')?></h5>
                                              </div>
                                              <div class="user-app-search">
                                                 <i class="fa fa-search" aria-hidden="true"></i>
-                                                <label class="sr-only" for="user_app_search">Cari aplikasi</label>
-                                                <input type="search" id="user_app_search" autocomplete="off" placeholder="Cari nama atau fungsi aplikasi">
-                                                <button type="button" id="user_app_search_clear" title="Kosongkan carian" aria-label="Kosongkan carian" hidden>
+                                                <label class="sr-only" for="user_app_search"><?=htmlspecialchars(oneid_translate('dashboard.apps.search'), ENT_QUOTES, 'UTF-8')?></label>
+                                                <input type="search" id="user_app_search" autocomplete="off" placeholder="<?=htmlspecialchars(oneid_translate('dashboard.apps.search_placeholder'), ENT_QUOTES, 'UTF-8')?>">
+                                                <button type="button" id="user_app_search_clear" title="<?=htmlspecialchars(oneid_translate('dashboard.apps.clear_search'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('dashboard.apps.clear_search'), ENT_QUOTES, 'UTF-8')?>" hidden>
                                                    <i class="fa fa-times" aria-hidden="true"></i>
                                                 </button>
                                              </div>
@@ -504,8 +362,8 @@
 
                                           <div id="app_list_loading" class="user-app-state is-loading" style="display:none;">
                                              <span><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>
-                                             <strong>Loading applications</strong>
-                                             <small>Please wait while your access list is retrieved.</small>
+                                             <strong><?=htmlspecialchars(oneid_translate('dashboard.apps.loading'), ENT_QUOTES, 'UTF-8')?></strong>
+                                             <small><?=htmlspecialchars(oneid_translate('dashboard.apps.loading_help'), ENT_QUOTES, 'UTF-8')?></small>
                                           </div>
 
                                           <div id="app_list" class="user-app-directory">
@@ -519,7 +377,7 @@
                                      <div id="security_tab" class="tab-pane fade" role="tabpanel">
                                        <div class="panel-heading">
                                          <div class="pull-left">
-                                           <h6 class="panel-title txt-dark">Active sessions currently signed to your account</h6>
+                                           <h6 class="panel-title txt-dark"><?=htmlspecialchars(oneid_translate('dashboard.sessions.title'), ENT_QUOTES, 'UTF-8')?></h6>
                                          </div>
                                          <div class="pull-right">
                                            <a href="#" class="pull-left inline-block refresh mr-15" onclick="get_specific_user_activ_session()">
@@ -536,7 +394,7 @@
                                              <div class="progress-bar progress-bar-primary active progress-bar-striped"
                                                   aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
                                                   style="width: 100%" role="progressbar">
-                                               Loading Active Session.. Wait a moment..
+                                               <?=htmlspecialchars(oneid_translate('dashboard.sessions.loading'), ENT_QUOTES, 'UTF-8')?>
                                              </div>
                                            </div>
                                          </div>
@@ -606,6 +464,52 @@
       <script src="../dist/js/init.js?v=20260716-1"></script>
       <script src="../dist/js/widgets-data.js"></script>
       <script>
+         const dashboardI18n = <?=json_encode([
+            'noAccess' => oneid_translate('dashboard.apps.no_access'),
+            'noAccessHelp' => oneid_translate('dashboard.apps.no_access_help'),
+            'favourite' => oneid_translate('dashboard.apps.favourite'),
+            'addFavourite' => oneid_translate('dashboard.apps.add_favourite'),
+            'removeFavourite' => oneid_translate('dashboard.apps.remove_favourite'),
+            'noFavourite' => oneid_translate('dashboard.apps.no_favourite'),
+            'noFavouriteSearch' => oneid_translate('dashboard.apps.no_favourite_search'),
+            'emptyCategory' => oneid_translate('dashboard.apps.empty_category'),
+            'emptySearch' => oneid_translate('dashboard.apps.empty_search'),
+            'directAccess' => oneid_translate('dashboard.apps.direct_access'),
+            'oneidSso' => oneid_translate('dashboard.apps.oneid_sso'),
+            'access' => oneid_translate('dashboard.apps.access'),
+            'login' => oneid_translate('dashboard.apps.login'),
+            'accessTitle' => oneid_translate('dashboard.apps.access_title'),
+            'loginTitle' => oneid_translate('dashboard.apps.login_title'),
+            'loadFailed' => oneid_translate('dashboard.apps.load_failed'),
+            'loadFailedHelp' => oneid_translate('dashboard.apps.load_failed_help'),
+            'favouriteFailed' => oneid_translate('dashboard.apps.favourite_failed'),
+            'accessDenied' => oneid_translate('dashboard.apps.access_denied'),
+            'currentSession' => oneid_translate('dashboard.sessions.current'),
+            'signOff' => oneid_translate('dashboard.sessions.sign_off'),
+            'signOffTitle' => oneid_translate('dashboard.sessions.confirm_title'),
+            'signOffText' => oneid_translate('dashboard.sessions.confirm_text'),
+            'signOffButton' => oneid_translate('dashboard.sessions.confirm_button'),
+            'signOffSuccess' => oneid_translate('dashboard.sessions.success'),
+            'signOffError' => oneid_translate('dashboard.sessions.error'),
+            'passwordCurrent' => oneid_translate('dashboard.password.current'),
+            'passwordLength' => oneid_translate('dashboard.password.length'),
+            'passwordLowercase' => oneid_translate('dashboard.password.lowercase'),
+            'passwordUppercase' => oneid_translate('dashboard.password.uppercase'),
+            'passwordNumber' => oneid_translate('dashboard.password.number'),
+            'passwordSpecial' => oneid_translate('dashboard.password.special'),
+            'passwordCopied' => oneid_translate('dashboard.password.copied'),
+            'passwordChange' => oneid_translate('dashboard.password.change'),
+            'passwordChanging' => oneid_translate('dashboard.password.changing'),
+            'passwordWeak' => oneid_translate('dashboard.password.weak'),
+            'passwordStrong' => oneid_translate('dashboard.password.strong'),
+            'passwordMismatch' => oneid_translate('dashboard.password.mismatch'),
+            'passwordSuccess' => oneid_translate('dashboard.password.success'),
+            'passwordFailed' => oneid_translate('dashboard.password.failed'),
+            'passwordReauth' => oneid_translate('dashboard.password.reauth'),
+            'passwordHttpFailed' => oneid_translate('dashboard.password.http_failed', ['status' => '{status}']),
+            'feedbackCode' => oneid_translate('dashboard.feedback.code'),
+            'feedbackReference' => oneid_translate('dashboard.feedback.reference'),
+         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
          $.ajaxSetup({
             headers: {'X-CSRF-Token': <?php echo json_encode(oneid_csrf_token()); ?>}
          });
@@ -684,10 +588,10 @@
             var imageSource = appImage === '' ? '../img/thumb-1.jpg' : '../public_img/' + appImage;
             var isDirect = String(application.sp_sso_support) !== '0';
             var isFavourite = Number(application.is_favourite) === 1;
-            var favouriteTitle = isFavourite ? 'Buang daripada Favourite' : 'Tambah ke Favourite';
-            var accessLabel = isDirect ? 'Akses terus' : 'OneID SSO';
-            var buttonLabel = isDirect ? 'Akses' : 'Login';
-            var buttonTitle = isDirect ? 'Akses aplikasi' : 'Login dengan OneID';
+            var favouriteTitle = isFavourite ? dashboardI18n.removeFavourite : dashboardI18n.addFavourite;
+            var accessLabel = isDirect ? dashboardI18n.directAccess : dashboardI18n.oneidSso;
+            var buttonLabel = isDirect ? dashboardI18n.access : dashboardI18n.login;
+            var buttonTitle = isDirect ? dashboardI18n.accessTitle : dashboardI18n.loginTitle;
 
             var card = '<article class="user-app-card">';
             card += '<div class="user-app-index">'+index+'</div>';
@@ -718,17 +622,17 @@
                $('#WebAppsTabsHeader, #WebAppsTabsContent').html('');
                $('#follo_data_list').html(
                   '<div class="user-app-state"><span><i class="fa fa-th-large" aria-hidden="true"></i></span>' +
-                  '<strong>No accessible applications</strong>' +
-                  '<small>Please contact PTMK if you require access to a system.</small></div>'
+                  '<strong>'+userAppText(dashboardI18n.noAccess)+'</strong>' +
+                  '<small>'+userAppText(dashboardI18n.noAccessHelp)+'</small></div>'
                );
                return;
             }
 
             tabs += '<li class="is-favourite-tab" role="presentation">';
-            tabs += '<a data-toggle="tab" role="tab" href="#user_app_favourites_tab" title="Favourite" aria-label="Favourite"><i class="fa fa-star" aria-hidden="true"></i><strong>'+favouriteApplications.length+'</strong></a></li>';
+            tabs += '<a data-toggle="tab" role="tab" href="#user_app_favourites_tab" title="'+userAppText(dashboardI18n.favourite)+'" aria-label="'+userAppText(dashboardI18n.favourite)+'"><i class="fa fa-star" aria-hidden="true"></i><strong>'+favouriteApplications.length+'</strong></a></li>';
             panes += '<div id="user_app_favourites_tab" class="tab-pane fade" role="tabpanel"><div class="user-app-list">';
             if (favouriteApplications.length === 0) {
-               panes += '<div class="user-app-category-empty"><i class="fa fa-star-o" aria-hidden="true"></i><span>'+(term === '' ? 'Belum ada aplikasi Favourite. Pilih ikon bintang pada aplikasi yang kerap digunakan.' : 'Tiada aplikasi Favourite sepadan dengan carian.')+'</span></div>';
+               panes += '<div class="user-app-category-empty"><i class="fa fa-star-o" aria-hidden="true"></i><span>'+userAppText(term === '' ? dashboardI18n.noFavourite : dashboardI18n.noFavouriteSearch)+'</span></div>';
             } else {
                matchingTabs.push('#user_app_favourites_tab');
                $.each(favouriteApplications, function(index, application){ panes += userAppCard(application, index + 1); });
@@ -752,7 +656,7 @@
                tabs += '<a data-toggle="tab" role="tab" href="#'+paneId+'"><span>'+groupName+'</span><strong>'+applications.length+'</strong></a></li>';
                panes += '<div id="'+paneId+'" class="tab-pane fade" role="tabpanel"><div class="user-app-list">';
                if (applications.length === 0) {
-                  panes += '<div class="user-app-category-empty"><i class="fa fa-inbox" aria-hidden="true"></i><span>'+(term === '' ? 'Tiada aplikasi dalam kategori ini.' : 'Tiada aplikasi sepadan dengan carian dalam kategori ini.')+'</span></div>';
+                  panes += '<div class="user-app-category-empty"><i class="fa fa-inbox" aria-hidden="true"></i><span>'+userAppText(term === '' ? dashboardI18n.emptyCategory : dashboardI18n.emptySearch)+'</span></div>';
                } else {
                   $.each(applications, function(appIndex, application){ panes += userAppCard(application, appIndex + 1); });
                }
@@ -812,8 +716,8 @@
 				   $('#follo_data_list').html(
 					  '<div class="user-app-state is-error">' +
 					  '<span><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>' +
-					  '<strong>Unable to load applications</strong>' +
-					  '<small>Please retry or contact BTMK if the issue continues.</small>' +
+					  '<strong>'+userAppText(dashboardI18n.loadFailed)+'</strong>' +
+					  '<small>'+userAppText(dashboardI18n.loadFailedHelp)+'</small>' +
 					  '</div>'
 				   );
 				}
@@ -869,8 +773,8 @@
                   $button.prop('disabled', false).removeClass('is-saving');
                   $.toast().reset('all');
                   $.toast({
-                     heading: 'Favourite tidak dapat disimpan',
-                     text: 'Sila cuba semula atau hubungi PTMK jika masalah berterusan.',
+                     heading: dashboardI18n.favouriteFailed,
+                     text: dashboardI18n.loadFailedHelp,
                      position: 'bottom-center',
                      loaderBg: '#fec107',
                      icon: 'error',
@@ -909,11 +813,11 @@
                 if(response[i]['current_token']=="1"){
                 	current_session = '<i class="fa fa-check-circle text-primary"></i>';
                  tr += '<div class="user-data"><span class="name block capitalize-font">'+(i+1)+'. '+response[i]['device_info']+' '+current_session+'</span></div>';
-                 tr += '<button class="btn btn-default pull-right btn-xs fixed-btn " ><span class="btn-text">Current</span></button>';
+                 tr += '<button class="btn btn-default pull-right btn-xs fixed-btn " ><span class="btn-text">'+userAppText(dashboardI18n.currentSession)+'</span></button>';
          
                 }else{
                  tr += '<div class="user-data"><span class="name block capitalize-font">'+(i+1)+'. '+response[i]['device_info']+' '+current_session+'</span></div>';
-                 tr += '<button class="btn btn-danger pull-right btn-xs fixed-btn  " onclick="sign_off_token(&quot;'+response[i]['token_id']+'&quot;);"><span class="btn-text">Sign off</span></button>';
+                 tr += '<button class="btn btn-danger pull-right btn-xs fixed-btn  " onclick="sign_off_token(&quot;'+response[i]['token_id']+'&quot;);"><span class="btn-text">'+userAppText(dashboardI18n.signOff)+'</span></button>';
          
          
                 }
@@ -949,7 +853,7 @@
          $.toast().reset('all');            
          $.toast({
          	heading: '',
-         	text: 'Sorry, you are unable to access the selected app.',
+            text: dashboardI18n.accessDenied,
          	position: 'bottom-center',
          	loaderBg:'#fec107',
          	icon: 'danger',
@@ -967,12 +871,12 @@
          
          function sign_off_token(token_id){
          swal({   
-             title: "Sign Off Session",   
-             text: "Are you sure you want to sign-off this session?",   
+             title: dashboardI18n.signOffTitle,
+             text: dashboardI18n.signOffText,
              type: "warning",   
              showCancelButton: true,   
              confirmButtonColor: "#DD6B55",   
-             confirmButtonText: "Yes!",   
+             confirmButtonText: dashboardI18n.signOffButton,
              closeOnConfirm: false 
          }, function(){   
          
@@ -986,9 +890,9 @@
                          success: function (response) {
                              if (response == 1){
              					get_specific_user_activ_session();
-                                 swal("Sign-off", "Success", "success"); 
+                                 swal(dashboardI18n.signOffTitle, dashboardI18n.signOffSuccess, "success");
                              }else{
-                                 swal("Sign-off", "Error", "error"); 
+                                 swal(dashboardI18n.signOffTitle, dashboardI18n.signOffError, "error");
                              }
          
                      },
@@ -1013,12 +917,12 @@
 		 
          if ($('#modal_change_first_time_password').hasClass('in')) {
              // Modal is open
-             $('#default_pwd_text').text("Kata Laluan Semasa");
+             $('#default_pwd_text').text(dashboardI18n.passwordCurrent);
 
             $('#modal_change_first_time_password').modal('hide');
          } else {
              // Modal is closed
-             $('#default_pwd_text').text("Kata Laluan Semasa");
+             $('#default_pwd_text').text(dashboardI18n.passwordCurrent);
          }
          $('#change_password_current').val('');
          $('#change_password_new').val('');
@@ -1033,11 +937,11 @@
 		    var password = $(this).val();
 
 		    // Check each requirement
-		    $('#p_length').html((password.length >= 12 ? '✅' : '❌') + ' At least 12 characters');
-		    $('#p_lowercase').html((/[a-z]/.test(password) ? '✅' : '❌') + ' At least one lowercase letter');
-		    $('#p_uppercase').html((/[A-Z]/.test(password) ? '✅' : '❌') + ' At least one uppercase letter');
-		    $('#p_number').html((/\d/.test(password) ? '✅' : '❌') + ' At least one number');
-		    $('#p_special').html((/[\W_]/.test(password) ? '✅' : '❌') + ' At least one special character');
+		    $('#p_length').text((password.length >= 12 ? '✅ ' : '❌ ') + dashboardI18n.passwordLength);
+		    $('#p_lowercase').text((/[a-z]/.test(password) ? '✅ ' : '❌ ') + dashboardI18n.passwordLowercase);
+		    $('#p_uppercase').text((/[A-Z]/.test(password) ? '✅ ' : '❌ ') + dashboardI18n.passwordUppercase);
+		    $('#p_number').text((/\d/.test(password) ? '✅ ' : '❌ ') + dashboardI18n.passwordNumber);
+		    $('#p_special').text((/[\W_]/.test(password) ? '✅ ' : '❌ ') + dashboardI18n.passwordSpecial);
 		});
 
          function checkPasswordStrength(password) {
@@ -1046,31 +950,31 @@
 		    if (password.length === 0) {
 		        return { message: '', color: '' };
 		    } else if (!strongRegex.test(password)) {
-		        return { status:0,message: 'Weak password: must include uppercase, lowercase, number, symbol and be at least 12 characters.', color: 'red' };
+		        return { status:0,message: dashboardI18n.passwordWeak, color: 'red' };
 		    } else {
-		        return { status:1,message: 'Strong password', color: 'green' };
+		        return { status:1,message: dashboardI18n.passwordStrong, color: 'green' };
 		    }
 		}
 
 		function resetPasswordChecks() {
-		    $('#p_length').html('❌ At least 12 characters');
-		    $('#p_lowercase').html('❌ At least one lowercase letter');
-		    $('#p_uppercase').html('❌ At least one uppercase letter');
-		    $('#p_number').html('❌ At least one number');
-		    $('#p_special').html('❌ At least one special character');
+		    $('#p_length').text('❌ ' + dashboardI18n.passwordLength);
+		    $('#p_lowercase').text('❌ ' + dashboardI18n.passwordLowercase);
+		    $('#p_uppercase').text('❌ ' + dashboardI18n.passwordUppercase);
+		    $('#p_number').text('❌ ' + dashboardI18n.passwordNumber);
+		    $('#p_special').text('❌ ' + dashboardI18n.passwordSpecial);
 		}
 
          var passwordChangeSubmitting = false;
          function setPasswordChangeSubmitting(submitting){
             passwordChangeSubmitting = submitting;
             $('#btn_change_password_submit').prop('disabled', submitting).attr('aria-busy', submitting ? 'true' : 'false');
-            $('#change_password_submit_label').text(submitting ? 'Menukar...' : 'Tukar');
+            $('#change_password_submit_label').text(submitting ? dashboardI18n.passwordChanging : dashboardI18n.passwordChange);
             $('#change_password_current, #change_password_new, #change_password_new_reconfirm').prop('disabled', submitting);
          }
          function passwordChangeFeedback(response, success){
             var code=response&&response.code?response.code:'UC1_RESPONSE_INVALID';
             var reference=response&&response.correlation_id?response.correlation_id:'Unavailable';
-            return (response&&response.msg?response.msg:(success?'Password successfully changed.':'Password was not changed.'))+' Code: '+code+'. Reference: '+reference+'.';
+            return (response&&response.localized_msg?response.localized_msg:(response&&response.msg?response.msg:(success?dashboardI18n.passwordSuccess:dashboardI18n.passwordFailed)))+' '+dashboardI18n.feedbackCode+': '+code+'. '+dashboardI18n.feedbackReference+': '+reference+'.';
          }
          function showPasswordChangeFeedback(message,type){
             var panel=$('#password_change_feedback');panel.removeClass('alert-success alert-danger alert-info').addClass(type==='success'?'alert-success':(type==='info'?'alert-info':'alert-danger'));
@@ -1078,8 +982,8 @@
          }
          function copyPasswordChangeFeedback(){
             var text=$('#password_change_feedback_text').text();if(!text){return;}
-            if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(function(){$('#password_change_copy_button').text('Disalin');});return;}
-            var area=$('<textarea>').val(text).css({position:'fixed',left:'-9999px'}).appendTo('body');area[0].select();document.execCommand('copy');area.remove();$('#password_change_copy_button').text('Disalin');
+            if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(function(){$('#password_change_copy_button').text(dashboardI18n.passwordCopied);});return;}
+            var area=$('<textarea>').val(text).css({position:'fixed',left:'-9999px'}).appendTo('body');area[0].select();document.execCommand('copy');area.remove();$('#password_change_copy_button').text(dashboardI18n.passwordCopied);
          }
 
          var form_change_password = $('#form_change_password');
@@ -1095,7 +999,7 @@
 			  	return;
 			  }
 			  if(password != password2){
-				showPasswordChangeFeedback('New password and confirmation password do not match.','error');
+				showPasswordChangeFeedback(dashboardI18n.passwordMismatch,'error');
 			  	return;
 			  }
 
@@ -1115,14 +1019,14 @@
                                 if(response.csrf_token){$.ajaxSetup({headers:{'X-CSRF-Token':response.csrf_token}});}
 								showPasswordChangeFeedback(passwordChangeFeedback(response,true),'success');
 								$('#change_password_current, #change_password_new, #change_password_new_reconfirm').val('');
-								if(response.reauthentication_required&&response.redirect_uri){showPasswordChangeFeedback(passwordChangeFeedback(response,true)+'\nYou will be redirected to sign in again.','success');setTimeout(function(){window.location.href=response.redirect_uri;},3500);}
+								if(response.reauthentication_required&&response.redirect_uri){showPasswordChangeFeedback(passwordChangeFeedback(response,true)+'\n'+dashboardI18n.passwordReauth,'success');setTimeout(function(){window.location.href=response.redirect_uri;},3500);}
 								                             }else{
 								showPasswordChangeFeedback(passwordChangeFeedback(response,false),'error');
                              }
          
                      },
                      error: function (xhr, error, thrown) {
-                        showPasswordChangeFeedback('Password was not changed. The request failed with HTTP '+xhr.status+'.','error');
+                        showPasswordChangeFeedback(dashboardI18n.passwordHttpFailed.replace('{status}',xhr.status),'error');
                      },
                      complete: function(){
                         setPasswordChangeSubmitting(false);

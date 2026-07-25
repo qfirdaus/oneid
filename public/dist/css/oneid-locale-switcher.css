@@ -1,0 +1,57 @@
+.profile-locale-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  margin: 15px auto 0;
+  padding: 3px 4px 3px 10px;
+  border: 1px solid #dfe7ee;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(42, 63, 84, .1);
+}
+
+.profile-locale-switcher > i {
+  margin: 0 7px 0 0;
+  color: #8796a5;
+  font-size: 10px;
+}
+
+.profile-locale-switcher a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 33px;
+  height: 30px;
+  padding: 0 9px;
+  border-radius: 17px;
+  color: #526678;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  transition: color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+
+.profile-locale-switcher a:hover,
+.profile-locale-switcher a:focus {
+  color: #008fc8;
+  background: #f0f8fb;
+  text-decoration: none;
+  outline: none;
+}
+
+.profile-locale-switcher a.is-active {
+  color: #fff;
+  background: #0098d4;
+  box-shadow: 0 3px 8px rgba(0, 152, 212, .32);
+}
+
+.profile-box + .pills-struct {
+  margin-top: 18px !important;
+}
+
+@media (min-width: 1025px) {
+  .wrapper.horizontal-nav .page-wrapper {
+    padding-top: 118px;
+  }
+}

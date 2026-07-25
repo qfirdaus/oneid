@@ -33,6 +33,7 @@ require_once dirname(__DIR__) . '/app/Admin/WebAppService.php';
 require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationException.php';
 require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/PasswordRecoveryConfigurationService.php';
+require_once dirname(__DIR__) . '/app/Admin/SystemLocaleConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/ActiveSessionService.php';
 require_once dirname(__DIR__) . '/app/Auth/SsoTokenLifetimePolicy.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpException.php';
@@ -48,6 +49,9 @@ require_once dirname(__DIR__) . '/app/Auth/AdminMfaPreferenceService.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpPolicyService.php';
 require_once dirname(__DIR__) . '/app/Auth/Admin2faBootstrapService.php';
 require_once dirname(__DIR__) . '/app/Mail/OneIdEmailTemplate.php';
+require_once dirname(__DIR__) . '/app/Locale/ApiResponseLocalizer.php';
+require_once dirname(__DIR__) . '/app/Metadata/BilingualMetadataRepository.php';
+require_once dirname(__DIR__) . '/app/Metadata/MetadataContentInventory.php';
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
 
@@ -74,10 +78,49 @@ if(str_starts_with($oneidGuardedAction,'admin_step_up_')||str_starts_with($oneid
   header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
 }
 
+// ML6 compatibility layer: enrich scoped JSON responses with a stable
+// translation key and localized presentation without removing or rewriting
+// the legacy msg/message fields. External Sync and Admin Step-Up codes are
+// explicitly excluded by ApiResponseLocalizer.
+ob_start(static function (string $buffer): string {
+  $trimmed=trim($buffer);
+  if($trimmed===''||$trimmed[0]!=='{'){
+    return $buffer;
+  }
+  $decoded=json_decode($trimmed,true);
+  if(!is_array($decoded)||array_is_list($decoded)||!isset($decoded['code'])){
+    return $buffer;
+  }
+  $localized=\OneId\App\Locale\ApiResponseLocalizer::enrich($decoded,oneid_current_locale());
+  try{
+    return json_encode($localized,JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+  }catch(\JsonException){
+    return $buffer;
+  }
+});
+
 $sys_config = $operation->get_system_config();
 $token_timeout = $sys_config['token_timeout'];//24 means 1 day
 $sys_config_multisession = $sys_config['multi_session']; //Multi Session
 $passwordResetEmailEnabled = $sys_config['password_reset_email_enabled'];
+
+if(isset($_POST['admin_get_default_locale'])||isset($_POST['admin_update_default_locale'])){
+  try{
+    $service=new \OneId\App\Admin\SystemLocaleConfigurationService($operation);
+    $results=isset($_POST['admin_update_default_locale'])
+      ?$service->update($_POST['default_locale']??null,$_POST['configuration_version']??null,(string)($_POST['change_reason']??''),(string)$_SESSION['login_user'],(string)getUserIP())
+      :$service->status();
+  }catch(\RuntimeException $exception){
+    $known=['ML5_DEFAULT_LOCALE_SCHEMA_UNAVAILABLE','ML5_DEFAULT_LOCALE_INVALID','ML5_DEFAULT_LOCALE_APPROVAL_INVALID','ML5_DEFAULT_LOCALE_STALE'];
+    $code=in_array($exception->getMessage(),$known,true)?$exception->getMessage():'ML5_DEFAULT_LOCALE_FAILED';
+    http_response_code($code==='ML5_DEFAULT_LOCALE_SCHEMA_UNAVAILABLE'?503:422);
+    $results=['status'=>0,'code'=>$code,'translation_key'=>'admin.configuration.locale_failed','msg'=>oneid_translate('admin.configuration.locale_failed'),'correlation_id'=>bin2hex(random_bytes(8))];
+  }catch(\Throwable $exception){
+    $results=['status'=>0,'code'=>'ML5_DEFAULT_LOCALE_FAILED','translation_key'=>'admin.configuration.locale_failed','msg'=>oneid_translate('admin.configuration.locale_failed'),'correlation_id'=>bin2hex(random_bytes(8))];
+    http_response_code(500);
+  }
+  header('Content-Type: application/json; charset=utf-8');echo json_encode($results);return;
+}
 $tokenLifetimePolicy = new \OneId\App\Auth\SsoTokenLifetimePolicy();
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $dd = new DeviceDetector($userAgent);
@@ -140,6 +183,16 @@ function getUserIP() {
     }
 }
 
+function oneid_metadata_repository(): \OneId\App\Metadata\BilingualMetadataRepository {
+  static $repository;
+  if(!$repository instanceof \OneId\App\Metadata\BilingualMetadataRepository){
+    $repository=new \OneId\App\Metadata\BilingualMetadataRepository(new PDO(
+      DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]
+    ));
+  }
+  return $repository;
+}
+
 
 //------------ ENd of Global Functions
 
@@ -160,14 +213,16 @@ function string_sanitize($s) {
           echo json_encode([
             'login_status' => 0,
             'code' => 'AUTH_USERNAME_REQUIRED',
-            'login_response_msg' => 'User ID is required.'
+            'translation_key' => 'login.required_user',
+            'login_response_msg' => oneid_translate('login.required_user')
           ]);
           return;
         }elseif((string) ($_POST['password'] ?? '') === ''){
           echo json_encode([
             'login_status' => 0,
             'code' => 'AUTH_PASSWORD_REQUIRED',
-            'login_response_msg' => 'Password is required.'
+            'translation_key' => 'login.required_password',
+            'login_response_msg' => oneid_translate('login.required_password')
           ]);
           return;
         }else{
@@ -199,8 +254,10 @@ function string_sanitize($s) {
            //Check user available status
            if($results['avail_status'] == 0){            
               $array['login_status'] = 0;
-              $array['login_response_msg'] = "Sorry, your account had been suspended. Please contact BTMK for further information.";
-              $operation->syslog_record(1,"User:".$_POST['username']."  -> ".$array['login_response_msg'],getUserIP());
+              $array['code'] = 'AUTH_ACCOUNT_SUSPENDED';
+              $array['translation_key'] = 'login.account_suspended';
+              $array['login_response_msg'] = oneid_translate('login.account_suspended');
+              $operation->syslog_record(1,"User:".$_POST['username']." -> AUTH_ACCOUNT_SUSPENDED",getUserIP());
               echo json_encode($array);
               return;
            }
@@ -233,13 +290,17 @@ function string_sanitize($s) {
             }else{
                 $array['redirect_uri'] = 'page/dashboard';              
             }
-            $array['login_response_msg'] = "Login Success";
+            $array['code'] = 'AUTH_LOGIN_SUCCESS';
+            $array['translation_key'] = 'login.success';
+            $array['login_response_msg'] = oneid_translate('login.success');
             $operation->syslog_record(2,"User: ".$_POST['username']." Logged in -> ".$array['redirect_uri'],getUserIP());
             echo json_encode($array);
         }else{
             $array['login_status'] = 0;
-            $array['login_response_msg'] = "Wrong username / password";
-            $operation->syslog_record(3,"User: ".$_POST['username']." -> " .$array['login_response_msg'],getUserIP());
+            $array['code'] = 'AUTH_CREDENTIALS_INVALID';
+            $array['translation_key'] = 'login.invalid';
+            $array['login_response_msg'] = oneid_translate('login.invalid');
+            $operation->syslog_record(3,"User: ".$_POST['username']." -> AUTH_CREDENTIALS_INVALID",getUserIP());
             echo json_encode($array);
         }
      }
@@ -269,6 +330,7 @@ function string_sanitize($s) {
 
       if(isset( $_POST['admin_get_app_all_group'])){
         $sp_group = $operation->get_sp_group();
+        $sp_group = oneid_metadata_repository()->localizeGroups($sp_group,oneid_current_locale());
         //usort($results, 'php_sort_alpahabet');
         // $results = [];
         echo json_encode($sp_group);
@@ -298,7 +360,81 @@ function string_sanitize($s) {
             'sp_group_id' => $row['sp_group_id'],
           ];
         }
-        echo json_encode(array_values($groups));
+        echo json_encode(oneid_metadata_repository()->localizeGroups(array_values($groups),oneid_current_locale()));
+      }
+
+      if(isset($_POST['admin_metadata_translation_preview'])){
+        echo json_encode(oneid_metadata_repository()->preview());
+      }
+
+      if(isset($_POST['admin_metadata_content_preview'])){
+        try{
+          $inventory=new \OneId\App\Metadata\MetadataContentInventory(new PDO(
+            DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]
+          ));
+          echo json_encode($inventory->preview());
+        }catch(\Throwable $exception){
+          $correlation=bin2hex(random_bytes(8));
+          error_log('ML7A content preview failed correlation='.$correlation.' exception='.get_class($exception));
+          echo json_encode(['status'=>0,'code'=>'ML7A_CONTENT_PREVIEW_FAILED','translation_key'=>'admin.metadata.failed','msg'=>oneid_translate('admin.metadata.failed'),'correlation_id'=>$correlation]);
+        }
+      }
+
+      if(isset($_POST['admin_metadata_bulk_content_preview'])){
+        try{
+          $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+          $inventory=new \OneId\App\Metadata\MetadataContentInventory($pdo);
+          $planner=new \OneId\App\Metadata\MetadataBulkContentPlanner($inventory);
+          echo json_encode($planner->preview());
+        }catch(\Throwable $exception){
+          $correlation=bin2hex(random_bytes(8));
+          error_log('ML7A bulk content preview failed correlation='.$correlation.' exception='.get_class($exception));
+          echo json_encode(['status'=>0,'code'=>'ML7A_BULK_PREVIEW_FAILED','translation_key'=>'admin.metadata.failed','msg'=>oneid_translate('admin.metadata.failed'),'correlation_id'=>$correlation]);
+        }
+      }
+
+      if(isset($_POST['admin_get_metadata_translation'])){
+        try{
+          $result=oneid_metadata_repository()->read(
+            (string)($_POST['entity_type']??''),
+            (string)($_POST['entity_id']??''),
+            (string)($_POST['locale']??'')
+          );
+          echo json_encode(['status'=>1,'code'=>'ML7_METADATA_TRANSLATION_LOADED','data'=>$result]);
+        }catch(\RuntimeException $exception){
+          echo json_encode(['status'=>0,'code'=>$exception->getMessage(),'translation_key'=>'admin.metadata.failed','msg'=>oneid_translate('admin.metadata.failed'),'correlation_id'=>bin2hex(random_bytes(8))]);
+        }catch(\Throwable $exception){
+          $correlation=bin2hex(random_bytes(8));
+          error_log('ML7 metadata read failed correlation='.$correlation.' exception='.get_class($exception));
+          echo json_encode(['status'=>0,'code'=>'ML7_METADATA_READ_FAILED','translation_key'=>'admin.metadata.failed','msg'=>oneid_translate('admin.metadata.failed'),'correlation_id'=>$correlation]);
+        }
+      }
+
+      if(isset($_POST['admin_save_metadata_translation'])){
+        try{
+          $result=oneid_metadata_repository()->save(
+            (string)($_POST['entity_type']??''),
+            (string)($_POST['entity_id']??''),
+            (string)($_POST['locale']??''),
+            ['name'=>(string)($_POST['translated_name']??''),'description'=>(string)($_POST['translated_description']??'')],
+            (int)($_POST['translation_version']??0),
+            (string)$_SESSION['login_user'],
+            (string)($_POST['change_reason']??'')
+          );
+          $result['translation_key']='admin.metadata.saved';
+          $result['msg']=oneid_translate('admin.metadata.saved');
+          echo json_encode($result);
+        }catch(\RuntimeException $exception){
+          $code=$exception->getMessage();
+          $translationKey=$code==='ML7_METADATA_APPROVAL_INVALID'
+            ?'admin.metadata.reason_required'
+            :'admin.metadata.failed';
+          echo json_encode(['status'=>0,'code'=>$code,'translation_key'=>$translationKey,'msg'=>oneid_translate($translationKey),'correlation_id'=>bin2hex(random_bytes(8))]);
+        }catch(\Throwable $exception){
+          $correlation=bin2hex(random_bytes(8));
+          error_log('ML7 metadata write failed correlation='.$correlation.' exception='.get_class($exception));
+          echo json_encode(['status'=>0,'code'=>'ML7_METADATA_WRITE_FAILED','translation_key'=>'admin.metadata.failed','msg'=>oneid_translate('admin.metadata.failed'),'correlation_id'=>$correlation]);
+        }
       }
 
       if(isset( $_POST['admin_get_sso_settings'])){
@@ -430,12 +566,12 @@ function string_sanitize($s) {
 
       if(isset( $_POST['action_change_password'])){
         $userId=(string)$_SESSION['login_user'];$ip=(string)getUserIP();$wasForced=(int)($_SESSION['password_change_required']??0)===1;
-        if($operation->count_recent_invalid_current_password_attempts($userId,$ip,15)>=5){$correlation=bin2hex(random_bytes(8));$operation->syslog_record(20,'user='.$userId.' outcome=rejected reason=UC4_RATE_LIMITED correlation='.$correlation,$ip);if(!headers_sent())http_response_code(429);echo json_encode(['status'=>0,'code'=>'UC4_RATE_LIMITED','msg'=>'Too many invalid current-password attempts. Try again later.','correlation_id'=>$correlation]);return;}
+        if($operation->count_recent_invalid_current_password_attempts($userId,$ip,15)>=5){$correlation=bin2hex(random_bytes(8));$operation->syslog_record(20,'user='.$userId.' outcome=rejected reason=UC4_RATE_LIMITED correlation='.$correlation,$ip);if(!headers_sent())http_response_code(429);echo json_encode(['status'=>0,'code'=>'UC4_RATE_LIMITED','translation_key'=>'dashboard.password.rate_limited','msg'=>oneid_translate('dashboard.password.rate_limited'),'correlation_id'=>$correlation]);return;}
         try{$service=new \OneId\App\User\UserPasswordChangeService($operation);$result=$service->change($userId,(string)($_POST['change_password_current']??''),(string)($_POST['change_password_new']??''),(string)($_POST['change_password_new_reconfirm']??''),$detectedDeviceInfo,$ip,!$wasForced);$token=$result['replacement_token'];unset($result['replacement_token']);
           if($wasForced){oneid_clear_sso_cookie();$_SESSION=[];session_regenerate_id(true);$result['redirect_uri']=APP_URL.'/';}
           else{session_regenerate_id(true);$_SESSION['password_change_required']=0;unset($_SESSION['oneid_csrf_token']);$result['csrf_token']=oneid_csrf_token();oneid_set_sso_cookie((string)$token);}
-          echo json_encode($result);}
-        catch(\OneId\App\User\UserPasswordChangeException $e){$operation->syslog_record(20,'user='.$_SESSION['login_user'].' outcome=rejected reason='.$e->reason.' correlation='.$e->correlationId,getUserIP());echo json_encode(['status'=>0,'code'=>$e->reason,'msg'=>'Password was not changed.','correlation_id'=>$e->correlationId]);}
+          $result['translation_key']='dashboard.password.success';$result['msg']=oneid_translate('dashboard.password.success');echo json_encode($result);}
+        catch(\OneId\App\User\UserPasswordChangeException $e){$operation->syslog_record(20,'user='.$_SESSION['login_user'].' outcome=rejected reason='.$e->reason.' correlation='.$e->correlationId,getUserIP());$passwordErrorKey=match($e->reason){'UC2_CONFIRMATION_MISMATCH'=>'dashboard.password.mismatch','UC5_PASSWORD_QUALITY_REJECTED'=>'dashboard.password.quality_rejected','UC2_USER_NOT_ACTIVE'=>'dashboard.password.user_inactive','UC2_CURRENT_PASSWORD_INVALID'=>'dashboard.password.current_invalid','UC2_PASSWORD_REUSE_CURRENT'=>'dashboard.password.reuse_current','UC5_PASSWORD_HISTORY_REUSED'=>'dashboard.password.history_reused',default=>'dashboard.password.operation_failed'};echo json_encode(['status'=>0,'code'=>$e->reason,'translation_key'=>$passwordErrorKey,'msg'=>oneid_translate($passwordErrorKey),'correlation_id'=>$e->correlationId]);}
       }
 
 
@@ -1564,7 +1700,7 @@ function string_sanitize($s) {
 	  usort($all_groups_info, function($a, $b) {
 			return (int)$b['sp_group_seq'] - (int)$a['sp_group_seq'];
 		});
-      echo json_encode($all_groups_info);
+      echo json_encode(oneid_metadata_repository()->localizeGroups($all_groups_info,oneid_current_locale()));
 
         // foreach ($sp_group as $i => $ii) { 
         //   $sp_group[$i]['tabname'] = preg_replace('/\s+/', '', $sp_group[$i]['sp_group_name'])."_".$sp_group[$i]['sp_group_id']."_tab";
@@ -1724,9 +1860,10 @@ function string_sanitize($s) {
       echo json_encode([
         'result' => 'true',
         'code' => 'SC6_RECOVERY_REQUEST_ACCEPTED',
+        'translation_key' => 'recovery.accepted_generic',
         'correlation_id' => $correlation,
         'delivery_available' => (int)$passwordResetEmailEnabled === 1,
-        'msg' => 'If the account is eligible, reset instructions have been sent to its registered email.'
+        'msg' => oneid_translate('recovery.accepted_generic')
       ]);
     }
 
@@ -1746,13 +1883,18 @@ function string_sanitize($s) {
         echo json_encode([
           'result' => 'true',
           'reset_required' => true,
-          'msg' => 'OTP verified. Set a new password to continue.'
+          'translation_key' => 'otp.verified',
+          'msg' => oneid_translate('otp.verified')
         ]);
       } else {
         if ($otp_search_result) {
           $operation->otp_record_failed_attempt($otp_search_result['otp_id']);
         }
-        echo json_encode(['result'=>'false', 'msg'=>'Invalid or expired OTP.']);
+        echo json_encode([
+          'result'=>'false',
+          'translation_key'=>'otp.invalid',
+          'msg'=>oneid_translate('otp.invalid')
+        ]);
       }
     }
 
@@ -1760,18 +1902,33 @@ function string_sanitize($s) {
       $resetUser = (string) ($_SESSION['password_reset_user'] ?? '');
       $verifiedAt = (int) ($_SESSION['password_reset_verified_at'] ?? 0);
       if ($resetUser === '' || $verifiedAt === 0 || (time() - $verifiedAt) > 600) {
-        oneid_json_deny(403, 'Password reset authorization expired');
+        oneid_json_deny(403, oneid_translate('password.authorization_expired'));
       }
 
       $newPassword = (string) ($_POST['reset_password_new'] ?? '');
       $confirmation = (string) ($_POST['reset_password_confirm'] ?? '');
       if (!hash_equals($newPassword, $confirmation)) {
-        echo json_encode(['result'=>'false', 'msg'=>'Password confirmation does not match.']);
+        echo json_encode([
+          'result'=>'false',
+          'translation_key'=>'password.confirmation_mismatch',
+          'msg'=>oneid_translate('password.confirmation_mismatch')
+        ]);
         return;
       }
       list($passwordValid, $passwordMessage) = oneid_validate_new_password($newPassword);
       if (!$passwordValid) {
-        echo json_encode(['result'=>'false', 'msg'=>$passwordMessage]);
+        $passwordTranslationKey = match ($passwordMessage) {
+          'Password must contain at least 12 characters.' => 'password.minimum_length',
+          'Password must include uppercase, lowercase, number and symbol.' => 'password.complexity',
+          'Password is too common or predictable.' => 'password.too_common',
+          'Password must not contain the user ID.' => 'password.contains_user_id',
+          default => 'password.reset_failed',
+        };
+        echo json_encode([
+          'result'=>'false',
+          'translation_key'=>$passwordTranslationKey,
+          'msg'=>oneid_translate($passwordTranslationKey)
+        ]);
         return;
       }
 
@@ -1781,7 +1938,8 @@ function string_sanitize($s) {
       unset($_SESSION['password_reset_user'], $_SESSION['password_reset_verified_at']);
       echo json_encode([
         'result'=>'true',
-        'msg'=>'Password updated. Please sign in with the new password.',
+        'translation_key'=>'password.updated',
+        'msg'=>oneid_translate('password.updated'),
         'redirect_uri'=>APP_URL.'/'
       ]);
     }
@@ -1790,15 +1948,18 @@ function string_sanitize($s) {
 
 
     function OTP_EMAIL_Sender($otp_code,$email,$user_name,$isTest=false,&$messageId=null){
+      $locale=oneid_current_locale();
       $email_body=$isTest
-        ?\OneId\App\Mail\OneIdEmailTemplate::deliveryTest($user_name)
+        ?\OneId\App\Mail\OneIdEmailTemplate::deliveryTest($user_name,$locale)
         :\OneId\App\Mail\OneIdEmailTemplate::otp(
           $user_name,
-          'Account Recovery',
-          'OTP KATA LALUAN',
-          'Tetapkan semula kata laluan',
-          'Kami menerima permintaan untuk menetapkan semula kata laluan OneID anda. Gunakan kod pengesahan berikut:',
-          $otp_code
+          oneid_translate('email.recovery.context'),
+          oneid_translate('email.recovery.badge'),
+          oneid_translate('email.recovery.headline'),
+          oneid_translate('email.recovery.intro'),
+          $otp_code,
+          null,
+          $locale
         );
 
             $mail = new PHPMailer;
@@ -1816,11 +1977,17 @@ function string_sanitize($s) {
             $mail->setFrom(oneid_secret('ONEID_SMTP_USERNAME'), (string) oneid_config('ONEID_SMTP_FROM_NAME'));
             $mail->addAddress($email, $user_name);
             //$mail->addAddress('30saat@gmail.com', 'Nabil');
-            $mail->Subject = $isTest ? 'OneID@UPNM - Ujian Password Recovery' : 'OneID@UPNM - OTP Lupa Kata Laluan';
+            $mail->Subject = $isTest
+              ?oneid_translate('email.test.subject',[],$locale)
+              :oneid_translate('email.recovery.subject',[],$locale);
             $mail->msgHTML($email_body);
             $mail->AltBody = $isTest
-              ?\OneId\App\Mail\OneIdEmailTemplate::deliveryTestPlainText()
-              :\OneId\App\Mail\OneIdEmailTemplate::otpPlainText('Kod OTP tetapan semula kata laluan OneID anda',$otp_code);
+              ?\OneId\App\Mail\OneIdEmailTemplate::deliveryTestPlainText($locale)
+              :\OneId\App\Mail\OneIdEmailTemplate::otpPlainText(
+                oneid_translate('email.recovery.headline'),
+                $otp_code,
+                $locale
+              );
             $sent=(bool)$mail->send();$messageId=$sent?$mail->getLastMessageID():null;return $sent;
     }
 

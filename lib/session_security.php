@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/auth_security.php';
+require_once __DIR__ . '/locale.php';
 
 function oneid_is_technical_heartbeat_request(array $post): bool
 {
@@ -76,4 +77,5 @@ function oneid_establish_authenticated_session(array $user): void
     if (!$sameAuthenticatedUser) {
         unset($_SESSION['oneid_csrf_token']);
     }
+    oneid_promote_authenticated_locale((string) $user['u_id']);
 }

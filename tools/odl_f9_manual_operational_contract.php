@@ -27,7 +27,8 @@ $r(str_contains($db,'SYNC_CROSS_SOURCE_IDENTITY_COLLISION')
  'Matrik IC and membership collisions block');
 $ui=(string)file_get_contents($root.'/admin/dashboard.php');
 $r(str_contains($ui,"pick_preview_sync_user('STUDENT_ODL_PG')")
- &&str_contains($ui,"STUDENT_ODL_PG: 'Sinkronisasi Pelajar ODL'"),
+ &&str_contains($ui,'STUDENT_ODL_PG: externalSyncText.odl')
+ &&str_contains($ui,"'odl' => oneid_translate('admin.sync.odl_title')"),
  'Admin routes ODL through guarded Preview and Apply modal');
 $badgeStart=strpos($ui,'function external_action_total(');
 $badgeEnd=strpos($ui,'function show_external_action_notice(',$badgeStart?:0);

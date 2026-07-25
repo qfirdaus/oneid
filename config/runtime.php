@@ -14,6 +14,15 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         // Fail closed: every deployment must set its own private runtime value.
         'ONEID_ENVIRONMENT' => '',
         'ONEID_TIMEZONE' => 'Asia/Kuala_Lumpur',
+        'ONEID_DEFAULT_LOCALE' => 'ms',
+        // Fail closed per environment; staging activation requires its own ML9 approval.
+        'ONEID_LOCALE_INFRASTRUCTURE_ENABLED' => 'false',
+        'ONEID_ML1_SCHEMA_APPLY_ENABLED' => 'false',
+        'ONEID_ML1_CHANGE_REFERENCE' => '',
+        'ONEID_ML1_BACKUP_REFERENCE' => '',
+        'ONEID_ML1_WINDOW_START' => '',
+        'ONEID_ML1_WINDOW_END' => '',
+        'ONEID_ML1_EXPECTED_EXISTING_PREFERENCES' => '0',
         'ONEID_DB_CHARSET' => 'latin1',
         'ONEID_SSO_IDP_URL' => 'https://oneid.local/',
         'ONEID_SSO_DASHBOARD_URL' => 'https://oneid.local/page/dashboard',

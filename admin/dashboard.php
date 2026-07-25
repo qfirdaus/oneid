@@ -5,19 +5,50 @@
    //return;
    require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
    require_once __DIR__ . '/../lib/request_security.php';
+   require_once __DIR__ . '/../app/Documentation/ApprovedReleaseCatalogue.php';
    oneid_require_admin_page();
    oneid_require_active_sso_page($operation);
    oneid_require_admin_step_up($operation, 'ADMIN_ACCESS', false);
+   if (isset($_GET['locale'])) {
+      if (oneid_set_session_locale((string) $_GET['locale'])) {
+         oneid_set_guest_locale_cookie((string) $_GET['locale']);
+         oneid_promote_authenticated_locale((string) $_SESSION['login_user']);
+      }
+      header('Location: ' . APP_URL . '/admin/dashboard', true, 303);
+      exit;
+   }
    
    $widget_data = $operation->admin_widget_count();
    $sys_config = $operation->get_system_config();
+   $approved_release_notes = null;
+   $release_catalogue_fallback_notice = null;
+   if (oneid_current_locale() === 'en') {
+      try {
+         $approved_release_catalogue = new \OneId\App\Documentation\ApprovedReleaseCatalogue(dirname(__DIR__));
+         $approved_release_notes = $approved_release_catalogue->forLocale('en')['releases'];
+      } catch (\Throwable $release_catalogue_error) {
+         error_log('ML8C release catalogue unavailable: ' . get_class($release_catalogue_error));
+         $release_catalogue_fallback_notice = oneid_translate('admin.releases.fallback_notice');
+      }
+   }
+   $admin_completeness_text = [];
+   foreach (array_keys(require dirname(__DIR__) . '/config/locales/ms.php') as $locale_key) {
+      if (
+         str_starts_with($locale_key, 'admin.sessions.')
+         || str_starts_with($locale_key, 'admin.audit.')
+         || str_starts_with($locale_key, 'admin.synclog.')
+         || str_starts_with($locale_key, 'admin.configuration.')
+      ) {
+         $admin_completeness_text[$locale_key] = oneid_translate($locale_key);
+      }
+   }
    ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?=htmlspecialchars(oneid_current_locale(), ENT_QUOTES, 'UTF-8')?>">
    <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-      <title>ONEID@UPNM - Gerbang Tunggal ke Sistem Digital UPNM</title>
+      <title><?=htmlspecialchars(oneid_translate('admin.title'), ENT_QUOTES, 'UTF-8')?></title>
       <!-- Favicon -->
       <link rel="shortcut icon" href="/favicon.ico">
       <link rel="icon" href="/favicon.ico" type="image/x-icon">
@@ -33,6 +64,7 @@
       <link href="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css">
       <!-- Custom CSS -->
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
    </head>
    <body>
       <!--Preloader-->
@@ -319,6 +351,92 @@
             </div>
          </div>
 
+         <div id="modal_metadata_translations" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_metadata_translations" aria-hidden="true">
+            <div class="modal-dialog modal-lg oneid-metadata-dialog">
+               <div class="modal-content oneid-sync-child-modal oneid-metadata-modal">
+                  <div class="modal-header oneid-sync-child-header oneid-metadata-header">
+                     <div class="oneid-sync-child-heading">
+                        <span class="oneid-sync-child-heading-icon" aria-hidden="true"><i class="fa fa-language"></i></span>
+                        <div>
+                           <h5 class="modal-title" id="aria_modal_metadata_translations"><?=htmlspecialchars(oneid_translate('admin.metadata.title'), ENT_QUOTES, 'UTF-8')?></h5>
+                           <p><?=htmlspecialchars(oneid_translate('admin.metadata.intro'), ENT_QUOTES, 'UTF-8')?></p>
+                        </div>
+                     </div>
+                     <button type="button" class="close oneid-sync-child-close" data-dismiss="modal" aria-label="<?=htmlspecialchars(oneid_translate('admin.common.close'), ENT_QUOTES, 'UTF-8')?>">×</button>
+                  </div>
+                  <form id="form_metadata_translation">
+                     <div class="modal-body oneid-sync-child-body oneid-metadata-body">
+                        <div class="alert alert-info" id="metadata_translation_status" role="status" aria-live="polite"></div>
+                        <div class="row">
+                           <div class="col-sm-4 form-group">
+                              <label for="metadata_entity_type"><?=htmlspecialchars(oneid_translate('admin.metadata.entity'), ENT_QUOTES, 'UTF-8')?></label>
+                              <select class="form-control" id="metadata_entity_type">
+                                 <option value="application"><?=htmlspecialchars(oneid_translate('admin.metadata.application'), ENT_QUOTES, 'UTF-8')?></option>
+                                 <option value="category"><?=htmlspecialchars(oneid_translate('admin.metadata.category'), ENT_QUOTES, 'UTF-8')?></option>
+                              </select>
+                           </div>
+                           <div class="col-sm-5 form-group">
+                              <label for="metadata_entity_id"><?=htmlspecialchars(oneid_translate('admin.metadata.entity'), ENT_QUOTES, 'UTF-8')?></label>
+                              <select class="form-control" id="metadata_entity_id"></select>
+                           </div>
+                           <div class="col-sm-3 form-group">
+                              <label for="metadata_locale"><?=htmlspecialchars(oneid_translate('admin.metadata.locale'), ENT_QUOTES, 'UTF-8')?></label>
+                              <select class="form-control" id="metadata_locale"><option value="ms">BM</option><option value="en">English</option></select>
+                           </div>
+                        </div>
+                        <div class="form-group">
+                           <label for="metadata_translated_name"><?=htmlspecialchars(oneid_translate('admin.metadata.name'), ENT_QUOTES, 'UTF-8')?></label>
+                           <input class="form-control" id="metadata_translated_name" maxlength="255" autocomplete="off">
+                        </div>
+                        <div class="form-group" id="metadata_description_group">
+                           <label for="metadata_translated_description"><?=htmlspecialchars(oneid_translate('admin.metadata.description'), ENT_QUOTES, 'UTF-8')?></label>
+                           <textarea class="form-control" id="metadata_translated_description" maxlength="2000" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                           <label for="metadata_change_reason"><?=htmlspecialchars(oneid_translate('admin.metadata.reason'), ENT_QUOTES, 'UTF-8')?></label>
+                           <textarea class="form-control" id="metadata_change_reason" minlength="10" maxlength="500" rows="2" required aria-describedby="metadata_change_reason_help"></textarea>
+                           <small class="help-block" id="metadata_change_reason_help"><?=htmlspecialchars(oneid_translate('admin.metadata.reason_required'), ENT_QUOTES, 'UTF-8')?></small>
+                        </div>
+                        <p class="help-block"><?=htmlspecialchars(oneid_translate('admin.metadata.fallback'), ENT_QUOTES, 'UTF-8')?></p>
+                        <hr>
+                        <button type="button" class="btn btn-default oneid-metadata-review-toggle" id="metadata_content_preview_button" onclick="toggleMetadataContentPreview();" aria-expanded="false" aria-controls="metadata_content_preview_panel">
+                           <i class="fa fa-list-alt" aria-hidden="true"></i>
+                           <span><?=htmlspecialchars(oneid_translate('admin.metadata.content_review'), ENT_QUOTES, 'UTF-8')?></span>
+                           <i class="fa fa-chevron-down oneid-metadata-review-chevron" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" class="btn btn-default oneid-metadata-bulk-preview-button" id="metadata_bulk_preview_button" onclick="loadMetadataBulkPreview();">
+                           <i class="fa fa-shield" aria-hidden="true"></i>
+                           <span><?=htmlspecialchars(oneid_translate('admin.metadata.bulk_preview'), ENT_QUOTES, 'UTF-8')?></span>
+                        </button>
+                        <div id="metadata_bulk_preview_result" class="alert mt-15" role="status" aria-live="polite" hidden></div>
+                        <div id="metadata_content_preview_panel" class="mt-20" hidden>
+                           <h5><?=htmlspecialchars(oneid_translate('admin.metadata.content_summary'), ENT_QUOTES, 'UTF-8')?></h5>
+                           <div class="alert alert-warning" id="metadata_content_preview_summary"></div>
+                           <div class="table-responsive oneid-metadata-review-table">
+                              <table class="table table-striped table-condensed">
+                                 <thead><tr>
+                                    <th><?=htmlspecialchars(oneid_translate('admin.metadata.entity'), ENT_QUOTES, 'UTF-8')?></th>
+                                    <th><?=htmlspecialchars(oneid_translate('admin.metadata.original'), ENT_QUOTES, 'UTF-8')?></th>
+                                    <th><?=htmlspecialchars(oneid_translate('admin.metadata.draft'), ENT_QUOTES, 'UTF-8')?></th>
+                                    <th><?=htmlspecialchars(oneid_translate('admin.metadata.classification'), ENT_QUOTES, 'UTF-8')?></th>
+                                    <th><?=htmlspecialchars(oneid_translate('admin.metadata.decision'), ENT_QUOTES, 'UTF-8')?></th>
+                                 </tr></thead>
+                                 <tbody id="metadata_content_preview_rows"></tbody>
+                              </table>
+                           </div>
+                           <p class="help-block"><?=htmlspecialchars(oneid_translate('admin.metadata.no_apply'), ENT_QUOTES, 'UTF-8')?></p>
+                        </div>
+                        <input type="hidden" id="metadata_translation_version" value="0">
+                     </div>
+                     <div class="modal-footer oneid-sync-child-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><?=htmlspecialchars(oneid_translate('admin.common.close'), ENT_QUOTES, 'UTF-8')?></button>
+                        <button type="submit" class="btn btn-primary" id="metadata_translation_save" disabled><i class="fa fa-check"></i> <?=htmlspecialchars(oneid_translate('admin.metadata.save'), ENT_QUOTES, 'UTF-8')?></button>
+                     </div>
+                  </form>
+               </div>
+            </div>
+         </div>
+
 
 
          <div id="modal_edit_app" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_edit_app" aria-hidden="true">
@@ -586,20 +704,20 @@
                      <div class="oneid-sync-parent-heading">
                         <span class="oneid-sync-parent-heading-icon"><i class="fa fa-refresh"></i></span>
                         <div>
-                           <h5 id="aria_modal_open_add_user_option">Sinkronisasi Pengguna</h5>
-                           <p>Semak dan selaraskan akaun OneID mengikut sumber data.</p>
+                           <h5 id="aria_modal_open_add_user_option"><?=htmlspecialchars(oneid_translate('admin.sync.title'), ENT_QUOTES, 'UTF-8')?></h5>
+                           <p><?=htmlspecialchars(oneid_translate('admin.sync.intro'), ENT_QUOTES, 'UTF-8')?></p>
                         </div>
                      </div>
                      <button type="button" class="close oneid-sync-parent-close" data-dismiss="modal" aria-label="Tutup">×</button>
                   </div>
                   <div class="modal-body oneid-sync-parent-body">
                      <div class="oneid-sync-menu-section">
-                        <span class="oneid-sync-menu-section-label">Ringkasan</span>
+                        <span class="oneid-sync-menu-section-label"><?=htmlspecialchars(oneid_translate('admin.sync.summary_section'), ENT_QUOTES, 'UTF-8')?></span>
                         <button id="btn_external_summary" class="btn btn-block oneid-sync-choice oneid-sync-menu-card oneid-sync-menu-summary" type="button" onclick="preview_external_sync_view('SUMMARY');">
                            <span class="oneid-sync-menu-icon"><i class="fa fa-dashboard"></i></span>
                            <span class="oneid-sync-menu-copy">
-                              <strong>Ringkasan Sinkronisasi Pengguna</strong>
-                              <small>Lihat status dan tindakan bagi semua sumber.</small>
+                              <strong><?=htmlspecialchars(oneid_translate('admin.sync.summary_title'), ENT_QUOTES, 'UTF-8')?></strong>
+                              <small><?=htmlspecialchars(oneid_translate('admin.sync.summary_intro'), ENT_QUOTES, 'UTF-8')?></small>
                            </span>
                            <span id="external_notice_summary" class="external-action-notice" style="display:none"></span>
                            <i class="fa fa-chevron-right oneid-sync-menu-arrow"></i>
@@ -608,12 +726,12 @@
                      </div>
 
                      <div class="oneid-sync-menu-section">
-                        <span class="oneid-sync-menu-section-label">Sinkronisasi mengikut sumber</span>
+                        <span class="oneid-sync-menu-section-label"><?=htmlspecialchars(oneid_translate('admin.sync.source_section'), ENT_QUOTES, 'UTF-8')?></span>
                         <button class="btn btn-block oneid-sync-choice oneid-sync-menu-card oneid-sync-menu-source external-source-preview-button" type="button" onclick="pick_preview_sync_user('STAFF_HR');">
                            <span class="oneid-sync-menu-icon"><i class="fa fa-briefcase"></i></span>
                            <span class="oneid-sync-menu-copy">
-                              <strong>Sinkronisasi Pengguna Staf</strong>
-                              <small>Semak perubahan daripada sumber data staf.</small>
+                              <strong><?=htmlspecialchars(oneid_translate('admin.sync.staff_title'), ENT_QUOTES, 'UTF-8')?></strong>
+                              <small><?=htmlspecialchars(oneid_translate('admin.sync.staff_intro'), ENT_QUOTES, 'UTF-8')?></small>
                            </span>
                            <span id="external_notice_staff" class="external-action-notice" style="display:none"></span>
                            <i class="fa fa-chevron-right oneid-sync-menu-arrow"></i>
@@ -621,8 +739,8 @@
                         <button class="btn btn-block oneid-sync-choice oneid-sync-menu-card oneid-sync-menu-source external-source-preview-button" type="button" onclick="pick_preview_sync_user('STUDENT_UG');">
                            <span class="oneid-sync-menu-icon"><i class="fa fa-graduation-cap"></i></span>
                            <span class="oneid-sync-menu-copy">
-                              <strong>Sinkronisasi Pelajar Prasiswazah</strong>
-                              <small>Semak perubahan daripada sumber pelajar prasiswazah.</small>
+                              <strong><?=htmlspecialchars(oneid_translate('admin.sync.ug_title'), ENT_QUOTES, 'UTF-8')?></strong>
+                              <small><?=htmlspecialchars(oneid_translate('admin.sync.ug_intro'), ENT_QUOTES, 'UTF-8')?></small>
                            </span>
                            <span id="external_notice_ug" class="external-action-notice" style="display:none"></span>
                            <i class="fa fa-chevron-right oneid-sync-menu-arrow"></i>
@@ -630,8 +748,8 @@
                         <button class="btn btn-block oneid-sync-choice oneid-sync-menu-card oneid-sync-menu-source external-source-preview-button" type="button" onclick="pick_preview_sync_user('STUDENT_ODL_PG');">
                            <span class="oneid-sync-menu-icon"><i class="fa fa-refresh"></i></span>
                            <span class="oneid-sync-menu-copy">
-                              <strong>Sinkronisasi Pelajar ODL</strong>
-                              <small>Semak perubahan daripada sumber pelajar ODL.</small>
+                              <strong><?=htmlspecialchars(oneid_translate('admin.sync.odl_title'), ENT_QUOTES, 'UTF-8')?></strong>
+                              <small><?=htmlspecialchars(oneid_translate('admin.sync.odl_intro'), ENT_QUOTES, 'UTF-8')?></small>
                            </span>
                            <span id="external_notice_odl" class="external-action-notice" style="display:none"></span>
                            <i class="fa fa-chevron-right oneid-sync-menu-arrow"></i>
@@ -639,12 +757,12 @@
                      </div>
 
                      <div class="oneid-sync-menu-section oneid-sync-menu-section-last">
-                        <span class="oneid-sync-menu-section-label">Tindakan manual</span>
+                        <span class="oneid-sync-menu-section-label"><?=htmlspecialchars(oneid_translate('admin.sync.manual_section'), ENT_QUOTES, 'UTF-8')?></span>
                         <button class="btn btn-block oneid-sync-menu-card oneid-sync-menu-manual" type="button" onclick="pick_add_single_user();">
                            <span class="oneid-sync-menu-icon"><i class="fa fa-user-plus"></i></span>
                            <span class="oneid-sync-menu-copy">
-                              <strong>Tambah Pengguna Secara Manual</strong>
-                              <small>Daftar satu akaun yang tiada dalam sumber sinkronisasi.</small>
+                              <strong><?=htmlspecialchars(oneid_translate('admin.sync.manual_title'), ENT_QUOTES, 'UTF-8')?></strong>
+                              <small><?=htmlspecialchars(oneid_translate('admin.sync.manual_intro'), ENT_QUOTES, 'UTF-8')?></small>
                            </span>
                            <i class="fa fa-chevron-right oneid-sync-menu-arrow"></i>
                         </button>
@@ -662,8 +780,8 @@
                      <div class="oneid-sync-child-heading">
                         <span class="oneid-sync-child-heading-icon"><i class="fa fa-refresh"></i></span>
                         <div>
-                           <h5 class="modal-title" id="aria_modal_add_new_single_user">Semakan Sinkronisasi Pengguna</h5>
-                           <p>Semak semua perubahan dengan teliti sebelum melaksanakan sinkronisasi.</p>
+                           <h5 class="modal-title" id="aria_modal_add_new_single_user"><?=htmlspecialchars(oneid_translate('admin.sync.preview_title'), ENT_QUOTES, 'UTF-8')?></h5>
+                           <p><?=htmlspecialchars(oneid_translate('admin.sync.preview_intro'), ENT_QUOTES, 'UTF-8')?></p>
                         </div>
                      </div>
                      <button type="button" class="close oneid-sync-child-close oneid-return-add-user-options" data-dismiss="modal" aria-hidden="true">×</button>
@@ -680,60 +798,60 @@
                                              <div class="form-body overflow-hide">
                                                 <div class="form-group">
                                                    <div class="progress progress-lg" id="sync_progress_id">
-                                                      <div class="progress-bar progress-bar-primary active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%" role="progressbar"> Sedang menyediakan semakan... </div>
+                                                      <div class="progress-bar progress-bar-primary active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%" role="progressbar"><?=htmlspecialchars(oneid_translate('admin.sync.preparing'), ENT_QUOTES, 'UTF-8')?></div>
                                                    </div>
                                                    <div id="sync_result_div">
                                                       <div id="sync_admin_summary" class="alert alert-info oneid-sync-admin-summary" role="status"></div>
-                                                      <h6 class="mb-1"><i></i> Perubahan yang dikenal pasti (belum dilaksanakan):</h6>
+                                                      <h6 class="mb-1"><i></i> <?=htmlspecialchars(oneid_translate('admin.sync.identified_changes'), ENT_QUOTES, 'UTF-8')?></h6>
                                                       <div class="sync-preview-table-wrap">
                                                       <table class="table table-borderless sync-preview-table">
                                                          <tbody>
                                                             <tr>
-                                                               <td>Jumlah rekod daripada sumber:</td>
+                                                               <td><?=htmlspecialchars(oneid_translate('admin.sync.source_rows'), ENT_QUOTES, 'UTF-8')?></td>
                                                                <td><span id="sync_preview_source_rows"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>Pengguna baharu:</td>
+                                                               <td><?=htmlspecialchars(oneid_translate('admin.sync.new_users'), ENT_QUOTES, 'UTF-8')?></td>
                                                                <td><span id="sync_preview_new"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>Maklumat perlu dikemas kini:</td>
+                                                               <td><?=htmlspecialchars(oneid_translate('admin.sync.update_users'), ENT_QUOTES, 'UTF-8')?></td>
                                                                <td><span id="sync_preview_update"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>Akaun perlu dinyahaktifkan:</td>
+                                                               <td><?=htmlspecialchars(oneid_translate('admin.sync.deactivate_users'), ENT_QUOTES, 'UTF-8')?></td>
                                                                <td><span id="sync_preview_deactivate"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>Akaun perlu diaktifkan semula:</td>
+                                                               <td><?=htmlspecialchars(oneid_translate('admin.sync.reactivate_users'), ENT_QUOTES, 'UTF-8')?></td>
                                                                <td><span id="sync_preview_reactivate"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>Akaun manual yang dilindungi:</td>
+                                                               <td><?=htmlspecialchars(oneid_translate('admin.sync.protected_manual'), ENT_QUOTES, 'UTF-8')?></td>
                                                                <td><span id="sync_preview_protected_manual"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>Konflik identiti:</td>
+                                                               <td><?=htmlspecialchars(oneid_translate('admin.sync.identity_conflicts'), ENT_QUOTES, 'UTF-8')?></td>
                                                                <td><span id="sync_preview_collisions"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>Status semakan:</td>
+                                                               <td><?=htmlspecialchars(oneid_translate('admin.sync.review_status'), ENT_QUOTES, 'UTF-8')?></td>
                                                                <td><span id="sync_preview_status" class="users-view-status"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td>Perhatian:</td>
+                                                               <td><?=htmlspecialchars(oneid_translate('admin.sync.attention'), ENT_QUOTES, 'UTF-8')?></td>
                                                                <td><ul id="sync_preview_warnings" class="pl-15"></ul></td>
                                                             </tr>
                                                          </tbody>
                                                       </table>
                                                       </div>
                                                       <details class="oneid-sync-technical-details">
-                                                         <summary><i class="fa fa-info-circle"></i> Maklumat teknikal dan rujukan audit</summary>
+                                                         <summary><i class="fa fa-info-circle"></i> <?=htmlspecialchars(oneid_translate('admin.sync.technical'), ENT_QUOTES, 'UTF-8')?></summary>
                                                          <div class="sync-preview-table-wrap mt-10">
                                                             <table class="table table-borderless sync-preview-table">
                                                                <tbody>
                                                                   <tr>
-                                                                     <td>Rujukan pelan / sah sehingga:</td>
+                                                                     <td><?=htmlspecialchars(oneid_translate('admin.sync.plan_expiry'), ENT_QUOTES, 'UTF-8')?></td>
                                                                      <td><span id="sync_preview_hash_expiry"></span></td>
                                                                   </tr>
                                                                </tbody>
@@ -742,7 +860,7 @@
                                                       </details>
                                                       <p id="sync_pilot_notice" class="text-muted">Readiness preview only. Controlled Pilot Apply remains disabled.</p>
                                                       <div id="sync_full_confirmation_group" class="form-group" style="display:none">
-                                                         <label for="sync_full_confirmation">Untuk mengesahkan tindakan ini, masukkan frasa berikut tepat seperti dipaparkan:</label>
+                                                         <label for="sync_full_confirmation"><?=htmlspecialchars(oneid_translate('admin.sync.confirm_instruction'), ENT_QUOTES, 'UTF-8')?></label>
                                                          <input type="text" id="sync_full_confirmation" name="sync_full_confirmation" class="form-control" autocomplete="off" spellcheck="false">
                                                          <small id="sync_full_confirmation_hint" class="text-muted"></small>
                                                       </div>
@@ -759,9 +877,9 @@
                      </div>
                      <div class="modal-footer oneid-sync-child-footer">
                         <button type="button" id="btn_apply_sync_pilot" class="btn btn-danger waves-effect" style="display:none">Apply controlled pilot (2 New + 1 Update)</button>
-                        <button type="button" id="btn_apply_sync_full" class="btn btn-danger waves-effect" style="display:none" disabled>Laksanakan sinkronisasi yang diluluskan</button>
-                        <button type="button" id="btn_apply_sync_operational" class="btn btn-primary waves-effect" style="display:none" disabled>Laksanakan sinkronisasi</button>
-                        <button type="button" class="btn btn-default waves-effect oneid-return-add-user-options" data-dismiss="modal">Tutup</button>
+                        <button type="button" id="btn_apply_sync_full" class="btn btn-danger waves-effect" style="display:none" disabled><?=htmlspecialchars(oneid_translate('admin.sync.apply_approved'), ENT_QUOTES, 'UTF-8')?></button>
+                        <button type="button" id="btn_apply_sync_operational" class="btn btn-primary waves-effect" style="display:none" disabled><?=htmlspecialchars(oneid_translate('admin.sync.apply'), ENT_QUOTES, 'UTF-8')?></button>
+                        <button type="button" class="btn btn-default waves-effect oneid-return-add-user-options" data-dismiss="modal"><?=htmlspecialchars(oneid_translate('admin.common.close'), ENT_QUOTES, 'UTF-8')?></button>
                      </div>
                   </form>
                </div>
@@ -776,53 +894,53 @@
                      <div class="oneid-sync-child-heading">
                         <span class="oneid-sync-child-heading-icon"><i class="fa fa-dashboard"></i></span>
                         <div>
-                           <h5 class="modal-title" id="aria_modal_odl_shadow_preview">Ringkasan Sinkronisasi Pengguna</h5>
-                           <p>Paparan menyeluruh status sumber dan tindakan yang memerlukan perhatian.</p>
+                           <h5 class="modal-title" id="aria_modal_odl_shadow_preview"><?=htmlspecialchars(oneid_translate('admin.sync.summary_title'), ENT_QUOTES, 'UTF-8')?></h5>
+                           <p><?=htmlspecialchars(oneid_translate('admin.sync.summary_overview'), ENT_QUOTES, 'UTF-8')?></p>
                         </div>
                      </div>
                      <button type="button" class="close oneid-sync-child-close oneid-return-add-user-options" data-dismiss="modal" aria-hidden="true">×</button>
                   </div>
                   <div class="modal-body oneid-sync-child-body">
                      <div id="odl_shadow_progress" class="progress progress-lg">
-                        <div id="external_preview_progress_text" class="progress-bar progress-bar-info active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%" role="progressbar">Sedang menyediakan ringkasan...</div>
+                        <div id="external_preview_progress_text" class="progress-bar progress-bar-info active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%" role="progressbar"><?=htmlspecialchars(oneid_translate('admin.sync.preparing_summary'), ENT_QUOTES, 'UTF-8')?></div>
                      </div>
                      <div id="odl_shadow_result" style="display:none">
                         <div id="external_preview_admin_summary" class="alert alert-info oneid-sync-admin-summary" role="status"></div>
-                        <h6 class="mb-1">Status setiap sumber:</h6>
+                        <h6 class="mb-1"><?=htmlspecialchars(oneid_translate('admin.sync.source_status'), ENT_QUOTES, 'UTF-8')?></h6>
                         <div class="sync-preview-table-wrap">
                            <table class="table table-borderless sync-preview-table external-summary-source-table">
                               <tbody>
-                                 <tr><td>Sumber pengguna:</td><td>Jumlah rekod</td><td>Perlu tindakan</td><td>Status</td></tr>
-                                 <tr><td>Staf</td><td id="external_summary_staff_rows">-</td><td id="external_summary_staff_actions">-</td><td id="external_summary_staff_status">-</td></tr>
-                                 <tr><td>Pelajar Prasiswazah</td><td id="external_summary_ug_rows">-</td><td id="external_summary_ug_actions">-</td><td id="external_summary_ug_status">-</td></tr>
-                                 <tr><td>Pelajar ODL</td><td id="external_summary_odl_rows">-</td><td id="external_summary_odl_actions">-</td><td id="external_summary_odl_status">-</td></tr>
+                                 <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.user_source'), ENT_QUOTES, 'UTF-8')?></td><td><?=htmlspecialchars(oneid_translate('admin.sync.total_rows'), ENT_QUOTES, 'UTF-8')?></td><td><?=htmlspecialchars(oneid_translate('admin.sync.action_required'), ENT_QUOTES, 'UTF-8')?></td><td><?=htmlspecialchars(oneid_translate('admin.sync.status'), ENT_QUOTES, 'UTF-8')?></td></tr>
+                                 <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.staff'), ENT_QUOTES, 'UTF-8')?></td><td id="external_summary_staff_rows">-</td><td id="external_summary_staff_actions">-</td><td id="external_summary_staff_status">-</td></tr>
+                                 <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.ug'), ENT_QUOTES, 'UTF-8')?></td><td id="external_summary_ug_rows">-</td><td id="external_summary_ug_actions">-</td><td id="external_summary_ug_status">-</td></tr>
+                                 <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.odl'), ENT_QUOTES, 'UTF-8')?></td><td id="external_summary_odl_rows">-</td><td id="external_summary_odl_actions">-</td><td id="external_summary_odl_status">-</td></tr>
                               </tbody>
                            </table>
                         </div>
                         <details class="oneid-sync-technical-details">
-                           <summary><i class="fa fa-info-circle"></i> Maklumat teknikal dan rujukan audit</summary>
+                           <summary><i class="fa fa-info-circle"></i> <?=htmlspecialchars(oneid_translate('admin.sync.technical'), ENT_QUOTES, 'UTF-8')?></summary>
                            <div class="sync-preview-table-wrap mt-10">
                               <table class="table table-borderless sync-preview-table">
                                  <tbody>
-                                    <tr><td id="external_preview_rows_label">Jumlah rekod sumber:</td><td id="odl_shadow_rows">-</td></tr>
-                                    <tr><td>Status sumber / perubahan berbanding semakan terdahulu:</td><td id="external_preview_health">-</td></tr>
-                                    <tr><td>Perubahan memerlukan semakan:</td><td id="external_preview_sync_actions">-</td></tr>
-                                    <tr><td>Keahlian dikekalkan / ditambah:</td><td id="odl_shadow_membership">-</td></tr>
-                                    <tr><td>Calon baharu / nyahaktif:</td><td id="odl_shadow_candidates">-</td></tr>
-                                    <tr><td>Akaun kekal aktif:</td><td id="odl_shadow_keep_active">-</td></tr>
-                                    <tr><td>Tahap risiko / Apply / perubahan data:</td><td id="odl_shadow_safety">-</td></tr>
-                                    <tr><td>Rujukan audit Preview:</td><td id="odl_shadow_digest">-</td></tr>
-                                    <tr><td>Status teknikal:</td><td><span id="odl_shadow_status" class="users-view-status">-</span></td></tr>
-                                    <tr><td>Sebab proses disekat:</td><td><ul id="odl_shadow_blocks" class="pl-15"></ul></td></tr>
+                                    <tr><td id="external_preview_rows_label"><?=htmlspecialchars(oneid_translate('admin.sync.source_rows'), ENT_QUOTES, 'UTF-8')?></td><td id="odl_shadow_rows">-</td></tr>
+                                    <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.health'), ENT_QUOTES, 'UTF-8')?></td><td id="external_preview_health">-</td></tr>
+                                    <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.changes_review'), ENT_QUOTES, 'UTF-8')?></td><td id="external_preview_sync_actions">-</td></tr>
+                                    <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.membership'), ENT_QUOTES, 'UTF-8')?></td><td id="odl_shadow_membership">-</td></tr>
+                                    <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.candidates'), ENT_QUOTES, 'UTF-8')?></td><td id="odl_shadow_candidates">-</td></tr>
+                                    <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.accounts_active'), ENT_QUOTES, 'UTF-8')?></td><td id="odl_shadow_keep_active">-</td></tr>
+                                    <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.safety'), ENT_QUOTES, 'UTF-8')?></td><td id="odl_shadow_safety">-</td></tr>
+                                    <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.preview_audit'), ENT_QUOTES, 'UTF-8')?></td><td id="odl_shadow_digest">-</td></tr>
+                                    <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.technical_status'), ENT_QUOTES, 'UTF-8')?></td><td><span id="odl_shadow_status" class="users-view-status">-</span></td></tr>
+                                    <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.block_reason'), ENT_QUOTES, 'UTF-8')?></td><td><ul id="odl_shadow_blocks" class="pl-15"></ul></td></tr>
                                  </tbody>
                               </table>
                            </div>
                         </details>
-                        <p id="external_preview_boundary_note" class="text-muted">Ringkasan ini untuk semakan sahaja. Tiada perubahan data boleh dilaksanakan dari paparan ini.</p>
+                        <p id="external_preview_boundary_note" class="text-muted"><?=htmlspecialchars(oneid_translate('admin.sync.summary_boundary'), ENT_QUOTES, 'UTF-8')?></p>
                      </div>
                   </div>
                   <div class="modal-footer oneid-sync-child-footer">
-                     <button type="button" class="btn btn-default waves-effect oneid-return-add-user-options" data-dismiss="modal">Tutup</button>
+                     <button type="button" class="btn btn-default waves-effect oneid-return-add-user-options" data-dismiss="modal"><?=htmlspecialchars(oneid_translate('admin.common.close'), ENT_QUOTES, 'UTF-8')?></button>
                   </div>
                </div>
             </div>
@@ -1047,7 +1165,7 @@
                            <div class="panel panel-default card-view bg-twitter">
                               <div class="panel-heading">
                                  <div class="text-center">
-                                    <h6 class="panel-title txt-light ">ADMINISTRATOR</h6>
+                                    <h6 class="panel-title txt-light "><?=htmlspecialchars(oneid_translate('admin.role'), ENT_QUOTES, 'UTF-8')?></h6>
                                  </div>
                                  <div class="clearfix"></div>
                               </div>
@@ -1069,16 +1187,21 @@
                                           <h5 class="block mt-10 weight-500 capitalize-font txt-dark"><?php echo $_SESSION['user']; ?></h5>
                                           <h6 class="block capitalize-font"><?php echo $_SESSION['login_user']; ?></h6>
                                           <!--<span class="time block truncate txt-grey">Your session will expire in <span id="demo">- - -</span></span> -->
+                                          <nav class="profile-locale-switcher" aria-label="<?=htmlspecialchars(oneid_translate('login.language_label'), ENT_QUOTES, 'UTF-8')?>">
+                                             <i class="fa fa-globe" aria-hidden="true"></i>
+                                             <a class="<?=oneid_current_locale() === 'ms' ? 'is-active' : ''?>" href="?locale=ms" lang="ms" hreflang="ms" title="Bahasa Melayu" aria-label="Bahasa Melayu" aria-current="<?=oneid_current_locale() === 'ms' ? 'true' : 'false'?>">BM</a>
+                                             <a class="<?=oneid_current_locale() === 'en' ? 'is-active' : ''?>" href="?locale=en" lang="en" hreflang="en" title="English" aria-label="English" aria-current="<?=oneid_current_locale() === 'en' ? 'true' : 'false'?>">EN</a>
+                                          </nav>
                                        </div>
                                        <div class="social-info">
                                           <div class="row">
                                              <div class="col-xs-6 text-center">
                                                 <span class="counts block head-font"><span class="counter-anim"><?php echo $widget_data['total_sp']; ?></span></span>
-                                                <span class="counts-text block">Web App</span>
+                                                <span class="counts-text block"><?=htmlspecialchars(oneid_translate('admin.stats.web_apps'), ENT_QUOTES, 'UTF-8')?></span>
                                              </div>
                                              <div class="col-xs-6 text-center">
                                                 <span class="counts block head-font"><span class="counter-anim"><?php echo $widget_data['total_user']; ?></span></span>
-                                                <span class="counts-text block">User</span>
+                                                <span class="counts-text block"><?=htmlspecialchars(oneid_translate('admin.stats.users'), ENT_QUOTES, 'UTF-8')?></span>
                                              </div>
                                           </div>
                                        </div>
@@ -1087,24 +1210,24 @@
 
                                     <div  class="pills-struct vertical-pills mt-40">
                                        <ul role="tablist" class="nav nav-pills ver-nav-pills" id="myTabs_8">
-                                          <li  role="presentation" class="active"><a aria-expanded="true"  data-toggle="tab" role="tab" id="follo_tab_8" href="#follo_8"><span>Web Apps <span class="inline-block" id='follo_data_list_count_text'></span></span></a></li>
-                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_user_menu" href="#tab_user"><span>User Account</span></a></li>
-                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_user_active_sessions" href="#tab_active_sessions"><span>Active Sessions</span></a></li>
-                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_audit_log" href="#tab_auditlog"><span>Audit Log</span></a></li>
+                                          <li  role="presentation" class="active"><a aria-expanded="true"  data-toggle="tab" role="tab" id="follo_tab_8" href="#follo_8"><span><?=htmlspecialchars(oneid_translate('admin.menu.web_apps'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block" id='follo_data_list_count_text'></span></span></a></li>
+                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_user_menu" href="#tab_user"><span><?=htmlspecialchars(oneid_translate('admin.menu.users'), ENT_QUOTES, 'UTF-8')?></span></a></li>
+                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_user_active_sessions" href="#tab_active_sessions"><span><?=htmlspecialchars(oneid_translate('admin.menu.sessions'), ENT_QUOTES, 'UTF-8')?></span></a></li>
+                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_audit_log" href="#tab_auditlog"><span><?=htmlspecialchars(oneid_translate('admin.menu.audit'), ENT_QUOTES, 'UTF-8')?></span></a></li>
                                           <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_sync_log" href="#tab_synclog"><span>Sync Log</span></a></li>
 										  
-                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_acl_menu" href="#tab_settings"><span>Configuration</span></a></li>
-                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_ver" href="#tab_versioning"><span>Version Releases</span></a></li>
+                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_acl_menu" href="#tab_settings"><span><?=htmlspecialchars(oneid_translate('admin.menu.configuration'), ENT_QUOTES, 'UTF-8')?></span></a></li>
+                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_ver" href="#tab_versioning"><span><?=htmlspecialchars(oneid_translate('admin.menu.releases'), ENT_QUOTES, 'UTF-8')?></span></a></li>
                                           <?php if($_SESSION['login_user_type'] == 1){ ?>   
                                              <li role="presentation" class="pill-yellow" style="cursor: pointer !important;" >
                                                 <a id="tab_faq" href="../page/dashboard">
-                                                  <span>Back to My Account<span class="inline-block"></span></span>
+                                                  <span><?=htmlspecialchars(oneid_translate('admin.menu.back'), ENT_QUOTES, 'UTF-8')?><span class="inline-block"></span></span>
                                                 </a>
                                              </li>
                                           <?php } ?>
                                            <li role="presentation" style="cursor: pointer !important;" >
                                              <a id="tab_faq" href="logout">
-                                               <span>Log Out<span class="inline-block"></span></span>
+                                               <span><?=htmlspecialchars(oneid_translate('admin.menu.logout'), ENT_QUOTES, 'UTF-8')?><span class="inline-block"></span></span>
                                              </a>
                                            </li>
                                            
@@ -1134,21 +1257,21 @@
                                                    <div class="web-app-panel">
                                                       <div class="web-app-header">
                                                          <div>
-                                                            <span class="web-app-eyebrow">Application directory</span>
-                                                            <h4 class="web-app-title">Web Apps</h4>
-                                                            <p class="web-app-intro">Urus aplikasi berdaftar, kategori dan konfigurasi sambungan SSO.</p>
+                                                            <span class="web-app-eyebrow"><?=htmlspecialchars(oneid_translate('admin.apps.eyebrow'), ENT_QUOTES, 'UTF-8')?></span>
+                                                            <h4 class="web-app-title"><?=htmlspecialchars(oneid_translate('admin.apps.title'), ENT_QUOTES, 'UTF-8')?></h4>
+                                                            <p class="web-app-intro"><?=htmlspecialchars(oneid_translate('admin.apps.intro'), ENT_QUOTES, 'UTF-8')?></p>
                                                          </div>
-                                                         <div class="web-app-summary" aria-live="polite" aria-label="Application summary">
+                                                         <div class="web-app-summary" aria-live="polite" aria-label="<?=htmlspecialchars(oneid_translate('admin.apps.summary'), ENT_QUOTES, 'UTF-8')?>">
                                                             <div class="web-app-count">
-                                                               <span>Total</span>
+                                                               <span><?=htmlspecialchars(oneid_translate('admin.apps.total'), ENT_QUOTES, 'UTF-8')?></span>
                                                                <strong id="web_app_count">&mdash;</strong>
                                                             </div>
                                                             <div class="web-app-count is-sso">
-                                                               <span>Full SSO</span>
+                                                               <span><?=htmlspecialchars(oneid_translate('admin.apps.full_sso'), ENT_QUOTES, 'UTF-8')?></span>
                                                                <strong id="web_app_sso_count">&mdash;</strong>
                                                             </div>
                                                             <div class="web-app-count is-non-sso">
-                                                               <span>Non SSO</span>
+                                                               <span><?=htmlspecialchars(oneid_translate('admin.apps.non_sso'), ENT_QUOTES, 'UTF-8')?></span>
                                                                <strong id="web_app_non_sso_count">&mdash;</strong>
                                                             </div>
                                                          </div>
@@ -1156,21 +1279,25 @@
 
                                                       <div class="web-app-toolbar">
                                                          <div>
-                                                            <h5>Application categories</h5>
+                                                            <h5><?=htmlspecialchars(oneid_translate('admin.apps.categories'), ENT_QUOTES, 'UTF-8')?></h5>
                                                             <p>Pilih kategori untuk melihat aplikasi yang berkaitan.</p>
                                                          </div>
                                                          <div class="web-app-actions">
                                                             <button class="web-app-action is-danger" type="button" onclick="open_manage_webapp_categories();">
                                                                <i class="fa fa-folder-open-o" aria-hidden="true"></i>
-                                                               <span>Manage categories</span>
+                                                               <span><?=htmlspecialchars(oneid_translate('admin.apps.manage_categories'), ENT_QUOTES, 'UTF-8')?></span>
                                                             </button>
                                                             <button class="web-app-action" type="button" onclick="open_add_new_webapp_category();">
                                                                <i class="fa fa-folder-o" aria-hidden="true"></i>
-                                                               <span>Add category</span>
+                                                               <span><?=htmlspecialchars(oneid_translate('admin.apps.add_category'), ENT_QUOTES, 'UTF-8')?></span>
                                                             </button>
                                                             <button class="web-app-action is-primary" type="button" onclick="open_add_new_webapp();">
                                                                <i class="fa fa-plus" aria-hidden="true"></i>
-                                                               <span>Add app</span>
+                                                               <span><?=htmlspecialchars(oneid_translate('admin.apps.add_app'), ENT_QUOTES, 'UTF-8')?></span>
+                                                            </button>
+                                                            <button class="web-app-action" type="button" onclick="openMetadataTranslations();">
+                                                               <i class="fa fa-language" aria-hidden="true"></i>
+                                                               <span><?=htmlspecialchars(oneid_translate('admin.metadata.manage'), ENT_QUOTES, 'UTF-8')?></span>
                                                             </button>
                                                             <button class="web-app-refresh" type="button" onclick="get_service_provider_list();" title="Refresh web apps" aria-label="Refresh web apps">
                                                                <i class="fa fa-refresh" aria-hidden="true"></i>
@@ -1182,7 +1309,7 @@
                                                          <div class="web-app-search">
                                                             <i class="fa fa-search" aria-hidden="true"></i>
                                                             <label class="sr-only" for="admin_web_app_search">Cari semua aplikasi</label>
-                                                            <input type="search" id="admin_web_app_search" autocomplete="off" placeholder="Cari nama, fungsi, URL atau App ID">
+                                                            <input type="search" id="admin_web_app_search" autocomplete="off" placeholder="<?=htmlspecialchars(oneid_translate('admin.apps.search'), ENT_QUOTES, 'UTF-8')?>">
                                                             <button type="button" id="admin_web_app_search_clear" title="Kosongkan carian" aria-label="Kosongkan carian" hidden>
                                                                <i class="fa fa-times" aria-hidden="true"></i>
                                                             </button>
@@ -1196,7 +1323,7 @@
 
                                                       <div id="tab_available_apps_list_loading" class="web-app-state is-loading">
                                                          <span><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>
-                                                         <strong>Loading web applications</strong>
+                                                         <strong><?=htmlspecialchars(oneid_translate('admin.apps.loading'), ENT_QUOTES, 'UTF-8')?></strong>
                                                          <small>Please wait while application data is retrieved.</small>
                                                       </div>
                                                       <div id="tab_available_apps_list" class="web-app-directory">
@@ -1213,12 +1340,12 @@
                                                    <div class="user-account-panel">
                                                       <div class="user-account-header">
                                                          <div>
-                                                            <span class="user-account-eyebrow">Identity management</span>
-                                                            <h4 class="user-account-title">User Accounts</h4>
-                                                            <p class="user-account-intro">Cari akaun, semak kategori pengguna dan urus akses sistem dari satu paparan.</p>
+                                                            <span class="user-account-eyebrow"><?=htmlspecialchars(oneid_translate('admin.users.eyebrow'), ENT_QUOTES, 'UTF-8')?></span>
+                                                            <h4 class="user-account-title"><?=htmlspecialchars(oneid_translate('admin.users.title'), ENT_QUOTES, 'UTF-8')?></h4>
+                                                            <p class="user-account-intro"><?=htmlspecialchars(oneid_translate('admin.users.intro'), ENT_QUOTES, 'UTF-8')?></p>
                                                          </div>
                                                          <div class="user-category-count" aria-live="polite">
-                                                            <span>Categories</span>
+                                                            <span><?=htmlspecialchars(oneid_translate('admin.users.categories_count'), ENT_QUOTES, 'UTF-8')?></span>
                                                             <strong id="user_category_count">&mdash;</strong>
                                                          </div>
                                                       </div>
@@ -1227,14 +1354,14 @@
                                                          <div class="user-search-copy">
                                                             <span class="user-search-icon" aria-hidden="true"><i class="fa fa-search"></i></span>
                                                             <div>
-                                                               <h5>Find user account</h5>
-                                                               <p>Search by name, staff or student ID, or identity number.</p>
+                                                               <h5><?=htmlspecialchars(oneid_translate('admin.users.find'), ENT_QUOTES, 'UTF-8')?></h5>
+                                                               <p><?=htmlspecialchars(oneid_translate('admin.users.find_help'), ENT_QUOTES, 'UTF-8')?></p>
                                                             </div>
                                                          </div>
                                                          <div class="user-search-controls">
                                                             <div id="the-basics" class="user-search-input-wrap">
                                                                <i class="fa fa-user-o" aria-hidden="true"></i>
-                                                               <input class="typeahead form-control" id="search_user_input" type="text" placeholder="Name, Staff/Student ID, or NIRC" aria-label="Search user account">
+                                                               <input class="typeahead form-control" id="search_user_input" type="text" placeholder="<?=htmlspecialchars(oneid_translate('admin.users.search_placeholder'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('admin.users.find'), ENT_QUOTES, 'UTF-8')?>">
                                                             </div>
                                                             <button type="button" class="user-search-clear" onclick="clear_search();" title="Clear search" aria-label="Clear search">
                                                                <i class="fa fa-times" aria-hidden="true"></i>
@@ -1249,7 +1376,7 @@
                                                          </div>
                                                          <div id="search_user_account_main_search_result" class="user-search-result">
                                                             <div class="user-search-result-heading">
-                                                               <span>Search result</span>
+                                                               <span><?=htmlspecialchars(oneid_translate('admin.users.search_result'), ENT_QUOTES, 'UTF-8')?></span>
                                                             </div>
                                                             <div id="search_user_account_main_result_data"></div>
                                                          </div>
@@ -1258,17 +1385,17 @@
                                                       <div class="user-category-card">
                                                          <div class="user-category-header">
                                                             <div>
-                                                               <h5>User categories</h5>
-                                                               <p>Semak jumlah akaun dan aplikasi yang diberikan kepada setiap kategori.</p>
+                                                               <h5><?=htmlspecialchars(oneid_translate('admin.users.categories'), ENT_QUOTES, 'UTF-8')?></h5>
+                                                               <p><?=htmlspecialchars(oneid_translate('admin.users.categories_help'), ENT_QUOTES, 'UTF-8')?></p>
                                                             </div>
                                                             <div class="user-category-actions">
                                                                <button class="user-category-action" type="button" onclick="add_new_category();">
                                                                   <i class="fa fa-folder-o" aria-hidden="true"></i>
-                                                                  <span>New category</span>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.users.new_category'), ENT_QUOTES, 'UTF-8')?></span>
                                                                </button>
                                                                <button class="user-category-action is-primary" type="button" onclick="add_new_user_option();">
                                                                   <i class="fa fa-refresh" aria-hidden="true"></i>
-                                                                  <span>Sync User</span>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.users.sync'), ENT_QUOTES, 'UTF-8')?></span>
                                                                </button>
                                                                <button class="user-category-refresh" type="button" onclick="admin_get_all_user_category(0);" title="Refresh user categories" aria-label="Refresh user categories">
                                                                   <i class="fa fa-refresh" aria-hidden="true"></i>
@@ -1294,16 +1421,16 @@
                                                       <div class="active-session-panel">
                                                          <div class="active-session-header">
                                                             <div>
-                                                               <span class="active-session-eyebrow">Access &amp; security</span>
-                                                               <h4 class="active-session-title">Active Sessions</h4>
-                                                               <p class="active-session-intro">Pantau lifecycle sesi pengguna secara read-only berdasarkan issuance, aktiviti terakhir dan polisi revocation.</p>
+                                                               <span class="active-session-eyebrow"><?=htmlspecialchars(oneid_translate('admin.sessions.eyebrow'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               <h4 class="active-session-title"><?=htmlspecialchars(oneid_translate('admin.sessions.title'), ENT_QUOTES, 'UTF-8')?></h4>
+                                                               <p class="active-session-intro"><?=htmlspecialchars(oneid_translate('admin.sessions.intro'), ENT_QUOTES, 'UTF-8')?></p>
                                                             </div>
                                                             <div class="active-session-actions">
                                                                <div class="active-session-count" aria-live="polite">
-                                                                  <span>Results</span>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.sessions.results'), ENT_QUOTES, 'UTF-8')?></span>
                                                                   <strong id="active_session_count">&mdash;</strong>
                                                                </div>
-                                                               <button type="button" class="active-session-refresh" onclick="get_all_user_activ_session();" title="Refresh active sessions" aria-label="Refresh active sessions">
+                                                               <button type="button" class="active-session-refresh" onclick="get_all_user_activ_session();" title="<?=htmlspecialchars(oneid_translate('admin.common.refresh'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('admin.common.refresh'), ENT_QUOTES, 'UTF-8')?>">
                                                                   <i class="fa fa-refresh" aria-hidden="true"></i>
                                                                </button>
                                                             </div>
@@ -1312,38 +1439,38 @@
                                                          <div class="active-session-card" id="app_security_session_list">
                                                             <div class="active-session-card-heading">
                                                                <div>
-                                                                  <h5>Session list</h5>
-                                                                  <p>Refresh, carian, filter dan pagination tidak menamatkan atau mengubah sesi pengguna.</p>
+                                                                  <h5><?=htmlspecialchars(oneid_translate('admin.sessions.list'), ENT_QUOTES, 'UTF-8')?></h5>
+                                                                  <p><?=htmlspecialchars(oneid_translate('admin.sessions.read_only_note'), ENT_QUOTES, 'UTF-8')?></p>
                                                                </div>
                                                             </div>
                                                             <div class="active-session-filter" role="search">
                                                                <div class="active-session-search-box">
                                                                   <i class="fa fa-search" aria-hidden="true"></i>
-                                                                  <input type="search" id="active_session_query" maxlength="80" placeholder="Search user or device" aria-label="Search active sessions">
+                                                                  <input type="search" id="active_session_query" maxlength="80" placeholder="<?=htmlspecialchars(oneid_translate('admin.sessions.search'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('admin.sessions.search'), ENT_QUOTES, 'UTF-8')?>">
                                                                </div>
-                                                               <select id="active_session_status" aria-label="Filter session status">
-                                                                  <option value="all">All statuses</option>
-                                                                  <option value="current">Current</option>
-                                                                  <option value="active">Active</option>
-                                                                  <option value="refresh">Refresh window</option>
-                                                                  <option value="grace">Grace period</option>
-                                                                  <option value="due">Due for revocation</option>
-                                                                  <option value="expired">Expired</option>
+                                                               <select id="active_session_status" aria-label="<?=htmlspecialchars(oneid_translate('admin.sessions.filter_status'), ENT_QUOTES, 'UTF-8')?>">
+                                                                  <option value="all"><?=htmlspecialchars(oneid_translate('admin.sessions.all_statuses'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                  <option value="current"><?=htmlspecialchars(oneid_translate('admin.sessions.current'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                  <option value="active"><?=htmlspecialchars(oneid_translate('admin.sessions.active'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                  <option value="refresh"><?=htmlspecialchars(oneid_translate('admin.sessions.refresh_window'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                  <option value="grace"><?=htmlspecialchars(oneid_translate('admin.sessions.grace_period'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                  <option value="due"><?=htmlspecialchars(oneid_translate('admin.sessions.due_revoke'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                  <option value="expired"><?=htmlspecialchars(oneid_translate('admin.sessions.expired'), ENT_QUOTES, 'UTF-8')?></option>
                                                                </select>
-                                                               <select id="active_session_page_size" aria-label="Results per page">
-                                                                  <option value="10">10 per page</option>
-                                                                  <option value="25" selected>25 per page</option>
-                                                                  <option value="50">50 per page</option>
+                                                               <select id="active_session_page_size" aria-label="<?=htmlspecialchars(oneid_translate('admin.sessions.results_per_page'), ENT_QUOTES, 'UTF-8')?>">
+                                                                  <option value="10">10 <?=htmlspecialchars(oneid_translate('admin.sessions.per_page'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                  <option value="25" selected>25 <?=htmlspecialchars(oneid_translate('admin.sessions.per_page'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                  <option value="50">50 <?=htmlspecialchars(oneid_translate('admin.sessions.per_page'), ENT_QUOTES, 'UTF-8')?></option>
                                                                </select>
-                                                               <button type="button" id="active_session_search_button" class="active-session-filter-button" title="Apply session filters" aria-label="Apply session filters"><i class="fa fa-search" aria-hidden="true"></i></button>
+                                                               <button type="button" id="active_session_search_button" class="active-session-filter-button" title="<?=htmlspecialchars(oneid_translate('admin.sessions.apply_filters'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('admin.sessions.apply_filters'), ENT_QUOTES, 'UTF-8')?>"><i class="fa fa-search" aria-hidden="true"></i></button>
                                                             </div>
                                                             <div class="active-session-metrics" id="active_session_metrics" aria-live="polite">
-                                                               <span><b id="active_metric_current">0</b>Current</span>
-                                                               <span><b id="active_metric_active">0</b>Active</span>
-                                                               <span><b id="active_metric_refresh">0</b>Refresh</span>
-                                                               <span><b id="active_metric_grace">0</b>Grace</span>
-                                                               <span><b id="active_metric_due">0</b>Due</span>
-                                                               <span><b id="active_metric_expired">0</b>Expired</span>
+                                                               <span><b id="active_metric_current">0</b><?=htmlspecialchars(oneid_translate('admin.sessions.current'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               <span><b id="active_metric_active">0</b><?=htmlspecialchars(oneid_translate('admin.sessions.active'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               <span><b id="active_metric_refresh">0</b><?=htmlspecialchars(oneid_translate('admin.sessions.refresh'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               <span><b id="active_metric_grace">0</b><?=htmlspecialchars(oneid_translate('admin.sessions.grace'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               <span><b id="active_metric_due">0</b><?=htmlspecialchars(oneid_translate('admin.sessions.due'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               <span><b id="active_metric_expired">0</b><?=htmlspecialchars(oneid_translate('admin.sessions.expired'), ENT_QUOTES, 'UTF-8')?></span>
                                                             </div>
                                                             <div class="active-session-table-wrap">
                                                                <table class="table active-session-table mb-0">
@@ -1356,19 +1483,19 @@
                                                                   </colgroup>
                                                                   <thead>
                                                                      <tr>
-                                                                        <th scope="col">Issued At</th>
-                                                                        <th scope="col">Last Heartbeat</th>
-                                                                        <th scope="col">User</th>
-                                                                        <th scope="col">Device</th>
-                                                                        <th scope="col">Status</th>
+                                                                        <th scope="col"><?=htmlspecialchars(oneid_translate('admin.sessions.issued'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                        <th scope="col"><?=htmlspecialchars(oneid_translate('admin.sessions.heartbeat'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                        <th scope="col"><?=htmlspecialchars(oneid_translate('admin.sessions.user'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                        <th scope="col"><?=htmlspecialchars(oneid_translate('admin.sessions.device'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                        <th scope="col"><?=htmlspecialchars(oneid_translate('admin.sessions.status'), ENT_QUOTES, 'UTF-8')?></th>
                                                                      </tr>
                                                                   </thead>
                                                                   <tbody id="security_tab_session">
                                                                      <tr class="active-session-state-row is-loading">
                                                                         <td colspan="5">
                                                                            <span class="active-session-state-icon"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>
-                                                                           <strong>Loading active sessions</strong>
-                                                                           <small>Please wait while session data is retrieved.</small>
+                                                                           <strong><?=htmlspecialchars(oneid_translate('admin.sessions.loading'), ENT_QUOTES, 'UTF-8')?></strong>
+                                                                           <small><?=htmlspecialchars(oneid_translate('admin.sessions.loading_help'), ENT_QUOTES, 'UTF-8')?></small>
                                                                         </td>
                                                                      </tr>
                                                                   </tbody>
@@ -1388,12 +1515,12 @@
                                                       <div class="audit-log-panel">
                                                          <div class="audit-log-header">
                                                             <div>
-                                                               <span class="audit-log-eyebrow">Security &amp; activity</span>
-                                                               <h4 class="audit-log-title">Audit Log</h4>
-                                                               <p class="audit-log-intro">Semak rekod aktiviti sistem mengikut julat tarikh, jenis log dan alamat IP.</p>
+                                                               <span class="audit-log-eyebrow"><?=htmlspecialchars(oneid_translate('admin.audit.eyebrow'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               <h4 class="audit-log-title"><?=htmlspecialchars(oneid_translate('admin.audit.title'), ENT_QUOTES, 'UTF-8')?></h4>
+                                                               <p class="audit-log-intro"><?=htmlspecialchars(oneid_translate('admin.audit.intro'), ENT_QUOTES, 'UTF-8')?></p>
                                                             </div>
                                                             <div class="audit-result-count" aria-live="polite">
-                                                               <span>Results</span>
+                                                               <span><?=htmlspecialchars(oneid_translate('admin.audit.results'), ENT_QUOTES, 'UTF-8')?></span>
                                                                <strong id="audit_result_count">&mdash;</strong>
                                                             </div>
                                                          </div>
@@ -1402,16 +1529,16 @@
                                                             <div class="audit-filter-copy">
                                                                <span class="audit-filter-icon" aria-hidden="true"><i class="fa fa-calendar"></i></span>
                                                                <div>
-                                                                  <label for="audit_search_daterange">Date range</label>
-                                                                  <p>Pilih julat tarikh.</p>
+                                                                  <label for="audit_search_daterange"><?=htmlspecialchars(oneid_translate('admin.audit.date_range'), ENT_QUOTES, 'UTF-8')?></label>
+                                                                  <p><?=htmlspecialchars(oneid_translate('admin.audit.date_help'), ENT_QUOTES, 'UTF-8')?></p>
                                                                </div>
                                                             </div>
                                                             <form class="audit-filter-form" onsubmit="search_audit_date_range(); return false;">
                                                                <div class="audit-date-input-wrap">
                                                                   <i class="fa fa-calendar-o" aria-hidden="true"></i>
-                                                                  <input class="form-control input-daterange-datepicker" type="text" id="audit_search_daterange" name="audit_search_daterange" value="01/01/2016 - 31/01/2016" aria-label="Audit log date range"/>
+                                                                  <input class="form-control input-daterange-datepicker" type="text" id="audit_search_daterange" name="audit_search_daterange" value="01/01/2016 - 31/01/2016" aria-label="<?=htmlspecialchars(oneid_translate('admin.audit.date_aria'), ENT_QUOTES, 'UTF-8')?>"/>
                                                                </div>
-                                                               <button type="submit" class="audit-search-button" aria-label="Search audit logs" title="Search audit logs">
+                                                               <button type="submit" class="audit-search-button" aria-label="<?=htmlspecialchars(oneid_translate('admin.audit.search'), ENT_QUOTES, 'UTF-8')?>" title="<?=htmlspecialchars(oneid_translate('admin.audit.search'), ENT_QUOTES, 'UTF-8')?>">
                                                                   <i class="fa fa-search" aria-hidden="true"></i>
                                                                </button>
                                                             </form>
@@ -1420,8 +1547,8 @@
                                                          <div class="audit-results-card">
                                                             <div class="audit-results-heading">
                                                                <div>
-                                                                  <h5>Log results</h5>
-                                                                  <p>Semua data disusun dari bahagian kiri dan atas untuk bacaan yang lebih jelas.</p>
+                                                                  <h5><?=htmlspecialchars(oneid_translate('admin.audit.log_results'), ENT_QUOTES, 'UTF-8')?></h5>
+                                                                  <p><?=htmlspecialchars(oneid_translate('admin.audit.layout_help'), ENT_QUOTES, 'UTF-8')?></p>
                                                                </div>
                                                             </div>
                                                             <div class="audit-table-wrap">
@@ -1434,24 +1561,24 @@
                                                                   </colgroup>
                                                                   <thead>
                                                                      <tr>
-                                                                        <th scope="col">Date / Time</th>
-                                                                        <th scope="col">Log Type</th>
-                                                                        <th scope="col">Activity Details</th>
-                                                                        <th scope="col">IP Address</th>
+                                                                        <th scope="col"><?=htmlspecialchars(oneid_translate('admin.audit.datetime'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                        <th scope="col"><?=htmlspecialchars(oneid_translate('admin.audit.type'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                        <th scope="col"><?=htmlspecialchars(oneid_translate('admin.audit.details'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                        <th scope="col"><?=htmlspecialchars(oneid_translate('admin.audit.ip'), ENT_QUOTES, 'UTF-8')?></th>
                                                                      </tr>
                                                                   </thead>
                                                                   <tbody id="audit_search_result_tbody">
                                                                      <tr class="audit-state-row">
                                                                         <td colspan="4">
                                                                            <span class="audit-state-icon"><i class="fa fa-search" aria-hidden="true"></i></span>
-                                                                           <strong>Ready to search</strong>
-                                                                           <small>Select a date range to display audit records.</small>
+                                                                           <strong><?=htmlspecialchars(oneid_translate('admin.audit.ready'), ENT_QUOTES, 'UTF-8')?></strong>
+                                                                           <small><?=htmlspecialchars(oneid_translate('admin.audit.ready_help'), ENT_QUOTES, 'UTF-8')?></small>
                                                                         </td>
                                                                      </tr>
                                                                   </tbody>
                                                                </table>
                                                             </div>
-                                                            <div id="audit_log_pagination" class="audit-log-pagination text-center" aria-label="Audit log pages"></div>
+                                                            <div id="audit_log_pagination" class="audit-log-pagination text-center" aria-label="<?=htmlspecialchars(oneid_translate('admin.audit.pages'), ENT_QUOTES, 'UTF-8')?>"></div>
                                                          </div>
                                                       </div>
                                                    </div>
@@ -1465,26 +1592,26 @@
                                                       <div class="sync-log-panel">
                                                          <div class="sync-log-header">
                                                             <div>
-                                                               <span class="sync-log-eyebrow">External data activity</span>
-                                                               <h4 class="sync-log-title">Sync Sessions</h4>
-                                                               <p class="sync-log-intro">Semak sejarah setiap sesi, jumlah perubahan dan status pemprosesan external sync.</p>
+                                                               <span class="sync-log-eyebrow"><?=htmlspecialchars(oneid_translate('admin.synclog.eyebrow'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               <h4 class="sync-log-title"><?=htmlspecialchars(oneid_translate('admin.synclog.title'), ENT_QUOTES, 'UTF-8')?></h4>
+                                                               <p class="sync-log-intro"><?=htmlspecialchars(oneid_translate('admin.synclog.intro'), ENT_QUOTES, 'UTF-8')?></p>
                                                             </div>
                                                             <button type="button" class="sync-log-refresh" onclick="load_sync_sessions();">
                                                                <i class="fa fa-refresh" aria-hidden="true"></i>
-                                                               <span>Refresh data</span>
+                                                               <span><?=htmlspecialchars(oneid_translate('admin.synclog.refresh'), ENT_QUOTES, 'UTF-8')?></span>
                                                             </button>
                                                          </div>
                                                          <div class="sync-log-summary" aria-label="Sync session summary">
                                                             <div class="sync-summary-item">
-                                                               <span>Sessions shown</span>
+                                                               <span><?=htmlspecialchars(oneid_translate('admin.synclog.shown'), ENT_QUOTES, 'UTF-8')?></span>
                                                                <strong id="sync_summary_total">—</strong>
                                                             </div>
                                                             <div class="sync-summary-item">
-                                                               <span>Completed</span>
+                                                               <span><?=htmlspecialchars(oneid_translate('admin.synclog.completed'), ENT_QUOTES, 'UTF-8')?></span>
                                                                <strong id="sync_summary_complete">—</strong>
                                                             </div>
                                                             <div class="sync-summary-item">
-                                                               <span>Recorded changes</span>
+                                                               <span><?=htmlspecialchars(oneid_translate('admin.synclog.changes'), ENT_QUOTES, 'UTF-8')?></span>
                                                                <strong id="sync_summary_changes">—</strong>
                                                             </div>
                                                          </div>
@@ -1493,17 +1620,17 @@
                                                                      <table class="table sync-log-table mb-0">
                                                                         <thead>
                                                                            <tr>
-                                                                              <th class="sync-col-session">Session</th>
-                                                                              <th>Date/Time</th>
-                                                                              <th>Triggered By</th>
-                                                                              <th>Changes</th>
-                                                                              <th>Status</th>
+                                                                              <th class="sync-col-session"><?=htmlspecialchars(oneid_translate('admin.synclog.session'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                              <th><?=htmlspecialchars(oneid_translate('admin.synclog.datetime'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                              <th><?=htmlspecialchars(oneid_translate('admin.synclog.triggered'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                              <th><?=htmlspecialchars(oneid_translate('admin.synclog.changes'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                              <th><?=htmlspecialchars(oneid_translate('admin.synclog.status'), ENT_QUOTES, 'UTF-8')?></th>
                                                                               <th class="sync-action-column">#</th>
                                                                            </tr>
                                                                         </thead>
                                                                         <tbody id="sync_session_tbody">
                                                                            <tr class="sync-empty-row">
-                                                                              <td colspan="6"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> Loading sessions...</td>
+                                                                              <td colspan="6"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> <?=htmlspecialchars(oneid_translate('admin.synclog.loading'), ENT_QUOTES, 'UTF-8')?></td>
                                                                            </tr>
                                                                         </tbody>
                                                                      </table>
@@ -1518,11 +1645,11 @@
                                                             <div>
                                                                <button type="button" class="sync-log-back" onclick="show_sync_session_list();">
                                                                   <i class="fa fa-arrow-left" aria-hidden="true"></i>
-                                                                  <span>Back to sessions</span>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.synclog.back'), ENT_QUOTES, 'UTF-8')?></span>
                                                                </button>
-                                                               <span class="sync-log-eyebrow">Session audit trail</span>
-                                                               <h4 class="sync-log-title" id="sync_detail_header">Changes in Session</h4>
-                                                               <p class="sync-log-intro">Butiran perubahan yang direkodkan untuk sesi sync terpilih.</p>
+                                                               <span class="sync-log-eyebrow"><?=htmlspecialchars(oneid_translate('admin.synclog.trail'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               <h4 class="sync-log-title" id="sync_detail_header"><?=htmlspecialchars(oneid_translate('admin.synclog.detail_title'), ENT_QUOTES, 'UTF-8')?></h4>
+                                                               <p class="sync-log-intro"><?=htmlspecialchars(oneid_translate('admin.synclog.detail_intro'), ENT_QUOTES, 'UTF-8')?></p>
                                                             </div>
                                                          </div>
                                                          <div class="sync-log-table-card">
@@ -1531,15 +1658,15 @@
                                                                         <thead>
                                                                            <tr>
                                                                               <th>#</th>
-                                                                              <th>User ID</th>
-                                                                              <th>Action</th>
-                                                                              <th>Change Details</th>
-                                                                              <th>Time</th>
+                                                                              <th><?=htmlspecialchars(oneid_translate('admin.synclog.user_id'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                              <th><?=htmlspecialchars(oneid_translate('admin.synclog.action'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                              <th><?=htmlspecialchars(oneid_translate('admin.synclog.change_details'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                              <th><?=htmlspecialchars(oneid_translate('admin.synclog.time'), ENT_QUOTES, 'UTF-8')?></th>
                                                                            </tr>
                                                                         </thead>
                                                                         <tbody id="sync_detail_tbody">
                                                                            <tr class="sync-empty-row">
-                                                                              <td colspan="5">No changes recorded for this session.</td>
+                                                                              <td colspan="5"><?=htmlspecialchars(oneid_translate('admin.synclog.no_changes'), ENT_QUOTES, 'UTF-8')?></td>
                                                                            </tr>
                                                                         </tbody>
                                                                      </table>
@@ -1558,11 +1685,14 @@
                                                       <div class="version-release-panel">
                                                          <div class="version-release-header">
                                                             <div>
-                                                               <span class="version-release-eyebrow">Release history</span>
-                                                               <h4 class="version-release-title">Version Releases</h4>
-                                                               <p class="version-release-intro">Ringkasan perubahan, pembaikan dan penambahbaikan yang telah dikeluarkan untuk OneID.</p>
+                                                               <span class="version-release-eyebrow"><?=htmlspecialchars(oneid_translate('admin.releases.eyebrow'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               <h4 class="version-release-title"><?=htmlspecialchars(oneid_translate('admin.releases.title'), ENT_QUOTES, 'UTF-8')?></h4>
+                                                               <p class="version-release-intro"><?=htmlspecialchars(oneid_translate('admin.releases.intro'), ENT_QUOTES, 'UTF-8')?></p>
                                                             </div>
-                                                            <div id="current_release_badge" class="version-current-release" aria-label="Current release"></div>
+                                                            <div id="current_release_badge" class="version-current-release" aria-label="<?=htmlspecialchars(oneid_translate('admin.releases.current'), ENT_QUOTES, 'UTF-8')?>"></div>
+                                                         </div>
+                                                         <div id="release_catalogue_fallback_notice" class="alert alert-warning" role="status"<?=$release_catalogue_fallback_notice === null ? ' hidden' : ''?>>
+                                                            <?=htmlspecialchars((string) $release_catalogue_fallback_notice, ENT_QUOTES, 'UTF-8')?>
                                                          </div>
                                                          <div id="release_notes_list" class="version-release-list" aria-live="polite">
                                                             <!-- Release cards are rendered from the static release notes below. -->
@@ -1576,30 +1706,36 @@
                                              <div class="admin-section-inner">
                                                 <div class="row">
                                                    <div class="col-lg-12">
-                                                      <nav class="configuration-tabs" aria-label="Configuration sections">
+                                                      <nav class="configuration-tabs" aria-label="<?=htmlspecialchars(oneid_translate('admin.configuration.sections'), ENT_QUOTES, 'UTF-8')?>">
                                                          <ul class="nav nav-tabs" role="tablist">
                                                             <li class="active" role="presentation">
                                                                <a href="#configuration_authentication" id="configuration_authentication_tab" role="tab" data-toggle="tab" aria-controls="configuration_authentication" aria-selected="true">
                                                                   <i class="fa fa-shield" aria-hidden="true"></i>
-                                                                  <span>Authentication Policy</span>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.authentication_tab'), ENT_QUOTES, 'UTF-8')?></span>
                                                                </a>
                                                             </li>
                                                             <li role="presentation">
                                                                <a href="#configuration_recovery" id="configuration_recovery_tab" role="tab" data-toggle="tab" aria-controls="configuration_recovery" aria-selected="false">
                                                                   <i class="fa fa-envelope-o" aria-hidden="true"></i>
-                                                                  <span>Account Recovery</span>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.recovery_tab'), ENT_QUOTES, 'UTF-8')?></span>
                                                                </a>
                                                             </li>
                                                             <li role="presentation">
                                                                <a href="#configuration_admin_2fa" id="configuration_admin_2fa_tab" role="tab" data-toggle="tab" aria-controls="configuration_admin_2fa" aria-selected="false">
                                                                   <i class="fa fa-mobile" aria-hidden="true"></i>
-                                                                  <span>Admin 2FA</span>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.admin_2fa'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               </a>
+                                                            </li>
+                                                            <li role="presentation">
+                                                               <a href="#configuration_locale" id="configuration_locale_tab" role="tab" data-toggle="tab" aria-controls="configuration_locale" aria-selected="false">
+                                                                  <i class="fa fa-language" aria-hidden="true"></i>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.locale_tab'), ENT_QUOTES, 'UTF-8')?></span>
                                                                </a>
                                                             </li>
                                                             <li role="presentation">
                                                                <a href="#configuration_audit" id="configuration_audit_tab" role="tab" data-toggle="tab" aria-controls="configuration_audit" aria-selected="false">
                                                                   <i class="fa fa-history" aria-hidden="true"></i>
-                                                                  <span>Audit History</span>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.audit_tab'), ENT_QUOTES, 'UTF-8')?></span>
                                                                </a>
                                                             </li>
                                                          </ul>
@@ -1609,13 +1745,13 @@
                                                       <div class="sso-config-panel">
                                                          <div class="sso-config-header">
                                                             <div>
-                                                               <span class="sso-config-eyebrow">Authentication policy</span>
-                                                               <h4 class="sso-config-title">Authentication &amp; SSO Token Policy</h4>
-                                                               <p class="sso-config-intro">Urus hayat token SSO dan token aktif pada beberapa peranti. Password Recovery dikawal secara berasingan di bawah.</p>
+                                                               <span class="sso-config-eyebrow"><?=htmlspecialchars(oneid_translate('admin.configuration.auth_eyebrow'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               <h4 class="sso-config-title"><?=htmlspecialchars(oneid_translate('admin.configuration.auth_title'), ENT_QUOTES, 'UTF-8')?></h4>
+                                                               <p class="sso-config-intro"><?=htmlspecialchars(oneid_translate('admin.configuration.auth_intro'), ENT_QUOTES, 'UTF-8')?></p>
                                                             </div>
                                                             <button class="sso-config-save" id="sso_config_save_button" type="button" onclick="update_configuration();" disabled aria-busy="true">
                                                                <i class="fa fa-check" aria-hidden="true"></i>
-                                                               <span id="sso_config_save_label">Loading settings...</span>
+                                                               <span id="sso_config_save_label"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_settings'), ENT_QUOTES, 'UTF-8')?></span>
                                                             </button>
                                                          </div>
                                                          <div class="sso-config-body">
@@ -1623,8 +1759,8 @@
                                                                <div class="sso-config-copy">
                                                                   <span class="sso-config-index">01</span>
                                                                   <div>
-                                                                     <label for="sso_settings_token_session_timeout">SSO token lifetime</label>
-                                                                     <p>Tempoh nominal token SSO sebelum validation atau legacy refresh berlaku. PHP session OneID kekal berasingan: tamat selepas 30 minit tanpa aktiviti atau maksimum 8 jam.</p>
+                                                                     <label for="sso_settings_token_session_timeout"><?=htmlspecialchars(oneid_translate('admin.configuration.token_lifetime'), ENT_QUOTES, 'UTF-8')?></label>
+                                                                     <p><?=htmlspecialchars(oneid_translate('admin.configuration.token_help'), ENT_QUOTES, 'UTF-8')?></p>
                                                                   </div>
                                                                </div>
                                                                <div class="sso-config-control sso-config-select-wrap">
@@ -1645,12 +1781,12 @@
                                                                <div class="sso-config-copy">
                                                                   <span class="sso-config-index">02</span>
                                                                   <div>
-                                                                     <label for="sso_settings_multi_session">Allow multiple active SSO tokens</label>
-                                                                     <p>Benarkan token daripada beberapa browser atau peranti kekal aktif. Jika dimatikan, behavior semasa hanya membatalkan token lama pada login pengguna yang berikutnya.</p>
+                                                                     <label for="sso_settings_multi_session"><?=htmlspecialchars(oneid_translate('admin.configuration.allow_multi'), ENT_QUOTES, 'UTF-8')?></label>
+                                                                     <p><?=htmlspecialchars(oneid_translate('admin.configuration.multi_help'), ENT_QUOTES, 'UTF-8')?></p>
                                                                   </div>
                                                                </div>
                                                                <div class="sso-config-control">
-                                                                  <div class="sso-config-switch" aria-label="Allow multiple active SSO tokens">
+                                                                  <div class="sso-config-switch" aria-label="<?=htmlspecialchars(oneid_translate('admin.configuration.allow_multi'), ENT_QUOTES, 'UTF-8')?>">
                                                                      <input type="checkbox" class="js-switch js-switch-1" id="sso_settings_multi_session" data-color="#11a8df" data-size="small"/>
                                                                   </div>
                                                                </div>
@@ -1658,51 +1794,77 @@
 
                                                             <div class="sso-config-note sso-config-note-warning">
                                                                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                                                               <p>Token sehingga satu minggu meningkatkan tempoh pendedahan jika token dicuri.</p>
+                                                               <p><?=htmlspecialchars(oneid_translate('admin.configuration.token_warning'), ENT_QUOTES, 'UTF-8')?></p>
                                                             </div>
                                                             <div class="sso-config-note">
                                                                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                                                               <p id="sso_config_operational_status" role="status" aria-live="polite">Loading current policy...</p>
+                                                               <p id="sso_config_operational_status" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_policy'), ENT_QUOTES, 'UTF-8')?></p>
                                                             </div>
                                                             <div class="sso-config-row">
-                                                               <div class="sso-config-copy"><span class="sso-config-index">03</span><div><label for="sso_config_change_reason">Change reason</label><p>Wajib untuk setiap perubahan. Masukkan sebab operasi tanpa password, token, OTP atau data sensitif.</p></div></div>
-                                                               <div class="sso-config-control"><textarea class="form-control" id="sso_config_change_reason" maxlength="500" rows="3" placeholder="Minimum 10 characters"></textarea></div>
+                                                               <div class="sso-config-copy"><span class="sso-config-index">03</span><div><label for="sso_config_change_reason"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.reason_help'), ENT_QUOTES, 'UTF-8')?></p></div></div>
+                                                               <div class="sso-config-control"><textarea class="form-control" id="sso_config_change_reason" maxlength="500" rows="3" placeholder="<?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_placeholder'), ENT_QUOTES, 'UTF-8')?>"></textarea></div>
                                                             </div>
-                                                            <div class="sso-config-note"><i class="fa fa-history" aria-hidden="true"></i><p id="sso_config_last_changed">No recorded configuration change.</p></div>
+                                                            <div class="sso-config-note"><i class="fa fa-history" aria-hidden="true"></i><p id="sso_config_last_changed"><?=htmlspecialchars(oneid_translate('admin.configuration.no_history'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                          </div>
                                                       </div>
                                                          </section>
                                                          <section class="tab-pane fade" id="configuration_recovery" role="tabpanel" aria-labelledby="configuration_recovery_tab">
                                                       <div class="sso-config-panel">
-                                                         <div class="sso-config-header"><div><span class="sso-config-eyebrow">Account recovery</span><h4 class="sso-config-title">Password Recovery</h4><p class="sso-config-intro">Polisi penghantaran OTP Forgot Password. Ia bukan login MFA atau Admin Step-Up 2FA.</p></div><button class="sso-config-save" id="recovery_config_save_button" type="button" onclick="updatePasswordRecovery();" disabled><i class="fa fa-check"></i> <span id="recovery_config_save_label">Loading settings...</span></button></div>
+                                                         <div class="sso-config-header"><div><span class="sso-config-eyebrow"><?=htmlspecialchars(oneid_translate('admin.configuration.recovery_eyebrow'), ENT_QUOTES, 'UTF-8')?></span><h4 class="sso-config-title"><?=htmlspecialchars(oneid_translate('admin.configuration.recovery_title'), ENT_QUOTES, 'UTF-8')?></h4><p class="sso-config-intro"><?=htmlspecialchars(oneid_translate('admin.configuration.recovery_intro'), ENT_QUOTES, 'UTF-8')?></p></div><button class="sso-config-save" id="recovery_config_save_button" type="button" onclick="updatePasswordRecovery();" disabled><i class="fa fa-check"></i> <span id="recovery_config_save_label"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_settings'), ENT_QUOTES, 'UTF-8')?></span></button></div>
                                                          <div class="sso-config-body">
-                                                            <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="password_reset_email_enabled">Send password-reset OTP by email</label><p>Apabila OFF, Forgot Password tidak mencipta challenge kerana tiada saluran recovery manual yang diluluskan.</p></div></div><div class="sso-config-control"><div class="sso-config-switch"><input type="checkbox" class="js-switch js-switch-1" id="password_reset_email_enabled" data-color="#11a8df" data-size="small"/></div></div></div>
-                                                            <div class="sso-config-note"><i class="fa fa-heartbeat"></i><p id="recovery_smtp_status" role="status">Checking SMTP configuration...</p></div>
-                                                            <div class="sso-config-row"><div class="sso-config-copy"><div><label for="password_recovery_test_email">Test delivery</label><p>Masukkan mailbox UAT yang diluluskan. Alamat penuh dan credential tidak direkod dalam audit.</p></div></div><div class="sso-config-control"><input type="email" class="form-control" id="password_recovery_test_email" placeholder="Mailbox UAT"><button type="button" class="btn btn-default btn-sm mt-10" onclick="testPasswordRecoveryEmail();">Send test</button></div></div>
-                                                            <div class="sso-config-note sso-config-note-warning"><i class="fa fa-exclamation-triangle"></i><p>Recovery bagi pengguna tanpa e-mel sah adalah fail-closed. Prosedur manual belum tersedia dalam sistem.</p></div>
+                                                            <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="password_reset_email_enabled"><?=htmlspecialchars(oneid_translate('admin.configuration.recovery_email'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.recovery_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><div class="sso-config-switch"><input type="checkbox" class="js-switch js-switch-1" id="password_reset_email_enabled" data-color="#11a8df" data-size="small"/></div></div></div>
+                                                            <div class="sso-config-note"><i class="fa fa-heartbeat"></i><p id="recovery_smtp_status" role="status"><?=htmlspecialchars(oneid_translate('admin.configuration.checking_smtp'), ENT_QUOTES, 'UTF-8')?></p></div>
+                                                            <div class="sso-config-row"><div class="sso-config-copy"><div><label for="password_recovery_test_email"><?=htmlspecialchars(oneid_translate('admin.configuration.test_delivery'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.test_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><input type="email" class="form-control" id="password_recovery_test_email" placeholder="Mailbox UAT"><button type="button" class="btn btn-default btn-sm mt-10" onclick="testPasswordRecoveryEmail();"><?=htmlspecialchars(oneid_translate('admin.configuration.send_test'), ENT_QUOTES, 'UTF-8')?></button></div></div>
+                                                            <div class="sso-config-note sso-config-note-warning"><i class="fa fa-exclamation-triangle"></i><p><?=htmlspecialchars(oneid_translate('admin.configuration.recovery_warning'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                          </div>
                                                       </div>
                                                          </section>
                                                          <section class="tab-pane fade" id="configuration_admin_2fa" role="tabpanel" aria-labelledby="configuration_admin_2fa_tab">
                                                       <div class="sso-config-panel">
                                                          <div class="sso-config-header">
-                                                            <div><span class="sso-config-eyebrow">Administrator security</span><h4 class="sso-config-title">Kaedah 2FA Pilihan</h4><p class="sso-config-intro">Tetapkan kaedah yang akan dipaparkan dahulu apabila akaun anda perlu membuat pengesahan Administrator.</p></div>
-                                                            <button class="sso-config-save" id="admin_mfa_preference_save_button" type="button" onclick="saveAdminMfaPreference();" disabled><i class="fa fa-check"></i> <span id="admin_mfa_preference_save_label">Loading settings...</span></button>
+                                                            <div><span class="sso-config-eyebrow"><?=htmlspecialchars(oneid_translate('admin.configuration.security_eyebrow'), ENT_QUOTES, 'UTF-8')?></span><h4 class="sso-config-title"><?=htmlspecialchars(oneid_translate('admin.configuration.factor_title'), ENT_QUOTES, 'UTF-8')?></h4><p class="sso-config-intro"><?=htmlspecialchars(oneid_translate('admin.configuration.factor_intro'), ENT_QUOTES, 'UTF-8')?></p></div>
+                                                            <button class="sso-config-save" id="admin_mfa_preference_save_button" type="button" onclick="saveAdminMfaPreference();" disabled><i class="fa fa-check"></i> <span id="admin_mfa_preference_save_label"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_settings'), ENT_QUOTES, 'UTF-8')?></span></button>
                                                          </div>
                                                          <div class="sso-config-body">
-                                                            <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="admin_mfa_preferred_factor">Kaedah yang dipaparkan dahulu</label><p>Pilihan ini tidak mengunci kaedah authentication. Microsoft Authenticator dan OTP e-mel masih boleh dipilih pada halaman pengesahan jika kedua-duanya tersedia.</p></div></div><div class="sso-config-control sso-config-select-wrap"><select class="form-control" id="admin_mfa_preferred_factor"><option value="TOTP">Microsoft Authenticator</option><option value="EMAIL_OTP">OTP e-mel</option></select></div></div>
-                                                            <div class="sso-config-note"><i class="fa fa-info-circle"></i><p id="admin_mfa_preference_status" role="status" aria-live="polite">Loading current preference...</p></div>
-                                                            <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="admin_step_up_lifetime_minutes">Tempoh pengesahan Administrator</label><p>Grant baharu kekal sah untuk purpose yang sama dalam pelayar ini. Perubahan tidak memanjangkan grant yang telah dikeluarkan.</p></div></div><div class="sso-config-control"><select class="form-control" id="admin_step_up_lifetime_minutes"><option value="5">5 minit</option><option value="10">10 minit</option><option value="15">15 minit (disyorkan)</option><option value="30">30 minit</option></select><textarea class="form-control mt-10" id="admin_step_up_lifetime_reason" maxlength="500" rows="2" placeholder="Sebab perubahan (minimum 10 aksara)"></textarea><button type="button" class="btn btn-default btn-sm mt-10" id="admin_step_up_lifetime_save_button" onclick="saveAdminStepUpLifetime();" disabled><i class="fa fa-clock-o"></i> <span id="admin_step_up_lifetime_save_label">Loading policy...</span></button></div></div>
-                                                            <div class="sso-config-note"><i class="fa fa-clock-o"></i><p id="admin_step_up_lifetime_status" role="status" aria-live="polite">Loading current lifetime...</p></div>
-                                                            <div class="sso-config-row" id="admin_mfa_enrollment_action" style="display:none"><div class="sso-config-copy"><span class="sso-config-index">03</span><div><label>Microsoft Authenticator belum didaftarkan</label><p>Mulakan enrollment baharu. Sistem akan meminta OTP e-mel sebelum memaparkan QR dan setup key.</p></div></div><div class="sso-config-control"><button type="button" class="btn btn-primary" onclick="window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;intent=totp_enroll';"><i class="fa fa-qrcode"></i> Daftar Authenticator</button></div></div>
-                                                            <div class="sso-config-row" id="admin_mfa_reset_action" style="display:none"><div class="sso-config-copy"><span class="sso-config-index">03</span><div><label>Reset Microsoft Authenticator</label><p>Gunakan OTP e-mel untuk revoke faktor semasa secara beraudit, kemudian daftar QR baharu untuk environment ini.</p></div></div><div class="sso-config-control"><button type="button" class="btn btn-danger" onclick="window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;intent=totp_reset';"><i class="fa fa-refresh"></i> Reset Authenticator</button></div></div>
-                                                            <div class="sso-config-note sso-config-note-warning"><i class="fa fa-shield"></i><p>Menyimpan kaedah pilihan atau tempoh grant memerlukan pengesahan <strong>Security Configuration Change</strong>. Tempoh hanya boleh ditetapkan kepada 5, 10, 15 atau 30 minit.</p></div>
+                                                            <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="admin_mfa_preferred_factor"><?=htmlspecialchars(oneid_translate('admin.configuration.preferred_factor'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.factor_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control sso-config-select-wrap"><select class="form-control" id="admin_mfa_preferred_factor"><option value="TOTP">Microsoft Authenticator</option><option value="EMAIL_OTP">OTP e-mel</option></select></div></div>
+                                                            <div class="sso-config-note"><i class="fa fa-info-circle"></i><p id="admin_mfa_preference_status" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_preference'), ENT_QUOTES, 'UTF-8')?></p></div>
+                                                            <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="admin_step_up_lifetime_minutes"><?=htmlspecialchars(oneid_translate('admin.configuration.stepup_lifetime'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.lifetime_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><select class="form-control" id="admin_step_up_lifetime_minutes"><option value="5">5 minit</option><option value="10">10 minit</option><option value="15">15 minit (<?=htmlspecialchars(oneid_translate('admin.configuration.recommended'), ENT_QUOTES, 'UTF-8')?>)</option><option value="30">30 minit</option></select><textarea class="form-control mt-10" id="admin_step_up_lifetime_reason" maxlength="500" rows="2" placeholder="<?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_placeholder'), ENT_QUOTES, 'UTF-8')?>"></textarea><button type="button" class="btn btn-default btn-sm mt-10" id="admin_step_up_lifetime_save_button" onclick="saveAdminStepUpLifetime();" disabled><i class="fa fa-clock-o"></i> <span id="admin_step_up_lifetime_save_label"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_policy'), ENT_QUOTES, 'UTF-8')?></span></button></div></div>
+                                                            <div class="sso-config-note"><i class="fa fa-clock-o"></i><p id="admin_step_up_lifetime_status" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_lifetime'), ENT_QUOTES, 'UTF-8')?></p></div>
+                                                            <div class="sso-config-row" id="admin_mfa_enrollment_action" style="display:none"><div class="sso-config-copy"><span class="sso-config-index">03</span><div><label><?=htmlspecialchars(oneid_translate('admin.configuration.enroll_missing'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.enroll_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><button type="button" class="btn btn-primary" onclick="window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;intent=totp_enroll';"><i class="fa fa-qrcode"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.enroll'), ENT_QUOTES, 'UTF-8')?></button></div></div>
+                                                            <div class="sso-config-row" id="admin_mfa_reset_action" style="display:none"><div class="sso-config-copy"><span class="sso-config-index">03</span><div><label>Microsoft Authenticator</label><p><?=htmlspecialchars(oneid_translate('admin.configuration.reset_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><button type="button" class="btn btn-danger" onclick="window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;intent=totp_reset';"><i class="fa fa-refresh"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.reset'), ENT_QUOTES, 'UTF-8')?></button></div></div>
+                                                            <div class="sso-config-note sso-config-note-warning"><i class="fa fa-shield"></i><p><?=htmlspecialchars(oneid_translate('admin.configuration.security_warning'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                          </div>
                                                       </div>
                                                          </section>
+                                                         <section class="tab-pane fade" id="configuration_locale" role="tabpanel" aria-labelledby="configuration_locale_tab">
+                                                            <div class="sso-config-panel">
+                                                               <div class="sso-config-header">
+                                                                  <div>
+                                                                     <span class="sso-config-eyebrow"><?=htmlspecialchars(oneid_translate('admin.configuration.title'), ENT_QUOTES, 'UTF-8')?></span>
+                                                                     <h4 class="sso-config-title"><?=htmlspecialchars(oneid_translate('admin.configuration.locale'), ENT_QUOTES, 'UTF-8')?></h4>
+                                                                     <p class="sso-config-intro"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_help'), ENT_QUOTES, 'UTF-8')?></p>
+                                                                  </div>
+                                                                  <button class="sso-config-save" id="default_locale_save_button" type="button" disabled>
+                                                                     <i class="fa fa-check" aria-hidden="true"></i>
+                                                                     <span><?=htmlspecialchars(oneid_translate('admin.configuration.locale_save'), ENT_QUOTES, 'UTF-8')?></span>
+                                                                  </button>
+                                                               </div>
+                                                               <div class="sso-config-body">
+                                                                  <div class="sso-config-row">
+                                                                     <div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="system_default_locale"><?=htmlspecialchars(oneid_translate('admin.configuration.locale'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.locale_help'), ENT_QUOTES, 'UTF-8')?></p></div></div>
+                                                                     <div class="sso-config-control"><select class="form-control" id="system_default_locale" disabled><option value="ms">Bahasa Melayu</option><option value="en">English</option></select></div>
+                                                                  </div>
+                                                                  <div class="sso-config-row">
+                                                                     <div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="system_default_locale_reason"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason'), ENT_QUOTES, 'UTF-8')?></label></div></div>
+                                                                     <div class="sso-config-control"><textarea class="form-control" id="system_default_locale_reason" maxlength="500" rows="3" placeholder="<?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_placeholder'), ENT_QUOTES, 'UTF-8')?>" disabled></textarea></div>
+                                                                  </div>
+                                                                  <div class="sso-config-note"><i class="fa fa-info-circle"></i><p id="system_default_locale_status" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.common.loading'), ENT_QUOTES, 'UTF-8')?></p></div>
+                                                               </div>
+                                                            </div>
+                                                         </section>
                                                          <section class="tab-pane fade" id="configuration_audit" role="tabpanel" aria-labelledby="configuration_audit_tab">
                                                       <div class="sso-config-panel">
-                                                         <div class="sso-config-header"><div><span class="sso-config-eyebrow">Audit history</span><h4 class="sso-config-title">Configuration History</h4><p class="sso-config-intro">Success and rejected attempts, newest first. Sensitive authentication material is never displayed.</p></div><button type="button" class="sso-config-save" onclick="loadSsoConfigHistory(1)"><i class="fa fa-refresh"></i><span>Refresh</span></button></div>
+                                                         <div class="sso-config-header"><div><span class="sso-config-eyebrow"><?=htmlspecialchars(oneid_translate('admin.configuration.audit_eyebrow'), ENT_QUOTES, 'UTF-8')?></span><h4 class="sso-config-title"><?=htmlspecialchars(oneid_translate('admin.configuration.audit_title'), ENT_QUOTES, 'UTF-8')?></h4><p class="sso-config-intro"><?=htmlspecialchars(oneid_translate('admin.configuration.audit_intro'), ENT_QUOTES, 'UTF-8')?></p></div><button type="button" class="sso-config-save" onclick="loadSsoConfigHistory(1)"><i class="fa fa-refresh"></i><span><?=htmlspecialchars(oneid_translate('admin.common.refresh'), ENT_QUOTES, 'UTF-8')?></span></button></div>
                                                          <div class="configuration-history-table-wrap">
                                                             <table class="table configuration-history-table mb-0">
                                                                <colgroup>
@@ -1711,8 +1873,8 @@
                                                                   <col class="configuration-history-col-change">
                                                                   <col class="configuration-history-col-reason">
                                                                </colgroup>
-                                                               <thead><tr><th scope="col">Event</th><th scope="col">Result</th><th scope="col">Changes</th><th scope="col">Reason &amp; Reference</th></tr></thead>
-                                                               <tbody id="sso_config_history_body"><tr class="configuration-history-state-row"><td colspan="4">Loading history...</td></tr></tbody>
+                                                               <thead><tr><th scope="col"><?=htmlspecialchars(oneid_translate('admin.configuration.event'), ENT_QUOTES, 'UTF-8')?></th><th scope="col"><?=htmlspecialchars(oneid_translate('admin.configuration.result'), ENT_QUOTES, 'UTF-8')?></th><th scope="col"><?=htmlspecialchars(oneid_translate('admin.configuration.changes'), ENT_QUOTES, 'UTF-8')?></th><th scope="col"><?=htmlspecialchars(oneid_translate('admin.configuration.reason_reference'), ENT_QUOTES, 'UTF-8')?></th></tr></thead>
+                                                               <tbody id="sso_config_history_body"><tr class="configuration-history-state-row"><td colspan="4"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_history'), ENT_QUOTES, 'UTF-8')?></td></tr></tbody>
                                                             </table>
                                                          </div>
                                                          <div id="sso_config_history_pagination" class="active-session-pagination"></div>
@@ -1793,6 +1955,184 @@
       
       <!-- <script src="../dist/js/widgets-data.js"></script> -->
       <script>
+         const adminCompletenessText = <?=json_encode($admin_completeness_text, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)?>;
+         function adminText(key,parameters){
+            var text=adminCompletenessText[key]||key;
+            Object.keys(parameters||{}).forEach(function(name){
+               text=text.replaceAll(':'+name,String(parameters[name]));
+            });
+            return text;
+         }
+         const adminI18n = <?=json_encode([
+            'localeSaved' => oneid_translate('admin.configuration.locale_saved'),
+            'localeUnchanged' => oneid_translate('admin.configuration.locale_unchanged'),
+            'localeFailed' => oneid_translate('admin.configuration.locale_failed'),
+            'loading' => oneid_translate('admin.common.loading'),
+            'metadataDormant' => oneid_translate('admin.metadata.schema_dormant'),
+            'metadataReady' => oneid_translate('admin.metadata.schema_ready'),
+            'metadataSaved' => oneid_translate('admin.metadata.saved'),
+            'metadataFailed' => oneid_translate('admin.metadata.failed'),
+            'metadataReasonRequired' => oneid_translate('admin.metadata.reason_required'),
+            'metadataBulkReady' => oneid_translate('admin.metadata.bulk_ready'),
+            'metadataBulkBlocked' => oneid_translate('admin.metadata.bulk_blocked'),
+            'metadataPending' => oneid_translate('admin.metadata.pending'),
+         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
+         function localizedResponseMessage(response,fallback){
+            if(response&&typeof response.localized_msg==='string'&&response.localized_msg.trim()!==''){
+               return response.localized_msg;
+            }
+            if(response&&typeof response.msg==='string'&&response.msg.trim()!==''){
+               return response.msg;
+            }
+            if(response&&typeof response.message==='string'&&response.message.trim()!==''){
+               return response.message;
+            }
+            return fallback||'';
+         }
+         var metadataSchemaAvailable=false;
+         var metadataWebAppGroups=[];
+         function metadataText(value){
+            return $('<div>').text(value==null?'':String(value)).html();
+         }
+         function metadataReviewLabel(value){
+            return String(value||'')
+               .replace(/_/g,' ')
+               .toLowerCase()
+               .replace(/\b\w/g,function(letter){return letter.toUpperCase();});
+         }
+         function metadataEntityOptions(){
+            var type=String($('#metadata_entity_type').val()||'application');
+            var seen={};var options='';
+            $.each(Array.isArray(metadataWebAppGroups)?metadataWebAppGroups:[],function(_,group){
+               if(type==='category'){
+                  var groupId=String(group.sp_group_id||'');
+                  if(groupId!==''&&!seen[groupId]){
+                     seen[groupId]=true;
+                     options+='<option value="'+metadataText(groupId)+'">'+metadataText(group.sp_group_name)+'</option>';
+                  }
+                  return;
+               }
+               $.each(Array.isArray(group.data)?group.data:[],function(__,app){
+                  var appId=String(app.sp_id||'');
+                  if(appId!==''&&!seen[appId]){
+                     seen[appId]=true;
+                     options+='<option value="'+metadataText(appId)+'">'+metadataText(app.sp_name)+'</option>';
+                  }
+               });
+            });
+            $('#metadata_entity_id').html(options);
+            $('#metadata_description_group').toggle(type==='application');
+         }
+         function loadMetadataTranslation(){
+            if(!metadataSchemaAvailable||!$('#metadata_entity_id').val()){return;}
+            $.post('../lib/q_func',{
+               admin_get_metadata_translation:'',
+               entity_type:$('#metadata_entity_type').val(),
+               entity_id:$('#metadata_entity_id').val(),
+               locale:$('#metadata_locale').val()
+            },function(response){
+               if(response&&Number(response.status)===1){
+                  var data=response.data||{};
+                  $('#metadata_translated_name').val(data.sp_name||data.sp_group_name||'');
+                  $('#metadata_translated_description').val(data.sp_description||'');
+                  $('#metadata_translation_version').val(Number(data.translation_version||0));
+                  $('#metadata_translation_save').prop('disabled',false);
+               }else{
+                  $('#metadata_translation_status').text(localizedResponseMessage(response,adminI18n.metadataFailed));
+               }
+            },'json');
+         }
+         function openMetadataTranslations(){
+            metadataEntityOptions();
+            $('#metadata_translation_save').prop('disabled',true);
+            $('#metadata_translation_status').text(adminI18n.loading);
+            $('#modal_metadata_translations').modal('show');
+            $.post('../lib/q_func',{admin_metadata_translation_preview:''},function(response){
+               metadataSchemaAvailable=!!(response&&response.schema_available);
+               var source=response&&response.source?response.source:{applications:0,categories:0};
+               var translated=response&&response.translations?response.translations:{applications:0,categories:0};
+               $('#metadata_translation_status').text(
+                  (metadataSchemaAvailable?adminI18n.metadataReady:adminI18n.metadataDormant)
+                  +' Apps: '+Number(translated.applications||0)+'/'+Number(source.applications||0)
+                  +'; Categories: '+Number(translated.categories||0)+'/'+Number(source.categories||0)+'.'
+               );
+               if(metadataSchemaAvailable){loadMetadataTranslation();}
+            },'json').fail(function(){
+               metadataSchemaAvailable=false;
+               $('#metadata_translation_status').text(adminI18n.metadataFailed);
+            });
+         }
+         function closeMetadataContentPreview(){
+            $('#metadata_content_preview_panel').prop('hidden',true);
+            $('#metadata_content_preview_button').attr('aria-expanded','false').removeClass('is-open');
+         }
+         function toggleMetadataContentPreview(){
+            if(!$('#metadata_content_preview_panel').prop('hidden')){
+               closeMetadataContentPreview();
+               return;
+            }
+            loadMetadataContentPreview();
+         }
+         function loadMetadataContentPreview(){
+            $('#metadata_content_preview_button').prop('disabled',true);
+            $('#metadata_content_preview_panel').prop('hidden',false);
+            $('#metadata_content_preview_button').attr('aria-expanded','true').addClass('is-open');
+            $('#metadata_content_preview_summary').text(adminI18n.loading);
+            $('#metadata_content_preview_rows').empty();
+            $.post('../lib/q_func',{admin_metadata_content_preview:''},function(response){
+               if(!response||Number(response.status)!==1){
+                  $('#metadata_content_preview_summary').text(localizedResponseMessage(response,adminI18n.metadataFailed));
+                  return;
+               }
+               var manifest=response.manifest||{};var counts=manifest.classification_counts||{};
+               $('#metadata_content_preview_summary').text(
+                  adminI18n.metadataPending+': '+Number(manifest.pending_owner_review||0)
+                  +' / '+Number((manifest.source&&manifest.source.applications||0)+(manifest.source&&manifest.source.categories||0))
+                  +'. Completion: '+Number(manifest.completion_percent||0)+'%. Digest: '+String(response.manifest_digest||'')+'.'
+               );
+               var rows='';
+               $.each(Array.isArray(manifest.items)?manifest.items:[],function(_,item){
+                  rows+='<tr><td><span class="oneid-metadata-entity-type">'+metadataText(metadataReviewLabel(item.entity_type))+'</span><br><code>'+metadataText(item.entity_id)+'</code></td>'
+                     +'<td><strong>'+metadataText(item.original_name)+'</strong><br><small>'+metadataText(item.original_description)+'</small></td>'
+                     +'<td><strong>'+metadataText(item.draft_en_name)+'</strong><br><small>'+metadataText(item.draft_en_description)+'</small></td>'
+                     +'<td><span class="oneid-metadata-review-label">'+metadataText(metadataReviewLabel(item.classification))+'</span></td>'
+                     +'<td><span class="oneid-metadata-review-label">'+metadataText(metadataReviewLabel(item.review_decision))+'</span></td></tr>';
+               });
+               $('#metadata_content_preview_rows').html(rows);
+            },'json').fail(function(){
+               $('#metadata_content_preview_summary').text(adminI18n.metadataFailed);
+            }).always(function(){
+               $('#metadata_content_preview_button').prop('disabled',false);
+            });
+         }
+         function loadMetadataBulkPreview(){
+            var button=$('#metadata_bulk_preview_button');
+            var result=$('#metadata_bulk_preview_result');
+            button.prop('disabled',true);
+            result.prop('hidden',false)
+               .removeClass('alert-success alert-danger')
+               .addClass('alert-info')
+               .text(adminI18n.loading);
+            $.post('../lib/q_func',{admin_metadata_bulk_content_preview:''},function(response){
+               var proposed=response&&response.proposed_mutations?response.proposed_mutations:{};
+               var blocks=Array.isArray(response&&response.blocking_codes)?response.blocking_codes:[];
+               var ready=response&&Number(response.status)===1&&blocks.length===0;
+               result.removeClass('alert-info')
+                  .addClass(ready?'alert-success':'alert-danger')
+                  .text(
+                     (ready?adminI18n.metadataBulkReady:adminI18n.metadataBulkBlocked)
+                     +' Review decisions: '+Number(proposed.review_decision_inserts||0)
+                     +'; translations: '+Number(proposed.translation_inserts||0)
+                     +'; original updates: '+Number(proposed.original_metadata_updates||0)
+                     +'; plan hash: '+String(response&&response.plan_hash||'-')
+                     +(blocks.length?'; blocks: '+blocks.join(', '):'')
+                  );
+            },'json').fail(function(){
+               result.removeClass('alert-info').addClass('alert-danger').text(adminI18n.metadataFailed);
+            }).always(function(){
+               button.prop('disabled',false);
+            });
+         }
          $.ajaxSetup({
             headers: {'X-CSRF-Token': <?php echo json_encode(oneid_csrf_token()); ?>}
          });
@@ -1803,6 +2143,59 @@
          // 	new Switchery($(this)[0], $(this).data());
          // });
          $(document).ready(function() {
+            $('#metadata_entity_type').on('change',function(){metadataEntityOptions();loadMetadataTranslation();});
+            $('#metadata_entity_id, #metadata_locale').on('change',loadMetadataTranslation);
+            $('#form_metadata_translation').on('submit',function(event){
+               event.preventDefault();
+               if(!metadataSchemaAvailable){return;}
+               var changeReason=String($('#metadata_change_reason').val()||'').trim();
+               if(changeReason.length<10){
+                  $('#metadata_translation_status')
+                     .removeClass('alert-info alert-success')
+                     .addClass('alert-danger')
+                     .text(adminI18n.metadataReasonRequired);
+                  $('#metadata_change_reason').focus();
+                  return;
+               }
+               $('#metadata_translation_save').prop('disabled',true);
+               $.post('../lib/q_func',{
+                  admin_save_metadata_translation:'',
+                  entity_type:$('#metadata_entity_type').val(),
+                  entity_id:$('#metadata_entity_id').val(),
+                  locale:$('#metadata_locale').val(),
+                  translated_name:$('#metadata_translated_name').val(),
+                  translated_description:$('#metadata_translated_description').val(),
+                  translation_version:$('#metadata_translation_version').val(),
+                  change_reason:changeReason
+               },function(response){
+                  if(response&&Number(response.status)===1){
+                     $('#metadata_change_reason').val('');
+                     $('#metadata_translation_version').val(Number(response.translation_version||0));
+                     $('#metadata_translation_status')
+                        .removeClass('alert-info alert-danger')
+                        .addClass('alert-success')
+                        .text(localizedResponseMessage(response,adminI18n.metadataSaved));
+                     get_service_provider_list();
+                  }else{
+                     $('#metadata_translation_status')
+                        .removeClass('alert-info alert-success')
+                        .addClass('alert-danger')
+                        .text(localizedResponseMessage(response,adminI18n.metadataFailed));
+                  }
+               },'json').fail(function(xhr){
+                  var response=xhr.responseJSON||{};
+                  if(xhr.status===403&&(response.code==='STEP_UP_REQUIRED'||response.code==='STEP_UP_EXPIRED'||response.code==='STEP_UP_PURPOSE_MISMATCH')){
+                     window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_metadata';
+                     return;
+                  }
+                  $('#metadata_translation_status').text(localizedResponseMessage(response,adminI18n.metadataFailed));
+               }).always(function(){
+                  $('#metadata_translation_save').prop('disabled',!metadataSchemaAvailable);
+               });
+            });
+            if(new URLSearchParams(window.location.search).get('metadata')==='1'){
+               setTimeout(openMetadataTranslations,250);
+            }
             var auditDatePicker = $('.input-daterange-datepicker').daterangepicker({
                startDate: moment(),
                endDate: moment(),
@@ -1830,15 +2223,61 @@
          get_service_provider_list();
          admin_get_all_user_category(0);		
          admin_get_settings();	
-         loadPasswordRecovery();
-         loadAdminMfaPreference();
+	         loadPasswordRecovery();
+	         loadSystemDefaultLocale();
+	         loadAdminMfaPreference();
          get_all_user_activ_session();
 		 
              startTokenRefresh();
 
              $('a[href="#tab_synclog"]').on('shown.bs.tab', function(){
                 load_sync_sessions();
-             });
+	         });
+
+         var systemDefaultLocaleVersion = 0;
+         function loadSystemDefaultLocale(){
+            $('#system_default_locale_status').text(adminI18n.loading);
+            $('#system_default_locale, #system_default_locale_reason, #default_locale_save_button').prop('disabled',true);
+            $.post('../lib/q_func',{admin_get_default_locale:''},function(response){
+               if(!response||Number(response.status)!==1){
+                  $('#system_default_locale_status').text(adminI18n.localeFailed+' '+(response&&response.code?'Code: '+response.code:''));
+                  return;
+               }
+               systemDefaultLocaleVersion=Number(response.configuration_version||0);
+               $('#system_default_locale').val(response.default_locale).prop('disabled',false);
+               $('#system_default_locale_reason, #default_locale_save_button').prop('disabled',false);
+               $('#system_default_locale_status').text(response.default_locale==='ms'?'Bahasa Melayu':'English');
+            },'json').fail(function(xhr){
+               var response=xhr.responseJSON||{};
+               $('#system_default_locale_status').text(adminI18n.localeFailed+' '+(response.code?'Code: '+response.code:''));
+            });
+         }
+
+	         function saveSystemDefaultLocale(){
+            var locale=String($('#system_default_locale').val()||'');
+            var reason=String($('#system_default_locale_reason').val()||'').trim();
+            if(reason.length<10){$('#system_default_locale_status').text(adminI18n.localeFailed);return;}
+            $('#default_locale_save_button').prop('disabled',true);
+            $.post('../lib/q_func',{admin_update_default_locale:'',default_locale:locale,configuration_version:systemDefaultLocaleVersion,change_reason:reason},function(response){
+               if(response&&Number(response.status)===1){
+                  systemDefaultLocaleVersion=Number(response.configuration_version||systemDefaultLocaleVersion);
+                  $('#system_default_locale_reason').val('');
+                  $('#system_default_locale_status').text(localizedResponseMessage(response,adminI18n.localeSaved));
+               }else{
+                  $('#system_default_locale_status').text(localizedResponseMessage(response,adminI18n.localeFailed));
+               }
+            },'json').fail(function(xhr){
+               var response=xhr.responseJSON||{};
+               if(xhr.status===403&&(response.code==='STEP_UP_REQUIRED'||response.code==='STEP_UP_EXPIRED'||response.code==='STEP_UP_PURPOSE_MISMATCH')){
+                  sessionStorage.setItem('oneid_ml5_default_locale',locale);
+                  sessionStorage.setItem('oneid_ml5_default_locale_reason',reason);
+                  window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_locale';
+                  return;
+               }
+               $('#system_default_locale_status').text(localizedResponseMessage(response,adminI18n.localeFailed));
+	            }).always(function(){$('#default_locale_save_button').prop('disabled',false);});
+	         }
+	         $('#default_locale_save_button').on('click',saveSystemDefaultLocale);
 
              $('#tab_settings .configuration-tabs a[data-toggle="tab"]').on('shown.bs.tab', function(event){
                 $('#tab_settings .configuration-tabs a[data-toggle="tab"]').attr('aria-selected', 'false');
@@ -1856,7 +2295,7 @@
                 $('#configuration_admin_2fa_tab').tab('show');
                 if(window.history&&window.history.replaceState){window.history.replaceState({},document.title,window.location.pathname);}
              }
-             if(requestedConfiguration==='account_recovery'){
+	             if(requestedConfiguration==='account_recovery'){
                 $('a[href="#tab_settings"]').tab('show');
                 $('#configuration_recovery_tab').tab('show');
                 var pendingRecoveryTest=sessionStorage.getItem('oneid_password_recovery_test_email');
@@ -1864,7 +2303,16 @@
                    $('#password_recovery_test_email').val(pendingRecoveryTest);
                    sessionStorage.removeItem('oneid_password_recovery_test_email');
                    swal('Pengesahan berjaya','Alamat ujian dikekalkan. Klik Send test sekali lagi untuk menghantar e-mel.','success');
-                }
+	             }
+	             if(requestedConfiguration==='admin_locale'){
+	                $('a[href="#tab_settings"]').tab('show');
+	                $('#configuration_locale_tab').tab('show');
+	                $('#system_default_locale').val(sessionStorage.getItem('oneid_ml5_default_locale')||'ms');
+	                $('#system_default_locale_reason').val(sessionStorage.getItem('oneid_ml5_default_locale_reason')||'');
+	                sessionStorage.removeItem('oneid_ml5_default_locale');
+	                sessionStorage.removeItem('oneid_ml5_default_locale_reason');
+	                if(window.history&&window.history.replaceState){window.history.replaceState({},document.title,window.location.pathname);}
+	             }
                 if(window.history&&window.history.replaceState){window.history.replaceState({},document.title,window.location.pathname);}
              }
          });
@@ -2027,6 +2475,7 @@
            		data: {admin_get_all_service_provider:""},
 			beforeSend: function(){
 						adminWebAppGroups = [];
+						metadataWebAppGroups = [];
 						$('#web_app_count, #web_app_sso_count, #web_app_non_sso_count').text('\u2014');
            			$('#tab_available_apps_list_loading').show();
            			$('#tab_available_apps_list').hide();
@@ -2040,6 +2489,7 @@
 
 						if (!Array.isArray(response) || response.length === 0) {
 							adminWebAppGroups = [];
+							metadataWebAppGroups = [];
 							$('#web_app_count').text('0');
 							$('#web_app_sso_count, #web_app_non_sso_count').text('0');
 							$('#admin_web_app_search_status').text('Tiada aplikasi tersedia untuk carian.');
@@ -2054,6 +2504,7 @@
 						}
 
 						adminWebAppGroups = response;
+						metadataWebAppGroups = response;
 						renderAdminWebAppDirectory();
 
 					},
@@ -2200,7 +2651,7 @@
          function setSsoConfigSaving(isSaving){
             ssoConfigSaving = isSaving;
             $('#sso_config_save_button').prop('disabled', isSaving || !ssoConfigOriginal).attr('aria-busy', isSaving ? 'true' : 'false');
-            $('#sso_config_save_label').text(isSaving ? 'Saving...' : 'Review & save');
+            $('#sso_config_save_label').text(isSaving ? adminText('admin.configuration.saving') : adminText('admin.configuration.save_review'));
             $('#sso_settings_token_session_timeout, #sso_settings_multi_session').prop('disabled', isSaving);
          }
 
@@ -2217,9 +2668,9 @@
                         if (!response || Number(response.status) !== 1 || response.code !== 'SC2_CONFIG_LOADED' || !response.data) {
                            ssoConfigOriginal = null;
                            $('#sso_config_save_button').prop('disabled', true).attr('aria-busy', 'false');
-                           $('#sso_config_save_label').text('Settings unavailable');
+                           $('#sso_config_save_label').text(adminText('admin.configuration.unavailable'));
                            var loadReference = response && response.correlation_id ? '\nReference: ' + response.correlation_id : '';
-                           $('#sso_config_operational_status').text('Current policy could not be loaded. No changes can be saved.');
+                           $('#sso_config_operational_status').text(adminText('admin.configuration.load_failed'));
                            swal('Settings unavailable', 'The server rejected or could not complete the load request.' + loadReference, 'error');
                            return;
                         }
@@ -2269,13 +2720,13 @@
                         });
                         ssoConfigOriginal = ssoConfigValues();
                         setSsoConfigSaving(false);
-                        $('#sso_config_operational_status').text('Current policy loaded. Review all changes before saving; existing token enforcement behavior is unchanged in this phase.');
+                        $('#sso_config_operational_status').text(adminText('admin.configuration.loaded'));
                      },
                      error: function (xhr, error, thrown) {
                         ssoConfigOriginal = null;
                         $('#sso_config_save_button').prop('disabled', true).attr('aria-busy', 'false');
-                        $('#sso_config_save_label').text('Settings unavailable');
-                        $('#sso_config_operational_status').text('Current policy could not be loaded. No changes can be saved. HTTP ' + xhr.status + '.');
+                        $('#sso_config_save_label').text(adminText('admin.configuration.unavailable'));
+                        $('#sso_config_operational_status').text(adminText('admin.configuration.load_failed') + ' HTTP ' + xhr.status + '.');
                         swal('Settings unavailable', 'The current policy could not be loaded. No changes have been made.\nHTTP status: ' + xhr.status, 'error');
                      }
                  });
@@ -2288,10 +2739,10 @@
             }
             var current = ssoConfigValues();
             var changeReason=$.trim($('#sso_config_change_reason').val()||'');
-            if(changeReason.length<10){swal('Change reason required','Enter at least 10 characters describing why this policy must change.','warning');return;}
+            if(changeReason.length<10){swal(adminText('admin.configuration.reason_required'),adminText('admin.configuration.reason_minimum'),'warning');return;}
             var changes = ssoConfigChangeSummary(current);
             if (changes.length === 0) {
-               swal('No changes', 'The selected policy already matches the saved values. No request was sent.', 'info');
+               swal(adminText('admin.configuration.no_changes'), adminText('admin.configuration.no_changes'), 'info');
                return;
             }
             var warning = '';
@@ -2305,15 +2756,15 @@
                data:{preview_configuration_update:'',sso_settings_multi_session:current.multi_session,token_timeout:current.token_timeout,change_reason:changeReason},
                success:function(preview){
                   if(!preview || preview.code!=='SC5_PREVIEW_CREATED'){
-                     swal('Preview failed','No changes were made.\nCode: '+(preview&&preview.code?preview.code:'SC5_PREVIEW_INVALID'),'error');
+                     swal(adminText('admin.configuration.preview_failed'),adminText('admin.configuration.no_changes')+'\nCode: '+(preview&&preview.code?preview.code:'SC5_PREVIEW_INVALID'),'error');
                      return;
                   }
                   var impact=preview.impact||{};
-                  swal({title:'Confirm policy and impact',text:changes.join('\n')+warning+'\n\nAffected users: '+Number(impact.affected_users||0)+'\nAffected tokens: '+Number(impact.affected_tokens||0)+'\nGrace period: 15 minutes',type:'warning',showCancelButton:true,confirmButtonColor:'#11a8df',confirmButtonText:'Save policy',cancelButtonText:'Cancel',closeOnConfirm:false},function(){
+                  swal({title:adminText('admin.configuration.save_review'),text:changes.join('\n')+warning+'\n\nAffected users: '+Number(impact.affected_users||0)+'\nAffected tokens: '+Number(impact.affected_tokens||0)+'\nGrace period: 15 minutes',type:'warning',showCancelButton:true,confirmButtonColor:'#11a8df',confirmButtonText:adminText('admin.configuration.save_policy'),cancelButtonText:adminText('admin.configuration.cancel'),closeOnConfirm:false},function(){
                      submitSsoConfigUpdate(current,preview.preview_id,preview.configuration_version,changeReason);
                   });
                },
-               error:function(xhr){swal('Preview failed','No changes were made. HTTP '+xhr.status+'.','error');},
+               error:function(xhr){swal(adminText('admin.configuration.preview_failed'),adminText('admin.configuration.no_changes')+' HTTP '+xhr.status+'.','error');},
                complete:function(){setSsoConfigSaving(false);}
             });
          }
@@ -2329,21 +2780,21 @@
                            ssoConfigVersion=Number(response.data&&response.data.configuration_version||configurationVersion+1);$('#sso_config_change_reason').val('');admin_get_settings();
                            var enforcement=response.enforcement||{};
                            $('#sso_config_operational_status').text('Policy saved. Scheduled tokens: '+Number(enforcement.scheduled_tokens||0)+(enforcement.revoke_at?' at '+enforcement.revoke_at:'.'));
-                           swal('Policy saved', 'Scheduled tokens: '+Number(enforcement.scheduled_tokens||0)+'\nGrace period: 15 minutes\nReference: ' + response.correlation_id, 'success');
+                           swal(adminText('admin.configuration.policy_saved'), 'Scheduled tokens: '+Number(enforcement.scheduled_tokens||0)+'\nGrace period: 15 minutes\nReference: ' + response.correlation_id, 'success');
                         }else if(response && Number(response.status) === 1 && response.code === 'SC2_CONFIG_UNCHANGED'){
                            ssoConfigOriginal = current;
                            $('#sso_config_operational_status').text('No database value changed; the saved policy already matched the selection.');
-                           swal('No changes', 'The database already contained the selected values.\nReference: ' + response.correlation_id, 'info');
+                           swal(adminText('admin.configuration.no_changes'), adminText('admin.configuration.no_changes')+'\nReference: ' + response.correlation_id, 'info');
                         }else{
                            var errorCode = response && response.code ? response.code : 'SC2_RESPONSE_INVALID';
                            var errorReference = response && response.correlation_id ? response.correlation_id : 'Unavailable';
                            $('#sso_config_operational_status').text('Policy was not saved. Code: ' + errorCode + '.');
-                           swal('Policy not saved', 'The request was rejected or returned an invalid result.\nCode: ' + errorCode + '\nReference: ' + errorReference, 'error');
+                           swal(adminText('admin.configuration.policy_not_saved'), 'Code: ' + errorCode + '\nReference: ' + errorReference, 'error');
                         }
                      },
                      error: function (xhr, error, thrown) {
                         $('#sso_config_operational_status').text('Save failed. The previous loaded policy remains the baseline. HTTP ' + xhr.status + '.');
-                        swal('Policy not saved', 'The server request failed. No success has been assumed.\nHTTP status: ' + xhr.status, 'error');
+                        swal(adminText('admin.configuration.policy_not_saved'), 'HTTP status: ' + xhr.status, 'error');
                      },
                      complete: function () {
                         setSsoConfigSaving(false);
@@ -2353,7 +2804,7 @@
 
          function loadSsoConfigHistory(page){
             $.post('../lib/q_func',{admin_get_configuration_history:'',page:page||1,page_size:10},function(response){
-               if(!response||Number(response.status)!==1){renderSsoConfigHistoryState('History unavailable.');return;}
+               if(!response||Number(response.status)!==1){renderSsoConfigHistoryState(adminText('admin.configuration.history_unavailable'));return;}
                var rows='';
                $.each(response.data||[],function(i,item){
                   var outcome=String(item.outcome||'').toUpperCase();
@@ -2373,8 +2824,8 @@
                      '</tr>';
                });
                if(rows){$('#sso_config_history_body').html(rows);}else{renderSsoConfigHistoryState('No configuration history recorded.');}
-               var meta=response.meta||{};var p=Number(meta.page||1),pages=Number(meta.total_pages||1);$('#sso_config_history_pagination').html('<button type="button" '+(p<=1?'disabled':'')+' onclick="loadSsoConfigHistory('+(p-1)+')"><i class="fa fa-chevron-left"></i></button><span>Page '+p+' of '+pages+'</span><button type="button" '+(p>=pages?'disabled':'')+' onclick="loadSsoConfigHistory('+(p+1)+')"><i class="fa fa-chevron-right"></i></button>');
-            },'json').fail(function(){renderSsoConfigHistoryState('History unavailable.');});
+               var meta=response.meta||{};var p=Number(meta.page||1),pages=Number(meta.total_pages||1);$('#sso_config_history_pagination').html('<button type="button" '+(p<=1?'disabled':'')+' onclick="loadSsoConfigHistory('+(p-1)+')"><i class="fa fa-chevron-left"></i></button><span>'+adminText('admin.configuration.page_of',{page:p,pages:pages})+'</span><button type="button" '+(p>=pages?'disabled':'')+' onclick="loadSsoConfigHistory('+(p+1)+')"><i class="fa fa-chevron-right"></i></button>');
+            },'json').fail(function(){renderSsoConfigHistoryState(adminText('admin.configuration.history_unavailable'));});
          }
          function renderSsoConfigHistoryState(message){$('#sso_config_history_body').html('<tr class="configuration-history-state-row"><td colspan="4">'+sessionTextValue(message)+'</td></tr>');}
          function sessionTextValue(value){return $('<div>').text(value==null?'':value).html();}
@@ -2383,32 +2834,32 @@
          var recoveryConfigOriginal=null;
          function loadPasswordRecovery(){
             $.post('../lib/q_func',{admin_get_password_recovery_settings:''},function(r){
-               if(!r||r.code!=='SC6_RECOVERY_LOADED'){ $('#recovery_config_save_label').text('Settings unavailable'); return; }
+               if(!r||r.code!=='SC6_RECOVERY_LOADED'){ $('#recovery_config_save_label').text(adminText('admin.configuration.unavailable')); return; }
                recoveryConfigOriginal=String(r.data.password_reset_email_enabled);
                var recoveryToggle=document.getElementById('password_reset_email_enabled');recoveryToggle.checked=recoveryConfigOriginal==='1';
                if(!recoveryToggle.getAttribute('data-switchery')){new Switchery(recoveryToggle,{});}
-               $('#recovery_config_save_button').prop('disabled',false);$('#recovery_config_save_label').text('Review & save');
-               var h=r.data.smtp_health||{};$('#recovery_smtp_status').text('SMTP configuration: '+(h.status==='configured'?'configured; live delivery not yet verified.':'not configured.'));
-            },'json').fail(function(){ $('#recovery_config_save_label').text('Settings unavailable'); });
+               $('#recovery_config_save_button').prop('disabled',false);$('#recovery_config_save_label').text(adminText('admin.configuration.save_review'));
+               var h=r.data.smtp_health||{};$('#recovery_smtp_status').text(adminText(h.status==='configured'?'admin.configuration.smtp_configured':'admin.configuration.smtp_missing'));
+            },'json').fail(function(){ $('#recovery_config_save_label').text(adminText('admin.configuration.unavailable')); });
          }
          function updatePasswordRecovery(){
             if(recoveryConfigOriginal===null)return;var value=$('#password_reset_email_enabled').prop('checked')?'1':'0';
-            if(value===recoveryConfigOriginal){swal('No changes','Password Recovery policy already matches.','info');return;}
+            if(value===recoveryConfigOriginal){swal(adminText('admin.configuration.no_changes'),adminText('admin.configuration.recovery_same'),'info');return;}
             var text=value==='1'?'Enable email OTP delivery?':'Disable email OTP delivery? Forgot Password will fail closed and create no challenge.';
-            swal({title:'Confirm Password Recovery policy',text:text,type:'warning',showCancelButton:true,confirmButtonText:'Save policy',closeOnConfirm:false},function(){
+            swal({title:adminText('admin.configuration.confirm_recovery'),text:text,type:'warning',showCancelButton:true,confirmButtonText:adminText('admin.configuration.save_policy'),closeOnConfirm:false},function(){
                $('#recovery_config_save_button').prop('disabled',true);$.post('../lib/q_func',{update_password_recovery:'',password_reset_email_enabled:value},function(r){
-                  if(r&&Number(r.status)===1){recoveryConfigOriginal=value;swal('Recovery policy saved','Reference: '+r.correlation_id,'success');}else{swal('Policy not saved','Code: '+(r&&r.code?r.code:'SC6_RESPONSE_INVALID'),'error');}
-               },'json').fail(function(){swal('Policy not saved','Server request failed.','error');}).always(function(){$('#recovery_config_save_button').prop('disabled',false);});
+                  if(r&&Number(r.status)===1){recoveryConfigOriginal=value;swal(adminText('admin.configuration.recovery_saved'),'Reference: '+r.correlation_id,'success');}else{swal(adminText('admin.configuration.policy_not_saved'),'Code: '+(r&&r.code?r.code:'SC6_RESPONSE_INVALID'),'error');}
+               },'json').fail(function(){swal(adminText('admin.configuration.policy_not_saved'),'Server request failed.','error');}).always(function(){$('#recovery_config_save_button').prop('disabled',false);});
             });
          }
          function testPasswordRecoveryEmail(){
-            var recipient=$.trim($('#password_recovery_test_email').val());if(!recipient){swal('Recipient required','Enter an approved UAT mailbox.','warning');return;}
-            swal({title:'Send recovery test?',text:'A non-OTP test email will be sent to the entered mailbox.',type:'warning',showCancelButton:true,confirmButtonText:'Send test',closeOnConfirm:false},function(){
+            var recipient=$.trim($('#password_recovery_test_email').val());if(!recipient){swal(adminText('admin.configuration.recipient_required'),adminText('admin.configuration.recipient_help'),'warning');return;}
+            swal({title:adminText('admin.configuration.send_recovery_test'),text:adminText('admin.configuration.test_help'),type:'warning',showCancelButton:true,confirmButtonText:adminText('admin.configuration.send_test_confirm'),closeOnConfirm:false},function(){
                $.post('../lib/q_func',{test_password_recovery_email:'',recipient_email:recipient},function(r){swal(Number(r.status)===1?'Accepted by SMTP':'Test failed',(Number(r.status)===1?'The SMTP server accepted the message. Check Inbox, Junk and Quarantine; this is not proof of mailbox delivery.':'The SMTP server did not accept the message.')+'\nCode: '+r.code+(r.message_id?'\nMessage-ID: '+r.message_id:'')+'\nReference: '+r.correlation_id,Number(r.status)===1?'success':'error');},'json').fail(function(xhr){
                   var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';
                   if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){
                      sessionStorage.setItem('oneid_password_recovery_test_email',recipient);
-                     swal({title:'Pengesahan diperlukan',text:'Sahkan Security Configuration Change sebelum menghantar e-mel ujian.',type:'warning',confirmButtonText:'Authenticate now',closeOnConfirm:true},function(){window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=account_recovery';});
+                     swal({title:adminText('admin.configuration.auth_required'),text:'Security Configuration Change',type:'warning',confirmButtonText:adminText('admin.configuration.authenticate_now'),closeOnConfirm:true},function(){window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=account_recovery';});
                   }else{
                      swal('Test failed','Server request failed. HTTP '+xhr.status+(code?'\nCode: '+code:''),'error');
                   }
@@ -2420,45 +2871,45 @@
          function adminMfaPreferenceLabel(value){return value==='TOTP'?'Microsoft Authenticator':'OTP e-mel';}
          function loadAdminMfaPreference(){
             $('#admin_mfa_preference_save_button').prop('disabled',true);
-            $('#admin_mfa_preference_save_label').text('Loading settings...');
+            $('#admin_mfa_preference_save_label').text(adminText('admin.configuration.loading_settings'));
             $.post('../lib/q_func',{admin_step_up_status:'',purpose:'SECURITY_CONFIGURATION_CHANGE'},function(r){
-               if(!r||Number(r.status)!==1){adminMfaPreferenceOriginal=null;$('#admin_mfa_preference_save_label').text('Settings unavailable');$('#admin_mfa_preference_status').text('Kaedah pilihan semasa tidak dapat dimuatkan.');return;}
+               if(!r||Number(r.status)!==1){adminMfaPreferenceOriginal=null;$('#admin_mfa_preference_save_label').text(adminText('admin.configuration.unavailable'));$('#admin_mfa_preference_status').text(adminText('admin.configuration.load_failed'));return;}
                adminMfaPreferenceOriginal=r.preferred_factor||'EMAIL_OTP';
                adminStepUpLifetimeOriginal=Number(r.admin_step_up_lifetime_minutes||15);
                adminMfaConfigurationVersion=Number(r.configuration_version||0);
                adminMfaSecurityGrantValid=Boolean(r.grant_valid);
                $('#admin_mfa_preferred_factor').val(adminMfaPreferenceOriginal);
                $('#admin_step_up_lifetime_minutes').val(String(adminStepUpLifetimeOriginal));
-               $('#admin_step_up_lifetime_status').text('Tempoh semasa: '+adminStepUpLifetimeOriginal+' minit. Hanya grant baharu menggunakan nilai ini.');
-               $('#admin_step_up_lifetime_save_button').prop('disabled',false);$('#admin_step_up_lifetime_save_label').text('Save lifetime');
+               $('#admin_step_up_lifetime_status').text(adminText('admin.configuration.current_lifetime',{minutes:adminStepUpLifetimeOriginal}));
+               $('#admin_step_up_lifetime_save_button').prop('disabled',false);$('#admin_step_up_lifetime_save_label').text(adminText('admin.configuration.save_lifetime'));
                $('#admin_mfa_preferred_factor option[value="TOTP"]').prop('disabled',!r.totp_available);
                $('#admin_mfa_enrollment_action').toggle(!r.totp_available);
                $('#admin_mfa_reset_action').toggle(Boolean(r.totp_available));
-               $('#admin_mfa_preference_status').text('Kaedah pilihan semasa: '+adminMfaPreferenceLabel(adminMfaPreferenceOriginal)+'. Authenticator: '+(r.totp_available?'aktif':'tidak tersedia')+'; e-mel: '+(r.masked_email||'tidak tersedia')+'.');
+               $('#admin_mfa_preference_status').text(adminText('admin.configuration.current_factor',{factor:adminMfaPreferenceLabel(adminMfaPreferenceOriginal)}));
                var pendingFactor=sessionStorage.getItem('oneid_mfa_pending_factor');
                if(adminMfaSecurityGrantValid&&(pendingFactor==='EMAIL_OTP'||(pendingFactor==='TOTP'&&r.totp_available))){$('#admin_mfa_preferred_factor').val(pendingFactor);$('#admin_mfa_preference_status').append(' Pengesahan selesai; preference sedang disimpan.');setTimeout(function(){persistAdminMfaPreference(pendingFactor);},0);}
                var pendingLifetime=sessionStorage.getItem('oneid_admin_step_up_pending_lifetime'),pendingLifetimeReason=sessionStorage.getItem('oneid_admin_step_up_pending_reason');
                if(adminMfaSecurityGrantValid&&pendingLifetime&&pendingLifetimeReason){$('#admin_step_up_lifetime_minutes').val(pendingLifetime);$('#admin_step_up_lifetime_reason').val(pendingLifetimeReason);$('#admin_step_up_lifetime_status').append(' Pengesahan selesai; polisi sedang disimpan.');setTimeout(function(){persistAdminStepUpLifetime(Number(pendingLifetime),pendingLifetimeReason);},0);}
                $('#admin_mfa_preference_save_button').prop('disabled',false);
-               $('#admin_mfa_preference_save_label').text('Save preference');
-            },'json').fail(function(){adminMfaPreferenceOriginal=null;$('#admin_mfa_preference_save_label').text('Settings unavailable');$('#admin_mfa_preference_status').text('Kaedah pilihan semasa tidak dapat dimuatkan.');});
+               $('#admin_mfa_preference_save_label').text(adminText('admin.configuration.save_preference'));
+            },'json').fail(function(){adminMfaPreferenceOriginal=null;$('#admin_mfa_preference_save_label').text(adminText('admin.configuration.unavailable'));$('#admin_mfa_preference_status').text(adminText('admin.configuration.load_failed'));});
          }
          function saveAdminStepUpLifetime(){
             if(adminStepUpLifetimeOriginal===null||adminStepUpLifetimeSaving)return;
             var minutes=Number($('#admin_step_up_lifetime_minutes').val()),reason=$.trim($('#admin_step_up_lifetime_reason').val());
             if(minutes===adminStepUpLifetimeOriginal){swal('No changes','Tempoh pengesahan Administrator sudah '+minutes+' minit.','info');return;}
-            if(reason.length<10){swal('Reason required','Masukkan sebab perubahan sekurang-kurangnya 10 aksara.','warning');return;}
+            if(reason.length<10){swal(adminText('admin.configuration.reason_required'),adminText('admin.configuration.reason_minimum'),'warning');return;}
             swal({title:'Ubah tempoh pengesahan?',text:'Grant baharu akan sah selama '+minutes+' minit. Grant sedia ada tidak berubah.',type:'warning',showCancelButton:true,confirmButtonText:'Save lifetime',closeOnConfirm:false},function(){
                if(!adminMfaSecurityGrantValid){sessionStorage.setItem('oneid_admin_step_up_pending_lifetime',String(minutes));sessionStorage.setItem('oneid_admin_step_up_pending_reason',reason);window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_2fa';return;}
                persistAdminStepUpLifetime(minutes,reason);
             });
          }
          function persistAdminStepUpLifetime(minutes,reason){
-            if(adminStepUpLifetimeSaving)return;adminStepUpLifetimeSaving=true;$('#admin_step_up_lifetime_save_button').prop('disabled',true);$('#admin_step_up_lifetime_save_label').text('Saving...');
+            if(adminStepUpLifetimeSaving)return;adminStepUpLifetimeSaving=true;$('#admin_step_up_lifetime_save_button').prop('disabled',true);$('#admin_step_up_lifetime_save_label').text(adminText('admin.configuration.saving'));
             $.post('../lib/q_func',{admin_2fa_update_lifetime:'',lifetime_minutes:minutes,configuration_version:adminMfaConfigurationVersion,change_reason:reason},function(r){
-               if(r&&Number(r.status)===1&&(r.code==='STEP_UP_LIFETIME_UPDATED'||r.code==='STEP_UP_LIFETIME_UNCHANGED')){adminStepUpLifetimeOriginal=Number(r.lifetime_minutes);adminMfaConfigurationVersion=Number(r.configuration_version);sessionStorage.removeItem('oneid_admin_step_up_pending_lifetime');sessionStorage.removeItem('oneid_admin_step_up_pending_reason');$('#admin_step_up_lifetime_reason').val('');$('#admin_step_up_lifetime_status').text('Tempoh semasa: '+adminStepUpLifetimeOriginal+' minit. Hanya grant baharu menggunakan nilai ini.');swal(r.code==='STEP_UP_LIFETIME_UPDATED'?'Lifetime saved':'No changes',(r.code==='STEP_UP_LIFETIME_UPDATED'?'Tempoh baharu terpakai pada grant selepas pengesahan berikutnya.':'Polisi sudah menggunakan nilai ini.')+'\nReference: '+r.correlation_id,r.code==='STEP_UP_LIFETIME_UPDATED'?'success':'info');}
+               if(r&&Number(r.status)===1&&(r.code==='STEP_UP_LIFETIME_UPDATED'||r.code==='STEP_UP_LIFETIME_UNCHANGED')){adminStepUpLifetimeOriginal=Number(r.lifetime_minutes);adminMfaConfigurationVersion=Number(r.configuration_version);sessionStorage.removeItem('oneid_admin_step_up_pending_lifetime');sessionStorage.removeItem('oneid_admin_step_up_pending_reason');$('#admin_step_up_lifetime_reason').val('');$('#admin_step_up_lifetime_status').text(adminText('admin.configuration.current_lifetime',{minutes:adminStepUpLifetimeOriginal}));swal(r.code==='STEP_UP_LIFETIME_UPDATED'?adminText('admin.configuration.policy_saved'):adminText('admin.configuration.no_changes'),'Reference: '+r.correlation_id,r.code==='STEP_UP_LIFETIME_UPDATED'?'success':'info');}
                else{sessionStorage.removeItem('oneid_admin_step_up_pending_lifetime');sessionStorage.removeItem('oneid_admin_step_up_pending_reason');swal('Lifetime not saved','Code: '+(r&&r.code?r.code:'STEP_UP_RESPONSE_INVALID'),'error');}
-            },'json').fail(function(xhr){var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){sessionStorage.setItem('oneid_admin_step_up_pending_lifetime',String(minutes));sessionStorage.setItem('oneid_admin_step_up_pending_reason',reason);window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_2fa';}else{sessionStorage.removeItem('oneid_admin_step_up_pending_lifetime');sessionStorage.removeItem('oneid_admin_step_up_pending_reason');swal('Lifetime not saved','Server request failed. HTTP '+xhr.status+(code?'\nCode: '+code:''),'error');}}).always(function(){adminStepUpLifetimeSaving=false;$('#admin_step_up_lifetime_save_button').prop('disabled',false);$('#admin_step_up_lifetime_save_label').text('Save lifetime');});
+            },'json').fail(function(xhr){var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){sessionStorage.setItem('oneid_admin_step_up_pending_lifetime',String(minutes));sessionStorage.setItem('oneid_admin_step_up_pending_reason',reason);window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_2fa';}else{sessionStorage.removeItem('oneid_admin_step_up_pending_lifetime');sessionStorage.removeItem('oneid_admin_step_up_pending_reason');swal(adminText('admin.configuration.policy_not_saved'),'HTTP '+xhr.status+(code?'\nCode: '+code:''),'error');}}).always(function(){adminStepUpLifetimeSaving=false;$('#admin_step_up_lifetime_save_button').prop('disabled',false);$('#admin_step_up_lifetime_save_label').text(adminText('admin.configuration.save_lifetime'));});
          }
          function saveAdminMfaPreference(){
             if(adminMfaPreferenceOriginal===null||adminMfaPreferenceSaving)return;
@@ -2471,15 +2922,15 @@
          }
          function persistAdminMfaPreference(factor){
                if(adminMfaPreferenceSaving)return;adminMfaPreferenceSaving=true;
-               $('#admin_mfa_preference_save_button').prop('disabled',true);$('#admin_mfa_preference_save_label').text('Saving...');
+               $('#admin_mfa_preference_save_button').prop('disabled',true);$('#admin_mfa_preference_save_label').text(adminText('admin.configuration.saving'));
                $.post('../lib/q_func',{admin_mfa_set_preference:'',factor:factor},function(r){
-                  if(r&&Number(r.status)===1&&r.code==='MFA_PREFERENCE_UPDATED'){adminMfaPreferenceOriginal=factor;adminMfaSecurityGrantValid=true;sessionStorage.removeItem('oneid_mfa_pending_factor');$('#admin_mfa_preference_status').text('Kaedah pilihan semasa: '+adminMfaPreferenceLabel(factor)+'.');swal('Preference saved','Kaedah ini akan dipaparkan dahulu pada pengesahan berikutnya.\nReference: '+r.correlation_id,'success');}
+                  if(r&&Number(r.status)===1&&r.code==='MFA_PREFERENCE_UPDATED'){adminMfaPreferenceOriginal=factor;adminMfaSecurityGrantValid=true;sessionStorage.removeItem('oneid_mfa_pending_factor');$('#admin_mfa_preference_status').text(adminText('admin.configuration.current_factor',{factor:adminMfaPreferenceLabel(factor)}));swal(adminText('admin.configuration.policy_saved'),'Reference: '+r.correlation_id,'success');}
                   else{swal('Preference not saved','Code: '+(r&&r.code?r.code:'MFA_PREFERENCE_RESPONSE_INVALID'),'error');}
                },'json').fail(function(xhr){
                   var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';
                   if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){swal({title:'Pengesahan diperlukan',text:'Sahkan Security Configuration Change sebelum menyimpan tetapan ini.',type:'warning',confirmButtonText:'Authenticate now',closeOnConfirm:true},function(){window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_2fa';});}
                   else{swal('Preference not saved','Server request failed. HTTP '+xhr.status+'.','error');}
-               }).always(function(){adminMfaPreferenceSaving=false;$('#admin_mfa_preference_save_button').prop('disabled',false);$('#admin_mfa_preference_save_label').text('Save preference');});
+               }).always(function(){adminMfaPreferenceSaving=false;$('#admin_mfa_preference_save_button').prop('disabled',false);$('#admin_mfa_preference_save_label').text(adminText('admin.configuration.save_preference'));});
          }
          
          function open_category_listing(uc_id,uc_text){
@@ -3404,7 +3855,7 @@
            function m3FailureText(response, fallback){
             var code = response && response.code ? String(response.code) : 'M3_REQUEST_FAILED';
             var reference = response && response.correlation_id ? String(response.correlation_id) : '';
-            return (fallback || 'The request was not completed.') + '\nCode: ' + code + (reference ? '\nReference: ' + reference : '');
+            return localizedResponseMessage(response,fallback || 'The request was not completed.') + '\nCode: ' + code + (reference ? '\nReference: ' + reference : '');
            }
 
            function m3TransportFailure(xhr, fallback){
@@ -3886,6 +4337,95 @@
          refresh_external_sync_notifications();
          }
 
+         // Presentation only: canonical source codes, action keys, confirmation
+         // phrases, hashes and approval identifiers never enter this catalogue.
+         var externalSyncText = <?=json_encode([
+            'summary' => oneid_translate('admin.sync.summary_title'),
+            'staff' => oneid_translate('admin.sync.staff_title'),
+            'ug' => oneid_translate('admin.sync.ug_title'),
+            'odl' => oneid_translate('admin.sync.odl_title'),
+            'reviewOnly' => oneid_translate('admin.sync.review_only'),
+            'reviewApply' => oneid_translate('admin.sync.review_apply'),
+            'generating' => oneid_translate('admin.sync.generating'),
+            'failed' => oneid_translate('admin.sync.failed'),
+            'noChanges' => oneid_translate('admin.sync.no_changes'),
+            'reference' => oneid_translate('admin.sync.reference'),
+            'blocked' => oneid_translate('admin.sync.blocked'),
+            'upToDate' => oneid_translate('admin.sync.up_to_date'),
+            'approvalRequired' => oneid_translate('admin.sync.approval_required'),
+            'applyNotAllowed' => oneid_translate('admin.sync.apply_not_allowed'),
+            'previewOnly' => oneid_translate('admin.sync.preview_only'),
+            'blockedSummary' => oneid_translate('admin.sync.blocked_summary'),
+            'blockedHelp' => oneid_translate('admin.sync.blocked_help'),
+            'aligned' => oneid_translate('admin.sync.aligned'),
+            'noAdminAction' => oneid_translate('admin.sync.no_admin_action'),
+            'changesNeedReview' => oneid_translate('admin.sync.changes_need_review'),
+            'verifyCounts' => oneid_translate('admin.sync.verify_counts'),
+            'noAttention' => oneid_translate('admin.sync.no_attention'),
+            'executionDisabled' => oneid_translate('admin.sync.execution_disabled'),
+            'approvalValidUntil' => oneid_translate('admin.sync.approval_valid_until'),
+            'ready' => oneid_translate('admin.sync.ready'),
+            'readyDeactivate' => oneid_translate('admin.sync.ready_deactivate'),
+            'largeChange' => oneid_translate('admin.sync.large_change'),
+            'executing' => oneid_translate('admin.sync.executing'),
+            'executeTitle' => oneid_translate('admin.sync.execute_confirm_title'),
+            'executeLargeTitle' => oneid_translate('admin.sync.execute_large_title'),
+            'executeCheck' => oneid_translate('admin.sync.execute_check'),
+            'executeLargeWarning' => oneid_translate('admin.sync.execute_large_warning'),
+            'apply' => oneid_translate('admin.sync.apply'),
+            'success' => oneid_translate('admin.sync.success'),
+            'notApplied' => oneid_translate('admin.sync.not_applied'),
+            'requestFailed' => oneid_translate('admin.sync.request_failed'),
+            'auditWarning' => oneid_translate('admin.sync.audit_warning'),
+            'freshPreview' => oneid_translate('admin.sync.fresh_preview'),
+            'technicalReference' => oneid_translate('admin.sync.technical_reference'),
+            'failureHelp' => oneid_translate('admin.sync.failure_help'),
+            'reviewFailedStatus' => oneid_translate('admin.sync.review_failed_status'),
+            'reviewRequired' => oneid_translate('admin.sync.review_required'),
+            'actionNeeded' => oneid_translate('admin.sync.action_needed'),
+            'current' => oneid_translate('admin.sync.current'),
+            'sourcesNeedReview' => oneid_translate('admin.sync.sources_need_review'),
+            'doNotRun' => oneid_translate('admin.sync.do_not_run'),
+            'openSource' => oneid_translate('admin.sync.open_source'),
+            'allReviewed' => oneid_translate('admin.sync.all_reviewed'),
+            'noBlock' => oneid_translate('admin.sync.no_block'),
+            'previewFailedStatus' => oneid_translate('admin.sync.preview_failed_status'),
+            'summaryFailed' => oneid_translate('admin.sync.summary_failed'),
+            'contactWithReference' => oneid_translate('admin.sync.contact_with_reference'),
+            'summaryBoundary' => oneid_translate('admin.sync.summary_boundary'),
+            'sourceBoundary' => oneid_translate('admin.sync.source_boundary'),
+            'newLabel' => oneid_translate('admin.sync.new'),
+            'updateLabel' => oneid_translate('admin.sync.update'),
+            'deactivateLabel' => oneid_translate('admin.sync.deactivate'),
+            'reactivateLabel' => oneid_translate('admin.sync.reactivate'),
+            'warningBaseline' => oneid_translate('admin.sync.warning_baseline'),
+            'warningInvalid' => oneid_translate('admin.sync.warning_invalid'),
+            'warningPolicy' => oneid_translate('admin.sync.warning_policy'),
+            'warningThreshold' => oneid_translate('admin.sync.warning_threshold'),
+            'warningManual' => oneid_translate('admin.sync.warning_manual'),
+            'approvedReady' => oneid_translate('admin.sync.approved_ready'),
+            'planBound' => oneid_translate('admin.sync.plan_bound'),
+            'largeReview' => oneid_translate('admin.sync.large_review'),
+            'deactivateLimit' => oneid_translate('admin.sync.deactivate_limit'),
+            'limitIntro' => oneid_translate('admin.sync.limit_intro'),
+            'exceedsLimit' => oneid_translate('admin.sync.exceeds_limit'),
+            'specialApproval' => oneid_translate('admin.sync.special_approval'),
+            'pilotTitle' => oneid_translate('admin.sync.pilot_title'),
+            'pilotConfirm' => oneid_translate('admin.sync.pilot_confirm'),
+            'pilotApply' => oneid_translate('admin.sync.pilot_apply'),
+            'pilotRunning' => oneid_translate('admin.sync.pilot_running'),
+            'pilotComplete' => oneid_translate('admin.sync.pilot_complete'),
+            'fullTitle' => oneid_translate('admin.sync.full_title'),
+            'fullConfirm' => oneid_translate('admin.sync.full_confirm'),
+            'fullApply' => oneid_translate('admin.sync.full_apply'),
+            'fullRunning' => oneid_translate('admin.sync.full_running'),
+            'fullComplete' => oneid_translate('admin.sync.full_complete'),
+            'pilotScope' => oneid_translate('admin.sync.pilot_scope'),
+            'summaryRows' => oneid_translate('admin.sync.summary_rows'),
+            'readOnlyReady' => oneid_translate('admin.sync.read_only_ready'),
+            'blockedReview' => oneid_translate('admin.sync.blocked_review'),
+         ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)?>;
+
          function external_action_total(actionCounts, sourceCode){
             var total = 0;
             var counts = actionCounts[sourceCode] || {};
@@ -3913,8 +4453,8 @@
             notice
                .toggleClass('external-action-notice-danger', blocked === true)
                .attr('title', blocked === true
-                  ? 'Sumber memerlukan semakan admin'
-                  : count + ' perubahan memerlukan tindakan admin')
+                  ? externalSyncText.reviewRequired
+                  : count + ' ' + externalSyncText.changesNeedReview)
                .html(
                   '<i class="fa '
                   + (blocked === true ? 'fa-exclamation-triangle' : 'fa-bell')
@@ -3925,11 +4465,11 @@
 
          function sync_admin_warning_text(warning){
             var messages = {
-               'SOURCE_BASELINE_UNAVAILABLE': 'Perbandingan dengan jumlah rekod terdahulu tidak tersedia.',
-               'Invalid external rows were excluded from the preview.': 'Sebahagian rekod sumber tidak lengkap atau tidak sah dan tidak akan diproses.',
-               'Policy-excluded identities were excluded from the preview.': 'Sebahagian rekod tidak memenuhi polisi sinkronisasi dan tidak akan diproses.',
-               'Deactivation threshold exceeded; apply must remain blocked.': 'Jumlah akaun yang akan dinyahaktifkan melebihi had keselamatan. Proses tidak boleh diteruskan.',
-               'External identities colliding with protected manual accounts were excluded.': 'Terdapat konflik dengan akaun yang ditambah secara manual. Rekod tersebut dilindungi dan tidak akan diproses.'
+               'SOURCE_BASELINE_UNAVAILABLE': externalSyncText.warningBaseline,
+               'Invalid external rows were excluded from the preview.': externalSyncText.warningInvalid,
+               'Policy-excluded identities were excluded from the preview.': externalSyncText.warningPolicy,
+               'Deactivation threshold exceeded; apply must remain blocked.': externalSyncText.warningThreshold,
+               'External identities colliding with protected manual accounts were excluded.': externalSyncText.warningManual
             };
             return messages[String(warning)] || String(warning);
          }
@@ -3992,9 +4532,9 @@
          
          function pick_preview_sync_user(sourceCode){
             var sourceLabels = {
-               STAFF_HR: 'Sinkronisasi Pengguna Staf',
-               STUDENT_UG: 'Sinkronisasi Pelajar Prasiswazah',
-               STUDENT_ODL_PG: 'Sinkronisasi Pelajar ODL'
+               STAFF_HR: externalSyncText.staff,
+               STUDENT_UG: externalSyncText.ug,
+               STUDENT_ODL_PG: externalSyncText.odl
             };
             if(!sourceLabels[sourceCode]){
                return;
@@ -4013,12 +4553,12 @@
                   sync_source_code:sourceCode
                },
                beforeSend: function(){
-                  $('#btn_sync').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Previewing...');
-                  $('#sync_status_msg').show().text('Generating read-only preview...');
+                  $('#btn_sync').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> ' + externalSyncText.generating);
+                  $('#sync_status_msg').show().text(externalSyncText.generating);
                   $('#modal_open_add_user_option').modal('hide');
                   $('#modal_add_new_single_user').modal('show');
                   $('#aria_modal_add_new_single_user').text(
-                     sourceLabels[sourceCode] + ' — Semak dan Laksanakan'
+                     sourceLabels[sourceCode] + ' — ' + externalSyncText.reviewApply
                   );
                   $('#sync_progress_id').show();
                   $('#sync_result_div').hide();
@@ -4027,11 +4567,11 @@
                   $('#sync_progress_id').hide();
                   $('#sync_result_div').show();
                   if(!response || response.status !== 1 || response.mode !== 'preview'){
-                     var reference = response && response.correlation_id ? ' Rujukan: ' + response.correlation_id : '';
+                     var reference = response && response.correlation_id ? ' ' + externalSyncText.reference + ': ' + response.correlation_id : '';
                      $('#sync_admin_summary').removeClass('alert-info alert-warning alert-success')
                         .addClass('alert-danger')
-                        .html('<strong>Semakan tidak berjaya.</strong> Tiada perubahan data dilaksanakan.' + reference);
-                     $('#sync_preview_status').text('SEMAKAN GAGAL' + reference).addClass('badge badge-danger');
+                        .html('<strong>' + externalSyncText.failed + '</strong> ' + externalSyncText.noChanges + reference);
+                     $('#sync_preview_status').text(externalSyncText.reviewFailedStatus + reference).addClass('badge badge-danger');
                      return;
                   }
                   var counts = response.counts || {};
@@ -4057,30 +4597,30 @@
                      .removeClass('badge-danger badge-warning badge-success')
                      .addClass(response.risk_level === 'blocked' ? 'badge badge-danger' : (response.risk_level === 'warning' ? 'badge badge-warning' : 'badge badge-success'))
                      .text(response.risk_level === 'blocked'
-                        ? 'PROSES DISEKAT — semakan lanjut diperlukan'
+                        ? externalSyncText.blocked
                         : (totalChanges === 0
-                           ? 'TIADA PERUBAHAN DIPERLUKAN'
+                           ? externalSyncText.upToDate
                            : (response.approval_ready === true
                            ? (sourceCode === 'STUDENT_ODL_PG'
-                              ? 'PERUBAHAN TERSEDIA — KELULUSAN DIPERLUKAN'
-                              : 'PERUBAHAN TERSEDIA — PELAKSANAAN BELUM DIBENARKAN')
-                           : 'SEMAKAN SAHAJA — TIADA PERUBAHAN DILAKSANAKAN')));
+                              ? externalSyncText.approvalRequired
+                              : externalSyncText.applyNotAllowed)
+                           : externalSyncText.previewOnly)));
                   $('#sync_admin_summary')
                      .removeClass('alert-danger alert-warning alert-success alert-info')
                      .addClass(response.risk_level === 'blocked'
                         ? 'alert-danger'
                         : (totalChanges === 0 ? 'alert-success' : 'alert-warning'))
                      .html(response.risk_level === 'blocked'
-                        ? '<strong>Sinkronisasi tidak boleh diteruskan.</strong> Sila semak bahagian Perhatian atau hubungi pegawai teknikal.'
+                        ? '<strong>' + externalSyncText.blockedSummary + '</strong> ' + externalSyncText.blockedHelp
                         : (totalChanges === 0
-                           ? '<strong>Data telah diselaraskan.</strong> Tiada tindakan diperlukan oleh admin.'
-                           : '<strong>' + totalChanges + ' perubahan memerlukan semakan admin.</strong> Pastikan semua bilangan di bawah adalah betul sebelum meneruskan.'));
+                           ? '<strong>' + externalSyncText.aligned + '</strong> ' + externalSyncText.noAdminAction
+                           : '<strong>' + totalChanges + ' ' + externalSyncText.changesNeedReview + '</strong> ' + externalSyncText.verifyCounts));
                   var warningList = $('#sync_preview_warnings').empty();
                   (response.warnings || []).forEach(function(warning){
                      $('<li>').text(sync_admin_warning_text(warning)).appendTo(warningList);
                   });
                   if((response.warnings || []).length === 0){
-                     $('<li>').text('Tiada perkara yang memerlukan perhatian.').appendTo(warningList);
+                     $('<li>').text(externalSyncText.noAttention).appendTo(warningList);
                   }
                   $('#btn_apply_sync_pilot').hide().prop('disabled', true);
                   $('#btn_apply_sync_full').hide().prop('disabled', true);
@@ -4101,11 +4641,11 @@
                      && (pilotCounts.Reactivate || 0) === 0){
                      pilotApprovalId = response.approval_id;
                      $('#btn_apply_sync_pilot').show().prop('disabled', false);
-                     $('#sync_pilot_notice').text('Controlled pilot scope: exactly 2 New + 1 Update; no Deactivate or Reactivate. Approval expires at ' + (response.expires_at || '-') + '.');
+                     $('#sync_pilot_notice').text(externalSyncText.pilotScope + ' ' + externalSyncText.approvalValidUntil + ' ' + (response.expires_at || '-') + '.');
                   } else {
                      $('#sync_pilot_notice').text(totalChanges === 0
-                        ? 'Data sumber dan OneID telah diselaraskan. Tiada tindakan diperlukan.'
-                        : 'Semakan sahaja. Pelaksanaan perubahan masih belum dibenarkan.');
+                        ? externalSyncText.aligned + ' ' + externalSyncText.noAdminAction
+                        : externalSyncText.executionDisabled);
                   }
 
                   if(response.full_apply_available === true
@@ -4118,8 +4658,8 @@
                      $('#sync_full_confirmation_group').show();
                      $('#sync_full_confirmation_hint').text(fullConfirmation);
                      $('#btn_apply_sync_full').show();
-                     $('#sync_preview_status').text('SEDIA UNTUK SINKRONISASI YANG DILULUSKAN');
-                     $('#sync_pilot_notice').text('Kelulusan ini terikat pada bilangan perubahan dan rujukan pelan yang dipaparkan. Kelulusan sah sehingga ' + (response.expires_at || '-') + '.');
+                     $('#sync_preview_status').text(externalSyncText.approvedReady);
+                     $('#sync_pilot_notice').text(externalSyncText.planBound + ' ' + externalSyncText.approvalValidUntil + ' ' + (response.expires_at || '-') + '.');
                   }
 
                   if(response.operational_apply_available === true
@@ -4136,22 +4676,22 @@
                         .removeClass('badge-success badge-danger badge-warning')
                         .addClass(response.operational_large_batch === true ? 'badge badge-warning' : 'badge badge-success')
                         .text(response.operational_large_batch === true
-                           ? 'PERUBAHAN BESAR — PENGESAHAN TAMBAHAN DIPERLUKAN'
+                           ? externalSyncText.largeChange
                            : ((counts.Deactivate || 0) > 0
-                              ? 'SEDIA DILAKSANAKAN — PENGESAHAN NYAHAKTIF DIPERLUKAN'
-                              : 'SEDIA UNTUK DILAKSANAKAN'));
+                              ? externalSyncText.readyDeactivate
+                              : externalSyncText.ready));
                      $('#sync_pilot_notice').text((response.operational_large_batch === true
-                        ? 'Jumlah perubahan adalah besar. Semak semua bilangan dengan teliti. '
-                        : '') + 'Kelulusan sah sehingga ' + (response.expires_at || '-') + '.');
+                        ? externalSyncText.largeReview + ' '
+                        : '') + externalSyncText.approvalValidUntil + ' ' + (response.expires_at || '-') + '.');
                   } else if(response.operational_hard_blocked === true){
                      var thresholds = response.operational_thresholds || {};
                      $('#sync_preview_status')
                         .removeClass('badge-success badge-warning')
                         .addClass('badge badge-danger')
-                        .text('PROSES DISEKAT — JUMLAH NYAHAKTIF MELEBIHI HAD');
-                     $('#sync_pilot_notice').text('Jumlah akaun yang akan dinyahaktifkan ialah ' + (counts.Deactivate || 0)
-                        + ', melebihi had ' + (thresholds.max_deactivate || 0)
-                        + '. Kelulusan khas diperlukan sebelum proses boleh diteruskan.');
+                        .text(externalSyncText.deactivateLimit);
+                     $('#sync_pilot_notice').text(externalSyncText.limitIntro + ' ' + (counts.Deactivate || 0)
+                        + ', ' + externalSyncText.exceedsLimit + ' ' + (thresholds.max_deactivate || 0)
+                        + '. ' + externalSyncText.specialApproval);
                   }
 
                   $('#sync_full_confirmation').off('input').on('input', function(){
@@ -4164,11 +4704,11 @@
                      if(!pilotApprovalId){ return; }
                      var button = $(this);
                      oneidConfirm(
-                        'Apply controlled pilot?',
-                        'Apply exactly 2 New and 1 Update? No Deactivate or Reactivate will be allowed. This approval can be used once only.',
-                        'Apply pilot',
+                        externalSyncText.pilotTitle,
+                        externalSyncText.pilotConfirm,
+                        externalSyncText.pilotApply,
                         function(){
-                     button.prop('disabled', true).text('Applying controlled pilot...');
+                     button.prop('disabled', true).text(externalSyncText.pilotRunning);
                      $.ajax({
                         type: 'POST',
                         url: '../lib/q_func',
@@ -4183,16 +4723,16 @@
                            button.hide();
                            if(applyResponse && applyResponse.status === 1){
                               var applied = applyResponse.counts || {};
-                              oneidToast('Controlled pilot completed', 'Header ' + applyResponse.header_id + '; New=' + (applied.New || 0) + ', Update=' + (applied.Update || 0) + ', Deactivate=' + (applied.Deactivate || 0) + ', Reactivate=' + (applied.Reactivate || 0) + '.', 'success', {hideAfter: 7000});
+                              oneidToast(externalSyncText.pilotComplete, externalSyncText.reference + ' ' + applyResponse.header_id + '; ' + externalSyncText.newLabel + '=' + (applied.New || 0) + ', ' + externalSyncText.updateLabel + '=' + (applied.Update || 0) + ', ' + externalSyncText.deactivateLabel + '=' + (applied.Deactivate || 0) + ', ' + externalSyncText.reactivateLabel + '=' + (applied.Reactivate || 0) + '.', 'success', {hideAfter: 7000});
                            } else {
                               var code = applyResponse && applyResponse.code ? applyResponse.code : 'SYNC_APPLY_FAILED';
-                              oneidToast('Controlled pilot was not applied', 'Code: ' + code + '. Generate a fresh preview before retrying.', 'error');
+                              oneidToast(externalSyncText.notApplied, externalSyncText.technicalReference + ': ' + code + '. ' + externalSyncText.freshPreview, 'error');
                            }
                         },
                         error: function(){
                            pilotApprovalId = '';
                            button.hide();
-                           oneidToast('Controlled pilot request failed', 'Generate a fresh preview and inspect server logs.', 'error');
+                           oneidToast(externalSyncText.requestFailed, externalSyncText.freshPreview, 'error');
                         }
                      });
                         }
@@ -4203,16 +4743,16 @@
                      var typedConfirmation = $('#sync_full_confirmation').val().trim();
                      if(!fullApprovalId || typedConfirmation !== fullConfirmation){ return; }
                      var button = $(this);
-                     var summary = 'New=' + (counts.New || 0)
-                        + ', Update=' + (counts.Update || 0)
-                        + ', Deactivate=' + (counts.Deactivate || 0)
-                        + ', Reactivate=' + (counts.Reactivate || 0) + '.';
+                     var summary = externalSyncText.newLabel + '=' + (counts.New || 0)
+                        + ', ' + externalSyncText.updateLabel + '=' + (counts.Update || 0)
+                        + ', ' + externalSyncText.deactivateLabel + '=' + (counts.Deactivate || 0)
+                        + ', ' + externalSyncText.reactivateLabel + '=' + (counts.Reactivate || 0) + '.';
                      oneidConfirm(
-                        'Apply approved full sync?',
-                        summary + ' The plan will be fetched and verified again before any database transaction.',
-                        'Apply full sync',
+                        externalSyncText.fullTitle,
+                        summary + ' ' + externalSyncText.fullConfirm,
+                        externalSyncText.fullApply,
                         function(){
-                           button.prop('disabled', true).text('Applying full sync...');
+                           button.prop('disabled', true).text(externalSyncText.fullRunning);
                            $.ajax({
                               type: 'POST',
                               url: '../lib/q_func',
@@ -4229,18 +4769,18 @@
                                  $('#sync_full_confirmation_group').hide();
                                  if(applyResponse && applyResponse.status === 1){
                                     var applied = applyResponse.counts || {};
-                                    var auditWarning = applyResponse.audit_marker_recorded === false ? ' Secondary audit marker failed; run reconciliation immediately.' : '';
-                                    oneidToast('Full sync committed', 'Header ' + applyResponse.header_id + '; New=' + (applied.New || 0) + ', Update=' + (applied.Update || 0) + ', Deactivate=' + (applied.Deactivate || 0) + ', Reactivate=' + (applied.Reactivate || 0) + '.' + auditWarning, applyResponse.audit_marker_recorded === false ? 'warning' : 'success', {hideAfter: 10000});
+                                    var auditWarning = applyResponse.audit_marker_recorded === false ? ' ' + externalSyncText.auditWarning : '';
+                                    oneidToast(externalSyncText.fullComplete, externalSyncText.reference + ' ' + applyResponse.header_id + '; ' + externalSyncText.newLabel + '=' + (applied.New || 0) + ', ' + externalSyncText.updateLabel + '=' + (applied.Update || 0) + ', ' + externalSyncText.deactivateLabel + '=' + (applied.Deactivate || 0) + ', ' + externalSyncText.reactivateLabel + '=' + (applied.Reactivate || 0) + '.' + auditWarning, applyResponse.audit_marker_recorded === false ? 'warning' : 'success', {hideAfter: 10000});
                                  } else {
                                     var code = applyResponse && applyResponse.code ? applyResponse.code : 'SYNC_FULL_APPLY_FAILED';
-                                    oneidToast('Full sync was not applied', 'Code: ' + code + '. Generate a fresh preview and review the plan.', 'error', {hideAfter: 8000});
+                                    oneidToast(externalSyncText.notApplied, externalSyncText.technicalReference + ': ' + code + '. ' + externalSyncText.freshPreview, 'error', {hideAfter: 8000});
                                  }
                               },
                               error: function(){
                                  fullApprovalId = '';
                                  button.hide();
                                  $('#sync_full_confirmation_group').hide();
-                                 oneidToast('Full sync request failed', 'No success has been assumed. Inspect server logs before generating another preview.', 'error', {hideAfter: 8000});
+                                 oneidToast(externalSyncText.requestFailed, externalSyncText.failureHelp, 'error', {hideAfter: 8000});
                               }
                            });
                         }
@@ -4251,16 +4791,16 @@
                      var typedConfirmation = $('#sync_full_confirmation').val().trim();
                      if(!operationalApprovalId || typedConfirmation !== operationalConfirmation){ return; }
                      var button = $(this);
-                     var summary = 'New=' + (counts.New || 0)
-                        + ', Update=' + (counts.Update || 0)
-                        + ', Deactivate=' + (counts.Deactivate || 0)
-                        + ', Reactivate=' + (counts.Reactivate || 0) + '.';
+                     var summary = externalSyncText.newLabel + '=' + (counts.New || 0)
+                        + ', ' + externalSyncText.updateLabel + '=' + (counts.Update || 0)
+                        + ', ' + externalSyncText.deactivateLabel + '=' + (counts.Deactivate || 0)
+                        + ', ' + externalSyncText.reactivateLabel + '=' + (counts.Reactivate || 0) + '.';
                      oneidConfirm(
-                        response.operational_large_batch === true ? 'Laksanakan sinkronisasi berskala besar?' : 'Laksanakan sinkronisasi?',
-                        summary + (response.operational_large_batch === true ? ' Jumlah perubahan adalah besar dan memerlukan pengesahan tambahan.' : '') + ' Sistem akan menyemak semula data sebelum melaksanakan perubahan. Kelulusan ini hanya boleh digunakan sekali.',
-                        'Laksanakan',
+                        response.operational_large_batch === true ? externalSyncText.executeLargeTitle : externalSyncText.executeTitle,
+                        summary + (response.operational_large_batch === true ? ' ' + externalSyncText.executeLargeWarning : '') + ' ' + externalSyncText.executeCheck,
+                        externalSyncText.apply,
                         function(){
-                           button.prop('disabled', true).text('Sedang melaksanakan sinkronisasi...');
+                           button.prop('disabled', true).text(externalSyncText.executing);
                            $.ajax({
                               type: 'POST',
                               url: '../lib/q_func',
@@ -4277,18 +4817,18 @@
                                  $('#sync_full_confirmation_group').hide();
                                  if(applyResponse && applyResponse.status === 1){
                                     var applied = applyResponse.counts || {};
-                                    var auditWarning = applyResponse.audit_marker_recorded === false ? ' Rekod audit tambahan gagal direkodkan; jalankan semakan rekonsiliasi dengan segera.' : '';
-                                    oneidToast('Sinkronisasi berjaya dilaksanakan', 'Rujukan ' + applyResponse.header_id + '; Baharu=' + (applied.New || 0) + ', Kemas kini=' + (applied.Update || 0) + ', Nyahaktif=' + (applied.Deactivate || 0) + ', Aktif semula=' + (applied.Reactivate || 0) + '.' + auditWarning, applyResponse.audit_marker_recorded === false ? 'warning' : 'success', {hideAfter: 10000});
+                                    var auditWarning = applyResponse.audit_marker_recorded === false ? ' ' + externalSyncText.auditWarning : '';
+                                    oneidToast(externalSyncText.success, externalSyncText.reference + ' ' + applyResponse.header_id + '; ' + externalSyncText.newLabel + '=' + (applied.New || 0) + ', ' + externalSyncText.updateLabel + '=' + (applied.Update || 0) + ', ' + externalSyncText.deactivateLabel + '=' + (applied.Deactivate || 0) + ', ' + externalSyncText.reactivateLabel + '=' + (applied.Reactivate || 0) + '.' + auditWarning, applyResponse.audit_marker_recorded === false ? 'warning' : 'success', {hideAfter: 10000});
                                  } else {
                                     var code = applyResponse && applyResponse.code ? applyResponse.code : 'SYNC_OPERATIONAL_APPLY_FAILED';
-                                    oneidToast('Sinkronisasi tidak dilaksanakan', 'Rujukan teknikal: ' + code + '. Buat semakan baharu sebelum mencuba semula.', 'error', {hideAfter: 8000});
+                                    oneidToast(externalSyncText.notApplied, externalSyncText.technicalReference + ': ' + code + '. ' + externalSyncText.freshPreview, 'error', {hideAfter: 8000});
                                  }
                               },
                               error: function(){
                                  operationalApprovalId = '';
                                  button.hide();
                                  $('#sync_full_confirmation_group').hide();
-                                 oneidToast('Permintaan sinkronisasi gagal', 'Tiada perubahan dianggap berjaya. Hubungi pegawai teknikal sebelum membuat semakan baharu.', 'error', {hideAfter: 8000});
+                                 oneidToast(externalSyncText.requestFailed, externalSyncText.failureHelp, 'error', {hideAfter: 8000});
                               }
                            });
                         }
@@ -4300,8 +4840,8 @@
                   $('#sync_result_div').show();
                   $('#sync_admin_summary').removeClass('alert-info alert-warning alert-success')
                      .addClass('alert-danger')
-                     .html('<strong>Semakan tidak berjaya.</strong> Tiada perubahan data dilaksanakan.');
-                  $('#sync_preview_status').text('SEMAKAN GAGAL — SILA CUBA SEMULA').addClass('badge badge-danger');
+                     .html('<strong>' + externalSyncText.failed + '</strong> ' + externalSyncText.noChanges);
+                  $('#sync_preview_status').text(externalSyncText.reviewFailedStatus).addClass('badge badge-danger');
                },
                complete: function(){
                   $('#btn_sync').prop('disabled', false).html(
@@ -4314,16 +4854,16 @@
 
          function preview_external_sync_view(sourceView){
             var viewLabels = {
-               SUMMARY: 'Ringkasan Sinkronisasi Pengguna',
-               STAFF_HR: 'Sinkronisasi Pengguna Staf',
-               STUDENT_UG: 'Sinkronisasi Pelajar Prasiswazah',
-               STUDENT_ODL_PG: 'Sinkronisasi Pelajar ODL'
+               SUMMARY: externalSyncText.summary,
+               STAFF_HR: externalSyncText.staff,
+               STUDENT_UG: externalSyncText.ug,
+               STUDENT_ODL_PG: externalSyncText.odl
             };
             var progressLabels = {
-               SUMMARY: 'Sedang menyediakan ringkasan sinkronisasi...',
-               STAFF_HR: 'Sedang menyemak data Staf...',
-               STUDENT_UG: 'Sedang menyemak data Pelajar Prasiswazah...',
-               STUDENT_ODL_PG: 'Sedang menyemak data Pelajar ODL...'
+               SUMMARY: externalSyncText.generating,
+               STAFF_HR: externalSyncText.generating,
+               STUDENT_UG: externalSyncText.generating,
+               STUDENT_ODL_PG: externalSyncText.generating
             };
             var selectedView = viewLabels[sourceView] ? sourceView : 'SUMMARY';
             $.ajax({
@@ -4337,15 +4877,15 @@
                   $('#modal_open_add_user_option').modal('hide');
                   $('#modal_odl_shadow_preview').modal('show');
                   $('#aria_modal_odl_shadow_preview').text(
-                     viewLabels[selectedView] + ' — Semakan Sahaja'
+                     viewLabels[selectedView] + ' — ' + externalSyncText.reviewOnly
                   );
                   $('#external_preview_progress_text').text(
                      progressLabels[selectedView]
                   );
                   $('#external_preview_boundary_note').text(
                      selectedView === 'SUMMARY'
-                        ? 'Ringkasan ini untuk semakan sahaja. Tiada perubahan data boleh dilaksanakan dari paparan ini.'
-                        : 'Semakan sumber sahaja. Tiada perubahan data dilaksanakan.'
+                        ? externalSyncText.summaryBoundary
+                        : externalSyncText.sourceBoundary
                   );
                   $('#odl_shadow_progress').show();
                   $('#odl_shadow_result').hide();
@@ -4358,9 +4898,9 @@
                      $('#external_preview_admin_summary')
                         .removeClass('alert-info alert-warning alert-success')
                         .addClass('alert-danger')
-                        .html('<strong>Ringkasan tidak dapat disediakan.</strong> Tiada perubahan data dilaksanakan. Rujukan teknikal tersedia di bawah.');
+                        .html('<strong>' + externalSyncText.summaryFailed + '</strong> ' + externalSyncText.noChanges + ' ' + externalSyncText.technicalReference + '.');
                      $('#odl_shadow_status').removeClass('badge-success badge-warning')
-                        .addClass('badge badge-danger').text('SEMAKAN GAGAL — TIADA DATA DIUBAH');
+                        .addClass('badge badge-danger').text(externalSyncText.previewFailedStatus);
                      $('#odl_shadow_blocks').empty().append($('<li>').text(code));
                      return;
                   }
@@ -4415,10 +4955,10 @@
                            ? 'text-danger'
                            : (actionTotal > 0 ? 'text-warning' : 'text-success'))
                         .html(isBlocked
-                           ? '<i class="fa fa-exclamation-circle"></i> Semakan diperlukan'
+                           ? '<i class="fa fa-exclamation-circle"></i> ' + externalSyncText.reviewRequired
                            : (actionTotal > 0
-                              ? '<i class="fa fa-bell"></i> Tindakan diperlukan'
-                              : '<i class="fa fa-check-circle"></i> Terkini'));
+                              ? '<i class="fa fa-bell"></i> ' + externalSyncText.actionNeeded
+                              : '<i class="fa fa-check-circle"></i> ' + externalSyncText.current));
                   });
                   $('#external_preview_admin_summary')
                      .removeClass('alert-danger alert-warning alert-success alert-info')
@@ -4426,12 +4966,12 @@
                         ? 'alert-danger'
                         : (totalSummaryActions > 0 ? 'alert-warning' : 'alert-success'))
                      .html(blockedSourceCount > 0
-                        ? '<strong>' + blockedSourceCount + ' sumber memerlukan semakan.</strong> Jangan jalankan sinkronisasi bagi sumber yang bermasalah.'
+                        ? '<strong>' + blockedSourceCount + ' ' + externalSyncText.sourcesNeedReview + '</strong> ' + externalSyncText.doNotRun
                         : (totalSummaryActions > 0
-                           ? '<strong>' + totalSummaryActions + ' perubahan memerlukan tindakan admin.</strong> Buka sumber berkenaan untuk membuat semakan.'
-                           : '<strong>Semua sumber telah disemak.</strong> Tiada perubahan yang perlu dilaksanakan.'));
+                           ? '<strong>' + totalSummaryActions + ' ' + externalSyncText.changesNeedReview + '</strong> ' + externalSyncText.openSource
+                           : '<strong>' + externalSyncText.allReviewed + '</strong> ' + externalSyncText.noAdminAction));
                   if(selectedView === 'SUMMARY'){
-                     $('#external_preview_rows_label').text('Jumlah rekod (Staf / Prasiswazah / ODL):');
+                     $('#external_preview_rows_label').text(externalSyncText.summaryRows);
                      $('#odl_shadow_rows').text(
                         Number(rows.STAFF_HR || 0) + ' / '
                         + Number(rows.STUDENT_UG || 0) + ' / '
@@ -4447,7 +4987,7 @@
                      );
                   } else {
                      var selectedMetrics = sourceMetrics[selectedView] || {};
-                     $('#external_preview_rows_label').text('Source rows:');
+                     $('#external_preview_rows_label').text(<?=json_encode(oneid_translate('admin.sync.source_rows'), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)?>);
                      $('#odl_shadow_rows').text(Number(rows[selectedView] || 0));
                      $('#external_preview_health').text(
                         String(selectedMetrics.status || 'unknown').toUpperCase()
@@ -4455,13 +4995,13 @@
                      );
                   }
                   $('#external_preview_sync_actions').text(
-                     'Baharu ' + Number(
+                     externalSyncText.newLabel + ' ' + Number(
                         Number(selectedSyncActions.NEW || 0)
                         + Number(selectedSyncActions.CANDIDATE_NEW || 0)
                      )
-                     + ' / Kemas kini ' + Number(selectedSyncActions.UPDATE || 0)
-                     + ' / Aktif semula ' + Number(selectedSyncActions.REACTIVATE || 0)
-                     + ' / Nyahaktif ' + Number(
+                     + ' / ' + externalSyncText.updateLabel + ' ' + Number(selectedSyncActions.UPDATE || 0)
+                     + ' / ' + externalSyncText.reactivateLabel + ' ' + Number(selectedSyncActions.REACTIVATE || 0)
+                     + ' / ' + externalSyncText.deactivateLabel + ' ' + Number(
                         Number(selectedSyncActions.DEACTIVATE || 0)
                         + Number(selectedSyncActions.CANDIDATE_DEACTIVATE || 0)
                      )
@@ -4490,11 +5030,11 @@
                      .addClass(response.risk_level === 'normal'
                         ? 'badge badge-success' : 'badge badge-warning')
                      .text(response.risk_level === 'normal'
-                        ? 'SEMAKAN BERJAYA — BACA SAHAJA'
-                        : 'PROSES DISEKAT — SEMAKAN DIPERLUKAN');
+                        ? externalSyncText.readOnlyReady
+                        : externalSyncText.blockedReview);
                   var blockList = $('#odl_shadow_blocks').empty();
                   if(blocks.length === 0){
-                     $('<li>').text('Tiada sebab sekatan dikesan.').appendTo(blockList);
+                     $('<li>').text(externalSyncText.noBlock).appendTo(blockList);
                   } else {
                      blocks.forEach(function(block){
                         $('<li>').text(block).appendTo(blockList);
@@ -4514,13 +5054,13 @@
                      ? response.code
                      : 'HTTP_' + String(xhr.status || 0);
                   var correlation = response && response.correlation_id
-                     ? ' — Reference: ' + response.correlation_id : '';
+                     ? ' — ' + externalSyncText.reference + ': ' + response.correlation_id : '';
                   $('#odl_shadow_status').removeClass('badge-success badge-warning')
-                     .addClass('badge badge-danger').text('SEMAKAN GAGAL — TIADA DATA DIUBAH');
+                     .addClass('badge badge-danger').text(externalSyncText.previewFailedStatus);
                   $('#external_preview_admin_summary')
                      .removeClass('alert-info alert-warning alert-success')
                      .addClass('alert-danger')
-                     .html('<strong>Ringkasan tidak dapat disediakan.</strong> Tiada perubahan data dilaksanakan. Hubungi pegawai teknikal dengan rujukan di bawah.');
+                     .html('<strong>' + externalSyncText.summaryFailed + '</strong> ' + externalSyncText.noChanges + ' ' + externalSyncText.contactWithReference);
                   $('#odl_shadow_blocks').empty()
                      .append($('<li>').text(code + correlation));
                },
@@ -4558,7 +5098,7 @@
          		$.toast().reset('all');                    
          		$.toast({
          			heading: '',
-         			text: response['msg'],
+                  text: localizedResponseMessage(response,''),
          			position: 'bottom-center',
          			loaderBg:'#fec107',
          			icon: 'error',
@@ -4587,7 +5127,7 @@
          		$.toast().reset('all');            
          		$.toast({
          			heading: '',
-         			text: response['msg'],
+                  text: localizedResponseMessage(response,''),
          			position: 'bottom-center',
          			loaderBg:'#fec107',
          			icon: 'success',
@@ -4637,7 +5177,7 @@
             M2_AUDIT_NOT_WRITTEN: 'The audit event could not be written, so the whole action was rolled back.',
             M2_OPERATION_FAILED: 'The operation failed and was rolled back.'
          };
-         return (messages[code] || fallback) + '\nCode: ' + code + reference;
+         return localizedResponseMessage(response,messages[code] || fallback) + '\nCode: ' + code + reference;
          }
 
          function user_info_reactivate_user(){
@@ -4838,9 +5378,9 @@
                return;
             }
             $('#active_session_pagination').html(
-               '<button type="button" data-active-page="'+(page-1)+'" '+(page <= 1 ? 'disabled' : '')+' aria-label="Previous session page"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>'+
-               '<span>Page '+page+' of '+pages+'</span>'+
-               '<button type="button" data-active-page="'+(page+1)+'" '+(page >= pages ? 'disabled' : '')+' aria-label="Next session page"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>'
+               '<button type="button" data-active-page="'+(page-1)+'" '+(page <= 1 ? 'disabled' : '')+' aria-label="'+adminText('admin.sessions.previous_page')+'"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>'+
+               '<span>'+adminText('admin.sessions.page_of',{page:page,pages:pages})+'</span>'+
+               '<button type="button" data-active-page="'+(page+1)+'" '+(page >= pages ? 'disabled' : '')+' aria-label="'+adminText('admin.sessions.next_page')+'"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>'
             );
          }
 
@@ -4871,8 +5411,8 @@
 				$('#security_tab_session').html(
 					'<tr class="active-session-state-row is-loading"><td colspan="5">' +
 					'<span class="active-session-state-icon"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>' +
-					'<strong>Loading active sessions</strong>' +
-					'<small>Please wait while session data is retrieved.</small>' +
+					'<strong>'+adminText('admin.sessions.loading')+'</strong>' +
+					'<small>'+adminText('admin.sessions.loading_help')+'</small>' +
 					'</td></tr>'
 				);
           },
@@ -4889,7 +5429,7 @@
 					$('#active_session_count').text('\u2014');
 					$('#active_session_pagination').html('');
 					render_active_session_metrics({});
-					$tbody.html('<tr class="active-session-state-row is-error"><td colspan="5"><span class="active-session-state-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span><strong>Unable to load active sessions</strong><small>' + sessionText(response && response.code ? response.code : 'Invalid server response') + '</small></td></tr>');
+					$tbody.html('<tr class="active-session-state-row is-error"><td colspan="5"><span class="active-session-state-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span><strong>'+adminText('admin.sessions.unable')+'</strong><small>' + sessionText(response && response.code ? response.code : adminText('admin.sessions.retry')) + '</small></td></tr>');
 					return;
 				}
 				var sessions = response.data;
@@ -4899,19 +5439,19 @@
 					$tbody.html(
 						'<tr class="active-session-state-row"><td colspan="5">' +
 						'<span class="active-session-state-icon"><i class="fa fa-user-times" aria-hidden="true"></i></span>' +
-						'<strong>No active sessions</strong>' +
-						'<small>No user session is currently available.</small>' +
+						'<strong>'+adminText('admin.sessions.empty')+'</strong>' +
+						'<small>'+adminText('admin.sessions.empty_help')+'</small>' +
 						'</td></tr>'
 					);
 				} else {
 					var rows = '';
 					var statusMap = {
-						current:{label:'Current',icon:'fa-check-circle'},
-						active:{label:'Active',icon:'fa-circle'},
-						refresh:{label:'Refresh window',icon:'fa-refresh'},
-						grace:{label:'Grace period',icon:'fa-clock-o'},
-						due:{label:'Due',icon:'fa-exclamation-circle'},
-						expired:{label:'Expired',icon:'fa-times-circle'}
+						current:{label:adminText('admin.sessions.current'),icon:'fa-check-circle'},
+						active:{label:adminText('admin.sessions.active'),icon:'fa-circle'},
+						refresh:{label:adminText('admin.sessions.refresh_window'),icon:'fa-refresh'},
+						grace:{label:adminText('admin.sessions.grace_period'),icon:'fa-clock-o'},
+						due:{label:adminText('admin.sessions.due'),icon:'fa-exclamation-circle'},
+						expired:{label:adminText('admin.sessions.expired'),icon:'fa-times-circle'}
 					};
 					$.each(sessions, function (i, session) {
 						var issuedAt = sessionText(admin_format_datetime(session.issued_at));
@@ -4926,11 +5466,11 @@
 						}
 
 						rows += '<tr>';
-						rows += '<td data-label="Issued At"><span class="active-session-cell active-session-time" title="'+sessionAttribute(issuedAt)+'">'+issuedAt+'</span></td>';
-						rows += '<td data-label="Last Heartbeat"><span class="active-session-cell active-session-time" title="'+sessionAttribute(lastActivity)+'">'+lastActivity+'</span></td>';
-						rows += '<td data-label="User"><span class="active-session-cell active-session-user" title="'+sessionAttribute(userName+' ('+userId+')')+'"><i class="fa fa-user-circle-o" aria-hidden="true"></i><span>'+userName+'</span></span></td>';
-						rows += '<td data-label="Device"><span class="active-session-cell active-session-device" title="'+sessionAttribute(deviceInfo)+'"><i class="fa fa-desktop" aria-hidden="true"></i>'+deviceInfo+'</span></td>';
-						rows += '<td data-label="Status"><span class="active-session-status is-'+session.status+'" title="'+sessionAttribute(statusTitle)+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+'</span></span></td>';
+						rows += '<td data-label="'+adminText('admin.sessions.issued')+'"><span class="active-session-cell active-session-time" title="'+sessionAttribute(issuedAt)+'">'+issuedAt+'</span></td>';
+						rows += '<td data-label="'+adminText('admin.sessions.heartbeat')+'"><span class="active-session-cell active-session-time" title="'+sessionAttribute(lastActivity)+'">'+lastActivity+'</span></td>';
+						rows += '<td data-label="'+adminText('admin.sessions.user')+'"><span class="active-session-cell active-session-user" title="'+sessionAttribute(userName+' ('+userId+')')+'"><i class="fa fa-user-circle-o" aria-hidden="true"></i><span>'+userName+'</span></span></td>';
+						rows += '<td data-label="'+adminText('admin.sessions.device')+'"><span class="active-session-cell active-session-device" title="'+sessionAttribute(deviceInfo)+'"><i class="fa fa-desktop" aria-hidden="true"></i>'+deviceInfo+'</span></td>';
+						rows += '<td data-label="'+adminText('admin.sessions.status')+'"><span class="active-session-status is-'+session.status+'" title="'+sessionAttribute(statusTitle)+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+'</span></span></td>';
 						rows += '</tr>';
 					});
 
@@ -4946,8 +5486,8 @@
 						$('#security_tab_session').html(
 							'<tr class="active-session-state-row is-error"><td colspan="5">' +
 							'<span class="active-session-state-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>' +
-							'<strong>Unable to load active sessions</strong>' +
-							'<small>Please retry or check the application log.</small>' +
+							'<strong>'+adminText('admin.sessions.unable')+'</strong>' +
+							'<small>'+adminText('admin.sessions.retry')+'</small>' +
 							'</td></tr>'
 						);
                        }
@@ -4971,8 +5511,8 @@
             }
             var html = '<ul class="pagination pagination-sm">';
             html += currentPage <= 1
-               ? '<li class="disabled"><a href="javascript:void(0)">Prev</a></li>'
-               : '<li><a href="javascript:void(0)" onclick="render_audit_log_page(' + (currentPage - 1) + ')">Prev</a></li>';
+               ? '<li class="disabled"><a href="javascript:void(0)">'+adminText('admin.audit.previous')+'</a></li>'
+               : '<li><a href="javascript:void(0)" onclick="render_audit_log_page(' + (currentPage - 1) + ')">'+adminText('admin.audit.previous')+'</a></li>';
             var startPage = Math.max(1, currentPage - 2);
             var endPage = Math.min(totalPages, startPage + 4);
             startPage = Math.max(1, endPage - 4);
@@ -4982,8 +5522,8 @@
                   : '<li><a href="javascript:void(0)" onclick="render_audit_log_page(' + p + ')">' + p + '</a></li>';
             }
             html += currentPage >= totalPages
-               ? '<li class="disabled"><a href="javascript:void(0)">Next</a></li>'
-               : '<li><a href="javascript:void(0)" onclick="render_audit_log_page(' + (currentPage + 1) + ')">Next</a></li>';
+               ? '<li class="disabled"><a href="javascript:void(0)">'+adminText('admin.audit.next')+'</a></li>'
+               : '<li><a href="javascript:void(0)" onclick="render_audit_log_page(' + (currentPage + 1) + ')">'+adminText('admin.audit.next')+'</a></li>';
             html += '</ul>';
             $('#audit_log_pagination').html(html);
          }
@@ -5004,10 +5544,10 @@
                var auditLogDetail = audit_log_text(value.log_detail);
                var auditIpAddress = audit_log_text(value.ip_addr);
                tr += '<tr>';
-               tr += '<td data-label="Date / Time"><span class="audit-cell-text audit-log-time" title="'+auditDateTime+'">'+auditDateTime+'</span></td>';
-               tr += '<td data-label="Log Type"><span class="audit-cell-text audit-type-badge" title="'+auditLogType+'">'+auditLogType+'</span></td>';
-               tr += '<td data-label="Activity Details"><span class="audit-cell-text audit-log-details" title="'+auditLogDetail+'">'+auditLogDetail+'</span></td>';
-               tr += '<td data-label="IP Address"><code class="audit-cell-text audit-ip-address" title="'+auditIpAddress+'">'+auditIpAddress+'</code></td>';
+               tr += '<td data-label="'+adminText('admin.audit.datetime')+'"><span class="audit-cell-text audit-log-time" title="'+auditDateTime+'">'+auditDateTime+'</span></td>';
+               tr += '<td data-label="'+adminText('admin.audit.type')+'"><span class="audit-cell-text audit-type-badge" title="'+auditLogType+'">'+auditLogType+'</span></td>';
+               tr += '<td data-label="'+adminText('admin.audit.details')+'"><span class="audit-cell-text audit-log-details" title="'+auditLogDetail+'">'+auditLogDetail+'</span></td>';
+               tr += '<td data-label="'+adminText('admin.audit.ip')+'"><code class="audit-cell-text audit-ip-address" title="'+auditIpAddress+'">'+auditIpAddress+'</code></td>';
                tr += '</tr>';
             });
             $('#audit_search_result_tbody').html(tr);
@@ -5027,8 +5567,8 @@
                $('#audit_search_result_tbody').html(
                   '<tr class="audit-state-row is-loading"><td colspan="4">' +
                   '<span class="audit-state-icon"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>' +
-                  '<strong>Searching audit records</strong>' +
-                  '<small>Please wait while the selected date range is processed.</small>' +
+                  '<strong>'+adminText('admin.audit.searching')+'</strong>' +
+                  '<small>'+adminText('admin.audit.searching_help')+'</small>' +
                   '</td></tr>'
                );
             },
@@ -5038,7 +5578,7 @@
                   $.toast().reset('all');            
                   $.toast({
                      heading: '',
-                     text: "No result found",
+                     text: adminText('admin.audit.no_result'),
                      position: 'bottom-center',
                      loaderBg:'#fec107',
                      icon: 'warning',
@@ -5049,15 +5589,15 @@
                   $('#audit_search_result_tbody').html(
                      '<tr class="audit-state-row"><td colspan="4">' +
                      '<span class="audit-state-icon"><i class="fa fa-folder-open-o" aria-hidden="true"></i></span>' +
-                     '<strong>No records found</strong>' +
-                     '<small>Try selecting a different date range.</small>' +
+                     '<strong>'+adminText('admin.audit.empty')+'</strong>' +
+                     '<small>'+adminText('admin.audit.empty_help')+'</small>' +
                      '</td></tr>'
                   );
                }else{
                   $.toast().reset('all');            
                   $.toast({
                      heading: '',
-                     text: "Result found",
+                     text: adminText('admin.audit.result_found'),
                      position: 'bottom-center',
                      loaderBg:'#fec107',
                      icon: 'success',
@@ -5082,8 +5622,8 @@
                $('#audit_search_result_tbody').html(
                   '<tr class="audit-state-row is-error"><td colspan="4">' +
                   '<span class="audit-state-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>' +
-                  '<strong>Unable to load audit records</strong>' +
-                  '<small>Please retry the search or check the application log.</small>' +
+                  '<strong>'+adminText('admin.audit.unable')+'</strong>' +
+                  '<small>'+adminText('admin.audit.retry')+'</small>' +
                   '</td></tr>'
                );
             }
@@ -5092,13 +5632,13 @@
 
          function sync_status_badge(status){
             var labels = {
-               '0': ['In Progress', 'sync-status-progress'],
-               '1': ['Temp Only', 'sync-status-temp'],
-               '2': ['Complete', 'sync-status-complete'],
-               '3': ['No Data', 'sync-status-empty'],
-               '4': ['No Changes', 'sync-status-unchanged']
+               '0': [adminText('admin.synclog.in_progress'), 'sync-status-progress'],
+               '1': [adminText('admin.synclog.temp_only'), 'sync-status-temp'],
+               '2': [adminText('admin.synclog.complete'), 'sync-status-complete'],
+               '3': [adminText('admin.synclog.no_data'), 'sync-status-empty'],
+               '4': [adminText('admin.synclog.unchanged'), 'sync-status-unchanged']
             };
-            var info = labels[String(status)] || ['Unknown', 'sync-status-unknown'];
+            var info = labels[String(status)] || [adminText('admin.synclog.unknown'), 'sync-status-unknown'];
             return '<span class="sync-status-badge ' + info[1] + '">' + info[0] + '</span>';
          }
 
@@ -5181,9 +5721,9 @@
             }
             var html = '<ul class="pagination pagination-sm">';
             if(currentPage <= 1){
-               html += '<li class="disabled"><a href="javascript:void(0)">Prev</a></li>';
+               html += '<li class="disabled"><a href="javascript:void(0)">'+adminText('admin.audit.previous')+'</a></li>';
             }else{
-               html += '<li><a href="javascript:void(0)" onclick="render_sync_sessions_page(' + (currentPage - 1) + ')">Prev</a></li>';
+               html += '<li><a href="javascript:void(0)" onclick="render_sync_sessions_page(' + (currentPage - 1) + ')">'+adminText('admin.audit.previous')+'</a></li>';
             }
             var startPage = Math.max(1, currentPage - 2);
             var endPage = Math.min(totalPages, startPage + 4);
@@ -5196,9 +5736,9 @@
                }
             }
             if(currentPage >= totalPages){
-               html += '<li class="disabled"><a href="javascript:void(0)">Next</a></li>';
+               html += '<li class="disabled"><a href="javascript:void(0)">'+adminText('admin.audit.next')+'</a></li>';
             }else{
-               html += '<li><a href="javascript:void(0)" onclick="render_sync_sessions_page(' + (currentPage + 1) + ')">Next</a></li>';
+               html += '<li><a href="javascript:void(0)" onclick="render_sync_sessions_page(' + (currentPage + 1) + ')">'+adminText('admin.audit.next')+'</a></li>';
             }
             html += '</ul>';
             $('#sync_session_pagination').html(html);
@@ -5215,20 +5755,20 @@
                var dtStart = admin_format_datetime(row.ext_head_dt_start);
                var dtEnd = row.ext_head_dt_end ? ' — ' + admin_format_datetime(row.ext_head_dt_end) : '';
                tr += '<tr class="sync-session-row">';
-               tr += '<td data-label="Session"><span class="sync-session-id">#' + row.ext_head_id + '</span></td>';
-               tr += '<td data-label="Date / Time"><span class="sync-session-time">' + dtStart + dtEnd + '</span></td>';
-               tr += '<td data-label="Triggered By"><span class="sync-session-trigger">' + sync_format_triggered_by(row) + '</span></td>';
-               tr += '<td data-label="Changes"><div class="sync-change-metrics">';
-               tr += '<span><small>New</small><strong>' + (row.total_new || 0) + '</strong></span>';
-               tr += '<span><small>Updated</small><strong>' + (row.total_updated || 0) + '</strong></span>';
-               tr += '<span><small>Deactivated</small><strong>' + (row.total_deactivated || 0) + '</strong></span>';
-               tr += '<span><small>Reactivated</small><strong>' + (row.total_reactivated || 0) + '</strong></span>';
+               tr += '<td data-label="'+adminText('admin.synclog.session')+'"><span class="sync-session-id">#' + row.ext_head_id + '</span></td>';
+               tr += '<td data-label="'+adminText('admin.synclog.datetime')+'"><span class="sync-session-time">' + dtStart + dtEnd + '</span></td>';
+               tr += '<td data-label="'+adminText('admin.synclog.triggered')+'"><span class="sync-session-trigger">' + sync_format_triggered_by(row) + '</span></td>';
+               tr += '<td data-label="'+adminText('admin.synclog.changes')+'"><div class="sync-change-metrics">';
+               tr += '<span><small>'+adminText('admin.synclog.new')+'</small><strong>' + (row.total_new || 0) + '</strong></span>';
+               tr += '<span><small>'+adminText('admin.synclog.updated')+'</small><strong>' + (row.total_updated || 0) + '</strong></span>';
+               tr += '<span><small>'+adminText('admin.synclog.deactivated')+'</small><strong>' + (row.total_deactivated || 0) + '</strong></span>';
+               tr += '<span><small>'+adminText('admin.synclog.reactivated')+'</small><strong>' + (row.total_reactivated || 0) + '</strong></span>';
                tr += '</div></td>';
-               tr += '<td data-label="Status">' + sync_status_badge(row.ext_head_status) + '</td>';
-               tr += '<td class="sync-action-column" data-label="#"><button type="button" class="sync-view-button" title="View session details" aria-label="View session details" onclick="load_sync_log_detail(' + row.ext_head_id + ', \'' + String(dtStart).replace(/'/g, "\\'") + '\');"><i class="fa fa-eye" aria-hidden="true"></i><span class="sr-only">View session details</span></button></td>';
+               tr += '<td data-label="'+adminText('admin.synclog.status')+'">' + sync_status_badge(row.ext_head_status) + '</td>';
+               tr += '<td class="sync-action-column" data-label="#"><button type="button" class="sync-view-button" title="'+adminText('admin.synclog.view')+'" aria-label="'+adminText('admin.synclog.view')+'" onclick="load_sync_log_detail(' + row.ext_head_id + ', \'' + String(dtStart).replace(/'/g, "\\'") + '\');"><i class="fa fa-eye" aria-hidden="true"></i><span class="sr-only">'+adminText('admin.synclog.view')+'</span></button></td>';
                tr += '</tr>';
             });
-            $('#sync_session_tbody').html(tr || '<tr class="sync-empty-row"><td colspan="6">No sync sessions found.</td></tr>');
+            $('#sync_session_tbody').html(tr || '<tr class="sync-empty-row"><td colspan="6">'+adminText('admin.synclog.empty')+'</td></tr>');
             render_sync_pagination(page, totalPages);
          }
 
@@ -5239,9 +5779,9 @@
             }
             var html = '<ul class="pagination pagination-sm">';
             if(currentPage <= 1){
-               html += '<li class="disabled"><a href="javascript:void(0)">Prev</a></li>';
+               html += '<li class="disabled"><a href="javascript:void(0)">'+adminText('admin.audit.previous')+'</a></li>';
             }else{
-               html += '<li><a href="javascript:void(0)" onclick="render_sync_detail_page(' + (currentPage - 1) + ')">Prev</a></li>';
+               html += '<li><a href="javascript:void(0)" onclick="render_sync_detail_page(' + (currentPage - 1) + ')">'+adminText('admin.audit.previous')+'</a></li>';
             }
             var startPage = Math.max(1, currentPage - 2);
             var endPage = Math.min(totalPages, startPage + 4);
@@ -5254,9 +5794,9 @@
                }
             }
             if(currentPage >= totalPages){
-               html += '<li class="disabled"><a href="javascript:void(0)">Next</a></li>';
+               html += '<li class="disabled"><a href="javascript:void(0)">'+adminText('admin.audit.next')+'</a></li>';
             }else{
-               html += '<li><a href="javascript:void(0)" onclick="render_sync_detail_page(' + (currentPage + 1) + ')">Next</a></li>';
+               html += '<li><a href="javascript:void(0)" onclick="render_sync_detail_page(' + (currentPage + 1) + ')">'+adminText('admin.audit.next')+'</a></li>';
             }
             html += '</ul>';
             $('#sync_detail_pagination').html(html);
@@ -5272,17 +5812,17 @@
             $.each(rows, function(i, row){
                tr += '<tr>';
                tr += '<td data-label="#"><span class="sync-row-number">' + (start + i + 1) + '</span></td>';
-               tr += '<td data-label="User ID"><span class="sync-detail-user">' + row.u_id + '</span></td>';
-               tr += '<td data-label="Action">' + sync_action_badge(row.action) + '</td>';
-               tr += '<td data-label="Change Details"><div class="sync-detail-data">';
-               tr += '<div><span>Changed fields</span><p>' + sync_format_json_cell(row.changed_fields) + '</p></div>';
-               tr += '<div><span>Old data</span><p>' + sync_format_json_cell(row.old_data) + '</p></div>';
-               tr += '<div><span>New data</span><p>' + sync_format_json_cell(row.new_data) + '</p></div>';
+               tr += '<td data-label="'+adminText('admin.synclog.user_id')+'"><span class="sync-detail-user">' + row.u_id + '</span></td>';
+               tr += '<td data-label="'+adminText('admin.synclog.action')+'">' + sync_action_badge(row.action) + '</td>';
+               tr += '<td data-label="'+adminText('admin.synclog.change_details')+'"><div class="sync-detail-data">';
+               tr += '<div><span>'+adminText('admin.synclog.changed_fields')+'</span><p>' + sync_format_json_cell(row.changed_fields) + '</p></div>';
+               tr += '<div><span>'+adminText('admin.synclog.old_data')+'</span><p>' + sync_format_json_cell(row.old_data) + '</p></div>';
+               tr += '<div><span>'+adminText('admin.synclog.new_data')+'</span><p>' + sync_format_json_cell(row.new_data) + '</p></div>';
                tr += '</div></td>';
-               tr += '<td data-label="Time"><span class="sync-session-time">' + admin_format_datetime(row.logged_at) + '</span></td>';
+               tr += '<td data-label="'+adminText('admin.synclog.time')+'"><span class="sync-session-time">' + admin_format_datetime(row.logged_at) + '</span></td>';
                tr += '</tr>';
             });
-            $('#sync_detail_tbody').html(tr || '<tr class="sync-empty-row"><td colspan="5">No changes recorded for this session.</td></tr>');
+            $('#sync_detail_tbody').html(tr || '<tr class="sync-empty-row"><td colspan="5">'+adminText('admin.synclog.no_changes')+'</td></tr>');
             render_sync_detail_pagination(page, totalPages);
          }
 
@@ -5294,14 +5834,14 @@
                data: { admin_get_sync_sessions: '' },
                beforeSend: function(){
                   sync_update_summary(null);
-                  $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> Loading sessions...</td></tr>');
+                  $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> '+adminText('admin.synclog.loading')+'</td></tr>');
                   $('#sync_session_pagination').html('');
                },
                success: function(response){
                   if(!response || response.length === 0){
                      syncSessionsData = [];
                      sync_update_summary([]);
-                     $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6">No sync sessions found.</td></tr>');
+                     $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6">'+adminText('admin.synclog.empty')+'</td></tr>');
                      $('#sync_session_pagination').html('');
                      return;
                   }
@@ -5312,7 +5852,7 @@
                error: function(xhr){
                   syncSessionsData = [];
                   sync_update_summary([]);
-                  $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6">Failed to load sync sessions.</td></tr>');
+                  $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6">'+adminText('admin.synclog.failed_sessions')+'</td></tr>');
                   $('#sync_session_pagination').html('');
                }
             });
@@ -5326,16 +5866,16 @@
                data: { admin_get_sync_log_detail: '', ext_head_id: ext_head_id },
                beforeSend: function(){
                   syncLogDetailData = [];
-                  $('#sync_detail_tbody').html('<tr class="sync-empty-row"><td colspan="5"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> Loading session details...</td></tr>');
+                  $('#sync_detail_tbody').html('<tr class="sync-empty-row"><td colspan="5"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> '+adminText('admin.synclog.loading_details')+'</td></tr>');
                   $('#sync_detail_pagination').html('');
-                  $('#sync_detail_header').text('Changes in Session #' + ext_head_id + (sessionDate ? ' — ' + sessionDate : ''));
+                  $('#sync_detail_header').text(adminText('admin.synclog.detail_title', {id: ext_head_id}) + (sessionDate ? ' — ' + sessionDate : ''));
                   $('#sync_session_panel').hide();
                   $('#sync_detail_panel').show();
                },
                success: function(response){
                   if(!response || response.length === 0){
                      syncLogDetailData = [];
-                     $('#sync_detail_tbody').html('<tr class="sync-empty-row"><td colspan="5">No changes recorded for this session.</td></tr>');
+                     $('#sync_detail_tbody').html('<tr class="sync-empty-row"><td colspan="5">'+adminText('admin.synclog.no_changes')+'</td></tr>');
                      $('#sync_detail_pagination').html('');
                      return;
                   }
@@ -5344,7 +5884,7 @@
                },
                error: function(xhr){
                   syncLogDetailData = [];
-                  $('#sync_detail_tbody').html('<tr class="sync-empty-row"><td colspan="5">Failed to load session details.</td></tr>');
+                  $('#sync_detail_tbody').html('<tr class="sync-empty-row"><td colspan="5">'+adminText('admin.synclog.failed_details')+'</td></tr>');
                   $('#sync_detail_pagination').html('');
                }
             });
@@ -5465,9 +6005,27 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          });
       }
 	  
-	   const releaseNotes = [
+	   const canonicalReleaseNotes = [
     {
       version: <?php echo json_encode(ONEID_APP_VERSION); ?>,
+      date: "2026-07-26",
+      changes: [
+        "Infrastruktur locale BM/English dilengkapkan dengan Bahasa Melayu sebagai default dan hard fallback, English sebagai bahasa kedua serta preference pengguna, sesi dan cookie yang divalidasi.",
+        "Login, Pemulihan Kata Laluan, OTP, User Dashboard dan Administrator Dashboard kini menyokong pertukaran BM/English tanpa mengubah authentication, authorization atau ACL.",
+        "Active Sessions, Audit Log, Sync Audit, Configuration dan senarai pengguna kategori dilengkapkan dengan label, pagination serta loading, empty, success dan error state BM/English.",
+        "External Sync Summary, Staff, Prasiswazah dan ODL kini mempunyai presentation BM/English sementara source code, plan hash, counts, correlation ID dan exact confirmation kekal canonical.",
+        "Admin Step-Up menyokong arahan dan feedback BM/English bagi OTP e-mel, Microsoft Authenticator, enrollment, reset, expiry dan rate limit tanpa mengubah purpose, factor atau grant security.",
+        "API/AJAX, notification dan e-mel dalam skop dilengkapi stable response code serta translation key sambil mengekalkan legacy msg untuk compatibility.",
+        "Metadata aplikasi dan kategori menggunakan translation tables additive, fallback kepada metadata asal, audit history dan optimistic concurrency tanpa mengubah ID, URL, SSO atau ACL.",
+        "Semua 84 rekod metadata diklasifikasi; 33 terjemahan English baharu dan 33 audit history telah direkonsiliasi dengan content completeness 100%.",
+        "Login dan User Dashboard berkongsi 8 FAQ BM/English daripada satu sumber kandungan dengan explicit fallback notice dan accessibility semantics.",
+        "Administrator Version Releases mempunyai parity 37/37 release dan 217/217 changelog BM/English dengan digest approval fail-closed serta fallback penuh kepada BM.",
+        "English User Manual PDF ditangguhkan oleh owner; MANUAL_SALAM.pdf kekal rasmi dan pengguna English menerima notis fallback BM yang jelas.",
+        "Audit pre-ML9 merekonsiliasi semua fasa multilingual sebagai PASS/CLOSED pada Local WSL dengan document inventory 149, duplicate 0, missing target 0 dan blocking code 0."
+      ]
+    },
+    {
+      version: "2.6.2",
       date: "2026-07-24",
       changes: [
         "ODL Fasa 9 Manual Operational Sync ditutup selepas exact-plan Apply menambah 18 akaun NEW melalui header 50; active membership STUDENT_ODL_PG meningkat kepada 71.",
@@ -5920,11 +6478,24 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
     }
   ];
 
+  const approvedReleaseNotes = <?=json_encode(
+    $approved_release_notes,
+    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+  )?>;
+  const releaseNotes = Array.isArray(approvedReleaseNotes) && approvedReleaseNotes.length === 37
+    ? approvedReleaseNotes
+    : canonicalReleaseNotes;
+  const releaseI18n = <?=json_encode([
+    'current' => oneid_translate('admin.releases.current'),
+    'latest' => oneid_translate('admin.releases.latest'),
+    'release' => oneid_translate('admin.releases.release'),
+    'dateLocale' => oneid_current_locale() === 'en' ? 'en-MY' : 'ms-MY',
+  ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)?>;
   const releaseList = document.getElementById("release_notes_list");
   const currentReleaseBadge = document.getElementById("current_release_badge");
   const formatReleaseDate = date => {
     const parsedDate = new Date(`${date}T00:00:00`);
-    return new Intl.DateTimeFormat('ms-MY', {
+    return new Intl.DateTimeFormat(releaseI18n.dateLocale, {
       day: '2-digit',
       month: 'short',
       year: 'numeric'
@@ -5933,7 +6504,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
   if (releaseNotes.length > 0) {
     currentReleaseBadge.innerHTML = `
-      <span>Current release</span>
+      <span>${releaseI18n.current}</span>
       <strong>v${releaseNotes[0].version}</strong>
     `;
   }
@@ -5947,13 +6518,13 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
             <time class="version-release-date" datetime="${release.date}">${formatReleaseDate(release.date)}</time>
           </span>
           <span class="version-release-summary">
-            ${releaseIndex === 0 ? '<span class="version-latest-label">Current Release</span>' : ''}
-            <span>${releaseIndex === 0 ? 'Latest updates' : `Release ${release.version}`}</span>
+            ${releaseIndex === 0 ? `<span class="version-latest-label">${releaseI18n.current}</span>` : ''}
+            <span>${releaseIndex === 0 ? releaseI18n.latest : `${releaseI18n.release} ${release.version}`}</span>
           </span>
           <i class="fa fa-chevron-down version-release-chevron" aria-hidden="true"></i>
         </button>
         <div id="release-content-${releaseIndex}" class="version-release-content"${releaseIndex === 0 ? '' : ' hidden'}>
-          <h5>${releaseIndex === 0 ? 'Latest updates' : `Release ${release.version}`}</h5>
+          <h5>${releaseIndex === 0 ? releaseI18n.latest : `${releaseI18n.release} ${release.version}`}</h5>
           <ol class="version-change-list">
             ${release.changes.map(item => `<li>${item}</li>`).join("")}
           </ol>
@@ -6096,10 +6667,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #follo_8 .web-app-toolbar {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 20px;
+        display: block;
         padding: 18px 20px;
         border-radius: 8px 8px 0 0;
       }
@@ -6185,8 +6753,13 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #follo_8 .web-app-actions {
         display: flex;
         align-items: center;
-        flex: 0 0 auto;
+        justify-content: flex-end;
+        flex-wrap: wrap;
         gap: 8px;
+        width: 100%;
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid #edf1f5;
       }
 
       #follo_8 .web-app-action {
@@ -7007,6 +7580,230 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          border-color: #d7dfe7;
          background: #f5f7f9;
          color: #52606d;
+      }
+
+      #modal_metadata_translations .oneid-metadata-dialog {
+         width: min(880px, calc(100vw - 30px));
+         max-width: 880px;
+      }
+
+      #modal_metadata_translations .oneid-metadata-modal {
+         overflow-wrap: anywhere;
+      }
+
+      #modal_metadata_translations .oneid-metadata-header {
+         background: linear-gradient(135deg, #087eaf 0%, #1398d0 100%);
+      }
+
+      #modal_metadata_translations .oneid-metadata-body {
+         max-height: calc(100vh - 190px);
+         overflow-y: auto;
+      }
+
+      #modal_metadata_translations .oneid-metadata-body > .alert,
+      #modal_metadata_translations .oneid-metadata-body > .row,
+      #modal_metadata_translations .oneid-metadata-body > .form-group,
+      #modal_metadata_translations .oneid-metadata-body > .help-block,
+      #modal_metadata_translations .oneid-metadata-body > hr,
+      #modal_metadata_translations .oneid-metadata-body > button,
+      #modal_metadata_translations .oneid-metadata-body > #metadata_content_preview_panel {
+         position: relative;
+         z-index: 1;
+      }
+
+      #modal_metadata_translations .oneid-metadata-body:before {
+         display: block;
+         position: absolute;
+         z-index: 0;
+         top: 22px;
+         right: 22px;
+         bottom: 22px;
+         left: 22px;
+         border: 1px solid #e0e7ee;
+         border-radius: 9px;
+         background: #fff;
+         box-shadow: 0 2px 8px rgba(45, 64, 82, .05);
+         content: "";
+      }
+
+      #modal_metadata_translations .oneid-metadata-body {
+         position: relative;
+         padding: 42px;
+      }
+
+      #modal_metadata_translations .oneid-metadata-body label {
+         color: #445366;
+         font-size: 12px;
+         font-weight: 600;
+      }
+
+      #modal_metadata_translations .oneid-metadata-body .form-control {
+         min-height: 42px;
+         border-color: #d8e1e9;
+         border-radius: 6px;
+         box-shadow: none;
+      }
+
+      #modal_metadata_translations .oneid-metadata-body .form-control:focus {
+         border-color: #39aeda;
+         box-shadow: 0 0 0 3px rgba(17, 168, 223, .10);
+      }
+
+      #modal_metadata_translations .oneid-metadata-body > hr {
+         border-color: #e7ecf1;
+      }
+
+      #modal_metadata_translations .oneid-metadata-review-toggle {
+         display: inline-flex;
+         align-items: center;
+         min-height: 42px;
+         padding: 0 15px;
+         border-color: #d7dfe7;
+         border-radius: 6px;
+         background: #f5f7f9;
+         color: #34495e;
+         font-weight: 600;
+         gap: 9px;
+      }
+
+      #modal_metadata_translations .oneid-metadata-bulk-preview-button {
+         display: inline-flex;
+         align-items: center;
+         min-height: 42px;
+         margin-left: 8px;
+         padding: 0 15px;
+         border-color: #c9c1ed;
+         border-radius: 6px;
+         background: #f6f3ff;
+         color: #5d4bb7;
+         font-weight: 600;
+         gap: 9px;
+      }
+
+      #modal_metadata_translations #metadata_bulk_preview_result {
+         line-height: 1.6;
+         overflow-wrap: anywhere;
+      }
+
+      #modal_metadata_translations .oneid-metadata-review-toggle:hover,
+      #modal_metadata_translations .oneid-metadata-review-toggle:focus,
+      #modal_metadata_translations .oneid-metadata-review-toggle.is-open {
+         border-color: #9ed2e6;
+         background: #eef8fd;
+         color: #087eaf;
+      }
+
+      #modal_metadata_translations .oneid-metadata-review-chevron {
+         margin-left: 4px;
+         transition: transform .2s ease;
+      }
+
+      #modal_metadata_translations .oneid-metadata-review-toggle.is-open .oneid-metadata-review-chevron {
+         transform: rotate(180deg);
+      }
+
+      #modal_metadata_translations #metadata_content_preview_panel {
+         margin-top: 18px;
+         padding-top: 18px;
+         border-top: 1px solid #e7ecf1;
+      }
+
+      #modal_metadata_translations #metadata_content_preview_panel > h5 {
+         margin: 0 0 10px;
+         color: #29384b;
+         font-size: 15px;
+         font-weight: 700;
+      }
+
+      #modal_metadata_translations #metadata_content_preview_summary {
+         margin-bottom: 14px;
+         padding: 12px 14px;
+         border: 1px solid #f0d791;
+         border-radius: 7px;
+         background: #fff8df;
+         color: #765817;
+         font-size: 12px;
+         line-height: 1.6;
+         overflow-wrap: anywhere;
+      }
+
+      #modal_metadata_translations .oneid-metadata-review-table {
+         max-height: 360px;
+         overflow: auto;
+         border: 1px solid #e1e7ed;
+         border-radius: 7px;
+         background: #fff;
+      }
+
+      #modal_metadata_translations .oneid-metadata-review-table table {
+         width: 100%;
+         min-width: 960px;
+         margin: 0;
+         table-layout: fixed;
+      }
+
+      #modal_metadata_translations .oneid-metadata-review-table th,
+      #modal_metadata_translations .oneid-metadata-review-table td {
+         padding: 12px 14px;
+         vertical-align: top;
+         line-height: 1.45;
+         overflow-wrap: break-word;
+      }
+
+      #modal_metadata_translations .oneid-metadata-review-table th {
+         position: sticky;
+         z-index: 2;
+         top: 0;
+         background: #f5f8fa;
+         color: #405164;
+         font-size: 10px;
+         letter-spacing: .04em;
+         text-transform: uppercase;
+      }
+
+      #modal_metadata_translations .oneid-metadata-review-table th:nth-child(1) {
+         width: 130px;
+      }
+
+      #modal_metadata_translations .oneid-metadata-review-table th:nth-child(2),
+      #modal_metadata_translations .oneid-metadata-review-table th:nth-child(3) {
+         width: 260px;
+      }
+
+      #modal_metadata_translations .oneid-metadata-review-table th:nth-child(4) {
+         width: 175px;
+      }
+
+      #modal_metadata_translations .oneid-metadata-review-table th:nth-child(5) {
+         width: 135px;
+      }
+
+      #modal_metadata_translations .oneid-metadata-review-table code {
+         display: inline-block;
+         margin-top: 4px;
+         white-space: nowrap;
+      }
+
+      #modal_metadata_translations .oneid-metadata-entity-type,
+      #modal_metadata_translations .oneid-metadata-review-label {
+         display: inline-block;
+         color: #536476;
+         font-size: 11px;
+         font-weight: 600;
+      }
+
+      @media (max-width: 767px) {
+         #modal_metadata_translations .oneid-metadata-body {
+            max-height: calc(100vh - 170px);
+            padding: 29px;
+         }
+
+         #modal_metadata_translations .oneid-metadata-body:before {
+            top: 14px;
+            right: 14px;
+            bottom: 14px;
+            left: 14px;
+         }
       }
 
       #modal_add_new_user_manual .control-label {

@@ -110,6 +110,13 @@ function oneid_q_func_action_map(): array
             'admin_get_sso_settings',
             'admin_get_configuration_history',
             'admin_get_password_recovery_settings',
+            'admin_get_default_locale',
+            'admin_update_default_locale',
+            'admin_metadata_translation_preview',
+            'admin_metadata_content_preview',
+            'admin_metadata_bulk_content_preview',
+            'admin_get_metadata_translation',
+            'admin_save_metadata_translation',
             'update_password_recovery',
             'test_password_recovery_email',
             'preview_configuration_update',
@@ -178,6 +185,8 @@ function oneid_admin_action_purpose(string $action): string
         'test_password_recovery_email',
         'preview_configuration_update',
         'update_configuration',
+        'admin_update_default_locale',
+        'admin_save_metadata_translation',
     ];
     return in_array($action, $securityConfiguration, true)
         ? 'SECURITY_CONFIGURATION_CHANGE'
