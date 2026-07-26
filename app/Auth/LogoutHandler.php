@@ -4,7 +4,11 @@ namespace OneId\App\Auth;
 
 final class LogoutHandler
 {
-    public static function handle(object $operation, string $redirectUrl): never
+    public static function handle(
+        object $operation,
+        string $redirectUrl,
+        ?string $federatedLogoutUrl = null
+    ): never
     {
         if (isset($_COOKIE['sso_cre'])) {
             $cookie = \LOCAL_COOKIES_HANDLER();
@@ -18,7 +22,8 @@ final class LogoutHandler
 
         $_SESSION = [];
         session_destroy();
-        header('Location: ' . $redirectUrl);
+        header('Cache-Control: no-store');
+        header('Location: ' . ($federatedLogoutUrl ?? $redirectUrl), true, 303);
         exit;
     }
 }

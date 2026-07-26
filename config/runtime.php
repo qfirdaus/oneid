@@ -27,6 +27,26 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_SSO_IDP_URL' => 'https://oneid.local/',
         'ONEID_SSO_DASHBOARD_URL' => 'https://oneid.local/page/dashboard',
         'ONEID_SAMPLE_DATA_URL' => 'http://localhost/SSO_IDP/sample_data.php',
+        // MyDigital ID F1 foundation is dormant. Secret remains private and
+        // activation is not permitted until later phase gates pass.
+        'ONEID_MYDID_ENABLED' => 'false',
+        'ONEID_MYDID_ISSUER' => 'https://sso.digital-id.my/realms/upnm',
+        'ONEID_MYDID_CLIENT_ID' => 'upnm-generic',
+        'ONEID_MYDID_REDIRECT_URI' => 'https://oneid-uat.upnm.edu.my/auth/mydigitalid/callback.php',
+        'ONEID_MYDID_POST_LOGOUT_REDIRECT_URI' => 'https://oneid-uat.upnm.edu.my/',
+        'ONEID_MYDID_SCOPE' => 'openid',
+        'ONEID_MYDID_HTTP_TIMEOUT_SECONDS' => '12',
+        'ONEID_MYDID_PKCE_METHOD' => 'S256',
+        // HMAC key material is private; this committed identifier stays empty
+        // until a separately approved key is provisioned.
+        'ONEID_MYDID_IDENTITY_HMAC_KEY_ID' => '',
+        // Live schema application is a separately approved, time-bounded action.
+        'ONEID_MYDID_SCHEMA_APPLY_ENABLED' => 'false',
+        'ONEID_MYDID_SCHEMA_CHANGE_REFERENCE' => '',
+        'ONEID_MYDID_SCHEMA_BACKUP_REFERENCE' => '',
+        'ONEID_MYDID_SCHEMA_WINDOW_START' => '',
+        'ONEID_MYDID_SCHEMA_WINDOW_END' => '',
+        'ONEID_MYDID_AUDIT_RETENTION_REFERENCE' => '',
         'ONEID_SMTP_HOST' => 'smtp.office365.com',
         'ONEID_SMTP_PORT' => 587,
         'ONEID_SMTP_ENCRYPTION' => 'tls',

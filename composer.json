@@ -1,0 +1,29 @@
+{
+    "name": "upnm/oneid",
+    "description": "OneID authentication and identity management application",
+    "license": "proprietary",
+    "type": "project",
+    "require": {
+        "php": "^8.3",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "jumbojett/openid-connect-php": "^1.0.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "OneId\\App\\": "app/"
+        }
+    },
+    "config": {
+        "allow-plugins": {},
+        "audit": {
+            "block-insecure": true
+        },
+        "optimize-autoloader": true,
+        "platform": {
+            "php": "8.3.0"
+        },
+        "sort-packages": true
+    },
+    "prefer-stable": true
+}

@@ -15,6 +15,20 @@ if ($requestedLocale !== null) {
   header('Location: ' . APP_URL . '/', true, 303);
   exit;
 }
+$myDigitalIdEnabled = filter_var(
+  oneid_config('ONEID_MYDID_ENABLED', 'false'),
+  FILTER_VALIDATE_BOOLEAN
+);
+$loginFlashCode = is_string($_SESSION['oneid_login_flash'] ?? null)
+  ? $_SESSION['oneid_login_flash']
+  : '';
+unset($_SESSION['oneid_login_flash']);
+$loginFlashKey = match ($loginFlashCode) {
+  'mydigitalid_invalid' => 'login.mydigitalid.invalid',
+  'mydigitalid_unavailable' => 'login.mydigitalid.unavailable',
+  'mydigitalid_temporary' => 'login.mydigitalid.temporary',
+  default => null,
+};
 ?>
 <!DOCTYPE html>
 <html lang="<?=htmlspecialchars(oneid_current_locale(), ENT_QUOTES, 'UTF-8')?>">
@@ -59,7 +73,11 @@ if ($requestedLocale !== null) {
           </h5>
         </div>
 
-        <div id="login_status"></div>
+        <div id="login_status" role="status" aria-live="polite"><?php if ($loginFlashKey !== null): ?>
+          <div class="alert alert-warning alert-dismissable">
+            <p><?=htmlspecialchars(oneid_translate($loginFlashKey), ENT_QUOTES, 'UTF-8')?></p>
+          </div>
+        <?php endif; ?></div>
 
         <div class="login-form-block" style="display: flex; flex-direction: column; gap: 4px;margin-bottom: 20px;">
           <label for="username" class="login-form-label" style="margin-bottom: 4px; font-weight: 500; color: #2c2c2c;"> <?=htmlspecialchars(oneid_translate('login.user_id'), ENT_QUOTES, 'UTF-8')?></label>
@@ -79,11 +97,26 @@ if ($requestedLocale !== null) {
           </button>
         </div>
 
-        <div class="mydigitalid-preview" aria-label="<?=htmlspecialchars(oneid_translate('login.future_option'), ENT_QUOTES, 'UTF-8')?>">
-          <span class="mydigitalid-preview-label"><?=htmlspecialchars(oneid_translate('login.future_option'), ENT_QUOTES, 'UTF-8')?></span>
-          <img src="img/mydigitalid_logo_colored.svg" alt="MyDigital ID" width="158" height="42" loading="lazy" />
-          <small><?=htmlspecialchars(oneid_translate('login.integration_disabled'), ENT_QUOTES, 'UTF-8')?></small>
-        </div>
+        <?php if ($myDigitalIdEnabled): ?>
+          <div class="mydigitalid-login-option">
+            <div class="mydigitalid-preview-label"><?=htmlspecialchars(oneid_translate('login.mydigitalid.divider'), ENT_QUOTES, 'UTF-8')?></div>
+            <a
+              class="btn btn-outline-primary w-100"
+              href="auth/mydigitalid/login.php"
+              aria-label="<?=htmlspecialchars(oneid_translate('login.mydigitalid.submit'), ENT_QUOTES, 'UTF-8')?>"
+            >
+              <img src="img/mydigitalid_logo_colored.svg" alt="" width="128" height="34" loading="eager" />
+              <span><?=htmlspecialchars(oneid_translate('login.mydigitalid.submit'), ENT_QUOTES, 'UTF-8')?></span>
+            </a>
+            <small><?=htmlspecialchars(oneid_translate('login.mydigitalid.help'), ENT_QUOTES, 'UTF-8')?></small>
+          </div>
+        <?php else: ?>
+          <div class="mydigitalid-preview" aria-label="<?=htmlspecialchars(oneid_translate('login.future_option'), ENT_QUOTES, 'UTF-8')?>">
+            <span class="mydigitalid-preview-label"><?=htmlspecialchars(oneid_translate('login.future_option'), ENT_QUOTES, 'UTF-8')?></span>
+            <img src="img/mydigitalid_logo_colored.svg" alt="MyDigital ID" width="158" height="42" loading="lazy" />
+            <small><?=htmlspecialchars(oneid_translate('login.integration_disabled'), ENT_QUOTES, 'UTF-8')?></small>
+          </div>
+        <?php endif; ?>
 
         <input type="hidden" name="auth" value="auth">
       </form>
@@ -944,6 +977,31 @@ $('#otp_inputs').on('paste', function(e) {
     text-transform: uppercase;
   }
   .mydigitalid-preview small { font-size: 11px; }
+  .mydigitalid-login-option {
+    margin: 18px auto 4px;
+    padding-top: 14px;
+    border-top: 1px solid #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    color: #555;
+    text-align: center;
+  }
+  .mydigitalid-login-option .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 48px;
+    white-space: normal;
+  }
+  .mydigitalid-login-option img {
+    width: 112px;
+    height: auto;
+    max-width: 38%;
+  }
+  .mydigitalid-login-option small { font-size: 11px; }
 
   .form-control:focus {
     border-color: #ffc107;

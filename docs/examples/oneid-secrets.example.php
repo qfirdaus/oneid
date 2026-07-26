@@ -15,6 +15,20 @@ return [
     'ONEID_SSO_DASHBOARD_URL' => 'https://oneid.local/page/dashboard',
     'ONEID_SAMPLE_DATA_URL' => 'http://localhost/SSO_IDP/sample_data.php',
 
+    // MyDigital ID (disabled until the controlled activation phase)
+    'ONEID_MYDID_ENABLED' => 'false',
+    'ONEID_MYDID_ISSUER' => 'https://sso.digital-id.my/realms/upnm',
+    'ONEID_MYDID_CLIENT_ID' => 'upnm-generic',
+    'ONEID_MYDID_CLIENT_SECRET' => '',
+    'ONEID_MYDID_REDIRECT_URI' => 'https://oneid-uat.upnm.edu.my/auth/mydigitalid/callback.php',
+    'ONEID_MYDID_POST_LOGOUT_REDIRECT_URI' => 'https://oneid-uat.upnm.edu.my/',
+    'ONEID_MYDID_SCOPE' => 'openid',
+    'ONEID_MYDID_HTTP_TIMEOUT_SECONDS' => '12',
+    'ONEID_MYDID_PKCE_METHOD' => 'S256',
+    'ONEID_MYDID_IDENTITY_HMAC_KEY_ID' => '',
+    // Strict base64 for exactly 32 random bytes. Never reuse the OIDC secret.
+    'ONEID_MYDID_IDENTITY_HMAC_KEY_BASE64' => '',
+
     // API security
     'ONEID_API_AUTH_MODE' => 'observe',
     'ONEID_API_RATE_LIMIT_PER_MINUTE' => '600',

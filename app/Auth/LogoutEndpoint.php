@@ -18,6 +18,28 @@ final class LogoutEndpoint
             throw new \RuntimeException('Logout operation is unavailable.');
         }
 
-        LogoutHandler::handle($operation, (string) \constant('SSO_IDP_DOMAIN'));
+        $federatedLogoutUrl = null;
+        if (
+            ($_SESSION['auth_method'] ?? '') === 'mydigitalid'
+            && is_string($_SESSION['mydigitalid_id_token'] ?? null)
+        ) {
+            require_once $projectRoot . '/vendor/autoload.php';
+            require_once $projectRoot . '/lib/secrets.php';
+            try {
+                $config = \OneId\App\Auth\MyDigitalId\MyDigitalIdConfig::fromRuntime();
+                $federatedLogoutUrl = (
+                    new \OneId\App\Auth\MyDigitalId\MyDigitalIdLogoutUrl($config)
+                )->build((string) $_SESSION['mydigitalid_id_token']);
+            } catch (\Throwable) {
+                // Local logout remains authoritative if provider logout is unavailable.
+                $federatedLogoutUrl = null;
+            }
+        }
+
+        LogoutHandler::handle(
+            $operation,
+            (string) \constant('SSO_IDP_DOMAIN'),
+            $federatedLogoutUrl
+        );
     }
 }

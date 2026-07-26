@@ -7,6 +7,10 @@
 /.private/*
 !/.private/.gitkeep
 
+# Bahan rujukan integrasi MyDigital ID mengandungi credential/dokumen provider.
+# Ia bukan dependency runtime dan mesti kekal di luar Git.
+/resources/references/mydigital-id/
+
 # Logs
 *.log
 
@@ -19,6 +23,7 @@ node_modules/
 
 # Vendor (jika boleh install semula)
 vendors/
+/vendor/
 
 # Upload
 videos/*
