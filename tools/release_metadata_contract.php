@@ -73,6 +73,11 @@ $report(
         && str_contains($adminDashboard, 'selectedContent.hidden = false'),
     'release history uses exclusive show-hide accordion behavior'
 );
+$report(
+    str_contains($adminDashboard, '<ul class="version-change-list">')
+        && !str_contains($adminDashboard, '<ol class="version-change-list">'),
+    'release summaries use bullets without misleading repeated number one'
+);
 
 $report(
     oneid_format_device_info('desktop', '', '', 'Firefox', 'Windows') === 'Desktop · Firefox · Windows',
