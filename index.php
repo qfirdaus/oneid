@@ -1054,26 +1054,13 @@ $('#otp_inputs').on('paste', function(e) {
   }
   .mydigitalid-card {
     position: relative;
-    padding: 4px;
     overflow: hidden;
-    border: 1px solid rgba(5, 115, 177, .2);
-    border-radius: 17px;
-    background: linear-gradient(135deg, #e9f7fd 0%, #fff 48%, #e9f3fb 100%);
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
     box-shadow:
-      0 12px 28px rgba(18, 74, 112, .12),
-      0 2px 5px rgba(16, 24, 40, .04);
-  }
-  .mydigitalid-card::before {
-    content: "";
-    position: absolute;
-    z-index: 1;
-    top: 0;
-    left: 18px;
-    right: 18px;
-    height: 2px;
-    border-radius: 0 0 4px 4px;
-    background: linear-gradient(90deg, #ed1c24, #087bbb 48%, #00a6c8);
-    opacity: .9;
+      0 10px 24px rgba(18, 74, 112, .13),
+      0 2px 4px rgba(16, 24, 40, .04);
   }
   .mydigitalid-button {
     position: relative;
@@ -1086,7 +1073,7 @@ $('#otp_inputs').on('paste', function(e) {
     padding: 0 14px 0 0;
     overflow: hidden;
     border: 0;
-    border-radius: 13px;
+    border-radius: 14px;
     background: linear-gradient(118deg, #075b9a 0%, #087fbd 58%, #09a3c6 100%);
     color: #fff;
     text-align: left;
