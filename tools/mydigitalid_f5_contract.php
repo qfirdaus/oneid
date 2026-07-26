@@ -25,13 +25,11 @@ $checks['accessible_ui'] = str_contains($index, 'aria-live="polite"')
     && str_contains($index, 'role="region"')
     && str_contains($index, 'mydigitalid-button-copy')
     && str_contains($index, 'login.mydigitalid.submit')
-    && str_contains($index, 'login.mydigitalid.security')
-    && str_contains($index, 'login.mydigitalid.help');
+    && str_contains($index, 'login.mydigitalid.security');
 $keys = [
     'login.mydigitalid.divider',
     'login.mydigitalid.submit',
     'login.mydigitalid.security',
-    'login.mydigitalid.help',
     'login.mydigitalid.invalid',
     'login.mydigitalid.unavailable',
     'login.mydigitalid.temporary',

@@ -117,10 +117,6 @@ $loginFlashKey = match ($loginFlashCode) {
                 </span>
                 <span class="mydigitalid-arrow" aria-hidden="true">&rarr;</span>
               </a>
-              <p class="mydigitalid-help">
-                <i class="fas fa-shield-alt" aria-hidden="true"></i>
-                <span><?=htmlspecialchars(oneid_translate('login.mydigitalid.help'), ENT_QUOTES, 'UTF-8')?></span>
-              </p>
             </div>
           </div>
         <?php else: ?>
@@ -1090,21 +1086,6 @@ $('#otp_inputs').on('paste', function(e) {
   .mydigitalid-button:hover .mydigitalid-arrow {
     transform: translateX(2px);
   }
-  .mydigitalid-help {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 6px;
-    margin: 9px 8px 2px;
-    color: #667085;
-    font-size: 10px;
-    line-height: 1.4;
-  }
-  .mydigitalid-help i {
-    margin-top: 2px;
-    color: #12a150;
-  }
-
   .form-control:focus {
     border-color: #ffc107;
     box-shadow: 0 0 0 0.2rem rgba(255,193,7,.25);
