@@ -1013,11 +1013,11 @@ $('#otp_inputs').on('paste', function(e) {
   }
   .mydigitalid-preview small { font-size: 11px; }
   .mydigitalid-login-option {
-    margin: 20px auto 5px;
+    margin: 24px auto 6px;
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    gap: 14px;
     color: #344054;
     text-align: center;
   }
@@ -1035,11 +1035,11 @@ $('#otp_inputs').on('paste', function(e) {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    color: #667085;
+    gap: 14px;
+    color: #66778b;
     font-size: 10px;
-    font-weight: 700;
-    letter-spacing: .08em;
+    font-weight: 800;
+    letter-spacing: .1em;
     text-transform: uppercase;
   }
   .mydigitalid-divider::before,
@@ -1047,52 +1047,80 @@ $('#otp_inputs').on('paste', function(e) {
     content: "";
     flex: 1;
     height: 1px;
-    background: #e4e7ec;
+    background: linear-gradient(90deg, transparent, #d8e1ea);
+  }
+  .mydigitalid-divider::after {
+    background: linear-gradient(90deg, #d8e1ea, transparent);
   }
   .mydigitalid-card {
-    padding: 8px;
-    border: 1px solid #e4e7ec;
-    border-radius: 14px;
-    background: linear-gradient(145deg, #fff 0%, #f8fbff 100%);
-    box-shadow: 0 6px 18px rgba(16, 24, 40, .06);
+    position: relative;
+    padding: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(5, 115, 177, .2);
+    border-radius: 17px;
+    background: linear-gradient(135deg, #e9f7fd 0%, #fff 48%, #e9f3fb 100%);
+    box-shadow:
+      0 12px 28px rgba(18, 74, 112, .12),
+      0 2px 5px rgba(16, 24, 40, .04);
+  }
+  .mydigitalid-card::before {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 18px;
+    right: 18px;
+    height: 2px;
+    border-radius: 0 0 4px 4px;
+    background: linear-gradient(90deg, #ed1c24, #087bbb 48%, #00a6c8);
+    opacity: .9;
   }
   .mydigitalid-button {
+    position: relative;
+    z-index: 2;
     display: grid;
-    grid-template-columns: 92px minmax(0, 1fr) 22px;
+    grid-template-columns: 108px minmax(0, 1fr) 34px;
     align-items: center;
-    gap: 10px;
-    min-height: 64px;
-    padding: 9px 12px;
-    border: 1px solid #d0d5dd;
-    border-radius: 10px;
-    background: #fff;
-    color: #101828;
+    gap: 0;
+    min-height: 76px;
+    padding: 0 14px 0 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 13px;
+    background: linear-gradient(118deg, #075b9a 0%, #087fbd 58%, #09a3c6 100%);
+    color: #fff;
     text-align: left;
     text-decoration: none;
-    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2);
+    transition: box-shadow .2s ease, filter .2s ease, transform .2s ease;
   }
   .mydigitalid-button:hover,
   .mydigitalid-button:focus {
-    border-color: #0879c9;
-    color: #101828;
+    color: #fff;
     text-decoration: none;
-    box-shadow: 0 0 0 3px rgba(8, 121, 201, .12);
-    transform: translateY(-1px);
+    filter: saturate(1.08) brightness(1.03);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, .26),
+      0 8px 18px rgba(5, 92, 148, .22);
+    transform: translateY(-2px);
   }
   .mydigitalid-button:focus-visible {
-    outline: 3px solid rgba(8, 121, 201, .25);
-    outline-offset: 2px;
+    outline: 3px solid rgba(8, 121, 201, .3);
+    outline-offset: 3px;
   }
   .mydigitalid-brand {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 40px;
-    padding-right: 10px;
-    border-right: 1px solid #eaecf0;
+    align-self: stretch;
+    min-height: 76px;
+    padding: 12px 11px;
+    border-right: 1px solid rgba(255, 255, 255, .65);
+    border-radius: 12px 0 0 12px;
+    background: linear-gradient(145deg, #fff 0%, #f5fbff 100%);
   }
   .mydigitalid-brand img {
-    width: 82px;
+    width: 92px;
     height: auto;
     max-width: 100%;
   }
@@ -1100,27 +1128,52 @@ $('#otp_inputs').on('paste', function(e) {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
+    padding: 12px 13px;
   }
   .mydigitalid-button-copy strong {
-    color: #0879c9;
+    color: #fff;
     font-size: 13px;
-    line-height: 1.25;
-    font-weight: 700;
+    line-height: 1.3;
+    font-weight: 800;
+    letter-spacing: -.01em;
   }
   .mydigitalid-button-copy small {
-    color: #667085;
+    position: relative;
+    padding-left: 15px;
+    color: rgba(255, 255, 255, .8);
     font-size: 10px;
     line-height: 1.35;
+    font-weight: 500;
+  }
+  .mydigitalid-button-copy small::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 0;
+    width: 9px;
+    height: 11px;
+    border: 1.5px solid rgba(255, 255, 255, .8);
+    border-radius: 2px 2px 4px 4px;
+    box-shadow: inset 0 3px 0 rgba(255, 255, 255, .13);
   }
   .mydigitalid-arrow {
-    color: #0879c9;
-    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(255, 255, 255, .32);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .12);
+    color: #fff;
+    font-size: 17px;
     line-height: 1;
-    transition: transform .18s ease;
+    transition: background .2s ease, transform .2s ease;
   }
   .mydigitalid-button:hover .mydigitalid-arrow {
-    transform: translateX(2px);
+    background: rgba(255, 255, 255, .2);
+    transform: translateX(3px);
   }
   .form-control:focus {
     border-color: #ffc107;
@@ -1263,6 +1316,25 @@ $('#otp_inputs').on('paste', function(e) {
 
       .login-locale-switcher {
         margin-left: auto;
+      }
+
+      .mydigitalid-button {
+        grid-template-columns: 98px minmax(0, 1fr) 32px;
+        min-height: 72px;
+        padding-right: 10px;
+      }
+
+      .mydigitalid-brand {
+        min-height: 72px;
+        padding: 11px 9px;
+      }
+
+      .mydigitalid-brand img {
+        width: 84px;
+      }
+
+      .mydigitalid-button-copy {
+        padding: 10px;
       }
 	  }
 
