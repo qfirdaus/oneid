@@ -36,27 +36,29 @@ Provider logout tidak menggantikan local authorization gate.
 
 Access log semasa merekod query callback termasuk authorization `code`,
 `state` dan `session_state`. Team infra perlu menggunakan log format tanpa
-`$request` dan `$args`.
+`$request`, `$args` dan `$http_referer`. Referrer juga dibuang kerana redirect
+same-origin boleh membawa URL callback penuh.
 
 Contoh dalam blok `http`:
 
 ```nginx
-log_format oneid_no_query
+log_format oneid_safe
     '$remote_addr - $remote_user [$time_local] '
-    '"$request_method $uri $server_protocol" $status $body_bytes_sent '
-    '"$http_referer" "$http_user_agent"';
+    '"$request_method $uri $server_protocol" '
+    '$status $body_bytes_sent '
+    '"$http_user_agent"';
 ```
 
 Dalam server block `oneid-uat.upnm.edu.my`:
 
 ```nginx
-access_log /var/log/nginx/oneid-uat.access.log oneid_no_query;
+access_log /var/log/nginx/oneid-uat.access.log oneid_safe;
 ```
 
 Pilihan ini membuang query string untuk keseluruhan virtual host dan
 mengelakkan konfigurasi `location` PHP berganda. Team infra perlu menyesuaikan
 format dengan metadata operasi yang diluluskan tanpa memasukkan `$request_uri`,
-`$request` atau `$args`.
+`$request`, `$args`, `$query_string` atau `$http_referer`.
 
 Apply terkawal:
 
@@ -91,4 +93,3 @@ yang diluluskan. Jangan memadam log secara ad hoc.
 - `federated_auth_event` merekod rejection tanpa raw PII/token;
 - callback access log tidak mempunyai query string; dan
 - full security/regression suite lulus tanpa local mutation.
-

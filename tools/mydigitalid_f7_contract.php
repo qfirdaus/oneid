@@ -47,6 +47,8 @@ $checks['no_raw_token_output'] = !preg_match(
     $state . $endpoint . $orchestrator
 );
 $checks['nginx_hardening_runbook'] = str_contains($runbook, '$request_method $uri $server_protocol')
+    && str_contains($runbook, 'log_format oneid_safe')
+    && !str_contains($runbook, '"$http_referer"')
     && str_contains($runbook, 'sudo nginx -t')
     && str_contains($runbook, 'code=')
     && str_contains($runbook, 'Jangan memadam log secara ad hoc');
