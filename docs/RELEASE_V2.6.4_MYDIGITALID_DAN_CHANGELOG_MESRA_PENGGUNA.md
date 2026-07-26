@@ -23,10 +23,10 @@
 ### Penambahbaikan sejarah versi
 
 Paparan Version Releases kini menggunakan bahasa mudah dalam BM dan English.
-Semua 39 versi masih disimpan mengikut tarikh dan turutan asal. Butiran
-pelaksanaan dalaman diringkaskan daripada 229 catatan kepada 43 penerangan yang
-lebih sesuai untuk pengguna. Dokumen audit teknikal kekal tersedia untuk
-pentadbir dan pasukan operasi.
+Semua 39 versi masih disimpan mengikut tarikh dan turutan asal. Kesemua 229
+catatan sejarah dikekalkan dan empat catatan baharu ditambah untuk versi 2.6.4,
+menjadikan 233 catatan BM dan 233 catatan English. Dokumen audit teknikal kekal
+tersedia untuk pentadbir dan pasukan operasi.
 
 ### Status
 
@@ -53,10 +53,10 @@ di staging. Senarai penerimaan manual dan semua gate production dalam
 ### Release-history improvement
 
 Version Releases now uses plain language in BM and English. All 39 versions
-remain in their original date order. Internal implementation details were
-condensed from 229 entries into 43 user-friendly descriptions. Detailed
-technical audit documents remain available to administrators and operations
-teams.
+remain in their original date order. All 229 historical entries are retained
+and four new entries were added for version 2.6.4, resulting in 233 BM and 233
+English entries. Detailed technical audit documents remain available to
+administrators and operations teams.
 
 ### Status
 

@@ -74,9 +74,9 @@ $report(
     'release history uses exclusive show-hide accordion behavior'
 );
 $report(
-    str_contains($adminDashboard, '<ul class="version-change-list">')
-        && !str_contains($adminDashboard, '<ol class="version-change-list">'),
-    'release summaries use bullets without misleading repeated number one'
+    str_contains($adminDashboard, '<ol class="version-change-list">')
+        && !str_contains($adminDashboard, '<ul class="version-change-list">'),
+    'release history retains an ordered list for every individual change'
 );
 
 $report(

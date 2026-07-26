@@ -6064,9 +6064,9 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         </button>
         <div id="release-content-${releaseIndex}" class="version-release-content"${releaseIndex === 0 ? '' : ' hidden'}>
           <h5>${releaseIndex === 0 ? releaseI18n.latest : `${releaseI18n.release} ${release.version}`}</h5>
-          <ul class="version-change-list">
+          <ol class="version-change-list">
             ${release.changes.map(item => `<li>${item}</li>`).join("")}
-          </ul>
+          </ol>
         </div>
       </article>
     `).join("");
