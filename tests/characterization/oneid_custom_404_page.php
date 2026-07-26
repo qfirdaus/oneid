@@ -10,7 +10,7 @@ $checks = [
     'bilingual_message' => is_string($page)
         && str_contains($page, 'Halaman tidak ditemui')
         && str_contains($page, 'Page not found')
-        && str_contains($page, 'The address may be incorrect'),
+        && str_contains($page, 'The address you entered may be incorrect'),
     'language_switch' => is_string($page)
         && str_contains($page, 'href="#ms"')
         && str_contains($page, 'href="#en"')
