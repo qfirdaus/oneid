@@ -31,6 +31,7 @@ return [
     'login.integration_disabled' => 'Integration is not enabled',
     'login.mydigitalid.divider' => 'or continue with',
     'login.mydigitalid.submit' => 'Sign in with MyDigital ID',
+    'login.mydigitalid.security' => 'Secure identity verification',
     'login.mydigitalid.help' => 'For Malaysian citizens with an active OneID account.',
     'login.mydigitalid.invalid' => 'The MyDigital ID request is invalid or has expired. Please try again.',
     'login.mydigitalid.unavailable' => 'MyDigital ID sign-in could not continue. Use an active OneID account or sign in with your User ID.',

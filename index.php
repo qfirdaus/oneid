@@ -98,17 +98,30 @@ $loginFlashKey = match ($loginFlashCode) {
         </div>
 
         <?php if ($myDigitalIdEnabled): ?>
-          <div class="mydigitalid-login-option">
-            <div class="mydigitalid-preview-label"><?=htmlspecialchars(oneid_translate('login.mydigitalid.divider'), ENT_QUOTES, 'UTF-8')?></div>
-            <a
-              class="btn btn-outline-primary w-100"
-              href="auth/mydigitalid/login.php"
-              aria-label="<?=htmlspecialchars(oneid_translate('login.mydigitalid.submit'), ENT_QUOTES, 'UTF-8')?>"
-            >
-              <img src="img/mydigitalid_logo_colored.svg" alt="" width="128" height="34" loading="eager" />
-              <span><?=htmlspecialchars(oneid_translate('login.mydigitalid.submit'), ENT_QUOTES, 'UTF-8')?></span>
-            </a>
-            <small><?=htmlspecialchars(oneid_translate('login.mydigitalid.help'), ENT_QUOTES, 'UTF-8')?></small>
+          <div class="mydigitalid-login-option" role="region" aria-labelledby="mydigitalid-divider">
+            <div class="mydigitalid-divider">
+              <span id="mydigitalid-divider"><?=htmlspecialchars(oneid_translate('login.mydigitalid.divider'), ENT_QUOTES, 'UTF-8')?></span>
+            </div>
+            <div class="mydigitalid-card">
+              <a
+                class="mydigitalid-button"
+                href="auth/mydigitalid/login.php"
+                aria-label="<?=htmlspecialchars(oneid_translate('login.mydigitalid.submit'), ENT_QUOTES, 'UTF-8')?>"
+              >
+                <span class="mydigitalid-brand">
+                  <img src="img/mydigitalid_logo_colored.svg" alt="" width="128" height="34" loading="eager" />
+                </span>
+                <span class="mydigitalid-button-copy">
+                  <strong><?=htmlspecialchars(oneid_translate('login.mydigitalid.submit'), ENT_QUOTES, 'UTF-8')?></strong>
+                  <small><?=htmlspecialchars(oneid_translate('login.mydigitalid.security'), ENT_QUOTES, 'UTF-8')?></small>
+                </span>
+                <span class="mydigitalid-arrow" aria-hidden="true">&rarr;</span>
+              </a>
+              <p class="mydigitalid-help">
+                <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                <span><?=htmlspecialchars(oneid_translate('login.mydigitalid.help'), ENT_QUOTES, 'UTF-8')?></span>
+              </p>
+            </div>
           </div>
         <?php else: ?>
           <div class="mydigitalid-preview" aria-label="<?=htmlspecialchars(oneid_translate('login.future_option'), ENT_QUOTES, 'UTF-8')?>">
@@ -978,30 +991,119 @@ $('#otp_inputs').on('paste', function(e) {
   }
   .mydigitalid-preview small { font-size: 11px; }
   .mydigitalid-login-option {
-    margin: 18px auto 4px;
-    padding-top: 14px;
-    border-top: 1px solid #e8e8e8;
+    margin: 20px auto 5px;
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
-    color: #555;
+    gap: 12px;
+    color: #344054;
     text-align: center;
   }
-  .mydigitalid-login-option .btn {
+  .mydigitalid-divider {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 12px;
+    color: #667085;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .mydigitalid-divider::before,
+  .mydigitalid-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e4e7ec;
+  }
+  .mydigitalid-card {
+    padding: 8px;
+    border: 1px solid #e4e7ec;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #fff 0%, #f8fbff 100%);
+    box-shadow: 0 6px 18px rgba(16, 24, 40, .06);
+  }
+  .mydigitalid-button {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr) 22px;
+    align-items: center;
     gap: 10px;
-    min-height: 48px;
-    white-space: normal;
+    min-height: 64px;
+    padding: 9px 12px;
+    border: 1px solid #d0d5dd;
+    border-radius: 10px;
+    background: #fff;
+    color: #101828;
+    text-align: left;
+    text-decoration: none;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
   }
-  .mydigitalid-login-option img {
-    width: 112px;
+  .mydigitalid-button:hover,
+  .mydigitalid-button:focus {
+    border-color: #0879c9;
+    color: #101828;
+    text-decoration: none;
+    box-shadow: 0 0 0 3px rgba(8, 121, 201, .12);
+    transform: translateY(-1px);
+  }
+  .mydigitalid-button:focus-visible {
+    outline: 3px solid rgba(8, 121, 201, .25);
+    outline-offset: 2px;
+  }
+  .mydigitalid-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding-right: 10px;
+    border-right: 1px solid #eaecf0;
+  }
+  .mydigitalid-brand img {
+    width: 82px;
     height: auto;
-    max-width: 38%;
+    max-width: 100%;
   }
-  .mydigitalid-login-option small { font-size: 11px; }
+  .mydigitalid-button-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .mydigitalid-button-copy strong {
+    color: #0879c9;
+    font-size: 13px;
+    line-height: 1.25;
+    font-weight: 700;
+  }
+  .mydigitalid-button-copy small {
+    color: #667085;
+    font-size: 10px;
+    line-height: 1.35;
+  }
+  .mydigitalid-arrow {
+    color: #0879c9;
+    font-size: 20px;
+    line-height: 1;
+    transition: transform .18s ease;
+  }
+  .mydigitalid-button:hover .mydigitalid-arrow {
+    transform: translateX(2px);
+  }
+  .mydigitalid-help {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 6px;
+    margin: 9px 8px 2px;
+    color: #667085;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .mydigitalid-help i {
+    margin-top: 2px;
+    color: #12a150;
+  }
 
   .form-control:focus {
     border-color: #ffc107;
