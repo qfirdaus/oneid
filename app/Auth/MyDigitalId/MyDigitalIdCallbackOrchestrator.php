@@ -43,6 +43,7 @@ final class MyDigitalIdCallbackOrchestrator
             ]
         );
         if (!$decision->allowed || $decision->user === null) {
+            MyDigitalIdRejectedLogoutState::retain($session, $verified->idToken, $now);
             return [
                 'allowed' => false,
                 'reason' => $decision->reason,
@@ -51,6 +52,7 @@ final class MyDigitalIdCallbackOrchestrator
         }
 
         $this->finalizer->finalize($decision->user, $deviceInfo);
+        MyDigitalIdRejectedLogoutState::clear($session);
         $session['mydigitalid_id_token'] = $verified->idToken;
         return [
             'allowed' => true,

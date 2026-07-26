@@ -32,6 +32,8 @@ return [
     'login.mydigitalid.divider' => 'or continue with',
     'login.mydigitalid.submit' => 'Sign in with MyDigital ID',
     'login.mydigitalid.security' => 'Secure identity verification',
+    'login.mydigitalid.switch_account' => 'Try another MyDigital ID account',
+    'login.mydigitalid.use_password' => 'Use User ID',
     'login.mydigitalid.invalid' => 'The MyDigital ID request is invalid or has expired. Please try again.',
     'login.mydigitalid.unavailable' => 'MyDigital ID sign-in could not continue. Use an active OneID account or sign in with your User ID.',
     'login.mydigitalid.temporary' => 'The MyDigital ID service is temporarily unavailable. Please try again.',

@@ -18,6 +18,7 @@ use OneId\App\Auth\MyDigitalId\MyDigitalIdLocalLoginFinalizer;
 use OneId\App\Auth\MyDigitalId\MyDigitalIdLocalLoginFinalizerInterface;
 use OneId\App\Auth\MyDigitalId\MyDigitalIdPersistenceException;
 use OneId\App\Auth\MyDigitalId\MyDigitalIdProtocolGatewayInterface;
+use OneId\App\Auth\MyDigitalId\MyDigitalIdRejectedLogoutState;
 use OneId\App\Auth\MyDigitalId\MyDigitalIdVerifiedIdentity;
 
 final class F4bProtocol implements MyDigitalIdProtocolGatewayInterface
@@ -169,8 +170,11 @@ $rejected = $orchestrator->handle(
 $check(
     !$rejected['allowed']
         && $rejected['reason'] === 'MYDID_USER_NOT_FOUND'
-        && $finalizer->calls === 1,
-    'rejected account never creates a local token or session'
+        && $finalizer->calls === 1
+        && ($session[MyDigitalIdRejectedLogoutState::ID_TOKEN_SESSION_KEY] ?? '') === 'a.b.c'
+        && ($session[MyDigitalIdRejectedLogoutState::REJECTED_AT_SESSION_KEY] ?? 0)
+            === 1_700_000_010,
+    'rejected account creates no local login and retains only a TTL-bound provider logout state'
 );
 
 $protocol->fail = true;

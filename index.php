@@ -1,4 +1,5 @@
 <?php 
+require_once __DIR__ . '/app/Auth/MyDigitalId/MyDigitalIdRejectedLogoutState.php';
 require_once __DIR__ . '/lib/session_security.php';
 oneid_start_secure_session();
 require_once __DIR__ . '/lib/request_security.php';
@@ -23,6 +24,11 @@ $loginFlashCode = is_string($_SESSION['oneid_login_flash'] ?? null)
   ? $_SESSION['oneid_login_flash']
   : '';
 unset($_SESSION['oneid_login_flash']);
+$myDigitalIdCanSwitchAccount = $loginFlashCode === 'mydigitalid_unavailable'
+  && \OneId\App\Auth\MyDigitalId\MyDigitalIdRejectedLogoutState::isAvailable(
+    $_SESSION,
+    time()
+  );
 $loginFlashKey = match ($loginFlashCode) {
   'mydigitalid_invalid' => 'login.mydigitalid.invalid',
   'mydigitalid_unavailable' => 'login.mydigitalid.unavailable',
@@ -76,6 +82,16 @@ $loginFlashKey = match ($loginFlashCode) {
         <div id="login_status" role="status" aria-live="polite"><?php if ($loginFlashKey !== null): ?>
           <div class="alert alert-warning alert-dismissable">
             <p><?=htmlspecialchars(oneid_translate($loginFlashKey), ENT_QUOTES, 'UTF-8')?></p>
+            <?php if ($myDigitalIdCanSwitchAccount): ?>
+              <div class="mydigitalid-rejection-actions">
+                <button type="submit" class="btn btn-primary btn-sm" form="mydigitalid-switch-account-form">
+                  <?=htmlspecialchars(oneid_translate('login.mydigitalid.switch_account'), ENT_QUOTES, 'UTF-8')?>
+                </button>
+                <button type="button" class="btn btn-link btn-sm" onclick="document.getElementById('username').focus()">
+                  <?=htmlspecialchars(oneid_translate('login.mydigitalid.use_password'), ENT_QUOTES, 'UTF-8')?>
+                </button>
+              </div>
+            <?php endif; ?>
           </div>
         <?php endif; ?></div>
 
@@ -129,6 +145,16 @@ $loginFlashKey = match ($loginFlashCode) {
 
         <input type="hidden" name="auth" value="auth">
       </form>
+      <?php if ($myDigitalIdCanSwitchAccount): ?>
+        <form
+          id="mydigitalid-switch-account-form"
+          action="auth/mydigitalid/switch-account.php"
+          method="post"
+          class="d-none"
+        >
+          <input type="hidden" name="_csrf_token" value="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>" />
+        </form>
+      <?php endif; ?>
       
         <!-- New version row -->
         <div class="row mt-3 justify-content-center">
@@ -994,6 +1020,16 @@ $('#otp_inputs').on('paste', function(e) {
     gap: 12px;
     color: #344054;
     text-align: center;
+  }
+  .mydigitalid-rejection-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .mydigitalid-rejection-actions .btn {
+    white-space: normal;
   }
   .mydigitalid-divider {
     display: flex;

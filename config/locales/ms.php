@@ -32,6 +32,8 @@ return [
     'login.mydigitalid.divider' => 'atau teruskan dengan',
     'login.mydigitalid.submit' => 'Log masuk dengan MyDigital ID',
     'login.mydigitalid.security' => 'Pengesahan identiti yang selamat',
+    'login.mydigitalid.switch_account' => 'Cuba akaun MyDigital ID lain',
+    'login.mydigitalid.use_password' => 'Guna ID Pengguna',
     'login.mydigitalid.invalid' => 'Permintaan MyDigital ID tidak sah atau telah tamat tempoh. Sila cuba semula.',
     'login.mydigitalid.unavailable' => 'Log masuk MyDigital ID tidak dapat diteruskan. Gunakan akaun OneID yang aktif atau log masuk menggunakan ID pengguna.',
     'login.mydigitalid.temporary' => 'Perkhidmatan MyDigital ID tidak tersedia buat sementara waktu. Sila cuba semula.',
