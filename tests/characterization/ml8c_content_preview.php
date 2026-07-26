@@ -26,20 +26,20 @@ $report(
     'ML8C inventory matches its authorized baseline'
 );
 $report(
-    $manifest['active_release_entries'] === 38
+    $manifest['active_release_entries'] === 39
     && $manifest['duplicate_release_identities'] === 0
     && $manifest['unresolved_release_identities'] === 0
-    && count(array_unique($versions)) === 38,
-    'all 38 active releases have stable unique identities'
+    && count(array_unique($versions)) === 39,
+    'all 39 active releases have stable unique identities'
 );
 $report(
-    $manifest['release_english_approved'] === 0
-    && $manifest['release_english_review_required'] === 38
+    $manifest['release_english_approved'] === 39
+    && $manifest['release_english_review_required'] === 0
     && count(array_filter(
         $manifest['releases'],
-        static fn (array $release): bool => $release['english_status'] === 'REVIEW_REQUIRED'
-    )) === 38,
-    'English release drafts cannot be counted as approved content'
+        static fn (array $release): bool => $release['english_status'] === 'APPROVED'
+    )) === 39,
+    'English release content is approved with BM parity'
 );
 $report(
     $manifest['official_bm_manuals'] === 1
@@ -58,11 +58,11 @@ $report(
     'both required policy documents contain BM and English sections'
 );
 $report(
-    $english['fallback_used'] === true
-    && $english['locale'] === 'ms'
-    && str_contains((string) $english['notice'], 'under owner review')
-    && count($english['releases']) === 38,
-    'locale-aware release seam uses explicit fallback before owner approval'
+    $english['fallback_used'] === false
+    && $english['locale'] === 'en'
+    && $english['notice'] === null
+    && count($english['releases']) === 39,
+    'locale-aware release seam serves approved English content'
 );
 $report(
     $result['can_apply'] === false

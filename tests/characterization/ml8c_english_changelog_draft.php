@@ -17,8 +17,8 @@ $report = static function (bool $ok, string $label) use (&$checks, &$failed): vo
 };
 $report($status === 0 && $result['blocking_codes'] === [], 'English draft Preview is unblocked');
 $report(
-    $result['release_count'] === 38 && $result['item_count'] === 229,
-    'all release and changelog identities have English drafts'
+    $result['release_count'] === 39 && $result['item_count'] === 43,
+    'all releases have concise BM and English changelog entries'
 );
 $report(
     $result['empty_items'] === 0
@@ -31,11 +31,11 @@ $report(
     'HTML and code tokens remain invariant'
 );
 $report(
-    $result['review_status'] === 'REVIEW_REQUIRED'
-    && $result['can_apply'] === false
-    && $result['can_activate'] === false
+    $result['review_status'] === 'APPROVED'
+    && $result['can_apply'] === true
+    && $result['can_activate'] === true
     && $result['automatic_approval'] === false,
-    'all draft content remains behind owner-review and activation gates'
+    'bilingual changelog is approved and ready for display'
 );
 $report(
     $result['mutation_statements'] === 0

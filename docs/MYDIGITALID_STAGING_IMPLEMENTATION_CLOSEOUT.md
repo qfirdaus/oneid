@@ -4,7 +4,8 @@
 **Environment aplikasi:** staging (`https://oneid-uat.upnm.edu.my/`)  
 **Database:** shared development/staging `oneiddb` pada `mysql8-DEV`  
 **Production:** tidak disentuh dan tidak diluluskan  
-**Commit evidence semasa:** `5592929a25220ecf5a549540b0a9524d1ba06d56`
+**Release semasa:** OneID `2.6.4`
+**Change reference:** `ONEID-V264-CHANGELOG-20260726-01`
 
 ## 1. Keputusan keseluruhan
 
@@ -23,6 +24,10 @@ staging:
 
 Staging implementation ialah **GO untuk controlled acceptance testing**.
 Ia bukan production approval.
+
+Keseluruhan Fasa 0–7 kini digabungkan sebagai release OneID `2.6.4`.
+Paparan sejarah versi turut ditulis semula dalam bahasa mudah dengan parity
+BM/English. Audit teknikal terperinci dalam dokumen fasa kekal sebagai evidence.
 
 ## 2. Deployment dan source evidence
 

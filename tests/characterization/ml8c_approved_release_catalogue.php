@@ -20,9 +20,9 @@ $report = static function (bool $ok, string $label) use (&$checks, &$failed): vo
     }
 };
 $report(
-    $preview['release_count'] === 38
-    && $preview['bm_item_count'] === 229
-    && $preview['en_item_count'] === 229,
+    $preview['release_count'] === 39
+    && $preview['bm_item_count'] === 43
+    && $preview['en_item_count'] === 43,
     'approved repository exposes exact BM and English parity'
 );
 $report(
@@ -39,8 +39,8 @@ $report(
 );
 $report(
     $preview['approved_manifest_digest']
-        === '1eba6fbee555b918adab56366b5bc28f5c4b963c1663c0c3782c9f32d0f5de66'
-    && $preview['evidence_reference'] === 'ONEID-ML9A-RELEASE-20260726-01',
+        === '903f55e796d36298da6cc1a522bfbd29fe6f3efdb0e88cfb3ec15dbaf4f82cbb'
+    && $preview['evidence_reference'] === 'ONEID-V264-CHANGELOG-20260726-01',
     'catalogue is bound to exact owner approval'
 );
 $report(
@@ -54,7 +54,7 @@ $report(
 $admin = (string) file_get_contents($root . '/admin/dashboard.php');
 $report(
     str_contains($admin, 'ApprovedReleaseCatalogue')
-    && str_contains($admin, 'const canonicalReleaseNotes = [')
+    && str_contains($admin, 'const canonicalReleaseNotes =')
     && str_contains($admin, 'const approvedReleaseNotes =')
     && str_contains($admin, 'release_catalogue_fallback_notice'),
     'Administrator release UI uses approved content with canonical BM fallback'

@@ -15,9 +15,9 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $label);
 };
 
-$report(ONEID_APP_VERSION === '2.6.3', 'central application version is 2.6.3');
+$report(ONEID_APP_VERSION === '2.6.4', 'central application version is 2.6.4');
 $report(
-    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.6.3',
+    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.6.4',
     'central copyright and footer text match the approved release'
 );
 
@@ -27,12 +27,12 @@ foreach (['index.php', 'page/dashboard.php', 'admin/dashboard.php'] as $page) {
 }
 
 $adminDashboard = (string) file_get_contents($projectRoot . '/admin/dashboard.php');
+$plainCatalogue = require $projectRoot . '/config/content/release_changelog_plain.php';
 $report(
-    str_contains($adminDashboard, 'version: <?php echo json_encode(ONEID_APP_VERSION); ?>')
-        && str_contains($adminDashboard, 'Infrastruktur locale BM/English dilengkapkan')
-        && str_contains($adminDashboard, 'Administrator Version Releases mempunyai parity 37/37')
-        && str_contains($adminDashboard, 'Audit pre-ML9 merekonsiliasi semua fasa multilingual'),
-    'latest admin release card reads shared v2.6.3 multilingual metadata'
+    ($plainCatalogue[0]['version'] ?? null) === ONEID_APP_VERSION
+        && count($plainCatalogue[0]['bm'] ?? []) === 4
+        && count($plainCatalogue[0]['en'] ?? []) === 4,
+    'latest admin release card reads shared v2.6.4 bilingual metadata'
 );
 $expectedHistory = [
     '2.6.1','2.6.0',
@@ -46,7 +46,7 @@ $expectedHistory = [
 $previousPosition = -1;
 $historyValid = true;
 foreach ($expectedHistory as $version) {
-    $position = strpos($adminDashboard, 'version: "' . $version . '"');
+    $position = array_search($version, array_column($plainCatalogue, 'version'), true);
     if ($position === false || $position <= $previousPosition) {
         $historyValid = false;
         break;
@@ -55,10 +55,8 @@ foreach ($expectedHistory as $version) {
 }
 $report(
     $historyValid
-        && str_contains($adminDashboard, 'Konfigurasi SSO pentadbir diperkukuh')
-        && str_contains($adminDashboard, 'WA6 menyediakan reconciliation read-only')
-        && str_contains($adminDashboard, 'Controlled Pilot External Sync'),
-    'release history preserves normalized v2.6.1 through v2.0.0 in order'
+        && count($plainCatalogue) === 39,
+    'release history preserves all 39 releases in order'
 );
 $policy = (string) file_get_contents($projectRoot . '/docs/VERSION_NUMBERING_POLICY.md');
 $package = json_decode((string) file_get_contents($projectRoot . '/package.json'), true);

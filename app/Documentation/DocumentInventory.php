@@ -169,12 +169,9 @@ final class DocumentInventory
             return;
         }
         $content = (string) file_get_contents($path);
-        $start = strpos($content, 'const canonicalReleaseNotes = [');
-        $end = $start === false ? false : strpos($content, "\n  ];", $start);
-        $block = $start !== false && $end !== false
-            ? substr($content, $start, $end - $start)
-            : '';
-        $releaseCount = preg_match_all('/\\bdate:\\s*["\'][^"\']+["\']/', $block);
+        $cataloguePath = $this->root . '/config/content/release_changelog_plain.php';
+        $catalogue = is_file($cataloguePath) ? require $cataloguePath : [];
+        $releaseCount = is_array($catalogue) ? count($catalogue) : 0;
         $items[] = [
             'identity' => 'release_ui:admin_dashboard',
             'surface' => 'release_ui',
@@ -187,8 +184,8 @@ final class DocumentInventory
             'security_reviewer' => 'Firdaus, System Analyst/DBA',
             'fallback_policy' => 'EXPLICIT_ORIGINAL_FALLBACK',
             'entry_count' => (int) $releaseCount,
-            'target_exists' => $block !== '',
-            'source_digest' => hash('sha256', $block),
+            'target_exists' => $releaseCount > 0,
+            'source_digest' => hash('sha256', (string) file_get_contents($cataloguePath)),
         ];
     }
 

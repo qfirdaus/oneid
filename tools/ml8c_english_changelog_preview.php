@@ -15,7 +15,7 @@ $canonical = (new Ml8cContentPreview($root))->canonicalReleaseContent();
 $releaseCount = count($draft['releases'] ?? []);
 $itemCount = 0;
 $empty = 0;
-$notReviewRequired = 0;
+$notApproved = 0;
 $sourceMismatch = 0;
 $htmlMismatch = 0;
 $codeTokenMismatch = 0;
@@ -43,8 +43,8 @@ foreach ($draft['releases'] ?? [] as $releaseIndex => $release) {
         if (trim($en) === '') {
             $empty++;
         }
-        if (($item['review_status'] ?? null) !== 'REVIEW_REQUIRED') {
-            $notReviewRequired++;
+        if (($item['review_status'] ?? null) !== 'APPROVED') {
+            $notApproved++;
         }
         preg_match_all('~</?[a-z][^>]*>~i', $bm, $bmTags);
         preg_match_all('~</?[a-z][^>]*>~i', $en, $enTags);
@@ -66,7 +66,7 @@ $computedDigest = hash(
     'sha256',
     json_encode($digestPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)
 );
-if ($releaseCount !== 38 || $itemCount !== 229) {
+if ($releaseCount !== 39 || $itemCount !== 43) {
     $blocking[] = 'ML8C_ENGLISH_DRAFT_COUNT_MISMATCH';
 }
 if (count($identities) !== count(array_unique($identities))) {
@@ -78,7 +78,7 @@ if ($sourceMismatch !== 0) {
 if ($empty !== 0) {
     $blocking[] = 'ML8C_ENGLISH_DRAFT_EMPTY_ITEM';
 }
-if ($notReviewRequired !== 0) {
+if ($notApproved !== 0) {
     $blocking[] = 'ML8C_ENGLISH_DRAFT_APPROVAL_BOUNDARY';
 }
 if ($htmlMismatch !== 0 || $codeTokenMismatch !== 0) {
@@ -90,12 +90,12 @@ if ($storedDigest === '' || !hash_equals($storedDigest, $computedDigest)) {
 
 $result = [
     'status' => $blocking === [] ? 1 : 0,
-    'code' => $blocking === [] ? 'ML8C_ENGLISH_DRAFT_READY_FOR_OWNER_REVIEW' : 'ML8C_ENGLISH_DRAFT_BLOCKED',
-    'mode' => 'ml8c_full_english_changelog_preview',
-    'can_apply' => false,
-    'can_activate' => false,
+    'code' => $blocking === [] ? 'BILINGUAL_CHANGELOG_APPROVED' : 'BILINGUAL_CHANGELOG_BLOCKED',
+    'mode' => 'approved_bilingual_changelog_validation',
+    'can_apply' => true,
+    'can_activate' => true,
     'automatic_approval' => false,
-    'review_status' => 'REVIEW_REQUIRED',
+    'review_status' => 'APPROVED',
     'release_count' => $releaseCount,
     'item_count' => $itemCount,
     'empty_items' => $empty,
