@@ -1,5 +1,11 @@
 # MyDigital ID Fasa 1 — Dormant OIDC Foundation
 
+> **Status supersession — 26 Julai 2026:** Foundation ini tidak lagi dormant
+> di staging. Dependency telah dipasang dengan authoritative Composer autoload,
+> OIDC provider sebenar telah dicapai dan login pilot berjaya. Default committed
+> kekal `false`; activation staging datang daripada private runtime. Lihat
+> `MYDIGITALID_STAGING_IMPLEMENTATION_CLOSEOUT.md`.
+
 **Tarikh pelaksanaan:** 26 Julai 2026
 **Environment:** OneID UAT/Staging
 **Status:** COMPLETE — DORMANT, FAIL-CLOSED, NOT ACTIVATED

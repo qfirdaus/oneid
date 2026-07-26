@@ -49,6 +49,7 @@ $commands = [
     ['php', 'tools/mydigitalid_f5_contract.php'],
     ['php', 'tools/mydigitalid_f6_security_contract.php'],
     ['php', 'tools/mydigitalid_f7_contract.php'],
+    ['php', 'tools/mydigitalid_documentation_closeout_contract.php'],
     ['php', 'tools/mydigitalid_f2_isolated_schema_rehearsal.php'],
     ['php', 'tools/mydigitalid_f4_isolated_rehearsal.php'],
     ['php', 'tools/uc0_user_password_change_contract.php'],

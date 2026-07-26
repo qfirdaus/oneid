@@ -1,7 +1,12 @@
 # MyDigital ID Fasa 6 — Automated Security dan Regression Suite
 
+> **Status supersession — 26 Julai 2026:** Suite telah diperluas kepada 23
+> command termasuk F7 dan lulus di staging dengan `failures=0`,
+> `local_mutations=0` dan `feature_activation=0`. Residual manual acceptance
+> kekal direkod dalam `MYDIGITALID_STAGING_IMPLEMENTATION_CLOSEOUT.md`.
+
 Tarikh: 26 Julai 2026
-Status: lengkap untuk local pre-push; staging end-to-end masih diperlukan
+Status historical: local pre-push lengkap; staging suite dan pilot positif lulus
 
 ## One-command suite
 
@@ -11,7 +16,7 @@ Jalankan dari project root:
 php tools/mydigitalid_f6_security_suite.php
 ```
 
-Suite menjalankan 20 command dan gagal jika mana-mana command gagal. Ia mengambil
+Suite semasa menjalankan 23 command dan gagal jika mana-mana command gagal. Ia mengambil
 snapshot bilangan `user_tbl`, `token_tbl`, kewujudan table F2 dan struktur
 `user_tbl` sebelum/selepas untuk mengesan mutation local yang tidak disengajakan.
 
@@ -78,7 +83,7 @@ snapshot bilangan `user_tbl`, `token_tbl`, kewujudan table F2 dan struktur
 ## Keputusan local
 
 ```text
-commands=20
+commands=23
 failures=0
 local_mutations=0
 feature_activation=0

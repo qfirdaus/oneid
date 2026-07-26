@@ -1,7 +1,12 @@
 # MyDigital ID Fasa 4 — Dormant Account Matching, Linking dan Audit
 
+> **Status supersession — 26 Julai 2026:** Matching/linking repository telah
+> disambung kepada callback staging. Akaun pilot berjaya dilink dan login;
+> identiti lain direkod `MYDID_USER_NOT_FOUND` tanpa auto-registration. Lihat
+> `MYDIGITALID_STAGING_IMPLEMENTATION_CLOSEOUT.md`.
+
 Tarikh: 26 Julai 2026
-Status: siap dan diuji secara isolated; belum disambung kepada callback live
+Status historical: siap secara isolated; superseded oleh wiring staging
 
 ## 1. Skop
 
@@ -16,7 +21,9 @@ disahkan oleh protocol. Ia merangkumi:
 - larangan auto-registration serta profile overwrite.
 
 Pembentukan sesi authenticated OneID, local token issuance dan callback wiring
-belum dibuat kerana migration Fasa 2 belum diaplikasikan pada schema live.
+belum dibuat pada masa dokumen asal kerana migration Fasa 2 belum diaplikasikan.
+Keadaan ini telah superseded: migration dan callback wiring kini aktif di
+shared development/staging database.
 
 ## 2. Peraturan padanan
 

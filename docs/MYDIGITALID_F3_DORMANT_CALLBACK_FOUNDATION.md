@@ -1,7 +1,12 @@
 # MyDigital ID Fasa 3 — Dormant Authorization dan Callback Foundation
 
+> **Status supersession — 26 Julai 2026:** Callback foundation telah diaktifkan
+> di staging dan dibuktikan dengan provider sebenar. Secure-session bootstrap
+> hotfix berada pada commit `081087a`; login endpoint kini menghasilkan redirect
+> `303`. Lihat `MYDIGITALID_STAGING_IMPLEMENTATION_CLOSEOUT.md`.
+
 Tarikh: 26 Julai 2026
-Status: siap secara dormant; belum dibenarkan untuk autentikasi pengguna
+Status historical: siap secara dormant; superseded oleh activation staging
 
 ## 1. Objektif dan sempadan
 

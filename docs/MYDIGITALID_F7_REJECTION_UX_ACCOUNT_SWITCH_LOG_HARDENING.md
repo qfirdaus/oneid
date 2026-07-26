@@ -2,8 +2,12 @@
 
 Tarikh: 26 Julai 2026  
 Skop: staging `https://oneid-uat.upnm.edu.my/`  
-Status aplikasi: implemented, automated verification required  
-Status Nginx: arahan infra; belum dianggap applied sehingga diuji di staging
+Status aplikasi: implemented dan automated verification `8/8` PASS di staging
+Status Nginx: applied; `nginx -t`, reload dan query-redaction canary PASS
+Status manual account-switch: PENDING acceptance browser selepas deployment
+
+Status canonical dan baki kerja dirujuk dalam
+`MYDIGITALID_STAGING_IMPLEMENTATION_CLOSEOUT.md`.
 
 ## Objektif
 

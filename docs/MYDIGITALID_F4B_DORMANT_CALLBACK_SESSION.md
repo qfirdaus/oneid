@@ -1,7 +1,12 @@
 # MyDigital ID Fasa 4B — Dormant Callback, Local Token dan Session
 
+> **Status supersession — 26 Julai 2026:** Callback, local token dan session
+> OneID telah digunakan dalam successful staging login. Feature kekal
+> runtime-controlled dan schema apply `false`. Lihat
+> `MYDIGITALID_STAGING_IMPLEMENTATION_CLOSEOUT.md`.
+
 Tarikh: 26 Julai 2026
-Status: siap secara dormant dalam local development
+Status historical: siap secara dormant; superseded oleh activation staging
 
 ## Skop
 

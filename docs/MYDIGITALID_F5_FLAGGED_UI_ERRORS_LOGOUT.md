@@ -1,7 +1,12 @@
 # MyDigital ID Fasa 5 — Flagged UI, Bilingual Errors dan Logout
 
+> **Status supersession — 26 Julai 2026:** UI kedua telah diaktifkan dan
+> digunakan di staging, kemudian dikemas kini dengan card profesional. Generic
+> rejection UX dan account switching dilanjutkan dalam Fasa 7. Lihat
+> `MYDIGITALID_STAGING_IMPLEMENTATION_CLOSEOUT.md`.
+
 Tarikh: 26 Julai 2026
-Status: siap secara dormant dalam local development
+Status historical: siap secara dormant; superseded oleh activation staging
 
 ## UI login kedua
 

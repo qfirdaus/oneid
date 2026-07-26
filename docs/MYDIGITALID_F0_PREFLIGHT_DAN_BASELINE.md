@@ -1,5 +1,10 @@
 # MyDigital ID Fasa 0 — Preflight dan Baseline
 
+> **Status supersession — 26 Julai 2026:** Baseline ini kekal sebagai rekod
+> pre-implementation. Semua gate F0 telah lulus di staging. Status semasa,
+> evidence deployment dan baki kerja dirujuk dalam
+> `MYDIGITALID_STAGING_IMPLEMENTATION_CLOSEOUT.md`.
+
 **Tarikh pelaksanaan:** 26 Julai 2026
 **Environment:** OneID UAT/Staging
 **Domain:** `https://oneid-uat.upnm.edu.my/`

@@ -3,10 +3,15 @@
 **Tarikh audit:** 26 Julai 2026
 **Environment sasaran:** UAT/Staging
 **Domain:** `https://oneid-uat.upnm.edu.my/`
-**Status:** AUDIT COMPLETE — FASA 0, FASA 1 DAN FASA 2 PASS; FOUNDATION KEKAL DORMANT
-**Runtime/schema mutation:** Tiada
+**Status:** STAGING IMPLEMENTED/ACTIVE — CONTROLLED ACCEPTANCE MASIH BERJALAN
+**Runtime/schema mutation:** F2 additive schema applied; `user_tbl` unchanged
 **Rujukan akaun ujian positif:** `0530-09` (diberikan oleh owner; padanan
-canonical dan NRIC perlu disahkan secara read-only sebelum UAT)
+canonical, NRIC dan live MyDigital ID login telah disahkan)
+
+> **Canonical status note — 26 Julai 2026:** Bahagian awal dokumen ini
+> mengekalkan audit/design historical. Status pelaksanaan sebenar, evidence
+> staging, commit, migration, Nginx hardening dan baki kerja diringkaskan dalam
+> Seksyen 28 serta `MYDIGITALID_STAGING_IMPLEMENTATION_CLOSEOUT.md`.
 
 ## 1. Objektif
 
@@ -534,6 +539,11 @@ bagi session `auth_method=password` kekal local sahaja dan logout
 Setiap fasa mempunyai rollback sendiri. Feature flag kekal `false` sehingga
 fasa pilot.
 
+> Pelan dan keputusan F0–F6 di bawah ialah chronological record. Foundation
+> tersebut kemudiannya dideploy, migration diaplikasi dan feature diaktifkan di
+> staging. Committed default masih `false`; private staging runtime ialah
+> `true`.
+
 ### Fasa 0 — Baseline, decisions dan readiness
 
 **Tujuan:** mengunci requirement dan prerequisite tanpa mutation.
@@ -606,12 +616,16 @@ Acceptance:
 - raw NRIC/token tidak wujud dalam table/log;
 - rollback mengembalikan baseline.
 
-**Keputusan 26 Julai 2026:** COMPLETE, NOT LIVE-APPLIED. Dua migration additive
-up/down, keyed-HMAC protector dan dormant transactional PDO repository dibina.
+**Keputusan awal 26 Julai 2026:** COMPLETE secara dormant. Dua migration
+additive up/down, keyed-HMAC protector dan transactional PDO repository dibina.
 Isolated rehearsal mengesahkan 2 table, 3 FK, 3 CHECK, zero forbidden raw
 identity/token column, uniqueness/correlation/mismatch rejection, `user_tbl`
-tidak berubah dan exact rollback. Database rehearsal dipadam dan live UAT kekal
-mempunyai zero F2 table. Evidence penuh berada dalam
+tidak berubah dan exact rollback.
+
+**Supersession staging:** Selepas backup dan readiness `10/10`, migration telah
+diaplikasi kepada shared development/staging `oneiddb`. Reconciliation
+mengesahkan 2 table, 3 FK, 3 CHECK, `user_tbl` 9,793 row/structure unchanged.
+Schema apply flag kemudian ditutup semula. Evidence penuh berada dalam
 `docs/MYDIGITALID_F2_DORMANT_IDENTITY_AUDIT_SCHEMA.md`.
 
 ### Fasa 3 — Login initiation dan callback validation dormant
@@ -632,10 +646,13 @@ Deliverable:
 
 Feature flag masih `false` pada UAT shared.
 
-**Keputusan 26 Julai 2026:** COMPLETE, DORMANT. Authorization transaction
-sekali guna, TTL, state/nonce/PKCE, callback input boundary dan protocol adapter
-telah dibina. Callback belum memanggil protocol atau repository dan endpoint
-menjawab 404 semasa flag false. Evidence berada dalam
+**Keputusan awal 26 Julai 2026:** COMPLETE secara dormant. Authorization
+transaction sekali guna, TTL, state/nonce/PKCE, callback input boundary dan
+protocol adapter telah dibina.
+
+**Supersession staging:** Callback kini memanggil protocol/repository apabila
+private feature flag aktif; endpoint login menghasilkan `303`. Apabila flag
+dimatikan, endpoint kekal fail-closed `404`. Evidence berada dalam
 `docs/MYDIGITALID_F3_DORMANT_CALLBACK_FOUNDATION.md`.
 
 ### Fasa 4 — Identity matching dan OneID session/token integration
@@ -662,12 +679,14 @@ Acceptance:
 - ACL tidak berubah;
 - password login regression lulus.
 
-**Keputusan 26 Julai 2026:** ACCOUNT MATCHING, LINKING DAN AUDIT COMPLETE,
-DORMANT. Exact-one active matcher, initial/subsequent link verification,
+**Keputusan awal 26 Julai 2026:** ACCOUNT MATCHING, LINKING DAN AUDIT COMPLETE
+secara dormant. Exact-one active matcher, initial/subsequent link verification,
 inactive/ambiguous/mismatch rejection dan transactional audit telah dibina.
-Isolated rehearsal 11/11 lulus dengan `user_tbl` tidak berubah. Callback,
-authenticated session dan local token belum disambungkan sementara gate
-migration Fasa 2 belum diluluskan. Evidence berada dalam
+Isolated rehearsal 11/11 lulus dengan `user_tbl` tidak berubah.
+
+**Supersession staging:** Callback, authenticated session dan local token telah
+disambungkan selepas gated migration. Positive pilot dan unmatched rejection
+telah direkod secara live. Evidence berada dalam
 `docs/MYDIGITALID_F4_DORMANT_ACCOUNT_LINKING_AUDIT.md`.
 
 **Keputusan Fasa 4B, 26 Julai 2026:** CALLBACK, LOCAL TOKEN DAN SESSION SEAM
@@ -700,10 +719,14 @@ Acceptance:
 - tiada secret/token pada browser;
 - logout kedua-dua auth method berfungsi seperti direka.
 
-**Keputusan 26 Julai 2026:** COMPLETE, DORMANT. UI kedua dikawal oleh feature
-flag, locale BM/English serta generic flash errors telah ditambah, dan logout
-MyDigital ID menggunakan local-first cleanup sebelum provider end-session.
-Password login/logout kekal tersedia. Evidence berada dalam
+**Keputusan awal 26 Julai 2026:** COMPLETE secara dormant. UI kedua dikawal oleh
+feature flag, locale BM/English serta generic flash errors telah ditambah, dan
+logout MyDigital ID menggunakan local-first cleanup sebelum provider
+end-session.
+
+**Supersession staging:** UI telah diaktifkan, digunakan dan direka semula;
+password login/logout kekal tersedia. Rejection account-switch diteruskan dalam
+F7. Evidence berada dalam
 `docs/MYDIGITALID_F5_FLAGGED_UI_ERRORS_LOGOUT.md`.
 
 ### Fasa 6 — Automated security dan regression suite
@@ -726,12 +749,14 @@ Test minimum:
 - provider timeout/TLS error;
 - open redirect attempt;
 
-**Keputusan 26 Julai 2026:** LOCAL PRE-PUSH COMPLETE. One-command suite
-menjalankan 20 command merangkumi F0-F6, online read-only preflight, isolated
-schema/linking rehearsals, password-token regression dan Composer audit. Semua
-lulus dengan zero local mutation, zero feature activation dan zero rehearsal
+**Keputusan awal 26 Julai 2026:** LOCAL PRE-PUSH COMPLETE.
+
+**Supersession staging:** One-command suite kini menjalankan 23 command
+merangkumi F0-F7, online read-only preflight, isolated schema/linking
+rehearsals, password-token regression dan Composer audit. Semua lulus di
+staging dengan zero local mutation, zero feature activation dan zero rehearsal
 database tertinggal. ID token turut dipakukan kepada `RS256` + `kid`. Evidence
-dan baki ujian staging berada dalam
+dan baki acceptance manual berada dalam
 `docs/MYDIGITALID_F6_AUTOMATED_SECURITY_REGRESSION.md`.
 - session fixation;
 - feature flag disabled;
@@ -739,7 +764,7 @@ dan baki ujian staging berada dalam
 - ACL/session timeout/multiple-session regression;
 - raw NRIC/token/secret log scan.
 
-### Fasa 7 — UAT pilot melalui VPN
+### Fasa 7 — UAT pilot, rejection UX dan log hardening
 
 **Tujuan:** end-to-end test dengan provider sebenar.
 
@@ -773,6 +798,15 @@ Evidence:
 - session/token/ACL result;
 - logout result;
 - tiada token/NRIC penuh dalam evidence.
+
+**Keputusan 26 Julai 2026:** PARTIALLY ACCEPTED. Pilot positif `0530-09`
+berjaya login ke dashboard. Identiti tanpa akses ditolak
+`MYDID_USER_NOT_FOUND` tanpa auto-registration. F7 kemudian menambah generic
+rejection actions, POST+CSRF account switching, verified rejected-token state
+TTL 300 saat dan official provider logout. Automated F7 `9/9` serta contract
+`8/8` lulus. Nginx safe access-log format telah applied dan query canary tidak
+direkod. Manual chained browser acceptance bagi rejection → account switch →
+QR baharu → pilot login masih pending.
 
 ### Fasa 8 — Controlled rollout dan observation
 
@@ -886,18 +920,18 @@ perubahannya.
 
 | Item | Owner | Gate |
 |---|---|---|
-| Dapatkan pengesahan rasmi callback URI untuk production | MyDigital ID/UPNM owner | Sebelum production; UAT URI telah dikenali oleh authorization preflight |
-| Sahkan post-logout URI allowed | MyDigital ID/UPNM owner | Sebelum Fasa 5/UAT |
-| Sahkan claims sebenar `sub`, `nama`, `nric` | MyDigital ID/provider test | Sebelum acceptance Fasa 3 |
-| Sahkan Authorization Code/PKCE/client settings | MyDigital ID | Fasa 1 |
-| Outbound HTTPS/TLS/NTP preflight | Infra UPNM | PASS Fasa 0; ulang sebelum Fasa 7 |
-| Read-only pilot account exact mapping | OneID owner | PASS Fasa 0 |
-| Duplicate NRIC feasibility check | Data/OneID owner | PASS bagi active eligible population; historical duplicate finding direkod |
-| Retention auth events | Security/data owner | Sebelum Fasa 2 apply |
-| Perlu/tidak simpan verified name snapshot | Data owner | Sebelum Fasa 2 apply |
-| HMAC key custody/rotation | Security/operations | Sebelum Fasa 2 apply |
-| Monitoring thresholds/channel | Operations | Sebelum Fasa 7 |
-| Backup/change/rollback reference | DBA/change owner | Sebelum migration |
+| Manual F7 rejected-user/account-switch chained acceptance | OneID owner/tester | Sebelum staging acceptance close-out |
+| Manual password student/international-student regression | OneID owner | Sebelum staging acceptance close-out |
+| Manual ACL parity dan authenticated provider logout | OneID owner | Sebelum staging acceptance close-out |
+| Inactive/ambiguous live negative fixture | Data/OneID owner | Optional controlled UAT; automated/isolated PASS |
+| Monitoring threshold, channel dan observation window | Operations | Sebelum controlled rollout |
+| Historical callback log retention/rotation | Infra/Security | Selepas safe logging; jangan padam ad hoc |
+| Production callback/post-logout registration | MyDigital ID/UPNM owner | Sebelum production |
+| Production claims/client settings revalidation | MyDigital ID/UPNM owner | Sebelum production |
+| Production audit-event retention/purge approval | Security/data owner | Sebelum production migration |
+| Production HMAC key custody/rotation | Security/operations | Sebelum production |
+| Production backup/restore/change/rollback | DBA/change owner | Sebelum production migration |
+| Reference secret deletion dan credential rotation | OneID owner/Security | Sebelum task/production close-out |
 
 ## 25. Reference Folder Disposition
 
@@ -938,13 +972,18 @@ Jangan ignore seluruh `resources/`. Sebelum task ditutup:
 | NRIC format | PASS |
 | Client ID/realm | PASS |
 | Redirect URI value selected | PASS AS PROPOSAL |
-| Redirect URI recognized oleh provider | PASS BY AUTHORIZATION PREFLIGHT |
-| Claim payload verified live | PENDING |
+| Redirect URI recognized oleh provider | PASS STAGING LIVE |
+| Claim payload verified live | PASS STAGING LIVE |
 | Network/TLS/NTP preflight | PASS |
-| Persistence schema/rehearsal | FASA 2 DORMANT COMPLETE; LIVE APPLY PENDING |
-| Retention/key custody approval | PENDING |
-| Implementation | FASA 1–2 DORMANT FOUNDATION COMPLETE |
-| End-to-end UAT | NOT STARTED |
+| Persistence schema/rehearsal | PASS STAGING; 2 TABLE/3 FK/3 CHECK |
+| Non-production HMAC provisioning | PASS STAGING |
+| Production retention/key custody approval | PENDING |
+| Implementation | FASA 0–7 IMPLEMENTED STAGING |
+| Positive end-to-end pilot | PASS |
+| Negative authorization gate | PASS BY LIVE AUDIT |
+| F7 account-switch manual acceptance | PENDING |
+| Nginx callback query redaction | PASS STAGING |
+| Production readiness/approval | NOT STARTED |
 
 ## 27. Keputusan Audit
 
@@ -965,6 +1004,39 @@ ONEID SESSION/TOKEN/ACL REMAIN AUTHORITATIVE
 FEATURE-FLAGGED AND FAIL-CLOSED
 ```
 
-Pembangunan boleh bermula secara dormant selepas owner memberi arahan. Aktivasi
-UAT sebenar masih bergantung kepada callback registration, provider claim
-verification, network preflight, migration approval dan pilot readiness.
+Pembangunan dormant, migration dan activation staging telah selesai. Controlled
+staging acceptance masih mempunyai item manual yang disenaraikan dalam Seksyen
+24 dan dokumen close-out. Tiada keputusan staging memberi automatic production
+approval.
+
+## 28. Rekod Pelaksanaan Staging dan Status Akhir Audit
+
+Rekod canonical terperinci berada dalam:
+
+```text
+docs/MYDIGITALID_STAGING_IMPLEMENTATION_CLOSEOUT.md
+```
+
+Ringkasan evidence:
+
+- full non-production DB backup + SHA-256 sebelum migration;
+- migration readiness `10/10`, apply berjaya dan schema gate ditutup semula;
+- `user_tbl` 9,793 row dan structure unchanged;
+- Composer authoritative autoload, PHP 8.3 intl dan secret/HMAC validation PASS;
+- positive live MyDigital ID pilot login PASS;
+- live unmatched identity rejection/no-auto-registration PASS;
+- redesigned bilingual flagged UI active;
+- F7 one-use rejected provider logout state/CSRF account switching implemented;
+- automated staging suite `23/23`, zero mutation;
+- Nginx `oneid_safe` log format, config validation/reload/canary PASS; dan
+- committed source evidence sehingga `5592929a25220ecf5a549540b0a9524d1ba06d56`.
+
+Keputusan audit semasa:
+
+```text
+STAGING IMPLEMENTATION: COMPLETE
+STAGING POSITIVE PILOT: PASS
+STAGING SECURITY/REGRESSION: PASS
+STAGING MANUAL ACCEPTANCE: PARTIAL / ITEMS PENDING
+PRODUCTION: NO-GO UNTIL SEPARATE DBA/SECURITY/INFRA/PROVIDER APPROVAL
+```

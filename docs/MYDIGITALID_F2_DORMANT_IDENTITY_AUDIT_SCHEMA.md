@@ -1,5 +1,12 @@
 # MyDigital ID Fasa 2 — Dormant Identity Link dan Authentication Audit Schema
 
+> **Status supersession — 26 Julai 2026:** Migration telah diaplikasikan kepada
+> shared development/staging `oneiddb` selepas backup dan readiness `10/10`.
+> Dua table, tiga FK dan tiga CHECK wujud; `user_tbl` kekal 9,793 row dan
+> strukturnya tidak berubah. Schema apply gate telah ditutup semula. Retention
+> dan key custody production masih memerlukan DBA/security approval. Lihat
+> `MYDIGITALID_STAGING_IMPLEMENTATION_CLOSEOUT.md`.
+
 **Tarikh pelaksanaan:** 26 Julai 2026
 **Environment:** OneID UAT/Staging
 **Status:** COMPLETE — MIGRATION REHEARSED, NOT APPLIED TO LIVE UAT
