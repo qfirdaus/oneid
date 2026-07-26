@@ -40,7 +40,7 @@ Sumber paparan baharu ialah
 `config/content/release_changelog_plain.php`. Katalog:
 
 - mempunyai 39 versi unik daripada 2.6.4 hingga 1.0.1;
-- mempunyai parity 233/233 catatan BM dan English;
+- mempunyai parity 234/234 catatan BM dan English;
 - mengekalkan tarikh serta turutan sejarah;
 - mengekalkan setiap catatan sejarah tanpa menggabung atau membuang item;
 - dijana kepada artefak katalog dengan digest approval; dan

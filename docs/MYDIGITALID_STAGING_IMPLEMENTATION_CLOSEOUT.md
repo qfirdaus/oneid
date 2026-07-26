@@ -169,7 +169,7 @@ jangan padam secara ad hoc.
 Staging security/regression suite:
 
 ```text
-commands=23
+commands=24
 failures=0
 local_mutations=0
 feature_activation=0
@@ -186,7 +186,7 @@ security audit.
 
 | ID | Item | Status/owner |
 |---|---|---|
-| STG-01 | Manual rejected-user message melalui VPN | Rejection DB evidence PASS; paparan mesej perlu direkod |
+| STG-01 | Dedicated rejected-user page melalui VPN | F8 code/contract PASS; paparan browser perlu direkod |
 | STG-02 | Klik `Cuba akaun MyDigital ID lain` → provider logout → QR baharu | PENDING browser acceptance |
 | STG-03 | Login pilot selepas account-switch | PENDING chained acceptance |
 | STG-04 | Inactive OneID live identity | PENDING approved fixture; automated coverage PASS |

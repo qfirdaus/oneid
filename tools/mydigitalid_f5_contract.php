@@ -12,6 +12,7 @@ $index = $read('index.php');
 $ms = $read('config/locales/ms.php');
 $en = $read('config/locales/en.php');
 $callback = $read('app/Auth/MyDigitalId/MyDigitalIdCallbackEndpoint.php');
+$accessDenied = $read('app/Auth/MyDigitalId/MyDigitalIdAccessDeniedEndpoint.php');
 $orchestrator = $read('app/Auth/MyDigitalId/MyDigitalIdCallbackOrchestrator.php');
 $logoutEndpoint = $read('app/Auth/LogoutEndpoint.php');
 $logoutHandler = $read('app/Auth/LogoutHandler.php');
@@ -41,10 +42,11 @@ $checks['bilingual'] = count(array_filter(
 )) === count($keys);
 $checks['generic_flash'] = str_contains($callback, 'redirectWithFlash')
     && str_contains($callback, "'mydigitalid_invalid'")
-    && str_contains($callback, "'mydigitalid_unavailable'")
+    && str_contains($callback, 'redirectAccessDenied')
+    && str_contains($accessDenied, 'mydigitalid.denied.message')
     && str_contains($callback, "'mydigitalid_temporary'")
-    && !str_contains($index, 'MYDID_USER_NOT_FOUND')
-    && !str_contains($index, 'MYDID_IDENTITY_MISMATCH');
+    && !str_contains($index . $accessDenied, 'MYDID_USER_NOT_FOUND')
+    && !str_contains($index . $accessDenied, 'MYDID_IDENTITY_MISMATCH');
 $checks['logout_state'] = str_contains($orchestrator, "\$session['mydigitalid_id_token']")
     && str_contains($logoutEndpoint, "\$_SESSION['auth_method']")
     && str_contains($logoutEndpoint, 'MyDigitalIdLogoutUrl');

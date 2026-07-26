@@ -17,6 +17,7 @@ $phaseDocs = [
     'docs/MYDIGITALID_F5_FLAGGED_UI_ERRORS_LOGOUT.md',
     'docs/MYDIGITALID_F6_AUTOMATED_SECURITY_REGRESSION.md',
     'docs/MYDIGITALID_F7_REJECTION_UX_ACCOUNT_SWITCH_LOG_HARDENING.md',
+    'docs/MYDIGITALID_F8_DEDICATED_ACCESS_DENIED_PAGE.md',
 ];
 $read = static fn(string $path): string => (string) file_get_contents($root . '/' . $path);
 $audit = $read('docs/MYDIGITALID_SSO_AUDIT_DAN_PELAN_PELAKSANAAN.md');
@@ -35,7 +36,7 @@ $checks['audit_records_staging_activation'] = str_contains(
 $checks['closeout_has_migration_evidence'] = str_contains($closeout, 'checks=10 blocked=0')
     && str_contains($closeout, 'user_rows=9793')
     && str_contains($closeout, 'user_structure_unchanged=yes');
-$checks['closeout_has_security_evidence'] = str_contains($closeout, 'commands=23')
+$checks['closeout_has_security_evidence'] = str_contains($closeout, 'commands=24')
     && str_contains($closeout, 'local_mutations=0')
     && str_contains(strtolower($closeout), 'query-redaction')
     && str_contains(strtolower($closeout), 'canary');
@@ -56,7 +57,8 @@ foreach ($phaseDocs as $path) {
     $allDocs .= $read($path);
 }
 $checks['no_stale_suite_count'] = !str_contains($allDocs, 'commands=20')
-    && !str_contains($allDocs, 'menjalankan 20 command');
+    && !str_contains($allDocs, 'menjalankan 20 command')
+    && !str_contains($allDocs, 'commands=23');
 
 $failed = count(array_filter($checks, static fn(bool $passed): bool => !$passed));
 foreach ($checks as $name => $passed) {

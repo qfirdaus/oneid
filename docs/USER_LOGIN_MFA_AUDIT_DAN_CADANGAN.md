@@ -129,7 +129,7 @@ assertion lama yang menganggap hourly threshold `5`, sedangkan runtime/default
 semasa menetapkan admin hourly limit `10`. Akibatnya semakan hourly-limit dan
 ujian cooldown berantai dilaporkan gagal apabila kontrak dijalankan terus.
 
-Ini bukan kegagalan runtime MyDigital ID dan suite MyDigital ID 23/23 masih
+Ini bukan kegagalan runtime MyDigital ID dan suite MyDigital ID 24/24 masih
 lulus. Namun, drift fixture/konfigurasi kontrak Admin OTP ini perlu dibetulkan
 atau dibuat explicit sebelum service rate-limit dijadikan asas User Login MFA.
 Kontrak keselamatan tidak patut bergantung secara senyap pada runtime host.

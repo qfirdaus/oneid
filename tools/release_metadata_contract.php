@@ -30,8 +30,8 @@ $adminDashboard = (string) file_get_contents($projectRoot . '/admin/dashboard.ph
 $plainCatalogue = require $projectRoot . '/config/content/release_changelog_plain.php';
 $report(
     ($plainCatalogue[0]['version'] ?? null) === ONEID_APP_VERSION
-        && count($plainCatalogue[0]['bm'] ?? []) === 4
-        && count($plainCatalogue[0]['en'] ?? []) === 4,
+        && count($plainCatalogue[0]['bm'] ?? []) === 5
+        && count($plainCatalogue[0]['en'] ?? []) === 5,
     'latest admin release card reads shared v2.6.4 bilingual metadata'
 );
 $expectedHistory = [

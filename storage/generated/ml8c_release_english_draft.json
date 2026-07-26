@@ -34,6 +34,12 @@
                     "bm": "Paparan log masuk, mesej BM/English, rekod aktiviti dan perlindungan maklumat log masuk telah dipertingkatkan.",
                     "en_draft": "The login screen, BM/English messages, activity records and protection of sign-in information have been improved.",
                     "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.6.4:item:005",
+                    "bm": "Pengguna yang tidak mempunyai akses OneID kini dibawa ke halaman khas dengan mesej yang jelas serta pilihan untuk mencuba akaun MyDigital ID lain.",
+                    "en_draft": "Users without OneID access are now taken to a dedicated page with a clear message and an option to try another MyDigital ID account.",
+                    "review_status": "APPROVED"
                 }
             ]
         },
@@ -1678,5 +1684,5 @@
             ]
         }
     ],
-    "manifest_digest": "6cf7deda9607bc352f32b833ca5901d61e258d3006c443c5776b1c572aa93656"
+    "manifest_digest": "3b41b43b1fbdc5367e4f05ab8af7e7db5fc81f3c48c01f2529f71f5618b17a8d"
 }

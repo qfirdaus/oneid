@@ -53,7 +53,7 @@ final class MyDigitalIdCallbackEndpoint
                 substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? 'MyDigital ID'), 0, 255)
             );
             if (!$result['allowed']) {
-                self::redirectWithFlash('mydigitalid_unavailable');
+                self::redirectAccessDenied();
             }
             session_write_close();
             header('Cache-Control: no-store');
@@ -91,6 +91,23 @@ final class MyDigitalIdCallbackEndpoint
         }
         header('Cache-Control: no-store');
         header('Location: ' . \APP_URL . '/', true, 303);
+        exit;
+    }
+
+    private static function redirectAccessDenied(): never
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            unset(
+                $_SESSION[MyDigitalIdAuthorizationTransactionStore::SESSION_KEY],
+                $_SESSION['openid_connect_state'],
+                $_SESSION['openid_connect_nonce'],
+                $_SESSION['openid_connect_code_verifier']
+            );
+            session_write_close();
+        }
+        header('Cache-Control: no-store');
+        header('Referrer-Policy: no-referrer');
+        header('Location: ' . \APP_URL . '/auth/mydigitalid/access-denied.php', true, 303);
         exit;
     }
 }

@@ -751,7 +751,7 @@ Test minimum:
 
 **Keputusan awal 26 Julai 2026:** LOCAL PRE-PUSH COMPLETE.
 
-**Supersession staging:** One-command suite kini menjalankan 23 command
+**Supersession staging:** One-command suite kini menjalankan 24 command
 merangkumi F0-F7, online read-only preflight, isolated schema/linking
 rehearsals, password-token regression dan Composer audit. Semua lulus di
 staging dengan zero local mutation, zero feature activation dan zero rehearsal
@@ -1027,7 +1027,7 @@ Ringkasan evidence:
 - live unmatched identity rejection/no-auto-registration PASS;
 - redesigned bilingual flagged UI active;
 - F7 one-use rejected provider logout state/CSRF account switching implemented;
-- automated staging suite `23/23`, zero mutation;
+- automated staging suite `24/24`, zero mutation;
 - Nginx `oneid_safe` log format, config validation/reload/canary PASS; dan
 - committed source evidence sehingga `5592929a25220ecf5a549540b0a9524d1ba06d56`.
 

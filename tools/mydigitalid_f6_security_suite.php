@@ -41,6 +41,7 @@ $commands = [
     ['php', 'tests/characterization/mydigitalid_f4b_callback_session.php'],
     ['php', 'tests/characterization/mydigitalid_f5_ui_logout.php'],
     ['php', 'tests/characterization/mydigitalid_f7_rejection_logout.php'],
+    ['php', 'tests/characterization/mydigitalid_f8_access_denied_page.php'],
     ['php', 'tools/mydigitalid_f1_contract.php'],
     ['php', 'tools/mydigitalid_f2_contract.php'],
     ['php', 'tools/mydigitalid_f3_contract.php'],
