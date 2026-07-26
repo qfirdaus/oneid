@@ -1,7 +1,7 @@
 # MyDigital ID v2.6.4 — Release Audit
 
-**Tarikh audit:** 26 Julai 2026  
-**Change reference:** `ONEID-V264-CHANGELOG-20260726-01`  
+**Tarikh audit:** 26 Julai 2026
+**Change reference:** `ONEID-V264-CHANGELOG-20260726-01`
 **Keputusan:** GO untuk kemas kini kod staging; production kekal NO-GO
 
 ## Skop yang digabungkan

@@ -1,7 +1,7 @@
 # OneID v2.6.4 — MyDigital ID dan Changelog Mesra Pengguna
 
-**Versi:** 2.6.4  
-**Tarikh:** 26 Julai 2026  
+**Versi:** 2.6.4
+**Tarikh:** 26 Julai 2026
 **Skop:** staging dan kod sumber; production belum diluluskan
 
 ## Bahasa Melayu
