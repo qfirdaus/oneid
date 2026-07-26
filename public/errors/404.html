@@ -30,6 +30,27 @@
       font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     .error-shell { width: min(100%, 520px); }
+    .locale {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .locale a {
+      padding: 7px 11px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .locale a:hover,
+    .locale a:focus-visible {
+      background: #fff;
+      color: var(--blue);
+      box-shadow: 0 3px 12px rgba(11, 45, 77, .09);
+      outline: none;
+    }
     .error-card {
       overflow: hidden;
       border: 1px solid rgba(11, 45, 77, .09);
@@ -49,6 +70,11 @@
     .brand-oneid { width: 155px; height: auto; }
     .brand-upnm { width: 124px; height: auto; }
     .content { padding: 32px 34px 34px; text-align: center; }
+    .language-panel { display: none; }
+    #ms { display: block; }
+    #en:target { display: block; }
+    #en:target ~ #ms { display: none; }
+    #ms:target { display: block; }
     .status-code {
       margin: 0;
       color: var(--blue);
@@ -130,28 +156,45 @@
 </head>
 <body>
   <main class="error-shell">
-    <section class="error-card" aria-labelledby="error-title">
+    <nav class="locale" aria-label="Pilihan bahasa / Language selection">
+      <a href="#ms" lang="ms">BM</a>
+      <a href="#en" lang="en">EN</a>
+    </nav>
+    <section class="error-card" aria-label="404">
       <header class="brand">
         <img class="brand-oneid" src="/img/logo_oneid.png" alt="OneID">
         <img class="brand-upnm" src="/img/logo_upnm_30.png" alt="UPNM 30">
       </header>
       <div class="content">
         <p class="status-code" aria-label="Ralat 404">404</p>
-        <p class="eyebrow">Halaman tidak tersedia</p>
-        <h1 id="error-title">Halaman tidak ditemui</h1>
-        <p class="message">
-          Alamat yang dimasukkan mungkin tidak tepat, telah dipindahkan atau tidak lagi tersedia.
-        </p>
-        <p class="translation" lang="en">
-          The address may be incorrect, moved or no longer available.
-        </p>
-        <div class="notice">
-          Sila semak semula alamat atau kembali ke halaman utama OneID.
-        </div>
-        <a class="primary" href="/">Kembali ke OneID</a>
-        <p class="help">
-          Jika masalah berterusan, sila hubungi Helpdesk/PTMK.
-        </p>
+        <section id="en" class="language-panel" lang="en" aria-labelledby="error-title-en">
+          <p class="eyebrow">Page unavailable</p>
+          <h1 id="error-title-en">Page not found</h1>
+          <p class="message">
+            The address may be incorrect, moved or no longer available.
+          </p>
+          <div class="notice">
+            Please check the address or return to the OneID home page.
+          </div>
+          <a class="primary" href="/">Return to OneID</a>
+          <p class="help">
+            If the problem persists, please contact the Helpdesk/PTMK.
+          </p>
+        </section>
+        <section id="ms" class="language-panel" lang="ms" aria-labelledby="error-title">
+          <p class="eyebrow">Halaman tidak tersedia</p>
+          <h1 id="error-title">Halaman tidak ditemui</h1>
+          <p class="message">
+            Alamat yang dimasukkan mungkin tidak tepat, telah dipindahkan atau tidak lagi tersedia.
+          </p>
+          <div class="notice">
+            Sila semak semula alamat atau kembali ke halaman utama OneID.
+          </div>
+          <a class="primary" href="/">Kembali ke OneID</a>
+          <p class="help">
+            Jika masalah berterusan, sila hubungi Helpdesk/PTMK.
+          </p>
+        </section>
       </div>
     </section>
   </main>

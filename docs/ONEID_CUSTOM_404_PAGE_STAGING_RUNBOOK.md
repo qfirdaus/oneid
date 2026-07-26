@@ -6,9 +6,10 @@ Halaman statik `public/errors/404.html` menggantikan badan respons lalai
 `404 Not Found nginx` dengan paparan OneID yang kemas. Status HTTP mesti kekal
 `404`; halaman ini bukan redirect dan bukan respons berjaya `200`.
 
-Halaman sengaja statik dan dwibahasa supaya masih tersedia jika PHP atau
-aplikasi menghadapi masalah. Ia tidak memaparkan URL yang diminta dan tidak
-menggunakan JavaScript atau aset luaran.
+Halaman sengaja statik dan mempunyai suis BM/English supaya masih tersedia jika
+PHP atau aplikasi menghadapi masalah. Pertukaran bahasa menggunakan fragment
+`#ms`/`#en` pada browser tanpa request tambahan, JavaScript atau aset luaran.
+Ia tidak memaparkan URL yang diminta.
 
 ## Konfigurasi Nginx staging
 

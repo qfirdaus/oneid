@@ -9,7 +9,13 @@ $checks = [
     'static_page' => is_string($page),
     'bilingual_message' => is_string($page)
         && str_contains($page, 'Halaman tidak ditemui')
+        && str_contains($page, 'Page not found')
         && str_contains($page, 'The address may be incorrect'),
+    'language_switch' => is_string($page)
+        && str_contains($page, 'href="#ms"')
+        && str_contains($page, 'href="#en"')
+        && str_contains($page, '#en:target')
+        && str_contains($page, '#en:target ~ #ms'),
     'oneid_brand' => is_string($page)
         && str_contains($page, '/img/logo_oneid.png')
         && str_contains($page, '/img/logo_upnm_30.png'),
