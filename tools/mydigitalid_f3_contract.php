@@ -25,6 +25,7 @@ $store = $read('app/Auth/MyDigitalId/MyDigitalIdAuthorizationTransactionStore.ph
 $request = $read('app/Auth/MyDigitalId/MyDigitalIdCallbackRequest.php');
 $gateway = $read('app/Auth/MyDigitalId/MyDigitalIdProtocolGateway.php');
 $callback = $read('app/Auth/MyDigitalId/MyDigitalIdCallbackEndpoint.php');
+$loginEndpoint = $read('app/Auth/MyDigitalId/MyDigitalIdLoginEndpoint.php');
 $orchestrator = $read('app/Auth/MyDigitalId/MyDigitalIdCallbackOrchestrator.php');
 $runtime = $read('config/runtime.php');
 $login = $read('index.php');
@@ -57,8 +58,9 @@ $check(
 $check(
     is_file($root . '/public/auth/mydigitalid/login.php')
         && is_file($root . '/public/auth/mydigitalid/callback.php')
+        && str_contains($loginEndpoint, "'/lib/session_security.php'")
         && str_contains($callback, "self::finish(404, 'Not Found')"),
-    'thin public endpoints exist and fail closed while feature flag is false'
+    'thin public endpoints bootstrap secure sessions and fail closed while feature flag is false'
 );
 $check(
     str_contains($runtime, "'ONEID_MYDID_ENABLED' => 'false'")

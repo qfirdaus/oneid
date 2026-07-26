@@ -39,6 +39,7 @@ final class MyDigitalIdLoginEndpoint
     {
         $root = dirname(__DIR__, 3);
         require_once $root . '/bootstrap/app.php';
+        require_once $root . '/lib/session_security.php';
         require_once $root . '/lib/secrets.php';
         require_once $root . '/vendor/autoload.php';
     }
