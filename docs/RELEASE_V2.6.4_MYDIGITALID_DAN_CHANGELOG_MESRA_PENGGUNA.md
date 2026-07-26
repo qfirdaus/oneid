@@ -24,8 +24,8 @@
 
 Paparan Version Releases kini menggunakan bahasa mudah dalam BM dan English.
 Semua 39 versi masih disimpan mengikut tarikh dan turutan asal. Kesemua 229
-catatan sejarah dikekalkan dan lima catatan baharu ditambah untuk versi 2.6.4,
-menjadikan 234 catatan BM dan 234 catatan English. Dokumen audit teknikal kekal
+catatan sejarah dikekalkan dan enam catatan baharu ditambah untuk versi 2.6.4,
+menjadikan 235 catatan BM dan 235 catatan English. Dokumen audit teknikal kekal
 tersedia untuk pentadbir dan pasukan operasi.
 
 ### Status
@@ -54,7 +54,7 @@ di staging. Senarai penerimaan manual dan semua gate production dalam
 
 Version Releases now uses plain language in BM and English. All 39 versions
 remain in their original date order. All 229 historical entries are retained
-and five new entries were added for version 2.6.4, resulting in 234 BM and 234
+and six new entries were added for version 2.6.4, resulting in 235 BM and 235
 English entries. Detailed technical audit documents remain available to
 administrators and operations teams.
 

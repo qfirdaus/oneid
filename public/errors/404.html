@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Halaman tidak ditemui | OneID</title>
+  <link rel="shortcut icon" href="/img/favicon.png">
+  <style>
+    :root {
+      color-scheme: light;
+      --navy: #0b2d4d;
+      --blue: #087fbd;
+      --cyan: #09a3c6;
+      --muted: #66778b;
+      --line: #dce6ee;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 28px 16px;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(9, 163, 198, .12), transparent 34%),
+        radial-gradient(circle at 88% 82%, rgba(8, 127, 189, .1), transparent 32%),
+        #f4f8fb;
+      color: var(--navy);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .error-shell { width: min(100%, 520px); }
+    .error-card {
+      overflow: hidden;
+      border: 1px solid rgba(11, 45, 77, .09);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, .96);
+      box-shadow: 0 24px 60px rgba(18, 74, 112, .15);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 22px 26px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(145deg, #fff, #f7fbfe);
+    }
+    .brand-oneid { width: 155px; height: auto; }
+    .brand-upnm { width: 124px; height: auto; }
+    .content { padding: 32px 34px 34px; text-align: center; }
+    .status-code {
+      margin: 0;
+      color: var(--blue);
+      font-size: 72px;
+      font-weight: 850;
+      line-height: 1;
+      letter-spacing: -.06em;
+      text-shadow: 0 8px 20px rgba(8, 127, 189, .13);
+    }
+    .eyebrow {
+      margin: 13px 0 8px;
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(24px, 5vw, 31px);
+      line-height: 1.2;
+    }
+    .message {
+      margin: 14px auto 0;
+      max-width: 410px;
+      color: #4d6173;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    .translation {
+      margin: 10px auto 0;
+      max-width: 410px;
+      color: #7a8997;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .notice {
+      margin: 22px 0;
+      padding: 13px 15px;
+      border: 1px solid #dbeaf2;
+      border-radius: 12px;
+      background: #f3f9fc;
+      color: #48677b;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .primary {
+      width: 100%;
+      min-height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: linear-gradient(118deg, #075b9a, var(--blue) 58%, var(--cyan));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 750;
+      text-decoration: none;
+      box-shadow: 0 8px 18px rgba(5, 92, 148, .2);
+    }
+    .primary:hover { filter: brightness(1.04); }
+    .primary:focus-visible {
+      outline: 3px solid rgba(8, 127, 189, .25);
+      outline-offset: 2px;
+    }
+    .help {
+      margin: 18px 0 0;
+      color: #7a8997;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    @media (max-width: 480px) {
+      .brand { padding: 18px 20px; }
+      .brand-oneid { width: 132px; }
+      .brand-upnm { width: 105px; }
+      .content { padding: 27px 21px 28px; }
+      .status-code { font-size: 62px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="error-shell">
+    <section class="error-card" aria-labelledby="error-title">
+      <header class="brand">
+        <img class="brand-oneid" src="/img/logo_oneid.png" alt="OneID">
+        <img class="brand-upnm" src="/img/logo_upnm_30.png" alt="UPNM 30">
+      </header>
+      <div class="content">
+        <p class="status-code" aria-label="Ralat 404">404</p>
+        <p class="eyebrow">Halaman tidak tersedia</p>
+        <h1 id="error-title">Halaman tidak ditemui</h1>
+        <p class="message">
+          Alamat yang dimasukkan mungkin tidak tepat, telah dipindahkan atau tidak lagi tersedia.
+        </p>
+        <p class="translation" lang="en">
+          The address may be incorrect, moved or no longer available.
+        </p>
+        <div class="notice">
+          Sila semak semula alamat atau kembali ke halaman utama OneID.
+        </div>
+        <a class="primary" href="/">Kembali ke OneID</a>
+        <p class="help">
+          Jika masalah berterusan, sila hubungi Helpdesk/PTMK.
+        </p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

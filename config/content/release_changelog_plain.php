@@ -17,6 +17,7 @@ return array (
       2 => 'Pengguna boleh mencuba akaun MyDigital ID yang lain, dan proses log keluar kini turut menamatkan sesi MyDigital ID.',
       3 => 'Paparan log masuk, mesej BM/English, rekod aktiviti dan perlindungan maklumat log masuk telah dipertingkatkan.',
       4 => 'Pengguna yang tidak mempunyai akses OneID kini dibawa ke halaman khas dengan mesej yang jelas serta pilihan untuk mencuba akaun MyDigital ID lain.',
+      5 => 'Alamat OneID yang tidak sah kini memaparkan halaman 404 khas yang lebih jelas dan mesra pengguna.',
     ),
     'en' =>
     array (
@@ -25,6 +26,7 @@ return array (
       2 => 'Users can try a different MyDigital ID account, and signing out now also ends the MyDigital ID session.',
       3 => 'The login screen, BM/English messages, activity records and protection of sign-in information have been improved.',
       4 => 'Users without OneID access are now taken to a dedicated page with a clear message and an option to try another MyDigital ID account.',
+      5 => 'Invalid OneID addresses now display a clearer, user-friendly custom 404 page.',
     ),
   ),
   1 =>
