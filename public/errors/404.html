@@ -31,25 +31,56 @@
     }
     .error-shell { width: min(100%, 520px); }
     .locale {
-      display: flex;
-      justify-content: flex-end;
-      gap: 6px;
+      width: max-content;
+      margin-left: auto;
       margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 3px;
+      border: 1px solid #d7e0e8;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, .82);
+      box-shadow: 0 2px 8px rgba(42, 63, 84, .06);
+    }
+    .locale svg {
+      width: 11px;
+      height: 11px;
+      margin: 0 4px 0 6px;
+      color: #6d7d8c;
     }
     .locale a {
-      padding: 7px 11px;
-      border-radius: 999px;
-      color: var(--muted);
-      font-size: 12px;
+      min-width: 34px;
+      height: 27px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 15px;
+      color: #657483;
+      font-size: 11px;
       font-weight: 700;
+      line-height: 1;
       text-decoration: none;
+      transition: color .18s ease, background .18s ease, box-shadow .18s ease;
     }
     .locale a:hover,
     .locale a:focus-visible {
-      background: #fff;
-      color: var(--blue);
-      box-shadow: 0 3px 12px rgba(11, 45, 77, .09);
+      color: #007fb5;
+      background: #eef8fc;
       outline: none;
+    }
+    .locale a[href="#ms"],
+    body:has(#ms:target) .locale a[href="#ms"],
+    body:has(#en:target) .locale a[href="#en"] {
+      color: #fff;
+      background: #078fca;
+      box-shadow: 0 2px 6px rgba(7, 143, 202, .25);
+    }
+    body:has(#en:target) .locale a[href="#ms"] {
+      color: #657483;
+      background: transparent;
+      box-shadow: none;
     }
     .error-card {
       overflow: hidden;
@@ -104,13 +135,6 @@
       font-size: 15px;
       line-height: 1.65;
     }
-    .translation {
-      margin: 10px auto 0;
-      max-width: 410px;
-      color: #7a8997;
-      font-size: 12px;
-      line-height: 1.55;
-    }
     .notice {
       margin: 22px 0;
       padding: 13px 15px;
@@ -157,8 +181,11 @@
 <body>
   <main class="error-shell">
     <nav class="locale" aria-label="Pilihan bahasa / Language selection">
-      <a href="#ms" lang="ms">BM</a>
-      <a href="#en" lang="en">EN</a>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm6.9 6h-3.02a15.7 15.7 0 0 0-1.38-3.12A8.06 8.06 0 0 1 18.9 8ZM12 4c.83 1.01 1.51 2.37 1.88 4h-3.76C10.49 6.37 11.17 5.01 12 4ZM4.26 14a7.85 7.85 0 0 1 0-4h3.39a16.5 16.5 0 0 0 0 4H4.26Zm.84 2h3.02c.3 1.14.77 2.2 1.38 3.12A8.06 8.06 0 0 1 5.1 16Zm3.02-8H5.1a8.06 8.06 0 0 1 4.4-3.12A15.7 15.7 0 0 0 8.12 8ZM12 20c-.83-1.01-1.51-2.37-1.88-4h3.76c-.37 1.63-1.05 2.99-1.88 4Zm2.25-6h-4.5a14.3 14.3 0 0 1 0-4h4.5a14.3 14.3 0 0 1 0 4Zm.25 5.12c.61-.92 1.08-1.98 1.38-3.12h3.02a8.06 8.06 0 0 1-4.4 3.12ZM16.35 14a16.5 16.5 0 0 0 0-4h3.39a7.85 7.85 0 0 1 0 4h-3.39Z"/>
+      </svg>
+      <a href="#ms" lang="ms" hreflang="ms" title="Bahasa Melayu" aria-label="Bahasa Melayu">BM</a>
+      <a href="#en" lang="en" hreflang="en" title="English" aria-label="English">EN</a>
     </nav>
     <section class="error-card" aria-label="404">
       <header class="brand">

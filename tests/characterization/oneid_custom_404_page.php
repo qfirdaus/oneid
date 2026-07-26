@@ -14,6 +14,8 @@ $checks = [
     'language_switch' => is_string($page)
         && str_contains($page, 'href="#ms"')
         && str_contains($page, 'href="#en"')
+        && str_contains($page, '<svg viewBox="0 0 24 24"')
+        && str_contains($page, 'background: #078fca')
         && str_contains($page, '#en:target')
         && str_contains($page, '#en:target ~ #ms'),
     'oneid_brand' => is_string($page)
