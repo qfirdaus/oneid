@@ -1,6 +1,6 @@
 # Pelan Integrasi External Data Sync Pelajar ODL
 
-**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–9A `PASS / CLOSED`; automatic scheduler dan production `NOT AUTHORIZED`
+**Status:** Gate F `PROCEED WITH CONDITIONS`; Fasa 0–9A dan post-change monitoring 72 jam `PASS / CLOSED`; automatic scheduler dan production `NOT AUTHORIZED`
 
 **Tarikh asal:** 21 Julai 2026
 
@@ -1143,6 +1143,12 @@ zero tindakan lain, reconciliation/syslog PASS serta rollback readiness
 disabled. F9A ditutup `PASS / CLOSED` dengan coverage NEW, UPDATE, DEACTIVATE
 dan REACTIVATE lengkap.
 
+Tempoh post-change monitoring selama 72 jam selepas Run B tamat pada 27 Julai
+2026, 8:15 PM MYT. Semakan penutupan pada 29 Julai 2026 merekod pengesahan
+system owner bahawa operasi kelihatan normal sepanjang tempoh tersebut dan
+tiada incident atau regression ODL dilaporkan. Task pemantauan tiga hari
+ditutup `PASS / CLOSED`. Automatic monitoring/alert kekal Future Work.
+
 ### Future Work — `DEFERRED / NOT CURRENT BLOCKER`
 
 Manual ODL sync UAT telah lengkap dan Future Work berikut tidak menghalang
@@ -1347,6 +1353,7 @@ Pada semakan 23 Julai 2026:
 | Fasa 8 | `PASS / CLOSED` — 50 Full NEW, ODL active membership 53; `ONEID-ODL-F8-20260724-01` |
 | Fasa 9 | `PASS / CLOSED` — header 50, 18 NEW, active ODL 71; `ONEID-ODL-F9-20260724-02` |
 | Fasa 9A | `PASS / CLOSED` — NEW header 50; Update/Deactivate header 52; Reactivate header 53 |
+| Post-change monitoring 72 jam | `PASS / CLOSED` — tamat 27 Julai 2026, 8:15 PM MYT; tiada incident/regression ODL dilaporkan pada semakan 29 Julai 2026 |
 | Future Work | Monitoring/alert, runbook/handoff, retention/PII, restore rehearsal, Scheduled Preview, automatic Apply dan production memerlukan authorization baharu |
 | Fasa 10 | `NOT STARTED / DEFERRED` — hanya jika datasource `STUDENT_PG` diperlukan |
 

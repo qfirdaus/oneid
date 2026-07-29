@@ -49,18 +49,19 @@ Sumber paparan baharu ialah
 Butiran teknikal tidak dipadam daripada repositori; ia kekal dalam dokumen audit
 fasa dan close-out.
 
-## Kerja yang masih terbuka
+## Penutupan staging dan kerja production
 
-Integrasi belum dianggap production-ready. Baki kerja berautoriti kekal:
+Gate A staging ditutup `PASS / CLOSED` pada 29 Julai 2026 selepas browser
+acceptance, account-switch, negative authorization, password regression, ACL,
+logout, secret/reference review dan observation 72 jam disahkan berjaya.
 
-- penerimaan browser bagi mesej pengguna ditolak dan pertukaran akaun;
-- regression manual password login staf, pelajar tempatan dan pelajar
-  antarabangsa;
-- semakan ACL selepas login MyDigital ID;
-- penerimaan logout local + provider;
-- monitoring threshold dan observation window; dan
-- keseluruhan provisioning, DBA, backup/restore, secret, Nginx serta kelulusan
-  production.
+Integrasi belum dianggap production-ready. Baki kerja berautoriti kini hanya
+Gate B: keseluruhan provisioning, DBA, backup/restore, secret/key custody,
+Nginx, controlled production pilot, observation dan kelulusan production.
 
 Senarai penuh dan owner dirujuk dalam
 `MYDIGITALID_STAGING_IMPLEMENTATION_CLOSEOUT.md`.
+
+Pelan kerja untuk menyelesaikan item tersebut, termasuk Wave 0–5, evidence,
+monitoring, stop condition dan closure gate dirujuk dalam
+`MYDIGITALID_BAKI_ACCEPTANCE_DAN_PELAN_PENUTUPAN.md`.

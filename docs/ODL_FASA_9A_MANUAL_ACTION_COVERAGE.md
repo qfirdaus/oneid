@@ -125,3 +125,14 @@ F9A kini membuktikan full manual action coverage:
 
 Keputusan: `PASS / CLOSED`, evidence `ONEID-ODL-F9A-20260724-03`, diluluskan
 Firdaus, System Analyst/DBA pada 24 Julai 2026.
+
+## Post-change monitoring closure
+
+Run B terakhir tamat pada 24 Julai 2026, 8:15 PM MYT. Tempoh pemantauan 72 jam
+selepas perubahan tamat pada 27 Julai 2026, 8:15 PM MYT. Pada semakan penutupan
+29 Julai 2026, system owner mengesahkan operasi sepanjang tempoh tersebut
+kelihatan normal dan tiada incident atau regression ODL dilaporkan.
+
+Keputusan: post-change monitoring tiga hari `PASS / CLOSED`. Ini ialah
+pemantauan operasi UAT selepas perubahan dan tidak bermaksud automatic
+monitoring/alert, unattended Apply atau production rollout telah dibenarkan.

@@ -78,8 +78,9 @@ $check(
     'source mapping keeps staff NRIC in data4 and student NRIC in data2'
 );
 $check(
-    str_contains($loginContract, 'no MyDigital ID authentication action or endpoint is introduced'),
-    'existing characterization explicitly records the disabled integration boundary'
+    str_contains($loginContract, 'presentation remains feature-flagged with no legacy form action')
+        && str_contains($runtime, "'ONEID_MYDID_ENABLED' => 'false'"),
+    'existing characterization preserves the fail-closed integration boundary'
 );
 $check(
     !is_dir($root . '/public/resources/references')

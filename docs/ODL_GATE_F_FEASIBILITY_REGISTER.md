@@ -538,6 +538,13 @@ characterization lokal direkod dalam commit `2e9133d`.
 Manual sync ODL UAT tidak mempunyai baki functional blocker. Perkara berikut
 ditangguhkan dan bukan current blocker:
 
+Post-change monitoring manual selama 72 jam selepas Run B telah tamat pada
+27 Julai 2026, 8:15 PM MYT dan ditutup `PASS / CLOSED` pada semakan
+29 Julai 2026. System owner mengesahkan operasi kelihatan normal sepanjang
+tempoh tersebut dan tiada incident atau regression ODL dilaporkan. Item
+monitoring/alert di bawah merujuk automation serta kesiapsiagaan operasi masa
+hadapan, bukan task pemantauan tiga hari yang telah ditutup.
+
 - formalkan version/change reference bagi definisi view dan source SLA;
 - lengkapkan monitoring, alert, operator handoff dan incident runbook;
 - tetapkan retention log, metadata provenance dan polisi PII;

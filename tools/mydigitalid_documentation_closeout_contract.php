@@ -22,6 +22,7 @@ $phaseDocs = [
 $read = static fn(string $path): string => (string) file_get_contents($root . '/' . $path);
 $audit = $read('docs/MYDIGITALID_SSO_AUDIT_DAN_PELAN_PELAKSANAAN.md');
 $closeout = $read('docs/MYDIGITALID_STAGING_IMPLEMENTATION_CLOSEOUT.md');
+$closurePlan = $read('docs/MYDIGITALID_BAKI_ACCEPTANCE_DAN_PELAN_PENUTUPAN.md');
 $checks = [];
 
 $checks['phase_docs_reference_canonical_closeout'] = count(array_filter(
@@ -40,10 +41,12 @@ $checks['closeout_has_security_evidence'] = str_contains($closeout, 'commands=24
     && str_contains($closeout, 'local_mutations=0')
     && str_contains(strtolower($closeout), 'query-redaction')
     && str_contains(strtolower($closeout), 'canary');
-$checks['pending_acceptance_is_explicit'] = str_contains(
+$checks['staging_acceptance_is_closed'] = str_contains(
     $closeout,
-    '## 9. Acceptance yang masih belum selesai'
-) && str_contains($closeout, 'PENDING browser acceptance');
+    '## 9. Acceptance staging — `PASS / CLOSED`'
+) && str_contains($closeout, 'MYDID-STG-ACCEPTANCE-20260729-01')
+    && str_contains($audit, 'STAGING MANUAL ACCEPTANCE: PASS / CLOSED')
+    && str_contains($closurePlan, '**Status:** `GATE A PASS / CLOSED`');
 $checks['production_remains_no_go'] = str_contains(
     $closeout,
     '## 10. Production gates — semuanya masih tertutup'
@@ -52,6 +55,18 @@ $checks['secret_reference_closeout_exists'] = str_contains(
     $closeout,
     '## 11. Reference-folder dan secret close-out'
 );
+$checks['pending_plan_is_canonical_and_linked'] = str_contains(
+    $closeout,
+    'MYDIGITALID_BAKI_ACCEPTANCE_DAN_PELAN_PENUTUPAN.md'
+) && str_contains($audit, 'MYDIGITALID_BAKI_ACCEPTANCE_DAN_PELAN_PENUTUPAN.md')
+    && str_contains($closurePlan, '## 3. Definition of Done Gate A')
+    && str_contains($closurePlan, '## 9. Gate B — Production Readiness');
+$checks['pending_plan_covers_all_acceptance_items'] = count(array_filter(
+    range(1, 12),
+    static fn(int $id): bool => str_contains($closurePlan, sprintf('STG-%02d', $id))
+)) === 12
+    && str_contains($closurePlan, 'SEC-01–05')
+    && str_contains($closurePlan, 'TEST-MAINT-01');
 $allDocs = $audit . $closeout;
 foreach ($phaseDocs as $path) {
     $allDocs .= $read($path);

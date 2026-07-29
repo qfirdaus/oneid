@@ -6,6 +6,7 @@
 **Production:** tidak disentuh dan tidak diluluskan  
 **Release semasa:** OneID `2.6.4`
 **Change reference:** `ONEID-V264-CHANGELOG-20260726-01`
+**Gate A closure:** `PASS / CLOSED` pada 29 Julai 2026
 
 ## 1. Keputusan keseluruhan
 
@@ -22,7 +23,7 @@ staging:
 - feature flag runtime boleh melakukan rollback segera; dan
 - callback access log baharu tidak merekod query authorization.
 
-Staging implementation ialah **GO untuk controlled acceptance testing**.
+Staging implementation dan controlled acceptance ialah **PASS / CLOSED**.
 Ia bukan production approval.
 
 Keseluruhan Fasa 0–7 kini digabungkan sebagai release OneID `2.6.4`.
@@ -182,22 +183,31 @@ Suite merangkumi F0–F7, protocol/crypto contracts, isolated schema/linking,
 password regression, logout, rejected token TTL/replay, Composer validate dan
 security audit.
 
-## 9. Acceptance yang masih belum selesai
+## 9. Acceptance staging — `PASS / CLOSED`
+
+Pelan execution, owner, evidence, acceptance criteria, stop condition dan
+closure template bagi semua item di bawah direkod secara canonical dalam
+[`MYDIGITALID_BAKI_ACCEPTANCE_DAN_PELAN_PENUTUPAN.md`](MYDIGITALID_BAKI_ACCEPTANCE_DAN_PELAN_PENUTUPAN.md).
 
 | ID | Item | Status/owner |
 |---|---|---|
-| STG-01 | Dedicated rejected-user page melalui VPN | F8 code/contract PASS; paparan browser perlu direkod |
-| STG-02 | Klik `Cuba akaun MyDigital ID lain` → provider logout → QR baharu | PENDING browser acceptance |
-| STG-03 | Login pilot selepas account-switch | PENDING chained acceptance |
-| STG-04 | Inactive OneID live identity | PENDING approved fixture; automated coverage PASS |
-| STG-05 | Ambiguous/duplicate NRIC live identity | PENDING approved fixture; isolated coverage PASS |
-| STG-06 | Password login staf selepas activation | Initial smoke PASS; final acceptance record disyorkan |
-| STG-07 | Password login pelajar tempatan | PENDING manual acceptance |
-| STG-08 | Pelajar antarabangsa nombor matrik/passport | PENDING manual acceptance |
-| STG-09 | ACL parity selepas MyDigital ID login | PENDING manual comparison |
-| STG-10 | Authenticated MyDigital ID logout local + provider | Basic redirect observed; explicit provider-session acceptance PENDING |
-| STG-11 | Provider timeout/unavailable UX | Automated fail-closed PASS; controlled manual test optional |
-| STG-12 | Monitoring threshold/channel dan observation window | PENDING Operations |
+| STG-01 | Dedicated rejected-user page melalui VPN | PASS — owner verified |
+| STG-02 | Klik `Cuba akaun MyDigital ID lain` → provider logout → QR baharu | PASS — owner verified |
+| STG-03 | Login pilot selepas account-switch | PASS — owner verified |
+| STG-04 | Inactive OneID live identity | PASS — owner verified |
+| STG-05 | Ambiguous/duplicate NRIC live identity | PASS — owner verified |
+| STG-06 | Password login staf selepas activation | PASS — owner verified |
+| STG-07 | Password login pelajar tempatan | PASS — owner verified |
+| STG-08 | Pelajar antarabangsa nombor matrik/passport | PASS — owner verified |
+| STG-09 | ACL parity selepas MyDigital ID login | PASS — owner verified |
+| STG-10 | Authenticated MyDigital ID logout local + provider | PASS — owner verified |
+| STG-11 | Provider timeout/unavailable UX | ACCEPTED AUTOMATED COVERAGE — fail-closed PASS |
+| STG-12 | Monitoring threshold/channel dan observation window | PASS / CLOSED — 72 jam completed, zero unresolved Critical/High |
+
+Firdaus, system owner, mengesahkan keputusan Gate A pada 29 Julai 2026 melalui
+evidence reference `MYDID-STG-ACCEPTANCE-20260729-01`. Secret/reference review
+turut disahkan selesai. Exact observation timestamps dan restricted evidence
+kekal dalam rekod operasi owner dan tidak disalin ke repository.
 
 ## 10. Production gates — semuanya masih tertutup
 
@@ -228,3 +238,6 @@ Sebelum task ditutup sepenuhnya:
 - rotate credential sebelum production dan jika credential ujian pernah
   dikongsi melalui saluran tidak diluluskan; dan
 - simpan hanya dokumentasi yang dibenarkan oleh klasifikasi organisasi.
+
+Aktiviti SEC-01 hingga SEC-05, termasuk batas authorization untuk deletion dan
+rotation, diperincikan dalam pelan penutupan canonical.

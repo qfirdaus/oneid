@@ -3,7 +3,7 @@
 **Tarikh audit:** 26 Julai 2026
 **Environment sasaran:** UAT/Staging
 **Domain:** `https://oneid-uat.upnm.edu.my/`
-**Status:** STAGING IMPLEMENTED/ACTIVE — CONTROLLED ACCEPTANCE MASIH BERJALAN
+**Status:** STAGING IMPLEMENTED/ACTIVE — GATE A `PASS / CLOSED`; PRODUCTION `NO-GO`
 **Runtime/schema mutation:** F2 additive schema applied; `user_tbl` unchanged
 **Rujukan akaun ujian positif:** `0530-09` (diberikan oleh owner; padanan
 canonical, NRIC dan live MyDigital ID login telah disahkan)
@@ -12,6 +12,8 @@ canonical, NRIC dan live MyDigital ID login telah disahkan)
 > mengekalkan audit/design historical. Status pelaksanaan sebenar, evidence
 > staging, commit, migration, Nginx hardening dan baki kerja diringkaskan dalam
 > Seksyen 28 serta `MYDIGITALID_STAGING_IMPLEMENTATION_CLOSEOUT.md`.
+> Pelaksanaan baki acceptance serta syarat penutupan dikawal oleh
+> `MYDIGITALID_BAKI_ACCEPTANCE_DAN_PELAN_PENUTUPAN.md`.
 
 ## 1. Objektif
 
@@ -1004,10 +1006,17 @@ ONEID SESSION/TOKEN/ACL REMAIN AUTHORITATIVE
 FEATURE-FLAGGED AND FAIL-CLOSED
 ```
 
-Pembangunan dormant, migration dan activation staging telah selesai. Controlled
-staging acceptance masih mempunyai item manual yang disenaraikan dalam Seksyen
-24 dan dokumen close-out. Tiada keputusan staging memberi automatic production
-approval.
+Pembangunan dormant, migration, activation dan controlled staging acceptance
+telah selesai. Gate A ditutup `PASS / CLOSED` oleh system owner pada 29 Julai
+2026 selepas manual acceptance, secret/reference review dan observation 72 jam
+disahkan berjaya tanpa unresolved Critical/High. Tiada keputusan staging
+memberi automatic production approval.
+
+Setiap baki item, owner role, urutan run, evidence wajib, PASS/FAIL criteria,
+monitoring 72 jam, secret close-out dan closure statement dirancang dalam
+`MYDIGITALID_BAKI_ACCEPTANCE_DAN_PELAN_PENUTUPAN.md`. Audit hanya boleh ditutup
+selepas Gate A dokumen tersebut ditandatangani; production kekal Gate B
+berasingan.
 
 ## 28. Rekod Pelaksanaan Staging dan Status Akhir Audit
 
@@ -1037,6 +1046,7 @@ Keputusan audit semasa:
 STAGING IMPLEMENTATION: COMPLETE
 STAGING POSITIVE PILOT: PASS
 STAGING SECURITY/REGRESSION: PASS
-STAGING MANUAL ACCEPTANCE: PARTIAL / ITEMS PENDING
+STAGING MANUAL ACCEPTANCE: PASS / CLOSED
+STAGING OBSERVATION 72 JAM: PASS / CLOSED
 PRODUCTION: NO-GO UNTIL SEPARATE DBA/SECURITY/INFRA/PROVIDER APPROVAL
 ```
