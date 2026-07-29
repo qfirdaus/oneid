@@ -48,6 +48,10 @@ require_once dirname(__DIR__) . '/app/Auth/AdminStepUpTotpService.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminMfaPreferenceService.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpPolicyService.php';
 require_once dirname(__DIR__) . '/app/Auth/Admin2faBootstrapService.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserLoginMfaPolicy.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaRuntimeGate.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaWebSecurityGate.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaHttpBoundary.php';
 require_once dirname(__DIR__) . '/app/Mail/OneIdEmailTemplate.php';
 require_once dirname(__DIR__) . '/app/Locale/ApiResponseLocalizer.php';
 require_once dirname(__DIR__) . '/app/Metadata/BilingualMetadataRepository.php';
@@ -57,6 +61,31 @@ use DeviceDetector\Parser\Device\AbstractDeviceParser;
 
 require_once __DIR__ . '/request_security.php';
 $oneidGuardedAction=oneid_guard_q_func_request($_POST,$operation);
+
+if(str_starts_with($oneidGuardedAction,'user_mfa_')){
+  $mode=(string)oneid_config('ONEID_USER_MFA_MODE','OFF');
+  $schemaApply=filter_var(oneid_config('ONEID_USER_MFA_SCHEMA_APPLY_ENABLED','false'),FILTER_VALIDATE_BOOLEAN);
+  $authorized=filter_var(oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED','false'),FILTER_VALIDATE_BOOLEAN);
+  $gate=new \OneId\App\Auth\UserMfa\UserMfaRuntimeGate($mode,$schemaApply,$authorized);
+  try{
+    $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+    $schemaReady=(int)$pdo->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name IN('user_login_mfa_policy','user_login_mfa_policy_history','user_mfa_factors','user_mfa_preferences','user_login_mfa_transactions','user_login_mfa_challenges')")->fetchColumn()===6;
+    $gate->assertRequestAllowed($schemaReady);
+    $gate->assertFeatureActive();
+    throw new RuntimeException('USER_MFA_INTEGRATION_NOT_READY');
+  }catch(\Throwable $exception){
+    $boundary=new \OneId\App\Auth\UserMfa\UserMfaHttpBoundary();
+    $results=$boundary->safeError($exception);
+    $results['code']=match($exception->getMessage()){
+      'USER_MFA_NOT_ACTIVE'=>'USER_MFA_NOT_ACTIVE',
+      'USER_MFA_SCHEMA_UNAVAILABLE'=>'USER_MFA_SCHEMA_UNAVAILABLE',
+      'USER_MFA_ACTIVATION_NOT_AUTHORIZED'=>'USER_MFA_ACTIVATION_NOT_AUTHORIZED',
+      default=>'USER_MFA_REQUEST_REJECTED',
+    };
+    http_response_code($results['code']==='USER_MFA_NOT_ACTIVE'?409:503);
+    header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
+  }
+}
 
 if(str_starts_with($oneidGuardedAction,'admin_step_up_')||str_starts_with($oneidGuardedAction,'admin_totp_')||in_array($oneidGuardedAction,['admin_mfa_set_preference','admin_2fa_update_lifetime','admin_2fa_bootstrap_enable'],true)){
   $admin=(string)$_SESSION['login_user'];$session=session_id();$ua=(string)($_SERVER['HTTP_USER_AGENT']??'');$ip=(string)($_SERVER['REMOTE_ADDR']??'');

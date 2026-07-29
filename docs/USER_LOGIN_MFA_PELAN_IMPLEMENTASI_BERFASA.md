@@ -481,15 +481,17 @@ Stop dan rollback ke `OFF` jika:
 - [x] New-login-only activation session policy.
 - [x] Retention baseline.
 
-### B. U0 implementation readiness — `PARTIAL`
+### B. U0 implementation readiness — `PASS / CLOSED`
 
 - [x] MyDigital ID Gate A staging ditutup.
 - [x] Tiada authentication Critical/High yang diketahui.
 - [x] Admin TOTP dan multilingual baseline hijau.
-- [ ] Betulkan dua assertion drift Admin Email OTP rate-limit/cooldown.
-- [ ] Refresh aggregate e-mel semasa dan reconcile invalid mailbox.
-- [ ] Rekod owner rasmi sistem sumber e-mel staf/pelajar.
-- [ ] Terbitkan SOP recovery/pengesahan identiti.
+- [x] Betulkan dua assertion drift Admin Email OTP rate-limit/cooldown.
+- [x] Refresh aggregate e-mel semasa secara read-only; enam pelajar perlu
+      direconcile sebelum pilot/enforcement.
+- [x] Rekod owner role sistem sumber e-mel staf/pelajar.
+- [x] Terbitkan SOP recovery/pengesahan identiti dalam dokumen U0.
+- [x] Rekod threat model dan audit-event map.
 - [x] Tetapkan format change/backup reference dan window 60 minit.
 - [ ] Jana reference sebenar dan dapatkan authorization dormant U1 pada tarikh execution.
 
@@ -514,6 +516,53 @@ Stop dan rollback ke `OFF` jika:
 
 Checklist reka bentuk/polisi telah lengkap. Checklist untuk memulakan **U0
 read-only contract/baseline** juga mencukupi.
+
+U0 telah ditutup `PASS / CLOSED` melalui
+`USER_LOGIN_MFA_U0_BASELINE_DAN_CONTRACT.md`. Ia tidak memberikan authorization
+U1 migration atau sebarang activation.
+
+U1 implementation dan shared-schema migration ditutup `PASS / MODE OFF` melalui
+`USER_LOGIN_MFA_U1_DORMANT_SCHEMA_DAN_CONFIG.md`. Enam table hanya diuji dalam
+isolated rehearsal sebelum dipasang pada shared staging database menggunakan
+change/backup reference yang diluluskan. `user_tbl` kekal tidak berubah dan mode
+kekal `OFF`.
+
+U2 generic security primitives ditutup `PASS / CLOSED` melalui
+`USER_LOGIN_MFA_U2_GENERIC_SECURITY_PRIMITIVES.md`. OTP/TOTP, encryption,
+anti-replay, rate-limit dan request binding diuji tanpa endpoint, database
+mutation atau runtime activation.
+
+U3 pending-login foundation dilaksanakan secara dormant melalui
+`USER_LOGIN_MFA_U3_PENDING_LOGIN_FOUNDATION.md`. Coordinator mengunci
+password-only scope, session/browser binding, expiry, one-use consumption dan
+compensating finalizer tanpa wiring kepada login semasa.
+
+U4 OTP e-mel login ditutup `PASS / CLOSED` secara lokal melalui
+`USER_LOGIN_MFA_U4_EMAIL_OTP_LOGIN.md`. Request/resend/verify, hash-only OTP,
+masked destination, rate limit, delivery compensation dan atomic pending-login
+verification diuji menggunakan fake sender tanpa SMTP, database live atau
+runtime wiring.
+
+U5 Microsoft Authenticator dan self-service ditutup `PASS / CLOSED` secara
+lokal melalui `USER_LOGIN_MFA_U5_TOTP_DAN_SELF_SERVICE.md`. Enrollment,
+confirmation, preference, atomic anti-replay, self revoke, existing-Admin
+recovery, session revocation dan global kill-switch fallback diuji tanpa
+endpoint, database live atau runtime wiring.
+
+U6 UI BM/English dan accessibility ditutup `PASS / CLOSED` secara lokal melalui
+`USER_LOGIN_MFA_U6_UI_BILINGUAL_ACCESSIBILITY.md`. Challenge, Account Security,
+recovery dan Admin Configuration mempunyai locale parity, server-derived state,
+accessible/mobile semantics dan sensitive-data boundary tanpa route atau
+runtime wiring.
+
+U7 security/regression foundation lulus melalui
+`USER_LOGIN_MFA_U7_SECURITY_DAN_REGRESSION.md`: aggregate U0–U6, Admin MFA,
+MyDigital ID, CSRF/fixation gate, rollback serta secret/PII scan semuanya hijau
+dan zero Critical/High foundation defect. Dormant PDO integration, routed CSRF
+dan real MySQL rate-limit locking serta SMTP success/failure turut lulus.
+Controlled password + OTP rehearsal membuktikan token hanya dicipta selepas MFA,
+ACL parity dan immediate token revocation. U7 ditutup `PASS / CLOSED`; keputusan
+ini tidak membenarkan activation atau U8 enrollment secara automatik.
 
 Keputusan operasi pilot, jadual relatif, monitoring manual, SLA, change window,
 rollback/verifier, retention dan rehearsal telah mempunyai baseline owner.

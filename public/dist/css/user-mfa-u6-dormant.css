@@ -1,0 +1,76 @@
+.user-mfa {
+  box-sizing: border-box;
+  margin: 0 auto;
+  max-width: 42rem;
+  padding: 1rem;
+}
+
+.user-mfa *,
+.user-mfa *::before,
+.user-mfa *::after {
+  box-sizing: inherit;
+}
+
+.user-mfa form,
+.user-mfa fieldset {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.user-mfa input,
+.user-mfa select,
+.user-mfa textarea,
+.user-mfa button {
+  font: inherit;
+  min-height: 44px;
+}
+
+.user-mfa input:focus-visible,
+.user-mfa select:focus-visible,
+.user-mfa textarea:focus-visible,
+.user-mfa button:focus-visible,
+.user-mfa .skip-link:focus-visible {
+  outline: 3px solid #0b5fff;
+  outline-offset: 3px;
+}
+
+.user-mfa .skip-link {
+  left: -10000px;
+  position: absolute;
+  top: auto;
+}
+
+.user-mfa .skip-link:focus {
+  background: #fff;
+  left: 1rem;
+  padding: 0.75rem;
+  top: 1rem;
+  z-index: 1000;
+}
+
+.user-mfa .mfa-state-error,
+.user-mfa [role="alert"] {
+  border-left: 4px solid #b42318;
+  padding-left: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .user-mfa {
+    max-width: 100%;
+    padding: 0.75rem;
+  }
+
+  .user-mfa button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-mfa *,
+  .user-mfa *::before,
+  .user-mfa *::after {
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

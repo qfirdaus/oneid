@@ -130,6 +130,16 @@ Admin 2FA pada snapshot ini aktif, dengan lifecycle challenge/grant/factor
 terbukti digunakan. Ia menyokong feasibility tetapi bukan bukti user-login
 flow sudah selamat.
 
+### 5.2 Refresh U0 — 29 Julai 2026
+
+Read-only aggregate baharu merekod 6,551 pengguna biasa aktif, 6,545 e-mel
+berformat sah dan 6 tidak sah. Keenam-enamnya ialah pelajar; Pensyarah 403/403
+dan Staf Pentadbiran 656/656 mempunyai format sah. Tool tidak mengeluarkan
+alamat e-mel dan melakukan zero mutation.
+
+Threat model, audit-event map, SOP recovery, regression evidence dan keputusan
+U0 canonical berada dalam `USER_LOGIN_MFA_U0_BASELINE_DAN_CONTRACT.md`.
+
 ### 5.1 Finding regression sedia ada
 
 Kontrak langsung `tools/f7_2_email_otp_service_contract.php` mempunyai dua

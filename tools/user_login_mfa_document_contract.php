@@ -25,7 +25,7 @@ $checks = [
     'activation_remains_unauthorized' => str_contains($plan, '**Activation:** `NOT AUTHORIZED`')
         && str_contains($plan, 'user_login_mfa_mode=OFF'),
     'readiness_is_honest' => str_contains($plan, '### A. Keputusan reka bentuk — `COMPLETE`')
-        && str_contains($plan, '### B. U0 implementation readiness — `PARTIAL`')
+        && str_contains($plan, '### B. U0 implementation readiness — `PASS / CLOSED`')
         && str_contains($plan, '### C. Pilot/activation readiness — `PARTIAL / ACTIVATION NOT AUTHORIZED`'),
     'operational_baseline_is_complete' => str_contains($plan, '| Saiz pilot | 5–10 pengguna; sasaran 8 |')
         && str_contains($plan, '| Pilot observation | Minimum 7 hari |')

@@ -86,7 +86,7 @@ $report($reason(fn()=>$service2->verify('ADMIN1','SECURITY_CONFIGURATION_CHANGE'
 $op3=new F72Operation();$sender3=new F72Sender();$sender3->succeeds=false;$service3=new AdminStepUpEmailOtpService($op3,$sender3);
 $report($reason(fn()=>$service3->request('ADMIN1','ADMIN_ACCESS','s3','B3','127.0.0.3'))==='STEP_UP_DELIVERY_FAILED'&&array_values($op3->challenges)[0]['revoked_at']!==null,'SMTP failure revokes unsent challenge and fails closed');
 
-$op4=new F72Operation();$op4->stats['admin_hour']=5;$sender4=new F72Sender();$service4=new AdminStepUpEmailOtpService($op4,$sender4);
+$op4=new F72Operation();$op4->stats['admin_hour']=10;$sender4=new F72Sender();$service4=new AdminStepUpEmailOtpService($op4,$sender4);
 $report($reason(fn()=>$service4->request('ADMIN1','ADMIN_ACCESS','s4','B4','127.0.0.4'))==='STEP_UP_RATE_LIMITED'&&$op4->challenges===[],'hourly limit rejects before challenge mutation');
 $op4->stats=['cooldown_seconds'=>30,'admin_hour'=>0,'admin_day'=>0,'session_hour'=>0,'ip_hour'=>0];
 $report($reason(fn()=>$service4->request('ADMIN1','ADMIN_ACCESS','s4','B4','127.0.0.4'))==='STEP_UP_RESEND_COOLDOWN'&&$op4->challenges===[],'resend cooldown rejects before challenge mutation');
