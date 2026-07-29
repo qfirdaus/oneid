@@ -1,5 +1,17 @@
 <?php
 return [
+    'user_mfa.title.challenge' => 'Additional security verification',
+    'user_mfa.email.label' => '6-digit OTP code',
+    'user_mfa.email.resend' => 'Resend OTP',
+    'user_mfa.submit.verify' => 'Verify and sign in',
+    'user_mfa.security.title' => 'Account security',
+    'user_mfa.security.intro' => 'Enroll or revoke Microsoft Authenticator for your OneID account.',
+    'user_mfa.security.device' => 'Device name',
+    'user_mfa.security.enroll' => 'Enroll Microsoft Authenticator',
+    'user_mfa.security.confirm' => 'Confirm enrollment',
+    'user_mfa.security.revoke_code' => 'Current Authenticator code for revocation',
+    'user_mfa.security.revoke' => 'Revoke Microsoft Authenticator',
+    'user_mfa.security.back' => 'Return to dashboard',
     'common.close' => 'Close',
     'common.continue' => 'Continue',
     'common.cancel' => 'Cancel',

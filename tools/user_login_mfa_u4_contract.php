@@ -50,8 +50,9 @@ $checks['binding_and_expiry_fail_closed'] = str_contains($service, 'USER_MFA_BIN
     && str_contains($service, "'USER_MFA_CHALLENGE_EXPIRED'");
 $checks['audit_is_mandatory'] = str_contains($service, 'USER_MFA_AUDIT_FAILED')
     && str_contains($persistence, 'recordAudit(');
-$checks['u4_remains_dormant'] = !str_contains($runtimeWiring, 'UserMfaEmailOtpService')
-    && !str_contains($runtimeWiring, 'UserMfaEmailOtpPersistenceInterface');
+$checks['u4_dispatch_is_runtime_gated'] = str_contains($runtimeWiring, 'UserMfaEmailOtpService')
+    && str_contains($runtimeWiring, '$gate->assertFeatureActive()')
+    && str_contains($runtimeWiring, 'assertRuntimeParity');
 
 $characterization = [];
 exec(

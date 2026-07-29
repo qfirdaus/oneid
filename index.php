@@ -240,7 +240,31 @@ $loginFlashKey = match ($loginFlashCode) {
   </div>
 </div>
 
-  <!-- All modals (forgot password, OTP, manual) remain the same -->
+  <div class="modal fade" id="modal_user_mfa" tabindex="-1" role="dialog"
+       aria-labelledby="user_mfa_title" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" role="document"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="user_mfa_title">
+        <?=htmlspecialchars(oneid_translate('user_mfa.title.challenge'), ENT_QUOTES, 'UTF-8')?>
+      </h5></div>
+      <div class="modal-body">
+        <p id="user_mfa_destination" role="status" aria-live="polite"></p>
+        <label for="user_mfa_code"><?=htmlspecialchars(oneid_translate('user_mfa.email.label'), ENT_QUOTES, 'UTF-8')?></label>
+        <input id="user_mfa_code" class="form-control" type="text" inputmode="numeric"
+               pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code">
+        <p id="user_mfa_error" class="text-danger" role="alert" aria-live="assertive"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="user_mfa_resend" class="btn btn-default">
+          <?=htmlspecialchars(oneid_translate('user_mfa.email.resend'), ENT_QUOTES, 'UTF-8')?>
+        </button>
+        <button type="button" id="user_mfa_verify" class="btn btn-primary">
+          <?=htmlspecialchars(oneid_translate('user_mfa.submit.verify'), ENT_QUOTES, 'UTF-8')?>
+        </button>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- Other modals (forgot password, OTP, manual) remain the same -->
   <!-- Paste your existing modals here exactly as they are -->
   <!-- Example: -->
 
@@ -572,6 +596,29 @@ const pilotI18n = <?=json_encode([
 });
     //----Login
 var fallback_sp_id=getUrlParameter('site_id');
+var userMfaTransaction='';
+var userMfaChallenge='';
+function userMfaPost(action, extra){
+  var data={_csrf_token:<?php echo json_encode(oneid_csrf_token()); ?>,transaction_id:userMfaTransaction};
+  data[action]='';Object.keys(extra||{}).forEach(function(k){data[k]=extra[k];});
+  return $.ajax({type:'POST',url:'./lib/q_func',dataType:'json',timeout:15000,data:data});
+}
+function userMfaRequest(){
+  $('#user_mfa_error').text('');
+  userMfaPost('user_mfa_email_request',{}).done(function(r){
+    if(r.status==1){userMfaChallenge=r.challenge_id;$('#user_mfa_destination').text(r.masked_email||'OTP sent');$('#modal_user_mfa').modal('show');}
+    else{$('#user_mfa_error').text(r.code||'Unable to send OTP');}
+  }).fail(function(){$('#user_mfa_error').text('Unable to send OTP');});
+}
+$('#user_mfa_resend').on('click',userMfaRequest);
+$('#user_mfa_verify').on('click',function(){
+  var code=String($('#user_mfa_code').val()||'');
+  if(!/^[0-9]{6}$/.test(code)){$('#user_mfa_error').text('Enter the 6-digit code.');return;}
+  userMfaPost('user_mfa_email_verify',{challenge_id:userMfaChallenge,code:code}).done(function(r){
+    if(r.login_status==1&&r.redirect_uri){window.location.href=r.redirect_uri;return;}
+    $('#user_mfa_error').text(r.code||'Verification failed');
+  }).fail(function(){$('#user_mfa_error').text('Verification failed');});
+});
 var $loginform = $('#loginform');
 $loginform.data('submitting', false);
 $loginform.on('submit', function(ev){
@@ -609,6 +656,10 @@ $loginform.on('submit', function(ev){
                       LoginLimiter.onFailure(username);
                         showLoginInlineError(response['login_response_msg'] || pilotI18n.loginInvalid);
 
+                    }else if(response['login_status']==2&&response['code']==='USER_MFA_REQUIRED'){
+                        userMfaTransaction=response['transaction_id'];
+                        $('#password').val('');
+                        userMfaRequest();
                     }else{
                         // === NEW: clear counter on success ===
                         LoginLimiter.onSuccess(username);

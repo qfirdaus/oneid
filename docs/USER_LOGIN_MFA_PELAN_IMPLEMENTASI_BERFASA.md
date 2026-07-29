@@ -385,16 +385,48 @@ Exit: zero Critical/High dan full suite hijau.
 
 ### U8 — Enrollment dan pilot
 
+**Status semasa (30 Julai 2026):** `LOCAL IMPLEMENTED / NOT DEPLOYED / OFF`
+
+Deployment staging U0–U7 pada commit `406c00d` telah lulus schema check,
+automated suite `19/19` dan browser smoke test dengan runtime berikut:
+
+- `ONEID_USER_MFA_MODE=OFF`;
+- `ONEID_USER_MFA_ACTIVATION_AUTHORIZED=false`; dan
+- `ONEID_USER_MFA_SCHEMA_APPLY_ENABLED=false`.
+
+U8 telah dimulakan sebagai pembangunan wiring. Mode staging tidak boleh ditukar
+daripada `OFF` sehingga pending-login integration, self-service Account
+Security, policy/pilot persistence dan U8 regression gate siap. Route U0–U7
+masih mempunyai hard-stop `USER_MFA_INTEGRATION_NOT_READY`; menukar runtime
+sebelum hard-stop ini diganti secara terkawal akan menyebabkan rejection dan
+bukan enrollment yang sah.
+
 Urutan:
 
 1. betulkan/reconcile akaun tanpa e-mel sah;
 2. aktifkan `ENROLLMENT` selama 30 hari;
-3. pilih 30–50 pilot mewakili staf, pensyarah, pelajar tempatan dan
+3. pilih 5–10 pilot (sasaran 8) mewakili staf, pensyarah, pelajar tempatan dan
    antarabangsa;
 4. aktifkan `PILOT_ENFORCED`;
 5. observe minimum 7 hari;
 6. reconcile success/rejection/recovery/helpdesk; dan
 7. rollback jika threshold dilanggar.
+
+Gate sebelum staging `ENROLLMENT`:
+
+- [x] password login wiring mengekalkan zero-token sebelum MFA bagi mode
+      enforced dan tidak mengubah login biasa dalam `OFF`/`ENROLLMENT`;
+- [x] route enrollment/confirm/preference/self-revoke menggantikan dormant
+      hard-stop dan kekal fail-closed;
+- [x] halaman Account Security pengguna dipasang dengan CSRF, session binding,
+      no-store dan output encoding;
+- [x] policy database dan runtime mesti sepadan secara fail-closed;
+- [ ] keyring staging tersedia jika Microsoft Authenticator dibenarkan;
+- [ ] senarai tepat 5–10 pilot direkod di lokasi private, bukan Git;
+- [x] monitoring/readiness snapshot serta rollback schema tool tersedia;
+- [x] regression kod lokal U0–U8 lulus tanpa Critical/High; dan
+- [ ] owner meluluskan push/deployment serta activation staging secara
+      berasingan.
 
 Exit: pilot owner sign-off dan tiada unresolved Critical/High.
 

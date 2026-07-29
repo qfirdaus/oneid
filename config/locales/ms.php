@@ -1,5 +1,17 @@
 <?php
 return [
+    'user_mfa.title.challenge' => 'Pengesahan keselamatan tambahan',
+    'user_mfa.email.label' => 'Kod OTP 6 digit',
+    'user_mfa.email.resend' => 'Hantar semula OTP',
+    'user_mfa.submit.verify' => 'Sahkan dan log masuk',
+    'user_mfa.security.title' => 'Keselamatan akaun',
+    'user_mfa.security.intro' => 'Daftar atau batalkan Microsoft Authenticator untuk akaun OneID anda.',
+    'user_mfa.security.device' => 'Nama peranti',
+    'user_mfa.security.enroll' => 'Daftar Microsoft Authenticator',
+    'user_mfa.security.confirm' => 'Sahkan pendaftaran',
+    'user_mfa.security.revoke_code' => 'Kod Authenticator semasa untuk pembatalan',
+    'user_mfa.security.revoke' => 'Batalkan Microsoft Authenticator',
+    'user_mfa.security.back' => 'Kembali ke dashboard',
     'common.close' => 'Tutup',
     'common.continue' => 'Teruskan',
     'common.cancel' => 'Batal',

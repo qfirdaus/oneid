@@ -1,0 +1,46 @@
+# U8 — Enrollment dan pilot User Login MFA
+
+**Tarikh pembangunan:** 30 Julai 2026
+**Status kod lokal:** `IMPLEMENTED / TESTED / NOT DEPLOYED`
+**Status staging:** `U0–U7 DEPLOYED / USER MFA OFF`
+
+## Skop siap
+
+- keputusan primary-auth dibuat sebelum token SSO dan authenticated session;
+- `OFF` serta `ENROLLMENT` tidak mencabar login password;
+- `PILOT_ENFORCED` hanya mencabar allowlist private;
+- runtime dan polisi database mesti sepadan atau login fail-closed;
+- OTP e-mel request/resend/verify menggunakan pending session binding;
+- token, cookie dan session hanya diwujudkan selepas factor verified;
+- Microsoft Authenticator self-enroll, confirm dan self-revoke;
+- QR dijana same-origin, terikat kepada user/session/browser dan `no-store`;
+- schema pilot menyimpan ID di database sahaja, bukan dalam Git;
+- kategori pilot dibataskan kepada staf, pensyarah, pelajar tempatan dan
+  antarabangsa; dan
+- readiness serta rollback schema tool disediakan.
+
+## Gate deployment
+
+1. Dapatkan kelulusan owner untuk commit/push perubahan U8.
+2. Pull commit tepat ke staging tetapi kekalkan runtime `OFF`.
+3. Jalankan `php tools/user_login_mfa_u8_suite.php`.
+4. Apply schema pilot hanya dalam change window dan dengan confirmation khusus.
+5. Ulang `php tools/user_login_mfa_u8_readiness.php`.
+6. Sediakan keyring staging sebelum `totp_enabled=1`.
+7. Rekod 5–10 pilot (sasaran 8) secara private.
+8. Dapatkan kelulusan berasingan sebelum menukar database/runtime kepada
+   `ENROLLMENT`.
+9. Uji self-enrollment; login biasa mesti kekal tanpa cabaran.
+10. Dapatkan kelulusan berasingan sebelum `PILOT_ENFORCED`.
+
+Global `ENFORCED` dan management activation kekal di luar U8.
+
+## Rollback
+
+- tukar runtime dan polisi database kembali `OFF`;
+- jangan buang schema semasa terdapat pilot row;
+- revoke pending transaction/challenge jika pilot dihentikan; dan
+- sahkan login password serta MyDigital ID kembali kepada baseline.
+
+Tiada nilai secret, OTP, token, alamat e-mel atau senarai pilot boleh dimasukkan
+dalam dokumen/Git.

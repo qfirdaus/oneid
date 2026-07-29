@@ -48,8 +48,10 @@ $checks['raw_primary_credentials_are_not_persisted'] = !str_contains($persistenc
     && !str_contains($coordinator, "'session_id' =>");
 $checks['finalizer_prepare_emits_no_cookie'] = str_contains($finalizer, 'no cookie is emitted here')
     && !str_contains($finalizer, 'setcookie');
-$checks['u3_remains_dormant'] = !str_contains($runtimeWiring, 'UserMfaPendingLoginCoordinator')
-    && !str_contains($runtimeWiring, 'UserMfaPendingLoginPersistenceInterface');
+$checks['u3_pending_boundary_precedes_token_issue'] =
+    strpos($runtimeWiring, 'UserMfaPrimaryAuthDecision')
+        < strpos($runtimeWiring, '//SSO Token Initialize')
+    && str_contains($runtimeWiring, "if((\$userMfaResult['code']??'')==='USER_MFA_REQUIRED')");
 
 exec(
     escapeshellarg(PHP_BINARY)

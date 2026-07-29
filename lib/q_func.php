@@ -52,6 +52,32 @@ require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserLoginMfaPolicy.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaRuntimeGate.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaWebSecurityGate.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaHttpBoundary.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaAuditWriterInterface.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaSessionRevokerInterface.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaTotpPersistenceInterface.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaTotpException.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/LegacyUserMfaAuditWriter.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/LegacyUserMfaSessionRevoker.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/PdoUserMfaTotpPersistence.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/PdoUserMfaPolicyReader.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaPendingLoginException.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaPendingLoginPersistenceInterface.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaRequestBinding.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaPendingLoginCoordinator.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/PdoUserMfaPendingLoginPersistence.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaPrimaryAuthDecision.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaLoginFinalizerInterface.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/LegacyUserMfaLoginFinalizer.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaEmailSenderInterface.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaEmailOtpException.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaEmailOtpPersistenceInterface.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaOtp.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaRateLimitConfig.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/PdoUserMfaEmailOtpPersistence.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaPhpMailerSender.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaEmailOtpService.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaTotpPrimitive.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaTotpService.php';
 require_once dirname(__DIR__) . '/app/Mail/OneIdEmailTemplate.php';
 require_once dirname(__DIR__) . '/app/Locale/ApiResponseLocalizer.php';
 require_once dirname(__DIR__) . '/app/Metadata/BilingualMetadataRepository.php';
@@ -69,9 +95,72 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
   $gate=new \OneId\App\Auth\UserMfa\UserMfaRuntimeGate($mode,$schemaApply,$authorized);
   try{
     $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-    $schemaReady=(int)$pdo->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name IN('user_login_mfa_policy','user_login_mfa_policy_history','user_mfa_factors','user_mfa_preferences','user_login_mfa_transactions','user_login_mfa_challenges')")->fetchColumn()===6;
+    $schemaReady=(int)$pdo->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name IN('user_login_mfa_policy','user_login_mfa_policy_history','user_mfa_factors','user_mfa_preferences','user_login_mfa_transactions','user_login_mfa_challenges','user_login_mfa_pilot_users')")->fetchColumn()===7;
     $gate->assertRequestAllowed($schemaReady);
     $gate->assertFeatureActive();
+    (new \OneId\App\Auth\UserMfa\PdoUserMfaPolicyReader($pdo))->assertRuntimeParity($mode);
+    if(in_array($oneidGuardedAction,['user_mfa_email_request','user_mfa_email_resend','user_mfa_email_verify'],true)){
+      $pendingUser=(string)($_SESSION['user_mfa_pending_user']??'');
+      $pendingTransaction=(string)($_SESSION['user_mfa_pending_transaction']??'');
+      if($pendingUser===''||$pendingTransaction===''||!hash_equals($pendingTransaction,(string)($_POST['transaction_id']??''))){
+        throw new RuntimeException('USER_MFA_PENDING_SESSION_INVALID');
+      }
+      $audit=new \OneId\App\Auth\UserMfa\LegacyUserMfaAuditWriter($operation);
+      $emailService=new \OneId\App\Auth\UserMfa\UserMfaEmailOtpService(
+        new \OneId\App\Auth\UserMfa\PdoUserMfaEmailOtpPersistence($pdo,$audit),
+        new \OneId\App\Auth\UserMfa\UserMfaPhpMailerSender()
+      );
+      $session=session_id();$ua=(string)($_SERVER['HTTP_USER_AGENT']??'');$ip=(string)getUserIP();
+      if($oneidGuardedAction==='user_mfa_email_request'||$oneidGuardedAction==='user_mfa_email_resend'){
+        $results=$emailService->request($pendingTransaction,$pendingUser,$session,$ua,$ip,(string)($_SESSION['oneid_locale']??'ms'));
+      }else{
+        $verified=$emailService->verify($pendingTransaction,(string)($_POST['challenge_id']??''),(string)($_POST['code']??''),$session,$ua,$ip);
+        $pendingPersistence=new \OneId\App\Auth\UserMfa\PdoUserMfaPendingLoginPersistence($pdo,$audit);
+        $coordinator=new \OneId\App\Auth\UserMfa\UserMfaPendingLoginCoordinator($pendingPersistence);
+        $final=$coordinator->finalize(
+          $pendingTransaction,$session,$ua,$ip,
+          new \OneId\App\Auth\UserMfa\LegacyUserMfaLoginFinalizer($operation,$detectedDeviceInfo)
+        );
+        $handle=$final['completion_handle'];$userInfo=$operation->get_specific_user_info((string)$final['user_id']);
+        if(!is_array($userInfo)){throw new RuntimeException('USER_MFA_USER_SESSION_UNAVAILABLE');}
+        oneid_set_sso_cookie((string)$handle['token']);
+        oneid_establish_authenticated_session($userInfo);
+        unset($_SESSION['user_mfa_pending_user'],$_SESSION['user_mfa_pending_transaction']);
+        $site=(string)($_SESSION['user_mfa_pending_site_id']??'');unset($_SESSION['user_mfa_pending_site_id']);
+        $redirect='page/dashboard';
+        if($site!==''){
+          $_POST['site_id']=$site;$allowed=check_specific_sp_allowed($operation,$site);
+          if(($allowed['status']??0)==1){$redirect=(string)$allowed['domain'].'?new_sso_cre='.(string)$handle['token'];}
+        }
+        $results=['status'=>1,'login_status'=>1,'code'=>'USER_MFA_LOGIN_COMPLETE','redirect_uri'=>$redirect];
+      }
+      header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
+    }
+    if(in_array($oneidGuardedAction,['user_mfa_totp_enroll','user_mfa_totp_confirm','user_mfa_totp_preference','user_mfa_totp_revoke'],true)){
+      if(!oneid_is_authenticated()){throw new RuntimeException('USER_MFA_AUTHENTICATION_REQUIRED');}
+      $audit=new \OneId\App\Auth\UserMfa\LegacyUserMfaAuditWriter($operation);
+      $sessions=new \OneId\App\Auth\UserMfa\LegacyUserMfaSessionRevoker($operation);
+      $persistence=new \OneId\App\Auth\UserMfa\PdoUserMfaTotpPersistence($pdo,$audit,$sessions);
+      $keyring=\OneId\App\Auth\TotpKeyring::fromFile((string)oneid_config('ONEID_TOTP_KEYRING_PATH',''));
+      $primitive=new \OneId\App\Auth\UserMfa\UserMfaTotpPrimitive(new \OneId\App\Auth\TotpSecretCipher($keyring));
+      $service=new \OneId\App\Auth\UserMfa\UserMfaTotpService($persistence,$primitive,(string)oneid_config('ONEID_TOTP_ISSUER','OneID@UPNM'));
+      $user=(string)$_SESSION['login_user'];$session=session_id();$ua=(string)($_SERVER['HTTP_USER_AGENT']??'');
+      if($oneidGuardedAction==='user_mfa_totp_enroll'){
+        $results=$service->beginEnrollment($user,$user,$session,$ua,(string)($_POST['device_label']??'Microsoft Authenticator'));
+      }elseif($oneidGuardedAction==='user_mfa_totp_confirm'){
+        $service->confirmEnrollment($user,(string)($_POST['factor_id']??''),(string)($_POST['code']??''),$session,$ua);
+        $results=['status'=>1,'code'=>'USER_MFA_TOTP_CONFIRMED'];
+      }elseif($oneidGuardedAction==='user_mfa_totp_preference'){
+        $service->setPreference($user,(string)($_POST['factor']??''));
+        $results=['status'=>1,'code'=>'USER_MFA_PREFERENCE_UPDATED'];
+      }else{
+        $service->verify($user,(string)($_POST['code']??''));
+        $service->selfRevoke($user,true,(string)($_POST['reason']??'SELF_SERVICE'));
+        oneid_clear_local_authenticated_session();
+        $results=['status'=>1,'code'=>'USER_MFA_TOTP_REVOKED','reauthentication_required'=>true,'redirect_uri'=>APP_URL.'/'];
+      }
+      header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
+    }
     throw new RuntimeException('USER_MFA_INTEGRATION_NOT_READY');
   }catch(\Throwable $exception){
     $boundary=new \OneId\App\Auth\UserMfa\UserMfaHttpBoundary();
@@ -290,6 +379,68 @@ function string_sanitize($s) {
               echo json_encode($array);
               return;
            }
+
+            // U8: decide the second-factor boundary before any SSO token or
+            // authenticated PHP session is created.
+            $userMfaMode=(string)oneid_config('ONEID_USER_MFA_MODE','OFF');
+            $userMfaAuthorized=filter_var(
+              oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED','false'),
+              FILTER_VALIDATE_BOOLEAN
+            );
+            if($userMfaMode!=='OFF'&&!$userMfaAuthorized){
+              http_response_code(503);
+              echo json_encode([
+                'login_status'=>0,
+                'code'=>'USER_MFA_ACTIVATION_NOT_AUTHORIZED',
+                'login_response_msg'=>'User MFA activation is not authorized.'
+              ]);
+              return;
+            }
+            try{
+              $userMfaPdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+              $userMfaAudit=new \OneId\App\Auth\UserMfa\LegacyUserMfaAuditWriter($operation);
+              $userMfaDecision=new \OneId\App\Auth\UserMfa\UserMfaPrimaryAuthDecision(
+                new \OneId\App\Auth\UserMfa\PdoUserMfaPolicyReader($userMfaPdo),
+                new \OneId\App\Auth\UserMfa\UserMfaPendingLoginCoordinator(
+                  new \OneId\App\Auth\UserMfa\PdoUserMfaPendingLoginPersistence($userMfaPdo,$userMfaAudit)
+                )
+              );
+              $userMfaResult=$userMfaDecision->afterPasswordAccepted(
+                (string)$results['u_id'],
+                session_id(),
+                (string)($_SERVER['HTTP_USER_AGENT']??''),
+                (string)getUserIP(),
+                $userMfaMode
+              );
+              if(($userMfaResult['code']??'')==='USER_MFA_REQUIRED'){
+                $_SESSION['user_mfa_pending_user']=(string)$results['u_id'];
+                $_SESSION['user_mfa_pending_transaction']=(string)$userMfaResult['transaction_id'];
+                $_SESSION['user_mfa_pending_site_id']=isset($_POST['site_id'])?(string)$_POST['site_id']:'';
+                echo json_encode([
+                  'login_status'=>2,
+                  'code'=>'USER_MFA_REQUIRED',
+                  'transaction_id'=>$userMfaResult['transaction_id'],
+                  'expires_in_seconds'=>$userMfaResult['expires_in_seconds'],
+                  'login_response_msg'=>'Additional verification is required.'
+                ]);
+                return;
+              }
+            }catch(\Throwable $userMfaException){
+              $userMfaCorrelation=bin2hex(random_bytes(8));
+              error_log(sprintf(
+                'User MFA primary-auth boundary failed code=%s correlation=%s',
+                $userMfaException->getMessage(),
+                $userMfaCorrelation
+              ));
+              http_response_code(503);
+              echo json_encode([
+                'login_status'=>0,
+                'code'=>'USER_MFA_PRIMARY_AUTH_UNAVAILABLE',
+                'correlation_id'=>$userMfaCorrelation,
+                'login_response_msg'=>'Login verification is temporarily unavailable.'
+              ]);
+              return;
+            }
 
             //SSO Token Initialize
             $new_refresh_token = generate_token(); //generate new token

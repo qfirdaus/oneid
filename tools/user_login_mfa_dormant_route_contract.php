@@ -17,7 +17,7 @@ $checks = [
     'off_mode_fails_closed' => true,
     'activation_authorization_is_required' => true,
     'response_is_no_store' => true,
-    'no_user_mfa_service_is_instantiated' => true,
+    'u8_self_service_dispatch_is_gated' => true,
 ];
 $allActions = [
     'user_mfa_email_request',
@@ -52,19 +52,20 @@ $checks['response_is_no_store'] = str_contains(
     $route,
     "header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store')"
 );
-$checks['no_user_mfa_service_is_instantiated'] = !str_contains(
+$checks['u8_self_service_dispatch_is_gated'] = str_contains(
     $route,
-    'new \\OneId\\App\\Auth\\UserMfa\\UserMfaEmailOtpService'
+    'new \\OneId\\App\\Auth\\UserMfa\\UserMfaTotpService'
 )
-    && !str_contains($route, 'new \\OneId\\App\\Auth\\UserMfa\\UserMfaTotpService')
-    && str_contains($route, "throw new RuntimeException('USER_MFA_INTEGRATION_NOT_READY')");
+    && strpos($route, '$gate->assertFeatureActive()')
+        < strpos($route, 'new \\OneId\\App\\Auth\\UserMfa\\UserMfaTotpService')
+    && str_contains($route, 'assertRuntimeParity');
 
 $failed = count(array_filter($checks, static fn(bool $passed): bool => !$passed));
 foreach ($checks as $name => $passed) {
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $name);
 }
 printf(
-    "RESULT checks=%d failures=%d route_registered=1 service_dispatch=0 runtime_activation=0\n",
+    "RESULT checks=%d failures=%d route_registered=1 self_service_dispatch=1 runtime_activation=0\n",
     count($checks),
     $failed
 );

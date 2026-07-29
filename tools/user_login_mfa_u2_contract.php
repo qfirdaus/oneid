@@ -42,9 +42,9 @@ $checks['totp_reuses_generic_crypto_only'] = str_contains($totp, 'TotpSecretCiph
     && str_contains($totp, 'Totp::matchTimeStep')
     && !str_contains($totp, 'AdminStepUp')
     && !str_contains($totp, 'AdminTotp');
-$checks['u2_remains_dormant'] = !str_contains($bootstrap, 'UserMfaOtp')
-    && !str_contains($bootstrap, 'UserMfaTotpPrimitive')
-    && !str_contains($bootstrap, 'UserMfaRateLimitConfig');
+$checks['u2_wiring_remains_runtime_gated'] = str_contains($bootstrap, 'UserMfaTotpPrimitive')
+    && str_contains($bootstrap, '$gate->assertFeatureActive()')
+    && str_contains($bootstrap, 'ONEID_USER_MFA_ACTIVATION_AUTHORIZED');
 
 exec(
     escapeshellarg(PHP_BINARY)

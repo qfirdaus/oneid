@@ -53,8 +53,9 @@ $checks['admin_recovery_requires_step_up_verifier_and_reference'] = str_contains
 $checks['audit_is_mandatory_and_secret_free_boundary'] = str_contains($service, 'USER_MFA_AUDIT_FAILED')
     && str_contains($persistence, 'recordAudit(')
     && !str_contains($persistence, 'encryptedSecret');
-$checks['u5_remains_dormant'] = !str_contains($runtimeWiring, 'UserMfaTotpService')
-    && !str_contains($runtimeWiring, 'UserMfaTotpPersistenceInterface');
+$checks['u5_self_service_is_runtime_gated'] = str_contains($runtimeWiring, 'UserMfaTotpService')
+    && str_contains($runtimeWiring, '$gate->assertFeatureActive()')
+    && str_contains($runtimeWiring, 'assertRuntimeParity');
 
 $characterization = [];
 exec(
