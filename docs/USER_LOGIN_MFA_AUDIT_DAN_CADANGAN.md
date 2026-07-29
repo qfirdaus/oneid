@@ -3,9 +3,17 @@
 **Tarikh audit:** 26 Julai 2026
 **Skop:** pengguna biasa (`u_type=0`), login kata laluan dan MyDigital ID
 **Kaedah:** semakan read-only kod, schema dan agregat data development/staging
-**Status:** feasibility dan polisi asas diluluskan; implementasi ditangguhkan
-sehingga OneID stabil
+**Status:** audit dibuka semula untuk U0 planning; implementation dan activation
+belum dibenarkan
 **Rujukan audit:** `ONEID-USER-MFA-AUDIT-20260726-01`
+
+> **Canonical planning note — 29 Julai 2026:** Keputusan owner terkini,
+> master ON/OFF, OTP e-mel wajib, Microsoft Authenticator optional, self-service,
+> existing-Admin recovery, pelan U0–U9 dan checklist readiness direkod dalam
+> `USER_LOGIN_MFA_PELAN_IMPLEMENTASI_BERFASA.md`.
+> Baseline operasi pilot 5–10 pengguna, monitoring manual, SLA severity,
+> window 60 minit, retention 30/365 hari dan rehearsal gate turut diluluskan;
+> management activation reference masih belum diterbitkan.
 
 ## 1. Objektif
 
@@ -337,6 +345,21 @@ Keputusan berikut telah diluluskan oleh owner:
 | Perubahan e-mel dalam OneID | Tidak dibenarkan melalui halaman MFA atau kemas kini terus |
 | Reset/revoke Authenticator | Revoke semua sesi aktif dan wajib login semula |
 | Audit recovery | Actor, sebab dan correlation ID wajib direkod |
+| Kawalan global | Administrator boleh menutup keseluruhan User Login 2FA |
+| OTP e-mel | Wajib tersedia apabila mode selain `OFF` |
+| Microsoft Authenticator | Optional; boleh dihentikan global tanpa memadam factor |
+| Self-service | Pengguna enroll, tukar dan revoke Authenticator sendiri |
+| Admin recovery | Guna role Administrator sedia ada; tiada role baharu |
+| Disable keseluruhan | Login password biasa; revoke pending MFA, kekalkan factor/history |
+| Polisi sesi activation | Terpakai kepada login baharu; tiada mass revoke |
+| Pilot | 5–10 pengguna; sasaran 8 merangkumi staf, pensyarah serta pelajar tempatan/antarabangsa |
+| Jadual | Tarikh tepat selepas development; pilot 7 hari dan post-change 72 jam |
+| Monitoring | Manual dashboard/log dan e-mel operasi kepada kedua-dua Administrator |
+| Response SLA | Critical 15 minit; High 30 minit; Warning 4 jam bekerja |
+| Change window | 60 minit; executing Administrator rollback owner, Administrator kedua verifier |
+| Retention | Challenge metadata 30 hari; OTP hash terminal dipadam; audit 365 hari |
+| Rehearsal | Wajib sebelum U1 staging schema apply; bukan blocker U0 |
+| Management activation | Belum diterbitkan; global enforcement `NOT AUTHORIZED` |
 
 ## 15. Register keputusan yang ditangguhkan
 
@@ -393,7 +416,7 @@ sama dengan User Login MFA. Implementasi selamat mesti:
 - memisahkan boundary data dan endpoint pengguna daripada admin; dan
 - menetapkan polisi MyDigital ID secara eksplisit.
 
-Dengan syarat tersebut, keputusan audit ialah **GO untuk perancangan dan
-implementasi dormant pada masa hadapan** berasaskan keputusan polisi di
-Seksyen 14 dan register Seksyen 15. Buat masa ini status ialah **DEFERRED /
-NO IMPLEMENTATION**, bukan GO untuk activation.
+Dengan syarat tersebut, keputusan audit kini ialah **GO untuk U0 contract,
+baseline dan perancangan** berasaskan keputusan polisi di Seksyen 14 serta
+pelan canonical. Ia masih **bukan authorization untuk migration, endpoint,
+pilot atau activation**.
