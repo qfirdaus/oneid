@@ -1,0 +1,15 @@
+{
+  "actor": "ADMIN_USER_ID",
+  "verifier": "SECOND_ADMIN_USER_ID",
+  "reference": "ONEID-USER-MFA-U8-PILOT-YYYYMMDD",
+  "pilots": [
+    {"u_id": "PILOT_ID_1", "category": "STAFF"},
+    {"u_id": "PILOT_ID_2", "category": "STAFF"},
+    {"u_id": "PILOT_ID_3", "category": "LECTURER"},
+    {"u_id": "PILOT_ID_4", "category": "LECTURER"},
+    {"u_id": "PILOT_ID_5", "category": "LOCAL_STUDENT"},
+    {"u_id": "PILOT_ID_6", "category": "LOCAL_STUDENT"},
+    {"u_id": "PILOT_ID_7", "category": "INTERNATIONAL_STUDENT"},
+    {"u_id": "PILOT_ID_8", "category": "INTERNATIONAL_STUDENT"}
+  ]
+}

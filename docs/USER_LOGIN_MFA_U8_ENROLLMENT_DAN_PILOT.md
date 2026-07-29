@@ -33,6 +33,51 @@
 9. Uji self-enrollment; login biasa mesti kekal tanpa cabaran.
 10. Dapatkan kelulusan berasingan sebelum `PILOT_ENFORCED`.
 
+## Fail pilot private
+
+Salin contoh `docs/USER_LOGIN_MFA_U8_PRIVATE_PILOT_PLAN.example.json` kepada:
+
+```text
+.private/user_mfa_pilot_plan.json
+```
+
+Tetapkan permission `0600`. Isi dua Administrator berlainan sebagai actor dan
+verifier serta 5–10 pilot (sasaran 8). Tool hanya melaporkan bilangan,
+kategori dan readiness; ID serta e-mel tidak dicetak.
+
+Preflight:
+
+```bash
+php tools/user_login_mfa_u8_pilot_plan.php --check
+```
+
+Apply hanya semasa mode `OFF`:
+
+```bash
+ONEID_USER_MFA_U8_PILOT_CONFIRMATION='APPLY PRIVATE USER MFA PILOT PLAN WITH MODE OFF' \
+php tools/user_login_mfa_u8_pilot_plan.php --apply
+```
+
+## Transition polisi
+
+Runtime mesti ditetapkan kepada target terlebih dahulu. Mismatch sementara
+adalah fail-closed dan perlu diminimumkan dalam change window. Transition
+memerlukan actor, verifier, reference, reason dan typed confirmation. Contoh
+target enrollment:
+
+```bash
+ONEID_USER_MFA_U8_ACTOR='ADMIN_ID' \
+ONEID_USER_MFA_U8_VERIFIER='SECOND_ADMIN_ID' \
+ONEID_USER_MFA_U8_POLICY_REFERENCE='ONEID-USER-MFA-U8-ENROLLMENT-YYYYMMDD' \
+ONEID_USER_MFA_U8_POLICY_REASON='Controlled enrollment for approved U8 pilot' \
+ONEID_USER_MFA_U8_POLICY_CONFIRMATION='SET USER MFA POLICY ENROLLMENT' \
+php tools/user_login_mfa_u8_policy_transition.php ENROLLMENT
+```
+
+Rollback menggunakan target dan confirmation `OFF`; selepas database kembali
+`OFF`, runtime juga mesti segera dikembalikan kepada `OFF` dan authorization
+`false`.
+
 Global `ENFORCED` dan management activation kekal di luar U8.
 
 ## Rollback
