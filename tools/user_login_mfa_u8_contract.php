@@ -97,6 +97,7 @@ $report(
 $report(
     str_contains($dashboard, 'tab_user_mfa_security')
     && str_contains($dashboard, 'href="user-mfa-security"')
+    && str_contains($dashboard, "['ENROLLMENT', 'PILOT_ENFORCED']")
     && !str_contains($dashboard, 'modal_user_mfa_security')
     && str_contains($dashboard, 'user_login_mfa_pilot_users')
     && str_contains($securityPage, 'user_mfa_totp_preference')

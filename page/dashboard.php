@@ -18,7 +18,11 @@
    $user_info = $operation->admin_search_user_account($_SESSION['login_user']);
    $userMfaEnrollmentAvailable = false;
    try {
-      if ((string) oneid_config('ONEID_USER_MFA_MODE', 'OFF') === 'ENROLLMENT'
+      if (in_array(
+          (string) oneid_config('ONEID_USER_MFA_MODE', 'OFF'),
+          ['ENROLLMENT', 'PILOT_ENFORCED'],
+          true
+      )
           && filter_var(oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED', false), FILTER_VALIDATE_BOOLEAN)
       ) {
          $userMfaPdo = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
