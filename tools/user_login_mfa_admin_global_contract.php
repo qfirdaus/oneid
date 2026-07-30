@@ -11,6 +11,7 @@ $service = (string) file_get_contents($root . '/app/Admin/UserMfaGlobalPolicySer
 $route = (string) file_get_contents($root . '/lib/q_func.php');
 $guard = (string) file_get_contents($root . '/lib/request_security.php');
 $admin = (string) file_get_contents($root . '/admin/dashboard.php');
+$adminScript = (string) file_get_contents($root . '/public/assetsM/js/user-mfa-admin-policy.js');
 $reader = (string) file_get_contents($root . '/app/Auth/UserMfa/PdoUserMfaPolicyReader.php');
 $userDashboard = (string) file_get_contents($root . '/page/dashboard.php');
 $userSecurity = (string) file_get_contents($root . '/page/user_mfa_security.php');
@@ -73,6 +74,14 @@ $report(
     && str_contains($admin, 'persistUserMfaGlobalPolicy')
     && str_contains($admin, 'change_reference'),
     'Administrator UI provides bilingual SweetAlert global control'
+);
+$report(
+    str_contains($admin, 'user-mfa-admin-policy.js')
+    && str_contains($adminScript, 'window.saveUserMfaGlobalPolicy')
+    && str_contains($adminScript, "request('admin_get_user_mfa_global_policy')")
+    && str_contains($adminScript, 'AbortController')
+    && str_contains($adminScript, 'data-csrf'),
+    'User MFA control has an independent CSRF-bound loader with visible timeout failure'
 );
 $report(
     str_contains($userDashboard, "\$userMfaEffectiveMode !== 'OFF'")
