@@ -54,7 +54,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title><?=$h('user_mfa.security.title')?> | OneID@UPNM</title>
-  <link rel="stylesheet" href="../dist/css/user-mfa-flow.css">
+  <link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260730-3">
 </head>
 <body class="user-mfa-flow">
 <main class="mfa-shell">
@@ -62,17 +62,22 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
     <img class="mfa-logo" src="../img/logo_oneid-1.png" alt="OneID@UPNM">
     <div class="mfa-brand-copy">
       <span class="mfa-eyebrow"><?=$h('stepup.protected_access')?></span>
-      <h1><?=$h('user_mfa.security.title')?></h1>
+      <h1><?=$h('user_mfa.security.heading')?></h1>
       <p><?=$h('user_mfa.security.intro')?></p>
     </div>
+    <div class="mfa-trust"><span class="mfa-trust-icon">&#128737;</span><span><?=$h('user_mfa.security.trust')?></span></div>
   </aside>
   <section class="mfa-content">
     <header class="mfa-top">
-      <div><h2><?=$h('user_mfa.security.title')?></h2><p><?=$h('stepup.method_intro')?></p></div>
-      <span class="mfa-badge">USER MFA</span>
+      <div><h2><?=$activeTotp ? $h('user_mfa.security.title') : $h('stepup.enroll_authenticator')?></h2><p><?=$activeTotp ? $h('stepup.method_intro') : $h('stepup.step2_enroll')?></p></div>
+      <span class="mfa-badge"><?=$h('user_mfa.security.badge')?></span>
     </header>
     <div id="mfaMessage" role="status" aria-live="polite"></div>
 
+    <?php if (!$activeTotp): ?>
+    <div class="mfa-message mfa-ok"><?=$h('user_mfa.security.enroll_ready')?></div>
+    <div class="mfa-status-strip"><?=htmlspecialchars(oneid_translate('user_mfa.security.status', ['authenticator' => oneid_translate('stepup.not_registered')]), ENT_QUOTES, 'UTF-8')?></div>
+    <?php else: ?>
     <section class="mfa-card">
       <h3><?=$h('stepup.method_title')?></h3>
       <div class="mfa-status-grid">
@@ -89,14 +94,15 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
       </div>
       <button id="savePreference" class="mfa-button mfa-secondary" type="button"><?=$h('admin.configuration.save_preference')?></button>
     </section>
+    <?php endif; ?>
 
     <?php if ($totpEnabled && !$activeTotp): ?>
-    <section class="mfa-card" id="enrollCard">
-      <h3><?=$h('stepup.enroll_authenticator')?></h3>
+    <section class="mfa-card mfa-setup-card" id="enrollCard">
+      <div class="mfa-settings-title"><h3><?=$h('stepup.enroll_authenticator')?></h3><span class="mfa-settings-tag">SETUP</span></div>
       <p class="mfa-intro"><?=$h('stepup.setup_intro')?></p>
       <div class="mfa-field"><label for="deviceLabel"><?=$h('stepup.device_name')?></label><input id="deviceLabel" class="mfa-control" maxlength="100" value="<?=$h('stepup.device_default')?>"><small class="mfa-help"><?=$h('stepup.device_help')?></small></div>
       <button id="beginEnrollment" class="mfa-button" type="button"><?=$h('stepup.generate_qr')?></button>
-      <div id="confirmPanel" class="mfa-factor mfa-hidden">
+      <div id="confirmPanel" class="mfa-enrollment-provision mfa-hidden">
         <div class="mfa-provision-grid">
           <div class="mfa-qr-panel">
             <h4><?=$h('stepup.scan_qr')?></h4><small class="mfa-help"><?=$h('stepup.qr_warning')?></small>
@@ -128,7 +134,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
     <?php endif; ?>
 
     <a class="mfa-back" href="dashboard">&#8592; <?=$h('user_mfa.security.back')?></a>
-    <footer class="mfa-foot"><span>OneID@UPNM</span><span>PTMK</span></footer>
+    <footer class="mfa-foot"><span>OneID@UPNM &bull; <?=$h('user_mfa.security.footer')?></span><span>Pusat Teknologi Maklumat &amp; Komunikasi</span></footer>
   </section>
 </main>
 <script>
@@ -137,7 +143,9 @@ const messageElement=document.getElementById('mfaMessage');
 let factorId='';
 function showMessage(text,ok=false){messageElement.innerHTML='<div class="mfa-message '+(ok?'mfa-ok':'mfa-bad')+'"></div>';messageElement.firstChild.textContent=text}
 async function post(action,data={}){const response=await fetch(api,{method:'POST',headers:{'X-CSRF-Token':csrf,'Accept':'application/json'},body:new URLSearchParams({_csrf_token:csrf,[action]:'1',...data})});const result=await response.json();if(!response.ok||result.status===0)throw result;return result}
+<?php if ($activeTotp): ?>
 document.getElementById('savePreference').addEventListener('click',async()=>{try{await post('user_mfa_totp_preference',{factor:document.getElementById('preferredFactor').value});showMessage(<?=json_encode(oneid_translate('user_mfa.security.preference_saved'))?>,true)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
+<?php endif; ?>
 <?php if ($totpEnabled && !$activeTotp): ?>
 document.getElementById('beginEnrollment').addEventListener('click',async()=>{try{const result=await post('user_mfa_totp_enroll',{device_label:document.getElementById('deviceLabel').value});factorId=result.factor_id;const uri=String(result.provisioning_uri||'');document.getElementById('totpQr').src='user-mfa-totp-qr?factor_id='+encodeURIComponent(factorId);document.getElementById('authenticatorUri').href=uri||'#';document.getElementById('manualKey').textContent=uri?(new URL(uri)).searchParams.get('secret')||'':'';document.getElementById('confirmPanel').classList.remove('mfa-hidden');showMessage(<?=json_encode(oneid_translate('user_mfa.security.enrollment_started'))?>,true)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
 document.getElementById('confirmEnrollment').addEventListener('click',async()=>{try{await post('user_mfa_totp_confirm',{factor_id:factorId,code:document.getElementById('confirmCode').value});showMessage(<?=json_encode(oneid_translate('user_mfa.security.confirmed'))?>,true);setTimeout(()=>location.reload(),900)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
