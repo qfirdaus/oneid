@@ -1,0 +1,9 @@
+{
+  "plan_type": "SINGLE_ACCOUNT_TECHNICAL_PILOT",
+  "actor": "OWNER_ADMIN_CANONICAL_ID",
+  "verifier": "SECOND_ADMIN_CANONICAL_ID",
+  "reference": "ONEID-USER-MFA-U8-TECHNICAL-YYYYMMDD",
+  "pilots": [
+    {"u_id": "OWNER_ADMIN_CANONICAL_ID", "category": "STAFF"}
+  ]
+}

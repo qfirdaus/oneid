@@ -84,6 +84,34 @@ Rollback menggunakan target dan confirmation `OFF`; selepas database kembali
 
 Global `ENFORCED` dan management activation kekal di luar U8.
 
+## Single-account technical pilot
+
+Jika persetujuan representative users tidak dapat diperoleh, U8 boleh
+menjalankan technical functional testing menggunakan satu akaun milik tester.
+Gunakan template
+`USER_LOGIN_MFA_U8_SINGLE_ACCOUNT_TECHNICAL_PILOT.example.json`.
+
+Status ini tidak sama dengan representative pilot:
+
+```text
+Multi-category readiness: PASS / READ-ONLY / NO NOTIFICATION
+Active technical pilot: 1 owner-controlled account
+Representative user acceptance: DEFERRED
+Global enforcement: NOT AUTHORIZED
+```
+
+Apply memerlukan confirmation khusus:
+
+```bash
+ONEID_USER_MFA_U8_PILOT_CONFIRMATION='APPLY SINGLE ACCOUNT TECHNICAL USER MFA PILOT WITH MODE OFF' \
+php tools/user_login_mfa_u8_pilot_plan.php --apply
+```
+
+Transition ke `PILOT_ENFORCED` bagi pengecualian ini juga memerlukan
+`ONEID_USER_MFA_U8_TECHNICAL_PILOT=true`. Nilai tersebut hanya membenarkan
+tepat satu active pilot; ia tidak membenarkan global enforcement atau menutup
+representative acceptance.
+
 ## Rollback
 
 - tukar runtime dan polisi database kembali `OFF`;

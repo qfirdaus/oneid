@@ -78,7 +78,13 @@ if (!is_array($actorRow) || !is_array($verifierRow)
 $pilotCount = (int) $pdo->query(
     "SELECT COUNT(*) FROM user_login_mfa_pilot_users WHERE pilot_status='ACTIVE'"
 )->fetchColumn();
-if ($target === 'PILOT_ENFORCED' && ($pilotCount < 5 || $pilotCount > 10)) {
+$technicalPilot = filter_var(
+    getenv('ONEID_USER_MFA_U8_TECHNICAL_PILOT') ?: false,
+    FILTER_VALIDATE_BOOLEAN
+);
+if ($target === 'PILOT_ENFORCED'
+    && ($technicalPilot ? $pilotCount !== 1 : ($pilotCount < 5 || $pilotCount > 10))
+) {
     fwrite(STDERR, "FAIL USER_MFA_U8_POLICY_PILOT_COUNT_INVALID\n");
     exit(1);
 }

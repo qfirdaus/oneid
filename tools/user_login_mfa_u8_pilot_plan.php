@@ -32,12 +32,14 @@ $actor = trim((string) ($plan['actor'] ?? ''));
 $verifier = trim((string) ($plan['verifier'] ?? ''));
 $reference = trim((string) ($plan['reference'] ?? ''));
 $pilots = is_array($plan['pilots'] ?? null) ? $plan['pilots'] : [];
+$planType = strtoupper(trim((string) ($plan['plan_type'] ?? 'REPRESENTATIVE_PILOT')));
+$technicalPilot = $planType === 'SINGLE_ACCOUNT_TECHNICAL_PILOT';
 $categories = ['STAFF','LECTURER','LOCAL_STUDENT','INTERNATIONAL_STUDENT'];
 $validShape = preg_match('/\A[A-Za-z0-9._@-]{1,20}\z/', $actor) === 1
     && preg_match('/\A[A-Za-z0-9._@-]{1,20}\z/', $verifier) === 1
     && !hash_equals($actor, $verifier)
     && preg_match('/\A[A-Za-z0-9._-]{8,100}\z/', $reference) === 1
-    && count($pilots) >= 5 && count($pilots) <= 10;
+    && ($technicalPilot ? count($pilots) === 1 : (count($pilots) >= 5 && count($pilots) <= 10));
 $normalized = [];
 foreach ($pilots as $pilot) {
     $user = trim((string) ($pilot['u_id'] ?? ''));
@@ -51,8 +53,9 @@ foreach ($pilots as $pilot) {
     }
     $normalized[$user] = $category;
 }
-$validShape = $validShape
-    && count(array_unique(array_values($normalized))) === count($categories);
+$validShape = $validShape && ($technicalPilot
+    ? array_values($normalized) === ['STAFF']
+    : count(array_unique(array_values($normalized))) === count($categories));
 if (!$validShape) {
     fwrite(STDERR, "FAIL USER_MFA_U8_PILOT_PLAN_SHAPE_INVALID\n");
     exit(1);
@@ -155,7 +158,8 @@ $existing = (int) $pdo->query(
     "SELECT COUNT(*) FROM user_login_mfa_pilot_users WHERE pilot_status='ACTIVE'"
 )->fetchColumn();
 printf(
-    "USER_MFA_U8_PILOT_PLAN count=%d categories=%d admins_ready=%s accounts_ready=%s existing_active=%d not_found=%d ambiguous=%d inactive=%d invalid_email=%d not_admin=%d duplicate_canonical=%d mode=%s pii_output=0\n",
+    "USER_MFA_U8_PILOT_PLAN type=%s count=%d categories=%d admins_ready=%s accounts_ready=%s existing_active=%d not_found=%d ambiguous=%d inactive=%d invalid_email=%d not_admin=%d duplicate_canonical=%d mode=%s pii_output=0\n",
+    $planType,
     count($normalized),
     count(array_unique(array_values($normalized))),
     $adminsReady ? 'yes' : 'no',
@@ -176,7 +180,10 @@ if ($mode === '--check') {
     exit(0);
 }
 $confirmation = getenv('ONEID_USER_MFA_U8_PILOT_CONFIRMATION') ?: '';
-if ($confirmation !== 'APPLY PRIVATE USER MFA PILOT PLAN WITH MODE OFF'
+$expectedConfirmation = $technicalPilot
+    ? 'APPLY SINGLE ACCOUNT TECHNICAL USER MFA PILOT WITH MODE OFF'
+    : 'APPLY PRIVATE USER MFA PILOT PLAN WITH MODE OFF';
+if ($confirmation !== $expectedConfirmation
     || (string) oneid_config('ONEID_USER_MFA_MODE', '') !== 'OFF'
     || filter_var(oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED', false), FILTER_VALIDATE_BOOLEAN)
 ) {
@@ -198,9 +205,10 @@ try {
         ]);
     }
     $detail = sprintf(
-        'event=USER_MFA_POLICY_CHANGE actor=%s verifier=%s outcome=pilot_plan_applied count=%d reference=%s correlation=%s',
+        'event=USER_MFA_POLICY_CHANGE actor=%s verifier=%s outcome=pilot_plan_applied type=%s count=%d reference=%s correlation=%s',
         (string) $actorRow['u_id'],
         (string) $verifierRow['u_id'],
+        $planType,
         count($resolvedPilots),
         $reference,
         $correlation
@@ -219,4 +227,8 @@ try {
     fwrite(STDERR, "FAIL USER_MFA_U8_PILOT_APPLY_COMPENSATED\n");
     exit(1);
 }
-printf("PASS USER MFA U8 private pilot plan applied count=%d pii_output=0\n", count($resolvedPilots));
+printf(
+    "PASS USER MFA U8 pilot plan applied type=%s count=%d pii_output=0\n",
+    $planType,
+    count($resolvedPilots)
+);

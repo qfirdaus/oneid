@@ -80,6 +80,16 @@ $report(
     'numeric student login identifiers are cast safely at resolver boundary'
 );
 $report(
+    str_contains($pilotTool, 'SINGLE_ACCOUNT_TECHNICAL_PILOT')
+    && str_contains($pilotTool, 'count($pilots) === 1')
+    && str_contains(
+        $pilotTool,
+        'APPLY SINGLE ACCOUNT TECHNICAL USER MFA PILOT WITH MODE OFF'
+    )
+    && str_contains($policyTool, 'ONEID_USER_MFA_U8_TECHNICAL_PILOT'),
+    'single-account technical pilot is explicit and separately confirmed'
+);
+$report(
     str_contains($policyTool, 'user_login_mfa_policy_history')
     && str_contains($policyTool, 'FOR UPDATE')
     && str_contains($policyTool, 'USER_MFA_POLICY_AUDIT_ATOMICITY_FAILED')
