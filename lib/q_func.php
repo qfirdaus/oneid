@@ -34,6 +34,7 @@ require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationException.php';
 require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/PasswordRecoveryConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/SystemLocaleConfigurationService.php';
+require_once dirname(__DIR__) . '/app/Admin/UserMfaGlobalPolicyService.php';
 require_once dirname(__DIR__) . '/app/Admin/ActiveSessionService.php';
 require_once dirname(__DIR__) . '/app/Auth/SsoTokenLifetimePolicy.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpException.php';
@@ -110,6 +111,9 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
     $gate->assertFeatureActive();
     $userMfaPolicies=new \OneId\App\Auth\UserMfa\PdoUserMfaPolicyReader($pdo);
     $userMfaPolicies->assertRuntimeParity($mode);
+    if($userMfaPolicies->policy()->mode==='OFF'){
+      throw new RuntimeException('USER_MFA_NOT_ACTIVE');
+    }
     if(in_array($oneidGuardedAction,['user_mfa_totp_enroll','user_mfa_totp_confirm','user_mfa_totp_preference','user_mfa_totp_revoke'],true)
       && (!$userMfaPolicies->pilotEligible((string)($_SESSION['login_user']??'')))){
       throw new RuntimeException('USER_MFA_PILOT_ACCESS_REQUIRED');
@@ -658,6 +662,44 @@ function string_sanitize($s) {
             'message'=>'Authentication policy could not be loaded.',
             'correlation_id'=>$exception->correlationId,
           ]);
+        }
+      }
+
+      if(isset($_POST['admin_get_user_mfa_global_policy'])){
+        try{
+          $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+          $service=new \OneId\App\Admin\UserMfaGlobalPolicyService(
+            $pdo,
+            strtoupper((string)oneid_config('ONEID_USER_MFA_MODE','OFF')),
+            filter_var(oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED',false),FILTER_VALIDATE_BOOLEAN),
+            filter_var(oneid_config('ONEID_USER_MFA_TOTP_ENABLED',false),FILTER_VALIDATE_BOOLEAN)
+          );
+          echo json_encode($service->read());
+        }catch(\OneId\App\Admin\SsoConfigurationException $e){
+          echo json_encode(['status'=>0,'code'=>$e->reason,'correlation_id'=>$e->correlationId]);
+        }
+      }
+
+      if(isset($_POST['admin_update_user_mfa_global_policy'])){
+        try{
+          $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+          $service=new \OneId\App\Admin\UserMfaGlobalPolicyService(
+            $pdo,
+            strtoupper((string)oneid_config('ONEID_USER_MFA_MODE','OFF')),
+            filter_var(oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED',false),FILTER_VALIDATE_BOOLEAN),
+            filter_var(oneid_config('ONEID_USER_MFA_TOTP_ENABLED',false),FILTER_VALIDATE_BOOLEAN)
+          );
+          echo json_encode($service->update(
+            $_POST['enabled']??null,
+            $_POST['configuration_version']??null,
+            (string)($_POST['change_reason']??''),
+            (string)($_POST['change_reference']??''),
+            (string)($_POST['typed_confirmation']??''),
+            (string)$_SESSION['login_user'],
+            (string)getUserIP()
+          ));
+        }catch(\OneId\App\Admin\SsoConfigurationException $e){
+          echo json_encode(['status'=>0,'code'=>$e->reason,'correlation_id'=>$e->correlationId]);
         }
       }
 

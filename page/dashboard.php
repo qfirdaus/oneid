@@ -26,12 +26,16 @@
           && filter_var(oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED', false), FILTER_VALIDATE_BOOLEAN)
       ) {
          $userMfaPdo = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+         $userMfaEffectiveMode = (string) $userMfaPdo->query(
+            'SELECT policy_mode FROM user_login_mfa_policy WHERE singleton_key=1'
+         )->fetchColumn();
          $userMfaPilot = $userMfaPdo->prepare(
             "SELECT COUNT(*) FROM user_login_mfa_pilot_users
               WHERE u_id=:user AND pilot_status='ACTIVE'"
          );
          $userMfaPilot->execute([':user' => (string) $_SESSION['login_user']]);
-         $userMfaEnrollmentAvailable = (int) $userMfaPilot->fetchColumn() === 1;
+         $userMfaEnrollmentAvailable = $userMfaEffectiveMode !== 'OFF'
+            && (int) $userMfaPilot->fetchColumn() === 1;
       }
    } catch (Throwable) {
       $userMfaEnrollmentAvailable = false;

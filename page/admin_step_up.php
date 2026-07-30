@@ -12,6 +12,7 @@ $successRedirect=match($returnTarget){
   'admin_2fa'=>APP_URL.'/admin/dashboard?configuration=admin_2fa',
   'account_recovery'=>APP_URL.'/admin/dashboard?configuration=account_recovery',
   'admin_locale'=>APP_URL.'/admin/dashboard?configuration=admin_locale',
+  'user_mfa_policy'=>APP_URL.'/admin/dashboard?configuration=user_mfa_policy',
   'admin_metadata'=>APP_URL.'/admin/dashboard?metadata=1',
   default=>APP_URL.'/admin/dashboard',
 };

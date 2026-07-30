@@ -24,6 +24,13 @@ $pdo = new PDO(
     DB_PASSWORD,
     [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
 );
+$databaseMode = (string) $pdo->query(
+    'SELECT policy_mode FROM user_login_mfa_policy WHERE singleton_key=1'
+)->fetchColumn();
+if ($databaseMode === 'OFF' || ($databaseMode !== $mode && $databaseMode !== 'OFF')) {
+    http_response_code(404);
+    exit('Not found');
+}
 $pilot = $pdo->prepare(
     "SELECT COUNT(*) FROM user_login_mfa_pilot_users
       WHERE u_id=:user AND pilot_status='ACTIVE'"

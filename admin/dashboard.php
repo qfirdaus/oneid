@@ -1725,6 +1725,12 @@
                                                                </a>
                                                             </li>
                                                             <li role="presentation">
+                                                               <a href="#configuration_user_mfa" id="configuration_user_mfa_tab" role="tab" data-toggle="tab" aria-controls="configuration_user_mfa" aria-selected="false">
+                                                                  <i class="fa fa-lock" aria-hidden="true"></i>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_tab'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               </a>
+                                                            </li>
+                                                            <li role="presentation">
                                                                <a href="#configuration_locale" id="configuration_locale_tab" role="tab" data-toggle="tab" aria-controls="configuration_locale" aria-selected="false">
                                                                   <i class="fa fa-language" aria-hidden="true"></i>
                                                                   <span><?=htmlspecialchars(oneid_translate('admin.configuration.locale_tab'), ENT_QUOTES, 'UTF-8')?></span>
@@ -1833,6 +1839,31 @@
                                                             <div class="sso-config-note sso-config-note-warning"><i class="fa fa-shield"></i><p><?=htmlspecialchars(oneid_translate('admin.configuration.security_warning'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                          </div>
                                                       </div>
+                                                         </section>
+                                                         <section class="tab-pane fade" id="configuration_user_mfa" role="tabpanel" aria-labelledby="configuration_user_mfa_tab">
+                                                            <div class="sso-config-panel">
+                                                               <div class="sso-config-header">
+                                                                  <div>
+                                                                     <span class="sso-config-eyebrow"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_eyebrow'), ENT_QUOTES, 'UTF-8')?></span>
+                                                                     <h4 class="sso-config-title"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_title'), ENT_QUOTES, 'UTF-8')?></h4>
+                                                                     <p class="sso-config-intro"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_intro'), ENT_QUOTES, 'UTF-8')?></p>
+                                                                  </div>
+                                                                  <button class="sso-config-save" id="user_mfa_global_save_button" type="button" onclick="saveUserMfaGlobalPolicy();" disabled>
+                                                                     <i class="fa fa-check"></i> <span id="user_mfa_global_save_label"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_settings'), ENT_QUOTES, 'UTF-8')?></span>
+                                                                  </button>
+                                                               </div>
+                                                               <div class="sso-config-body">
+                                                                  <div class="sso-config-row">
+                                                                     <div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="user_mfa_global_enabled"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_master'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_master_help'), ENT_QUOTES, 'UTF-8')?></p></div></div>
+                                                                     <div class="sso-config-control"><div class="sso-config-switch"><input type="checkbox" class="js-switch js-switch-1" id="user_mfa_global_enabled" data-color="#11a8df" data-size="small"/></div></div>
+                                                                  </div>
+                                                                  <div class="sso-config-note"><i class="fa fa-info-circle"></i><p id="user_mfa_global_status" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_policy'), ENT_QUOTES, 'UTF-8')?></p></div>
+                                                                  <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="user_mfa_global_reason"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.reason_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><textarea class="form-control" id="user_mfa_global_reason" maxlength="500" rows="3" placeholder="<?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_placeholder'), ENT_QUOTES, 'UTF-8')?>"></textarea></div></div>
+                                                                  <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">03</span><div><label for="user_mfa_global_reference"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_reference'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_reference_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><input class="form-control" id="user_mfa_global_reference" maxlength="100" placeholder="ONEID-USER-MFA-CHANGE-YYYYMMDD"></div></div>
+                                                                  <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">04</span><div><label for="user_mfa_global_confirmation"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_confirmation'), ENT_QUOTES, 'UTF-8')?></label><p id="user_mfa_global_confirmation_help"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_confirmation_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><input class="form-control" id="user_mfa_global_confirmation" autocomplete="off"></div></div>
+                                                                  <div class="sso-config-note sso-config-note-warning"><i class="fa fa-exclamation-triangle"></i><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_warning'), ENT_QUOTES, 'UTF-8')?></p></div>
+                                                               </div>
+                                                            </div>
                                                          </section>
                                                          <section class="tab-pane fade" id="configuration_locale" role="tabpanel" aria-labelledby="configuration_locale_tab">
                                                             <div class="sso-config-panel">
@@ -2286,11 +2317,25 @@
                 if ($(event.target).attr('href') === '#configuration_admin_2fa') {
                    loadAdminMfaPreference();
                 }
+                if ($(event.target).attr('href') === '#configuration_user_mfa') {
+                   loadUserMfaGlobalPolicy();
+                }
              });
              var requestedConfiguration=new URLSearchParams(window.location.search).get('configuration');
              if(requestedConfiguration==='admin_2fa'){
                 $('a[href="#tab_settings"]').tab('show');
                 $('#configuration_admin_2fa_tab').tab('show');
+                if(window.history&&window.history.replaceState){window.history.replaceState({},document.title,window.location.pathname);}
+             }
+             if(requestedConfiguration==='user_mfa_policy'){
+                $('a[href="#tab_settings"]').tab('show');
+                $('#configuration_user_mfa_tab').tab('show');
+                $('#user_mfa_global_reason').val(sessionStorage.getItem('oneid_user_mfa_global_reason')||'');
+                $('#user_mfa_global_reference').val(sessionStorage.getItem('oneid_user_mfa_global_reference')||'');
+                $('#user_mfa_global_confirmation').val(sessionStorage.getItem('oneid_user_mfa_global_confirmation')||'');
+                sessionStorage.removeItem('oneid_user_mfa_global_reason');
+                sessionStorage.removeItem('oneid_user_mfa_global_reference');
+                sessionStorage.removeItem('oneid_user_mfa_global_confirmation');
                 if(window.history&&window.history.replaceState){window.history.replaceState({},document.title,window.location.pathname);}
              }
 	             if(requestedConfiguration==='account_recovery'){
@@ -2828,6 +2873,70 @@
          function renderSsoConfigHistoryState(message){$('#sso_config_history_body').html('<tr class="configuration-history-state-row"><td colspan="4">'+sessionTextValue(message)+'</td></tr>');}
          function sessionTextValue(value){return $('<div>').text(value==null?'':value).html();}
          function sessionAttributeValue(value){return sessionTextValue(value).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+         var userMfaGlobalOriginal=null,userMfaGlobalVersion=0,userMfaAuthorizedMode='OFF',userMfaActivationAvailable=false;
+         function loadUserMfaGlobalPolicy(){
+            $('#user_mfa_global_save_button').prop('disabled',true);
+            $('#user_mfa_global_save_label').text(adminText('admin.configuration.loading_settings'));
+            $.post('../lib/q_func',{admin_get_user_mfa_global_policy:''},function(r){
+               if(!r||Number(r.status)!==1){
+                  userMfaGlobalOriginal=null;
+                  $('#user_mfa_global_status').text(adminText('admin.configuration.load_failed'));
+                  $('#user_mfa_global_save_label').text(adminText('admin.configuration.unavailable'));
+                  return;
+               }
+               var d=r.data||{},toggle=document.getElementById('user_mfa_global_enabled');
+               userMfaGlobalOriginal=Boolean(d.enabled);
+               userMfaGlobalVersion=Number(d.configuration_version||0);
+               userMfaAuthorizedMode=String(d.authorized_mode||'OFF');
+               userMfaActivationAvailable=Boolean(d.activation_available);
+               if(toggle.getAttribute('data-switchery')){
+                  if(toggle.checked!==userMfaGlobalOriginal){toggle.click();}
+               }else{
+                  toggle.checked=userMfaGlobalOriginal;
+                  new Switchery(toggle,{color:'#11a8df',size:'small'});
+               }
+               $('#user_mfa_global_save_button').prop('disabled',false);
+               $('#user_mfa_global_save_label').text(adminText('admin.configuration.save_review'));
+               $('#user_mfa_global_status').text(
+                  'Mode: '+String(d.effective_mode||'OFF')+
+                  ' | Authorized: '+userMfaAuthorizedMode+
+                  ' | Active Authenticator: '+Number(d.active_factors||0)+
+                  ' | Pending login: '+Number(d.pending_transactions||0)+
+                  ' | Pending challenge: '+Number(d.pending_challenges||0)
+               );
+            },'json').fail(function(){
+               $('#user_mfa_global_status').text(adminText('admin.configuration.load_failed'));
+               $('#user_mfa_global_save_label').text(adminText('admin.configuration.unavailable'));
+            });
+         }
+         function saveUserMfaGlobalPolicy(){
+            if(userMfaGlobalOriginal===null)return;
+            var enabled=$('#user_mfa_global_enabled').prop('checked'),reason=$.trim($('#user_mfa_global_reason').val()),reference=$.trim($('#user_mfa_global_reference').val()),typed=$.trim($('#user_mfa_global_confirmation').val());
+            if(enabled===userMfaGlobalOriginal){swal(adminText('admin.configuration.no_changes'),'','info');return;}
+            if(enabled&&!userMfaActivationAvailable){swal(adminText('admin.configuration.policy_not_saved'),'Runtime authorization does not permit activation.','error');return;}
+            if(reason.length<10||reference.length<8||typed!==(enabled?'ENABLE USER MFA':'DISABLE USER MFA')){swal(adminText('admin.configuration.policy_not_saved'),adminText('admin.configuration.reason_minimum')+' '+adminText('admin.configuration.user_mfa_confirmation_help'),'warning');return;}
+            var warning=enabled?'User MFA will be restored to '+userMfaAuthorizedMode+'.':'Password login will no longer require e-mail OTP or Microsoft Authenticator. Pending MFA challenges will be revoked.';
+            swal({title:enabled?'Enable User MFA?':'Disable User MFA?',text:warning,type:'warning',showCancelButton:true,confirmButtonColor:enabled?'#18794e':'#b4233b',confirmButtonText:enabled?'Enable User MFA':'Disable User MFA',cancelButtonText:adminText('admin.configuration.cancel'),closeOnConfirm:false},function(){
+               $('#user_mfa_global_save_button').prop('disabled',true);
+               $.post('../lib/q_func',{admin_update_user_mfa_global_policy:'',enabled:enabled?'1':'0',configuration_version:userMfaGlobalVersion,change_reason:reason,change_reference:reference,typed_confirmation:typed},function(r){
+                  if(r&&Number(r.status)===1){
+                     userMfaGlobalOriginal=enabled;userMfaGlobalVersion=Number((r.data||{}).configuration_version||userMfaGlobalVersion);
+                     $('#user_mfa_global_reason,#user_mfa_global_reference,#user_mfa_global_confirmation').val('');
+                     swal(adminText('admin.configuration.user_mfa_saved'),'Mode: '+String((r.data||{}).effective_mode||'OFF')+'\nReference: '+String(r.correlation_id||''),'success');
+                     loadUserMfaGlobalPolicy();
+                  }else{swal(adminText('admin.configuration.policy_not_saved'),'Code: '+String(r&&r.code||'USER_MFA_GLOBAL_RESPONSE_INVALID'),'error');}
+               },'json').fail(function(xhr){
+                  var response=xhr.responseJSON||{},code=String(response.code||'');
+                  if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){
+                     sessionStorage.setItem('oneid_user_mfa_global_reason',reason);
+                     sessionStorage.setItem('oneid_user_mfa_global_reference',reference);
+                     sessionStorage.setItem('oneid_user_mfa_global_confirmation',typed);
+                     swal({title:adminText('admin.configuration.auth_required'),text:adminText('admin.configuration.user_mfa_auth_required'),type:'warning',confirmButtonText:adminText('admin.configuration.authenticate_now'),closeOnConfirm:true},function(){window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=user_mfa_policy';});
+                  }else{swal(adminText('admin.configuration.policy_not_saved'),'HTTP '+xhr.status+(code?'\nCode: '+code:''),'error');}
+               }).always(function(){$('#user_mfa_global_save_button').prop('disabled',false);});
+            });
+         }
 
          var recoveryConfigOriginal=null;
          function loadPasswordRecovery(){

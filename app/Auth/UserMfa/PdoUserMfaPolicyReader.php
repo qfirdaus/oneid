@@ -52,7 +52,9 @@ final class PdoUserMfaPolicyReader
 
     public function assertRuntimeParity(string $runtimeMode): void
     {
-        if (!hash_equals($this->policy()->mode, strtoupper(trim($runtimeMode)))) {
+        $runtimeMode = strtoupper(trim($runtimeMode));
+        $databaseMode = $this->policy()->mode;
+        if ($databaseMode !== 'OFF' && !hash_equals($databaseMode, $runtimeMode)) {
             throw new RuntimeException('USER_MFA_RUNTIME_DATABASE_POLICY_MISMATCH');
         }
     }
