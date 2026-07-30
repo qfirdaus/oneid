@@ -10,6 +10,7 @@ require_once __DIR__ . '/../lib/request_security.php';
 require_once __DIR__ . '/../app/Auth/TotpKeyring.php';
 require_once __DIR__ . '/../app/Auth/TotpSecretCipher.php';
 require_once __DIR__ . '/../app/Auth/Totp.php';
+require_once __DIR__ . '/../app/Auth/QrLogoOverlay.php';
 require_once __DIR__ . '/../lib/vendor/phpqrcode/qrlib.php';
 
 oneid_require_authenticated_page();
@@ -43,8 +44,18 @@ $uri = \OneId\App\Auth\Totp::provisioningUri(
     $secret
 );
 unset($secret);
+ob_start();
+QRcode::png($uri, false, QR_ECLEVEL_H, 7, 3);
+$qrPng = (string) ob_get_clean();
+unset($uri);
+$brandedQrPng = \OneId\App\Auth\QrLogoOverlay::apply(
+    $qrPng,
+    dirname(__DIR__) . '/public/img/logo_upnm_30.png'
+);
+unset($qrPng);
 header('Content-Type: image/png');
 header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Pragma: no-cache');
 header('X-Content-Type-Options: nosniff');
-QRcode::png($uri, false, QR_ECLEVEL_H, 7, 3);
-unset($uri);
+echo $brandedQrPng;
+unset($brandedQrPng);

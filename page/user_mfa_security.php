@@ -94,13 +94,28 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
     <section class="mfa-card" id="enrollCard">
       <h3><?=$h('stepup.enroll_authenticator')?></h3>
       <p class="mfa-intro"><?=$h('stepup.setup_intro')?></p>
-      <div class="mfa-field"><label for="deviceLabel"><?=$h('stepup.device_name')?></label><input id="deviceLabel" class="mfa-control" maxlength="100" value="Microsoft Authenticator"></div>
+      <div class="mfa-field"><label for="deviceLabel"><?=$h('stepup.device_name')?></label><input id="deviceLabel" class="mfa-control" maxlength="100" value="<?=$h('stepup.device_default')?>"><small class="mfa-help"><?=$h('stepup.device_help')?></small></div>
       <button id="beginEnrollment" class="mfa-button" type="button"><?=$h('stepup.generate_qr')?></button>
       <div id="confirmPanel" class="mfa-factor mfa-hidden">
-        <h4><?=$h('stepup.scan_qr')?></h4><p class="mfa-warning"><?=$h('stepup.qr_warning')?></p>
-        <img id="totpQr" class="mfa-qr" alt="Microsoft Authenticator QR code">
-        <div class="mfa-field"><label for="confirmCode"><?=$h('stepup.first_code')?></label><input id="confirmCode" class="mfa-control mfa-otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></div>
-        <button id="confirmEnrollment" class="mfa-button" type="button"><?=$h('stepup.confirm_enrollment')?></button>
+        <div class="mfa-provision-grid">
+          <div class="mfa-qr-panel">
+            <h4><?=$h('stepup.scan_qr')?></h4><small class="mfa-help"><?=$h('stepup.qr_warning')?></small>
+            <img id="totpQr" class="mfa-qr" width="260" height="260" alt="QR enrollment Microsoft Authenticator">
+            <span class="mfa-key-label"><?=$h('stepup.manual_key')?></span><div id="manualKey" class="mfa-mono"></div>
+            <details class="mfa-alternative"><summary><?=$h('stepup.alternative')?></summary><p><?=$h('stepup.alternative_help')?></p><a id="authenticatorUri" href="#"><?=$h('stepup.open_authenticator')?></a></details>
+          </div>
+          <div class="mfa-guide-panel">
+            <h4><?=$h('stepup.need_authenticator')?></h4><p class="mfa-intro"><?=$h('stepup.install_intro')?></p>
+            <div class="mfa-store-links">
+              <a class="mfa-store-link" href="https://go.microsoft.com/fwlink/?linkid=2273143" target="_blank" rel="noopener noreferrer"><span class="mfa-store-icon">&#128241;</span><span><small><?=$h('stepup.download_for')?></small><strong>iPhone / App Store</strong></span></a>
+              <a class="mfa-store-link" href="https://go.microsoft.com/fwlink/?linkid=2273142" target="_blank" rel="noopener noreferrer"><span class="mfa-store-icon">&#9654;</span><span><small><?=$h('stepup.download_for')?></small><strong>Android / Google Play</strong></span></a>
+            </div>
+            <a class="mfa-official-help" href="https://support.microsoft.com/en-us/authenticator/download-microsoft-authenticator" target="_blank" rel="noopener noreferrer"><?=$h('stepup.official_guide')?></a>
+            <ol class="mfa-guide-list"><li><?=$h('stepup.guide_1')?></li><li><?=$h('stepup.guide_2')?></li><li><?=$h('stepup.guide_3')?></li><li><?=$h('stepup.guide_4')?></li></ol>
+            <div class="mfa-field"><label for="confirmCode"><?=$h('stepup.first_code')?></label><input id="confirmCode" class="mfa-control mfa-otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div>
+            <button id="confirmEnrollment" class="mfa-button" type="button"><?=$h('stepup.confirm_enrollment')?></button>
+          </div>
+        </div>
       </div>
     </section>
     <?php elseif ($activeTotp): ?>
@@ -124,7 +139,7 @@ function showMessage(text,ok=false){messageElement.innerHTML='<div class="mfa-me
 async function post(action,data={}){const response=await fetch(api,{method:'POST',headers:{'X-CSRF-Token':csrf,'Accept':'application/json'},body:new URLSearchParams({_csrf_token:csrf,[action]:'1',...data})});const result=await response.json();if(!response.ok||result.status===0)throw result;return result}
 document.getElementById('savePreference').addEventListener('click',async()=>{try{await post('user_mfa_totp_preference',{factor:document.getElementById('preferredFactor').value});showMessage(<?=json_encode(oneid_translate('user_mfa.security.preference_saved'))?>,true)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
 <?php if ($totpEnabled && !$activeTotp): ?>
-document.getElementById('beginEnrollment').addEventListener('click',async()=>{try{const result=await post('user_mfa_totp_enroll',{device_label:document.getElementById('deviceLabel').value});factorId=result.factor_id;document.getElementById('totpQr').src='user-mfa-totp-qr?factor_id='+encodeURIComponent(factorId);document.getElementById('confirmPanel').classList.remove('mfa-hidden');showMessage(<?=json_encode(oneid_translate('user_mfa.security.enrollment_started'))?>,true)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
+document.getElementById('beginEnrollment').addEventListener('click',async()=>{try{const result=await post('user_mfa_totp_enroll',{device_label:document.getElementById('deviceLabel').value});factorId=result.factor_id;const uri=String(result.provisioning_uri||'');document.getElementById('totpQr').src='user-mfa-totp-qr?factor_id='+encodeURIComponent(factorId);document.getElementById('authenticatorUri').href=uri||'#';document.getElementById('manualKey').textContent=uri?(new URL(uri)).searchParams.get('secret')||'':'';document.getElementById('confirmPanel').classList.remove('mfa-hidden');showMessage(<?=json_encode(oneid_translate('user_mfa.security.enrollment_started'))?>,true)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
 document.getElementById('confirmEnrollment').addEventListener('click',async()=>{try{await post('user_mfa_totp_confirm',{factor_id:factorId,code:document.getElementById('confirmCode').value});showMessage(<?=json_encode(oneid_translate('user_mfa.security.confirmed'))?>,true);setTimeout(()=>location.reload(),900)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
 <?php elseif ($activeTotp): ?>
 document.getElementById('revokeAuthenticator').addEventListener('click',async()=>{try{const result=await post('user_mfa_totp_revoke',{code:document.getElementById('revokeCode').value,reason:'SELF_SERVICE'});showMessage(<?=json_encode(oneid_translate('user_mfa.security.revoked'))?>,true);setTimeout(()=>location.href=result.redirect_uri||'../',900)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
