@@ -23,22 +23,43 @@ $totp=(int)$state['totp_enabled']===1&&(int)$state['active_totp']===1;
 $h=static fn(string$key):string=>htmlspecialchars(oneid_translate($key),ENT_QUOTES,'UTF-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 ?><!doctype html><html lang="<?=htmlspecialchars(oneid_current_locale(),ENT_QUOTES,'UTF-8')?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?=$h('user_mfa.title.challenge')?> | OneID@UPNM</title><link rel="stylesheet" href="../dist/css/user-mfa-flow.css"></head>
+<title><?=$h('user_mfa.title.challenge')?> | OneID@UPNM</title><link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260730-5"></head>
 <body class="user-mfa-flow"><main class="mfa-shell"><aside class="mfa-brand"><img class="mfa-logo" src="../img/logo_oneid-1.png" alt="OneID@UPNM"><div class="mfa-brand-copy"><span class="mfa-eyebrow"><?=$h('stepup.protected_access')?></span><h1><?=$h('user_mfa.title.challenge')?></h1><p><?=$h('stepup.security_intro')?></p></div></aside>
 <section class="mfa-content"><header class="mfa-top"><div><h2><?=$h('stepup.verify_identity')?></h2><p><?=$h('stepup.choose_available')?></p></div><span class="mfa-badge"><?=$h('user_mfa.security.badge')?></span></header><div id="message"></div>
 <section class="mfa-card"><h3><?=$h('stepup.method_title')?></h3><p class="mfa-intro"><?=$h('stepup.method_intro')?></p>
 <div class="mfa-field"><label for="factor"><?=$h('stepup.choose_method')?></label><select id="factor" class="mfa-control"><option value="EMAIL_OTP"><?=$h('stepup.email_title')?></option><?php if($totp):?><option value="TOTP">Microsoft Authenticator</option><?php endif;?></select></div>
 <button id="continue" class="mfa-button"><?=$h('stepup.continue')?></button>
-<div id="emailBox" class="mfa-factor mfa-hidden"><strong><?=$h('stepup.email_title')?></strong><small><?=$h('stepup.email_will_send')?> <?=htmlspecialchars($masked,ENT_QUOTES,'UTF-8')?></small><button id="sendEmail" class="mfa-button mfa-secondary"><?=$h('stepup.email_send')?></button><div class="mfa-field"><label for="emailCode"><?=$h('stepup.six_digit_code')?></label><input id="emailCode" class="mfa-control mfa-otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></div><button id="verifyEmail" class="mfa-button"><?=$h('stepup.email_verify')?></button></div>
-<div id="totpBox" class="mfa-factor mfa-hidden"><strong>Microsoft Authenticator</strong><small><?=$h('stepup.authenticator_hint')?></small><div class="mfa-field"><label for="totpCode"><?=$h('stepup.six_digit_code')?></label><input id="totpCode" class="mfa-control mfa-otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></div><button id="verifyTotp" class="mfa-button"><?=$h('stepup.authenticator_verify')?></button></div>
+<div id="emailBox" class="mfa-factor mfa-hidden"><strong><?=$h('stepup.email_title')?></strong><small><?=$h('stepup.email_will_send')?> <?=htmlspecialchars($masked,ENT_QUOTES,'UTF-8')?></small><button id="sendEmail" class="mfa-button mfa-secondary"><?=$h('stepup.email_send')?></button><div class="mfa-field"><label for="emailCode"><?=$h('stepup.six_digit_code')?></label><input id="emailCode" class="mfa-control mfa-otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div><button id="verifyEmail" class="mfa-button"><?=$h('stepup.email_verify')?></button></div>
+<div id="totpBox" class="mfa-factor mfa-hidden"><strong>Microsoft Authenticator</strong><small><?=$h('stepup.authenticator_hint')?></small><div class="mfa-field"><label for="totpCode"><?=$h('stepup.six_digit_code')?></label><input id="totpCode" class="mfa-control mfa-otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div><button id="verifyTotp" class="mfa-button"><?=$h('stepup.authenticator_verify')?></button></div>
 </section><a class="mfa-back" href="../">&#8592; <?=$h('stepup.back')?></a><footer class="mfa-foot"><span>OneID@UPNM &bull; <?=$h('user_mfa.security.footer')?></span><span><?=$h('user_mfa.security.department')?></span></footer></section></main>
 <script>
 const api=<?=json_encode(APP_URL.'/lib/q_func.php')?>,csrf=<?=json_encode(oneid_csrf_token())?>,transaction=<?=json_encode($transaction)?>;let challenge='';
 const messageElement=document.getElementById('message'),factorElement=document.getElementById('factor'),emailBoxElement=document.getElementById('emailBox'),totpBoxElement=document.getElementById('totpBox');
+const sendEmailButton=document.getElementById('sendEmail'),verifyEmailButton=document.getElementById('verifyEmail'),verifyTotpButton=document.getElementById('verifyTotp');
+const loginText=<?=json_encode([
+  'send' => oneid_translate('stepup.email_send'),
+  'sending' => oneid_translate('user_mfa.login.sending'),
+  'verifyEmail' => oneid_translate('stepup.email_verify'),
+  'verifyTotp' => oneid_translate('stepup.authenticator_verify'),
+  'verifying' => oneid_translate('user_mfa.login.verifying'),
+  'sent' => oneid_translate('user_mfa.login.sent'),
+  'resend' => oneid_translate('user_mfa.login.resend'),
+  'cooldown' => oneid_translate('user_mfa.login.cooldown'),
+  'rateLimited' => oneid_translate('user_mfa.login.rate_limited'),
+  'deliveryFailed' => oneid_translate('user_mfa.login.delivery_failed'),
+  'requestFirst' => oneid_translate('user_mfa.login.request_first'),
+  'codeRequired' => oneid_translate('user_mfa.login.code_required'),
+  'codeInvalid' => oneid_translate('user_mfa.login.code_invalid'),
+  'codeExpired' => oneid_translate('user_mfa.login.code_expired'),
+  'failed' => oneid_translate('user_mfa.security.failed'),
+],JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE)?>;
 function msg(text,ok=false){messageElement.innerHTML='<div class="mfa-message '+(ok?'mfa-ok':'mfa-bad')+'"></div>';messageElement.firstChild.textContent=text}
 async function post(action,data={}){const response=await fetch(api,{method:'POST',headers:{'X-CSRF-Token':csrf,'Accept':'application/json'},body:new URLSearchParams({_csrf_token:csrf,[action]:'1',transaction_id:transaction,...data})});const result=await response.json();if(!response.ok||result.status===0)throw result;return result}
+function errorText(error){const code=String(error&&error.code||'');return({USER_MFA_RESEND_COOLDOWN:loginText.cooldown,USER_MFA_RATE_LIMITED:loginText.rateLimited,USER_MFA_DELIVERY_FAILED:loginText.deliveryFailed,USER_MFA_VERIFICATION_FAILED:loginText.codeInvalid,USER_MFA_CHALLENGE_EXPIRED:loginText.codeExpired,USER_MFA_PENDING_EXPIRED:loginText.codeExpired}[code]||loginText.failed)+(error&&error.correlation_id?' ['+error.correlation_id+']':'')}
+let resendTimer=null;
+function startResend(seconds){clearInterval(resendTimer);let remaining=Math.max(1,Number(seconds)||60);sendEmailButton.disabled=true;const tick=()=>{sendEmailButton.textContent=loginText.resend+' ('+remaining+'s)';remaining--;if(remaining<0){clearInterval(resendTimer);sendEmailButton.disabled=false;sendEmailButton.textContent=loginText.resend}};tick();resendTimer=setInterval(tick,1000)}
 document.getElementById('continue').addEventListener('click',()=>{emailBoxElement.classList.add('mfa-hidden');totpBoxElement.classList.add('mfa-hidden');(factorElement.value==='TOTP'?totpBoxElement:emailBoxElement).classList.remove('mfa-hidden')});
-document.getElementById('sendEmail').addEventListener('click',async()=>{try{const r=await post('user_mfa_email_request');challenge=r.challenge_id;msg(<?=json_encode(oneid_translate('stepup.email_sent'))?>+' '+r.masked_email,true)}catch(e){msg(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
-document.getElementById('verifyEmail').addEventListener('click',async()=>{try{const r=await post('user_mfa_email_verify',{challenge_id:challenge,code:document.getElementById('emailCode').value});location.replace(r.redirect_uri)}catch(e){msg(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
-document.getElementById('verifyTotp').addEventListener('click',async()=>{try{const r=await post('user_mfa_totp_verify_login',{code:document.getElementById('totpCode').value});location.replace(r.redirect_uri)}catch(e){msg(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
+sendEmailButton.addEventListener('click',async()=>{try{sendEmailButton.disabled=true;sendEmailButton.textContent=loginText.sending;const r=await post('user_mfa_email_request');challenge=r.challenge_id;msg(loginText.sent+' '+r.masked_email,true);startResend(r.resend_after_seconds)}catch(e){sendEmailButton.disabled=false;sendEmailButton.textContent=loginText.send;msg(errorText(e))}});
+verifyEmailButton.addEventListener('click',async()=>{const code=document.getElementById('emailCode').value.trim();if(challenge===''){msg(loginText.requestFirst);return}if(!/^[0-9]{6}$/.test(code)){msg(loginText.codeRequired);return}try{verifyEmailButton.disabled=true;verifyEmailButton.textContent=loginText.verifying;const r=await post('user_mfa_email_verify',{challenge_id:challenge,code});location.replace(r.redirect_uri)}catch(e){verifyEmailButton.disabled=false;verifyEmailButton.textContent=loginText.verifyEmail;msg(errorText(e))}});
+verifyTotpButton.addEventListener('click',async()=>{const code=document.getElementById('totpCode').value.trim();if(!/^[0-9]{6}$/.test(code)){msg(loginText.codeRequired);return}try{verifyTotpButton.disabled=true;verifyTotpButton.textContent=loginText.verifying;const r=await post('user_mfa_totp_verify_login',{code});location.replace(r.redirect_uri)}catch(e){verifyTotpButton.disabled=false;verifyTotpButton.textContent=loginText.verifyTotp;msg(errorText(e))}});
 </script></body></html>

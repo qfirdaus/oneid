@@ -197,13 +197,21 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
   }catch(\Throwable $exception){
     $boundary=new \OneId\App\Auth\UserMfa\UserMfaHttpBoundary();
     $results=$boundary->safeError($exception);
-    $results['code']=match($exception->getMessage()){
-      'USER_MFA_NOT_ACTIVE'=>'USER_MFA_NOT_ACTIVE',
-      'USER_MFA_SCHEMA_UNAVAILABLE'=>'USER_MFA_SCHEMA_UNAVAILABLE',
-      'USER_MFA_ACTIVATION_NOT_AUTHORIZED'=>'USER_MFA_ACTIVATION_NOT_AUTHORIZED',
-      default=>'USER_MFA_REQUEST_REJECTED',
-    };
-    http_response_code($results['code']==='USER_MFA_NOT_ACTIVE'?409:503);
+    if($results['code']==='USER_MFA_REQUEST_REJECTED'){
+      $results['code']=match($exception->getMessage()){
+        'USER_MFA_NOT_ACTIVE'=>'USER_MFA_NOT_ACTIVE',
+        'USER_MFA_SCHEMA_UNAVAILABLE'=>'USER_MFA_SCHEMA_UNAVAILABLE',
+        'USER_MFA_ACTIVATION_NOT_AUTHORIZED'=>'USER_MFA_ACTIVATION_NOT_AUTHORIZED',
+        default=>'USER_MFA_REQUEST_REJECTED',
+      };
+    }
+    http_response_code(match($results['code']){
+      'USER_MFA_RESEND_COOLDOWN','USER_MFA_RATE_LIMITED'=>429,
+      'USER_MFA_PENDING_EXPIRED','USER_MFA_CHALLENGE_EXPIRED'=>410,
+      'USER_MFA_VERIFICATION_FAILED','USER_MFA_CHALLENGE_INVALID','USER_MFA_CHALLENGE_REPLAYED','USER_MFA_TOTP_REPLAYED','USER_MFA_TOTP_VERIFY_FAILED'=>422,
+      'USER_MFA_NOT_ACTIVE'=>409,
+      default=>503,
+    });
     header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
   }
 }

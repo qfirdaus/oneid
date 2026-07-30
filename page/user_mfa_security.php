@@ -63,7 +63,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title><?=$h('user_mfa.security.title')?> | OneID@UPNM</title>
-  <link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260730-4">
+  <link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260730-5">
 </head>
 <body class="user-mfa-flow">
 <main class="mfa-shell">

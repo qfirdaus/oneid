@@ -73,6 +73,18 @@ $report(
     'login uses a full-page selectable email or Authenticator challenge'
 );
 $report(
+    str_contains($challengePage, 'placeholder="000000"')
+    && str_contains($challengePage, 'startResend')
+    && str_contains($challengePage, 'sendEmailButton.disabled=true')
+    && str_contains($challengePage, 'verifyEmailButton.disabled=true')
+    && str_contains($challengePage, 'user_mfa.login.request_first')
+    && str_contains(
+        (string) file_get_contents($root . '/app/Auth/UserMfa/UserMfaHttpBoundary.php'),
+        'USER_MFA_RESEND_COOLDOWN'
+    ),
+    'login challenge exposes safe feedback loading cooldown and OTP validation'
+);
+$report(
     is_file($root . '/public/page/user-mfa-security.php')
     && is_file($root . '/public/page/user-mfa-totp-qr.php')
     && is_file($root . '/public/page/user-mfa-challenge.php')

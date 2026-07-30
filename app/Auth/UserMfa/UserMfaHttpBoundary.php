@@ -78,9 +78,31 @@ final class UserMfaHttpBoundary
             $payload['email'],
             $payload['session_id']
         );
+        $reason = $exception instanceof UserMfaEmailOtpException
+            || $exception instanceof UserMfaTotpException
+            || $exception instanceof UserMfaPendingLoginException
+            ? $exception->getMessage()
+            : '';
+        $safeReasons = [
+            'USER_MFA_RESEND_COOLDOWN',
+            'USER_MFA_RATE_LIMITED',
+            'USER_MFA_DELIVERY_FAILED',
+            'USER_MFA_EMAIL_UNAVAILABLE',
+            'USER_MFA_PENDING_EXPIRED',
+            'USER_MFA_CHALLENGE_INVALID',
+            'USER_MFA_CHALLENGE_REPLAYED',
+            'USER_MFA_CHALLENGE_EXPIRED',
+            'USER_MFA_VERIFICATION_FAILED',
+            'USER_MFA_TOTP_DISABLED_USE_EMAIL',
+            'USER_MFA_TOTP_UNAVAILABLE_USE_EMAIL',
+            'USER_MFA_TOTP_REPLAYED',
+            'USER_MFA_TOTP_VERIFY_FAILED',
+        ];
         return [
             'status' => 0,
-            'code' => 'USER_MFA_REQUEST_REJECTED',
+            'code' => in_array($reason, $safeReasons, true)
+                ? $reason
+                : 'USER_MFA_REQUEST_REJECTED',
             'message_key' => 'user_mfa.state.error',
             'correlation_id' => $correlationId,
         ];
