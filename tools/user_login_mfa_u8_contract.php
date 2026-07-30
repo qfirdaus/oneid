@@ -114,7 +114,9 @@ $report(
     str_contains($route, "user_mfa_totp_verify_login")
     && str_contains($route, "markVerified(\$pendingTransaction,'TOTP'")
     && str_contains($route, 'LegacyUserMfaLoginFinalizer')
+    && str_contains($route, "\$redirect=APP_URL.'/page/dashboard'")
     && str_contains($challengePage, "factorElement.value==='TOTP'")
+    && str_contains($challengePage, "replace(/^page\\//,'/page/')")
     && !str_contains($challengePage, 'window.onload'),
     'TOTP login verifies the pending transaction before shared finalization'
 );

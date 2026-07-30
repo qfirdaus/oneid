@@ -135,7 +135,7 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
         oneid_establish_authenticated_session($userInfo);
         unset($_SESSION['user_mfa_pending_user'],$_SESSION['user_mfa_pending_transaction']);
         $site=(string)($_SESSION['user_mfa_pending_site_id']??'');unset($_SESSION['user_mfa_pending_site_id']);
-        $redirect='page/dashboard';
+        $redirect=APP_URL.'/page/dashboard';
         if($site!==''){
           $_POST['site_id']=$site;$allowed=check_specific_sp_allowed($operation,$site);
           if(($allowed['status']??0)==1){$redirect=(string)$allowed['domain'].'?new_sso_cre='.(string)$handle['token'];}
