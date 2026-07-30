@@ -97,7 +97,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
         <div class="mfa-status"><strong><?=$h('stepup.email_title')?></strong><span class="mfa-state is-active"><?=$h('stepup.active')?></span></div>
         <div class="mfa-status"><strong>Microsoft Authenticator</strong><span id="totpState" class="mfa-state <?=$activeTotp ? 'is-active' : ''?>"><?=$activeTotp ? $h('stepup.active') : $h('stepup.not_registered')?></span></div>
       </div>
-      <p class="mfa-intro"><?=$h('admin.configuration.factor_help')?></p>
+      <p class="mfa-intro"><?=$h('user_mfa.security.preference_help')?></p>
       <div class="mfa-field">
         <label for="preferredFactor"><?=$h('stepup.choose_method')?></label>
         <select id="preferredFactor" class="mfa-control">
@@ -140,7 +140,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
     <?php elseif ($activeTotp): ?>
     <section class="mfa-card">
       <h3><?=$h('stepup.revoke_current')?></h3>
-      <p class="mfa-intro"><?=$h('stepup.revoke_intro')?></p>
+      <p class="mfa-intro"><?=$h('user_mfa.security.revoke_warning')?></p>
       <div class="mfa-field"><label for="revokeCode"><?=$h('user_mfa.security.revoke_code')?></label><input id="revokeCode" class="mfa-control mfa-otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></div>
       <button id="revokeAuthenticator" class="mfa-button mfa-danger" type="button"><?=$h('user_mfa.security.revoke')?></button>
     </section>
@@ -163,7 +163,7 @@ document.getElementById('savePreference').addEventListener('click',async()=>{try
 document.getElementById('beginEnrollment').addEventListener('click',async()=>{try{const result=await post('user_mfa_totp_enroll',{device_label:document.getElementById('deviceLabel').value});factorId=result.factor_id;const uri=String(result.provisioning_uri||'');document.getElementById('totpQr').src='user-mfa-totp-qr?factor_id='+encodeURIComponent(factorId);document.getElementById('authenticatorUri').href=uri||'#';document.getElementById('manualKey').textContent=uri?(new URL(uri)).searchParams.get('secret')||'':'';document.getElementById('confirmPanel').classList.remove('mfa-hidden');showMessage(<?=json_encode(oneid_translate('user_mfa.security.enrollment_started'))?>,true)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
 document.getElementById('confirmEnrollment').addEventListener('click',async()=>{try{await post('user_mfa_totp_confirm',{factor_id:factorId,code:document.getElementById('confirmCode').value});showMessage(<?=json_encode(oneid_translate('user_mfa.security.confirmed'))?>,true);setTimeout(()=>location.reload(),900)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
 <?php elseif ($activeTotp): ?>
-document.getElementById('revokeAuthenticator').addEventListener('click',async()=>{try{const result=await post('user_mfa_totp_revoke',{code:document.getElementById('revokeCode').value,reason:'SELF_SERVICE'});showMessage(<?=json_encode(oneid_translate('user_mfa.security.revoked'))?>,true);setTimeout(()=>location.href=result.redirect_uri||'../',900)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
+document.getElementById('revokeAuthenticator').addEventListener('click',async()=>{const button=document.getElementById('revokeAuthenticator'),code=document.getElementById('revokeCode').value.trim();if(!/^[0-9]{6}$/.test(code)){showMessage(<?=json_encode(oneid_translate('user_mfa.login.code_required'))?>);return}if(!window.confirm(<?=json_encode(oneid_translate('user_mfa.security.revoke_confirm'))?>)){return}try{button.disabled=true;button.textContent=<?=json_encode(oneid_translate('user_mfa.security.revoking'))?>;const result=await post('user_mfa_totp_revoke',{code,reason:'SELF_SERVICE'});showMessage(<?=json_encode(oneid_translate('user_mfa.security.revoked'))?>,true);setTimeout(()=>location.href=result.redirect_uri||'../',900)}catch(e){button.disabled=false;button.textContent=<?=json_encode(oneid_translate('user_mfa.security.revoke'))?>;showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
 <?php endif; ?>
 </script>
 </body></html>

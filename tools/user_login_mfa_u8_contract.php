@@ -95,6 +95,9 @@ $report(
     && is_file($root . '/public/dist/css/user-mfa-flow.css')
     && str_contains($securityPage, "user-mfa-totp-qr?factor_id=")
     && str_contains($securityPage, 'mfa-provision-grid')
+    && str_contains($securityPage, 'user_mfa.security.preference_help')
+    && str_contains($securityPage, 'user_mfa.security.revoke_confirm')
+    && str_contains($securityPage, "post('user_mfa_totp_revoke'")
     && str_contains((string) file_get_contents($root . '/page/user_mfa_totp_qr.php'), 'QrLogoOverlay::apply'),
     'public wrappers expose account security challenge and same-origin QR'
 );
