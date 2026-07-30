@@ -82,6 +82,7 @@ $report(
     && !str_contains($dashboard, 'modal_user_mfa_security')
     && str_contains($dashboard, 'user_login_mfa_pilot_users')
     && str_contains($securityPage, 'user_mfa_totp_preference')
+    && str_contains($securityPage, 'FROM user_login_mfa_policy p')
     && str_contains($securityPage, 'user-mfa-flow.css')
     && str_contains($route, 'USER_MFA_PILOT_ACCESS_REQUIRED'),
     'full-page account security is linked from dashboard and pilot restricted'

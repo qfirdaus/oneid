@@ -37,7 +37,9 @@ $state = $pdo->prepare(
     "SELECT p.email_enabled,p.totp_enabled,
             EXISTS(SELECT 1 FROM user_mfa_factors f
                     WHERE f.u_id=:user AND f.factor_type='TOTP' AND f.factor_status='ACTIVE') active_totp,
-            COALESCE((SELECT preferred_factor FROM user_mfa_preferences x WHERE x.u_id=:user2),'EMAIL_OTP') preferred_factor"
+            COALESCE((SELECT preferred_factor FROM user_mfa_preferences x WHERE x.u_id=:user2),'EMAIL_OTP') preferred_factor
+       FROM user_login_mfa_policy p
+      WHERE p.singleton_key=1"
 );
 $state->execute([':user' => $user, ':user2' => $user]);
 $security = $state->fetch() ?: [];
