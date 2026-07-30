@@ -65,6 +65,11 @@ $report(
     && str_contains($admin, 'id="user_mfa_global_enabled"')
     && str_contains($admin, 'saveUserMfaGlobalPolicy')
     && str_contains($admin, 'showCancelButton:true')
+    && str_contains($admin, 'oneid_user_mfa_global_enabled')
+    && str_contains($admin, 'userMfaGlobalPendingTarget')
+    && str_contains($admin, 'setTimeout(saveUserMfaGlobalPolicy,0)')
+    && str_contains($admin, 'userMfaGlobalResumeAfterStepUp')
+    && str_contains($admin, 'persistUserMfaGlobalPolicy')
     && str_contains($admin, 'change_reference'),
     'Administrator UI provides bilingual SweetAlert global control'
 );
