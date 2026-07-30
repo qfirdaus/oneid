@@ -86,6 +86,16 @@ use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
 
 require_once __DIR__ . '/request_security.php';
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$dd = new DeviceDetector($userAgent);
+$dd->parse();
+$detectedDeviceInfo = oneid_format_device_info(
+    $dd->getDeviceName(),
+    $dd->getBrandName(),
+    $dd->getModel(),
+    $dd->getClient('name'),
+    $dd->getOs('name')
+);
 $oneidGuardedAction=oneid_guard_q_func_request($_POST,$operation);
 
 if(str_starts_with($oneidGuardedAction,'user_mfa_')){
@@ -104,22 +114,15 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
       && (!$userMfaPolicies->pilotEligible((string)($_SESSION['login_user']??'')))){
       throw new RuntimeException('USER_MFA_PILOT_ACCESS_REQUIRED');
     }
-    if(in_array($oneidGuardedAction,['user_mfa_email_request','user_mfa_email_resend','user_mfa_email_verify'],true)){
+    if(in_array($oneidGuardedAction,['user_mfa_email_request','user_mfa_email_resend','user_mfa_email_verify','user_mfa_totp_verify_login'],true)){
       $pendingUser=(string)($_SESSION['user_mfa_pending_user']??'');
       $pendingTransaction=(string)($_SESSION['user_mfa_pending_transaction']??'');
       if($pendingUser===''||$pendingTransaction===''||!hash_equals($pendingTransaction,(string)($_POST['transaction_id']??''))){
         throw new RuntimeException('USER_MFA_PENDING_SESSION_INVALID');
       }
       $audit=new \OneId\App\Auth\UserMfa\LegacyUserMfaAuditWriter($operation);
-      $emailService=new \OneId\App\Auth\UserMfa\UserMfaEmailOtpService(
-        new \OneId\App\Auth\UserMfa\PdoUserMfaEmailOtpPersistence($pdo,$audit),
-        new \OneId\App\Auth\UserMfa\UserMfaPhpMailerSender()
-      );
       $session=session_id();$ua=(string)($_SERVER['HTTP_USER_AGENT']??'');$ip=(string)getUserIP();
-      if($oneidGuardedAction==='user_mfa_email_request'||$oneidGuardedAction==='user_mfa_email_resend'){
-        $results=$emailService->request($pendingTransaction,$pendingUser,$session,$ua,$ip,(string)($_SESSION['oneid_locale']??'ms'));
-      }else{
-        $verified=$emailService->verify($pendingTransaction,(string)($_POST['challenge_id']??''),(string)($_POST['code']??''),$session,$ua,$ip);
+      $finalizeUserMfaLogin=static function()use($pdo,$audit,$pendingTransaction,$session,$ua,$ip,$operation,$detectedDeviceInfo):array{
         $pendingPersistence=new \OneId\App\Auth\UserMfa\PdoUserMfaPendingLoginPersistence($pdo,$audit);
         $coordinator=new \OneId\App\Auth\UserMfa\UserMfaPendingLoginCoordinator($pendingPersistence);
         $final=$coordinator->finalize(
@@ -137,7 +140,30 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
           $_POST['site_id']=$site;$allowed=check_specific_sp_allowed($operation,$site);
           if(($allowed['status']??0)==1){$redirect=(string)$allowed['domain'].'?new_sso_cre='.(string)$handle['token'];}
         }
-        $results=['status'=>1,'login_status'=>1,'code'=>'USER_MFA_LOGIN_COMPLETE','redirect_uri'=>$redirect];
+        return['status'=>1,'login_status'=>1,'code'=>'USER_MFA_LOGIN_COMPLETE','redirect_uri'=>$redirect];
+      };
+      if($oneidGuardedAction==='user_mfa_totp_verify_login'){
+        $sessions=new \OneId\App\Auth\UserMfa\LegacyUserMfaSessionRevoker($operation);
+        $totpPersistence=new \OneId\App\Auth\UserMfa\PdoUserMfaTotpPersistence($pdo,$audit,$sessions);
+        $keyring=\OneId\App\Auth\TotpKeyring::fromFile((string)oneid_config('ONEID_TOTP_KEYRING_PATH',''));
+        $primitive=new \OneId\App\Auth\UserMfa\UserMfaTotpPrimitive(new \OneId\App\Auth\TotpSecretCipher($keyring));
+        $totpService=new \OneId\App\Auth\UserMfa\UserMfaTotpService($totpPersistence,$primitive,(string)oneid_config('ONEID_TOTP_ISSUER','OneID@UPNM'));
+        $totpService->verify($pendingUser,(string)($_POST['code']??''));
+        (new \OneId\App\Auth\UserMfa\UserMfaPendingLoginCoordinator(
+          new \OneId\App\Auth\UserMfa\PdoUserMfaPendingLoginPersistence($pdo,$audit)
+        ))->markVerified($pendingTransaction,'TOTP',$session,$ua,$ip);
+        $results=$finalizeUserMfaLogin();
+        header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
+      }
+      $emailService=new \OneId\App\Auth\UserMfa\UserMfaEmailOtpService(
+        new \OneId\App\Auth\UserMfa\PdoUserMfaEmailOtpPersistence($pdo,$audit),
+        new \OneId\App\Auth\UserMfa\UserMfaPhpMailerSender()
+      );
+      if($oneidGuardedAction==='user_mfa_email_request'||$oneidGuardedAction==='user_mfa_email_resend'){
+        $results=$emailService->request($pendingTransaction,$pendingUser,$session,$ua,$ip,(string)($_SESSION['oneid_locale']??'ms'));
+      }else{
+        $verified=$emailService->verify($pendingTransaction,(string)($_POST['challenge_id']??''),(string)($_POST['code']??''),$session,$ua,$ip);
+        $results=$finalizeUserMfaLogin();
       }
       header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
     }
@@ -245,16 +271,6 @@ if(isset($_POST['admin_get_default_locale'])||isset($_POST['admin_update_default
   header('Content-Type: application/json; charset=utf-8');echo json_encode($results);return;
 }
 $tokenLifetimePolicy = new \OneId\App\Auth\SsoTokenLifetimePolicy();
-$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-$dd = new DeviceDetector($userAgent);
-$dd->parse();
-$detectedDeviceInfo = oneid_format_device_info(
-    $dd->getDeviceName(),
-    $dd->getBrandName(),
-    $dd->getModel(),
-    $dd->getClient('name'),
-    $dd->getOs('name')
-);
 // echo $userAgent;
 // echo json_encode($dd);s
 // return;

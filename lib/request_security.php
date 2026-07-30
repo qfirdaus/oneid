@@ -95,6 +95,7 @@ function oneid_q_func_action_map(): array
             'user_mfa_email_request',
             'user_mfa_email_resend',
             'user_mfa_email_verify',
+            'user_mfa_totp_verify_login',
         ],
         'user' => [
             'check_default_password',

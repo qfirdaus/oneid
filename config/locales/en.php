@@ -16,6 +16,7 @@ return [
     'user_mfa.security.confirmed' => 'Microsoft Authenticator was enrolled successfully.',
     'user_mfa.security.revoked' => 'Microsoft Authenticator was revoked. Please sign in again.',
     'user_mfa.security.failed' => 'The account security request failed.',
+    'user_mfa.security.preference_saved' => 'The preferred verification method was saved.',
     'common.close' => 'Close',
     'common.continue' => 'Continue',
     'common.cancel' => 'Cancel',

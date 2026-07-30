@@ -35,6 +35,7 @@ $decision = (string) file_get_contents($root . '/' . $files[1]);
 $route = (string) file_get_contents($root . '/lib/q_func.php');
 $login = (string) file_get_contents($root . '/index.php');
 $securityPage = (string) file_get_contents($root . '/page/user_mfa_security.php');
+$challengePage = (string) file_get_contents($root . '/page/user_mfa_challenge.php');
 $dashboard = (string) file_get_contents($root . '/page/dashboard.php');
 $report(
     str_contains($up, 'user_login_mfa_pilot_users')
@@ -60,24 +61,38 @@ $report(
     'password login issues no token until email factor and finalization complete'
 );
 $report(
-    str_contains($login, 'modal_user_mfa')
+    !str_contains($login, 'modal_user_mfa')
     && str_contains($login, "response['login_status']==2")
-    && str_contains($login, 'user_mfa_email_verify'),
-    'login UI handles pending MFA without resubmitting password'
+    && str_contains($login, "window.location.href='page/user-mfa-challenge'")
+    && str_contains($challengePage, 'user_mfa_email_request')
+    && str_contains($challengePage, 'user_mfa_email_verify')
+    && str_contains($challengePage, 'user_mfa_totp_verify_login'),
+    'login uses a full-page selectable email or Authenticator challenge'
 );
 $report(
     is_file($root . '/public/page/user-mfa-security.php')
     && is_file($root . '/public/page/user-mfa-totp-qr.php')
+    && is_file($root . '/public/page/user-mfa-challenge.php')
     && str_contains($securityPage, "user-mfa-totp-qr?factor_id="),
-    'public document-root wrappers expose account security and same-origin QR'
+    'public wrappers expose account security challenge and same-origin QR'
 );
 $report(
     str_contains($dashboard, 'tab_user_mfa_security')
-    && str_contains($dashboard, 'modal_user_mfa_security')
+    && str_contains($dashboard, 'href="user-mfa-security"')
+    && !str_contains($dashboard, 'modal_user_mfa_security')
     && str_contains($dashboard, 'user_login_mfa_pilot_users')
-    && str_contains($securityPage, '/page/dashboard?security=user_mfa')
+    && str_contains($securityPage, 'user_mfa_totp_preference')
+    && str_contains($securityPage, 'user-mfa-flow.css')
     && str_contains($route, 'USER_MFA_PILOT_ACCESS_REQUIRED'),
-    'account security is dashboard-integrated and restricted to active pilot'
+    'full-page account security is linked from dashboard and pilot restricted'
+);
+$report(
+    str_contains($route, "user_mfa_totp_verify_login")
+    && str_contains($route, "markVerified(\$pendingTransaction,'TOTP'")
+    && str_contains($route, 'LegacyUserMfaLoginFinalizer')
+    && str_contains($challengePage, "factorElement.value==='TOTP'")
+    && !str_contains($challengePage, 'window.onload'),
+    'TOTP login verifies the pending transaction before shared finalization'
 );
 $pilotTool = (string) file_get_contents($root . '/tools/user_login_mfa_u8_pilot_plan.php');
 $policyTool = (string) file_get_contents($root . '/tools/user_login_mfa_u8_policy_transition.php');

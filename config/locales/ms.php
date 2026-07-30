@@ -16,6 +16,7 @@ return [
     'user_mfa.security.confirmed' => 'Microsoft Authenticator berjaya didaftarkan.',
     'user_mfa.security.revoked' => 'Microsoft Authenticator telah dibatalkan. Sila log masuk semula.',
     'user_mfa.security.failed' => 'Permintaan keselamatan akaun gagal.',
+    'user_mfa.security.preference_saved' => 'Kaedah pengesahan pilihan berjaya disimpan.',
     'common.close' => 'Tutup',
     'common.continue' => 'Teruskan',
     'common.cancel' => 'Batal',

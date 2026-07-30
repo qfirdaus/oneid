@@ -84,6 +84,23 @@ Rollback menggunakan target dan confirmation `OFF`; selepas database kembali
 
 Global `ENFORCED` dan management activation kekal di luar U8.
 
+## Flow pengguna dan parity dengan Administrator
+
+- Halaman login tidak menghantar OTP secara automatik dan tidak memaparkan
+  modal. Selepas primary authentication berjaya, pengguna dibawa ke halaman
+  pengesahan penuh.
+- E-mel OTP sentiasa menjadi kaedah asas apabila User MFA dikuatkuasakan.
+  E-mel hanya dihantar apabila pengguna menekan butang hantar.
+- Microsoft Authenticator dipaparkan sebagai pilihan kedua hanya apabila
+  polisi TOTP aktif dan pengguna mempunyai factor `ACTIVE`.
+- Pilihan kaedah tidak mengunci pengguna kepada satu factor. Kedua-dua kaedah
+  kekal boleh dipilih semasa login apabila tersedia.
+- Pendaftaran, penetapan preference dan pembatalan Authenticator dibuat pada
+  halaman penuh `Keselamatan akaun`, menggunakan susun atur yang selaras
+  dengan Admin Step-Up. Tiada modal digunakan.
+- Token SSO dan sesi authenticated hanya diwujudkan selepas e-mel OTP atau
+  kod Authenticator berjaya disahkan.
+
 ## Single-account technical pilot
 
 Jika persetujuan representative users tidak dapat diperoleh, U8 boleh

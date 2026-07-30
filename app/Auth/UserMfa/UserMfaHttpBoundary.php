@@ -14,6 +14,7 @@ final class UserMfaHttpBoundary
         'user_mfa_email_request',
         'user_mfa_email_resend',
         'user_mfa_email_verify',
+        'user_mfa_totp_verify_login',
         'user_mfa_totp_enroll',
         'user_mfa_totp_confirm',
         'user_mfa_totp_preference',

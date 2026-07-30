@@ -11,46 +11,121 @@ require_once __DIR__ . '/../lib/request_security.php';
 oneid_require_authenticated_page();
 oneid_require_active_sso_page($operation);
 $mode = (string) oneid_config('ONEID_USER_MFA_MODE', 'OFF');
-$authorized = filter_var(
-    oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED', false),
-    FILTER_VALIDATE_BOOLEAN
-);
+$authorized = filter_var(oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED', false), FILTER_VALIDATE_BOOLEAN);
 if ($mode === 'OFF' || !$authorized) {
     http_response_code(404);
     exit('Not found');
 }
-header('Location: ' . APP_URL . '/page/dashboard?security=user_mfa', true, 303);
-exit;
+
+$user = (string) ($_SESSION['login_user'] ?? '');
+$pdo = new PDO(
+    DB_DSN,
+    DB_USERNAME,
+    DB_PASSWORD,
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
+);
+$pilot = $pdo->prepare(
+    "SELECT COUNT(*) FROM user_login_mfa_pilot_users
+      WHERE u_id=:user AND pilot_status='ACTIVE'"
+);
+$pilot->execute([':user' => $user]);
+if ((int) $pilot->fetchColumn() !== 1) {
+    http_response_code(403);
+    exit('Pilot access required');
+}
+$state = $pdo->prepare(
+    "SELECT p.email_enabled,p.totp_enabled,
+            EXISTS(SELECT 1 FROM user_mfa_factors f
+                    WHERE f.u_id=:user AND f.factor_type='TOTP' AND f.factor_status='ACTIVE') active_totp,
+            COALESCE((SELECT preferred_factor FROM user_mfa_preferences x WHERE x.u_id=:user2),'EMAIL_OTP') preferred_factor"
+);
+$state->execute([':user' => $user, ':user2' => $user]);
+$security = $state->fetch() ?: [];
+$activeTotp = (int) ($security['active_totp'] ?? 0) === 1;
+$totpEnabled = (int) ($security['totp_enabled'] ?? 0) === 1;
+$preferred = (string) ($security['preferred_factor'] ?? 'EMAIL_OTP');
+$h = static fn (string $key): string => htmlspecialchars(oneid_translate($key), ENT_QUOTES, 'UTF-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
-$csrf = oneid_csrf_token();
 ?>
 <!doctype html>
 <html lang="<?=htmlspecialchars(oneid_current_locale(), ENT_QUOTES, 'UTF-8')?>">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?=htmlspecialchars(oneid_translate('user_mfa.security.title'), ENT_QUOTES, 'UTF-8')?></title>
-<link rel="stylesheet" href="../dist/css/style.css"></head>
-<body><main class="container" style="max-width:720px;padding-top:40px">
-<h1><?=htmlspecialchars(oneid_translate('user_mfa.security.title'), ENT_QUOTES, 'UTF-8')?></h1>
-<p><?=htmlspecialchars(oneid_translate('user_mfa.security.intro'), ENT_QUOTES, 'UTF-8')?></p>
-<div id="mfa-message" role="status" aria-live="polite"></div>
-<label for="device-label"><?=htmlspecialchars(oneid_translate('user_mfa.security.device'), ENT_QUOTES, 'UTF-8')?></label>
-<input id="device-label" class="form-control" maxlength="100" value="Microsoft Authenticator">
-<button id="mfa-enroll" class="btn btn-primary" type="button"><?=htmlspecialchars(oneid_translate('user_mfa.security.enroll'), ENT_QUOTES, 'UTF-8')?></button>
-<section id="mfa-confirm-panel" hidden>
-  <img id="mfa-qr" alt="Microsoft Authenticator QR code">
-  <label for="mfa-code"><?=htmlspecialchars(oneid_translate('user_mfa.email.label'), ENT_QUOTES, 'UTF-8')?></label>
-  <input id="mfa-code" class="form-control" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code">
-  <button id="mfa-confirm" class="btn btn-success" type="button"><?=htmlspecialchars(oneid_translate('user_mfa.security.confirm'), ENT_QUOTES, 'UTF-8')?></button>
-</section>
-<hr><label for="mfa-revoke-code"><?=htmlspecialchars(oneid_translate('user_mfa.security.revoke_code'), ENT_QUOTES, 'UTF-8')?></label>
-<input id="mfa-revoke-code" class="form-control" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
-<button id="mfa-revoke" class="btn btn-danger" type="button"><?=htmlspecialchars(oneid_translate('user_mfa.security.revoke'), ENT_QUOTES, 'UTF-8')?></button>
-<p><a href="dashboard"><?=htmlspecialchars(oneid_translate('user_mfa.security.back'), ENT_QUOTES, 'UTF-8')?></a></p>
-</main><script src="../vendors/bower_components/jquery/dist/jquery.min.js"></script><script>
-const csrf=<?=json_encode($csrf)?>;let factor='';
-function post(action,data){data=data||{};data[action]='';data._csrf_token=csrf;return $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',data:data});}
-function message(text,ok){$('#mfa-message').attr('class',ok?'alert alert-success':'alert alert-danger').text(text);}
-$('#mfa-enroll').on('click',function(){post('user_mfa_totp_enroll',{device_label:$('#device-label').val()}).done(function(r){factor=r.factor_id;$('#mfa-qr').attr('src','user-mfa-totp-qr?factor_id='+encodeURIComponent(factor));$('#mfa-confirm-panel').prop('hidden',false);message('Enrollment started.',true);}).fail(function(){message('Enrollment failed.',false);});});
-$('#mfa-confirm').on('click',function(){post('user_mfa_totp_confirm',{factor_id:factor,code:$('#mfa-code').val()}).done(function(){message('Microsoft Authenticator is active.',true);$('#mfa-confirm-panel').prop('hidden',true);}).fail(function(){message('Confirmation failed.',false);});});
-$('#mfa-revoke').on('click',function(){post('user_mfa_totp_revoke',{code:$('#mfa-revoke-code').val(),reason:'SELF_SERVICE'}).done(function(r){message('Authenticator revoked. Sign in again.',true);setTimeout(function(){location.href=r.redirect_uri||'../';},1500);}).fail(function(){message('Revocation failed.',false);});});
-</script></body></html>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><?=$h('user_mfa.security.title')?> | OneID@UPNM</title>
+  <link rel="stylesheet" href="../dist/css/user-mfa-flow.css">
+</head>
+<body class="user-mfa-flow">
+<main class="mfa-shell">
+  <aside class="mfa-brand">
+    <img class="mfa-logo" src="../img/logo_oneid-1.png" alt="OneID@UPNM">
+    <div class="mfa-brand-copy">
+      <span class="mfa-eyebrow"><?=$h('stepup.protected_access')?></span>
+      <h1><?=$h('user_mfa.security.title')?></h1>
+      <p><?=$h('user_mfa.security.intro')?></p>
+    </div>
+  </aside>
+  <section class="mfa-content">
+    <header class="mfa-top">
+      <div><h2><?=$h('user_mfa.security.title')?></h2><p><?=$h('stepup.method_intro')?></p></div>
+      <span class="mfa-badge">USER MFA</span>
+    </header>
+    <div id="mfaMessage" role="status" aria-live="polite"></div>
+
+    <section class="mfa-card">
+      <h3><?=$h('stepup.method_title')?></h3>
+      <div class="mfa-status-grid">
+        <div class="mfa-status"><strong><?=$h('stepup.email_title')?></strong><span class="mfa-state is-active"><?=$h('stepup.active')?></span></div>
+        <div class="mfa-status"><strong>Microsoft Authenticator</strong><span id="totpState" class="mfa-state <?=$activeTotp ? 'is-active' : ''?>"><?=$activeTotp ? $h('stepup.active') : $h('stepup.not_registered')?></span></div>
+      </div>
+      <p class="mfa-intro"><?=$h('admin.configuration.factor_help')?></p>
+      <div class="mfa-field">
+        <label for="preferredFactor"><?=$h('stepup.choose_method')?></label>
+        <select id="preferredFactor" class="mfa-control">
+          <option value="EMAIL_OTP" <?=$preferred === 'EMAIL_OTP' ? 'selected' : ''?>><?=$h('stepup.email_title')?></option>
+          <?php if ($activeTotp && $totpEnabled): ?><option value="TOTP" <?=$preferred === 'TOTP' ? 'selected' : ''?>>Microsoft Authenticator</option><?php endif; ?>
+        </select>
+      </div>
+      <button id="savePreference" class="mfa-button mfa-secondary" type="button"><?=$h('admin.configuration.save_preference')?></button>
+    </section>
+
+    <?php if ($totpEnabled && !$activeTotp): ?>
+    <section class="mfa-card" id="enrollCard">
+      <h3><?=$h('stepup.enroll_authenticator')?></h3>
+      <p class="mfa-intro"><?=$h('stepup.setup_intro')?></p>
+      <div class="mfa-field"><label for="deviceLabel"><?=$h('stepup.device_name')?></label><input id="deviceLabel" class="mfa-control" maxlength="100" value="Microsoft Authenticator"></div>
+      <button id="beginEnrollment" class="mfa-button" type="button"><?=$h('stepup.generate_qr')?></button>
+      <div id="confirmPanel" class="mfa-factor mfa-hidden">
+        <h4><?=$h('stepup.scan_qr')?></h4><p class="mfa-warning"><?=$h('stepup.qr_warning')?></p>
+        <img id="totpQr" class="mfa-qr" alt="Microsoft Authenticator QR code">
+        <div class="mfa-field"><label for="confirmCode"><?=$h('stepup.first_code')?></label><input id="confirmCode" class="mfa-control mfa-otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></div>
+        <button id="confirmEnrollment" class="mfa-button" type="button"><?=$h('stepup.confirm_enrollment')?></button>
+      </div>
+    </section>
+    <?php elseif ($activeTotp): ?>
+    <section class="mfa-card">
+      <h3><?=$h('stepup.revoke_current')?></h3>
+      <p class="mfa-intro"><?=$h('stepup.revoke_intro')?></p>
+      <div class="mfa-field"><label for="revokeCode"><?=$h('user_mfa.security.revoke_code')?></label><input id="revokeCode" class="mfa-control mfa-otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></div>
+      <button id="revokeAuthenticator" class="mfa-button mfa-danger" type="button"><?=$h('user_mfa.security.revoke')?></button>
+    </section>
+    <?php endif; ?>
+
+    <a class="mfa-back" href="dashboard">&#8592; <?=$h('user_mfa.security.back')?></a>
+    <footer class="mfa-foot"><span>OneID@UPNM</span><span>PTMK</span></footer>
+  </section>
+</main>
+<script>
+const api='../lib/q_func',csrf=<?=json_encode(oneid_csrf_token())?>;
+const messageElement=document.getElementById('mfaMessage');
+let factorId='';
+function showMessage(text,ok=false){messageElement.innerHTML='<div class="mfa-message '+(ok?'mfa-ok':'mfa-bad')+'"></div>';messageElement.firstChild.textContent=text}
+async function post(action,data={}){const response=await fetch(api,{method:'POST',headers:{'X-CSRF-Token':csrf,'Accept':'application/json'},body:new URLSearchParams({_csrf_token:csrf,[action]:'1',...data})});const result=await response.json();if(!response.ok||result.status===0)throw result;return result}
+document.getElementById('savePreference').addEventListener('click',async()=>{try{await post('user_mfa_totp_preference',{factor:document.getElementById('preferredFactor').value});showMessage(<?=json_encode(oneid_translate('user_mfa.security.preference_saved'))?>,true)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
+<?php if ($totpEnabled && !$activeTotp): ?>
+document.getElementById('beginEnrollment').addEventListener('click',async()=>{try{const result=await post('user_mfa_totp_enroll',{device_label:document.getElementById('deviceLabel').value});factorId=result.factor_id;document.getElementById('totpQr').src='user-mfa-totp-qr?factor_id='+encodeURIComponent(factorId);document.getElementById('confirmPanel').classList.remove('mfa-hidden');showMessage(<?=json_encode(oneid_translate('user_mfa.security.enrollment_started'))?>,true)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
+document.getElementById('confirmEnrollment').addEventListener('click',async()=>{try{await post('user_mfa_totp_confirm',{factor_id:factorId,code:document.getElementById('confirmCode').value});showMessage(<?=json_encode(oneid_translate('user_mfa.security.confirmed'))?>,true);setTimeout(()=>location.reload(),900)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
+<?php elseif ($activeTotp): ?>
+document.getElementById('revokeAuthenticator').addEventListener('click',async()=>{try{const result=await post('user_mfa_totp_revoke',{code:document.getElementById('revokeCode').value,reason:'SELF_SERVICE'});showMessage(<?=json_encode(oneid_translate('user_mfa.security.revoked'))?>,true);setTimeout(()=>location.href=result.redirect_uri||'../',900)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
+<?php endif; ?>
+</script>
+</body></html>
