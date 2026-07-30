@@ -50,6 +50,38 @@ final class PdoUserMfaPolicyReader
         return (int) $statement->fetchColumn() === 1;
     }
 
+    public function categoryEnforced(string $userId): bool
+    {
+        if (preg_match('/\A[A-Za-z0-9_.@-]{1,20}\z/', $userId) !== 1) {
+            return true;
+        }
+        try {
+            $statement = $this->pdo->prepare(
+                "SELECT DISTINCT s.source_family
+                   FROM user_external_identity i
+                   JOIN external_source s ON s.source_code=i.source_code
+                  WHERE i.u_id=:user AND i.source_active=1
+                    AND s.source_family IN ('staff','student')"
+            );
+            $statement->execute([':user' => $userId]);
+            $families = $statement->fetchAll(PDO::FETCH_COLUMN);
+            if (count($families) !== 1) {
+                return true;
+            }
+            $category = $families[0] === 'staff' ? 'STAFF' : 'STUDENT';
+            $policy = $this->pdo->prepare(
+                'SELECT enforcement_enabled
+                   FROM user_login_mfa_category_policy
+                  WHERE category_code=:category'
+            );
+            $policy->execute([':category' => $category]);
+            $enabled = $policy->fetchColumn();
+            return $enabled === false ? true : (int) $enabled === 1;
+        } catch (\Throwable) {
+            return true;
+        }
+    }
+
     public function assertRuntimeParity(string $runtimeMode): void
     {
         $runtimeMode = strtoupper(trim($runtimeMode));

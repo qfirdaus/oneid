@@ -1,7 +1,7 @@
 # Audit dan Pelaksanaan Kawalan Administrator User Login MFA
 
 **Tarikh:** 30 Julai 2026  
-**Status:** PRIORITI 1 UAT PASS / CLOSED / PRIORITI 2–6 MENUNGGU KELULUSAN OWNER
+**Status:** PRIORITI 1 UAT PASS / CLOSED / PRIORITI 2 DEVELOPMENT DAN MIGRATION PASS, MENUNGGU UAT / PRIORITI 3–6 MENUNGGU KELULUSAN OWNER
 
 ## 1. Objektif
 
@@ -26,7 +26,7 @@ fail-closed validation wajib digunakan untuk mutation polisi.
 | Prioriti | Skop | Status |
 |---|---|---|
 | 1 | Admin Configuration global User MFA `ON/OFF` | UAT PASS / CLOSED |
-| 2 | Polisi kategori staf/pelajar daripada sumber authoritative | Menunggu kelulusan |
+| 2 | Polisi kategori staf/pelajar daripada sumber authoritative | Development dan migration pass / menunggu UAT |
 | 3 | Pengecualian individu sementara dengan auto-expiry | Menunggu kelulusan |
 | 4 | Administrator tidak boleh dikecualikan | Menunggu kelulusan |
 | 5 | Monitoring, history dan pending-transaction cancellation lanjutan | Menunggu kelulusan |
@@ -81,6 +81,47 @@ dianggap sebagai pelaksanaan penuh prioriti berkenaan.
 Kategori mesti datang daripada source/provenance authoritative. Label pilot
 manual tidak boleh menjadi sumber polisi produksi. Akaun `UNKNOWN` masuk
 reconciliation dan tidak menerima pengecualian senyap.
+
+Keputusan pelaksanaan:
+
+- `STAFF` datang daripada `external_source.source_family='staff'`;
+- `STUDENT` datang daripada `external_source.source_family='student'`;
+- hanya membership `user_external_identity.source_active=1` digunakan;
+- default kedua-dua kategori ialah enabled supaya migration tidak mengubah
+  login semasa;
+- dalam `PILOT_ENFORCED`, category switch hanya menapis akaun pilot;
+- dalam `ENFORCED`, category switch menentukan kategori yang dicabar;
+- `UNKNOWN` atau `AMBIGUOUS` kekal enforced secara fail-safe;
+- perubahan kategori memerlukan Admin Step-Up, reason, reference, typed
+  confirmation, optimistic concurrency dan audit atomik; dan
+- akaun/faktor/sesi pengguna tidak dipadam apabila kategori dimatikan.
+
+Snapshot provenance sebelum pelaksanaan:
+
+| Source | Family | Active membership |
+|---|---|---:|
+| `STAFF_HR` | staff | 1,062 |
+| `STUDENT_UG` | student | 5,421 |
+| `STUDENT_ODL_PG` | student | 71 |
+
+Cross-family ambiguous active user: `0`.
+
+Bukti pelaksanaan 30 Julai 2026:
+
+- migration reference: `ONEID-USER-2FA-P2-20260730`;
+- jadual polisi dan history berjaya dipasang pada shared database;
+- polisi awal `STAFF=ON` dan `STUDENT=ON`, masing-masing version `1`;
+- bacaan authoritative selepas migration: `STAFF=1,062` dan
+  `STUDENT=5,492`;
+- contract Prioriti 2: `10/10 PASS`;
+- contract global Prioriti 1: `10/10 PASS`;
+- regresi U0–U8: `PASS`; dan
+- mutation kategori sebenar belum dibuat; menunggu UAT Administrator.
+
+UAT Prioriti 2 mesti menguji `disable -> login bypass -> enable -> login
+challenge` bagi kategori yang mempunyai akaun ujian sah. Enrollment sedia ada
+mesti kekal selepas disable. Prioriti 2 hanya boleh ditutup selepas bukti ini
+direkodkan.
 
 ### Prioriti 3
 

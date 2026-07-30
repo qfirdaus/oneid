@@ -26,7 +26,8 @@ final class UserMfaPendingLoginCoordinator
         string $userAgent,
         string $ipAddress,
         UserLoginMfaPolicy $policy,
-        bool $pilotEligible = false
+        bool $pilotEligible = false,
+        bool $categoryEnforced = true
     ): array {
         $correlationId = bin2hex(random_bytes(16));
         $userId = $this->userId($userId, $correlationId);
@@ -41,7 +42,7 @@ final class UserMfaPendingLoginCoordinator
                 'correlation_id' => $correlationId,
             ];
         }
-        $required = $policy->mode === 'ENFORCED'
+        $required = ($policy->mode === 'ENFORCED' && $categoryEnforced)
             || ($policy->mode === 'PILOT_ENFORCED' && $pilotEligible);
         if (!$required) {
             return [

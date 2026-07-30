@@ -35,6 +35,7 @@ require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/PasswordRecoveryConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/SystemLocaleConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/UserMfaGlobalPolicyService.php';
+require_once dirname(__DIR__) . '/app/Admin/UserMfaCategoryPolicyService.php';
 require_once dirname(__DIR__) . '/app/Admin/ActiveSessionService.php';
 require_once dirname(__DIR__) . '/app/Auth/SsoTokenLifetimePolicy.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpException.php';
@@ -690,6 +691,35 @@ function string_sanitize($s) {
             filter_var(oneid_config('ONEID_USER_MFA_TOTP_ENABLED',false),FILTER_VALIDATE_BOOLEAN)
           );
           echo json_encode($service->update(
+            $_POST['enabled']??null,
+            $_POST['configuration_version']??null,
+            (string)($_POST['change_reason']??''),
+            (string)($_POST['change_reference']??''),
+            (string)($_POST['typed_confirmation']??''),
+            (string)$_SESSION['login_user'],
+            (string)getUserIP()
+          ));
+        }catch(\OneId\App\Admin\SsoConfigurationException $e){
+          echo json_encode(['status'=>0,'code'=>$e->reason,'correlation_id'=>$e->correlationId]);
+        }
+      }
+
+      if(isset($_POST['admin_get_user_mfa_category_policy'])){
+        try{
+          $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+          echo json_encode((new \OneId\App\Admin\UserMfaCategoryPolicyService($pdo))->read());
+        }catch(\OneId\App\Admin\SsoConfigurationException $e){
+          echo json_encode(['status'=>0,'code'=>$e->reason,'correlation_id'=>$e->correlationId]);
+        }catch(\Throwable $e){
+          echo json_encode(['status'=>0,'code'=>'USER_MFA_CATEGORY_POLICY_UNAVAILABLE','correlation_id'=>bin2hex(random_bytes(8))]);
+        }
+      }
+
+      if(isset($_POST['admin_update_user_mfa_category_policy'])){
+        try{
+          $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+          echo json_encode((new \OneId\App\Admin\UserMfaCategoryPolicyService($pdo))->update(
+            (string)($_POST['category']??''),
             $_POST['enabled']??null,
             $_POST['configuration_version']??null,
             (string)($_POST['change_reason']??''),

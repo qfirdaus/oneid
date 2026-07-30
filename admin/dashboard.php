@@ -1864,6 +1864,27 @@
                                                                   <div class="sso-config-note sso-config-note-warning"><i class="fa fa-exclamation-triangle"></i><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_warning'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                                </div>
                                                             </div>
+                                                            <div class="sso-config-panel mt-20">
+                                                               <div class="sso-config-header">
+                                                                  <div>
+                                                                     <span class="sso-config-eyebrow"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_category_eyebrow'), ENT_QUOTES, 'UTF-8')?></span>
+                                                                     <h4 class="sso-config-title"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_category_title'), ENT_QUOTES, 'UTF-8')?></h4>
+                                                                     <p class="sso-config-intro"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_category_intro'), ENT_QUOTES, 'UTF-8')?></p>
+                                                                  </div>
+                                                                  <button class="sso-config-save" id="user_2fa_category_save_button" type="button" onclick="saveUser2faCategoryPolicy();" disabled>
+                                                                     <i class="fa fa-check"></i> <span id="user_2fa_category_save_label"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_settings'), ENT_QUOTES, 'UTF-8')?></span>
+                                                                  </button>
+                                                               </div>
+                                                               <div class="sso-config-body">
+                                                                  <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="user_2fa_category_code"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_category'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_category_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><select class="form-control" id="user_2fa_category_code"><option value="STAFF"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_staff'), ENT_QUOTES, 'UTF-8')?></option><option value="STUDENT"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_student'), ENT_QUOTES, 'UTF-8')?></option></select></div></div>
+                                                                  <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="user_2fa_category_enabled"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_category_enforcement'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_category_enforcement_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><div class="sso-config-switch"><input type="checkbox" class="js-switch js-switch-1" id="user_2fa_category_enabled" data-color="#11a8df" data-size="small"/></div></div></div>
+                                                                  <div class="sso-config-note"><i class="fa fa-users"></i><p id="user_2fa_category_status"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_policy'), ENT_QUOTES, 'UTF-8')?></p></div>
+                                                                  <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">03</span><div><label for="user_2fa_category_reason"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason'), ENT_QUOTES, 'UTF-8')?></label></div></div><div class="sso-config-control"><textarea class="form-control" id="user_2fa_category_reason" maxlength="500" rows="2" placeholder="<?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_placeholder'), ENT_QUOTES, 'UTF-8')?>"></textarea></div></div>
+                                                                  <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">04</span><div><label for="user_2fa_category_reference"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_reference'), ENT_QUOTES, 'UTF-8')?></label><p><strong id="user_2fa_category_reference_suggestion"></strong></p></div></div><div class="sso-config-control"><input class="form-control" id="user_2fa_category_reference" maxlength="100"><button class="btn btn-default btn-sm mt-10" type="button" onclick="fillUser2faCategoryReference();"><i class="fa fa-copy"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_use_reference'), ENT_QUOTES, 'UTF-8')?></button></div></div>
+                                                                  <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">05</span><div><label for="user_2fa_category_confirmation"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_confirmation'), ENT_QUOTES, 'UTF-8')?></label><p><strong id="user_2fa_category_confirmation_suggestion"></strong></p></div></div><div class="sso-config-control"><input class="form-control" id="user_2fa_category_confirmation" autocomplete="off"><button class="btn btn-default btn-sm mt-10" type="button" onclick="fillUser2faCategoryConfirmation();"><i class="fa fa-copy"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_use_confirmation'), ENT_QUOTES, 'UTF-8')?></button></div></div>
+                                                                  <div class="sso-config-note sso-config-note-warning"><i class="fa fa-exclamation-triangle"></i><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_category_warning'), ENT_QUOTES, 'UTF-8')?></p></div>
+                                                               </div>
+                                                            </div>
                                                          </section>
                                                          <section class="tab-pane fade" id="configuration_locale" role="tabpanel" aria-labelledby="configuration_locale_tab">
                                                             <div class="sso-config-panel">
@@ -6132,6 +6153,11 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          src="../assetsM/js/user-mfa-admin-policy.js?v=20260730-1"
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"></script>
+      <script
+         src="../assetsM/js/user-2fa-category-policy.js?v=20260730-1"
+         data-api="../lib/q_func"
+         data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"
+         data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=user_mfa_policy"></script>
       <style>
          #the-basics .tt-dropdown-menu {
          max-height: 150px;

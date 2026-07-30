@@ -118,6 +118,8 @@ function oneid_q_func_action_map(): array
             'admin_get_sso_settings',
             'admin_get_user_mfa_global_policy',
             'admin_update_user_mfa_global_policy',
+            'admin_get_user_mfa_category_policy',
+            'admin_update_user_mfa_category_policy',
             'user_mfa_admin_recovery',
             'admin_get_configuration_history',
             'admin_get_password_recovery_settings',
@@ -199,6 +201,7 @@ function oneid_admin_action_purpose(string $action): string
         'admin_update_default_locale',
         'admin_save_metadata_translation',
         'admin_update_user_mfa_global_policy',
+        'admin_update_user_mfa_category_policy',
     ];
     return in_array($action, $securityConfiguration, true)
         ? 'SECURITY_CONFIGURATION_CHANGE'

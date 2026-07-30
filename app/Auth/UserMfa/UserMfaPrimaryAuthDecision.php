@@ -22,7 +22,9 @@ final class UserMfaPrimaryAuthDecision
     ): array {
         $this->policies->assertRuntimeParity($runtimeMode);
         $policy = $this->policies->policy();
+        $categoryEnforced = $this->policies->categoryEnforced($userId);
         $pilot = $policy->mode === 'PILOT_ENFORCED'
+            && $categoryEnforced
             && $this->policies->pilotEligible($userId);
         return $this->pending->begin(
             $userId,
@@ -31,7 +33,8 @@ final class UserMfaPrimaryAuthDecision
             $userAgent,
             $ipAddress,
             $policy,
-            $pilot
+            $pilot,
+            $categoryEnforced
         );
     }
 }
