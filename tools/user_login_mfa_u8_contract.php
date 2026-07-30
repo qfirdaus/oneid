@@ -69,7 +69,9 @@ $report(
     && str_contains($login, "window.location.href='page/user-mfa-challenge'")
     && str_contains($challengePage, 'user_mfa_email_request')
     && str_contains($challengePage, 'user_mfa_email_verify')
-    && str_contains($challengePage, 'user_mfa_totp_verify_login'),
+    && str_contains($challengePage, 'user_mfa_totp_verify_login')
+    && str_contains($challengePage, 'FROM user_mfa_preferences')
+    && str_contains($challengePage, "\$preferredTotp"),
     'login uses a full-page selectable email or Authenticator challenge'
 );
 $report(

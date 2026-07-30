@@ -10,6 +10,7 @@ $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXC
 $statement=$pdo->prepare(
   "SELECT t.transaction_status,t.expires_at,p.email_enabled,p.totp_enabled,
           EXISTS(SELECT 1 FROM user_mfa_factors f WHERE f.u_id=t.u_id AND f.factor_type='TOTP' AND f.factor_status='ACTIVE') active_totp,
+          COALESCE((SELECT preferred_factor FROM user_mfa_preferences x WHERE x.u_id=t.u_id),'EMAIL_OTP') preferred_factor,
           u.data5 email
      FROM user_login_mfa_transactions t
      JOIN user_login_mfa_policy p ON p.singleton_key=1
@@ -20,6 +21,7 @@ $statement->execute([':transaction'=>$transaction,':user'=>$user]);$state=$state
 if(!is_array($state)||$state['transaction_status']!=='PENDING'||strtotime((string)$state['expires_at'])<time()){unset($_SESSION['user_mfa_pending_transaction'],$_SESSION['user_mfa_pending_user']);header('Location: '.APP_URL.'/',true,303);exit;}
 $email=(string)$state['email'];$at=strpos($email,'@');$masked=$at===false?'':substr($email,0,1).'***'.substr($email,max(1,$at-1));
 $totp=(int)$state['totp_enabled']===1&&(int)$state['active_totp']===1;
+$preferredTotp=$totp&&(string)$state['preferred_factor']==='TOTP';
 $h=static fn(string$key):string=>htmlspecialchars(oneid_translate($key),ENT_QUOTES,'UTF-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 ?><!doctype html><html lang="<?=htmlspecialchars(oneid_current_locale(),ENT_QUOTES,'UTF-8')?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -27,7 +29,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 <body class="user-mfa-flow"><main class="mfa-shell"><aside class="mfa-brand"><img class="mfa-logo" src="../img/logo_oneid-1.png" alt="OneID@UPNM"><div class="mfa-brand-copy"><span class="mfa-eyebrow"><?=$h('stepup.protected_access')?></span><h1><?=$h('user_mfa.title.challenge')?></h1><p><?=$h('stepup.security_intro')?></p></div></aside>
 <section class="mfa-content"><header class="mfa-top"><div><h2><?=$h('stepup.verify_identity')?></h2><p><?=$h('stepup.choose_available')?></p></div><span class="mfa-badge"><?=$h('user_mfa.security.badge')?></span></header><div id="message"></div>
 <section class="mfa-card"><h3><?=$h('stepup.method_title')?></h3><p class="mfa-intro"><?=$h('stepup.method_intro')?></p>
-<div class="mfa-field"><label for="factor"><?=$h('stepup.choose_method')?></label><select id="factor" class="mfa-control"><option value="EMAIL_OTP"><?=$h('stepup.email_title')?></option><?php if($totp):?><option value="TOTP">Microsoft Authenticator</option><?php endif;?></select></div>
+<div class="mfa-field"><label for="factor"><?=$h('stepup.choose_method')?></label><select id="factor" class="mfa-control"><option value="EMAIL_OTP" <?=$preferredTotp?'':'selected'?>><?=$h('stepup.email_title')?></option><?php if($totp):?><option value="TOTP" <?=$preferredTotp?'selected':''?>>Microsoft Authenticator</option><?php endif;?></select></div>
 <button id="continue" class="mfa-button"><?=$h('stepup.continue')?></button>
 <div id="emailBox" class="mfa-factor mfa-hidden"><strong><?=$h('stepup.email_title')?></strong><small><?=$h('stepup.email_will_send')?> <?=htmlspecialchars($masked,ENT_QUOTES,'UTF-8')?></small><button id="sendEmail" class="mfa-button mfa-secondary"><?=$h('stepup.email_send')?></button><div class="mfa-field"><label for="emailCode"><?=$h('stepup.six_digit_code')?></label><input id="emailCode" class="mfa-control mfa-otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div><button id="verifyEmail" class="mfa-button"><?=$h('stepup.email_verify')?></button></div>
 <div id="totpBox" class="mfa-factor mfa-hidden"><strong>Microsoft Authenticator</strong><small><?=$h('stepup.authenticator_hint')?></small><div class="mfa-field"><label for="totpCode"><?=$h('stepup.six_digit_code')?></label><input id="totpCode" class="mfa-control mfa-otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div><button id="verifyTotp" class="mfa-button"><?=$h('stepup.authenticator_verify')?></button></div>
