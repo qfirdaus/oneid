@@ -1,7 +1,7 @@
 # Audit dan Pelaksanaan Kawalan Administrator User Login MFA
 
 **Tarikh:** 30 Julai 2026  
-**Status:** PRIORITI 1 IMPLEMENTED / UAT BELUM DISAHKAN / PRIORITI 2–6 MENUNGGU KELULUSAN OWNER
+**Status:** PRIORITI 1 UAT PASS / CLOSED / PRIORITI 2–6 MENUNGGU KELULUSAN OWNER
 
 ## 1. Objektif
 
@@ -25,7 +25,7 @@ fail-closed validation wajib digunakan untuk mutation polisi.
 
 | Prioriti | Skop | Status |
 |---|---|---|
-| 1 | Admin Configuration global User MFA `ON/OFF` | Diluluskan |
+| 1 | Admin Configuration global User MFA `ON/OFF` | UAT PASS / CLOSED |
 | 2 | Polisi kategori staf/pelajar daripada sumber authoritative | Menunggu kelulusan |
 | 3 | Pengecualian individu sementara dengan auto-expiry | Menunggu kelulusan |
 | 4 | Administrator tidak boleh dikecualikan | Menunggu kelulusan |
@@ -107,3 +107,30 @@ owner sign-off dan closure/rollback evidence.
 
 Selepas Prioriti 1 siap dan diserahkan untuk UAT, pembangunan berhenti.
 Prioriti 2 hanya boleh bermula selepas arahan kelulusan owner yang jelas.
+
+## 7. Evidence penutupan Prioriti 1
+
+Owner melaporkan browser UAT berjaya pada staging bagi kedua-dua arah polisi:
+
+1. Administrator mematikan User 2FA melalui Admin Configuration, reason,
+   reference, typed confirmation, SweetAlert dan Admin Step-Up.
+2. Login password pengguna selepas shutdown tidak meminta OTP e-mel atau
+   Microsoft Authenticator.
+3. Administrator menghidupkan semula User 2FA melalui kawalan yang sama.
+4. Login pengguna pilot kembali dicabar oleh User 2FA.
+
+Snapshot database shared selepas UAT:
+
+| Versi | Perubahan | Reference | Keputusan |
+|---:|---|---|---|
+| 4 | `PILOT_ENFORCED` → `OFF` | `ONEID-USER-MFA-DISABLE-20260730` | PASS |
+| 5 | `OFF` → `PILOT_ENFORCED` | `ONEID-USER-MFA-ENABLE-20260730` | PASS |
+
+Keadaan akhir:
+
+- policy mode `PILOT_ENFORCED`;
+- e-mel OTP enabled;
+- Microsoft Authenticator enabled;
+- configuration version `5`;
+- enrollment Authenticator pengguna dipelihara; dan
+- Prioriti 1 ditutup tanpa memberikan authorization kepada Prioriti 2.
