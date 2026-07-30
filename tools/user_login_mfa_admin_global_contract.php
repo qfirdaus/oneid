@@ -76,6 +76,9 @@ $report(
     && str_contains($adminScript, "request('admin_get_user_mfa_global_policy')")
     && str_contains($adminScript, 'showCancelButton: true')
     && str_contains($adminScript, 'oneid_user_mfa_global_enabled')
+    && str_contains($adminScript, 'window.fillUserMfaReference')
+    && str_contains($adminScript, 'window.fillUserMfaConfirmation')
+    && str_contains($adminScript, 'ONEID-USER-MFA-')
     && str_contains($adminScript, 'AbortController')
     && str_contains($adminScript, 'data-csrf'),
     'User MFA control has an independent CSRF-bound loader with visible timeout failure'

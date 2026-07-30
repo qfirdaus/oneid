@@ -68,6 +68,36 @@
     if (target) target.textContent = value;
   }
 
+  function actionValues() {
+    var enabled = Boolean(element('user_mfa_global_enabled').checked);
+    var now = new Date();
+    var date = String(now.getFullYear()) +
+      String(now.getMonth() + 1).padStart(2, '0') +
+      String(now.getDate()).padStart(2, '0');
+    return {
+      reference: 'ONEID-USER-MFA-' + (enabled ? 'ENABLE-' : 'DISABLE-') + date,
+      confirmation: enabled ? 'ENABLE USER MFA' : 'DISABLE USER MFA'
+    };
+  }
+
+  function updateInputGuides() {
+    var values = actionValues();
+    if (element('user_mfa_reference_suggestion')) {
+      element('user_mfa_reference_suggestion').textContent = values.reference;
+    }
+    if (element('user_mfa_confirmation_suggestion')) {
+      element('user_mfa_confirmation_suggestion').textContent = values.confirmation;
+    }
+  }
+
+  window.fillUserMfaReference = function () {
+    element('user_mfa_global_reference').value = actionValues().reference;
+  };
+
+  window.fillUserMfaConfirmation = function () {
+    element('user_mfa_global_confirmation').value = actionValues().confirmation;
+  };
+
   function request(action, data) {
     var body = new URLSearchParams(Object.assign({_csrf_token: csrf}, data || {}));
     body.set(action, '');
@@ -122,6 +152,7 @@
       state.authorizedMode = String(data.authorized_mode || 'OFF');
       state.activationAvailable = Boolean(data.activation_available);
       setToggle(state.enabled);
+      updateInputGuides();
       setStatus(
         'Mode: ' + String(data.effective_mode || 'OFF') +
         ' | Authorized: ' + state.authorizedMode +
@@ -235,6 +266,10 @@
   }
 
   restoreFields();
+  if (element('user_mfa_global_enabled')) {
+    element('user_mfa_global_enabled').addEventListener('change', updateInputGuides);
+  }
+  updateInputGuides();
   load();
   document.addEventListener('shown.bs.tab', function (event) {
     if (event.target && event.target.getAttribute('href') === '#configuration_user_mfa') load();
