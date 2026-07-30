@@ -100,6 +100,11 @@ $report(
     && str_contains($securityPage, "post('user_mfa_totp_revoke'")
     && str_contains($securityPage, 'id="revokeCode"')
     && str_contains($securityPage, 'placeholder="000000"')
+    && str_contains($securityPage, 'sweetalert.min.js')
+    && str_contains($securityPage, 'sweetalert.css')
+    && str_contains($securityPage, 'showCancelButton:true')
+    && str_contains($securityPage, 'cancelButtonText:')
+    && !str_contains($securityPage, 'window.confirm(')
     && str_contains((string) file_get_contents($root . '/page/user_mfa_totp_qr.php'), 'QrLogoOverlay::apply'),
     'public wrappers expose account security challenge and same-origin QR'
 );

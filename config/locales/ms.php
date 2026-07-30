@@ -15,6 +15,8 @@ return [
     'user_mfa.security.enrollment_started' => 'Pendaftaran dimulakan. Imbas QR dan masukkan kod enam digit.',
     'user_mfa.security.confirmed' => 'Microsoft Authenticator berjaya didaftarkan.',
     'user_mfa.security.revoked' => 'Microsoft Authenticator telah dibatalkan. Sila log masuk semula.',
+    'user_mfa.security.revoked_title' => 'Authenticator dibatalkan',
+    'user_mfa.security.continue' => 'Teruskan',
     'user_mfa.security.failed' => 'Permintaan keselamatan akaun gagal.',
     'user_mfa.security.preference_saved' => 'Kaedah pengesahan pilihan berjaya disimpan.',
     'user_mfa.security.heading' => 'Pengesahan keselamatan Pengguna',
