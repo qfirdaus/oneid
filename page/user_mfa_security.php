@@ -141,7 +141,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
     <section class="mfa-card">
       <h3><?=$h('stepup.revoke_current')?></h3>
       <p class="mfa-intro"><?=$h('user_mfa.security.revoke_warning')?></p>
-      <div class="mfa-field"><label for="revokeCode"><?=$h('user_mfa.security.revoke_code')?></label><input id="revokeCode" class="mfa-control mfa-otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></div>
+      <div class="mfa-field"><label for="revokeCode"><?=$h('user_mfa.security.revoke_code')?></label><input id="revokeCode" class="mfa-control mfa-otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div>
       <button id="revokeAuthenticator" class="mfa-button mfa-danger" type="button"><?=$h('user_mfa.security.revoke')?></button>
     </section>
     <?php endif; ?>
