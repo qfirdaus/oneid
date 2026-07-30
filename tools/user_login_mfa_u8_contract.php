@@ -68,8 +68,10 @@ $policyTool = (string) file_get_contents($root . '/tools/user_login_mfa_u8_polic
 $report(
     str_contains($pilotTool, '.private/user_mfa_pilot_plan.json')
     && str_contains($pilotTool, '($permissions & 0077) !== 0')
+    && str_contains($pilotTool, 'OR data2=:identifier2')
+    && str_contains($pilotTool, "'ambiguous' => 0")
     && str_contains($pilotTool, 'pii_output=0'),
-    'pilot plan is private permission-checked and PII-redacted'
+    'pilot plan resolves login identifiers uniquely and remains PII-redacted'
 );
 $report(
     str_contains($policyTool, 'user_login_mfa_policy_history')

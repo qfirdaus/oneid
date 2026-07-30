@@ -45,14 +45,26 @@ $pdo = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD, [
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 ]);
 $admin = $pdo->prepare(
-    'SELECT u_id,u_type,avail_status FROM user_tbl WHERE u_id IN(:actor,:verifier)'
+    'SELECT u_id,u_type,avail_status FROM user_tbl
+      WHERE u_id=:identifier OR data2=:identifier2
+         OR data3=:identifier3 OR data8=:identifier4'
 );
-$admin->execute([':actor' => $actor, ':verifier' => $verifier]);
-$adminRows = $admin->fetchAll();
-if (count($adminRows) !== 2
-    || count(array_filter($adminRows, static fn(array $row): bool =>
-        (int) $row['u_type'] === 1 && (int) $row['avail_status'] === 1
-    )) !== 2
+$resolveAdmin = static function (string $identifier) use ($admin): array|false {
+    $admin->execute([
+        ':identifier' => $identifier,
+        ':identifier2' => $identifier,
+        ':identifier3' => $identifier,
+        ':identifier4' => $identifier,
+    ]);
+    $rows = $admin->fetchAll();
+    return count($rows) === 1 ? $rows[0] : false;
+};
+$actorRow = $resolveAdmin($actor);
+$verifierRow = $resolveAdmin($verifier);
+if (!is_array($actorRow) || !is_array($verifierRow)
+    || hash_equals((string) $actorRow['u_id'], (string) $verifierRow['u_id'])
+    || (int) $actorRow['u_type'] !== 1 || (int) $actorRow['avail_status'] !== 1
+    || (int) $verifierRow['u_type'] !== 1 || (int) $verifierRow['avail_status'] !== 1
 ) {
     fwrite(STDERR, "FAIL USER_MFA_U8_POLICY_ADMIN_VERIFIER_INVALID\n");
     exit(1);
@@ -99,7 +111,7 @@ try {
     $update->execute([
         ':target' => $target, ':version' => $nextVersion,
         ':totp_enabled' => $totpEnabled ? 1 : 0,
-        ':reference' => $reference, ':actor' => $actor,
+        ':reference' => $reference, ':actor' => (string) $actorRow['u_id'],
         ':previous_version' => (int) $current['configuration_version'],
     ]);
     $history = $pdo->prepare(
@@ -112,12 +124,17 @@ try {
         ':version' => $nextVersion,
         ':previous' => json_encode($current, JSON_THROW_ON_ERROR),
         ':resulting' => json_encode($resulting, JSON_THROW_ON_ERROR),
-        ':actor' => $actor, ':reason' => $reason,
+        ':actor' => (string) $actorRow['u_id'], ':reason' => $reason,
         ':reference' => $reference, ':correlation' => $correlation,
     ]);
     $detail = sprintf(
         'event=USER_MFA_POLICY_CHANGE actor=%s verifier=%s outcome=success from=%s to=%s reference=%s correlation=%s',
-        $actor, $verifier, $from, $target, $reference, $correlation
+        (string) $actorRow['u_id'],
+        (string) $verifierRow['u_id'],
+        $from,
+        $target,
+        $reference,
+        $correlation
     );
     $audit = $pdo->prepare(
         "INSERT INTO syslog(log_type,log_detail,ip_addr,datetime)

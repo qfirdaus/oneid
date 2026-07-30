@@ -45,6 +45,10 @@ Tetapkan permission `0600`. Isi dua Administrator berlainan sebagai actor dan
 verifier serta 5–10 pilot (sasaran 8). Tool hanya melaporkan bilangan,
 kategori dan readiness; ID serta e-mel tidak dicetak.
 
+Medan ID menerima canonical `u_id` atau identifier login biasa daripada
+`u_id`, `data2`, `data3` atau `data8`. Setiap identifier mesti resolve kepada
+tepat satu akaun; padanan kosong, duplicate atau ambiguous akan ditolak.
+
 Preflight:
 
 ```bash

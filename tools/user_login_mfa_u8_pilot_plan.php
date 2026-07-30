@@ -62,39 +62,101 @@ $pdo = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD, [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 ]);
-$ids = array_merge([$actor, $verifier], array_keys($normalized));
-$placeholders = implode(',', array_fill(0, count($ids), '?'));
-$statement = $pdo->prepare(
-    "SELECT u_id,u_type,avail_status,data5 email FROM user_tbl
-      WHERE u_id IN ({$placeholders})"
+$resolver = $pdo->prepare(
+    'SELECT u_id,u_type,avail_status,data5 email
+       FROM user_tbl
+      WHERE u_id=:identifier OR data2=:identifier2
+         OR data3=:identifier3 OR data8=:identifier4'
 );
-$statement->execute($ids);
-$accounts = [];
-foreach ($statement->fetchAll() as $row) {
-    $accounts[(string) $row['u_id']] = $row;
+$resolve = static function (string $identifier) use ($resolver): array {
+    $resolver->execute([
+        ':identifier' => $identifier,
+        ':identifier2' => $identifier,
+        ':identifier3' => $identifier,
+        ':identifier4' => $identifier,
+    ]);
+    return $resolver->fetchAll();
+};
+$diagnostics = [
+    'not_found' => 0,
+    'ambiguous' => 0,
+    'inactive' => 0,
+    'invalid_email' => 0,
+    'not_admin' => 0,
+    'duplicate_canonical' => 0,
+];
+$resolveOne = static function (string $identifier) use ($resolve, &$diagnostics): array|false {
+    $matches = $resolve($identifier);
+    if (count($matches) === 0) {
+        $diagnostics['not_found']++;
+        return false;
+    }
+    if (count($matches) !== 1) {
+        $diagnostics['ambiguous']++;
+        return false;
+    }
+    return $matches[0];
+};
+$actorRow = $resolveOne($actor);
+$verifierRow = $resolveOne($verifier);
+$adminsReady = is_array($actorRow) && is_array($verifierRow);
+foreach ([$actorRow, $verifierRow] as $row) {
+    if (!is_array($row)) {
+        continue;
+    }
+    if ((int) $row['avail_status'] !== 1) {
+        $diagnostics['inactive']++;
+        $adminsReady = false;
+    }
+    if ((int) $row['u_type'] !== 1) {
+        $diagnostics['not_admin']++;
+        $adminsReady = false;
+    }
 }
-$adminsReady = isset($accounts[$actor], $accounts[$verifier])
-    && (int) $accounts[$actor]['u_type'] === 1
-    && (int) $accounts[$verifier]['u_type'] === 1
-    && (int) $accounts[$actor]['avail_status'] === 1
-    && (int) $accounts[$verifier]['avail_status'] === 1;
+if ($adminsReady && hash_equals((string) $actorRow['u_id'], (string) $verifierRow['u_id'])) {
+    $diagnostics['duplicate_canonical']++;
+    $adminsReady = false;
+}
+$resolvedPilots = [];
 $pilotsReady = true;
-foreach (array_keys($normalized) as $user) {
-    $row = $accounts[$user] ?? null;
-    $pilotsReady = $pilotsReady && is_array($row)
-        && (int) $row['avail_status'] === 1
-        && filter_var((string) $row['email'], FILTER_VALIDATE_EMAIL) !== false;
+foreach ($normalized as $identifier => $category) {
+    $row = $resolveOne($identifier);
+    if (!is_array($row)) {
+        $pilotsReady = false;
+        continue;
+    }
+    $canonical = (string) $row['u_id'];
+    if (isset($resolvedPilots[$canonical])) {
+        $diagnostics['duplicate_canonical']++;
+        $pilotsReady = false;
+        continue;
+    }
+    if ((int) $row['avail_status'] !== 1) {
+        $diagnostics['inactive']++;
+        $pilotsReady = false;
+    }
+    if (filter_var((string) $row['email'], FILTER_VALIDATE_EMAIL) === false) {
+        $diagnostics['invalid_email']++;
+        $pilotsReady = false;
+    }
+    $resolvedPilots[$canonical] = $category;
 }
 $existing = (int) $pdo->query(
     "SELECT COUNT(*) FROM user_login_mfa_pilot_users WHERE pilot_status='ACTIVE'"
 )->fetchColumn();
 printf(
-    "USER_MFA_U8_PILOT_PLAN count=%d categories=%d admins_ready=%s accounts_ready=%s existing_active=%d mode=%s pii_output=0\n",
+    "USER_MFA_U8_PILOT_PLAN count=%d categories=%d admins_ready=%s accounts_ready=%s existing_active=%d not_found=%d ambiguous=%d inactive=%d invalid_email=%d not_admin=%d duplicate_canonical=%d mode=%s pii_output=0\n",
     count($normalized),
     count(array_unique(array_values($normalized))),
     $adminsReady ? 'yes' : 'no',
     $pilotsReady ? 'yes' : 'no',
     $existing,
+    $diagnostics['not_found'],
+    $diagnostics['ambiguous'],
+    $diagnostics['inactive'],
+    $diagnostics['invalid_email'],
+    $diagnostics['not_admin'],
+    $diagnostics['duplicate_canonical'],
     $mode
 );
 if (!$adminsReady || !$pilotsReady || ($existing !== 0 && $mode === '--apply')) {
@@ -119,15 +181,19 @@ try {
             u_id,pilot_category,pilot_status,enrolled_by,change_reference
          ) VALUES(:user,:category,'ACTIVE',:actor,:reference)"
     );
-    foreach ($normalized as $user => $category) {
+    foreach ($resolvedPilots as $user => $category) {
         $insert->execute([
             ':user' => $user, ':category' => $category,
-            ':actor' => $actor, ':reference' => $reference,
+            ':actor' => (string) $actorRow['u_id'], ':reference' => $reference,
         ]);
     }
     $detail = sprintf(
         'event=USER_MFA_POLICY_CHANGE actor=%s verifier=%s outcome=pilot_plan_applied count=%d reference=%s correlation=%s',
-        $actor, $verifier, count($normalized), $reference, $correlation
+        (string) $actorRow['u_id'],
+        (string) $verifierRow['u_id'],
+        count($resolvedPilots),
+        $reference,
+        $correlation
     );
     $audit = $pdo->prepare(
         "INSERT INTO syslog(log_type,log_detail,ip_addr,datetime)
@@ -143,4 +209,4 @@ try {
     fwrite(STDERR, "FAIL USER_MFA_U8_PILOT_APPLY_COMPENSATED\n");
     exit(1);
 }
-printf("PASS USER MFA U8 private pilot plan applied count=%d pii_output=0\n", count($normalized));
+printf("PASS USER MFA U8 private pilot plan applied count=%d pii_output=0\n", count($resolvedPilots));
