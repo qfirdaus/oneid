@@ -381,7 +381,7 @@ return [
     'admin.configuration.authentication_tab' => 'Authentication',
     'admin.configuration.recovery' => 'Account Recovery',
     'admin.configuration.recovery_tab' => 'Account',
-    'admin.configuration.admin_2fa' => 'Administrator 2FA',
+    'admin.configuration.admin_2fa' => 'Admin 2FA',
     'admin.configuration.user_mfa_tab' => 'User MFA',
     'admin.configuration.user_mfa_eyebrow' => 'User security',
     'admin.configuration.user_mfa_title' => 'User Login Authentication',
