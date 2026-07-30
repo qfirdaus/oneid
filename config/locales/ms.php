@@ -20,7 +20,7 @@ return [
     'user_mfa.security.heading' => 'Pengesahan keselamatan Pengguna',
     'user_mfa.security.badge' => 'KESELAMATAN AKAUN PENGGUNA',
     'user_mfa.security.trust' => 'Sesi pendaftaran dilindungi, terikat kepada pelayar ini dan hanya boleh digunakan oleh akaun pengguna yang sedang log masuk.',
-    'user_mfa.security.status' => 'E-mel: AKTIF | Authenticator: {authenticator}',
+    'user_mfa.security.status' => 'Feature: {feature} | E-mail: {email} | Authenticator: {authenticator}',
     'user_mfa.security.enroll_ready' => 'Sesi pengguna telah disahkan. Daftar Microsoft Authenticator baharu di bawah.',
     'user_mfa.security.footer' => 'Keselamatan Pengguna',
     'common.close' => 'Tutup',

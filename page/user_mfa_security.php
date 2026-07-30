@@ -35,17 +35,26 @@ if ((int) $pilot->fetchColumn() !== 1) {
 }
 $state = $pdo->prepare(
     "SELECT p.email_enabled,p.totp_enabled,
+            (SELECT data5 FROM user_tbl u WHERE u.u_id=:user3 LIMIT 1) email,
             EXISTS(SELECT 1 FROM user_mfa_factors f
                     WHERE f.u_id=:user AND f.factor_type='TOTP' AND f.factor_status='ACTIVE') active_totp,
             COALESCE((SELECT preferred_factor FROM user_mfa_preferences x WHERE x.u_id=:user2),'EMAIL_OTP') preferred_factor
        FROM user_login_mfa_policy p
       WHERE p.singleton_key=1"
 );
-$state->execute([':user' => $user, ':user2' => $user]);
+$state->execute([':user' => $user, ':user2' => $user, ':user3' => $user]);
 $security = $state->fetch() ?: [];
 $activeTotp = (int) ($security['active_totp'] ?? 0) === 1;
 $totpEnabled = (int) ($security['totp_enabled'] ?? 0) === 1;
 $preferred = (string) ($security['preferred_factor'] ?? 'EMAIL_OTP');
+$email = trim((string) ($security['email'] ?? ''));
+$maskedEmail = oneid_translate('stepup.none');
+if (filter_var($email, FILTER_VALIDATE_EMAIL) !== false) {
+    [$emailLocal, $emailDomain] = explode('@', $email, 2);
+    $maskedEmail = substr($emailLocal, 0, 1)
+        . str_repeat('*', max(2, min(8, strlen($emailLocal) - 1)))
+        . '@' . $emailDomain;
+}
 $h = static fn (string $key): string => htmlspecialchars(oneid_translate($key), ENT_QUOTES, 'UTF-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 ?>
@@ -54,7 +63,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title><?=$h('user_mfa.security.title')?> | OneID@UPNM</title>
-  <link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260730-3">
+  <link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260730-4">
 </head>
 <body class="user-mfa-flow">
 <main class="mfa-shell">
@@ -76,7 +85,11 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 
     <?php if (!$activeTotp): ?>
     <div class="mfa-message mfa-ok"><?=$h('user_mfa.security.enroll_ready')?></div>
-    <div class="mfa-status-strip"><?=htmlspecialchars(oneid_translate('user_mfa.security.status', ['authenticator' => oneid_translate('stepup.not_registered')]), ENT_QUOTES, 'UTF-8')?></div>
+    <div class="mfa-status-strip"><?=htmlspecialchars(oneid_translate('user_mfa.security.status', [
+        'feature' => oneid_translate('stepup.active'),
+        'email' => $maskedEmail,
+        'authenticator' => oneid_translate('stepup.not_registered'),
+    ]), ENT_QUOTES, 'UTF-8')?></div>
     <?php else: ?>
     <section class="mfa-card">
       <h3><?=$h('stepup.method_title')?></h3>

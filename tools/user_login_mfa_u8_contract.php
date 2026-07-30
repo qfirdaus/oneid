@@ -87,6 +87,8 @@ $report(
     && str_contains($securityPage, 'user_mfa_totp_preference')
     && str_contains($securityPage, 'FROM user_login_mfa_policy p')
     && str_contains($securityPage, 'user_mfa.security.badge')
+    && str_contains($securityPage, 'str_repeat')
+    && str_contains($securityPage, "'email' => \$maskedEmail")
     && str_contains($securityPage, 'mfa-provision-grid')
     && str_contains($securityPage, 'Pusat Teknologi Maklumat &amp; Komunikasi')
     && str_contains($securityPage, 'user-mfa-flow.css')

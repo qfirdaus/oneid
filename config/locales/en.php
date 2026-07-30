@@ -20,7 +20,7 @@ return [
     'user_mfa.security.heading' => 'User security verification',
     'user_mfa.security.badge' => 'USER ACCOUNT SECURITY',
     'user_mfa.security.trust' => 'The enrollment session is protected, bound to this browser and available only to the currently signed-in user account.',
-    'user_mfa.security.status' => 'E-mail: ACTIVE | Authenticator: {authenticator}',
+    'user_mfa.security.status' => 'Feature: {feature} | E-mail: {email} | Authenticator: {authenticator}',
     'user_mfa.security.enroll_ready' => 'The user session was verified. Enroll the new Microsoft Authenticator below.',
     'user_mfa.security.footer' => 'User Security',
     'common.close' => 'Close',
