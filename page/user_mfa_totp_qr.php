@@ -38,11 +38,13 @@ $cipher = new \OneId\App\Auth\TotpSecretCipher(
     \OneId\App\Auth\TotpKeyring::fromFile((string) oneid_config('ONEID_TOTP_KEYRING_PATH', ''))
 );
 $secret = $cipher->decrypt($row['encrypted_secret'], $row['secret_nonce'], $row['key_version']);
+$account = $operation->get_specific_user_info((string) $_SESSION['login_user']);
 $uri = \OneId\App\Auth\Totp::provisioningUri(
-    (string) oneid_config('ONEID_TOTP_ISSUER', 'OneID@UPNM'),
-    oneid_totp_account_label('USER'),
+    'OneID@UPNM',
+    oneid_totp_account_label('USER', is_array($account) ? $account : null),
     $secret
 );
+unset($account);
 unset($secret);
 ob_start();
 QRcode::png($uri, false, QR_ECLEVEL_H, 7, 3);

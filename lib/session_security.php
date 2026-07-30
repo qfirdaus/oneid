@@ -66,6 +66,11 @@ function oneid_establish_authenticated_session(array $user): void
         session_regenerate_id(true);
     }
     $_SESSION['user'] = $user['data1'];
+    $_SESSION['oneid_public_identifier'] = trim((string) ($user['data3'] ?? '')) !== ''
+        ? trim((string) $user['data3'])
+        : (trim((string) ($user['data4'] ?? '')) !== ''
+            ? trim((string) $user['data4'])
+            : (string) $user['u_id']);
     $_SESSION['login_user'] = $user['u_id'];
     $_SESSION['login_status'] = 'true';
     $_SESSION['login_user_type'] = $user['u_type'];
@@ -80,10 +85,16 @@ function oneid_establish_authenticated_session(array $user): void
     oneid_promote_authenticated_locale((string) $user['u_id']);
 }
 
-function oneid_totp_account_label(string $role): string
+function oneid_totp_account_label(string $role, ?array $user = null): string
 {
     $role = strtoupper(trim($role)) === 'ADMIN' ? 'Admin' : 'User';
-    $identifier = trim((string) ($_SESSION['user'] ?? ''));
+    $identifier = trim((string) ($user['data3'] ?? ''));
+    if ($identifier === '') {
+        $identifier = trim((string) ($user['data4'] ?? ''));
+    }
+    if ($identifier === '') {
+        $identifier = trim((string) ($_SESSION['oneid_public_identifier'] ?? ''));
+    }
     if ($identifier === ''
         || strlen($identifier) > 50
         || preg_match('/\A[A-Za-z0-9._@-]+\z/', $identifier) !== 1

@@ -109,15 +109,18 @@ $report(
 $report(
     str_contains($sessionSecurity, 'function oneid_totp_account_label')
     && str_contains($sessionSecurity, "'OneID@UPNM %s (%s)'")
-    && str_contains($route, "oneid_totp_account_label('USER')")
-    && str_contains($route, "oneid_totp_account_label('ADMIN')")
+    && str_contains($sessionSecurity, "\$user['data3']")
+    && str_contains($sessionSecurity, "\$user['data4']")
+    && !str_contains($sessionSecurity, "\$_SESSION['user'] ?? ''")
+    && str_contains($route, "oneid_totp_account_label('USER',")
+    && str_contains($route, "oneid_totp_account_label('ADMIN',")
     && str_contains(
         (string) file_get_contents($root . '/page/user_mfa_totp_qr.php'),
-        "oneid_totp_account_label('USER')"
+        "oneid_totp_account_label('USER',"
     )
     && str_contains(
         (string) file_get_contents($root . '/page/admin_totp_qr.php'),
-        "oneid_totp_account_label('ADMIN')"
+        "oneid_totp_account_label('ADMIN',"
     ),
     'Admin and User Authenticator labels use the public login identifier'
 );

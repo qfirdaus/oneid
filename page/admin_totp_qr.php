@@ -40,11 +40,13 @@ $cipher = new \OneId\App\Auth\TotpSecretCipher(
     \OneId\App\Auth\TotpKeyring::fromFile((string) oneid_config('ONEID_TOTP_KEYRING_PATH', ''))
 );
 $secret = $cipher->decrypt($row['encrypted_secret'], $row['secret_nonce'], $row['key_version']);
+$account = $operation->get_specific_user_info((string) $_SESSION['login_user']);
 $uri = \OneId\App\Auth\Totp::provisioningUri(
     'OneID@UPNM',
-    oneid_totp_account_label('ADMIN'),
+    oneid_totp_account_label('ADMIN', is_array($account) ? $account : null),
     $secret
 );
+unset($account);
 unset($secret);
 
 ob_start();

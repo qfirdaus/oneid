@@ -147,7 +147,7 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
         $totpPersistence=new \OneId\App\Auth\UserMfa\PdoUserMfaTotpPersistence($pdo,$audit,$sessions);
         $keyring=\OneId\App\Auth\TotpKeyring::fromFile((string)oneid_config('ONEID_TOTP_KEYRING_PATH',''));
         $primitive=new \OneId\App\Auth\UserMfa\UserMfaTotpPrimitive(new \OneId\App\Auth\TotpSecretCipher($keyring));
-        $totpService=new \OneId\App\Auth\UserMfa\UserMfaTotpService($totpPersistence,$primitive,(string)oneid_config('ONEID_TOTP_ISSUER','OneID@UPNM'));
+      $totpService=new \OneId\App\Auth\UserMfa\UserMfaTotpService($totpPersistence,$primitive,'OneID@UPNM');
         $totpService->verify($pendingUser,(string)($_POST['code']??''));
         (new \OneId\App\Auth\UserMfa\UserMfaPendingLoginCoordinator(
           new \OneId\App\Auth\UserMfa\PdoUserMfaPendingLoginPersistence($pdo,$audit)
@@ -174,10 +174,11 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
       $persistence=new \OneId\App\Auth\UserMfa\PdoUserMfaTotpPersistence($pdo,$audit,$sessions);
       $keyring=\OneId\App\Auth\TotpKeyring::fromFile((string)oneid_config('ONEID_TOTP_KEYRING_PATH',''));
       $primitive=new \OneId\App\Auth\UserMfa\UserMfaTotpPrimitive(new \OneId\App\Auth\TotpSecretCipher($keyring));
-      $service=new \OneId\App\Auth\UserMfa\UserMfaTotpService($persistence,$primitive,(string)oneid_config('ONEID_TOTP_ISSUER','OneID@UPNM'));
+      $service=new \OneId\App\Auth\UserMfa\UserMfaTotpService($persistence,$primitive,'OneID@UPNM');
       $user=(string)$_SESSION['login_user'];$session=session_id();$ua=(string)($_SERVER['HTTP_USER_AGENT']??'');
       if($oneidGuardedAction==='user_mfa_totp_enroll'){
-        $results=$service->beginEnrollment($user,oneid_totp_account_label('USER'),$session,$ua,(string)($_POST['device_label']??'Microsoft Authenticator'));
+        $account=$operation->get_specific_user_info($user);
+        $results=$service->beginEnrollment($user,oneid_totp_account_label('USER',is_array($account)?$account:null),$session,$ua,(string)($_POST['device_label']??'Microsoft Authenticator'));
       }elseif($oneidGuardedAction==='user_mfa_totp_confirm'){
         $service->confirmEnrollment($user,(string)($_POST['factor_id']??''),(string)($_POST['code']??''),$session,$ua);
         $results=['status'=>1,'code'=>'USER_MFA_TOTP_CONFIRMED'];
@@ -215,7 +216,7 @@ if(str_starts_with($oneidGuardedAction,'admin_step_up_')||str_starts_with($oneid
     elseif($oneidGuardedAction==='admin_step_up_request_email'){$results=(new \OneId\App\Auth\AdminStepUpEmailOtpService($operation,new \OneId\App\Auth\AdminStepUpPhpMailerSender()))->request($admin,(string)($_POST['purpose']??''),$session,$ua,$ip);}
     elseif($oneidGuardedAction==='admin_step_up_verify_email'){$results=(new \OneId\App\Auth\AdminStepUpEmailOtpService($operation,new \OneId\App\Auth\AdminStepUpPhpMailerSender()))->verify($admin,(string)($_POST['purpose']??''),(string)($_POST['challenge_id']??''),(string)($_POST['code']??''),$session,$ua,$ip);$results+=oneid_complete_step_up_rotation($operation,$results['purpose'],$results['correlation_id']);}
     elseif($oneidGuardedAction==='admin_step_up_verify_totp'){$path=(string)oneid_config('ONEID_TOTP_KEYRING_PATH','');$cipher=new \OneId\App\Auth\TotpSecretCipher(\OneId\App\Auth\TotpKeyring::fromFile($path));$results=(new \OneId\App\Auth\AdminStepUpTotpService($operation,$cipher))->verify($admin,(string)($_POST['purpose']??''),(string)($_POST['code']??''),$session,$ua,$ip);$results+=oneid_complete_step_up_rotation($operation,$results['purpose'],$results['correlation_id']);}
-    elseif($oneidGuardedAction==='admin_totp_enroll'){$path=(string)oneid_config('ONEID_TOTP_KEYRING_PATH','');$cipher=new \OneId\App\Auth\TotpSecretCipher(\OneId\App\Auth\TotpKeyring::fromFile($path));$issuer=(string)oneid_config('ONEID_TOTP_ISSUER','OneID@UPNM');$results=(new \OneId\App\Auth\AdminTotpFactorService($operation,$cipher,null,$issuer))->enroll($admin,(string)($_POST['current_password']??''),$session,$ua,$ip,(string)($_POST['device_label']??'Microsoft Authenticator'));$results['provisioning_uri']=\OneId\App\Auth\Totp::provisioningUri($issuer,oneid_totp_account_label('ADMIN'),(string)$results['secret']);}
+    elseif($oneidGuardedAction==='admin_totp_enroll'){$path=(string)oneid_config('ONEID_TOTP_KEYRING_PATH','');$cipher=new \OneId\App\Auth\TotpSecretCipher(\OneId\App\Auth\TotpKeyring::fromFile($path));$issuer='OneID@UPNM';$account=$operation->get_specific_user_info($admin);$results=(new \OneId\App\Auth\AdminTotpFactorService($operation,$cipher,null,$issuer))->enroll($admin,(string)($_POST['current_password']??''),$session,$ua,$ip,(string)($_POST['device_label']??'Microsoft Authenticator'));$results['provisioning_uri']=\OneId\App\Auth\Totp::provisioningUri($issuer,oneid_totp_account_label('ADMIN',is_array($account)?$account:null),(string)$results['secret']);}
     elseif($oneidGuardedAction==='admin_totp_confirm'){$path=(string)oneid_config('ONEID_TOTP_KEYRING_PATH','');$cipher=new \OneId\App\Auth\TotpSecretCipher(\OneId\App\Auth\TotpKeyring::fromFile($path));$results=(new \OneId\App\Auth\AdminTotpFactorService($operation,$cipher))->confirm($admin,(int)($_POST['factor_id']??0),(string)($_POST['code']??''),$session,$ua,$ip);}
     elseif($oneidGuardedAction==='admin_totp_revoke'){$results=(new \OneId\App\Auth\AdminTotpFactorService($operation))->revoke($admin,(int)($_POST['factor_id']??0),$_POST['current_password']??null,$session,$ua,$ip,(string)($_POST['reason']??''));}
     elseif($oneidGuardedAction==='admin_mfa_set_preference'){$results=$preference->select($admin,(string)($_POST['factor']??''),$_POST['current_password']??null,$session,$ua,$ip);}
