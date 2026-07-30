@@ -111,8 +111,8 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 
     <?php if ($totpEnabled && !$activeTotp): ?>
     <section class="mfa-card mfa-setup-card" id="enrollCard">
-      <div class="mfa-settings-title"><h3><?=$h('stepup.enroll_authenticator')?></h3><span class="mfa-settings-tag">SETUP</span></div>
-      <p class="mfa-intro"><?=$h('stepup.setup_intro')?></p>
+      <div class="mfa-settings-title"><h3><?=$h('stepup.enroll_authenticator')?></h3><span class="mfa-settings-tag"><?=$h('user_mfa.security.setup_tag')?></span></div>
+      <p class="mfa-intro"><?=$h('user_mfa.security.setup_intro')?></p>
       <div class="mfa-field"><label for="deviceLabel"><?=$h('stepup.device_name')?></label><input id="deviceLabel" class="mfa-control" maxlength="100" value="<?=$h('stepup.device_default')?>"><small class="mfa-help"><?=$h('stepup.device_help')?></small></div>
       <button id="beginEnrollment" class="mfa-button" type="button"><?=$h('stepup.generate_qr')?></button>
       <div id="confirmPanel" class="mfa-enrollment-provision mfa-hidden">
@@ -147,7 +147,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
     <?php endif; ?>
 
     <a class="mfa-back" href="dashboard">&#8592; <?=$h('user_mfa.security.back')?></a>
-    <footer class="mfa-foot"><span>OneID@UPNM &bull; <?=$h('user_mfa.security.footer')?></span><span>Pusat Teknologi Maklumat &amp; Komunikasi</span></footer>
+    <footer class="mfa-foot"><span>OneID@UPNM &bull; <?=$h('user_mfa.security.footer')?></span><span><?=$h('user_mfa.security.department')?></span></footer>
   </section>
 </main>
 <script>

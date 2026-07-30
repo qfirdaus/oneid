@@ -38,6 +38,8 @@ $securityPage = (string) file_get_contents($root . '/page/user_mfa_security.php'
 $challengePage = (string) file_get_contents($root . '/page/user_mfa_challenge.php');
 $dashboard = (string) file_get_contents($root . '/page/dashboard.php');
 $sessionSecurity = (string) file_get_contents($root . '/lib/session_security.php');
+$localeMs = require $root . '/config/locales/ms.php';
+$localeEn = require $root . '/config/locales/en.php';
 $report(
     str_contains($up, 'user_login_mfa_pilot_users')
     && str_contains($up, 'LOCAL_STUDENT')
@@ -91,7 +93,7 @@ $report(
     && str_contains($securityPage, 'str_repeat')
     && str_contains($securityPage, "'email' => \$maskedEmail")
     && str_contains($securityPage, 'mfa-provision-grid')
-    && str_contains($securityPage, 'Pusat Teknologi Maklumat &amp; Komunikasi')
+    && str_contains($securityPage, 'user_mfa.security.department')
     && str_contains($securityPage, 'user-mfa-flow.css')
     && str_contains($route, 'USER_MFA_PILOT_ACCESS_REQUIRED'),
     'full-page account security is linked from dashboard and pilot restricted'
@@ -118,6 +120,25 @@ $report(
         "oneid_totp_account_label('ADMIN')"
     ),
     'Admin and User Authenticator labels use the public login identifier'
+);
+$userMfaLocaleKeys = array_values(array_filter(
+    array_keys($localeMs),
+    static fn (string $key): bool => str_starts_with($key, 'user_mfa.')
+));
+$report(
+    $userMfaLocaleKeys !== []
+    && array_diff($userMfaLocaleKeys, array_keys($localeEn)) === []
+    && array_diff(
+        array_values(array_filter(
+            array_keys($localeEn),
+            static fn (string $key): bool => str_starts_with($key, 'user_mfa.')
+        )),
+        array_keys($localeMs)
+    ) === []
+    && ($localeMs['user_mfa.security.setup_intro'] ?? '') !== ($localeEn['user_mfa.security.setup_intro'] ?? '')
+    && str_contains($securityPage, "user_mfa.security.setup_intro")
+    && str_contains($challengePage, "user_mfa.security.department"),
+    'User MFA security and challenge pages have complete BM and EN locale keys'
 );
 $pilotTool = (string) file_get_contents($root . '/tools/user_login_mfa_u8_pilot_plan.php');
 $policyTool = (string) file_get_contents($root . '/tools/user_login_mfa_u8_policy_transition.php');
