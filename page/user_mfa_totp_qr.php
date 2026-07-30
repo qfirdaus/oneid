@@ -40,7 +40,7 @@ $cipher = new \OneId\App\Auth\TotpSecretCipher(
 $secret = $cipher->decrypt($row['encrypted_secret'], $row['secret_nonce'], $row['key_version']);
 $uri = \OneId\App\Auth\Totp::provisioningUri(
     (string) oneid_config('ONEID_TOTP_ISSUER', 'OneID@UPNM'),
-    (string) $_SESSION['login_user'],
+    oneid_totp_account_label('USER'),
     $secret
 );
 unset($secret);

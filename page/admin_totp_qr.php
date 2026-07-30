@@ -40,7 +40,11 @@ $cipher = new \OneId\App\Auth\TotpSecretCipher(
     \OneId\App\Auth\TotpKeyring::fromFile((string) oneid_config('ONEID_TOTP_KEYRING_PATH', ''))
 );
 $secret = $cipher->decrypt($row['encrypted_secret'], $row['secret_nonce'], $row['key_version']);
-$uri = \OneId\App\Auth\Totp::provisioningUri('OneID@UPNM', (string) $_SESSION['login_user'], $secret);
+$uri = \OneId\App\Auth\Totp::provisioningUri(
+    'OneID@UPNM',
+    oneid_totp_account_label('ADMIN'),
+    $secret
+);
 unset($secret);
 
 ob_start();

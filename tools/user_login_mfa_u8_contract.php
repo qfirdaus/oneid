@@ -37,6 +37,7 @@ $login = (string) file_get_contents($root . '/index.php');
 $securityPage = (string) file_get_contents($root . '/page/user_mfa_security.php');
 $challengePage = (string) file_get_contents($root . '/page/user_mfa_challenge.php');
 $dashboard = (string) file_get_contents($root . '/page/dashboard.php');
+$sessionSecurity = (string) file_get_contents($root . '/lib/session_security.php');
 $report(
     str_contains($up, 'user_login_mfa_pilot_users')
     && str_contains($up, 'LOCAL_STUDENT')
@@ -102,6 +103,21 @@ $report(
     && str_contains($challengePage, "factorElement.value==='TOTP'")
     && !str_contains($challengePage, 'window.onload'),
     'TOTP login verifies the pending transaction before shared finalization'
+);
+$report(
+    str_contains($sessionSecurity, 'function oneid_totp_account_label')
+    && str_contains($sessionSecurity, "'OneID@UPNM %s (%s)'")
+    && str_contains($route, "oneid_totp_account_label('USER')")
+    && str_contains($route, "oneid_totp_account_label('ADMIN')")
+    && str_contains(
+        (string) file_get_contents($root . '/page/user_mfa_totp_qr.php'),
+        "oneid_totp_account_label('USER')"
+    )
+    && str_contains(
+        (string) file_get_contents($root . '/page/admin_totp_qr.php'),
+        "oneid_totp_account_label('ADMIN')"
+    ),
+    'Admin and User Authenticator labels use the public login identifier'
 );
 $pilotTool = (string) file_get_contents($root . '/tools/user_login_mfa_u8_pilot_plan.php');
 $policyTool = (string) file_get_contents($root . '/tools/user_login_mfa_u8_policy_transition.php');

@@ -79,3 +79,17 @@ function oneid_establish_authenticated_session(array $user): void
     }
     oneid_promote_authenticated_locale((string) $user['u_id']);
 }
+
+function oneid_totp_account_label(string $role): string
+{
+    $role = strtoupper(trim($role)) === 'ADMIN' ? 'Admin' : 'User';
+    $identifier = trim((string) ($_SESSION['user'] ?? ''));
+    if ($identifier === ''
+        || strlen($identifier) > 50
+        || preg_match('/\A[A-Za-z0-9._@-]+\z/', $identifier) !== 1
+    ) {
+        $identifier = trim((string) ($_SESSION['login_user'] ?? ''));
+    }
+
+    return sprintf('OneID@UPNM %s (%s)', $role, $identifier);
+}
