@@ -48,7 +48,7 @@ $csrf = oneid_csrf_token();
 const csrf=<?=json_encode($csrf)?>;let factor='';
 function post(action,data){data=data||{};data[action]='';data._csrf_token=csrf;return $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',data:data});}
 function message(text,ok){$('#mfa-message').attr('class',ok?'alert alert-success':'alert alert-danger').text(text);}
-$('#mfa-enroll').on('click',function(){post('user_mfa_totp_enroll',{device_label:$('#device-label').val()}).done(function(r){factor=r.factor_id;$('#mfa-qr').attr('src','user_mfa_totp_qr.php?factor_id='+encodeURIComponent(factor));$('#mfa-confirm-panel').prop('hidden',false);message('Enrollment started.',true);}).fail(function(){message('Enrollment failed.',false);});});
+$('#mfa-enroll').on('click',function(){post('user_mfa_totp_enroll',{device_label:$('#device-label').val()}).done(function(r){factor=r.factor_id;$('#mfa-qr').attr('src','user-mfa-totp-qr?factor_id='+encodeURIComponent(factor));$('#mfa-confirm-panel').prop('hidden',false);message('Enrollment started.',true);}).fail(function(){message('Enrollment failed.',false);});});
 $('#mfa-confirm').on('click',function(){post('user_mfa_totp_confirm',{factor_id:factor,code:$('#mfa-code').val()}).done(function(){message('Microsoft Authenticator is active.',true);$('#mfa-confirm-panel').prop('hidden',true);}).fail(function(){message('Confirmation failed.',false);});});
 $('#mfa-revoke').on('click',function(){post('user_mfa_totp_revoke',{code:$('#mfa-revoke-code').val(),reason:'SELF_SERVICE'}).done(function(r){message('Authenticator revoked. Sign in again.',true);setTimeout(function(){location.href=r.redirect_uri||'../';},1500);}).fail(function(){message('Revocation failed.',false);});});
 </script></body></html>

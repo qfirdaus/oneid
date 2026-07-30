@@ -34,6 +34,7 @@ $reader = (string) file_get_contents($root . '/' . $files[0]);
 $decision = (string) file_get_contents($root . '/' . $files[1]);
 $route = (string) file_get_contents($root . '/lib/q_func.php');
 $login = (string) file_get_contents($root . '/index.php');
+$securityPage = (string) file_get_contents($root . '/page/user_mfa_security.php');
 $report(
     str_contains($up, 'user_login_mfa_pilot_users')
     && str_contains($up, 'LOCAL_STUDENT')
@@ -62,6 +63,12 @@ $report(
     && str_contains($login, "response['login_status']==2")
     && str_contains($login, 'user_mfa_email_verify'),
     'login UI handles pending MFA without resubmitting password'
+);
+$report(
+    is_file($root . '/public/page/user-mfa-security.php')
+    && is_file($root . '/public/page/user-mfa-totp-qr.php')
+    && str_contains($securityPage, "user-mfa-totp-qr?factor_id="),
+    'public document-root wrappers expose account security and same-origin QR'
 );
 $pilotTool = (string) file_get_contents($root . '/tools/user_login_mfa_u8_pilot_plan.php');
 $policyTool = (string) file_get_contents($root . '/tools/user_login_mfa_u8_policy_transition.php');
