@@ -73,6 +73,7 @@ $report(
     is_file($root . '/public/page/user-mfa-security.php')
     && is_file($root . '/public/page/user-mfa-totp-qr.php')
     && is_file($root . '/public/page/user-mfa-challenge.php')
+    && is_file($root . '/public/dist/css/user-mfa-flow.css')
     && str_contains($securityPage, "user-mfa-totp-qr?factor_id="),
     'public wrappers expose account security challenge and same-origin QR'
 );
