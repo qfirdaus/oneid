@@ -71,7 +71,9 @@ $report(
     && str_contains($challengePage, 'user_mfa_email_verify')
     && str_contains($challengePage, 'user_mfa_totp_verify_login')
     && str_contains($challengePage, 'FROM user_mfa_preferences')
-    && str_contains($challengePage, "\$preferredTotp"),
+    && str_contains($challengePage, "\$preferredTotp")
+    && str_contains($challengePage, "\$totp?'':'disabled'")
+    && str_contains($challengePage, "\$totpUnavailableKey"),
     'login uses a full-page selectable email or Authenticator challenge'
 );
 $report(
