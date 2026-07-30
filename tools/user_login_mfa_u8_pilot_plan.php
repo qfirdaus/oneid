@@ -120,7 +120,10 @@ if ($adminsReady && hash_equals((string) $actorRow['u_id'], (string) $verifierRo
 $resolvedPilots = [];
 $pilotsReady = true;
 foreach ($normalized as $identifier => $category) {
-    $row = $resolveOne($identifier);
+    // PHP converts numeric-string array keys to integers. Cast again at the
+    // resolver boundary so student identifiers containing digits only remain
+    // valid login identifiers rather than causing a strict-types TypeError.
+    $row = $resolveOne((string) $identifier);
     if (!is_array($row)) {
         $pilotsReady = false;
         continue;

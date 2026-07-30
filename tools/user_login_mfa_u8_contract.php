@@ -74,6 +74,10 @@ $report(
     'pilot plan resolves login identifiers uniquely and remains PII-redacted'
 );
 $report(
+    str_contains($pilotTool, '$resolveOne((string) $identifier)'),
+    'numeric student login identifiers are cast safely at resolver boundary'
+);
+$report(
     str_contains($policyTool, 'user_login_mfa_policy_history')
     && str_contains($policyTool, 'FOR UPDATE')
     && str_contains($policyTool, 'USER_MFA_POLICY_AUDIT_ATOMICITY_FAILED')
