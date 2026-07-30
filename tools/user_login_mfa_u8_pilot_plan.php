@@ -62,20 +62,27 @@ $pdo = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD, [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 ]);
-$resolver = $pdo->prepare(
+$exactResolver = $pdo->prepare(
+    'SELECT u_id,u_type,avail_status,data5 email
+       FROM user_tbl WHERE u_id=:identifier'
+);
+$aliasResolver = $pdo->prepare(
     'SELECT u_id,u_type,avail_status,data5 email
        FROM user_tbl
-      WHERE u_id=:identifier OR data2=:identifier2
-         OR data3=:identifier3 OR data8=:identifier4'
+      WHERE data2=:identifier2 OR data3=:identifier3 OR data8=:identifier4'
 );
-$resolve = static function (string $identifier) use ($resolver): array {
-    $resolver->execute([
-        ':identifier' => $identifier,
+$resolve = static function (string $identifier) use ($exactResolver, $aliasResolver): array {
+    $exactResolver->execute([':identifier' => $identifier]);
+    $exact = $exactResolver->fetchAll();
+    if ($exact !== []) {
+        return $exact;
+    }
+    $aliasResolver->execute([
         ':identifier2' => $identifier,
         ':identifier3' => $identifier,
         ':identifier4' => $identifier,
     ]);
-    return $resolver->fetchAll();
+    return $aliasResolver->fetchAll();
 };
 $diagnostics = [
     'not_found' => 0,

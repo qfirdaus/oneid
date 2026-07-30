@@ -44,19 +44,25 @@ $pdo = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD, [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 ]);
-$admin = $pdo->prepare(
-    'SELECT u_id,u_type,avail_status FROM user_tbl
-      WHERE u_id=:identifier OR data2=:identifier2
-         OR data3=:identifier3 OR data8=:identifier4'
+$exactAdmin = $pdo->prepare(
+    'SELECT u_id,u_type,avail_status FROM user_tbl WHERE u_id=:identifier'
 );
-$resolveAdmin = static function (string $identifier) use ($admin): array|false {
-    $admin->execute([
-        ':identifier' => $identifier,
+$aliasAdmin = $pdo->prepare(
+    'SELECT u_id,u_type,avail_status FROM user_tbl
+      WHERE data2=:identifier2 OR data3=:identifier3 OR data8=:identifier4'
+);
+$resolveAdmin = static function (string $identifier) use ($exactAdmin, $aliasAdmin): array|false {
+    $exactAdmin->execute([':identifier' => $identifier]);
+    $rows = $exactAdmin->fetchAll();
+    if ($rows !== []) {
+        return count($rows) === 1 ? $rows[0] : false;
+    }
+    $aliasAdmin->execute([
         ':identifier2' => $identifier,
         ':identifier3' => $identifier,
         ':identifier4' => $identifier,
     ]);
-    $rows = $admin->fetchAll();
+    $rows = $aliasAdmin->fetchAll();
     return count($rows) === 1 ? $rows[0] : false;
 };
 $actorRow = $resolveAdmin($actor);
