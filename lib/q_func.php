@@ -98,7 +98,12 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
     $schemaReady=(int)$pdo->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name IN('user_login_mfa_policy','user_login_mfa_policy_history','user_mfa_factors','user_mfa_preferences','user_login_mfa_transactions','user_login_mfa_challenges','user_login_mfa_pilot_users')")->fetchColumn()===7;
     $gate->assertRequestAllowed($schemaReady);
     $gate->assertFeatureActive();
-    (new \OneId\App\Auth\UserMfa\PdoUserMfaPolicyReader($pdo))->assertRuntimeParity($mode);
+    $userMfaPolicies=new \OneId\App\Auth\UserMfa\PdoUserMfaPolicyReader($pdo);
+    $userMfaPolicies->assertRuntimeParity($mode);
+    if(in_array($oneidGuardedAction,['user_mfa_totp_enroll','user_mfa_totp_confirm','user_mfa_totp_preference','user_mfa_totp_revoke'],true)
+      && (!$userMfaPolicies->pilotEligible((string)($_SESSION['login_user']??'')))){
+      throw new RuntimeException('USER_MFA_PILOT_ACCESS_REQUIRED');
+    }
     if(in_array($oneidGuardedAction,['user_mfa_email_request','user_mfa_email_resend','user_mfa_email_verify'],true)){
       $pendingUser=(string)($_SESSION['user_mfa_pending_user']??'');
       $pendingTransaction=(string)($_SESSION['user_mfa_pending_transaction']??'');

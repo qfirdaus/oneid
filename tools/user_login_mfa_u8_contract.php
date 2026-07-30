@@ -35,6 +35,7 @@ $decision = (string) file_get_contents($root . '/' . $files[1]);
 $route = (string) file_get_contents($root . '/lib/q_func.php');
 $login = (string) file_get_contents($root . '/index.php');
 $securityPage = (string) file_get_contents($root . '/page/user_mfa_security.php');
+$dashboard = (string) file_get_contents($root . '/page/dashboard.php');
 $report(
     str_contains($up, 'user_login_mfa_pilot_users')
     && str_contains($up, 'LOCAL_STUDENT')
@@ -69,6 +70,14 @@ $report(
     && is_file($root . '/public/page/user-mfa-totp-qr.php')
     && str_contains($securityPage, "user-mfa-totp-qr?factor_id="),
     'public document-root wrappers expose account security and same-origin QR'
+);
+$report(
+    str_contains($dashboard, 'tab_user_mfa_security')
+    && str_contains($dashboard, 'modal_user_mfa_security')
+    && str_contains($dashboard, 'user_login_mfa_pilot_users')
+    && str_contains($securityPage, '/page/dashboard?security=user_mfa')
+    && str_contains($route, 'USER_MFA_PILOT_ACCESS_REQUIRED'),
+    'account security is dashboard-integrated and restricted to active pilot'
 );
 $pilotTool = (string) file_get_contents($root . '/tools/user_login_mfa_u8_pilot_plan.php');
 $policyTool = (string) file_get_contents($root . '/tools/user_login_mfa_u8_policy_transition.php');

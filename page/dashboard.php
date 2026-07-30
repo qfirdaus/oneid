@@ -16,6 +16,22 @@
       exit;
    }
    $user_info = $operation->admin_search_user_account($_SESSION['login_user']);
+   $userMfaEnrollmentAvailable = false;
+   try {
+      if ((string) oneid_config('ONEID_USER_MFA_MODE', 'OFF') === 'ENROLLMENT'
+          && filter_var(oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED', false), FILTER_VALIDATE_BOOLEAN)
+      ) {
+         $userMfaPdo = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+         $userMfaPilot = $userMfaPdo->prepare(
+            "SELECT COUNT(*) FROM user_login_mfa_pilot_users
+              WHERE u_id=:user AND pilot_status='ACTIVE'"
+         );
+         $userMfaPilot->execute([':user' => (string) $_SESSION['login_user']]);
+         $userMfaEnrollmentAvailable = (int) $userMfaPilot->fetchColumn() === 1;
+      }
+   } catch (Throwable) {
+      $userMfaEnrollmentAvailable = false;
+   }
    // echo "Xxxxx" . $_SESSION['user'];
     // echo json_encode($user_info);
    ?>
@@ -212,6 +228,39 @@
             </div>
             <!-- /.modal-dialog -->
          </div>
+         <?php if ($userMfaEnrollmentAvailable): ?>
+         <div id="modal_user_mfa_security" class="modal" tabindex="-1" role="dialog"
+              aria-labelledby="user_mfa_security_title" aria-hidden="true"
+              data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog"><div class="modal-content">
+               <div class="modal-header">
+                  <h5 class="modal-title" id="user_mfa_security_title"><?=htmlspecialchars(oneid_translate('user_mfa.security.title'), ENT_QUOTES, 'UTF-8')?></h5>
+               </div>
+               <div class="modal-body">
+                  <p><?=htmlspecialchars(oneid_translate('user_mfa.security.intro'), ENT_QUOTES, 'UTF-8')?></p>
+                  <div id="user_mfa_security_message" role="status" aria-live="polite"></div>
+                  <div class="form-group">
+                     <label for="user_mfa_device_label"><?=htmlspecialchars(oneid_translate('user_mfa.security.device'), ENT_QUOTES, 'UTF-8')?></label>
+                     <input id="user_mfa_device_label" class="form-control" maxlength="100" value="Microsoft Authenticator">
+                  </div>
+                  <button id="user_mfa_enroll" class="btn btn-primary" type="button"><?=htmlspecialchars(oneid_translate('user_mfa.security.enroll'), ENT_QUOTES, 'UTF-8')?></button>
+                  <div id="user_mfa_confirm_panel" style="display:none;margin-top:20px">
+                     <img id="user_mfa_qr" alt="Microsoft Authenticator QR code" style="display:block;max-width:280px;margin:0 auto 15px">
+                     <label for="user_mfa_confirm_code"><?=htmlspecialchars(oneid_translate('user_mfa.email.label'), ENT_QUOTES, 'UTF-8')?></label>
+                     <input id="user_mfa_confirm_code" class="form-control" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code">
+                     <button id="user_mfa_confirm" class="btn btn-success mt-10" type="button"><?=htmlspecialchars(oneid_translate('user_mfa.security.confirm'), ENT_QUOTES, 'UTF-8')?></button>
+                  </div>
+                  <hr>
+                  <label for="user_mfa_revoke_code"><?=htmlspecialchars(oneid_translate('user_mfa.security.revoke_code'), ENT_QUOTES, 'UTF-8')?></label>
+                  <input id="user_mfa_revoke_code" class="form-control" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+                  <button id="user_mfa_revoke" class="btn btn-danger mt-10" type="button"><?=htmlspecialchars(oneid_translate('user_mfa.security.revoke'), ENT_QUOTES, 'UTF-8')?></button>
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal"><?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?></button>
+               </div>
+            </div></div>
+         </div>
+         <?php endif; ?>
          <!-- Main Content -->
          <div class="page-wrapper">
             <div class="container">
@@ -278,6 +327,13 @@
                                             <span><?=htmlspecialchars(oneid_translate('dashboard.menu.change_password'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block"></span></span>
                                           </a>
                                         </li>
+                                       <?php if ($userMfaEnrollmentAvailable): ?>
+                                        <li role="presentation" style="cursor:pointer" onclick="open_user_mfa_security();">
+                                          <a id="tab_user_mfa_security">
+                                            <span><?=htmlspecialchars(oneid_translate('user_mfa.security.title'), ENT_QUOTES, 'UTF-8')?></span>
+                                          </a>
+                                        </li>
+                                       <?php endif; ?>
                                         <li role="presentation" style="cursor: pointer !important;" >
                                           <a id="tab_faq" href="logout">
                                             <span><?=htmlspecialchars(oneid_translate('dashboard.menu.logout'), ENT_QUOTES, 'UTF-8')?><span class="inline-block"></span></span>
@@ -519,8 +575,57 @@
              get_specific_user_activ_session();
              check_default_password();
              startTokenRefresh();
+             <?php if ($userMfaEnrollmentAvailable && (string) ($_GET['security'] ?? '') === 'user_mfa'): ?>
+             open_user_mfa_security();
+             <?php endif; ?>
 
          });
+
+        <?php if ($userMfaEnrollmentAvailable): ?>
+        var userMfaFactorId='';
+        function userMfaSecurityMessage(text,success){
+           $('#user_mfa_security_message')
+             .attr('class',success?'alert alert-success':'alert alert-danger')
+             .text(text);
+        }
+        function open_user_mfa_security(){
+           $('#user_mfa_security_message').removeAttr('class').text('');
+           $('#modal_user_mfa_security').modal('show');
+        }
+        function userMfaSecurityPost(action,data){
+           data=data||{};data[action]='';
+           return $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',data:data});
+        }
+        $('#user_mfa_enroll').on('click',function(){
+           userMfaSecurityPost('user_mfa_totp_enroll',{device_label:$('#user_mfa_device_label').val()})
+             .done(function(result){
+                userMfaFactorId=result.factor_id;
+                $('#user_mfa_qr').attr('src','user-mfa-totp-qr?factor_id='+encodeURIComponent(userMfaFactorId));
+                $('#user_mfa_confirm_panel').show();
+                userMfaSecurityMessage(<?=json_encode(oneid_translate('user_mfa.security.enrollment_started'))?>,true);
+             }).fail(function(xhr){
+                userMfaSecurityMessage((xhr.responseJSON&&xhr.responseJSON.code)||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>,false);
+             });
+        });
+        $('#user_mfa_confirm').on('click',function(){
+           userMfaSecurityPost('user_mfa_totp_confirm',{factor_id:userMfaFactorId,code:$('#user_mfa_confirm_code').val()})
+             .done(function(){
+                $('#user_mfa_confirm_panel').hide();
+                userMfaSecurityMessage(<?=json_encode(oneid_translate('user_mfa.security.confirmed'))?>,true);
+             }).fail(function(xhr){
+                userMfaSecurityMessage((xhr.responseJSON&&xhr.responseJSON.code)||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>,false);
+             });
+        });
+        $('#user_mfa_revoke').on('click',function(){
+           userMfaSecurityPost('user_mfa_totp_revoke',{code:$('#user_mfa_revoke_code').val(),reason:'SELF_SERVICE'})
+             .done(function(result){
+                userMfaSecurityMessage(<?=json_encode(oneid_translate('user_mfa.security.revoked'))?>,true);
+                setTimeout(function(){location.href=result.redirect_uri||'../';},1500);
+             }).fail(function(xhr){
+                userMfaSecurityMessage((xhr.responseJSON&&xhr.responseJSON.code)||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>,false);
+             });
+        });
+        <?php endif; ?>
 
         function check_default_password(sp_id){
          $.ajax({

@@ -19,6 +19,8 @@ if ($mode === 'OFF' || !$authorized) {
     http_response_code(404);
     exit('Not found');
 }
+header('Location: ' . APP_URL . '/page/dashboard?security=user_mfa', true, 303);
+exit;
 header('Cache-Control: no-store, no-cache, must-revalidate');
 $csrf = oneid_csrf_token();
 ?>
