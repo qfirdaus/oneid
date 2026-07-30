@@ -382,7 +382,7 @@ return [
     'admin.configuration.recovery' => 'Pemulihan Akaun',
     'admin.configuration.recovery_tab' => 'Akaun',
     'admin.configuration.admin_2fa' => 'Admin 2FA',
-    'admin.configuration.user_mfa_tab' => 'MFA Pengguna',
+    'admin.configuration.user_mfa_tab' => 'User 2FA',
     'admin.configuration.user_mfa_eyebrow' => 'Keselamatan pengguna',
     'admin.configuration.user_mfa_title' => 'Pengesahan Login Pengguna',
     'admin.configuration.user_mfa_intro' => 'Hidupkan atau matikan OTP e-mel dan Microsoft Authenticator untuk login password pengguna.',

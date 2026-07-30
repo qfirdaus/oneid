@@ -382,7 +382,7 @@ return [
     'admin.configuration.recovery' => 'Account Recovery',
     'admin.configuration.recovery_tab' => 'Account',
     'admin.configuration.admin_2fa' => 'Admin 2FA',
-    'admin.configuration.user_mfa_tab' => 'User MFA',
+    'admin.configuration.user_mfa_tab' => 'User 2FA',
     'admin.configuration.user_mfa_eyebrow' => 'User security',
     'admin.configuration.user_mfa_title' => 'User Login Authentication',
     'admin.configuration.user_mfa_intro' => 'Enable or disable e-mail OTP and Microsoft Authenticator for user password login.',
