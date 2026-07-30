@@ -2254,7 +2254,6 @@
          admin_get_settings();	
 	         loadPasswordRecovery();
 	         loadSystemDefaultLocale();
-	         loadUserMfaGlobalPolicy();
 	         loadAdminMfaPreference();
          get_all_user_activ_session();
 		 
@@ -2318,9 +2317,6 @@
                 if ($(event.target).attr('href') === '#configuration_admin_2fa') {
                    loadAdminMfaPreference();
                 }
-                if ($(event.target).attr('href') === '#configuration_user_mfa') {
-                   loadUserMfaGlobalPolicy();
-                }
              });
              var requestedConfiguration=new URLSearchParams(window.location.search).get('configuration');
              if(requestedConfiguration==='admin_2fa'){
@@ -2328,19 +2324,9 @@
                 $('#configuration_admin_2fa_tab').tab('show');
                 if(window.history&&window.history.replaceState){window.history.replaceState({},document.title,window.location.pathname);}
              }
-             var userMfaGlobalPendingTarget=null;
              if(requestedConfiguration==='user_mfa_policy'){
                 $('a[href="#tab_settings"]').tab('show');
                 $('#configuration_user_mfa_tab').tab('show');
-                var storedUserMfaTarget=sessionStorage.getItem('oneid_user_mfa_global_enabled');
-                userMfaGlobalPendingTarget=storedUserMfaTarget==='1'?true:(storedUserMfaTarget==='0'?false:null);
-                $('#user_mfa_global_reason').val(sessionStorage.getItem('oneid_user_mfa_global_reason')||'');
-                $('#user_mfa_global_reference').val(sessionStorage.getItem('oneid_user_mfa_global_reference')||'');
-                $('#user_mfa_global_confirmation').val(sessionStorage.getItem('oneid_user_mfa_global_confirmation')||'');
-                sessionStorage.removeItem('oneid_user_mfa_global_enabled');
-                sessionStorage.removeItem('oneid_user_mfa_global_reason');
-                sessionStorage.removeItem('oneid_user_mfa_global_reference');
-                sessionStorage.removeItem('oneid_user_mfa_global_confirmation');
                 if(window.history&&window.history.replaceState){window.history.replaceState({},document.title,window.location.pathname);}
              }
 	             if(requestedConfiguration==='account_recovery'){
@@ -2878,84 +2864,6 @@
          function renderSsoConfigHistoryState(message){$('#sso_config_history_body').html('<tr class="configuration-history-state-row"><td colspan="4">'+sessionTextValue(message)+'</td></tr>');}
          function sessionTextValue(value){return $('<div>').text(value==null?'':value).html();}
          function sessionAttributeValue(value){return sessionTextValue(value).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-
-         var userMfaGlobalOriginal=null,userMfaGlobalVersion=0,userMfaAuthorizedMode='OFF',userMfaActivationAvailable=false,userMfaGlobalResumeAfterStepUp=false;
-         function loadUserMfaGlobalPolicy(){
-            $('#user_mfa_global_save_button').prop('disabled',true);
-            $('#user_mfa_global_save_label').text(adminText('admin.configuration.loading_settings'));
-            $.post('../lib/q_func',{admin_get_user_mfa_global_policy:''},function(r){
-               if(!r||Number(r.status)!==1){
-                  userMfaGlobalOriginal=null;
-                  $('#user_mfa_global_status').text(adminText('admin.configuration.load_failed'));
-                  $('#user_mfa_global_save_label').text(adminText('admin.configuration.unavailable'));
-                  return;
-               }
-               var d=r.data||{},toggle=document.getElementById('user_mfa_global_enabled');
-               userMfaGlobalOriginal=Boolean(d.enabled);
-               userMfaGlobalVersion=Number(d.configuration_version||0);
-               userMfaAuthorizedMode=String(d.authorized_mode||'OFF');
-               userMfaActivationAvailable=Boolean(d.activation_available);
-               if(toggle.getAttribute('data-switchery')){
-                  if(toggle.checked!==userMfaGlobalOriginal){toggle.click();}
-               }else{
-                  toggle.checked=userMfaGlobalOriginal;
-                  new Switchery(toggle,{color:'#11a8df',size:'small'});
-               }
-               if(userMfaGlobalPendingTarget!==null&&userMfaGlobalPendingTarget!==userMfaGlobalOriginal){
-                  if(toggle.checked!==userMfaGlobalPendingTarget){toggle.click();}
-                  userMfaGlobalPendingTarget=null;
-                  userMfaGlobalResumeAfterStepUp=true;
-                  $('#user_mfa_global_status').text(adminText('admin.configuration.user_mfa_auth_required'));
-                  setTimeout(saveUserMfaGlobalPolicy,0);
-               }
-               $('#user_mfa_global_save_button').prop('disabled',false);
-               $('#user_mfa_global_save_label').text(adminText('admin.configuration.save_review'));
-               $('#user_mfa_global_status').text(
-                  'Mode: '+String(d.effective_mode||'OFF')+
-                  ' | Authorized: '+userMfaAuthorizedMode+
-                  ' | Active Authenticator: '+Number(d.active_factors||0)+
-                  ' | Pending login: '+Number(d.pending_transactions||0)+
-                  ' | Pending challenge: '+Number(d.pending_challenges||0)
-               );
-            },'json').fail(function(){
-               $('#user_mfa_global_status').text(adminText('admin.configuration.load_failed'));
-               $('#user_mfa_global_save_label').text(adminText('admin.configuration.unavailable'));
-            });
-         }
-         function saveUserMfaGlobalPolicy(){
-            if(userMfaGlobalOriginal===null)return;
-            var enabled=$('#user_mfa_global_enabled').prop('checked'),reason=$.trim($('#user_mfa_global_reason').val()),reference=$.trim($('#user_mfa_global_reference').val()),typed=$.trim($('#user_mfa_global_confirmation').val());
-            if(enabled===userMfaGlobalOriginal){swal(adminText('admin.configuration.no_changes'),'','info');return;}
-            if(enabled&&!userMfaActivationAvailable){swal(adminText('admin.configuration.policy_not_saved'),'Runtime authorization does not permit activation.','error');return;}
-            if(reason.length<10||reference.length<8||typed!==(enabled?'ENABLE USER MFA':'DISABLE USER MFA')){swal(adminText('admin.configuration.policy_not_saved'),adminText('admin.configuration.reason_minimum')+' '+adminText('admin.configuration.user_mfa_confirmation_help'),'warning');return;}
-            var warning=enabled?'User MFA will be restored to '+userMfaAuthorizedMode+'.':'Password login will no longer require e-mail OTP or Microsoft Authenticator. Pending MFA challenges will be revoked.';
-            var persistUserMfaGlobalPolicy=function(){
-               $('#user_mfa_global_save_button').prop('disabled',true);
-               $.post('../lib/q_func',{admin_update_user_mfa_global_policy:'',enabled:enabled?'1':'0',configuration_version:userMfaGlobalVersion,change_reason:reason,change_reference:reference,typed_confirmation:typed},function(r){
-                  if(r&&Number(r.status)===1){
-                     userMfaGlobalOriginal=enabled;userMfaGlobalVersion=Number((r.data||{}).configuration_version||userMfaGlobalVersion);
-                     $('#user_mfa_global_reason,#user_mfa_global_reference,#user_mfa_global_confirmation').val('');
-                     swal(adminText('admin.configuration.user_mfa_saved'),'Mode: '+String((r.data||{}).effective_mode||'OFF')+'\nReference: '+String(r.correlation_id||''),'success');
-                     loadUserMfaGlobalPolicy();
-                  }else{swal(adminText('admin.configuration.policy_not_saved'),'Code: '+String(r&&r.code||'USER_MFA_GLOBAL_RESPONSE_INVALID'),'error');}
-               },'json').fail(function(xhr){
-                  var response=xhr.responseJSON||{},code=String(response.code||'');
-                  if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){
-                     sessionStorage.setItem('oneid_user_mfa_global_enabled',enabled?'1':'0');
-                     sessionStorage.setItem('oneid_user_mfa_global_reason',reason);
-                     sessionStorage.setItem('oneid_user_mfa_global_reference',reference);
-                     sessionStorage.setItem('oneid_user_mfa_global_confirmation',typed);
-                     swal({title:adminText('admin.configuration.auth_required'),text:adminText('admin.configuration.user_mfa_auth_required'),type:'warning',confirmButtonText:adminText('admin.configuration.authenticate_now'),closeOnConfirm:true},function(){window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=user_mfa_policy';});
-                  }else{swal(adminText('admin.configuration.policy_not_saved'),'HTTP '+xhr.status+(code?'\nCode: '+code:''),'error');}
-               }).always(function(){$('#user_mfa_global_save_button').prop('disabled',false);});
-            };
-            if(userMfaGlobalResumeAfterStepUp){
-               userMfaGlobalResumeAfterStepUp=false;
-               persistUserMfaGlobalPolicy();
-               return;
-            }
-            swal({title:enabled?'Enable User MFA?':'Disable User MFA?',text:warning,type:'warning',showCancelButton:true,confirmButtonColor:enabled?'#18794e':'#b4233b',confirmButtonText:enabled?'Enable User MFA':'Disable User MFA',cancelButtonText:adminText('admin.configuration.cancel'),closeOnConfirm:false},persistUserMfaGlobalPolicy);
-         }
 
          var recoveryConfigOriginal=null;
          function loadPasswordRecovery(){

@@ -65,20 +65,17 @@ $report(
     str_contains($admin, 'id="configuration_user_mfa"')
     && str_contains($admin, 'id="user_mfa_global_enabled"')
     && str_contains($admin, 'saveUserMfaGlobalPolicy')
-    && str_contains($admin, 'loadUserMfaGlobalPolicy();')
-    && str_contains($admin, 'showCancelButton:true')
-    && str_contains($admin, 'oneid_user_mfa_global_enabled')
-    && str_contains($admin, 'userMfaGlobalPendingTarget')
-    && str_contains($admin, 'setTimeout(saveUserMfaGlobalPolicy,0)')
-    && str_contains($admin, 'userMfaGlobalResumeAfterStepUp')
-    && str_contains($admin, 'persistUserMfaGlobalPolicy')
-    && str_contains($admin, 'change_reference'),
+    && !str_contains($admin, 'function loadUserMfaGlobalPolicy')
+    && !str_contains($admin, 'var userMfaGlobalOriginal')
+    && str_contains($admin, 'id="user_mfa_global_reference"'),
     'Administrator UI provides bilingual SweetAlert global control'
 );
 $report(
     str_contains($admin, 'user-mfa-admin-policy.js')
     && str_contains($adminScript, 'window.saveUserMfaGlobalPolicy')
     && str_contains($adminScript, "request('admin_get_user_mfa_global_policy')")
+    && str_contains($adminScript, 'showCancelButton: true')
+    && str_contains($adminScript, 'oneid_user_mfa_global_enabled')
     && str_contains($adminScript, 'AbortController')
     && str_contains($adminScript, 'data-csrf'),
     'User MFA control has an independent CSRF-bound loader with visible timeout failure'
