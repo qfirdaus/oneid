@@ -64,6 +64,7 @@ $report(
     str_contains($admin, 'id="configuration_user_mfa"')
     && str_contains($admin, 'id="user_mfa_global_enabled"')
     && str_contains($admin, 'saveUserMfaGlobalPolicy')
+    && str_contains($admin, 'loadUserMfaGlobalPolicy();')
     && str_contains($admin, 'showCancelButton:true')
     && str_contains($admin, 'oneid_user_mfa_global_enabled')
     && str_contains($admin, 'userMfaGlobalPendingTarget')

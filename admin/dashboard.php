@@ -2254,6 +2254,7 @@
          admin_get_settings();	
 	         loadPasswordRecovery();
 	         loadSystemDefaultLocale();
+	         loadUserMfaGlobalPolicy();
 	         loadAdminMfaPreference();
          get_all_user_activ_session();
 		 
