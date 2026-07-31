@@ -52,6 +52,28 @@ final class OneIdEmailTemplate
         );
     }
 
+    public static function notice(
+        string $displayName,
+        string $contextLabel,
+        string $badge,
+        string $headline,
+        string $introduction,
+        string $notice,
+        string $locale = 'ms'
+    ): string {
+        return self::render(
+            $displayName,
+            $contextLabel,
+            $badge,
+            $headline,
+            $introduction,
+            null,
+            null,
+            '<strong>' . self::escape($notice) . '</strong>',
+            $locale
+        );
+    }
+
     public static function otpPlainText(string $headline, string $otp, string $locale = 'ms'): string
     {
         if (preg_match('/\A[0-9]{6}\z/', $otp) !== 1) {

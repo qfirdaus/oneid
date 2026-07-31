@@ -78,6 +78,8 @@ require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaOtp.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaRateLimitConfig.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/PdoUserMfaEmailOtpPersistence.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaPhpMailerSender.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaRecoveryEmailSender.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaTotpEmailRecoveryService.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaEmailOtpService.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaTotpPrimitive.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaTotpService.php';
@@ -116,7 +118,7 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
     if($userMfaPolicies->policy()->mode==='OFF'){
       throw new RuntimeException('USER_MFA_NOT_ACTIVE');
     }
-    if(in_array($oneidGuardedAction,['user_mfa_totp_enroll','user_mfa_totp_confirm','user_mfa_totp_preference','user_mfa_totp_revoke'],true)
+    if(in_array($oneidGuardedAction,['user_mfa_totp_enroll','user_mfa_totp_confirm','user_mfa_totp_preference','user_mfa_totp_revoke','user_mfa_totp_recovery_email_request','user_mfa_totp_recovery_email_verify'],true)
       && (!$userMfaPolicies->pilotEligible((string)($_SESSION['login_user']??'')))){
       throw new RuntimeException('USER_MFA_PILOT_ACCESS_REQUIRED');
     }
@@ -173,6 +175,29 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
       }
       header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
     }
+    if(in_array($oneidGuardedAction,['user_mfa_totp_recovery_email_request','user_mfa_totp_recovery_email_verify'],true)){
+      if(!oneid_is_authenticated()){throw new RuntimeException('USER_MFA_AUTHENTICATION_REQUIRED');}
+      $recovery=new \OneId\App\Auth\UserMfa\UserMfaTotpEmailRecoveryService(
+        $pdo,
+        new \OneId\App\Auth\UserMfa\UserMfaRecoveryEmailSender()
+      );
+      $user=(string)$_SESSION['login_user'];$session=session_id();
+      $ua=(string)($_SERVER['HTTP_USER_AGENT']??'');$ip=(string)getUserIP();
+      $locale=(string)($_SESSION['oneid_locale']??'ms');
+      if($oneidGuardedAction==='user_mfa_totp_recovery_email_request'){
+        $results=$recovery->request(
+          $user,(string)($_POST['current_password']??''),$session,$ua,$ip,$locale
+        );
+      }else{
+        $results=$recovery->verifyAndRevoke(
+          $user,(string)($_POST['challenge_id']??''),(string)($_POST['code']??''),
+          $session,$ua,$ip,$locale
+        );
+        oneid_clear_local_authenticated_session();
+        $results['redirect_uri']=APP_URL.'/';
+      }
+      header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
+    }
     if(in_array($oneidGuardedAction,['user_mfa_totp_enroll','user_mfa_totp_confirm','user_mfa_totp_preference','user_mfa_totp_revoke'],true)){
       if(!oneid_is_authenticated()){throw new RuntimeException('USER_MFA_AUTHENTICATION_REQUIRED');}
       $audit=new \OneId\App\Auth\UserMfa\LegacyUserMfaAuditWriter($operation);
@@ -215,6 +240,7 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
       'USER_MFA_RESEND_COOLDOWN','USER_MFA_RATE_LIMITED'=>429,
       'USER_MFA_PENDING_EXPIRED','USER_MFA_CHALLENGE_EXPIRED'=>410,
       'USER_MFA_VERIFICATION_FAILED','USER_MFA_CHALLENGE_INVALID','USER_MFA_CHALLENGE_REPLAYED','USER_MFA_TOTP_REPLAYED','USER_MFA_TOTP_VERIFY_FAILED'=>422,
+      'USER_MFA_RECOVERY_PASSWORD_INVALID','USER_MFA_RECOVERY_CHALLENGE_INVALID','USER_MFA_RECOVERY_FACTOR_UNAVAILABLE'=>422,
       'USER_MFA_NOT_ACTIVE'=>409,
       default=>503,
     });

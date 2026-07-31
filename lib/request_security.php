@@ -110,6 +110,8 @@ function oneid_q_func_action_map(): array
             'user_mfa_totp_confirm',
             'user_mfa_totp_preference',
             'user_mfa_totp_revoke',
+            'user_mfa_totp_recovery_email_request',
+            'user_mfa_totp_recovery_email_verify',
         ],
         'admin' => [
             'admin_search_keyword_user',

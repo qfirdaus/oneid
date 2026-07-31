@@ -147,10 +147,20 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
     </section>
     <?php elseif ($activeTotp): ?>
     <section class="mfa-card">
-      <h3><?=$h('stepup.revoke_current')?></h3>
+      <h3><?=$h('user_mfa.security.revoke_method_title')?></h3>
+      <h4><?=$h('user_mfa.security.revoke_with_code')?></h4>
       <p class="mfa-intro"><?=$h('user_mfa.security.revoke_warning')?></p>
       <div class="mfa-field"><label for="revokeCode"><?=$h('user_mfa.security.revoke_code')?></label><input id="revokeCode" class="mfa-control mfa-otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div>
       <button id="revokeAuthenticator" class="mfa-button mfa-danger" type="button"><?=$h('user_mfa.security.revoke')?></button>
+      <hr class="mfa-divider">
+      <h4><?=$h('user_mfa.security.revoke_with_email')?></h4>
+      <p class="mfa-intro"><?=$h('user_mfa.security.recovery_intro')?></p>
+      <div class="mfa-field"><label for="recoveryPassword"><?=$h('user_mfa.security.current_password')?></label><input id="recoveryPassword" class="mfa-control" type="password" maxlength="200" autocomplete="current-password"></div>
+      <button id="requestRecoveryOtp" class="mfa-button" type="button"><?=$h('user_mfa.security.send_recovery_otp')?></button>
+      <div id="recoveryOtpPanel" class="mfa-hidden">
+        <div class="mfa-field"><label for="recoveryOtp"><?=$h('user_mfa.security.recovery_otp')?></label><input id="recoveryOtp" class="mfa-control mfa-otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div>
+        <button id="verifyRecoveryOtp" class="mfa-button mfa-danger" type="button"><?=$h('user_mfa.security.verify_recovery_otp')?></button>
+      </div>
     </section>
     <?php endif; ?>
 
@@ -163,6 +173,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 const api='../lib/q_func',csrf=<?=json_encode(oneid_csrf_token())?>;
 const messageElement=document.getElementById('mfaMessage');
 let factorId='';
+let recoveryChallengeId='';
 function showMessage(text,ok=false){messageElement.innerHTML='<div class="mfa-message '+(ok?'mfa-ok':'mfa-bad')+'"></div>';messageElement.firstChild.textContent=text}
 async function post(action,data={}){const response=await fetch(api,{method:'POST',headers:{'X-CSRF-Token':csrf,'Accept':'application/json'},body:new URLSearchParams({_csrf_token:csrf,[action]:'1',...data})});const result=await response.json();if(!response.ok||result.status===0)throw result;return result}
 <?php if ($activeTotp): ?>
@@ -173,6 +184,8 @@ document.getElementById('beginEnrollment').addEventListener('click',async()=>{tr
 document.getElementById('confirmEnrollment').addEventListener('click',async()=>{try{await post('user_mfa_totp_confirm',{factor_id:factorId,code:document.getElementById('confirmCode').value});showMessage(<?=json_encode(oneid_translate('user_mfa.security.confirmed'))?>,true);setTimeout(()=>location.reload(),900)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
 <?php elseif ($activeTotp): ?>
 document.getElementById('revokeAuthenticator').addEventListener('click',()=>{const button=document.getElementById('revokeAuthenticator'),code=document.getElementById('revokeCode').value.trim();if(!/^[0-9]{6}$/.test(code)){showMessage(<?=json_encode(oneid_translate('user_mfa.login.code_required'))?>);return}swal({title:<?=json_encode(oneid_translate('user_mfa.security.revoke_confirm'))?>,text:<?=json_encode(oneid_translate('user_mfa.security.revoke_warning'))?>,type:'warning',showCancelButton:true,confirmButtonColor:'#b4233b',confirmButtonText:<?=json_encode(oneid_translate('user_mfa.security.revoke'))?>,cancelButtonText:<?=json_encode(oneid_translate('common.cancel'))?>,closeOnConfirm:false},async function(){try{button.disabled=true;button.textContent=<?=json_encode(oneid_translate('user_mfa.security.revoking'))?>;const result=await post('user_mfa_totp_revoke',{code,reason:'SELF_SERVICE'});swal({title:<?=json_encode(oneid_translate('user_mfa.security.revoked_title'))?>,text:<?=json_encode(oneid_translate('user_mfa.security.revoked'))?>,type:'success',confirmButtonText:<?=json_encode(oneid_translate('user_mfa.security.continue'))?>,closeOnConfirm:false},function(){location.href=result.redirect_uri||'../'})}catch(e){button.disabled=false;button.textContent=<?=json_encode(oneid_translate('user_mfa.security.revoke'))?>;swal(<?=json_encode(oneid_translate('user_mfa.security.failed'))?>,e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>,'error')}})});
+document.getElementById('requestRecoveryOtp').addEventListener('click',async()=>{const button=document.getElementById('requestRecoveryOtp'),password=document.getElementById('recoveryPassword').value;if(!password){showMessage(<?=json_encode(oneid_translate('user_mfa.security.current_password'))?>);return}try{button.disabled=true;const result=await post('user_mfa_totp_recovery_email_request',{current_password:password});recoveryChallengeId=String(result.challenge_id||'');document.getElementById('recoveryPassword').value='';document.getElementById('recoveryOtpPanel').classList.remove('mfa-hidden');showMessage(<?=json_encode(oneid_translate('user_mfa.security.recovery_sent'))?>.replace('{email}',String(result.masked_email||'')),true)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}finally{button.disabled=false}});
+document.getElementById('verifyRecoveryOtp').addEventListener('click',()=>{const button=document.getElementById('verifyRecoveryOtp'),code=document.getElementById('recoveryOtp').value.trim();if(!recoveryChallengeId||!/^[0-9]{6}$/.test(code)){showMessage(<?=json_encode(oneid_translate('user_mfa.login.code_required'))?>);return}swal({title:<?=json_encode(oneid_translate('user_mfa.security.revoke_confirm'))?>,text:<?=json_encode(oneid_translate('user_mfa.security.revoke_warning'))?>,type:'warning',showCancelButton:true,confirmButtonColor:'#b4233b',confirmButtonText:<?=json_encode(oneid_translate('user_mfa.security.revoke'))?>,cancelButtonText:<?=json_encode(oneid_translate('common.cancel'))?>,closeOnConfirm:false},async function(){try{button.disabled=true;const result=await post('user_mfa_totp_recovery_email_verify',{challenge_id:recoveryChallengeId,code});swal({title:<?=json_encode(oneid_translate('user_mfa.security.revoked_title'))?>,text:<?=json_encode(oneid_translate('user_mfa.security.revoked'))?>,type:'success',confirmButtonText:<?=json_encode(oneid_translate('user_mfa.security.continue'))?>,closeOnConfirm:false},function(){location.href=result.redirect_uri||'../'})}catch(e){button.disabled=false;swal(<?=json_encode(oneid_translate('user_mfa.security.failed'))?>,e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>,'error')}})});
 <?php endif; ?>
 </script>
 </body></html>

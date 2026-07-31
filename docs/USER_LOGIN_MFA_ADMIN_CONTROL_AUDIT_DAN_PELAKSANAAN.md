@@ -307,3 +307,57 @@ Prioriti 4, 5 dan 6 tidak menerima kelulusan baharu melalui checkpoint ini.
 Sebahagian guardrail yang sudah diperlukan oleh Prioriti 3 tidak dianggap
 sebagai closure formal bagi prioriti tersebut. Titik sambungan seterusnya
 ialah browser UAT Prioriti 3 apabila owner bersedia.
+
+## 11. Self-service revoke melalui OTP e-mel
+
+**Kelulusan owner:** 31 Julai 2026
+**Status:** IMPLEMENTATION COMPLETE / OWNER UAT PENDING
+**Migration reference:** `ONEID-USER-MFA-RECOVERY-20260731`
+
+Owner meluluskan alternatif self-service bagi pengguna yang kehilangan akses
+kepada telefon dengan enrollment Microsoft Authenticator. Halaman Account
+Security kini menyediakan dua kaedah:
+
+1. kod enam digit daripada Authenticator aktif; atau
+2. kata laluan semasa diikuti OTP baharu ke e-mel rasmi authoritative.
+
+OTP recovery menggunakan boundary berasingan:
+
+- purpose tetap `TOTP_RECOVERY`;
+- tidak boleh digunakan semula sebagai OTP login atau password recovery;
+- hash sahaja disimpan, TTL lima minit dan maksimum lima cubaan;
+- cooldown 60 saat, had 10 penghantaran sejam bagi user/session/destination
+  dan 50 sejam bagi IP;
+- lima kegagalan kata laluan dalam 15 minit menyebabkan rate limit;
+- challenge terikat kepada user, authenticated session, browser dan IP;
+- OTP hanya boleh digunakan sekali; material hash dibersihkan apabila
+  consumed, revoked atau attempts habis; dan
+- CSRF serta pilot/runtime gate User MFA sedia ada kekal digunakan.
+
+Selepas recovery berjaya, transaksi atomik:
+
+- merevoke semua faktor TOTP `PENDING/ACTIVE`;
+- mengembalikan preference kepada `EMAIL_OTP`;
+- merevoke pending login transaction dan challenge;
+- merevoke semua token/sesi OneID;
+- merekod audit `USER_MFA_FACTOR_REVOKE` dengan reason
+  `EMAIL_OTP_SELF_RECOVERY`; dan
+- menghantar notifikasi keselamatan ke e-mel rasmi selepas commit.
+
+Schema `user_mfa_recovery_challenges` telah dipasang pada shared database
+dengan 16 column dan zero open challenge. Kontrak recovery `10/10 PASS`,
+kontrak U5 `13/13 PASS`, regresi U7/U8 dan temporary exemption kekal lulus.
+
+Admin recovery dua-pentadbir masih merupakan fallback reka bentuk bagi kes
+pengguna turut kehilangan akses kepada e-mel rasmi, tetapi endpoint/UI admin
+tersebut belum dianggap selesai melalui implementation self-service ini.
+
+Browser UAT yang masih diperlukan:
+
+1. revoke menggunakan kod Authenticator sedia ada;
+2. salah kata laluan tidak menghantar OTP;
+3. kata laluan sah menghantar OTP recovery ke e-mel rasmi;
+4. OTP salah/expired/replay ditolak;
+5. OTP sah merevoke Authenticator dan melog keluar semua sesi;
+6. login berikutnya menawarkan OTP e-mel tanpa faktor TOTP lama; dan
+7. notifikasi revoke diterima serta enrollment telefon baharu boleh dibuat.

@@ -19,6 +19,8 @@ final class UserMfaHttpBoundary
         'user_mfa_totp_confirm',
         'user_mfa_totp_preference',
         'user_mfa_totp_revoke',
+        'user_mfa_totp_recovery_email_request',
+        'user_mfa_totp_recovery_email_verify',
         'user_mfa_admin_recovery',
     ];
 
@@ -97,6 +99,10 @@ final class UserMfaHttpBoundary
             'USER_MFA_TOTP_UNAVAILABLE_USE_EMAIL',
             'USER_MFA_TOTP_REPLAYED',
             'USER_MFA_TOTP_VERIFY_FAILED',
+            'USER_MFA_RECOVERY_UNAVAILABLE',
+            'USER_MFA_RECOVERY_PASSWORD_INVALID',
+            'USER_MFA_RECOVERY_CHALLENGE_INVALID',
+            'USER_MFA_RECOVERY_FACTOR_UNAVAILABLE',
         ];
         return [
             'status' => 0,
