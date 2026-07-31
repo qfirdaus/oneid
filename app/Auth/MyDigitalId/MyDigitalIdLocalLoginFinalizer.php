@@ -65,6 +65,11 @@ final class MyDigitalIdLocalLoginFinalizer implements MyDigitalIdLocalLoginFinal
             $setCookie($token);
             $establishSession($user);
             $_SESSION['auth_method'] = 'mydigitalid';
+            if ((int) ($user['password_change_required'] ?? 0) === 1) {
+                \oneid_issue_mydigitalid_initial_password_grant($userId);
+            } else {
+                unset($_SESSION['mydigitalid_initial_password_grant']);
+            }
         } catch (Throwable $exception) {
             if ($inserted) {
                 try {

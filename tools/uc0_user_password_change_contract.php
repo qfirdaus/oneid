@@ -2,7 +2,7 @@
 declare(strict_types=1);
 $root=dirname(__DIR__);$ui=(string)file_get_contents($root.'/page/dashboard.php');$q=(string)file_get_contents($root.'/lib/q_func.php');$db=(string)file_get_contents($root.'/lib/Database.php');$guard=(string)file_get_contents($root.'/lib/request_security.php');$auth=(string)file_get_contents($root.'/lib/auth_security.php');$session=(string)file_get_contents($root.'/lib/session_security.php');$service=(string)file_get_contents($root.'/app/User/UserPasswordChangeService.php');
 $n=0;$f=0;$check=function(bool $ok,string $d)use(&$n,&$f){$n++;if(!$ok)$f++;printf("%s: %s\n",$ok?'PASS':'FAIL',$d);};
-$check(str_contains($guard,"'check_default_password'")&&str_contains($guard,"'action_change_password'")&&str_contains($guard,'oneid_require_csrf();'),'password actions are authenticated-user and CSRF guarded');
+$check(str_contains($guard,"'check_default_password'")&&str_contains($guard,"'action_change_password'")&&str_contains($guard,"'action_set_initial_password'")&&str_contains($guard,'oneid_require_csrf();'),'password actions are authenticated-user and CSRF guarded');
 $check(str_contains($ui,"data: {check_default_password:\"\"}")&&str_contains($ui,"$('#modal_change_first_time_password').modal('show')"),'forced-change baseline is driven by a frontend modal');
 $check(str_contains($service,'oneid_password_verify($current,$stored)')&&str_contains($q,'UserPasswordChangeService'),'backend service verifies current password for the session user');
 $check(str_contains($auth,'strlen($password) < 12')&&str_contains($auth,"preg_match('/[A-Z]/'")&&str_contains($q,'oneid_validate_new_password'),'12-character composition policy is enforced server-side');

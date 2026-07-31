@@ -24,6 +24,7 @@ require_once dirname(__DIR__) . '/app/User/UserSecurityActionException.php';
 require_once dirname(__DIR__) . '/app/User/UserSecurityActionService.php';
 require_once dirname(__DIR__) . '/app/User/UserPasswordChangeException.php';
 require_once dirname(__DIR__) . '/app/User/UserPasswordChangeService.php';
+require_once dirname(__DIR__) . '/app/User/InitialPasswordSetupService.php';
 require_once dirname(__DIR__) . '/app/User/UserManagementException.php';
 require_once dirname(__DIR__) . '/app/User/UserProfilePolicyService.php';
 require_once dirname(__DIR__) . '/app/User/UserAclManagementService.php';
@@ -556,7 +557,11 @@ function string_sanitize($s) {
       if(isset( $_POST['check_default_password'])){
         $array = array();
         if((int) ($_SESSION['password_change_required'] ?? 0) === 1){
-          $array['result'] = "change_pwd";
+          $userId=(string)($_SESSION['login_user']??'');
+          if(($_SESSION['auth_method']??'')==='mydigitalid'){
+            $array['result']=oneid_has_valid_mydigitalid_initial_password_grant($userId)?'initial_setup':'mydigitalid_reauth_required';
+            if($array['result']==='mydigitalid_reauth_required'){$array['redirect_uri']=APP_URL.'/';}
+          }else{$array['result'] = "change_pwd";}
           echo json_encode($array);
         }else{
           $array['result'] = "no";
@@ -945,6 +950,17 @@ function string_sanitize($s) {
           else{session_regenerate_id(true);$_SESSION['password_change_required']=0;unset($_SESSION['oneid_csrf_token']);$result['csrf_token']=oneid_csrf_token();oneid_set_sso_cookie((string)$token);}
           $result['translation_key']='dashboard.password.success';$result['msg']=oneid_translate('dashboard.password.success');echo json_encode($result);}
         catch(\OneId\App\User\UserPasswordChangeException $e){$operation->syslog_record(20,'user='.$_SESSION['login_user'].' outcome=rejected reason='.$e->reason.' correlation='.$e->correlationId,getUserIP());$passwordErrorKey=match($e->reason){'UC2_CONFIRMATION_MISMATCH'=>'dashboard.password.mismatch','UC5_PASSWORD_QUALITY_REJECTED'=>'dashboard.password.quality_rejected','UC2_USER_NOT_ACTIVE'=>'dashboard.password.user_inactive','UC2_CURRENT_PASSWORD_INVALID'=>'dashboard.password.current_invalid','UC2_PASSWORD_REUSE_CURRENT'=>'dashboard.password.reuse_current','UC5_PASSWORD_HISTORY_REUSED'=>'dashboard.password.history_reused',default=>'dashboard.password.operation_failed'};echo json_encode(['status'=>0,'code'=>$e->reason,'translation_key'=>$passwordErrorKey,'msg'=>oneid_translate($passwordErrorKey),'correlation_id'=>$e->correlationId]);}
+      }
+
+      if(isset($_POST['action_set_initial_password'])){
+        $userId=(string)($_SESSION['login_user']??'');$ip=(string)getUserIP();
+        if((int)($_SESSION['password_change_required']??0)!==1||!oneid_has_valid_mydigitalid_initial_password_grant($userId)){
+          $correlation=bin2hex(random_bytes(8));$operation->syslog_record(20,'user='.$userId.' outcome=rejected reason=UC6_INITIAL_SETUP_GRANT_INVALID correlation='.$correlation,$ip);
+          if(!headers_sent())http_response_code(403);
+          echo json_encode(['status'=>0,'code'=>'UC6_INITIAL_SETUP_GRANT_INVALID','translation_key'=>'dashboard.password.mydigitalid_reauth','msg'=>oneid_translate('dashboard.password.mydigitalid_reauth'),'redirect_uri'=>APP_URL.'/','correlation_id'=>$correlation]);return;
+        }
+        try{$service=new \OneId\App\User\InitialPasswordSetupService($operation);$result=$service->setup($userId,(string)($_POST['change_password_new']??''),(string)($_POST['change_password_new_reconfirm']??''),$ip);oneid_consume_mydigitalid_initial_password_grant();oneid_clear_sso_cookie();$_SESSION=[];session_regenerate_id(true);$result['redirect_uri']=APP_URL.'/';$result['translation_key']='dashboard.password.initial_success';$result['msg']=oneid_translate('dashboard.password.initial_success');echo json_encode($result);}
+        catch(\OneId\App\User\UserPasswordChangeException $e){$operation->syslog_record(20,'user='.$userId.' outcome=rejected reason='.$e->reason.' correlation='.$e->correlationId,$ip);$key=match($e->reason){'UC2_CONFIRMATION_MISMATCH'=>'dashboard.password.mismatch','UC5_PASSWORD_QUALITY_REJECTED'=>'dashboard.password.quality_rejected','UC2_USER_NOT_ACTIVE'=>'dashboard.password.user_inactive','UC2_PASSWORD_REUSE_CURRENT'=>'dashboard.password.reuse_current','UC5_PASSWORD_HISTORY_REUSED'=>'dashboard.password.history_reused','UC6_INITIAL_SETUP_NOT_REQUIRED'=>'dashboard.password.initial_not_required',default=>'dashboard.password.operation_failed'};echo json_encode(['status'=>0,'code'=>$e->reason,'translation_key'=>$key,'msg'=>oneid_translate($key),'correlation_id'=>$e->correlationId]);}
       }
 
 

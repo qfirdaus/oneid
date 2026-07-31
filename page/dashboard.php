@@ -189,7 +189,10 @@
                                        <div class="col-sm-12 col-xs-12">
                                           <div class="form-wrap">
                                              <div class="form-body overflow-hide">
-                                                <div class="form-group">
+                                                <div class="alert alert-info" id="initial_password_setup_notice" style="display:none;">
+                                                   <?=htmlspecialchars(oneid_translate('dashboard.password.initial_notice'), ENT_QUOTES, 'UTF-8')?>
+                                                </div>
+                                                <div class="form-group" id="current_password_group">
                                                    <label class="control-label mb-10" for="change_password_current"><span id="default_pwd_text"><?=htmlspecialchars(oneid_translate('dashboard.password.current'), ENT_QUOTES, 'UTF-8')?></span></label>
                                                    <input type="password" class="form-control" id="change_password_current" name="change_password_current" autocomplete="current-password" required>
                                                 </div>
@@ -522,6 +525,9 @@
             'signOffSuccess' => oneid_translate('dashboard.sessions.success'),
             'signOffError' => oneid_translate('dashboard.sessions.error'),
             'passwordCurrent' => oneid_translate('dashboard.password.current'),
+            'passwordTitle' => oneid_translate('dashboard.password.title'),
+            'passwordInitialTitle' => oneid_translate('dashboard.password.initial_title'),
+            'passwordMyDigitalIdReauth' => oneid_translate('dashboard.password.mydigitalid_reauth'),
             'passwordLength' => oneid_translate('dashboard.password.length'),
             'passwordLowercase' => oneid_translate('dashboard.password.lowercase'),
             'passwordUppercase' => oneid_translate('dashboard.password.uppercase'),
@@ -561,10 +567,14 @@
                    // $('#login_status').html('<div class="alert alert-info alert-dismissable alert-style-1"><i class="zmdi zmdi-info-outline"></i>Signing on. Checking info. Wait a moment.</div>');
                  },
                  success: function (response) {
-                  if(response['result']=="change_pwd"){ 
+                  if(response['result']==="change_pwd"||response['result']==="initial_setup"){
+                     initialPasswordSetup=response['result']==="initial_setup";
                      //open_change_password();
                       $('#modal_change_first_time_password').modal('show');
                      $('#btn_close_changePW').hide();
+                  }else if(response['result']==="mydigitalid_reauth_required"){
+                     alert(dashboardI18n.passwordMyDigitalIdReauth);
+                     window.location.href=response.redirect_uri||'../';
                   }else{
                      $('#btn_close_changePW').show();
                               }
@@ -936,6 +946,7 @@
 
          }
          
+         var initialPasswordSetup = false;
          function open_change_password(type){   
 		 
 		 if(type==0){
@@ -953,6 +964,10 @@
              // Modal is closed
              $('#default_pwd_text').text(dashboardI18n.passwordCurrent);
          }
+         $('#current_password_group').toggle(!initialPasswordSetup);
+         $('#change_password_current').prop('required',!initialPasswordSetup);
+         $('#initial_password_setup_notice').toggle(initialPasswordSetup);
+         $('#aria_modal_change_password').text(initialPasswordSetup?dashboardI18n.passwordInitialTitle:dashboardI18n.passwordTitle);
          $('#change_password_current').val('');
          $('#change_password_new').val('');
          $('#change_password_new_reconfirm').val('');
@@ -1034,7 +1049,7 @@
 
 
              var data = $('#form_change_password').serializeArray();
-             data.push({name: 'action_change_password', value: ''});
+             data.push({name: initialPasswordSetup?'action_set_initial_password':'action_change_password', value: ''});
                  $.ajax({
                          type: 'POST',
                          url: '../lib/q_func',
@@ -1055,6 +1070,11 @@
          
                      },
                      error: function (xhr, error, thrown) {
+                        if(initialPasswordSetup&&xhr.responseJSON&&xhr.responseJSON.code==='UC6_INITIAL_SETUP_GRANT_INVALID'){
+                           showPasswordChangeFeedback(xhr.responseJSON.msg||dashboardI18n.passwordMyDigitalIdReauth,'error');
+                           setTimeout(function(){window.location.href=xhr.responseJSON.redirect_uri||'../';},2500);
+                           return;
+                        }
                         showPasswordChangeFeedback(dashboardI18n.passwordHttpFailed.replace('{status}',xhr.status),'error');
                      },
                      complete: function(){

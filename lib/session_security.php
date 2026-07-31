@@ -85,6 +85,40 @@ function oneid_establish_authenticated_session(array $user): void
     oneid_promote_authenticated_locale((string) $user['u_id']);
 }
 
+function oneid_issue_mydigitalid_initial_password_grant(string $userId): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        throw new RuntimeException('A PHP session is required');
+    }
+    $_SESSION['mydigitalid_initial_password_grant'] = [
+        'user_id' => $userId,
+        'issued_at' => time(),
+        'session_binding' => hash('sha256', session_id()),
+        'nonce' => bin2hex(random_bytes(32)),
+    ];
+}
+
+function oneid_has_valid_mydigitalid_initial_password_grant(string $userId, int $ttlSeconds = 300): bool
+{
+    $grant = $_SESSION['mydigitalid_initial_password_grant'] ?? null;
+    if (!is_array($grant)
+        || ($_SESSION['auth_method'] ?? '') !== 'mydigitalid'
+        || (string) ($_SESSION['login_user'] ?? '') !== $userId
+        || (string) ($grant['user_id'] ?? '') !== $userId
+        || preg_match('/^[a-f0-9]{64}$/D', (string) ($grant['nonce'] ?? '')) !== 1
+        || !hash_equals(hash('sha256', session_id()), (string) ($grant['session_binding'] ?? ''))
+    ) {
+        return false;
+    }
+    $issuedAt = (int) ($grant['issued_at'] ?? 0);
+    return $issuedAt > 0 && time() >= $issuedAt && (time() - $issuedAt) <= $ttlSeconds;
+}
+
+function oneid_consume_mydigitalid_initial_password_grant(): void
+{
+    unset($_SESSION['mydigitalid_initial_password_grant']);
+}
+
 function oneid_totp_account_label(string $role, ?array $user = null): string
 {
     $role = strtoupper(trim($role)) === 'ADMIN' ? 'Admin' : 'User';

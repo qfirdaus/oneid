@@ -100,6 +100,7 @@ function oneid_q_func_action_map(): array
         'user' => [
             'check_default_password',
             'action_change_password',
+            'action_set_initial_password',
             'admin_get_all_token_for_specific_user',
             'get_specific_user_app_list',
             'user_set_app_favourite',
@@ -320,7 +321,7 @@ function oneid_guard_q_func_request(array $post, ?object $operation = null): str
         $state=$operation->get_password_change_requirement((string)$_SESSION['login_user']);
         if(!is_array($state)||(int)($state['avail_status']??0)!==1){oneid_json_deny(401,'Account is not active');}
         $_SESSION['password_change_required']=(int)($state['password_change_required']??0);
-        if($_SESSION['password_change_required']===1&&!in_array($matchedActions[0],['check_default_password','action_change_password'],true)){
+        if($_SESSION['password_change_required']===1&&!in_array($matchedActions[0],['check_default_password','action_change_password','action_set_initial_password'],true)){
             if(!headers_sent()){http_response_code(403);header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');}
             echo json_encode(['status'=>403,'code'=>'UC3_PASSWORD_CHANGE_REQUIRED','error'=>'Password change required before this action']);exit;
         }
