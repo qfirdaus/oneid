@@ -1,7 +1,7 @@
 # Audit dan Pelaksanaan Kawalan Administrator User Login MFA
 
-**Tarikh:** 30 Julai 2026  
-**Status:** PRIORITI 1 UAT PASS / CLOSED / PRIORITI 2 DEVELOPMENT DAN MIGRATION PASS, MENUNGGU UAT / PRIORITI 3–6 MENUNGGU KELULUSAN OWNER
+**Tarikh:** 31 Julai 2026
+**Status:** PRIORITI 1–2 UAT PASS / CLOSED / PRIORITI 3–6 MENUNGGU KELULUSAN OWNER
 
 ## 1. Objektif
 
@@ -26,7 +26,7 @@ fail-closed validation wajib digunakan untuk mutation polisi.
 | Prioriti | Skop | Status |
 |---|---|---|
 | 1 | Admin Configuration global User MFA `ON/OFF` | UAT PASS / CLOSED |
-| 2 | Polisi kategori staf/pelajar daripada sumber authoritative | Development dan migration pass / menunggu UAT |
+| 2 | Polisi kategori staf/pelajar daripada sumber authoritative | UAT PASS / CLOSED |
 | 3 | Pengecualian individu sementara dengan auto-expiry | Menunggu kelulusan |
 | 4 | Administrator tidak boleh dikecualikan | Menunggu kelulusan |
 | 5 | Monitoring, history dan pending-transaction cancellation lanjutan | Menunggu kelulusan |
@@ -74,7 +74,7 @@ dianggap sebagai pelaksanaan penuh prioriti berkenaan.
 - BM/English dan SweetAlert confirmation;
 - regression password `OFF` dan restore mode lulus.
 
-## 5. Reka bentuk Prioriti 2–6 (belum diberi kuasa)
+## 5. Pelaksanaan Prioriti 2 dan reka bentuk Prioriti 3–6
 
 ### Prioriti 2
 
@@ -113,15 +113,28 @@ Bukti pelaksanaan 30 Julai 2026:
 - polisi awal `STAFF=ON` dan `STUDENT=ON`, masing-masing version `1`;
 - bacaan authoritative selepas migration: `STAFF=1,062` dan
   `STUDENT=5,492`;
-- contract Prioriti 2: `10/10 PASS`;
+- contract Prioriti 2: `11/11 PASS`;
 - contract global Prioriti 1: `10/10 PASS`;
-- regresi U0–U8: `PASS`; dan
-- mutation kategori sebenar belum dibuat; menunggu UAT Administrator.
+- regresi U0–U8: `PASS`.
 
-UAT Prioriti 2 mesti menguji `disable -> login bypass -> enable -> login
-challenge` bagi kategori yang mempunyai akaun ujian sah. Enrollment sedia ada
-mesti kekal selepas disable. Prioriti 2 hanya boleh ditutup selepas bukti ini
-direkodkan.
+Bukti UAT Administrator 31 Julai 2026:
+
+1. kategori `STAFF` dimatikan melalui `Category Scope`;
+2. akaun staf `0530-09` berjaya login tanpa faktor kedua;
+3. kategori `STAFF` diaktifkan semula;
+4. akaun staf `0530-09` kembali dicabar dengan pilihan OTP e-mel atau
+   Microsoft Authenticator; dan
+5. enrollment Microsoft Authenticator sedia ada kekal dan boleh digunakan.
+
+Audit database shared mengesahkan transaksi berpasangan:
+
+| Versi STAFF | Perubahan | Reference | Keputusan |
+|---:|---|---|---|
+| 2 | `ON` → `OFF` | `ONEID-USER-2FA-DISABLE-STAFF-20260731` | PASS |
+| 3 | `OFF` → `ON` | `ONEID-USER-2FA-ENABLE-STAFF-20260731` | PASS |
+
+Keadaan akhir ialah `STAFF=ON` version `3` dan `STUDENT=ON` version `1`.
+Prioriti 2 ditutup sebagai `UAT PASS / CLOSED`.
 
 ### Prioriti 3
 
@@ -146,8 +159,8 @@ owner sign-off dan closure/rollback evidence.
 
 ## 6. Stop condition
 
-Selepas Prioriti 1 siap dan diserahkan untuk UAT, pembangunan berhenti.
-Prioriti 2 hanya boleh bermula selepas arahan kelulusan owner yang jelas.
+Selepas Prioriti 2 ditutup, pembangunan berhenti. Prioriti 3 hanya boleh
+bermula selepas arahan kelulusan owner yang jelas.
 
 ## 7. Evidence penutupan Prioriti 1
 
@@ -174,4 +187,5 @@ Keadaan akhir:
 - Microsoft Authenticator enabled;
 - configuration version `5`;
 - enrollment Authenticator pengguna dipelihara; dan
-- Prioriti 1 ditutup tanpa memberikan authorization kepada Prioriti 2.
+- Prioriti 1 ditutup pada ketika itu tanpa memberikan authorization automatik
+  kepada Prioriti 2; kelulusan Prioriti 2 diberikan secara berasingan kemudian.
