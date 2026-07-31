@@ -36,6 +36,10 @@ $checks = [
         'public/assetsM/js/user-2fa-category-policy.js',
         ['X-CSRF-Token', 'AbortController', '15000', 'fillUser2faCategoryReference', 'fillUser2faCategoryConfirmation', 'sessionStorage', 'STEP_UP_REQUIRED'],
     ],
+    'User 2FA administration separates global security and category scope tabs' => [
+        'admin/dashboard.php',
+        ['user-2fa-subtabs', 'user_2fa_security_panel', 'user_2fa_category_panel'],
+    ],
     'bilingual category controls and approval gates are documented' => [
         'docs/USER_LOGIN_MFA_ADMIN_CONTROL_AUDIT_DAN_PELAKSANAAN.md',
         ['Prioriti 2', 'STAFF', 'STUDENT', 'Prioriti 3'],

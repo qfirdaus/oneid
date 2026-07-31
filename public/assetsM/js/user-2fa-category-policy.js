@@ -267,6 +267,7 @@
   updateGuides();
   load();
   document.addEventListener('shown.bs.tab', function (event) {
-    if (event.target && event.target.getAttribute('href') === '#configuration_user_mfa') load();
+    if (event.target && ['#configuration_user_mfa', '#user_2fa_category_panel']
+      .indexOf(event.target.getAttribute('href')) !== -1) load();
   });
 }());

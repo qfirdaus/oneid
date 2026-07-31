@@ -1841,6 +1841,12 @@
                                                       </div>
                                                          </section>
                                                          <section class="tab-pane fade" id="configuration_user_mfa" role="tabpanel" aria-labelledby="configuration_user_mfa_tab">
+                                                            <ul class="nav nav-tabs user-2fa-subtabs" role="tablist" aria-label="<?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_sections'), ENT_QUOTES, 'UTF-8')?>">
+                                                               <li class="active" role="presentation"><a href="#user_2fa_security_panel" id="user_2fa_security_tab" role="tab" data-toggle="tab" aria-controls="user_2fa_security_panel" aria-selected="true"><i class="fa fa-shield"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_security_tab'), ENT_QUOTES, 'UTF-8')?></a></li>
+                                                               <li role="presentation"><a href="#user_2fa_category_panel" id="user_2fa_category_tab" role="tab" data-toggle="tab" aria-controls="user_2fa_category_panel" aria-selected="false"><i class="fa fa-users"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_category_tab'), ENT_QUOTES, 'UTF-8')?></a></li>
+                                                            </ul>
+                                                            <div class="tab-content user-2fa-subtab-content">
+                                                               <div class="tab-pane fade in active" id="user_2fa_security_panel" role="tabpanel" aria-labelledby="user_2fa_security_tab">
                                                             <div class="sso-config-panel">
                                                                <div class="sso-config-header">
                                                                   <div>
@@ -1864,7 +1870,9 @@
                                                                   <div class="sso-config-note sso-config-note-warning"><i class="fa fa-exclamation-triangle"></i><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_warning'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                                </div>
                                                             </div>
-                                                            <div class="sso-config-panel mt-20">
+                                                               </div>
+                                                               <div class="tab-pane fade" id="user_2fa_category_panel" role="tabpanel" aria-labelledby="user_2fa_category_tab">
+                                                            <div class="sso-config-panel">
                                                                <div class="sso-config-header">
                                                                   <div>
                                                                      <span class="sso-config-eyebrow"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_category_eyebrow'), ENT_QUOTES, 'UTF-8')?></span>
@@ -1883,6 +1891,8 @@
                                                                   <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">04</span><div><label for="user_2fa_category_reference"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_reference'), ENT_QUOTES, 'UTF-8')?></label><p><strong id="user_2fa_category_reference_suggestion"></strong></p></div></div><div class="sso-config-control"><input class="form-control" id="user_2fa_category_reference" maxlength="100"><button class="btn btn-default btn-sm mt-10" type="button" onclick="fillUser2faCategoryReference();"><i class="fa fa-copy"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_use_reference'), ENT_QUOTES, 'UTF-8')?></button></div></div>
                                                                   <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">05</span><div><label for="user_2fa_category_confirmation"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_confirmation'), ENT_QUOTES, 'UTF-8')?></label><p><strong id="user_2fa_category_confirmation_suggestion"></strong></p></div></div><div class="sso-config-control"><input class="form-control" id="user_2fa_category_confirmation" autocomplete="off"><button class="btn btn-default btn-sm mt-10" type="button" onclick="fillUser2faCategoryConfirmation();"><i class="fa fa-copy"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_use_confirmation'), ENT_QUOTES, 'UTF-8')?></button></div></div>
                                                                   <div class="sso-config-note sso-config-note-warning"><i class="fa fa-exclamation-triangle"></i><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_category_warning'), ENT_QUOTES, 'UTF-8')?></p></div>
+                                                               </div>
+                                                            </div>
                                                                </div>
                                                             </div>
                                                          </section>
@@ -2338,6 +2348,10 @@
                 if ($(event.target).attr('href') === '#configuration_admin_2fa') {
                    loadAdminMfaPreference();
                 }
+             });
+             $('#tab_settings .user-2fa-subtabs a[data-toggle="tab"]').on('shown.bs.tab', function(event){
+                $('#tab_settings .user-2fa-subtabs a[data-toggle="tab"]').attr('aria-selected', 'false');
+                $(event.target).attr('aria-selected', 'true');
              });
              var requestedConfiguration=new URLSearchParams(window.location.search).get('configuration');
              if(requestedConfiguration==='admin_2fa'){
@@ -9864,6 +9878,56 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         min-height: 560px;
       }
 
+      #tab_settings .user-2fa-subtabs {
+        display: flex;
+        margin: 0;
+        padding: 8px 12px 0;
+        border: 0;
+        border-bottom: 1px solid #dfe5ec;
+        background: #f7f9fc;
+      }
+
+      #tab_settings .user-2fa-subtabs > li {
+        float: none;
+        margin: 0 6px 0 0;
+      }
+
+      #tab_settings .user-2fa-subtabs > li > a {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        padding: 12px 18px;
+        border: 1px solid transparent;
+        border-bottom: 3px solid transparent;
+        border-radius: 7px 7px 0 0;
+        color: #667386;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      #tab_settings .user-2fa-subtabs > li > a:hover,
+      #tab_settings .user-2fa-subtabs > li > a:focus {
+        border-color: #dce8ee;
+        border-bottom-color: #8dc9df;
+        background: #fff;
+        color: #176e94;
+        outline: none;
+      }
+
+      #tab_settings .user-2fa-subtabs > li.active > a,
+      #tab_settings .user-2fa-subtabs > li.active > a:hover,
+      #tab_settings .user-2fa-subtabs > li.active > a:focus {
+        border-color: #dfe5ec;
+        border-bottom-color: #159bce;
+        background: #fff;
+        color: #116f98;
+      }
+
+      #tab_settings .user-2fa-subtabs i {
+        color: #159bce;
+      }
+
       #tab_settings .sso-config-panel {
         background: #f7f9fc;
         padding: 30px;
@@ -10235,6 +10299,15 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
         #tab_settings .sso-config-panel {
           padding: 20px 15px;
+        }
+
+        #tab_settings .user-2fa-subtabs {
+          overflow-x: auto;
+        }
+
+        #tab_settings .user-2fa-subtabs > li > a {
+          padding: 11px 13px;
+          white-space: nowrap;
         }
 
         #tab_settings .sso-config-header {
