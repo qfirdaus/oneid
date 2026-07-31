@@ -1,7 +1,8 @@
 # Audit dan Pelaksanaan Kawalan Administrator User Login MFA
 
 **Tarikh:** 31 Julai 2026
-**Status:** PRIORITI 1–2 UAT PASS / CLOSED / PRIORITI 3–6 MENUNGGU KELULUSAN OWNER
+**Status:** PRIORITI 1–2 UAT PASS / CLOSED / PRIORITI 3 IMPLEMENTATION APPROVED /
+PRIORITI 4–6 MENUNGGU KELULUSAN OWNER
 
 ## 1. Objektif
 
@@ -27,7 +28,7 @@ fail-closed validation wajib digunakan untuk mutation polisi.
 |---|---|---|
 | 1 | Admin Configuration global User MFA `ON/OFF` | UAT PASS / CLOSED |
 | 2 | Polisi kategori staf/pelajar daripada sumber authoritative | UAT PASS / CLOSED |
-| 3 | Pengecualian individu sementara dengan auto-expiry | Menunggu kelulusan |
+| 3 | Pengecualian individu sementara dengan auto-expiry | Implementation approved / in progress |
 | 4 | Administrator tidak boleh dikecualikan | Menunggu kelulusan |
 | 5 | Monitoring, history dan pending-transaction cancellation lanjutan | Menunggu kelulusan |
 | 6 | Pilot/observation 72 jam dan closure evidence | Menunggu kelulusan |
@@ -222,3 +223,43 @@ Perkara yang perlu dimuktamadkan dalam reka bentuk Prioriti 3:
 
 Tiada kod, migration atau mutation Prioriti 3 dibenarkan sehingga approval
 baharu direkodkan.
+
+## 9. Kelulusan dan kontrak Prioriti 3
+
+**Kelulusan owner:** 31 Julai 2026
+**Arahan:** teruskan Prioriti 3 — pengecualian User 2FA individu secara
+sementara.
+
+Kontrak pelaksanaan:
+
+- tempoh dibenarkan ialah 1, 4, 8, 24 atau 72 jam; 72 jam ialah maksimum;
+- akaun mesti aktif, `u_type=0`, dan akaun Administrator ditolak;
+- reason, reference/ticket, approver, compensating control dan typed
+  confirmation diwajibkan;
+- exemption hanya berkesan apabila status `ACTIVE`, `starts_at <= NOW()` dan
+  `expires_at > NOW()`; kegagalan worker tidak memanjangkan bypass;
+- create merevoke pending transaction/challenge pengguna dalam transaksi yang
+  sama dan membersihkan material OTP, tetapi tidak menamatkan sesi aktif;
+- enrollment Authenticator tidak dipadam;
+- revoke awal memulihkan enforcement pada login password seterusnya;
+- dashboard menyediakan search, status/history, amaran empat jam sebelum
+  expiry dan revoke awal; dan
+- UAT wajib membuktikan `create -> bypass -> revoke/expire -> challenge
+  restored`.
+
+### 9.1 Bukti implementation
+
+- migration reference: `ONEID-USER-2FA-P3-20260731`;
+- schema additive `user_login_mfa_exemptions` dipasang pada shared database
+  dengan 15 column dan zero active exemption;
+- live read/search berjaya dan negative test Administrator ditolak dengan
+  `USER_MFA_EXEMPTION_ADMIN_FORBIDDEN`;
+- kontrak Prioriti 3: `10/10 PASS`;
+- kontrak kategori Prioriti 2: `11/11 PASS`;
+- kontrak global Prioriti 1: `10/10 PASS`;
+- regresi U7 dan U8: `PASS`; dan
+- activation/polisi global/kategori serta data enrollment sedia ada tidak
+  diubah.
+
+Status closure Prioriti 3 kekal **UAT PENDING** sehingga owner menjalankan
+browser UAT menggunakan satu akaun pengguna yang diluluskan.

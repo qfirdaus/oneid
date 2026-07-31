@@ -120,6 +120,9 @@ function oneid_q_func_action_map(): array
             'admin_update_user_mfa_global_policy',
             'admin_get_user_mfa_category_policy',
             'admin_update_user_mfa_category_policy',
+            'admin_search_user_mfa_exemptions',
+            'admin_create_user_mfa_exemption',
+            'admin_revoke_user_mfa_exemption',
             'user_mfa_admin_recovery',
             'admin_get_configuration_history',
             'admin_get_password_recovery_settings',
@@ -202,6 +205,8 @@ function oneid_admin_action_purpose(string $action): string
         'admin_save_metadata_translation',
         'admin_update_user_mfa_global_policy',
         'admin_update_user_mfa_category_policy',
+        'admin_create_user_mfa_exemption',
+        'admin_revoke_user_mfa_exemption',
     ];
     return in_array($action, $securityConfiguration, true)
         ? 'SECURITY_CONFIGURATION_CHANGE'

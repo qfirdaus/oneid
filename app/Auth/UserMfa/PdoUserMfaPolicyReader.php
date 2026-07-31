@@ -82,6 +82,28 @@ final class PdoUserMfaPolicyReader
         }
     }
 
+    public function temporarilyExempt(string $userId): bool
+    {
+        if (preg_match('/\A[A-Za-z0-9_.@-]{1,20}\z/', $userId) !== 1) {
+            return false;
+        }
+        try {
+            $statement = $this->pdo->prepare(
+                "SELECT COUNT(*)
+                   FROM user_login_mfa_exemptions e
+                   JOIN user_tbl u ON u.u_id=e.u_id
+                  WHERE e.u_id=:user AND u.u_type=0 AND u.avail_status=1
+                    AND e.exemption_status='ACTIVE'
+                    AND e.starts_at<=NOW(6) AND e.expires_at>NOW(6)"
+            );
+            $statement->execute([':user' => $userId]);
+            return (int) $statement->fetchColumn() === 1;
+        } catch (\Throwable) {
+            // Missing/unavailable exemption state must never create a bypass.
+            return false;
+        }
+    }
+
     public function assertRuntimeParity(string $runtimeMode): void
     {
         $runtimeMode = strtoupper(trim($runtimeMode));

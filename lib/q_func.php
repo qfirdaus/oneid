@@ -36,6 +36,7 @@ require_once dirname(__DIR__) . '/app/Admin/PasswordRecoveryConfigurationService
 require_once dirname(__DIR__) . '/app/Admin/SystemLocaleConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/UserMfaGlobalPolicyService.php';
 require_once dirname(__DIR__) . '/app/Admin/UserMfaCategoryPolicyService.php';
+require_once dirname(__DIR__) . '/app/Admin/UserMfaTemporaryExemptionService.php';
 require_once dirname(__DIR__) . '/app/Admin/ActiveSessionService.php';
 require_once dirname(__DIR__) . '/app/Auth/SsoTokenLifetimePolicy.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpException.php';
@@ -724,6 +725,52 @@ function string_sanitize($s) {
             $_POST['configuration_version']??null,
             (string)($_POST['change_reason']??''),
             (string)($_POST['change_reference']??''),
+            (string)($_POST['typed_confirmation']??''),
+            (string)$_SESSION['login_user'],
+            (string)getUserIP()
+          ));
+        }catch(\OneId\App\Admin\SsoConfigurationException $e){
+          echo json_encode(['status'=>0,'code'=>$e->reason,'correlation_id'=>$e->correlationId]);
+        }
+      }
+
+      if(isset($_POST['admin_search_user_mfa_exemptions'])){
+        try{
+          $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+          echo json_encode((new \OneId\App\Admin\UserMfaTemporaryExemptionService($pdo))->search(
+            (string)($_POST['query']??'')
+          ));
+        }catch(\OneId\App\Admin\SsoConfigurationException $e){
+          echo json_encode(['status'=>0,'code'=>$e->reason,'correlation_id'=>$e->correlationId]);
+        }catch(\Throwable $e){
+          echo json_encode(['status'=>0,'code'=>'USER_MFA_EXEMPTIONS_UNAVAILABLE','correlation_id'=>bin2hex(random_bytes(8))]);
+        }
+      }
+
+      if(isset($_POST['admin_create_user_mfa_exemption'])){
+        try{
+          $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+          echo json_encode((new \OneId\App\Admin\UserMfaTemporaryExemptionService($pdo))->create(
+            (string)($_POST['user_id']??''),
+            $_POST['duration_hours']??null,
+            (string)($_POST['change_reason']??''),
+            (string)($_POST['change_reference']??''),
+            (string)($_POST['compensating_control']??''),
+            (string)($_POST['typed_confirmation']??''),
+            (string)$_SESSION['login_user'],
+            (string)getUserIP()
+          ));
+        }catch(\OneId\App\Admin\SsoConfigurationException $e){
+          echo json_encode(['status'=>0,'code'=>$e->reason,'correlation_id'=>$e->correlationId]);
+        }
+      }
+
+      if(isset($_POST['admin_revoke_user_mfa_exemption'])){
+        try{
+          $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+          echo json_encode((new \OneId\App\Admin\UserMfaTemporaryExemptionService($pdo))->revoke(
+            $_POST['exemption_id']??null,
+            (string)($_POST['revoke_reason']??''),
             (string)($_POST['typed_confirmation']??''),
             (string)$_SESSION['login_user'],
             (string)getUserIP()
