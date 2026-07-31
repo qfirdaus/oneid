@@ -189,3 +189,36 @@ Keadaan akhir:
 - enrollment Authenticator pengguna dipelihara; dan
 - Prioriti 1 ditutup pada ketika itu tanpa memberikan authorization automatik
   kepada Prioriti 2; kelulusan Prioriti 2 diberikan secara berasingan kemudian.
+
+## 8. Checkpoint sambungan kerja
+
+**Checkpoint:** 31 Julai 2026
+**Status kerja:** PAUSED BY OWNER
+**Branch:** `agent/close-odl-mydigitalid-audits`
+
+Skop yang telah selesai:
+
+- Prioriti 1 global User 2FA `ON/OFF`: `UAT PASS / CLOSED`;
+- Prioriti 2 polisi `STAFF/STUDENT`: `UAT PASS / CLOSED`;
+- UI User 2FA mempunyai sub-tab `User Security` dan `Category Scope`;
+- keadaan akhir shared database ialah global `PILOT_ENFORCED`,
+  `STAFF=ON` version `3` dan `STUDENT=ON` version `1`; dan
+- commit closure Prioriti 2 ialah `af5ce27`.
+
+Titik mula sesi seterusnya ialah **Prioriti 3 — pengecualian individu
+sementara**. Sebelum implementasi, owner mesti memberikan kelulusan jelas.
+Kelulusan terdahulu untuk Prioriti 1 atau 2 tidak meliputi Prioriti 3.
+
+Perkara yang perlu dimuktamadkan dalam reka bentuk Prioriti 3:
+
+1. tempoh maksimum pengecualian dan pilihan expiry yang dibenarkan;
+2. reference/ticket, sebab, approver dan compensating control wajib;
+3. auto-expiry dan fail-safe apabila expiry worker gagal;
+4. tindakan terhadap pending challenge dan sesi aktif semasa exemption;
+5. larangan exemption bagi akaun Administrator;
+6. paparan, carian, history, revoke awal dan audit;
+7. alert sebelum expiry serta owner respons; dan
+8. UAT `create -> bypass -> revoke/expire -> challenge restored`.
+
+Tiada kod, migration atau mutation Prioriti 3 dibenarkan sehingga approval
+baharu direkodkan.
