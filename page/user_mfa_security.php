@@ -72,8 +72,9 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
   <title><?=$h('user_mfa.security.title')?> | OneID@UPNM</title>
   <link rel="stylesheet" href="../assetsM/css/sweetalert.css">
   <link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260730-5">
+  <link rel="stylesheet" href="../dist/css/user-mfa-security.css?v=20260731-1">
 </head>
-<body class="user-mfa-flow">
+<body class="user-mfa-flow account-security-page">
 <main class="mfa-shell">
   <aside class="mfa-brand">
     <img class="mfa-logo" src="../img/logo_oneid-1.png" alt="OneID@UPNM">
@@ -99,21 +100,22 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
         'authenticator' => oneid_translate('stepup.not_registered'),
     ]), ENT_QUOTES, 'UTF-8')?></div>
     <?php else: ?>
-    <section class="mfa-card">
-      <h3><?=$h('stepup.method_title')?></h3>
+    <section class="mfa-card account-overview-card">
+      <div class="account-card-heading"><div><span class="account-section-label">01 &middot; <?=$h('user_mfa.security.badge')?></span><h3><?=$h('stepup.method_title')?></h3></div><span class="account-secure-mark">&#10003;</span></div>
       <div class="mfa-status-grid">
-        <div class="mfa-status"><strong><?=$h('stepup.email_title')?></strong><span class="mfa-state is-active"><?=$h('stepup.active')?></span></div>
-        <div class="mfa-status"><strong>Microsoft Authenticator</strong><span id="totpState" class="mfa-state <?=$activeTotp ? 'is-active' : ''?>"><?=$activeTotp ? $h('stepup.active') : $h('stepup.not_registered')?></span></div>
+        <div class="mfa-status"><span class="account-factor-icon">&#9993;</span><div><strong><?=$h('stepup.email_title')?></strong><small><?=htmlspecialchars($maskedEmail, ENT_QUOTES, 'UTF-8')?></small></div><span class="mfa-state is-active"><?=$h('stepup.active')?></span></div>
+        <div class="mfa-status"><span class="account-factor-icon">&#128241;</span><div><strong>Microsoft Authenticator</strong><small><?=$h('user_mfa.security.setup_tag')?></small></div><span id="totpState" class="mfa-state <?=$activeTotp ? 'is-active' : ''?>"><?=$activeTotp ? $h('stepup.active') : $h('stepup.not_registered')?></span></div>
       </div>
-      <p class="mfa-intro"><?=$h('user_mfa.security.preference_help')?></p>
-      <div class="mfa-field">
-        <label for="preferredFactor"><?=$h('stepup.choose_method')?></label>
-        <select id="preferredFactor" class="mfa-control">
-          <option value="EMAIL_OTP" <?=$preferred === 'EMAIL_OTP' ? 'selected' : ''?>><?=$h('stepup.email_title')?></option>
-          <?php if ($activeTotp && $totpEnabled): ?><option value="TOTP" <?=$preferred === 'TOTP' ? 'selected' : ''?>>Microsoft Authenticator</option><?php endif; ?>
-        </select>
+      <div class="account-preference">
+        <div><label for="preferredFactor"><?=$h('stepup.choose_method')?></label><p class="mfa-intro"><?=$h('user_mfa.security.preference_help')?></p></div>
+        <div class="account-preference-control">
+          <select id="preferredFactor" class="mfa-control">
+            <option value="EMAIL_OTP" <?=$preferred === 'EMAIL_OTP' ? 'selected' : ''?>><?=$h('stepup.email_title')?></option>
+            <?php if ($activeTotp && $totpEnabled): ?><option value="TOTP" <?=$preferred === 'TOTP' ? 'selected' : ''?>>Microsoft Authenticator</option><?php endif; ?>
+          </select>
+          <button id="savePreference" class="mfa-button mfa-secondary" type="button"><?=$h('admin.configuration.save_preference')?></button>
+        </div>
       </div>
-      <button id="savePreference" class="mfa-button mfa-secondary" type="button"><?=$h('admin.configuration.save_preference')?></button>
     </section>
     <?php endif; ?>
 
@@ -146,20 +148,25 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
       </div>
     </section>
     <?php elseif ($activeTotp): ?>
-    <section class="mfa-card">
-      <h3><?=$h('user_mfa.security.revoke_method_title')?></h3>
-      <h4><?=$h('user_mfa.security.revoke_with_code')?></h4>
-      <p class="mfa-intro"><?=$h('user_mfa.security.revoke_warning')?></p>
-      <div class="mfa-field"><label for="revokeCode"><?=$h('user_mfa.security.revoke_code')?></label><input id="revokeCode" class="mfa-control mfa-otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div>
-      <button id="revokeAuthenticator" class="mfa-button mfa-danger" type="button"><?=$h('user_mfa.security.revoke')?></button>
-      <hr class="mfa-divider">
-      <h4><?=$h('user_mfa.security.revoke_with_email')?></h4>
-      <p class="mfa-intro"><?=$h('user_mfa.security.recovery_intro')?></p>
-      <div class="mfa-field"><label for="recoveryPassword"><?=$h('user_mfa.security.current_password')?></label><input id="recoveryPassword" class="mfa-control" type="password" maxlength="200" autocomplete="current-password"></div>
-      <button id="requestRecoveryOtp" class="mfa-button" type="button"><?=$h('user_mfa.security.send_recovery_otp')?></button>
-      <div id="recoveryOtpPanel" class="mfa-hidden">
-        <div class="mfa-field"><label for="recoveryOtp"><?=$h('user_mfa.security.recovery_otp')?></label><input id="recoveryOtp" class="mfa-control mfa-otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div>
-        <button id="verifyRecoveryOtp" class="mfa-button mfa-danger" type="button"><?=$h('user_mfa.security.verify_recovery_otp')?></button>
+    <section class="mfa-card account-revoke-card">
+      <div class="account-card-heading"><div><span class="account-section-label">02 &middot; <?=$h('user_mfa.security.revoke')?></span><h3><?=$h('user_mfa.security.revoke_method_title')?></h3></div></div>
+      <p class="mfa-intro account-revoke-intro"><?=$h('user_mfa.security.revoke_warning')?></p>
+      <div class="account-method-grid">
+        <article class="account-method">
+          <div class="account-method-title"><span class="account-method-icon">&#128241;</span><div><h4><?=$h('user_mfa.security.revoke_with_code')?></h4><small>Authenticator</small></div></div>
+          <div class="mfa-field"><label for="revokeCode"><?=$h('user_mfa.security.revoke_code')?></label><input id="revokeCode" class="mfa-control mfa-otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div>
+          <button id="revokeAuthenticator" class="mfa-button mfa-danger" type="button"><?=$h('user_mfa.security.revoke')?></button>
+        </article>
+        <article class="account-method account-method-recovery">
+          <div class="account-method-title"><span class="account-method-icon">&#9993;</span><div><h4><?=$h('user_mfa.security.revoke_with_email')?></h4><small><?=htmlspecialchars($maskedEmail, ENT_QUOTES, 'UTF-8')?></small></div></div>
+          <p class="mfa-intro"><?=$h('user_mfa.security.recovery_intro')?></p>
+          <div class="mfa-field"><label for="recoveryPassword"><?=$h('user_mfa.security.current_password')?></label><input id="recoveryPassword" class="mfa-control" type="password" maxlength="200" autocomplete="current-password"></div>
+          <button id="requestRecoveryOtp" class="mfa-button" type="button"><?=$h('user_mfa.security.send_recovery_otp')?></button>
+          <div id="recoveryOtpPanel" class="mfa-hidden account-recovery-otp">
+            <div class="mfa-field"><label for="recoveryOtp"><?=$h('user_mfa.security.recovery_otp')?></label><input id="recoveryOtp" class="mfa-control mfa-otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div>
+            <button id="verifyRecoveryOtp" class="mfa-button mfa-danger" type="button"><?=$h('user_mfa.security.verify_recovery_otp')?></button>
+          </div>
+        </article>
       </div>
     </section>
     <?php endif; ?>
