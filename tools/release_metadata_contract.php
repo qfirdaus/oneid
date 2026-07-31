@@ -15,9 +15,9 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $label);
 };
 
-$report(ONEID_APP_VERSION === '2.6.4', 'central application version is 2.6.4');
+$report(ONEID_APP_VERSION === '2.7.1', 'central application version is 2.7.1');
 $report(
-    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.6.4',
+    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.7.1',
     'central copyright and footer text match the approved release'
 );
 
@@ -28,14 +28,15 @@ foreach (['index.php', 'page/dashboard.php', 'admin/dashboard.php'] as $page) {
 
 $adminDashboard = (string) file_get_contents($projectRoot . '/admin/dashboard.php');
 $plainCatalogue = require $projectRoot . '/config/content/release_changelog_plain.php';
+$latestPlainRelease = array_values($plainCatalogue)[0] ?? [];
 $report(
-    ($plainCatalogue[0]['version'] ?? null) === ONEID_APP_VERSION
-        && count($plainCatalogue[0]['bm'] ?? []) === 6
-        && count($plainCatalogue[0]['en'] ?? []) === 6,
-    'latest admin release card reads shared v2.6.4 bilingual metadata'
+    ($latestPlainRelease['version'] ?? null) === ONEID_APP_VERSION
+        && count($latestPlainRelease['bm'] ?? []) === 10
+        && count($latestPlainRelease['en'] ?? []) === 10,
+    'latest admin release card reads shared v2.7.1 bilingual metadata'
 );
 $expectedHistory = [
-    '2.6.1','2.6.0',
+    '2.7.0','2.6.4','2.6.3','2.6.2','2.6.1','2.6.0',
     '2.5.4','2.5.3','2.5.2','2.5.1','2.5.0',
     '2.4.4','2.4.3','2.4.2','2.4.1','2.4.0',
     '2.3.4','2.3.3','2.3.2','2.3.1','2.3.0',
@@ -55,8 +56,8 @@ foreach ($expectedHistory as $version) {
 }
 $report(
     $historyValid
-        && count($plainCatalogue) === 39,
-    'release history preserves all 39 releases in order'
+        && count($plainCatalogue) === 41,
+    'release history preserves all 41 releases in order'
 );
 $policy = (string) file_get_contents($projectRoot . '/docs/VERSION_NUMBERING_POLICY.md');
 $package = json_decode((string) file_get_contents($projectRoot . '/package.json'), true);

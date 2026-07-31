@@ -26,7 +26,7 @@ $report(
     'document inventory is complete and unblocked'
 );
 $report(
-    $manifest['total_items'] === 165
+    $manifest['total_items'] === 179
     && $manifest['duplicate_identity_count'] === 0
     && $manifest['missing_target_count'] === 0,
     'all document identities and targets are deterministic'
@@ -34,7 +34,7 @@ $report(
 $report(
     $manifest['surface_counts'] === [
         'faq' => 2,
-        'internal_document' => 146,
+        'internal_document' => 160,
         'policy_document' => 2,
         'public_document' => 1,
         'release_document' => 13,
@@ -44,7 +44,7 @@ $report(
 );
 $report(
     $manifest['translation_required_count'] === 19
-    && $manifest['classification_counts']['INTERNAL_TECHNICAL_INVARIANT'] === 146,
+    && $manifest['classification_counts']['INTERNAL_TECHNICAL_INVARIANT'] === 160,
     'user-facing backlog is separated from canonical technical documents'
 );
 $report(
@@ -60,7 +60,7 @@ $report(
     'BM manual requires explicit fallback until approved English content exists'
 );
 $report(
-    $byIdentity['release_ui:admin_dashboard']['entry_count'] === 39
+    $byIdentity['release_ui:admin_dashboard']['entry_count'] === 41
     && $byIdentity['release_ui:admin_dashboard']['classification']
         === 'MIXED_TRANSLATION_REQUIRED',
     'active Administrator release history is included'

@@ -6,7 +6,69 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array (
-  0 =>
+  'release-2.7.1' =>
+  array (
+    'version' => '2.7.1',
+    'date' => '2026-08-01',
+    'bm' =>
+    array (
+      0 => 'ODL di staging kini menyokong Preview dan Apply secara on-demand tanpa perlu mengubah operational window bagi setiap ujian.',
+      1 => 'Had volum Sync kini menjadi amaran dan pengesahan tambahan; perubahan sah dalam jumlah besar boleh diteruskan sementara ralat integriti kekal disekat.',
+      2 => 'Kiraan External Sync, badge dan ringkasan kini disegarkan selepas child modal ditutup supaya keputusan terkini dipaparkan tanpa refresh halaman.',
+      3 => 'Paparan Protected Manual Accounts dikeluarkan daripada UI Sync, tetapi perlindungan backend terhadap akaun manual kekal aktif.',
+      4 => 'Pengguna baharu yang masuk melalui MyDigital ID kini boleh menetapkan kata laluan OneID tanpa memasukkan kata laluan lama yang tidak pernah diketahui.',
+      5 => 'Initial password setup MyDigital ID menggunakan grant lima minit yang terikat kepada pengguna dan sesi, kemudian membatalkan token lama serta meminta login semula.',
+      6 => 'Halaman padanan MyDigital ID yang gagal kini memberi arahan generik yang lebih membantu untuk login menggunakan ID OneID tanpa mendedahkan status akaun.',
+      7 => 'Menu Account Security dan halaman enrollment kini memuatkan dependency User MFA secara terus supaya tersedia secara konsisten pada staging.',
+      8 => 'Header dashboard pengguna dan admin mempunyai pergerakan cahaya halus pada garisan bawah dengan sokongan Reduce Motion.',
+      9 => 'Paparan Account Security diperkemas, lebih padat dan menyokong enrollment serta pemulihan Microsoft Authenticator dengan lebih jelas.',
+    ),
+    'en' =>
+    array (
+      0 => 'ODL staging now supports on-demand Preview and Apply without changing the operational window for every test.',
+      1 => 'Sync volume limits are now warnings with additional confirmation; legitimate large changes can proceed while integrity errors remain blocked.',
+      2 => 'External Sync counts, badges and summaries now refresh when a child modal closes so the latest result appears without a page refresh.',
+      3 => 'Protected Manual Accounts has been removed from the Sync UI while backend protection for manual accounts remains active.',
+      4 => 'New users signing in through MyDigital ID can now set a OneID password without entering an old password they never knew.',
+      5 => 'MyDigital ID initial password setup uses a five-minute user- and session-bound grant, then revokes old tokens and requires sign-in again.',
+      6 => 'The unmatched MyDigital ID page now gives more helpful generic guidance for signing in with a OneID ID without exposing account status.',
+      7 => 'The Account Security menu and enrollment page now load User MFA dependencies directly for consistent staging availability.',
+      8 => 'User and administrator dashboard headers now include a subtle moving light along the lower line with Reduce Motion support.',
+      9 => 'Account Security has been refined into a more compact view with clearer Microsoft Authenticator enrollment and recovery.',
+    ),
+  ),
+  'release-2.7.0' =>
+  array (
+    'version' => '2.7.0',
+    'date' => '2026-07-31',
+    'bm' =>
+    array (
+      0 => 'User 2FA kini tersedia sepenuhnya untuk akaun staf dan pelajar aktif melalui e-mel OTP atau Microsoft Authenticator.',
+      1 => 'Polisi global User 2FA menyediakan mod Off, Enrollment, Pilot Enforced dan Enforced dengan runtime/database parity yang fail-closed.',
+      2 => 'Pentadbir boleh mengaktifkan enforcement secara berasingan untuk kategori Staff dan Student tanpa menjejaskan Admin 2FA.',
+      3 => 'Akaun pentadbir dikecualikan daripada User 2FA dan terus menggunakan Admin Step-Up 2FA yang berasingan.',
+      4 => 'Temporary User 2FA Exemption membolehkan seorang pengguna aktif dikecualikan untuk tempoh terhad dengan sebab, rujukan dan compensating control.',
+      5 => 'Carian exemption menyokong ID, nama dan identity reference secara masa nyata dengan keputusan terhad dan boleh ditatal.',
+      6 => 'Pengguna boleh enroll, memilih dan revoke Microsoft Authenticator melalui Account Security, termasuk pemulihan revoke menggunakan OTP e-mel.',
+      7 => 'Enrollment, OTP, TOTP, session rotation, rate limit, audit dan recovery dilindungi oleh kawalan backend serta UI BM/English.',
+      8 => 'Full enforcement memerlukan dua pentadbir aktif yang berbeza, exact confirmation, versioned policy history dan correlated audit.',
+      9 => 'User 2FA full enforcement telah diaktifkan di staging bagi Staff dan Student dengan e-mel serta TOTP enabled.',
+    ),
+    'en' =>
+    array (
+      0 => 'User 2FA is now fully available to active staff and student accounts through e-mail OTP or Microsoft Authenticator.',
+      1 => 'The global User 2FA policy provides Off, Enrollment, Pilot Enforced and Enforced modes with fail-closed runtime/database parity.',
+      2 => 'Administrators can enable enforcement separately for Staff and Student categories without affecting Admin 2FA.',
+      3 => 'Administrator accounts are excluded from User 2FA and continue to use the separate Admin Step-Up 2FA flow.',
+      4 => 'Temporary User 2FA Exemption allows one active user to be excluded for a limited period with a reason, reference and compensating control.',
+      5 => 'Exemption search supports real-time ID, name and identity-reference lookup with limited scrollable results.',
+      6 => 'Users can enroll, select and revoke Microsoft Authenticator through Account Security, including e-mail OTP recovery for revocation.',
+      7 => 'Enrollment, OTP, TOTP, session rotation, rate limits, audit and recovery are protected by backend controls and BM/English UI.',
+      8 => 'Full enforcement requires two distinct active administrators, exact confirmation, versioned policy history and correlated audit.',
+      9 => 'User 2FA full enforcement has been activated in staging for Staff and Student with e-mail and TOTP enabled.',
+    ),
+  ),
+  'release-2.6.4' =>
   array (
     'version' => '2.6.4',
     'date' => '2026-07-26',
