@@ -5,7 +5,7 @@ declare(strict_types=1);
  * Sumber tunggal changelog BM/English.
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
-return array (
+return array_values(array (
   'release-2.7.1' =>
   array (
     'version' => '2.7.1',
@@ -967,4 +967,4 @@ return array (
       11 => 'Login placeholder template: <b>Staff No. (XXXX-XX) / Student No.</b>. First time password: <b>No. K/P</b>.',
     ),
   ),
-);
+));

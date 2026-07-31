@@ -29,6 +29,7 @@ foreach (['index.php', 'page/dashboard.php', 'admin/dashboard.php'] as $page) {
 $adminDashboard = (string) file_get_contents($projectRoot . '/admin/dashboard.php');
 $plainCatalogue = require $projectRoot . '/config/content/release_changelog_plain.php';
 $latestPlainRelease = array_values($plainCatalogue)[0] ?? [];
+$report(array_is_list($plainCatalogue), 'canonical release catalogue is a JavaScript-compatible list');
 $report(
     ($latestPlainRelease['version'] ?? null) === ONEID_APP_VERSION
         && count($latestPlainRelease['bm'] ?? []) === 10
