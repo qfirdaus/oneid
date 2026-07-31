@@ -20,7 +20,7 @@
    try {
       if (in_array(
           (string) oneid_config('ONEID_USER_MFA_MODE', 'OFF'),
-          ['ENROLLMENT', 'PILOT_ENFORCED'],
+          ['ENROLLMENT', 'PILOT_ENFORCED', 'ENFORCED'],
           true
       )
           && filter_var(oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED', false), FILTER_VALIDATE_BOOLEAN)
@@ -29,13 +29,12 @@
          $userMfaEffectiveMode = (string) $userMfaPdo->query(
             'SELECT policy_mode FROM user_login_mfa_policy WHERE singleton_key=1'
          )->fetchColumn();
-         $userMfaPilot = $userMfaPdo->prepare(
-            "SELECT COUNT(*) FROM user_login_mfa_pilot_users
-              WHERE u_id=:user AND pilot_status='ACTIVE'"
-         );
-         $userMfaPilot->execute([':user' => (string) $_SESSION['login_user']]);
+         $userMfaPolicyReader = new \OneId\App\Auth\UserMfa\PdoUserMfaPolicyReader($userMfaPdo);
+         $userMfaUser = (string) $_SESSION['login_user'];
          $userMfaEnrollmentAvailable = $userMfaEffectiveMode !== 'OFF'
-            && (int) $userMfaPilot->fetchColumn() === 1;
+            && $userMfaPolicyReader->selfServiceEligible($userMfaUser)
+            && ($userMfaEffectiveMode !== 'PILOT_ENFORCED'
+               || $userMfaPolicyReader->pilotEligible($userMfaUser));
       }
    } catch (Throwable) {
       $userMfaEnrollmentAvailable = false;

@@ -50,6 +50,19 @@ final class PdoUserMfaPolicyReader
         return (int) $statement->fetchColumn() === 1;
     }
 
+    public function selfServiceEligible(string $userId): bool
+    {
+        if (preg_match('/\A[A-Za-z0-9_.@-]{1,20}\z/', $userId) !== 1) {
+            return false;
+        }
+        $statement = $this->pdo->prepare(
+            'SELECT COUNT(*) FROM user_tbl
+              WHERE u_id=:user_id AND u_type=0 AND avail_status=1'
+        );
+        $statement->execute([':user_id' => $userId]);
+        return (int) $statement->fetchColumn() === 1;
+    }
+
     public function categoryEnforced(string $userId): bool
     {
         if (preg_match('/\A[A-Za-z0-9_.@-]{1,20}\z/', $userId) !== 1) {

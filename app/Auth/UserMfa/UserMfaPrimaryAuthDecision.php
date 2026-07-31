@@ -22,7 +22,9 @@ final class UserMfaPrimaryAuthDecision
     ): array {
         $this->policies->assertRuntimeParity($runtimeMode);
         $policy = $this->policies->policy();
-        $categoryEnforced = $this->policies->categoryEnforced($userId)
+        $userEligible = $this->policies->selfServiceEligible($userId);
+        $categoryEnforced = $userEligible
+            && $this->policies->categoryEnforced($userId)
             && !$this->policies->temporarilyExempt($userId);
         $pilot = $policy->mode === 'PILOT_ENFORCED'
             && $categoryEnforced

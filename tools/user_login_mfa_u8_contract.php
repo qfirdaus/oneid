@@ -111,9 +111,10 @@ $report(
 $report(
     str_contains($dashboard, 'tab_user_mfa_security')
     && str_contains($dashboard, 'href="user-mfa-security"')
-    && str_contains($dashboard, "['ENROLLMENT', 'PILOT_ENFORCED']")
+    && str_contains($dashboard, "['ENROLLMENT', 'PILOT_ENFORCED', 'ENFORCED']")
     && !str_contains($dashboard, 'modal_user_mfa_security')
-    && str_contains($dashboard, 'user_login_mfa_pilot_users')
+    && str_contains($dashboard, 'selfServiceEligible')
+    && str_contains($securityPage, "\$databaseMode !== 'PILOT_ENFORCED'")
     && str_contains($securityPage, 'user_mfa_totp_preference')
     && str_contains($securityPage, 'FROM user_login_mfa_policy p')
     && str_contains($securityPage, 'user_mfa.security.badge')
@@ -123,7 +124,7 @@ $report(
     && str_contains($securityPage, 'user_mfa.security.department')
     && str_contains($securityPage, 'user-mfa-flow.css')
     && str_contains($route, 'USER_MFA_PILOT_ACCESS_REQUIRED'),
-    'full-page account security is linked from dashboard and pilot restricted'
+    'full-page account security is pilot-restricted only in pilot mode and available when enforced'
 );
 $report(
     str_contains($route, "user_mfa_totp_verify_login")
@@ -202,8 +203,9 @@ $report(
     str_contains($policyTool, 'user_login_mfa_policy_history')
     && str_contains($policyTool, 'FOR UPDATE')
     && str_contains($policyTool, 'USER_MFA_POLICY_AUDIT_ATOMICITY_FAILED')
-    && str_contains($policyTool, "['OFF','ENROLLMENT','PILOT_ENFORCED']"),
-    'policy transition is versioned audited atomic and bounded to U8 modes'
+    && str_contains($policyTool, "['OFF','ENROLLMENT','PILOT_ENFORCED','ENFORCED']")
+    && str_contains($policyTool, "'PILOT_ENFORCED' => ['OFF','ENROLLMENT','PILOT_ENFORCED','ENFORCED']"),
+    'policy transition is versioned audited atomic and supports full enforcement'
 );
 $output = [];
 exec(
@@ -214,11 +216,11 @@ exec(
 );
 $report(
     $status === 0 && in_array(
-        'RESULT checks=5 failures=0 shared_database_mutations=0 runtime_activation=0',
+        'RESULT checks=6 failures=0 shared_database_mutations=0 runtime_activation=0',
         $output,
         true
     ),
-    'isolated OFF enrollment and pilot primary-auth decisions pass'
+    'isolated OFF enrollment pilot and enforced primary-auth decisions pass'
 );
 printf("RESULT checks=%d failures=%d runtime_activation=0\n", $checks, $failures);
 exit($failures === 0 ? 0 : 1);

@@ -6,8 +6,8 @@ if (PHP_SAPI !== 'cli') { exit(2); }
 require_once dirname(__DIR__) . '/lib/config.php';
 
 $target = strtoupper(trim((string) ($argv[1] ?? '')));
-if (!in_array($target, ['OFF','ENROLLMENT','PILOT_ENFORCED'], true)) {
-    fwrite(STDERR, "Usage: php tools/user_login_mfa_u8_policy_transition.php OFF|ENROLLMENT|PILOT_ENFORCED\n");
+if (!in_array($target, ['OFF','ENROLLMENT','PILOT_ENFORCED','ENFORCED'], true)) {
+    fwrite(STDERR, "Usage: php tools/user_login_mfa_u8_policy_transition.php OFF|ENROLLMENT|PILOT_ENFORCED|ENFORCED\n");
     exit(2);
 }
 $actor = trim((string) (getenv('ONEID_USER_MFA_U8_ACTOR') ?: ''));
@@ -101,8 +101,9 @@ try {
     $from = (string) $current['policy_mode'];
     $allowed = [
         'OFF' => ['OFF','ENROLLMENT'],
-        'ENROLLMENT' => ['OFF','ENROLLMENT','PILOT_ENFORCED'],
-        'PILOT_ENFORCED' => ['OFF','ENROLLMENT','PILOT_ENFORCED'],
+        'ENROLLMENT' => ['OFF','ENROLLMENT','PILOT_ENFORCED','ENFORCED'],
+        'PILOT_ENFORCED' => ['OFF','ENROLLMENT','PILOT_ENFORCED','ENFORCED'],
+        'ENFORCED' => ['OFF','ENROLLMENT','ENFORCED'],
     ];
     if (!in_array($target, $allowed[$from] ?? [], true)) {
         throw new RuntimeException('USER_MFA_POLICY_TRANSITION_INVALID');

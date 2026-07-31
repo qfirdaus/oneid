@@ -118,8 +118,13 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
     if($userMfaPolicies->policy()->mode==='OFF'){
       throw new RuntimeException('USER_MFA_NOT_ACTIVE');
     }
+    $userMfaPolicy=$userMfaPolicies->policy();
+    $userMfaSelfServiceUser=(string)($_SESSION['login_user']??'');
+    $userMfaSelfServiceAllowed=$userMfaPolicies->selfServiceEligible($userMfaSelfServiceUser)
+      && ($userMfaPolicy->mode!=='PILOT_ENFORCED'
+        || $userMfaPolicies->pilotEligible($userMfaSelfServiceUser));
     if(in_array($oneidGuardedAction,['user_mfa_totp_enroll','user_mfa_totp_confirm','user_mfa_totp_preference','user_mfa_totp_revoke','user_mfa_totp_recovery_email_request','user_mfa_totp_recovery_email_verify'],true)
-      && (!$userMfaPolicies->pilotEligible((string)($_SESSION['login_user']??'')))){
+      && !$userMfaSelfServiceAllowed){
       throw new RuntimeException('USER_MFA_PILOT_ACCESS_REQUIRED');
     }
     if(in_array($oneidGuardedAction,['user_mfa_email_request','user_mfa_email_resend','user_mfa_email_verify','user_mfa_totp_verify_login'],true)){

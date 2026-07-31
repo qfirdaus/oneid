@@ -62,10 +62,17 @@ try {
     $created = true;
     $admin->exec("USE {$quoted}");
     $admin->exec(
-        'CREATE TABLE user_tbl(u_id VARCHAR(20) NOT NULL PRIMARY KEY)
+        'CREATE TABLE user_tbl(
+            u_id VARCHAR(20) NOT NULL PRIMARY KEY,
+            u_type TINYINT NOT NULL DEFAULT 0,
+            avail_status TINYINT NOT NULL DEFAULT 1
+         )
          ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci'
     );
-    $admin->exec("INSERT INTO user_tbl(u_id) VALUES('PILOT1'),('NORMAL1'),('ADMIN1')");
+    $admin->exec(
+        "INSERT INTO user_tbl(u_id,u_type,avail_status)
+         VALUES('PILOT1',0,1),('NORMAL1',0,1),('ADMIN1',1,1)"
+    );
     foreach ($split((string) file_get_contents(
         dirname(__DIR__, 2) . '/docs/migrations/20260729_user_login_mfa_u1_up.sql'
     )) as $statement) {
@@ -126,6 +133,23 @@ try {
         'PILOT_ENFORCED challenges allowlisted pilot only'
     );
 
+    $admin->exec(
+        "UPDATE user_login_mfa_policy
+            SET policy_mode='ENFORCED',configuration_version=configuration_version+1"
+    );
+    $enforcedUser = $decision->afterPasswordAccepted(
+        'NORMAL1', 'enforced-session', 'U8 Browser', '127.0.0.5', 'ENFORCED'
+    );
+    $enforcedAdmin = $decision->afterPasswordAccepted(
+        'ADMIN1', 'admin-session', 'U8 Browser', '127.0.0.6', 'ENFORCED'
+    );
+    $report(
+        $enforcedUser['code'] === 'USER_MFA_REQUIRED'
+        && $enforcedAdmin['code'] === 'USER_MFA_NOT_REQUIRED'
+        && (int) $admin->query('SELECT COUNT(*) FROM user_login_mfa_transactions')->fetchColumn() === 2,
+        'ENFORCED challenges regular users while excluding administrators'
+    );
+
     try {
         $decision->afterPasswordAccepted(
             'PILOT1', 'mismatch-session', 'U8 Browser', '127.0.0.4', 'OFF'
@@ -136,8 +160,11 @@ try {
     }
     $report($mismatch, 'runtime and database mode mismatch fails closed before token issue');
     $report(
-        $audit->events === ['USER_MFA_PRIMARY_AUTH_PENDING'],
-        'only enforced pilot decision writes pending-login audit'
+        $audit->events === [
+            'USER_MFA_PRIMARY_AUTH_PENDING',
+            'USER_MFA_PRIMARY_AUTH_PENDING',
+        ],
+        'only eligible pilot and enforced-user decisions write pending-login audit'
     );
 } finally {
     if ($created) {

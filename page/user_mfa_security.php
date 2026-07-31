@@ -31,14 +31,12 @@ if ($databaseMode === 'OFF' || ($databaseMode !== $mode && $databaseMode !== 'OF
     http_response_code(404);
     exit('Not found');
 }
-$pilot = $pdo->prepare(
-    "SELECT COUNT(*) FROM user_login_mfa_pilot_users
-      WHERE u_id=:user AND pilot_status='ACTIVE'"
-);
-$pilot->execute([':user' => $user]);
-if ((int) $pilot->fetchColumn() !== 1) {
+$policyReader = new \OneId\App\Auth\UserMfa\PdoUserMfaPolicyReader($pdo);
+$selfServiceAllowed = $policyReader->selfServiceEligible($user)
+    && ($databaseMode !== 'PILOT_ENFORCED' || $policyReader->pilotEligible($user));
+if (!$selfServiceAllowed) {
     http_response_code(403);
-    exit('Pilot access required');
+    exit('Account Security access is not available');
 }
 $state = $pdo->prepare(
     "SELECT p.email_enabled,p.totp_enabled,
