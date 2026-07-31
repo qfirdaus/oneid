@@ -10092,11 +10092,16 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
       #tab_settings #user_2fa_exemption_panel .user-2fa-exemption-search-row {
         display: block;
+        min-height: 0;
+        padding-top: 18px;
+        padding-bottom: 16px;
+        border-left: 3px solid #11a8df;
+        background: #f8fcfe;
       }
 
       #tab_settings #user_2fa_exemption_panel .user-2fa-exemption-search-control {
         width: 100%;
-        margin-top: 18px;
+        margin-top: 12px;
       }
 
       #tab_settings #user_2fa_exemption_candidate_results {
@@ -10104,6 +10109,15 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         max-height: 310px;
         overflow-y: auto;
         overflow-x: auto;
+      }
+
+      #tab_settings #user_2fa_exemption_candidate_results:empty,
+      #tab_settings #user_2fa_exemption_selected_status:empty {
+        display: none;
+      }
+
+      #tab_settings #user_2fa_exemption_selected_status {
+        margin-bottom: 0;
       }
 
       #tab_settings #user_2fa_exemption_candidate_results .list-group-item {
