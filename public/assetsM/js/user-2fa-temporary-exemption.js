@@ -15,7 +15,11 @@
     expiring: 'AKAN LUPUT',
     revoke: 'Revoke',
     empty: 'Tiada rekod ditemui.',
-    auth: 'Admin Step-Up diperlukan. Klik OK untuk membuat pengesahan.'
+    auth: 'Admin Step-Up diperlukan. Klik OK untuk membuat pengesahan.',
+    searchMin: 'Masukkan sekurang-kurangnya 2 aksara.',
+    searchEmpty: 'Tiada pengguna ditemui.',
+    selected: 'Pengguna dipilih',
+    notEligible: 'Rekod ini tidak layak'
   } : {
     invalid: 'Complete the user ID, reason and control (minimum 10 characters), valid reference and exact confirmation.',
     created: 'The temporary exemption was created.',
@@ -25,7 +29,11 @@
     expiring: 'EXPIRING',
     revoke: 'Revoke',
     empty: 'No records found.',
-    auth: 'Admin Step-Up is required. Select OK to authenticate.'
+    auth: 'Admin Step-Up is required. Select OK to authenticate.',
+    searchMin: 'Enter at least 2 characters.',
+    searchEmpty: 'No users found.',
+    selected: 'Selected user',
+    notEligible: 'This record is not eligible'
   };
 
   function element(id) { return document.getElementById(id); }
@@ -61,6 +69,75 @@
     }
   }
 
+  function setConfigurationEnabled(enabled) {
+    document.querySelectorAll('.user-2fa-exemption-setting').forEach(function (control) {
+      control.disabled = !enabled;
+    });
+    element('user_2fa_exemption_create_button').disabled = !enabled;
+  }
+
+  function clearSelectedUser() {
+    element('user_2fa_exemption_user').value = '';
+    element('user_2fa_exemption_selected_status').textContent =
+      locale === 'ms'
+        ? 'Cari pengguna dan pilih rekod yang layak sebelum menetapkan pengecualian.'
+        : 'Search for a user and select an eligible record before configuring the exemption.';
+    setConfigurationEnabled(false);
+    updatePhrase();
+  }
+
+  function selectCandidate(candidate) {
+    if (!candidate.eligible) return;
+    element('user_2fa_exemption_user').value = String(candidate.u_id);
+    element('user_2fa_exemption_user_search').value =
+      String(candidate.u_id) + (candidate.display_name ? ' — ' + String(candidate.display_name) : '');
+    element('user_2fa_exemption_candidate_results').textContent = '';
+    element('user_2fa_exemption_selected_status').textContent =
+      text.selected + ': ' + String(candidate.u_id) +
+      (candidate.display_name ? ' — ' + String(candidate.display_name) : '');
+    setConfigurationEnabled(true);
+    updatePhrase();
+  }
+
+  window.searchUser2faExemptionCandidates = function () {
+    var query = String(element('user_2fa_exemption_user_search').value || '').trim();
+    var results = element('user_2fa_exemption_candidate_results');
+    clearSelectedUser();
+    results.textContent = '';
+    if (query.length < 2) {
+      element('user_2fa_exemption_selected_status').textContent = text.searchMin;
+      return;
+    }
+    element('user_2fa_exemption_user_search_button').disabled = true;
+    request('admin_search_user_mfa_exemption_candidates', {query: query}).then(function (response) {
+      if (!response || Number(response.status) !== 1 || !Array.isArray(response.data)) {
+        throw new Error(String(response && response.code || 'INVALID'));
+      }
+      if (!response.data.length) {
+        element('user_2fa_exemption_selected_status').textContent = text.searchEmpty;
+        return;
+      }
+      response.data.forEach(function (candidate) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'list-group-item' + (candidate.eligible ? '' : ' disabled');
+        button.disabled = !candidate.eligible;
+        var label = String(candidate.u_id) +
+          (candidate.display_name ? ' — ' + String(candidate.display_name) : '') +
+          (candidate.identity_reference ? ' (' + String(candidate.identity_reference) + ')' : '');
+        button.textContent = label + (candidate.eligible ? '' :
+          ' — ' + text.notEligible + ': ' + String(candidate.eligibility));
+        button.addEventListener('click', function () { selectCandidate(candidate); });
+        results.appendChild(button);
+      });
+    }).catch(function (error) {
+      element('user_2fa_exemption_selected_status').textContent =
+        text.failed + ' Code: ' + String((error.payload || {}).code || error.message);
+    }).finally(function () {
+      element('user_2fa_exemption_user_search_button').disabled = false;
+    });
+  };
+
   window.fillUser2faExemptionConfirmation = function () {
     element('user_2fa_exemption_confirmation').value = phrase();
   };
@@ -88,10 +165,11 @@
       if (!response || Number(response.status) !== 1) throw new Error(String(response && response.code || 'INVALID'));
       sessionStorage.removeItem('oneid_user_2fa_exemption_pending');
       swal(text.created, 'Reference: ' + String(response.correlation_id || ''), 'success');
-      button.disabled = false;
+      element('user_2fa_exemption_user_search').value = '';
+      clearSelectedUser();
       window.loadUser2faExemptions();
     }).catch(function (error) {
-      button.disabled = false;
+      button.disabled = element('user_2fa_exemption_user').value === '';
       if (needsStepUp(error)) return redirectForStepUp({action: 'create', data: payload});
       swal(text.failed, 'Code: ' + String((error.payload || {}).code || error.message), 'error');
     });
@@ -231,7 +309,14 @@
   }
 
   if (element('user_2fa_exemption_user')) {
-    element('user_2fa_exemption_user').addEventListener('input', updatePhrase);
+    setConfigurationEnabled(false);
+    element('user_2fa_exemption_user_search').addEventListener('input', clearSelectedUser);
+    element('user_2fa_exemption_user_search').addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        window.searchUser2faExemptionCandidates();
+      }
+    });
     element('user_2fa_exemption_search').addEventListener('keydown', function (event) {
       if (event.key === 'Enter') window.loadUser2faExemptions();
     });

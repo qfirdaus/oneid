@@ -120,6 +120,7 @@ function oneid_q_func_action_map(): array
             'admin_update_user_mfa_global_policy',
             'admin_get_user_mfa_category_policy',
             'admin_update_user_mfa_category_policy',
+            'admin_search_user_mfa_exemption_candidates',
             'admin_search_user_mfa_exemptions',
             'admin_create_user_mfa_exemption',
             'admin_revoke_user_mfa_exemption',

@@ -747,6 +747,19 @@ function string_sanitize($s) {
         }
       }
 
+      if(isset($_POST['admin_search_user_mfa_exemption_candidates'])){
+        try{
+          $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+          echo json_encode((new \OneId\App\Admin\UserMfaTemporaryExemptionService($pdo))->searchCandidates(
+            (string)($_POST['query']??'')
+          ));
+        }catch(\OneId\App\Admin\SsoConfigurationException $e){
+          echo json_encode(['status'=>0,'code'=>$e->reason,'correlation_id'=>$e->correlationId]);
+        }catch(\Throwable $e){
+          echo json_encode(['status'=>0,'code'=>'USER_MFA_EXEMPTION_CANDIDATE_SEARCH_FAILED','correlation_id'=>bin2hex(random_bytes(8))]);
+        }
+      }
+
       if(isset($_POST['admin_create_user_mfa_exemption'])){
         try{
           $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);

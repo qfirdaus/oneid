@@ -38,6 +38,8 @@ $checks['step_up_guarded'] = str_contains($files['guard'], "'admin_create_user_m
     && str_contains($files['guard'], "'SECURITY_CONFIGURATION_CHANGE'");
 $checks['api_and_ui'] = str_contains($files['api'], 'UserMfaTemporaryExemptionService')
     && str_contains($files['ui'], 'user_2fa_exemption_panel')
+    && str_contains($files['ui'], 'user_2fa_exemption_candidate_results')
+    && str_contains($files['js'], "request('admin_search_user_mfa_exemption_candidates'")
     && str_contains($files['js'], "request('admin_search_user_mfa_exemptions'")
     && str_contains($files['js'], "request('admin_revoke_user_mfa_exemption'");
 $checks['history_and_expiry_alert'] = str_contains($files['service'], 'ORDER BY')

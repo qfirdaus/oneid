@@ -15,6 +15,52 @@ final class UserMfaTemporaryExemptionService
     {
     }
 
+    public function searchCandidates(string $query): array
+    {
+        $query = trim($query);
+        if (strlen($query) < 2 || strlen($query) > 100
+            || preg_match('/[\x00-\x1F\x7F]/', $query) === 1
+        ) {
+            throw $this->error('USER_MFA_EXEMPTION_CANDIDATE_SEARCH_INVALID');
+        }
+        $statement = $this->pdo->prepare(
+            "SELECT u.u_id,u.data1 display_name,u.data3 identity_reference,
+                    u.u_type,u.avail_status,
+                    CASE
+                      WHEN u.u_type=1 THEN 'ADMINISTRATOR_FORBIDDEN'
+                      WHEN u.avail_status<>1 THEN 'ACCOUNT_INACTIVE'
+                      WHEN EXISTS(
+                        SELECT 1 FROM user_login_mfa_exemptions e
+                         WHERE e.u_id=u.u_id AND e.exemption_status='ACTIVE'
+                           AND e.expires_at>NOW(6)
+                      ) THEN 'EXEMPTION_ALREADY_ACTIVE'
+                      ELSE 'ELIGIBLE'
+                    END eligibility
+               FROM user_tbl u
+              WHERE u.u_id LIKE :query_id OR u.data1 LIKE :query_name
+                 OR u.data3 LIKE :query_reference
+              ORDER BY (u.u_id=:exact) DESC,u.data1,u.u_id
+              LIMIT 20"
+        );
+        $like = '%' . $query . '%';
+        $statement->execute([
+            ':query_id' => $like,
+            ':query_name' => $like,
+            ':query_reference' => $like,
+            ':exact' => $query,
+        ]);
+        $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as &$row) {
+            $row['eligible'] = $row['eligibility'] === 'ELIGIBLE';
+            unset($row['u_type'], $row['avail_status']);
+        }
+        return [
+            'status' => 1,
+            'code' => 'USER_MFA_EXEMPTION_CANDIDATES_LOADED',
+            'data' => $rows,
+        ];
+    }
+
     public function search(string $query = ''): array
     {
         $query = trim($query);
