@@ -626,7 +626,6 @@ return [
     'admin.sync.update_users' => 'Information to update:',
     'admin.sync.deactivate_users' => 'Accounts to deactivate:',
     'admin.sync.reactivate_users' => 'Accounts to reactivate:',
-    'admin.sync.protected_manual' => 'Protected manual accounts:',
     'admin.sync.identity_conflicts' => 'Identity conflicts:',
     'admin.sync.review_status' => 'Review status:',
     'admin.sync.attention' => 'Attention:',

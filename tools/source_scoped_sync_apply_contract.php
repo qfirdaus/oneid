@@ -27,6 +27,9 @@ $checks = [
         && str_contains($ui, "childId === 'modal_odl_shadow_preview'")
         && str_contains($ui, "childId === 'modal_add_new_user_manual'")
         && str_contains($ui, 'refresh_external_sync_notifications();'),
+    'Staff UG and ODL hide the internal protected-manual count' =>
+        !str_contains($ui, 'sync_preview_protected_manual')
+        && !str_contains($ui, "oneid_translate('admin.sync.protected_manual')"),
     'preview and every Apply endpoint require a source scope' =>
         substr_count($q, 'SyncSourceScope::fromCode(') === 4
         && substr_count($q, '$syncSourceCode') >= 9,

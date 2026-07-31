@@ -626,7 +626,6 @@ return [
     'admin.sync.update_users' => 'Maklumat perlu dikemas kini:',
     'admin.sync.deactivate_users' => 'Akaun perlu dinyahaktifkan:',
     'admin.sync.reactivate_users' => 'Akaun perlu diaktifkan semula:',
-    'admin.sync.protected_manual' => 'Akaun manual yang dilindungi:',
     'admin.sync.identity_conflicts' => 'Konflik identiti:',
     'admin.sync.review_status' => 'Status semakan:',
     'admin.sync.attention' => 'Perhatian:',

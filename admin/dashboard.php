@@ -825,10 +825,6 @@
                                                                <td><span id="sync_preview_reactivate"></span></td>
                                                             </tr>
                                                             <tr>
-                                                               <td><?=htmlspecialchars(oneid_translate('admin.sync.protected_manual'), ENT_QUOTES, 'UTF-8')?></td>
-                                                               <td><span id="sync_preview_protected_manual"></span></td>
-                                                            </tr>
-                                                            <tr>
                                                                <td><?=htmlspecialchars(oneid_translate('admin.sync.identity_conflicts'), ENT_QUOTES, 'UTF-8')?></td>
                                                                <td><span id="sync_preview_collisions"></span></td>
                                                             </tr>
@@ -4693,7 +4689,6 @@
                   $('#sync_preview_update').text(counts.Update || 0);
                   $('#sync_preview_deactivate').text(counts.Deactivate || 0);
                   $('#sync_preview_reactivate').text(counts.Reactivate || 0);
-                  $('#sync_preview_protected_manual').text(response.protected_manual_users || 0);
                   $('#sync_preview_collisions').text(response.discarded_protected_collisions || 0);
                   $('#sync_preview_hash_expiry')
                      .css({'overflow-wrap':'anywhere','word-break':'break-all'})
