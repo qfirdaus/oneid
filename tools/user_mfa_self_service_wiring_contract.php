@@ -7,12 +7,12 @@ $dashboard = (string) file_get_contents($root . '/page/dashboard.php');
 $security = (string) file_get_contents($root . '/page/user_mfa_security.php');
 
 $checks = [
-    'dashboard loads application autoloader before policy reader' =>
-        ($autoload = strpos($dashboard, "vendor/autoload.php")) !== false
+    'dashboard loads policy reader dependency before use' =>
+        ($autoload = strpos($dashboard, "app/Auth/UserMfa/PdoUserMfaPolicyReader.php")) !== false
         && ($reader = strpos($dashboard, 'PdoUserMfaPolicyReader')) !== false
         && $autoload < $reader,
-    'Account Security page loads application autoloader before policy reader' =>
-        ($securityAutoload = strpos($security, "vendor/autoload.php")) !== false
+    'Account Security page loads policy reader dependency before use' =>
+        ($securityAutoload = strpos($security, "app/Auth/UserMfa/PdoUserMfaPolicyReader.php")) !== false
         && ($securityReader = strpos($security, 'PdoUserMfaPolicyReader')) !== false
         && $securityAutoload < $securityReader,
     'dashboard permits self-service in full enforcement mode' =>

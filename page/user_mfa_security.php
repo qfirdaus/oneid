@@ -7,7 +7,8 @@ oneid_start_secure_session();
 require_once __DIR__ . '/../lib/config.php';
 require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
 require_once __DIR__ . '/../lib/request_security.php';
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../app/Auth/UserMfa/UserLoginMfaPolicy.php';
+require_once __DIR__ . '/../app/Auth/UserMfa/PdoUserMfaPolicyReader.php';
 
 oneid_require_authenticated_page();
 oneid_require_active_sso_page($operation);
