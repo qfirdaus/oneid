@@ -38,7 +38,8 @@ final class UserMfaTemporaryExemptionService
                     END eligibility
                FROM user_tbl u
               WHERE u.u_id LIKE :query_id OR u.data1 LIKE :query_name
-                 OR u.data3 LIKE :query_reference
+                 OR u.data2 LIKE :query_data2 OR u.data3 LIKE :query_data3
+                 OR u.data4 LIKE :query_data4
               ORDER BY (u.u_id=:exact) DESC,u.data1,u.u_id
               LIMIT 20"
         );
@@ -46,7 +47,9 @@ final class UserMfaTemporaryExemptionService
         $statement->execute([
             ':query_id' => $like,
             ':query_name' => $like,
-            ':query_reference' => $like,
+            ':query_data2' => $like,
+            ':query_data3' => $like,
+            ':query_data4' => $like,
             ':exact' => $query,
         ]);
         $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
