@@ -22,6 +22,30 @@ $r($blocked,'ODL Apply cannot be enabled without Preview');
 $blocked=false;try{OdlOperationalConfig::fromValues('true','false')->assertApplyEnabled();}
 catch(RuntimeException$e){$blocked=$e->getMessage()==='ODL_OPERATIONAL_APPLY_DISABLED';}
 $r($blocked,'ODL Apply remains fail-closed');
+$onDemand=OdlOperationalConfig::fromValues(
+ 'true','false','0','0','0','0','0','','','','','','true','staging'
+);
+$onDemand->assertApplyEnabled();
+$onDemand->assertWithinChangeWindow(
+ new DateTimeImmutable('2030-01-01T00:00:00+08:00')
+);
+$onDemand->assertApprovedPlan(
+ 130,['New'=>1,'Update'=>0,'Deactivate'=>0,'Reactivate'=>0],str_repeat('b',64)
+);
+$r($onDemand->canApply()&&$onDemand->onDemandEnabled,
+ 'staging on-demand mode accepts the fresh one-time Preview plan');
+$blocked=false;try{OdlOperationalConfig::fromValues(
+ 'true','false','0','0','0','0','0','','','','','','true','production'
+);}catch(RuntimeException$e){
+ $blocked=$e->getMessage()==='ODL_OPERATIONAL_ON_DEMAND_ENVIRONMENT_INVALID';
+}
+$r($blocked,'production cannot enable ODL on-demand mode');
+$blocked=false;try{OdlOperationalConfig::fromValues(
+ 'false','false','0','0','0','0','0','','','','','','true','uat'
+);}catch(RuntimeException$e){
+ $blocked=$e->getMessage()==='ODL_OPERATIONAL_FLAG_COMBINATION_INVALID';
+}
+$r($blocked,'on-demand Apply cannot be enabled without Preview');
 $authorized=OdlOperationalConfig::fromValues(
  'true','true','71','18','0','0','0',
  '6ee2d37e099b72b31cea8cea5d8228e43087b92770f1102442235701b771c5fd',

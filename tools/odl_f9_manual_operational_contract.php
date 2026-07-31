@@ -41,8 +41,14 @@ $r(str_contains($badgeFunction,"'CANDIDATE_NEW'")
  'notification badge counts actionable changes and excludes KEEP');
 $runtime=(string)file_get_contents($root.'/config/runtime.php');
 $r(str_contains($runtime,"'ONEID_ODL_OPERATIONAL_PREVIEW_ENABLED' => 'false'")
- &&str_contains($runtime,"'ONEID_ODL_OPERATIONAL_APPLY_ENABLED' => 'false'"),
+ &&str_contains($runtime,"'ONEID_ODL_OPERATIONAL_APPLY_ENABLED' => 'false'")
+ &&str_contains($runtime,"'ONEID_ODL_OPERATIONAL_ON_DEMAND_ENABLED' => 'false'"),
  'deployment defaults remain fail-closed');
+$config=(string)file_get_contents($root.'/app/Sync/Odl/OdlOperationalConfig.php');
+$r(str_contains($config,"['staging', 'uat']")
+ &&str_contains($config,'ODL_OPERATIONAL_ON_DEMAND_ENVIRONMENT_INVALID')
+ &&str_contains($config,'if ($this->onDemandEnabled)'),
+ 'on-demand authorization is explicitly limited to staging and UAT');
 $r(!preg_match('/cron|scheduler/i',(string)file_get_contents($root.'/app/Sync/Odl/OdlOperationalConfig.php')),
  'F9 adds no scheduler wiring');
 $runner=(string)file_get_contents($root.'/tools/odl_f9_manual_preview.php');
@@ -56,5 +62,5 @@ $r(str_contains($rollback,"'mutation_statements'=>0")
  &&!preg_match('/\\b(?:INSERT\\s+INTO|UPDATE\\s+\\w+\\s+SET|DELETE\\s+FROM)\\b/i',$rollback),
  'F9A rollback readiness is read-only and fail-closed');
 $o=[];$c=1;exec(escapeshellarg(PHP_BINARY).' '.escapeshellarg($root.'/tests/characterization/odl_f9_manual_operational.php').' 2>&1',$o,$c);
-$r($c===0&&in_array('RESULT checks=11 failed=0',$o,true),'F9 characterization passes');
+$r($c===0&&in_array('RESULT checks=14 failed=0',$o,true),'F9 characterization passes');
 printf("RESULT checks=%d failed=%d\n",$checks,$failed);exit($failed===0?0:1);

@@ -44,8 +44,9 @@ try{
  );
  unset($preview['approval_id'],$preview['sample']);
  $preview['source_code']=$scope->sourceCode;
- $preview['can_apply']=$gate->applyEnabled&&($preview['approval_ready']??false);
- $preview['apply_enabled']=$gate->applyEnabled;
+ $preview['can_apply']=$gate->canApply()&&($preview['approval_ready']??false);
+ $preview['apply_enabled']=$gate->canApply();
+ $preview['on_demand_enabled']=$gate->onDemandEnabled;
  $preview['automatic_scheduler']=false;
  $preview['mutation_statements']=0;
  echo json_encode($preview,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES),PHP_EOL;

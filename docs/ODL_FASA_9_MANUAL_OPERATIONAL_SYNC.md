@@ -99,3 +99,24 @@ Login/ACL smoke test lulus dengan kategori `Pelajar/10` dan membership
 `STUDENT_ODL_PG`. Apply flag dikembalikan kepada `false`. Firdaus, System
 Analyst/DBA meluluskan `PASS / CLOSED` pada 24 Julai 2026 melalui evidence
 `ONEID-ODL-F9-20260724-02`.
+
+## Staging/UAT on-demand operation
+
+Untuk ujian berulang apabila sumber ODL sering berubah, staging/UAT boleh
+menggunakan authorization daripada fresh Preview sekali guna tanpa mengubah
+exact counts, plan hash dan change window dalam private runtime:
+
+```php
+'ONEID_ENVIRONMENT' => 'staging',
+'ONEID_ODL_OPERATIONAL_PREVIEW_ENABLED' => 'true',
+'ONEID_ODL_OPERATIONAL_APPLY_ENABLED' => 'false',
+'ONEID_ODL_OPERATIONAL_ON_DEMAND_ENABLED' => 'true',
+```
+
+Mod ini hanya diterima untuk environment `staging` atau `uat`. Nilai deployment
+default kekal `false`, production akan fail-closed dengan
+`ODL_OPERATIONAL_ON_DEMAND_ENVIRONMENT_INVALID`, dan tiada scheduler
+diaktifkan. Admin masih perlu menghasilkan Preview baharu, melepasi semua
+safety checks, memasukkan confirmation tepat dan menggunakan approval session
+yang luput dalam lima minit. Apply menjana semula plan dan menolak perubahan
+sumber selepas Preview melalui `SYNC_APPROVAL_PLAN_MISMATCH`.

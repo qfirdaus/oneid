@@ -1134,7 +1134,7 @@ function string_sanitize($s) {
                     && !$fullConfig->enabled
                     && $runtimeConfig->canApply()
                     && (!$isOdlOperational
-                        || $odlOperationalConfig->applyEnabled)
+                        || $odlOperationalConfig->canApply())
                     && ($previewResponse['approval_ready'] ?? false) === true
                     && !$operationalHardBlocked
                     && array_sum($previewCounts) > 0;
@@ -1194,6 +1194,7 @@ function string_sanitize($s) {
                     'ODL_OPERATIONAL_WINDOW_INVALID',
                     'ODL_OPERATIONAL_EXACT_PLAN_MISMATCH',
                     'ODL_OPERATIONAL_OUTSIDE_CHANGE_WINDOW',
+                    'ODL_OPERATIONAL_ON_DEMAND_ENVIRONMENT_INVALID',
                 ];
                 $diagnosticCode = in_array($exception->getMessage(), $knownPreviewCodes, true)
                     ? $exception->getMessage()
