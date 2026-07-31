@@ -418,7 +418,6 @@ return [
     'admin.configuration.user_2fa_exemption_create' => 'Cipta pengecualian',
     'admin.configuration.user_2fa_exemption_user' => 'ID pengguna',
     'admin.configuration.user_2fa_exemption_user_help' => 'Akaun Administrator tidak dibenarkan menerima pengecualian.',
-    'admin.configuration.user_2fa_exemption_select_first' => 'Cari pengguna dan pilih rekod yang layak sebelum menetapkan pengecualian.',
     'admin.configuration.user_2fa_exemption_search_placeholder' => 'Cari mengikut ID pengguna, nama atau rujukan identiti',
     'admin.configuration.user_2fa_exemption_duration' => 'Tempoh luput',
     'admin.configuration.user_2fa_exemption_control' => 'Kawalan pampasan',

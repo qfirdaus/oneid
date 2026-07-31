@@ -80,10 +80,7 @@
 
   function clearSelectedUser() {
     element('user_2fa_exemption_user').value = '';
-    element('user_2fa_exemption_selected_status').textContent =
-      locale === 'ms'
-        ? 'Cari pengguna dan pilih rekod yang layak sebelum menetapkan pengecualian.'
-        : 'Search for a user and select an eligible record before configuring the exemption.';
+    element('user_2fa_exemption_selected_status').textContent = '';
     setConfigurationEnabled(false);
     updatePhrase();
   }

@@ -418,7 +418,6 @@ return [
     'admin.configuration.user_2fa_exemption_create' => 'Create exemption',
     'admin.configuration.user_2fa_exemption_user' => 'User ID',
     'admin.configuration.user_2fa_exemption_user_help' => 'Administrator accounts are never eligible.',
-    'admin.configuration.user_2fa_exemption_select_first' => 'Search for a user and select an eligible record before configuring the exemption.',
     'admin.configuration.user_2fa_exemption_search_placeholder' => 'Search by user ID, name or identity reference',
     'admin.configuration.user_2fa_exemption_duration' => 'Expiry duration',
     'admin.configuration.user_2fa_exemption_control' => 'Compensating control',
