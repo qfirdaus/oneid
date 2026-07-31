@@ -41,7 +41,7 @@ final class UserMfaTemporaryExemptionService
                  OR u.data2 LIKE :query_data2 OR u.data3 LIKE :query_data3
                  OR u.data4 LIKE :query_data4
               ORDER BY (u.u_id=:exact) DESC,u.data1,u.u_id
-              LIMIT 20"
+              LIMIT 10"
         );
         $like = '%' . $query . '%';
         $statement->execute([

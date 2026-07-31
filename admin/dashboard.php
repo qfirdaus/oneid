@@ -1879,7 +1879,7 @@
                                                                         <button class="sso-config-save" id="user_2fa_exemption_create_button" type="button" onclick="createUser2faExemption();" disabled><i class="fa fa-plus"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_create'), ENT_QUOTES, 'UTF-8')?></button>
                                                                      </div>
                                                                      <div class="sso-config-body">
-                                                                        <div class="sso-config-row user-2fa-exemption-search-row"><div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="user_2fa_exemption_user_search"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_user'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_user_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control user-2fa-exemption-search-control"><div class="input-group"><input class="form-control" id="user_2fa_exemption_user_search" maxlength="100" autocomplete="off" placeholder="<?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_search_placeholder'), ENT_QUOTES, 'UTF-8')?>"><span class="input-group-btn"><button type="button" class="btn btn-primary" id="user_2fa_exemption_user_search_button" onclick="searchUser2faExemptionCandidates();"><i class="fa fa-search"></i> Search</button></span></div><input type="hidden" id="user_2fa_exemption_user"><div id="user_2fa_exemption_candidate_results" class="list-group mt-10"></div><p id="user_2fa_exemption_selected_status" class="help-block" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_select_first'), ENT_QUOTES, 'UTF-8')?></p></div></div>
+                                                                        <div class="sso-config-row user-2fa-exemption-search-row"><div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="user_2fa_exemption_user_search"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_user'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_user_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control user-2fa-exemption-search-control"><div class="user-2fa-exemption-live-search"><i class="fa fa-search" aria-hidden="true"></i><input class="form-control" id="user_2fa_exemption_user_search" maxlength="100" autocomplete="off" placeholder="<?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_search_placeholder'), ENT_QUOTES, 'UTF-8')?>"></div><input type="hidden" id="user_2fa_exemption_user"><div id="user_2fa_exemption_candidate_results" class="list-group mt-10"></div><p id="user_2fa_exemption_selected_status" class="help-block" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_select_first'), ENT_QUOTES, 'UTF-8')?></p></div></div>
                                                                         <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="user_2fa_exemption_duration"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_duration'), ENT_QUOTES, 'UTF-8')?></label></div></div><div class="sso-config-control"><select class="form-control user-2fa-exemption-setting" id="user_2fa_exemption_duration" disabled><option value="1">1 jam / hour</option><option value="4">4 jam / hours</option><option value="8">8 jam / hours</option><option value="24">24 jam / hours</option><option value="72">72 jam / hours (maximum)</option></select></div></div>
                                                                         <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">03</span><div><label for="user_2fa_exemption_reason"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason'), ENT_QUOTES, 'UTF-8')?></label></div></div><div class="sso-config-control"><textarea class="form-control user-2fa-exemption-setting" id="user_2fa_exemption_reason" maxlength="500" rows="2" disabled></textarea></div></div>
                                                                         <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">04</span><div><label for="user_2fa_exemption_reference"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_reference'), ENT_QUOTES, 'UTF-8')?></label></div></div><div class="sso-config-control"><input class="form-control user-2fa-exemption-setting" id="user_2fa_exemption_reference" maxlength="100" disabled></div></div>
@@ -10101,6 +10101,8 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
       #tab_settings #user_2fa_exemption_candidate_results {
         width: 100%;
+        max-height: 310px;
+        overflow-y: auto;
         overflow-x: auto;
       }
 
@@ -10109,6 +10111,24 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         min-width: max-content;
         white-space: nowrap;
         text-align: left;
+      }
+
+      #tab_settings .user-2fa-exemption-live-search {
+        position: relative;
+      }
+
+      #tab_settings .user-2fa-exemption-live-search > .fa {
+        position: absolute;
+        z-index: 2;
+        top: 50%;
+        left: 13px;
+        color: #7c8998;
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+
+      #tab_settings .user-2fa-exemption-live-search > .form-control {
+        padding-left: 38px;
       }
 
       #tab_settings .sso-config-select-wrap {

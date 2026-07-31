@@ -6,6 +6,8 @@
   var api = script ? String(script.getAttribute('data-api') || '../lib/q_func') : '../lib/q_func';
   var stepUpUrl = script ? String(script.getAttribute('data-step-up-url') || '') : '';
   var locale = document.documentElement.lang === 'ms' ? 'ms' : 'en';
+  var candidateSearchTimer = null;
+  var candidateSearchSequence = 0;
   var text = locale === 'ms' ? {
     invalid: 'Lengkapkan ID pengguna, sebab dan kawalan minimum 10 aksara, rujukan sah serta pengesahan tepat.',
     created: 'Pengecualian sementara berjaya dicipta.',
@@ -102,14 +104,16 @@
   window.searchUser2faExemptionCandidates = function () {
     var query = String(element('user_2fa_exemption_user_search').value || '').trim();
     var results = element('user_2fa_exemption_candidate_results');
+    var sequence = ++candidateSearchSequence;
     clearSelectedUser();
     results.textContent = '';
     if (query.length < 2) {
-      element('user_2fa_exemption_selected_status').textContent = text.searchMin;
+      element('user_2fa_exemption_selected_status').textContent =
+        query.length === 0 ? '' : text.searchMin;
       return;
     }
-    element('user_2fa_exemption_user_search_button').disabled = true;
     request('admin_search_user_mfa_exemption_candidates', {query: query}).then(function (response) {
+      if (sequence !== candidateSearchSequence) return;
       if (!response || Number(response.status) !== 1 || !Array.isArray(response.data)) {
         throw new Error(String(response && response.code || 'INVALID'));
       }
@@ -131,12 +135,27 @@
         results.appendChild(button);
       });
     }).catch(function (error) {
+      if (sequence !== candidateSearchSequence) return;
       element('user_2fa_exemption_selected_status').textContent =
         text.failed + ' Code: ' + String((error.payload || {}).code || error.message);
-    }).finally(function () {
-      element('user_2fa_exemption_user_search_button').disabled = false;
     });
   };
+
+  function scheduleCandidateSearch() {
+    window.clearTimeout(candidateSearchTimer);
+    candidateSearchSequence++;
+    clearSelectedUser();
+    element('user_2fa_exemption_candidate_results').textContent = '';
+    var query = String(element('user_2fa_exemption_user_search').value || '').trim();
+    if (query.length < 2) {
+      element('user_2fa_exemption_selected_status').textContent =
+        query.length === 0 ? '' : text.searchMin;
+      return;
+    }
+    candidateSearchTimer = window.setTimeout(function () {
+      window.searchUser2faExemptionCandidates();
+    }, 300);
+  }
 
   window.fillUser2faExemptionConfirmation = function () {
     element('user_2fa_exemption_confirmation').value = phrase();
@@ -310,10 +329,11 @@
 
   if (element('user_2fa_exemption_user')) {
     setConfigurationEnabled(false);
-    element('user_2fa_exemption_user_search').addEventListener('input', clearSelectedUser);
+    element('user_2fa_exemption_user_search').addEventListener('input', scheduleCandidateSearch);
     element('user_2fa_exemption_user_search').addEventListener('keydown', function (event) {
       if (event.key === 'Enter') {
         event.preventDefault();
+        window.clearTimeout(candidateSearchTimer);
         window.searchUser2faExemptionCandidates();
       }
     });

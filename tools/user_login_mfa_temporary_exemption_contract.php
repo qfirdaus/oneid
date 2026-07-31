@@ -45,6 +45,10 @@ $checks['api_and_ui'] = str_contains($files['api'], 'UserMfaTemporaryExemptionSe
 $checks['history_and_expiry_alert'] = str_contains($files['service'], 'ORDER BY')
     && str_contains($files['service'], 'expires_soon')
     && str_contains($files['js'], 'item.expires_soon');
+$checks['realtime_candidate_search'] = str_contains($files['service'], 'LIMIT 10')
+    && str_contains($files['js'], "addEventListener('input', scheduleCandidateSearch)")
+    && str_contains($files['js'], 'candidateSearchSequence')
+    && str_contains($files['ui'], 'max-height: 310px');
 
 $failed = array_keys(array_filter($checks, static fn(bool $passed): bool => !$passed));
 printf(
