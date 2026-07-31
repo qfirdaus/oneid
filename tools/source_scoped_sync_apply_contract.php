@@ -19,6 +19,14 @@ $checks = [
         && str_contains($ui, 'sync_source_code: sourceCode'),
     'Summary remains on aggregate read-only shadow preview' =>
         str_contains($ui, "preview_external_sync_view('SUMMARY')"),
+    'successful Apply refreshes child counts for every sync mode' =>
+        str_contains($ui, 'function refresh_external_sync_child_after_apply(sourceCode)')
+        && substr_count($ui, 'refresh_external_sync_child_after_apply(sourceCode);') === 3,
+    'closing any External Sync child refreshes parent notifications' =>
+        str_contains($ui, "childId === 'modal_add_new_single_user'")
+        && str_contains($ui, "childId === 'modal_odl_shadow_preview'")
+        && str_contains($ui, "childId === 'modal_add_new_user_manual'")
+        && str_contains($ui, 'refresh_external_sync_notifications();'),
     'preview and every Apply endpoint require a source scope' =>
         substr_count($q, 'SyncSourceScope::fromCode(') === 4
         && substr_count($q, '$syncSourceCode') >= 9,

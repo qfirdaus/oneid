@@ -4564,7 +4564,7 @@
          }
 
          function refresh_external_sync_notifications(){
-            $.ajax({
+            return $.ajax({
                type: 'POST',
                url: '../lib/q_func',
                dataType: 'json',
@@ -4603,6 +4603,15 @@
             });
          }
 
+         function refresh_external_sync_child_after_apply(sourceCode){
+            var childModal = $('#modal_add_new_single_user');
+            window.setTimeout(function(){
+               if(childModal.hasClass('in')){
+                  pick_preview_sync_user(sourceCode);
+               }
+            }, 150);
+         }
+
          $(document).on('click', '.oneid-return-add-user-options', function(){
             $(this).closest('.modal').data('return-add-user-options', true);
          });
@@ -4610,6 +4619,13 @@
          $('#modal_add_new_single_user, #modal_odl_shadow_preview, #modal_add_new_user_manual')
             .on('hidden.bs.modal', function(){
                var childModal = $(this);
+               var childId = String(childModal.attr('id') || '');
+               if(childId === 'modal_add_new_single_user'
+                  || childId === 'modal_odl_shadow_preview'
+                  || childId === 'modal_add_new_user_manual'
+               ){
+                  refresh_external_sync_notifications();
+               }
                if(childModal.data('return-add-user-options') !== true){
                   return;
                }
@@ -4813,6 +4829,7 @@
                            if(applyResponse && applyResponse.status === 1){
                               var applied = applyResponse.counts || {};
                               oneidToast(externalSyncText.pilotComplete, externalSyncText.reference + ' ' + applyResponse.header_id + '; ' + externalSyncText.newLabel + '=' + (applied.New || 0) + ', ' + externalSyncText.updateLabel + '=' + (applied.Update || 0) + ', ' + externalSyncText.deactivateLabel + '=' + (applied.Deactivate || 0) + ', ' + externalSyncText.reactivateLabel + '=' + (applied.Reactivate || 0) + '.', 'success', {hideAfter: 7000});
+                              refresh_external_sync_child_after_apply(sourceCode);
                            } else {
                               var code = applyResponse && applyResponse.code ? applyResponse.code : 'SYNC_APPLY_FAILED';
                               oneidToast(externalSyncText.notApplied, externalSyncText.technicalReference + ': ' + code + '. ' + externalSyncText.freshPreview, 'error');
@@ -4860,6 +4877,7 @@
                                     var applied = applyResponse.counts || {};
                                     var auditWarning = applyResponse.audit_marker_recorded === false ? ' ' + externalSyncText.auditWarning : '';
                                     oneidToast(externalSyncText.fullComplete, externalSyncText.reference + ' ' + applyResponse.header_id + '; ' + externalSyncText.newLabel + '=' + (applied.New || 0) + ', ' + externalSyncText.updateLabel + '=' + (applied.Update || 0) + ', ' + externalSyncText.deactivateLabel + '=' + (applied.Deactivate || 0) + ', ' + externalSyncText.reactivateLabel + '=' + (applied.Reactivate || 0) + '.' + auditWarning, applyResponse.audit_marker_recorded === false ? 'warning' : 'success', {hideAfter: 10000});
+                                    refresh_external_sync_child_after_apply(sourceCode);
                                  } else {
                                     var code = applyResponse && applyResponse.code ? applyResponse.code : 'SYNC_FULL_APPLY_FAILED';
                                     oneidToast(externalSyncText.notApplied, externalSyncText.technicalReference + ': ' + code + '. ' + externalSyncText.freshPreview, 'error', {hideAfter: 8000});
@@ -4908,6 +4926,7 @@
                                     var applied = applyResponse.counts || {};
                                     var auditWarning = applyResponse.audit_marker_recorded === false ? ' ' + externalSyncText.auditWarning : '';
                                     oneidToast(externalSyncText.success, externalSyncText.reference + ' ' + applyResponse.header_id + '; ' + externalSyncText.newLabel + '=' + (applied.New || 0) + ', ' + externalSyncText.updateLabel + '=' + (applied.Update || 0) + ', ' + externalSyncText.deactivateLabel + '=' + (applied.Deactivate || 0) + ', ' + externalSyncText.reactivateLabel + '=' + (applied.Reactivate || 0) + '.' + auditWarning, applyResponse.audit_marker_recorded === false ? 'warning' : 'success', {hideAfter: 10000});
+                                    refresh_external_sync_child_after_apply(sourceCode);
                                  } else {
                                     var code = applyResponse && applyResponse.code ? applyResponse.code : 'SYNC_OPERATIONAL_APPLY_FAILED';
                                     oneidToast(externalSyncText.notApplied, externalSyncText.technicalReference + ': ' + code + '. ' + externalSyncText.freshPreview, 'error', {hideAfter: 8000});
