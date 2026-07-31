@@ -1,0 +1,71 @@
+/* Subtle motion accent for the shared OneID dashboard header. */
+.oneid-header-lightline {
+  isolation: isolate;
+}
+
+.oneid-header-lightline::after {
+  display: block;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  height: 1px;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(18, 103, 158, 0.08),
+    rgba(18, 103, 158, 0.22) 50%,
+    rgba(18, 103, 158, 0.08)
+  );
+}
+
+.oneid-header-lightline::before {
+  display: block;
+  position: absolute;
+  bottom: 0;
+  left: -220px;
+  z-index: 3;
+  width: 190px;
+  height: 2px;
+  content: "";
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(69, 187, 231, 0),
+    rgba(103, 207, 241, 0.18) 24%,
+    rgba(213, 247, 255, 0.62) 50%,
+    rgba(103, 207, 241, 0.18) 76%,
+    rgba(69, 187, 231, 0)
+  );
+  filter: blur(0.35px);
+  will-change: transform, opacity;
+  animation: oneid-header-light-pass 11s linear infinite;
+}
+
+@keyframes oneid-header-light-pass {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+  8% {
+    opacity: 0.58;
+  }
+  88% {
+    opacity: 0.58;
+  }
+  96%,
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(100vw + 440px), 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oneid-header-lightline::before {
+    display: none;
+    animation: none;
+  }
+}

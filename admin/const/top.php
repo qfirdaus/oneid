@@ -1,5 +1,5 @@
 <!-- Top Menu Items -->
-			<nav class="navbar navbar-inverse navbar-fixed-top">
+			<nav class="navbar navbar-inverse navbar-fixed-top oneid-header-lightline">
 				<div class="nav-wrap">
 				<div class="mobile-only-brand pull-left">
 					<div class="nav-header pull-left">
