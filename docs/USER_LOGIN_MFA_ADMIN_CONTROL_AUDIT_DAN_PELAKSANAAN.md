@@ -1,8 +1,8 @@
 # Audit dan Pelaksanaan Kawalan Administrator User Login MFA
 
 **Tarikh:** 31 Julai 2026
-**Status:** PRIORITI 1–2 UAT PASS / CLOSED / PRIORITI 3 IMPLEMENTATION APPROVED /
-PRIORITI 4–6 MENUNGGU KELULUSAN OWNER
+**Status:** PRIORITI 1–2 UAT PASS / CLOSED / PRIORITI 3 IMPLEMENTATION COMPLETE,
+OWNER UAT DEFERRED / PRIORITI 4–6 MENUNGGU KELULUSAN OWNER
 
 ## 1. Objektif
 
@@ -28,7 +28,7 @@ fail-closed validation wajib digunakan untuk mutation polisi.
 |---|---|---|
 | 1 | Admin Configuration global User MFA `ON/OFF` | UAT PASS / CLOSED |
 | 2 | Polisi kategori staf/pelajar daripada sumber authoritative | UAT PASS / CLOSED |
-| 3 | Pengecualian individu sementara dengan auto-expiry | Implementation approved / in progress |
+| 3 | Pengecualian individu sementara dengan auto-expiry | Implementation complete / owner UAT deferred |
 | 4 | Administrator tidak boleh dikecualikan | Menunggu kelulusan |
 | 5 | Monitoring, history dan pending-transaction cancellation lanjutan | Menunggu kelulusan |
 | 6 | Pilot/observation 72 jam dan closure evidence | Menunggu kelulusan |
@@ -254,7 +254,7 @@ Kontrak pelaksanaan:
   dengan 15 column dan zero active exemption;
 - live read/search berjaya dan negative test Administrator ditolak dengan
   `USER_MFA_EXEMPTION_ADMIN_FORBIDDEN`;
-- kontrak Prioriti 3: `10/10 PASS`;
+- kontrak Prioriti 3: `11/11 PASS`;
 - kontrak kategori Prioriti 2: `11/11 PASS`;
 - kontrak global Prioriti 1: `10/10 PASS`;
 - regresi U7 dan U8: `PASS`; dan
@@ -263,3 +263,47 @@ Kontrak pelaksanaan:
 
 Status closure Prioriti 3 kekal **UAT PENDING** sehingga owner menjalankan
 browser UAT menggunakan satu akaun pengguna yang diluluskan.
+
+## 10. Checkpoint semasa selepas implementation Prioriti 3
+
+**Checkpoint:** 31 Julai 2026
+**Status kerja:** IMPLEMENTATION COMPLETE / OWNER UAT DEFERRED
+**Branch:** `agent/close-odl-mydigitalid-audits`
+**Commit UI terakhir:** `4619ac9`
+
+Owner memutuskan browser UAT akan dijalankan kemudian. Oleh itu, Prioriti 3
+belum boleh ditanda `UAT PASS` atau `CLOSED`, walaupun pembangunan dan ujian
+automatik telah selesai.
+
+Keadaan implementation:
+
+- sub-tab `Temporary exemptions` tersedia di bawah User 2FA;
+- carian pengguna berlaku secara realtime menggunakan ID, nama atau rujukan
+  identiti, dengan debounce 300 ms dan maksimum 10 hasil;
+- hasil carian dipaparkan full-width, satu baris dan mempunyai scroll;
+- setting exemption kekal dikunci sehingga rekod `ELIGIBLE` dipilih;
+- akaun Administrator, akaun tidak aktif dan akaun dengan exemption aktif
+  tidak boleh dipilih;
+- duration 1, 4, 8, 24 atau maksimum 72 jam tersedia;
+- reason, reference, compensating control dan typed confirmation diwajibkan;
+- create, revoke awal, auto-expiry fail-closed, history, expiry warning dan
+  pending challenge cancellation telah dilaksanakan;
+- global User 2FA kekal master switch; category dan exemption tidak boleh
+  mengatasi global `OFF`;
+- exemption ialah bypass sementara dan bukan per-user enable; dan
+- kontrak Prioriti 3 `11/11 PASS`, regresi Prioriti 1–2 serta U7–U8 kekal
+  lulus.
+
+Browser UAT yang masih belum selesai:
+
+1. `create -> password login bypass`;
+2. `revoke -> challenge restored`;
+3. `expire -> challenge restored`;
+4. Administrator tidak boleh dipilih atau menerima exemption; dan
+5. semakan matriks global `ON/OFF`, category `ON/OFF` dan exemption
+   `ACTIVE/REVOKED/EXPIRED`.
+
+Prioriti 4, 5 dan 6 tidak menerima kelulusan baharu melalui checkpoint ini.
+Sebahagian guardrail yang sudah diperlukan oleh Prioriti 3 tidak dianggap
+sebagai closure formal bagi prioriti tersebut. Titik sambungan seterusnya
+ialah browser UAT Prioriti 3 apabila owner bersedia.
