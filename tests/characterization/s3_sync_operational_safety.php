@@ -281,9 +281,9 @@ $massPlan = new SyncPlan([
     ['action' => 'DEACTIVATE'],
 ], 2, 0, 0);
 $decision = $policy->assess(s3_source_rows(), array_fill(0, 10, ['u_id' => 'x']), $massPlan, 2);
-$report(!$decision->allowed && in_array('DEACTIVATION_THRESHOLD_EXCEEDED', $decision->blockingCodes, true), 'mass-deactivation threshold is fail-closed');
+$report($decision->allowed && in_array('DEACTIVATION_THRESHOLD_EXCEEDED', $decision->warnings, true), 'mass-deactivation threshold requires review without blocking');
 $shrink = $policy->assess(s3_source_rows(), [], new SyncPlan([], 2, 0, 0), 10);
-$report(!$shrink->allowed && in_array('SOURCE_SHRINK_THRESHOLD_EXCEEDED', $shrink->blockingCodes, true), 'source shrink threshold is fail-closed');
+$report($shrink->allowed && in_array('SOURCE_SHRINK_THRESHOLD_EXCEEDED', $shrink->warnings, true), 'source shrink threshold requires review without blocking');
 $collision = $policy->assess(s3_source_rows(), [], new SyncPlan([], 2, 0, 0, [], 1, 1), 2);
 $report(!$collision->allowed && in_array('PROTECTED_IDENTITY_COLLISION', $collision->blockingCodes, true), 'protected identity collision is fail-closed');
 $unknownRows = s3_source_rows();

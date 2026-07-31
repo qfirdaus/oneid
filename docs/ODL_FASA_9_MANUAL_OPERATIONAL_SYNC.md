@@ -29,8 +29,9 @@ Tindakan operational yang direka:
 - Matrik, IC dan external membership collision dengan sumber lain diblock;
 - akaun manual kekal protected;
 - e-mel ODL kosong tidak memadam e-mel OneID sedia ada;
-- source failure, empty source, shrink melebihi threshold, invalid identity dan
-  deactivation anomaly kekal fail-closed;
+- source failure, empty source, invalid identity dan collision kekal
+  fail-closed; source shrink serta deactivation anomaly menjadi warning dengan
+  exact typed confirmation;
 - Apply melakukan fresh-plan verification dan transaction/reconciliation
   melalui safe operational coordinator yang sedia ada.
 

@@ -101,16 +101,14 @@ final class SyncOperationalConfig
         return $counts['New'] > $this->warnNew
             || $counts['Update'] > $this->warnUpdate
             || $counts['Reactivate'] > $this->warnReactivate
+            || $counts['Deactivate'] > $this->maxDeactivate
             || array_sum($counts) > $this->warnTotal;
     }
 
     /** @param array{New:int,Update:int,Deactivate:int,Reactivate:int} $counts */
     public function assertWithinHardLimits(array $counts): void
     {
-        $counts = $this->normalizedCounts($counts);
-        if ($counts['Deactivate'] > $this->maxDeactivate) {
-            throw new RuntimeException('SYNC_OPERATIONAL_DEACTIVATE_LIMIT_EXCEEDED');
-        }
+        $this->normalizedCounts($counts);
     }
 
     /** @param array<string, int> $counts @return array{New:int,Update:int,Deactivate:int,Reactivate:int} */

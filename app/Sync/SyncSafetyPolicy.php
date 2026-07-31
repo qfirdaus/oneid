@@ -75,10 +75,16 @@ final class SyncSafetyPolicy
             $blocking[] = 'STUDENT_SOURCE_MISSING';
         }
         if ($deactivationPercent > $this->maxDeactivationPercent) {
-            $blocking[] = 'DEACTIVATION_THRESHOLD_EXCEEDED';
+            $warnings[] = 'DEACTIVATION_THRESHOLD_EXCEEDED';
         }
         if ($invalidPercent > $this->maxInvalidPercent) {
             $blocking[] = 'INVALID_SOURCE_THRESHOLD_EXCEEDED';
+        }
+        if ($plan->discardedInvalid > 0) {
+            $blocking[] = 'INVALID_SOURCE_ROWS_PRESENT';
+        }
+        if ($plan->discardedExcluded > 0) {
+            $blocking[] = 'POLICY_EXCLUDED_IDENTITIES_PRESENT';
         }
         if ($plan->discardedProtectedCollisions > 0) {
             $blocking[] = 'PROTECTED_IDENTITY_COLLISION';
@@ -96,7 +102,7 @@ final class SyncSafetyPolicy
         if ($previousSourceRows !== null && $previousSourceRows > 0) {
             $shrinkPercent = max(0.0, (($previousSourceRows - $sourceRows) / $previousSourceRows) * 100);
             if ($shrinkPercent > $this->maxSourceShrinkPercent) {
-                $blocking[] = 'SOURCE_SHRINK_THRESHOLD_EXCEEDED';
+                $warnings[] = 'SOURCE_SHRINK_THRESHOLD_EXCEEDED';
             }
         } else {
             $warnings[] = 'SOURCE_BASELINE_UNAVAILABLE';

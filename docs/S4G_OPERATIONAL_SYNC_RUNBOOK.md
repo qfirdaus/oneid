@@ -53,9 +53,11 @@ Hanya teruskan apabila output ialah
 1. Administrator buka External Sync dan klik Preview.
 2. Semak source rows, New, Update, Deactivate, Reactivate, protected manual,
    collision, warning, plan hash dan expiry.
-3. Apply kekal disekat jika source kosong/tidak lengkap, baseline tiada, source
-   shrink melebihi 20%, invalid rows melebihi 1%, Deactivate melebihi 5% active
-   sync scope, protected identity collision atau kategori source tidak dikenali.
+3. Apply kekal disekat jika source kosong/tidak lengkap, baseline tiada, row
+   invalid/excluded, protected identity collision atau kategori source tidak
+   dikenali. Source shrink melebihi 20% dan Deactivate melebihi 5% active sync
+   scope dipaparkan sebagai warning yang memerlukan semakan serta confirmation
+   tepat, tetapi tidak menyekat Apply.
 4. Jika plan selamat dan tidak kosong, taip frasa yang dipaparkan. Plan yang
    mempunyai Deactivate memerlukan frasa tambahan dengan exact Deactivate count.
 5. Klik Apply sekali. Approval tamat selepas 5 minit dan terbakar selepas satu
@@ -83,8 +85,9 @@ baharu.
 - Soft warning tidak menyekat Apply. Administrator mesti menyemak batch dan
   menaip frasa besar yang mengandungi exact New, Update, Deactivate,
   Reactivate serta plan hash.
-- Deactivate melebihi 50 ialah hard block pada preview dan server Apply.
-  Gunakan proses Controlled Full Sync dengan kelulusan khusus untuk plan itu.
+- Deactivate melebihi nilai advisory 50 tidak menyekat Apply. Ia menukar batch
+  kepada large-change review dan memerlukan frasa yang mengandungi exact New,
+  Update, Deactivate, Reactivate serta plan hash.
 - Semua nilai ambang boleh dioverride dalam `.private/runtime.php`. Nilai mesti
   kekal sebagai string integer yang sah; konfigurasi tidak sah akan fail closed.
 

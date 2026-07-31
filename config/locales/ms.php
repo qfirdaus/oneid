@@ -710,7 +710,7 @@ return [
     'admin.sync.warning_baseline' => 'Perbandingan dengan jumlah rekod terdahulu tidak tersedia.',
     'admin.sync.warning_invalid' => 'Sebahagian rekod sumber tidak lengkap atau tidak sah dan tidak akan diproses.',
     'admin.sync.warning_policy' => 'Sebahagian rekod tidak memenuhi polisi sinkronisasi dan tidak akan diproses.',
-    'admin.sync.warning_threshold' => 'Jumlah akaun yang akan dinyahaktifkan melebihi had keselamatan. Proses tidak boleh diteruskan.',
+    'admin.sync.warning_threshold' => 'Jumlah akaun yang akan dinyahaktifkan melebihi ambang biasa. Semak jumlah dan masukkan confirmation tepat untuk meneruskan.',
     'admin.sync.warning_manual' => 'Terdapat konflik dengan akaun yang ditambah secara manual. Rekod tersebut dilindungi dan tidak akan diproses.',
     'admin.sync.approved_ready' => 'SEDIA UNTUK SINKRONISASI YANG DILULUSKAN',
     'admin.sync.plan_bound' => 'Kelulusan ini terikat pada bilangan perubahan dan rujukan pelan yang dipaparkan.',

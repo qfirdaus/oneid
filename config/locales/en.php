@@ -710,7 +710,7 @@ return [
     'admin.sync.warning_baseline' => 'A comparison with the previous record count is unavailable.',
     'admin.sync.warning_invalid' => 'Some source records are incomplete or invalid and will not be processed.',
     'admin.sync.warning_policy' => 'Some records do not meet the synchronization policy and will not be processed.',
-    'admin.sync.warning_threshold' => 'The number of accounts to deactivate exceeds the safety threshold. The process cannot continue.',
+    'admin.sync.warning_threshold' => 'The number of accounts to deactivate exceeds the routine threshold. Review the count and enter the exact confirmation to continue.',
     'admin.sync.warning_manual' => 'A conflict exists with a manually added account. The record is protected and will not be processed.',
     'admin.sync.approved_ready' => 'READY FOR APPROVED SYNCHRONIZATION',
     'admin.sync.plan_bound' => 'This approval is bound to the displayed change counts and plan reference.',

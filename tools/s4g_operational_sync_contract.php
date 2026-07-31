@@ -10,12 +10,12 @@ $config=$source['app/Sync/SyncOperationalConfig.php'];$gate=$source['app/Sync/Op
 $localeMs=(string)file_get_contents($root.'/config/locales/ms.php');
 $localeEn=(string)file_get_contents($root.'/config/locales/en.php');
 $report(str_contains($source['config/runtime.php'],"'ONEID_SYNC_OPERATIONAL_ENABLED' => 'false'")&&str_contains($source['config/runtime.php'],"'ONEID_SYNC_OPERATIONAL_WARN_NEW' => '500'")&&str_contains($source['config/runtime.php'],"'ONEID_SYNC_OPERATIONAL_WARN_UPDATE' => '1000'")&&str_contains($source['config/runtime.php'],"'ONEID_SYNC_OPERATIONAL_MAX_DEACTIVATE' => '50'"),'committed operational defaults fail closed with bounded thresholds');
-$report(str_contains($config,'APPLY SYNC DEACTIVATE')&&str_contains($config,'APPLY LARGE SYNC')&&str_contains($config,'assertWithinHardLimits'),'typed confirmation binds counts and hash while enforcing the hard limit');
+$report(str_contains($config,'APPLY SYNC DEACTIVATE')&&str_contains($config,'APPLY LARGE SYNC')&&str_contains($config,"\$counts['Deactivate'] > \$this->maxDeactivate"),'typed confirmation binds exact counts and hash above advisory thresholds');
 $report(str_contains($gate,'consumeAndValidate')&&str_contains($gate,'SYNC_OPERATIONAL_CONFIRMATION_INVALID'),'server validates one-time approval before confirmation');
 $report(str_contains($factory,'createOperationalCoordinator')&&str_contains($factory,'buildSafeOrchestrator()'),'operational endpoint uses full safe reconciled orchestrator');
 $report(str_contains($source['lib/request_security.php'],"'admin_apply_operational_sync'")&&str_contains($q,"isset( \$_POST['admin_apply_operational_sync'])"),'operational action inherits admin CSRF and exactly-one-action guard');
 $report(str_contains($q,'operational_apply_available')&&str_contains($q,"array_sum(\$previewCounts) > 0")&&str_contains($q,'SYNC_MODE_CONFLICT'),'preview requires non-empty safe plan and exclusive mode');
-$report(str_contains($q,'operational_large_batch')&&str_contains($q,'operational_hard_blocked')&&str_contains($q,'max_deactivate'),'preview exposes server-derived threshold decisions');
+$report(str_contains($q,'operational_large_batch')&&str_contains($q,'operational_deactivate_advisory')&&str_contains($q,'max_deactivate'),'preview exposes server-derived advisory decisions');
 $report(str_contains($q,'ADMIN_SYNC_OPERATIONAL_SAFE')&&str_contains($q,'SYNC_OPERATIONAL_APPLY_COMPLETED_AUDIT_WARNING'),'operational Apply emits completion and secondary audit state');
 $report(str_contains($source['tools/s4g_operational_sync_result_audit.php'],'ADMIN_SYNC_OPERATIONAL_SAFE')&&str_contains($source['tools/s4g_operational_sync_result_audit.php'],'mutation_statements=0'),'result audit reconciles the operational marker read-only');
 $report(str_contains($ui,'operational_apply_available === true')&&str_contains($ui,'admin_apply_operational_sync')&&str_contains($ui,'btn_apply_sync_operational'),'UI requires server availability and typed confirmation');

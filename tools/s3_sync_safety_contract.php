@@ -55,7 +55,7 @@ $report(str_contains($orchestrator, 'catch (Throwable $exception)') && str_conta
 $report(str_contains($orchestrator, 'finally') && str_contains($orchestrator, '$this->lock->release()'), 'run lock is released in finally');
 $report(str_contains($orchestrator, 'SYNC_ALREADY_RUNNING'), 'concurrent run fails with stable diagnostic code');
 $report(str_contains($policy, 'STAFF_SOURCE_MISSING') && str_contains($policy, 'STUDENT_SOURCE_MISSING'), 'both external source families are mandatory');
-$report(str_contains($policy, 'DEACTIVATION_THRESHOLD_EXCEEDED') && str_contains($policy, 'SOURCE_SHRINK_THRESHOLD_EXCEEDED'), 'blast-radius thresholds fail closed');
+$report(str_contains($policy, "\$warnings[] = 'DEACTIVATION_THRESHOLD_EXCEEDED'") && str_contains($policy, "\$warnings[] = 'SOURCE_SHRINK_THRESHOLD_EXCEEDED'"), 'blast-radius thresholds require review without blocking');
 $report(str_contains($policy, 'PROTECTED_IDENTITY_COLLISION') && str_contains($policy, 'UNKNOWN_SOURCE_CATEGORY'), 'identity and category anomalies fail closed');
 $report(str_contains($database, 'GET_LOCK(:lock_name, :wait_seconds)') && str_contains($database, 'RELEASE_LOCK(:lock_name)'), 'database adapter uses connection-scoped advisory lock');
 $report(str_contains($database, 'FROM sync_change_log') && str_contains($database, 'GROUP BY action'), 'reconciliation reads durable audit totals');

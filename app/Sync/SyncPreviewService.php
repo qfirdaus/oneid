@@ -78,10 +78,7 @@ final class SyncPreviewService
         )));
 
         if ($blockingCodes === [] && $response['warnings'] !== []) {
-            $blockingCodes[] = 'PREVIEW_WARNING_REQUIRES_REVIEW';
-            $response['blocking_codes'] = $blockingCodes;
-            $response['warnings'][] = 'PREVIEW_WARNING_REQUIRES_REVIEW';
-            $response['risk_level'] = 'blocked';
+            $response['risk_level'] = 'warning';
         }
 
         if ($blockingCodes !== []) {
@@ -145,8 +142,8 @@ final class SyncPreviewService
         $deactivationPercent = round(($counts['Deactivate'] / $activeSyncScope) * 100, 2);
         $riskLevel = 'normal';
         if ($deactivationPercent > $this->deactivationThresholdPercent) {
-            $riskLevel = 'blocked';
-            $warnings[] = 'Deactivation threshold exceeded; apply must remain blocked.';
+            $riskLevel = 'warning';
+            $warnings[] = 'Deactivation threshold exceeded; exact confirmation is required.';
         } elseif ($warnings !== []) {
             $riskLevel = 'warning';
         }

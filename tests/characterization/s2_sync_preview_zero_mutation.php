@@ -130,8 +130,8 @@ $report(!str_contains($encoded, 'SECRET-IC'), 'raw identity number is absent');
 $report(!str_contains($encoded, 'Protected Person'), 'raw name is absent');
 $report(preg_match('/^[a-f0-9]{64}$/', $preview['plan_hash']) === 1, 'deterministic plan hash format');
 $report(strtotime($preview['expires_at']) > strtotime($preview['generated_at']), 'preview has future expiry');
-$report($preview['risk_level'] === 'blocked', 'deactivation anomaly crosses hard-stop threshold');
-$report(in_array('Deactivation threshold exceeded; apply must remain blocked.', $preview['warnings'], true), 'threshold warning returned');
+$report($preview['risk_level'] === 'warning', 'deactivation anomaly requires explicit review');
+$report(in_array('Deactivation threshold exceeded; exact confirmation is required.', $preview['warnings'], true), 'threshold warning returned');
 $staffNormalized = ExternalRowNormalizer::normalize([
     'DATA1' => 'Staff Name', 'IDPEKERJA' => 'EMP', 'NOPEKERJA' => 'NO',
     'DATA4' => 'IC', 'JENIS' => 'Pentadbiran',

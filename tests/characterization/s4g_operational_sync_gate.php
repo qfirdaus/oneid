@@ -91,7 +91,8 @@ $report($bounded->isLargeBatch($largePlan->legacyCounts()),'soft thresholds iden
 $report($bounded->confirmationText($largeHash,$largePlan->legacyCounts())==='APPLY LARGE SYNC N2 U1 D0 R0 '.strtoupper(substr($largeHash,0,12)),'large batch confirmation binds all counts and plan hash');
 $hardPlan = s4g_deactivate_plan(2);
 $hardHash = $fingerprinter->fingerprint($hardPlan);
-$report($reason(fn()=>$bounded->confirmationText($hardHash,$hardPlan->legacyCounts()))==='SYNC_OPERATIONAL_DEACTIVATE_LIMIT_EXCEEDED','deactivate count above the hard limit is blocked');
+$hardConfirmation='APPLY LARGE SYNC N0 U0 D2 R0 '.strtoupper(substr($hardHash,0,12));
+$report($bounded->confirmationText($hardHash,$hardPlan->legacyCounts())===$hardConfirmation,'deactivate count above the advisory threshold requires exact large confirmation');
 
 $store = new S4GStore();
 $service = new SyncApprovalService($store,$fingerprinter,300);
@@ -118,8 +119,9 @@ $report($reason(fn()=>$gate->consumeAndValidate($receipt->approvalId,'0530-09',s
 $store = new S4GStore();
 $service = new SyncApprovalService($store,$fingerprinter,300);
 $receipt = $service->issue('0530-09',$hardPlan,6485,4000);
-$gate = new OperationalSyncApprovalGate($service,$bounded,'ANY CONFIRMATION');
-$report($reason(fn()=>$gate->consumeAndValidate($receipt->approvalId,'0530-09',$hardPlan,4001))==='SYNC_OPERATIONAL_DEACTIVATE_LIMIT_EXCEEDED','server gate enforces the deactivate hard limit');
-$report($store->consumes===1,'hard-limit rejection burns the one-time approval');
+$gate = new OperationalSyncApprovalGate($service,$bounded,$hardConfirmation);
+$largeApproval=$gate->consumeAndValidate($receipt->approvalId,'0530-09',$hardPlan,4001);
+$report($largeApproval->counts['Deactivate']===2,'server gate accepts reviewed deactivation above the advisory threshold');
+$report($store->consumes===1,'large-deactivation approval remains one-time');
 
 printf("RESULT checks=%d failed=%d\n",$checks,$failed);exit($failed===0?0:1);

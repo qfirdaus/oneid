@@ -1093,20 +1093,18 @@ function string_sanitize($s) {
                 $previewCounts = is_array($previewResponse['counts'] ?? null)
                     ? $previewResponse['counts']
                     : [];
-                $operationalHardBlocked = false;
+                $operationalDeactivateAdvisory = false;
                 if ($operationalConfig->enabled) {
-                    try {
-                        $operationalConfig->assertWithinHardLimits($previewCounts);
-                    } catch (\RuntimeException $exception) {
-                        if ($exception->getMessage() !== 'SYNC_OPERATIONAL_DEACTIVATE_LIMIT_EXCEEDED') {
-                            throw $exception;
-                        }
-                        $operationalHardBlocked = true;
-                    }
+                    $operationalConfig->assertWithinHardLimits($previewCounts);
+                    $operationalDeactivateAdvisory =
+                        (int) ($previewCounts['Deactivate'] ?? 0)
+                            > $operationalConfig->maxDeactivate;
                 }
                 $previewResponse['operational_large_batch'] = $operationalConfig->enabled
                     && $operationalConfig->isLargeBatch($previewCounts);
-                $previewResponse['operational_hard_blocked'] = $operationalHardBlocked;
+                $previewResponse['operational_hard_blocked'] = false;
+                $previewResponse['operational_deactivate_advisory'] =
+                    $operationalDeactivateAdvisory;
                 $previewResponse['operational_thresholds'] = [
                     'warn_new' => $operationalConfig->warnNew,
                     'warn_update' => $operationalConfig->warnUpdate,
@@ -1117,8 +1115,8 @@ function string_sanitize($s) {
                 if ($previewResponse['operational_large_batch']) {
                     $previewResponse['warnings'][] = 'Large batch requires exact counts and plan-hash confirmation.';
                 }
-                if ($operationalHardBlocked) {
-                    $previewResponse['warnings'][] = 'Deactivate count exceeds the Operational limit; use Controlled Full Sync approval.';
+                if ($operationalDeactivateAdvisory) {
+                    $previewResponse['warnings'][] = 'Deactivate count exceeds the advisory threshold; exact confirmation is required.';
                 }
                 $previewResponse['full_apply_available'] = $fullConfig->enabled
                     && !$pilotConfig->enabled
@@ -1136,7 +1134,6 @@ function string_sanitize($s) {
                     && (!$isOdlOperational
                         || $odlOperationalConfig->canApply())
                     && ($previewResponse['approval_ready'] ?? false) === true
-                    && !$operationalHardBlocked
                     && array_sum($previewCounts) > 0;
                 if ($previewResponse['operational_apply_available']
                     && $isOdlOperational

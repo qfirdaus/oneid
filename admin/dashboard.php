@@ -4557,7 +4557,7 @@
                'SOURCE_BASELINE_UNAVAILABLE': externalSyncText.warningBaseline,
                'Invalid external rows were excluded from the preview.': externalSyncText.warningInvalid,
                'Policy-excluded identities were excluded from the preview.': externalSyncText.warningPolicy,
-               'Deactivation threshold exceeded; apply must remain blocked.': externalSyncText.warningThreshold,
+               'Deactivation threshold exceeded; exact confirmation is required.': externalSyncText.warningThreshold,
                'External identities colliding with protected manual accounts were excluded.': externalSyncText.warningManual
             };
             return messages[String(warning)] || String(warning);
