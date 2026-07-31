@@ -17,9 +17,9 @@ $checks = [
         str_contains($userDashboard, 'oneid-header-motion.css')
         && str_contains($adminDashboard, 'oneid-header-motion.css'),
     'light pass uses a subtle slow animation' =>
-        str_contains($css, 'oneid-header-light-pass 11s linear infinite')
+        str_contains($css, 'oneid-header-light-pass 8s linear infinite')
         && str_contains($css, 'height: 2px')
-        && str_contains($css, 'opacity: 0.58'),
+        && str_contains($css, 'opacity: 0.84'),
     'motion respects accessibility preference' =>
         str_contains($css, 'prefers-reduced-motion: reduce')
         && str_contains($css, 'animation: none'),
