@@ -42,6 +42,12 @@ interface LoginBannerPersistenceInterface
     /** @param array<string,mixed> $asset */
     public function insertAsset(array $asset): int;
 
+    public function assetIdByDigestForUpdate(
+        int $bannerId,
+        string $environment,
+        string $sha256Digest
+    ): ?int;
+
     public function mapLocaleAsset(
         int $bannerId,
         string $environment,

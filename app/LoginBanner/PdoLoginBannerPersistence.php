@@ -261,6 +261,31 @@ final class PdoLoginBannerPersistence implements LoginBannerPersistenceInterface
         return $id;
     }
 
+    public function assetIdByDigestForUpdate(
+        int $bannerId,
+        string $environment,
+        string $sha256Digest
+    ): ?int {
+        $this->assertId($bannerId, 'LB1_BANNER_ID_INVALID');
+        $this->assertEnvironment($environment);
+        if (preg_match('/^[a-f0-9]{64}$/D', $sha256Digest) !== 1) {
+            throw new LoginBannerPersistenceException('LB1_ASSET_DIGEST_INVALID');
+        }
+        $statement = $this->pdo->prepare(
+            "SELECT asset_id FROM login_banner_asset
+              WHERE banner_id=:banner_id AND environment=:environment
+                AND sha256_digest=:sha256_digest AND storage_status='AVAILABLE'
+              LIMIT 1 FOR UPDATE"
+        );
+        $statement->execute([
+            ':banner_id' => $bannerId,
+            ':environment' => $environment,
+            ':sha256_digest' => $sha256Digest,
+        ]);
+        $assetId = $statement->fetchColumn();
+        return $assetId === false ? null : (int) $assetId;
+    }
+
     public function mapLocaleAsset(
         int $bannerId,
         string $environment,

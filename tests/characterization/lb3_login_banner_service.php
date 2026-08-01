@@ -102,6 +102,8 @@ final class Lb3FakePersistence implements LoginBannerPersistenceInterface
     }
     public function upsertTranslation(array $translation): int { $this->translations[] = $translation; return 1; }
     public function insertAsset(array $asset): int { $id = $this->nextAsset++; $this->assets[$id] = $asset + ['asset_id' => $id]; return $id; }
+    public function assetIdByDigestForUpdate(int $bannerId, string $environment, string $sha256Digest): ?int
+    { foreach ($this->assets as $id => $asset) if (($asset['banner_id'] ?? null) === $bannerId && ($asset['environment'] ?? '') === $environment && ($asset['sha256_digest'] ?? '') === $sha256Digest) return $id; return null; }
     public function mapLocaleAsset(int $bannerId, string $environment, string $locale, int $assetId, string $actorId): int
     { $this->maps[$bannerId][$locale] = $assetId; return 1; }
     public function updateBannerVersioned(int $bannerId, int $expectedVersion, array $changes, string $actorId): int

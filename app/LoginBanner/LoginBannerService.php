@@ -154,16 +154,17 @@ final class LoginBannerService
         $correlation = bin2hex(random_bytes(8));
         $staged = [];
         $published = [];
+        $reusedStaged = [];
         try {
             foreach (['ms', 'en'] as $locale) {
                 if (($uploads[$locale] ?? null) !== null) {
                     $staged[$locale] = $this->images->stageUpload($uploads[$locale], $stagingDirectory);
                 }
             }
-            return $this->persistence->transactional(function () use (
+            $result = $this->persistence->transactional(function () use (
                 $bannerId, $expectedVersion, $normalized, $sameImageForEnglish,
                 $staged, $environment, $publishedDirectory, $actorId, $ipAddress,
-                $changeReason, $correlation, &$published
+                $changeReason, $correlation, &$published, &$reusedStaged
             ): array {
                 $current = $this->requiredBanner($bannerId, $expectedVersion);
                 if (!in_array((string) $current['banner_status'], ['DRAFT', 'INACTIVE'], true)) {
@@ -181,6 +182,14 @@ final class LoginBannerService
                     }
                 }
                 foreach ($staged as $locale => $asset) {
+                    $existingAssetId = $this->persistence->assetIdByDigestForUpdate(
+                        $bannerId, $environment, (string) $asset['sha256_digest']
+                    );
+                    if ($existingAssetId !== null) {
+                        $assetIds[$locale] = $existingAssetId;
+                        $reusedStaged[$locale] = $asset;
+                        continue;
+                    }
                     $published[$locale] = $this->images->publish($asset, $publishedDirectory);
                     $assetIds[$locale] = $this->persistence->insertAsset([
                         'banner_id' => $bannerId, 'environment' => $environment,
@@ -231,6 +240,14 @@ final class LoginBannerService
                     'correlation_id' => $correlation,
                 ];
             });
+            foreach ($reusedStaged as $asset) {
+                try {
+                    $this->images->discardStaged($asset, $stagingDirectory);
+                } catch (Throwable $cleanupError) {
+                    error_log('LB3 deduplicated staging cleanup failed correlation=' . $correlation);
+                }
+            }
+            return $result;
         } catch (Throwable $exception) {
             $this->compensateFiles($staged, $published, $stagingDirectory, $publishedDirectory);
             $this->recordRejectedBestEffort(
