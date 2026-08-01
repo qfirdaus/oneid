@@ -11,6 +11,7 @@ final class LoginBannerAdminEndpoint
     private const ACTIONS = [
         'admin_login_banner_list',
         'admin_login_banner_create_draft',
+        'admin_login_banner_update_draft',
         'admin_login_banner_publish',
         'admin_login_banner_inactivate',
         'admin_login_banner_reorder',
@@ -61,8 +62,24 @@ final class LoginBannerAdminEndpoint
                 'admin_login_banner_create_draft' => $this->service->createDraft(
                     $post,
                     [
-                        'ms' => is_array($files['banner_image_ms'] ?? null) ? $files['banner_image_ms'] : null,
-                        'en' => is_array($files['banner_image_en'] ?? null) ? $files['banner_image_en'] : null,
+                        'ms' => $this->optionalUpload($files['banner_image_ms'] ?? null),
+                        'en' => $this->optionalUpload($files['banner_image_en'] ?? null),
+                    ],
+                    filter_var($post['same_image_for_english'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                    $this->environment,
+                    $this->stagingDirectory,
+                    $this->publishedDirectory,
+                    $actorId,
+                    $ipAddress,
+                    $reason
+                ),
+                'admin_login_banner_update_draft' => $this->service->updateDraft(
+                    (int) ($post['banner_id'] ?? 0),
+                    (int) ($post['expected_version'] ?? 0),
+                    $post,
+                    [
+                        'ms' => $this->optionalUpload($files['banner_image_ms'] ?? null),
+                        'en' => $this->optionalUpload($files['banner_image_en'] ?? null),
                     ],
                     filter_var($post['same_image_for_english'] ?? false, FILTER_VALIDATE_BOOLEAN),
                     $this->environment,
@@ -209,5 +226,13 @@ final class LoginBannerAdminEndpoint
             'LB3_ACTIVE_BANNER_LIMIT' => 409,
             default => 422,
         };
+    }
+
+    /** @return array<string,mixed>|null */
+    private function optionalUpload(mixed $file): ?array
+    {
+        return is_array($file) && (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE
+            ? $file
+            : null;
     }
 }

@@ -75,6 +75,7 @@ final class ApiResponseLocalizer
                 || str_starts_with($code, 'LB4_') => match ($code) {
                     'LB4_BANNERS_LOADED' => 'admin.banner.loaded',
                     'LB3_DRAFT_CREATED' => 'admin.banner.draft_created',
+                    'LB3_DRAFT_UPDATED' => 'admin.banner.updated',
                     'LB3_BANNER_PUBLISHED' => 'admin.banner.published',
                     'LB3_BANNER_INACTIVATED' => 'admin.banner.inactivated',
                     'LB3_BANNERS_REORDERED' => 'admin.banner.reordered',

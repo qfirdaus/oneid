@@ -135,6 +135,112 @@ final class LoginBannerService
         }
     }
 
+    /** @param array<string,mixed> $input @param array{ms:?array,en:?array} $uploads @return array<string,mixed> */
+    public function updateDraft(
+        int $bannerId,
+        int $expectedVersion,
+        array $input,
+        array $uploads,
+        bool $sameImageForEnglish,
+        string $environment,
+        string $stagingDirectory,
+        string $publishedDirectory,
+        string $actorId,
+        string $ipAddress,
+        string $changeReason
+    ): array {
+        $this->assertContext($environment, $actorId, $ipAddress, $changeReason);
+        $normalized = $this->normalizeDraft($input, $actorId, $sameImageForEnglish);
+        $correlation = bin2hex(random_bytes(8));
+        $staged = [];
+        $published = [];
+        try {
+            foreach (['ms', 'en'] as $locale) {
+                if (($uploads[$locale] ?? null) !== null) {
+                    $staged[$locale] = $this->images->stageUpload($uploads[$locale], $stagingDirectory);
+                }
+            }
+            return $this->persistence->transactional(function () use (
+                $bannerId, $expectedVersion, $normalized, $sameImageForEnglish,
+                $staged, $environment, $publishedDirectory, $actorId, $ipAddress,
+                $changeReason, $correlation, &$published
+            ): array {
+                $current = $this->requiredBanner($bannerId, $expectedVersion);
+                if (!in_array((string) $current['banner_status'], ['DRAFT', 'INACTIVE'], true)) {
+                    throw new LoginBannerDomainException('LB3_EDIT_REQUIRES_INACTIVE');
+                }
+                if ((string) $current['banner_key'] !== $normalized['banner']['banner_key']) {
+                    throw new LoginBannerDomainException('LB3_BANNER_KEY_IMMUTABLE');
+                }
+                $localeRows = $this->persistence->localeAssetsForUpdate($bannerId, $environment);
+                $assetIds = [];
+                foreach ($localeRows as $row) {
+                    $locale = (string) ($row['locale'] ?? '');
+                    if (in_array($locale, ['ms', 'en'], true) && (int) ($row['asset_id'] ?? 0) > 0) {
+                        $assetIds[$locale] = (int) $row['asset_id'];
+                    }
+                }
+                foreach ($staged as $locale => $asset) {
+                    $published[$locale] = $this->images->publish($asset, $publishedDirectory);
+                    $assetIds[$locale] = $this->persistence->insertAsset([
+                        'banner_id' => $bannerId, 'environment' => $environment,
+                        'source_locale' => $locale, 'image_filename' => $asset['filename'],
+                        'mime_type' => $asset['mime_type'], 'image_width' => $asset['width'],
+                        'image_height' => $asset['height'], 'byte_size' => $asset['byte_size'],
+                        'sha256_digest' => $asset['sha256_digest'], 'storage_status' => 'AVAILABLE',
+                        'actor_id' => $actorId,
+                    ]);
+                }
+                if (!isset($assetIds['ms'])) {
+                    throw new LoginBannerDomainException('LB3_MS_ASSET_REQUIRED');
+                }
+                if ($sameImageForEnglish) {
+                    $assetIds['en'] = $assetIds['ms'];
+                } elseif (!isset($assetIds['en'])) {
+                    throw new LoginBannerDomainException('LB3_EN_ASSET_REQUIRED');
+                }
+                foreach ($normalized['translations'] as $translation) {
+                    $translation['banner_id'] = $bannerId;
+                    $this->persistence->upsertTranslation($translation);
+                }
+                foreach (['ms', 'en'] as $locale) {
+                    $this->persistence->mapLocaleAsset(
+                        $bannerId, $environment, $locale, $assetIds[$locale], $actorId
+                    );
+                }
+                $changes = [
+                    'banner_status' => (string) $current['banner_status'],
+                    'display_order' => $normalized['banner']['display_order'],
+                    'starts_at_utc' => $normalized['banner']['starts_at_utc'],
+                    'ends_at_utc' => $normalized['banner']['ends_at_utc'],
+                ];
+                if ($this->persistence->updateDraftVersioned(
+                    $bannerId, $expectedVersion, $changes, $actorId
+                ) !== 1) {
+                    throw new LoginBannerDomainException('LB3_BANNER_STALE');
+                }
+                $this->writeHistory($this->historyEvent(
+                    $current, $changes, $environment, $actorId, $ipAddress,
+                    $changeReason, 'UPDATE_DRAFT', 'LB3_DRAFT_UPDATED', $correlation
+                ));
+                return [
+                    'status' => 1, 'code' => 'LB3_DRAFT_UPDATED',
+                    'banner_id' => $bannerId,
+                    'configuration_version' => $expectedVersion + 1,
+                    'same_image_for_english' => $sameImageForEnglish,
+                    'correlation_id' => $correlation,
+                ];
+            });
+        } catch (Throwable $exception) {
+            $this->compensateFiles($staged, $published, $stagingDirectory, $publishedDirectory);
+            $this->recordRejectedBestEffort(
+                $bannerId, $environment, $actorId, $ipAddress, 'UPDATE_DRAFT',
+                $this->reasonCode($exception), $changeReason, $correlation
+            );
+            throw new LoginBannerDomainException($this->reasonCode($exception), $correlation, $exception);
+        }
+    }
+
     /** @return array<string,mixed> */
     public function publish(
         int $bannerId,

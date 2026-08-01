@@ -58,6 +58,14 @@ interface LoginBannerPersistenceInterface
         string $actorId
     ): int;
 
+    /** @param array<string,mixed> $changes */
+    public function updateDraftVersioned(
+        int $bannerId,
+        int $expectedVersion,
+        array $changes,
+        string $actorId
+    ): int;
+
     /** @param array<string,mixed> $event */
     public function recordHistory(array $event): int;
 }

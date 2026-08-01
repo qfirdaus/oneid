@@ -12,9 +12,13 @@ filesystem.
   locale dan immutable preview;
 - create draft dengan banner key, order 1–5, optional schedule, alt text BM/EN,
   upload BM dan upload EN;
+- kemaskini banner `DRAFT`/`INACTIVE` sebagai version baharu, termasuk optional
+  replacement image immutable; banner `PUBLISHED` perlu dinyahaktif dahulu;
 - pilihan **gunakan imej BM yang sama untuk English**, tanpa duplicate upload;
 - local preview sebelum upload;
 - publish, inactivate dan rollback dengan confirmation dan change reason;
+- change reason dan confirmation menggunakan localized SweetAlert, bukan native
+  browser prompt/confirm;
 - edit semua position kemudian simpan reorder secara atomic;
 - refresh, localized live status dan correlation reference.
 

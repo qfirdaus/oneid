@@ -112,6 +112,8 @@ final class Lb3FakePersistence implements LoginBannerPersistenceInterface
         ]);
         return 1;
     }
+    public function updateDraftVersioned(int $bannerId, int $expectedVersion, array $changes, string $actorId): int
+    { return $this->updateBannerVersioned($bannerId, $expectedVersion, $changes, $actorId); }
     public function recordHistory(array $event): int
     {
         if ($this->failSuccessAudit && ($event['outcome'] ?? '') === 'SUCCESS') return 0;
@@ -151,6 +153,10 @@ $report($rolledBack['code'] === 'LB3_BANNER_ROLLED_BACK' && $db->banners[1]['ban
 $service->publish(1, 3, 'staging', '0530-09', '127.0.0.1', 'Republish approved UAT banner');
 $inactive = $service->inactivate(1, 4, 'staging', '0530-09', '127.0.0.1', 'Inactivate approved UAT banner');
 $report($inactive['code'] === 'LB3_BANNER_INACTIVATED' && $db->banners[1]['banner_status'] === 'INACTIVE', 'inactivate allows only a currently published version');
+$updatedInput = $input;
+$updatedInput['alt_text_ms'] = 'Banner ujian OneID dikemas kini';
+$updated = $service->updateDraft(1, 5, $updatedInput, ['ms' => null, 'en' => null], true, ...$context);
+$report($updated['code'] === 'LB3_DRAFT_UPDATED' && $db->banners[1]['configuration_version'] === 6 && end($db->history)['action_name'] === 'UPDATE_DRAFT', 'inactive banner metadata updates as a new audited version without replacing its immutable key');
 
 $db2 = new Lb3FakePersistence(); $images2 = new Lb3FakeImages(); $service2 = new LoginBannerService($db2, $images2);
 $db2->failSuccessAudit = true;

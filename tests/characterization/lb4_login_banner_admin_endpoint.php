@@ -28,6 +28,7 @@ final class Lb4Persistence implements LoginBannerPersistenceInterface {
   public function insertAsset(array $asset):int{return 0;}
   public function mapLocaleAsset(int $bannerId,string $environment,string $locale,int $assetId,string $actorId):int{return 0;}
   public function updateBannerVersioned(int $bannerId,int $expectedVersion,array $changes,string $actorId):int{return 0;}
+  public function updateDraftVersioned(int $bannerId,int $expectedVersion,array $changes,string $actorId):int{return 0;}
   public function recordHistory(array $event):int{return 0;}
 }
 

@@ -318,6 +318,32 @@ final class PdoLoginBannerPersistence implements LoginBannerPersistenceInterface
         return $statement->rowCount();
     }
 
+    public function updateDraftVersioned(
+        int $bannerId,
+        int $expectedVersion,
+        array $changes,
+        string $actorId
+    ): int {
+        $this->assertId($bannerId, 'LB1_BANNER_ID_INVALID');
+        $statement = $this->pdo->prepare(
+            "UPDATE login_banner
+                SET display_order=:display_order,starts_at_utc=:starts_at_utc,
+                    ends_at_utc=:ends_at_utc,
+                    configuration_version=configuration_version+1,updated_by=:actor_id
+              WHERE banner_id=:banner_id AND configuration_version=:expected_version
+                AND banner_status IN ('DRAFT','INACTIVE')"
+        );
+        $statement->execute([
+            ':display_order' => (int) ($changes['display_order'] ?? 0),
+            ':starts_at_utc' => $changes['starts_at_utc'] ?? null,
+            ':ends_at_utc' => $changes['ends_at_utc'] ?? null,
+            ':actor_id' => $actorId,
+            ':banner_id' => $bannerId,
+            ':expected_version' => $expectedVersion,
+        ]);
+        return $statement->rowCount();
+    }
+
     public function recordHistory(array $event): int
     {
         $statement = $this->pdo->prepare(
