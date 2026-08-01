@@ -60,7 +60,7 @@ $report(
     'BM manual requires explicit fallback until approved English content exists'
 );
 $report(
-    $byIdentity['release_ui:admin_dashboard']['entry_count'] === 41
+    $byIdentity['release_ui:admin_dashboard']['entry_count'] === 42
     && $byIdentity['release_ui:admin_dashboard']['classification']
         === 'MIXED_TRANSLATION_REQUIRED',
     'active Administrator release history is included'

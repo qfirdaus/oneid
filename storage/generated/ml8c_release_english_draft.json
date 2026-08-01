@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V271-CHANGELOG-20260801-01",
+    "authorization": "ONEID-V272-CHANGELOG-20260802-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.7.2",
+            "version": "2.7.2",
+            "date": "2026-08-02",
+            "items": [
+                {
+                    "identity": "release:2.7.2:item:001",
+                    "bm": "Administrator kini boleh mengurus banner halaman login secara terus melalui Configuration tanpa mengubah source code bagi setiap pertukaran kandungan.",
+                    "en_draft": "Administrators can now manage login-page banners directly through Configuration without changing source code for every content update.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.7.2:item:002",
+                    "bm": "Banner menyokong imej BM dan English yang berasingan atau satu imej bersama, lengkap dengan teks alternatif mengikut bahasa.",
+                    "en_draft": "Banners support separate BM and English images or one shared image, with language-specific alternative text.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.7.2:item:003",
+                    "bm": "Administrator boleh mencipta draf, mengemas kini imej atau jadual, menerbitkan, menyahaktifkan, menyusun semula dan rollback banner terdahulu.",
+                    "en_draft": "Administrators can create drafts, update images or schedules, publish, inactivate, reorder and roll back earlier banners.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.7.2:item:004",
+                    "bm": "Muat naik JPEG, PNG dan WebP divalidasi serta dinormalisasikan kepada aset WebP immutable dengan kawalan dimensi, saiz dan integriti.",
+                    "en_draft": "JPEG, PNG and WebP uploads are validated and normalized into immutable WebP assets with dimension, size and integrity controls.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.7.2:item:005",
+                    "bm": "Halaman login memilih banner mengikut bahasa pengguna dan kembali kepada banner statik dengan selamat jika aset dinamik tidak tersedia.",
+                    "en_draft": "The login page selects banners according to the user language and safely returns to static banners when dynamic assets are unavailable.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.7.2:item:006",
+                    "bm": "Operasi banner mempunyai versioning, audit, backup, reconciliation dan rollback untuk menyokong pemulihan serta pengesanan perubahan.",
+                    "en_draft": "Banner operations include versioning, audit, backup, reconciliation and rollback to support recovery and change traceability.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.7.2:item:007",
+                    "bm": "Dialog pengurusan banner menggunakan SweetAlert, dan imej yang sama boleh digunakan semula tanpa menghasilkan ralat aset pendua.",
+                    "en_draft": "Banner management dialogs now use SweetAlert, and an identical image can be reused without causing a duplicate-asset error.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.7.2:item:008",
+                    "bm": "Configuration kini disusun kepada General, Security, Multi-Factor Authentication dan Audit dengan subtab serta kandungan yang terasing dengan betul.",
+                    "en_draft": "Configuration is now organized into General, Security, Multi-Factor Authentication and Audit with correctly isolated subtabs and content.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.7.2:item:009",
+                    "bm": "Garisan header mempunyai pergerakan cahaya kiri-kanan yang lebih lembut, nipis dan berbilang warna selaras dengan identiti OneID.",
+                    "en_draft": "The header line now has a softer, thinner, multicolour left-to-right motion aligned with the OneID visual identity.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.7.2:item:010",
+                    "bm": "Halaman cabaran User 2FA kini menggunakan penerangan keselamatan akaun pengguna yang berasingan daripada mesej Admin Step-Up.",
+                    "en_draft": "The User 2FA challenge now uses user-account security guidance that is separate from the Admin Step-Up message.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.7.1",
             "version": "2.7.1",
@@ -1824,5 +1891,5 @@
             ]
         }
     ],
-    "manifest_digest": "0883d0a4304ce72abe0d41223aef3c613a7a2f3adbd5eed77c372e8ceb268798"
+    "manifest_digest": "8d7855a50ed19e9fded02c12515b63428d6be26b8216ec7cc0d25a33c660dee0"
 }

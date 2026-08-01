@@ -27,7 +27,7 @@ final class Ml8cContentPreview
         $manualPath = $this->root . '/public/public_docs/MANUAL_SALAM.pdf';
         $manualDraft = $this->root . '/docs/MANUAL_SALAM_ENGLISH_DRAFT_REVIEW.md';
         $blocking = [];
-        if (count($releases) !== 41) {
+        if (count($releases) !== 42) {
             $blocking[] = 'ML8C_RELEASE_BASELINE_MISMATCH';
         }
         if ($duplicateVersions !== 0) {
@@ -49,7 +49,7 @@ final class Ml8cContentPreview
             'release_english_approved' => count($releases),
             'release_english_review_required' => 0,
             'duplicate_release_identities' => $duplicateVersions,
-            'unresolved_release_identities' => count($releases) === 41 ? 0 : abs(41 - count($releases)),
+            'unresolved_release_identities' => count($releases) === 42 ? 0 : abs(42 - count($releases)),
             'official_bm_manuals' => is_file($manualPath) ? 1 : 0,
             'approved_english_manuals' => 0,
             'english_manual_draft_review_file' => is_file($manualDraft),

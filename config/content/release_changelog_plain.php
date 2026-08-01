@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.7.2' =>
+  array (
+    'version' => '2.7.2',
+    'date' => '2026-08-02',
+    'bm' =>
+    array (
+      0 => 'Administrator kini boleh mengurus banner halaman login secara terus melalui Configuration tanpa mengubah source code bagi setiap pertukaran kandungan.',
+      1 => 'Banner menyokong imej BM dan English yang berasingan atau satu imej bersama, lengkap dengan teks alternatif mengikut bahasa.',
+      2 => 'Administrator boleh mencipta draf, mengemas kini imej atau jadual, menerbitkan, menyahaktifkan, menyusun semula dan rollback banner terdahulu.',
+      3 => 'Muat naik JPEG, PNG dan WebP divalidasi serta dinormalisasikan kepada aset WebP immutable dengan kawalan dimensi, saiz dan integriti.',
+      4 => 'Halaman login memilih banner mengikut bahasa pengguna dan kembali kepada banner statik dengan selamat jika aset dinamik tidak tersedia.',
+      5 => 'Operasi banner mempunyai versioning, audit, backup, reconciliation dan rollback untuk menyokong pemulihan serta pengesanan perubahan.',
+      6 => 'Dialog pengurusan banner menggunakan SweetAlert, dan imej yang sama boleh digunakan semula tanpa menghasilkan ralat aset pendua.',
+      7 => 'Configuration kini disusun kepada General, Security, Multi-Factor Authentication dan Audit dengan subtab serta kandungan yang terasing dengan betul.',
+      8 => 'Garisan header mempunyai pergerakan cahaya kiri-kanan yang lebih lembut, nipis dan berbilang warna selaras dengan identiti OneID.',
+      9 => 'Halaman cabaran User 2FA kini menggunakan penerangan keselamatan akaun pengguna yang berasingan daripada mesej Admin Step-Up.',
+    ),
+    'en' =>
+    array (
+      0 => 'Administrators can now manage login-page banners directly through Configuration without changing source code for every content update.',
+      1 => 'Banners support separate BM and English images or one shared image, with language-specific alternative text.',
+      2 => 'Administrators can create drafts, update images or schedules, publish, inactivate, reorder and roll back earlier banners.',
+      3 => 'JPEG, PNG and WebP uploads are validated and normalized into immutable WebP assets with dimension, size and integrity controls.',
+      4 => 'The login page selects banners according to the user language and safely returns to static banners when dynamic assets are unavailable.',
+      5 => 'Banner operations include versioning, audit, backup, reconciliation and rollback to support recovery and change traceability.',
+      6 => 'Banner management dialogs now use SweetAlert, and an identical image can be reused without causing a duplicate-asset error.',
+      7 => 'Configuration is now organized into General, Security, Multi-Factor Authentication and Audit with correctly isolated subtabs and content.',
+      8 => 'The header line now has a softer, thinner, multicolour left-to-right motion aligned with the OneID visual identity.',
+      9 => 'The User 2FA challenge now uses user-account security guidance that is separate from the Admin Step-Up message.',
+    ),
+  ),
   'release-2.7.1' =>
   array (
     'version' => '2.7.1',
