@@ -5,6 +5,10 @@ oneid_start_secure_session();
 require_once __DIR__ . '/lib/request_security.php';
 require_once __DIR__ . '/lib/SSO_IDP_INC.php';
 require_once __DIR__ . '/lib/shared_faq.php';
+require_once __DIR__ . '/app/LoginBanner/LoginBannerPersistenceException.php';
+require_once __DIR__ . '/app/LoginBanner/LoginBannerPersistenceInterface.php';
+require_once __DIR__ . '/app/LoginBanner/PdoLoginBannerPersistence.php';
+require_once __DIR__ . '/app/LoginBanner/LoginBannerPublicResolver.php';
 $requestedLocale = $_GET['locale'] ?? null;
 if ($requestedLocale !== null) {
   if (oneid_set_session_locale((string) $requestedLocale)) {
@@ -35,6 +39,28 @@ $loginFlashKey = match ($loginFlashCode) {
   'mydigitalid_temporary' => 'login.mydigitalid.temporary',
   default => null,
 };
+$loginBanners = [
+  ['src' => 'assetsM/images/banner6.png', 'alt' => 'OneID@UPNM', 'width' => 3780, 'height' => 1890],
+  ['src' => 'assetsM/images/banner7.png', 'alt' => 'OneID@UPNM', 'width' => 3780, 'height' => 1890],
+];
+if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALIDATE_BOOLEAN)) {
+  try {
+    $bannerPdo = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    $bannerResolver = new \OneId\App\LoginBanner\LoginBannerPublicResolver(
+      new \OneId\App\LoginBanner\PdoLoginBannerPersistence($bannerPdo),
+      strtolower(trim((string) oneid_config('ONEID_ENVIRONMENT', ''))),
+      oneid_public_path('login_banners'),
+      'login_banners'
+    );
+    $dynamicBanners = $bannerResolver->resolve(oneid_current_locale(), gmdate('Y-m-d H:i:s'));
+    if ($dynamicBanners !== []) {
+      $loginBanners = $dynamicBanners;
+    }
+  } catch (\Throwable $bannerError) {
+    $bannerCorrelation = bin2hex(random_bytes(8));
+    error_log('LB6 public banner fallback correlation=' . $bannerCorrelation . ' exception=' . get_class($bannerError));
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?=htmlspecialchars(oneid_current_locale(), ENT_QUOTES, 'UTF-8')?>">
@@ -186,24 +212,22 @@ $loginFlashKey = match ($loginFlashCode) {
       <?php endif; ?>
 
       <!-- Slider -->
-      <div id="carouselExample" class="carousel slide mb-4" data-bs-ride="carousel">
+      <div id="carouselExample" class="carousel slide mb-4" data-bs-ride="carousel" data-bs-interval="6000">
         <div class="carousel-inner rounded">
-          <div class="carousel-item active">
-            <img src="assetsM/images/banner6.png" class="w-100 slider-img" alt="OneID@UPNM">
+          <?php foreach ($loginBanners as $bannerIndex => $banner): ?>
+          <div class="carousel-item<?=$bannerIndex === 0 ? ' active' : ''?>">
+            <img src="<?=htmlspecialchars((string)$banner['src'], ENT_QUOTES, 'UTF-8')?>" class="w-100 slider-img" alt="<?=htmlspecialchars((string)$banner['alt'], ENT_QUOTES, 'UTF-8')?>" width="<?=(int)$banner['width']?>" height="<?=(int)$banner['height']?>" loading="<?=$bannerIndex === 0 ? 'eager' : 'lazy'?>"<?=$bannerIndex === 0 ? ' fetchpriority="high"' : ''?>>
           </div>
-          <div class="carousel-item">
-            <img src="assetsM/images/banner7.png" class="w-100 slider-img" alt="OneID@UPNM">
-          </div>
-         <!-- <div class="carousel-item">
-            <img src="assetsM/images/banner5.png" class="w-100 slider-img" alt="Slider">
-          </div> -->
+          <?php endforeach; ?>
         </div>
+        <?php if (count($loginBanners) > 1): ?>
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon"></span>
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden"><?=htmlspecialchars(oneid_translate('login.banner_previous'), ENT_QUOTES, 'UTF-8')?></span>
         </button>
         <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-          <span class="carousel-control-next-icon"></span>
+          <span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden"><?=htmlspecialchars(oneid_translate('login.banner_next'), ENT_QUOTES, 'UTF-8')?></span>
         </button>
+        <?php endif; ?>
       </div>
 
       <!-- Contact Info -->

@@ -1,0 +1,13 @@
+ID	Decision	Status	Approved answer	Owner action
+LB-D01	Who may publish	CONFIRMED	All authenticated active Administrators may draft and publish in phase one; publish remains protected by Admin Step-Up and audit	Review granular publisher role as future hardening
+LB-D02	Canonical output	CONFIRMED	Static WebP at 1600x800 with 2:1 ratio and target size not exceeding 500 KB	Confirm visual quality during LB8 UAT
+LB-D03	Input maximum	CONFIRMED	5 MB; maximum 4096x2048 and 16 million pixels; static JPEG PNG or WebP input only	None
+LB-D04	Missing English asset	CONFIRMED	Admin must explicitly select same-as-BM or provide an English asset; no silent fallback	None
+LB-D05	Alternative text	CONFIRMED	BM and English alt text are mandatory for every locale being published even when both locales share one image	Approve final content during LB8 UAT
+LB-D06	Scheduling	CONFIRMED	Optional schedule; store UTC and display/edit in Asia/Kuala_Lumpur	None
+LB-D07	Clickable banner link	CONFIRMED	Excluded from phase one	Separate security decision required for future links
+LB-D08	Maximum active banners	CONFIRMED	Maximum five banners active or scheduled for the same effective window	Confirm operational sufficiency during LB8 UAT
+LB-D09	Carousel interval	CONFIRMED	Six seconds per slide; controls remain available	Confirm visual timing during LB8 UAT
+LB-D10	Version and asset retention	CONFIRMED	Minimum 90 days before an inactive unreferenced asset becomes cleanup-eligible; quarantine and approval still required	Set operational cleanup owner before LB7
+LB-D11	Environment publication	CONFIRMED	Environment-local publication for phase one; local staging and production assets never cross-fallback	Set and verify ONEID_ENVIRONMENT on every deployment
+LB-D12	Production promotion	CONFIRMED	Manual controlled promotion with exact manifest and SHA-256 verification; no implicit automatic copy	Authorize only through separate LB9 production gate

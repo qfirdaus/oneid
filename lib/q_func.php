@@ -86,6 +86,15 @@ require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaTotpPrimitive.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaTotpService.php';
 require_once dirname(__DIR__) . '/app/Mail/OneIdEmailTemplate.php';
 require_once dirname(__DIR__) . '/app/Locale/ApiResponseLocalizer.php';
+require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerPersistenceException.php';
+require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerPersistenceInterface.php';
+require_once dirname(__DIR__) . '/app/LoginBanner/PdoLoginBannerPersistence.php';
+require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerImageException.php';
+require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerImagePipelineInterface.php';
+require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerImagePipeline.php';
+require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerDomainException.php';
+require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerService.php';
+require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerAdminEndpoint.php';
 require_once dirname(__DIR__) . '/app/Metadata/BilingualMetadataRepository.php';
 require_once dirname(__DIR__) . '/app/Metadata/MetadataContentInventory.php';
 use DeviceDetector\DeviceDetector;
@@ -294,6 +303,33 @@ ob_start(static function (string $buffer): string {
     return $buffer;
   }
 });
+
+if(str_starts_with($oneidGuardedAction,'admin_login_banner_')){
+  try{
+    $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+    $persistence=new \OneId\App\LoginBanner\PdoLoginBannerPersistence($pdo);
+    $pipeline=new \OneId\App\LoginBanner\LoginBannerImagePipeline();
+    $service=new \OneId\App\LoginBanner\LoginBannerService($persistence,$pipeline);
+    $endpoint=new \OneId\App\LoginBanner\LoginBannerAdminEndpoint(
+      $persistence,$service,
+      strtolower(trim((string)oneid_config('ONEID_ENVIRONMENT',''))),
+      dirname(__DIR__).'/storage/runtime/login-banner-staging',
+      oneid_public_path('login_banners')
+    );
+    $results=$endpoint->handle(
+      $oneidGuardedAction,$_POST,$_FILES,
+      (string)$_SESSION['login_user'],(string)getUserIP()
+    );
+    $status=(int)($results['_http_status']??500);unset($results['_http_status']);
+  }catch(\Throwable $exception){
+    $status=503;$correlation=bin2hex(random_bytes(8));
+    error_log('LB4 boundary unavailable correlation='.$correlation.' exception='.get_class($exception));
+    $results=['status'=>0,'code'=>'LB4_OPERATION_FAILED','correlation_id'=>$correlation];
+  }
+  http_response_code($status);
+  header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');
+  echo json_encode($results,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);return;
+}
 
 $sys_config = $operation->get_system_config();
 $token_timeout = $sys_config['token_timeout'];//24 means 1 day

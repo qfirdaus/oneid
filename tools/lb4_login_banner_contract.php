@@ -1,0 +1,16 @@
+<?php
+declare(strict_types=1);
+$root=dirname(__DIR__);$security=(string)file_get_contents($root.'/lib/request_security.php');$q=(string)file_get_contents($root.'/lib/q_func.php');$endpoint=(string)file_get_contents($root.'/app/LoginBanner/LoginBannerAdminEndpoint.php');$localizer=(string)file_get_contents($root.'/app/Locale/ApiResponseLocalizer.php');$en=(string)file_get_contents($root.'/config/locales/en.php');$ms=(string)file_get_contents($root.'/config/locales/ms.php');$index=(string)file_get_contents($root.'/index.php');
+$actions=['list','create_draft','publish','inactivate','reorder','rollback'];$mapped=true;foreach($actions as $action){$mapped=$mapped&&str_contains($security,"'admin_login_banner_{$action}'");}
+$checks=[
+ 'six banner actions are in the Administrator allowlist'=>$mapped,
+ 'all five mutations require security configuration step-up'=>substr_count($security,"'admin_login_banner_create_draft'")>=2&&substr_count($security,"'admin_login_banner_publish'")>=2&&substr_count($security,"'admin_login_banner_inactivate'")>=2&&substr_count($security,"'admin_login_banner_reorder'")>=2&&substr_count($security,"'admin_login_banner_rollback'")>=2&&substr_count($security,"'admin_login_banner_list'")===1,
+ 'shared guard enforces CSRF admin active token and step-up'=>str_contains($security,'oneid_require_csrf();')&&str_contains($security,'oneid_is_admin()')&&str_contains($security,'oneid_authenticated_sso_token_is_active')&&str_contains($security,'oneid_require_admin_step_up('),
+ 'q_func dispatches only the guarded action and emits no-store JSON'=>str_contains($q,"str_starts_with(\$oneidGuardedAction,'admin_login_banner_')")&&str_contains($q,'LoginBannerAdminEndpoint')&&str_contains($q,"header('Cache-Control: no-store')")&&str_contains($q,"unset(\$results['_http_status'])"),
+ 'runtime uses explicit environment and private staging/public immutable directory'=>str_contains($q,"oneid_config('ONEID_ENVIRONMENT','')")&&str_contains($q,"storage/runtime/login-banner-staging")&&str_contains($q,"oneid_public_path('login_banners')"),
+ 'endpoint gates dormant schema before reads and mutations'=>strpos($endpoint,'schemaStatus()')<strpos($endpoint,"\$action === 'admin_login_banner_list'")&&str_contains($endpoint,'LB4_SCHEMA_UNAVAILABLE'),
+ 'bounded reorder JSON and consistent HTTP status mapping exist'=>str_contains($endpoint,'strlen($json) > 4096')&&str_contains($endpoint,"'LB3_BANNER_STALE'")&&str_contains($endpoint,'_http_status'),
+ 'LB2 LB3 LB4 codes map to localized banner responses'=>str_contains($localizer,"str_starts_with(\$code, 'LB2_')")&&str_contains($localizer,"'LB4_BANNERS_LOADED' => 'admin.banner.loaded'")&&str_contains($localizer,"'LB4_SCHEMA_UNAVAILABLE' => 'admin.banner.schema_unavailable'"),
+ 'BM and English catalogs contain every LB4 response key'=>substr_count($en,"'admin.banner.")>=8&&substr_count($ms,"'admin.banner.")>=8,
+ 'LB6 public reader retains the LB4 static fallback boundary'=>str_contains($index,'assetsM/images/banner6.png')&&str_contains($index,'assetsM/images/banner7.png')&&!str_contains($index,'LoginBannerAdminEndpoint'),
+];$fail=0;foreach($checks as $label=>$ok){echo($ok?'PASS ':'FAIL ').$label.PHP_EOL;if(!$ok)$fail++;}echo'RESULT checks='.count($checks).' failures='.$fail.PHP_EOL;exit($fail===0?0:1);

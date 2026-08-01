@@ -180,6 +180,12 @@ function oneid_q_func_action_map(): array
             'admin_get_sync_sessions',
             'admin_get_sync_log_detail',
             'admin_reset_password_user',
+            'admin_login_banner_list',
+            'admin_login_banner_create_draft',
+            'admin_login_banner_publish',
+            'admin_login_banner_inactivate',
+            'admin_login_banner_reorder',
+            'admin_login_banner_rollback',
         ],
         'step_up' => [
             'admin_step_up_status',
@@ -211,6 +217,11 @@ function oneid_admin_action_purpose(string $action): string
         'admin_update_user_mfa_category_policy',
         'admin_create_user_mfa_exemption',
         'admin_revoke_user_mfa_exemption',
+        'admin_login_banner_create_draft',
+        'admin_login_banner_publish',
+        'admin_login_banner_inactivate',
+        'admin_login_banner_reorder',
+        'admin_login_banner_rollback',
     ];
     return in_array($action, $securityConfiguration, true)
         ? 'SECURITY_CONFIGURATION_CHANGE'

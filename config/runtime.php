@@ -15,6 +15,8 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_ENVIRONMENT' => '',
         'ONEID_TIMEZONE' => 'Asia/Kuala_Lumpur',
         'ONEID_DEFAULT_LOCALE' => 'ms',
+        // Public banner reader is fail-safe and remains off until the environment is approved.
+        'ONEID_LOGIN_BANNER_ENABLED' => 'false',
         // Fail closed per environment; staging activation requires its own ML9 approval.
         'ONEID_LOCALE_INFRASTRUCTURE_ENABLED' => 'false',
         'ONEID_ML1_SCHEMA_APPLY_ENABLED' => 'false',

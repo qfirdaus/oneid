@@ -1,0 +1,12 @@
+<?php
+declare(strict_types=1);
+$root=dirname(__DIR__);$resolver=(string)file_get_contents($root.'/app/LoginBanner/LoginBannerPublicResolver.php');$index=(string)file_get_contents($root.'/index.php');$runtime=(string)file_get_contents($root.'/config/runtime.php');$checks=[
+ 'public capability has an explicit fail-closed feature flag'=>str_contains($runtime,"'ONEID_LOGIN_BANNER_ENABLED' => 'false'")&&str_contains($index,"oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false')"),
+ 'reader gates explicit locale environment UTC and schema'=>str_contains($resolver,"['ms', 'en']")&&str_contains($resolver,'schemaStatus()')&&str_contains($resolver,'publishedForLocale($this->environment, $locale, $effectiveAtUtc)'),
+ 'reader accepts only immutable WebP filenames and five items'=>str_contains($resolver,'^login_banner_[a-f0-9]{32}')&&str_contains($resolver,'count($resolved) === 5'),
+ 'filesystem validation contains realpath symlink dimensions bytes digest and MIME'=>substr_count($resolver,'realpath(')>=2&&str_contains($resolver,'is_link($path)')&&str_contains($resolver,'hash_file(\'sha256\', $path)')&&str_contains($resolver,'hash_equals(')&&str_contains($resolver,"=== 'image/webp'")&&str_contains($resolver,'512000'),
+ 'index catches all dynamic failures and retains two static fallbacks'=>str_contains($index,'catch (\\Throwable $bannerError)')&&str_contains($index,"'assetsM/images/banner6.png'")&&str_contains($index,"'assetsM/images/banner7.png'"),
+ 'carousel renders exactly one active item and hides controls for one banner'=>str_contains($index,"\$bannerIndex === 0 ? ' active' : ''")&&str_contains($index,'if (count($loginBanners) > 1)'),
+ 'carousel interval loading priority dimensions and escaped output are explicit'=>str_contains($index,'data-bs-interval="6000"')&&str_contains($index,"loading=\"<?=\$bannerIndex === 0 ? 'eager' : 'lazy'?>\"")&&str_contains($index,'fetchpriority="high"')&&str_contains($index,'htmlspecialchars((string)$banner[\'src\']'),
+ 'public resolver is read-only and never loads admin service or image pipeline'=>!str_contains($index,'LoginBannerService')&&!str_contains($index,'LoginBannerImagePipeline')&&!str_contains($resolver,'insertBanner(')&&!str_contains($resolver,'updateBanner'),
+];$fail=0;foreach($checks as $label=>$ok){echo($ok?'PASS ':'FAIL ').$label.PHP_EOL;if(!$ok)$fail++;}echo'RESULT checks='.count($checks).' failures='.$fail.PHP_EOL;exit($fail===0?0:1);

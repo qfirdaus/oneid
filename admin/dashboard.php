@@ -36,6 +36,7 @@
          || str_starts_with($locale_key, 'admin.audit.')
          || str_starts_with($locale_key, 'admin.synclog.')
          || str_starts_with($locale_key, 'admin.configuration.')
+         || str_starts_with($locale_key, 'admin.banner.')
       ) {
          $admin_completeness_text[$locale_key] = oneid_translate($locale_key);
       }
@@ -64,6 +65,7 @@
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-login-banner-admin.css?v=20260801-1" rel="stylesheet" type="text/css">
    </head>
    <body>
       <!--Preloader-->
@@ -1734,6 +1736,12 @@
                                                                </a>
                                                             </li>
                                                             <li role="presentation">
+                                                               <a href="#configuration_login_banner" id="configuration_login_banner_tab" role="tab" data-toggle="tab" aria-controls="configuration_login_banner" aria-selected="false">
+                                                                  <i class="fa fa-picture-o" aria-hidden="true"></i>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.banner.tab'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               </a>
+                                                            </li>
+                                                            <li role="presentation">
                                                                <a href="#configuration_audit" id="configuration_audit_tab" role="tab" data-toggle="tab" aria-controls="configuration_audit" aria-selected="false">
                                                                   <i class="fa fa-history" aria-hidden="true"></i>
                                                                   <span><?=htmlspecialchars(oneid_translate('admin.configuration.audit_tab'), ENT_QUOTES, 'UTF-8')?></span>
@@ -1936,6 +1944,38 @@
                                                                      <div class="sso-config-control"><textarea class="form-control" id="system_default_locale_reason" maxlength="500" rows="3" placeholder="<?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_placeholder'), ENT_QUOTES, 'UTF-8')?>" disabled></textarea></div>
                                                                   </div>
                                                                   <div class="sso-config-note"><i class="fa fa-info-circle"></i><p id="system_default_locale_status" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.common.loading'), ENT_QUOTES, 'UTF-8')?></p></div>
+                                                               </div>
+                                                            </div>
+                                                         </section>
+                                                         <section class="tab-pane fade" id="configuration_login_banner" role="tabpanel" aria-labelledby="configuration_login_banner_tab">
+                                                            <div class="sso-config-panel login-banner-admin" data-api="../lib/q_func" data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>" data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=login_banner">
+                                                               <div class="sso-config-header">
+                                                                  <div><span class="sso-config-eyebrow"><?=htmlspecialchars(oneid_translate('admin.banner.eyebrow'), ENT_QUOTES, 'UTF-8')?></span><h4 class="sso-config-title"><?=htmlspecialchars(oneid_translate('admin.banner.title'), ENT_QUOTES, 'UTF-8')?></h4><p class="sso-config-intro"><?=htmlspecialchars(oneid_translate('admin.banner.intro'), ENT_QUOTES, 'UTF-8')?></p></div>
+                                                                  <button type="button" class="sso-config-save" id="login_banner_refresh"><i class="fa fa-refresh"></i><span><?=htmlspecialchars(oneid_translate('admin.common.refresh'), ENT_QUOTES, 'UTF-8')?></span></button>
+                                                               </div>
+                                                               <div id="login_banner_status" class="login-banner-status alert alert-info" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.banner.loading'), ENT_QUOTES, 'UTF-8')?></div>
+                                                               <div id="login_banner_workspace" hidden>
+                                                                  <form id="login_banner_draft_form" enctype="multipart/form-data">
+                                                                     <fieldset><legend><?=htmlspecialchars(oneid_translate('admin.banner.new_draft'), ENT_QUOTES, 'UTF-8')?></legend>
+                                                                        <div class="login-banner-form-grid">
+                                                                           <div class="form-group"><label for="login_banner_key"><?=htmlspecialchars(oneid_translate('admin.banner.key'), ENT_QUOTES, 'UTF-8')?></label><input class="form-control" id="login_banner_key" name="banner_key" required maxlength="64" pattern="LB-[A-Za-z0-9][A-Za-z0-9_-]{2,61}" placeholder="LB-WELCOME-2026"></div>
+                                                                           <div class="form-group"><label for="login_banner_order"><?=htmlspecialchars(oneid_translate('admin.banner.order'), ENT_QUOTES, 'UTF-8')?></label><input class="form-control" id="login_banner_order" name="display_order" type="number" min="1" max="5" value="1" required></div>
+                                                                           <div class="form-group"><label for="login_banner_start"><?=htmlspecialchars(oneid_translate('admin.banner.starts'), ENT_QUOTES, 'UTF-8')?></label><input class="form-control" id="login_banner_start" type="datetime-local"></div>
+                                                                           <div class="form-group"><label for="login_banner_end"><?=htmlspecialchars(oneid_translate('admin.banner.ends'), ENT_QUOTES, 'UTF-8')?></label><input class="form-control" id="login_banner_end" type="datetime-local"></div>
+                                                                           <div class="form-group"><label for="login_banner_alt_ms"><?=htmlspecialchars(oneid_translate('admin.banner.alt_ms'), ENT_QUOTES, 'UTF-8')?></label><input class="form-control" id="login_banner_alt_ms" name="alt_text_ms" minlength="5" maxlength="160" required></div>
+                                                                           <div class="form-group"><label for="login_banner_alt_en"><?=htmlspecialchars(oneid_translate('admin.banner.alt_en'), ENT_QUOTES, 'UTF-8')?></label><input class="form-control" id="login_banner_alt_en" name="alt_text_en" minlength="5" maxlength="160" required></div>
+                                                                           <div class="form-group"><label for="login_banner_image_ms"><?=htmlspecialchars(oneid_translate('admin.banner.image_ms'), ENT_QUOTES, 'UTF-8')?></label><input class="form-control" id="login_banner_image_ms" name="banner_image_ms" type="file" accept="image/jpeg,image/png,image/webp" required><small class="help-block"><?=htmlspecialchars(oneid_translate('admin.banner.image_help'), ENT_QUOTES, 'UTF-8')?></small></div>
+                                                                           <div class="form-group" id="login_banner_image_en_group"><label for="login_banner_image_en"><?=htmlspecialchars(oneid_translate('admin.banner.image_en'), ENT_QUOTES, 'UTF-8')?></label><input class="form-control" id="login_banner_image_en" name="banner_image_en" type="file" accept="image/jpeg,image/png,image/webp"></div>
+                                                                        </div>
+                                                                        <label class="login-banner-check"><input id="login_banner_same_image" name="same_image_for_english" type="checkbox" value="1"> <?=htmlspecialchars(oneid_translate('admin.banner.same_image'), ENT_QUOTES, 'UTF-8')?></label>
+                                                                        <div class="login-banner-previews" aria-label="<?=htmlspecialchars(oneid_translate('admin.banner.preview'), ENT_QUOTES, 'UTF-8')?>"><figure><img id="login_banner_preview_ms" alt=""><figcaption>BM</figcaption></figure><figure id="login_banner_preview_en_wrap"><img id="login_banner_preview_en" alt=""><figcaption>EN</figcaption></figure></div>
+                                                                        <div class="form-group"><label for="login_banner_change_reason"><?=htmlspecialchars(oneid_translate('admin.banner.reason'), ENT_QUOTES, 'UTF-8')?></label><textarea class="form-control" id="login_banner_change_reason" name="change_reason" minlength="10" maxlength="500" rows="2" required></textarea></div>
+                                                                        <button class="btn btn-primary" id="login_banner_create" type="submit"><i class="fa fa-plus"></i> <?=htmlspecialchars(oneid_translate('admin.banner.create'), ENT_QUOTES, 'UTF-8')?></button>
+                                                                     </fieldset>
+                                                                  </form>
+                                                                  <hr>
+                                                                  <div class="login-banner-list-header"><div><h5><?=htmlspecialchars(oneid_translate('admin.banner.existing'), ENT_QUOTES, 'UTF-8')?></h5><p><?=htmlspecialchars(oneid_translate('admin.banner.reorder_help'), ENT_QUOTES, 'UTF-8')?></p></div><button class="btn btn-default" id="login_banner_save_order" type="button"><i class="fa fa-sort"></i> <?=htmlspecialchars(oneid_translate('admin.banner.save_order'), ENT_QUOTES, 'UTF-8')?></button></div>
+                                                                  <div id="login_banner_list" class="login-banner-list" aria-live="polite"></div>
                                                                </div>
                                                             </div>
                                                          </section>
@@ -6212,6 +6252,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"
          data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=user_mfa_policy"></script>
+      <script src="../assetsM/js/login-banner-admin.js?v=20260801-1"></script>
       <style>
          #the-basics .tt-dropdown-menu {
          max-height: 150px;

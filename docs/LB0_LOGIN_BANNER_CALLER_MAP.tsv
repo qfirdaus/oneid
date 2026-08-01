@@ -1,0 +1,25 @@
+ID	Surface	File/line	Operation	Current behavior	LB target
+LB0-C01	Public login bootstrap	index.php:1	Start guest session load configuration locale and login state	Login availability currently has no banner repository dependency	LB6 KEEP FAIL-SAFE
+LB0-C02	Locale selection	index.php:8	Accept ms/en and redirect to canonical login route	Locale is already resolved by oneid_current_locale()	LB6
+LB0-C03	Carousel container	index.php:189	Bootstrap carousel starts automatically	Markup is static and image-only	LB6
+LB0-C04	First live banner	index.php:191	Render banner6.png as the active item	Path status order and alt are hardcoded	LB6
+LB0-C05	Second live banner	index.php:194	Render banner7.png as the second item	Path status order and alt are hardcoded	LB6
+LB0-C06	Dormant third banner	index.php:197	Retain commented banner5.png slide	Tracked file exists but cannot be activated by admin	LB0 INVENTORY
+LB0-C07	Carousel navigation	index.php:201	Previous and next controls	Controls always render even if future manifest contains one item	LB6
+LB0-C08	Banner presentation CSS	index.php:1370	Limit height to 300px and cover available area	Responsive crop can remove important image content	LB5/LB6/LB8
+LB0-C09	Tracked banner assets	public/assetsM/images/banner3.png:1	Legacy tracked image asset	Not referenced by active login markup	LB0/LB7
+LB0-C10	Tracked banner assets	public/assetsM/images/banner4.png:1	Legacy tracked image asset	Not referenced by active login markup	LB0/LB7
+LB0-C11	Tracked banner assets	public/assetsM/images/banner5.png:1	Dormant tracked image asset	Only referenced in commented markup	LB0/LB7
+LB0-C12	Tracked banner assets	public/assetsM/images/banner6.png:1	Active tracked image asset	3780x1890 PNG around 3.4 MB	LB2/LB6
+LB0-C13	Tracked banner assets	public/assetsM/images/banner7.png:1	Active tracked image asset	3780x1890 PNG around 3.5 MB	LB2/LB6
+LB0-C14	Admin page boundary	admin/dashboard.php:1	Require Administrator active SSO and ADMIN_ACCESS step-up	Existing access boundary can be retained	LB4 KEEP
+LB0-C15	Admin configuration surface	admin/dashboard.php:1580	Render configuration tabs	No Login Banner management tab exists	LB5
+LB0-C16	Request action map	lib/request_security.php:91	Classify public user admin step-up and setup actions	No banner read or mutation action exists	LB4
+LB0-C17	Security-configuration purpose	lib/request_security.php:191	Map sensitive admin mutations to SECURITY_CONFIGURATION_CHANGE	Banner publish archive reorder and rollback are not mapped	LB4
+LB0-C18	Upload validation	lib/upload_security.php:8	Validate application icon MIME size and image signature	Useful primitives exist but 256x256 normalization is unsuitable for banners	LB2
+LB0-C19	Atomic asset pattern	app/Admin/WebAppService.php:16	Stage database-write publish audit and compensate app icon	Pattern can be adapted but banner needs its own domain service	LB2/LB3
+LB0-C20	Environment-specific asset pattern	docs/migrations/20260717_wa4_environment_app_asset_up.sql:1	Map application asset by explicit environment	Confirms shared-DB separate-filesystem architecture pattern	LB1/LB7
+LB0-C21	Legacy audit writer	lib/Database.php:1690	Write system activity record	Can provide secondary operational audit only	LB3
+LB0-C22	Configuration history pattern	lib/Database.php:177	Persist correlated before after and outcome	Banner requires a dedicated history table with the same guarantees	LB1/LB3
+LB0-C23	Runtime environment identity	config/runtime.php:1	Resolve private runtime configuration	ONEID_ENVIRONMENT must be explicit and must not derive from HTTP Host	LB0/LB1
+LB0-C24	Static fallback	index.php:191	Two tracked banners keep login usable without database	Must remain available until dynamic renderer passes LB8	LB6/LB8

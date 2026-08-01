@@ -71,6 +71,17 @@ final class ApiResponseLocalizer
             str_starts_with($code, 'ML7A_') => str_contains($code, 'READY')
                 ? 'admin.metadata.content_summary'
                 : 'admin.metadata.failed',
+            str_starts_with($code, 'LB2_') || str_starts_with($code, 'LB3_')
+                || str_starts_with($code, 'LB4_') => match ($code) {
+                    'LB4_BANNERS_LOADED' => 'admin.banner.loaded',
+                    'LB3_DRAFT_CREATED' => 'admin.banner.draft_created',
+                    'LB3_BANNER_PUBLISHED' => 'admin.banner.published',
+                    'LB3_BANNER_INACTIVATED' => 'admin.banner.inactivated',
+                    'LB3_BANNERS_REORDERED' => 'admin.banner.reordered',
+                    'LB3_BANNER_ROLLED_BACK' => 'admin.banner.rolled_back',
+                    'LB4_SCHEMA_UNAVAILABLE' => 'admin.banner.schema_unavailable',
+                    default => 'admin.banner.failed',
+                },
             str_starts_with($code, 'SC2_') || str_starts_with($code, 'SC3_')
                 || str_starts_with($code, 'SC5_') => self::outcomeKey(
                     $code,

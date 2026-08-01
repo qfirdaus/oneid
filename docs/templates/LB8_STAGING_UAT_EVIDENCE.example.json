@@ -1,0 +1,32 @@
+{
+  "contract": "LB8_STAGING_UAT_EVIDENCE_V1",
+  "environment": "staging",
+  "change_id": "ONEID-LB8-UAT-CHANGE-ID",
+  "tested_commit": "REPLACE_WITH_40_CHARACTER_COMMIT_SHA",
+  "tested_at": "2026-08-01T00:00:00+08:00",
+  "tester": "REPLACE_WITH_TESTER_ID",
+  "owner_acceptance": "PENDING",
+  "results": {
+    "same_asset_ms_en": "PENDING",
+    "distinct_asset_ms_en": "PENDING",
+    "english_explicit_fallback": "PENDING",
+    "missing_asset_static_fallback": "PENDING",
+    "invalid_upload_rejected": "PENDING",
+    "schedule_boundary_asia_kuala_lumpur": "PENDING",
+    "reorder": "PENDING",
+    "inactivate": "PENDING",
+    "rollback": "PENDING",
+    "concurrent_admin_stale_rejected": "PENDING",
+    "desktop": "PENDING",
+    "mobile": "PENDING",
+    "slow_network": "PENDING",
+    "cache_hard_refresh": "PENDING",
+    "password_login": "PENDING",
+    "mydigitalid_login": "PENDING",
+    "accessibility": "PENDING",
+    "audit_correlation": "PENDING",
+    "reconciliation_clean": "PENDING"
+  },
+  "evidence_references": [],
+  "notes": "Do not include passwords, tokens, OTPs or personal data."
+}
