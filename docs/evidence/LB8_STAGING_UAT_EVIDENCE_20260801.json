@@ -1,0 +1,38 @@
+{
+  "contract": "LB8_STAGING_UAT_EVIDENCE_V1",
+  "environment": "staging",
+  "change_id": "ONEID-LB8-UAT-20260801-01",
+  "tested_commit": "15b1c4f3ed6d52a652cf29c5a2f0da2061e896b7",
+  "tested_at": "2026-08-01T22:30:00+08:00",
+  "tester": "OneID system owner/requester",
+  "owner_acceptance": "GO",
+  "results": {
+    "same_asset_ms_en": "PASS",
+    "distinct_asset_ms_en": "PASS",
+    "english_explicit_fallback": "PASS",
+    "missing_asset_static_fallback": "PASS",
+    "invalid_upload_rejected": "PASS",
+    "schedule_boundary_asia_kuala_lumpur": "PASS",
+    "reorder": "PASS",
+    "inactivate": "PASS",
+    "rollback": "PASS",
+    "concurrent_admin_stale_rejected": "PASS",
+    "desktop": "PASS",
+    "mobile": "PASS",
+    "slow_network": "PASS",
+    "cache_hard_refresh": "PASS",
+    "password_login": "PASS",
+    "mydigitalid_login": "PASS",
+    "accessibility": "PASS",
+    "audit_correlation": "PASS",
+    "reconciliation_clean": "PASS"
+  },
+  "evidence_references": [
+    "LB7 backup: storage/backups/login_banner/staging/ONEID-LB8-UAT-20260801-01/evidence.json",
+    "S4D isolated restore: storage/backups/S4D-20260801-214755/EVIDENCE.txt",
+    "LB7 database SHA-256: 2284b0744d1d84dda2098f371c815504ef4f80a325befc841cd8528602f29d65",
+    "S4D checksum source of truth: storage/backups/S4D-20260801-214755/EVIDENCE.txt (console prefix 1d3532a95e75)",
+    "Owner declaration: all executed staging tests passed; feature complete and closed"
+  ],
+  "notes": "Owner acceptance recorded from the requester on 2026-08-01. No passwords, tokens, OTPs or personal data are stored in this evidence."
+}

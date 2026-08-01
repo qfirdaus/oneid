@@ -1,6 +1,6 @@
 # LB8 — Staging UAT dan Controlled Activation Gate
 
-**Status:** GATE TOOLING LOCAL PASS / STAGING EXECUTION NO-GO SEHINGGA EVIDENCE LENGKAP
+**Status:** STAGING UAT COMPLETE / OWNER ACCEPTED / FEATURE ACTIVE
 
 LB8 menyediakan proses staging yang mengeluarkan `GO_STAGING_ACTIVATION` hanya
 apabila semua prerequisite teknikal, backup, restore, UAT dan owner acceptance
@@ -95,6 +95,13 @@ down bukan langkah pertama.
 
 ## Keputusan semasa
 
-Tooling boleh lulus local, tetapi staging kekal `NO-GO` kerana migration, live
-backup, isolated restore, browser evidence dan owner acceptance belum dijalankan
-dalam sesi ini. Production kekal di luar skop LB8.
+Pada 1 Ogos 2026, pemilik sistem mengesahkan semua ujian banner login yang
+dijalankan di staging berjaya dan menerima feature ini sebagai lengkap serta
+selesai. Rekod matriks 19 keputusan terdapat dalam
+`docs/evidence/LB8_STAGING_UAT_EVIDENCE_20260801.json`.
+
+Migration lima jadual, backup LB7, checksum, isolated restore rehearsal,
+reconciliation aset, pengurusan banner Administrator, BM/EN, activation dan
+smoke test telah selesai. Dynamic banner aktif di staging. Keputusan LB8 ialah
+`STAGING_COMPLETE_OWNER_ACCEPTED`; Production kekal di luar skop dan memerlukan
+authorization/deployment tersendiri.
