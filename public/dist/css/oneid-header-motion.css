@@ -15,9 +15,10 @@
   pointer-events: none;
   background: linear-gradient(
     90deg,
-    rgba(18, 103, 158, 0.18),
-    rgba(18, 103, 158, 0.38) 50%,
-    rgba(18, 103, 158, 0.18)
+    rgba(7, 91, 154, 0.22),
+    rgba(8, 127, 189, 0.4) 34%,
+    rgba(9, 163, 198, 0.4) 67%,
+    rgba(8, 203, 196, 0.22)
   );
 }
 
@@ -34,15 +35,19 @@
   opacity: 0;
   background: linear-gradient(
     90deg,
-    rgba(69, 187, 231, 0),
-    rgba(73, 190, 232, 0.5) 22%,
+    rgba(7, 91, 154, 0),
+    rgba(7, 91, 154, 0.88) 18%,
+    rgba(8, 127, 189, 0.96) 36%,
     rgba(235, 253, 255, 1) 50%,
-    rgba(73, 190, 232, 0.5) 78%,
-    rgba(69, 187, 231, 0)
+    rgba(9, 163, 198, 0.96) 64%,
+    rgba(8, 203, 196, 0.88) 82%,
+    rgba(8, 203, 196, 0)
   );
-  filter: drop-shadow(0 0 4px rgba(36, 170, 224, 0.72));
+  filter:
+    drop-shadow(0 0 3px rgba(8, 127, 189, 0.72))
+    drop-shadow(0 0 5px rgba(8, 203, 196, 0.48));
   will-change: transform, opacity;
-  animation: oneid-header-light-pass 8s linear infinite;
+  animation: oneid-header-light-pass 8s linear infinite alternate;
 }
 
 @keyframes oneid-header-light-pass {
@@ -50,13 +55,12 @@
     opacity: 0;
     transform: translate3d(0, 0, 0);
   }
-  8% {
+  6% {
     opacity: 1;
   }
-  88% {
+  94% {
     opacity: 1;
   }
-  96%,
   100% {
     opacity: 0;
     transform: translate3d(calc(100vw + 500px), 0, 0);

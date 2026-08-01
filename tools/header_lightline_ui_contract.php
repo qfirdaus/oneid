@@ -16,10 +16,15 @@ $checks = [
     'motion stylesheet is loaded by user and admin dashboards' =>
         str_contains($userDashboard, 'oneid-header-motion.css')
         && str_contains($adminDashboard, 'oneid-header-motion.css'),
-    'light pass uses a visible slow animation' =>
-        str_contains($css, 'oneid-header-light-pass 8s linear infinite')
+    'light pass uses a visible alternating animation' =>
+        str_contains($css, 'oneid-header-light-pass 8s linear infinite alternate')
         && str_contains($css, 'height: 4px')
         && str_contains($css, 'opacity: 1'),
+    'light pass uses the OneID multicolour palette' =>
+        str_contains($css, 'rgba(7, 91, 154, 0.88)')
+        && str_contains($css, 'rgba(8, 127, 189, 0.96)')
+        && str_contains($css, 'rgba(9, 163, 198, 0.96)')
+        && str_contains($css, 'rgba(8, 203, 196, 0.88)'),
     'motion respects accessibility preference' =>
         str_contains($css, 'prefers-reduced-motion: reduce')
         && str_contains($css, 'animation: none'),
