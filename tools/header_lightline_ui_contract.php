@@ -17,15 +17,16 @@ $checks = [
         str_contains($userDashboard, 'oneid-header-motion.css')
         && str_contains($adminDashboard, 'oneid-header-motion.css'),
     'light pass uses a visible alternating animation' =>
-        str_contains($css, 'oneid-header-light-pass 8s linear infinite alternate')
-        && str_contains($css, 'height: 3px')
-        && str_contains($css, 'opacity: 1'),
-    'light pass visibly cycles through the OneID colour palette' =>
-        str_contains($css, 'rgba(7, 91, 154, 0.96)')
-        && str_contains($css, 'rgba(8, 203, 196, 1)')
-        && str_contains($css, 'rgba(93, 75, 183, 1)')
-        && str_contains($css, 'background-size: 300% 100%')
-        && str_contains($css, 'background-position: 100% 50%'),
+        str_contains($css, 'oneid-header-light-pass 10s ease-in-out infinite alternate')
+        && str_contains($css, 'width: 480px')
+        && str_contains($css, 'height: 2px')
+        && str_contains($css, 'opacity: 0.82'),
+    'light pass softly cycles through the OneID colour palette' =>
+        str_contains($css, 'color: rgb(7, 91, 154)')
+        && str_contains($css, 'color: rgb(9, 163, 198)')
+        && str_contains($css, 'color: rgb(8, 203, 196)')
+        && str_contains($css, 'color: rgb(93, 75, 183)')
+        && str_contains($css, 'currentColor 50%'),
     'motion respects accessibility preference' =>
         str_contains($css, 'prefers-reduced-motion: reduce')
         && str_contains($css, 'animation: none'),

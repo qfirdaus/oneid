@@ -26,49 +26,50 @@
   display: block;
   position: absolute;
   bottom: 0;
-  left: -250px;
+  left: -480px;
   z-index: 3;
-  width: 280px;
-  height: 3px;
+  width: 480px;
+  height: 2px;
   content: "";
   pointer-events: none;
   opacity: 0;
+  color: rgb(8, 127, 189);
   background: linear-gradient(
     90deg,
-    rgba(7, 91, 154, 0),
-    rgba(7, 91, 154, 0.96) 12%,
-    rgba(8, 127, 189, 1) 24%,
-    rgba(9, 163, 198, 1) 38%,
-    rgba(8, 203, 196, 1) 52%,
-    rgba(93, 75, 183, 1) 66%,
-    rgba(19, 152, 208, 1) 80%,
-    rgba(7, 91, 154, 0) 100%
+    transparent 0%,
+    currentColor 50%,
+    transparent 100%
   );
-  background-size: 300% 100%;
-  background-position: 0 50%;
-  filter:
-    drop-shadow(0 0 3px rgba(8, 127, 189, 0.72))
-    drop-shadow(0 0 5px rgba(8, 203, 196, 0.48));
-  will-change: transform, opacity;
-  animation: oneid-header-light-pass 8s linear infinite alternate;
+  filter: drop-shadow(0 0 3px currentColor);
+  will-change: color, transform, opacity;
+  animation: oneid-header-light-pass 10s ease-in-out infinite alternate;
 }
 
 @keyframes oneid-header-light-pass {
   0% {
-    background-position: 0 50%;
+    color: rgb(7, 91, 154);
     opacity: 0;
     transform: translate3d(0, 0, 0);
   }
-  6% {
-    opacity: 1;
+  8% {
+    opacity: 0.82;
   }
-  94% {
-    opacity: 1;
+  28% {
+    color: rgb(8, 127, 189);
+  }
+  52% {
+    color: rgb(9, 163, 198);
+  }
+  76% {
+    color: rgb(8, 203, 196);
+  }
+  92% {
+    opacity: 0.82;
   }
   100% {
-    background-position: 100% 50%;
+    color: rgb(93, 75, 183);
     opacity: 0;
-    transform: translate3d(calc(100vw + 500px), 0, 0);
+    transform: translate3d(calc(100vw + 480px), 0, 0);
   }
 }
 
