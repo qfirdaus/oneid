@@ -62,7 +62,7 @@
       <!-- Custom CSS -->
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-header-motion.css?v=20260801-2" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-header-motion.css?v=20260801-3" rel="stylesheet" type="text/css">
 
       <style>
       /* Keep navbar on top */

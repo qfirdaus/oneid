@@ -1,4 +1,4 @@
-/* Subtle motion accent for the shared OneID dashboard header. */
+/* Motion accent for the shared OneID dashboard header. */
 .oneid-header-lightline {
   isolation: isolate;
 }
@@ -10,14 +10,14 @@
   bottom: 0;
   left: 0;
   z-index: 2;
-  height: 1px;
+  height: 2px;
   content: "";
   pointer-events: none;
   background: linear-gradient(
     90deg,
-    rgba(18, 103, 158, 0.12),
-    rgba(18, 103, 158, 0.3) 50%,
-    rgba(18, 103, 158, 0.12)
+    rgba(18, 103, 158, 0.18),
+    rgba(18, 103, 158, 0.38) 50%,
+    rgba(18, 103, 158, 0.18)
   );
 }
 
@@ -27,20 +27,20 @@
   bottom: 0;
   left: -250px;
   z-index: 3;
-  width: 230px;
-  height: 2px;
+  width: 280px;
+  height: 4px;
   content: "";
   pointer-events: none;
   opacity: 0;
   background: linear-gradient(
     90deg,
     rgba(69, 187, 231, 0),
-    rgba(73, 190, 232, 0.28) 22%,
-    rgba(225, 250, 255, 0.92) 50%,
-    rgba(73, 190, 232, 0.28) 78%,
+    rgba(73, 190, 232, 0.5) 22%,
+    rgba(235, 253, 255, 1) 50%,
+    rgba(73, 190, 232, 0.5) 78%,
     rgba(69, 187, 231, 0)
   );
-  filter: drop-shadow(0 0 2px rgba(64, 184, 229, 0.42));
+  filter: drop-shadow(0 0 4px rgba(36, 170, 224, 0.72));
   will-change: transform, opacity;
   animation: oneid-header-light-pass 8s linear infinite;
 }
@@ -51,10 +51,10 @@
     transform: translate3d(0, 0, 0);
   }
   8% {
-    opacity: 0.84;
+    opacity: 1;
   }
   88% {
-    opacity: 0.84;
+    opacity: 1;
   }
   96%,
   100% {
