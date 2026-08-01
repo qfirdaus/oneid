@@ -66,6 +66,7 @@
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-login-banner-admin.css?v=20260801-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-configuration-navigation.css?v=20260801-1" rel="stylesheet" type="text/css">
    </head>
    <body>
       <!--Preloader-->
@@ -1704,53 +1705,40 @@
                                                 <div class="row">
                                                    <div class="col-lg-12">
                                                       <nav class="configuration-tabs" aria-label="<?=htmlspecialchars(oneid_translate('admin.configuration.sections'), ENT_QUOTES, 'UTF-8')?>">
-                                                         <ul class="nav nav-tabs" role="tablist">
+                                                         <ul class="nav nav-tabs configuration-primary-tabs">
                                                             <li class="active" role="presentation">
-                                                               <a href="#configuration_authentication" id="configuration_authentication_tab" role="tab" data-toggle="tab" aria-controls="configuration_authentication" aria-selected="true">
+                                                               <a href="#configuration_general_group" data-configuration-group="general" role="button" aria-expanded="true">
+                                                                  <i class="fa fa-sliders" aria-hidden="true"></i>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.general_group'), ENT_QUOTES, 'UTF-8')?></span>
+                                                               </a>
+                                                            </li>
+                                                            <li role="presentation">
+                                                               <a href="#configuration_security_group" data-configuration-group="security" role="button" aria-expanded="false">
                                                                   <i class="fa fa-shield" aria-hidden="true"></i>
-                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.authentication_tab'), ENT_QUOTES, 'UTF-8')?></span>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.security_group'), ENT_QUOTES, 'UTF-8')?></span>
                                                                </a>
                                                             </li>
                                                             <li role="presentation">
-                                                               <a href="#configuration_recovery" id="configuration_recovery_tab" role="tab" data-toggle="tab" aria-controls="configuration_recovery" aria-selected="false">
-                                                                  <i class="fa fa-envelope-o" aria-hidden="true"></i>
-                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.recovery_tab'), ENT_QUOTES, 'UTF-8')?></span>
-                                                               </a>
-                                                            </li>
-                                                            <li role="presentation">
-                                                               <a href="#configuration_admin_2fa" id="configuration_admin_2fa_tab" role="tab" data-toggle="tab" aria-controls="configuration_admin_2fa" aria-selected="false">
+                                                               <a href="#configuration_mfa_group" data-configuration-group="mfa" role="button" aria-expanded="false">
                                                                   <i class="fa fa-mobile" aria-hidden="true"></i>
-                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.admin_2fa'), ENT_QUOTES, 'UTF-8')?></span>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.mfa_group'), ENT_QUOTES, 'UTF-8')?></span>
                                                                </a>
                                                             </li>
                                                             <li role="presentation">
-                                                               <a href="#configuration_user_mfa" id="configuration_user_mfa_tab" role="tab" data-toggle="tab" aria-controls="configuration_user_mfa" aria-selected="false">
-                                                                  <i class="fa fa-lock" aria-hidden="true"></i>
-                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_tab'), ENT_QUOTES, 'UTF-8')?></span>
-                                                               </a>
-                                                            </li>
-                                                            <li role="presentation">
-                                                               <a href="#configuration_locale" id="configuration_locale_tab" role="tab" data-toggle="tab" aria-controls="configuration_locale" aria-selected="false">
-                                                                  <i class="fa fa-language" aria-hidden="true"></i>
-                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.locale_tab'), ENT_QUOTES, 'UTF-8')?></span>
-                                                               </a>
-                                                            </li>
-                                                            <li role="presentation">
-                                                               <a href="#configuration_login_banner" id="configuration_login_banner_tab" role="tab" data-toggle="tab" aria-controls="configuration_login_banner" aria-selected="false">
-                                                                  <i class="fa fa-picture-o" aria-hidden="true"></i>
-                                                                  <span><?=htmlspecialchars(oneid_translate('admin.banner.tab'), ENT_QUOTES, 'UTF-8')?></span>
-                                                               </a>
-                                                            </li>
-                                                            <li role="presentation">
-                                                               <a href="#configuration_audit" id="configuration_audit_tab" role="tab" data-toggle="tab" aria-controls="configuration_audit" aria-selected="false">
+                                                               <a href="#configuration_audit" id="configuration_audit_tab" data-configuration-group="audit" role="tab" aria-controls="configuration_audit" aria-expanded="false">
                                                                   <i class="fa fa-history" aria-hidden="true"></i>
-                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.audit_tab'), ENT_QUOTES, 'UTF-8')?></span>
+                                                                  <span><?=htmlspecialchars(oneid_translate('admin.configuration.audit_group'), ENT_QUOTES, 'UTF-8')?></span>
                                                                </a>
                                                             </li>
                                                          </ul>
                                                       </nav>
+                                                      <div class="configuration-secondary-navigation">
+                                                         <nav data-configuration-subtabs="general" aria-label="<?=htmlspecialchars(oneid_translate('admin.configuration.general_group'), ENT_QUOTES, 'UTF-8')?>"><ul class="nav nav-pills"><li class="active"><a href="#configuration_locale" id="configuration_locale_tab" role="tab" data-toggle="tab" aria-controls="configuration_locale" aria-selected="true"><i class="fa fa-language"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.locale_tab'), ENT_QUOTES, 'UTF-8')?></a></li><li><a href="#configuration_login_banner" id="configuration_login_banner_tab" role="tab" data-toggle="tab" aria-controls="configuration_login_banner" aria-selected="false"><i class="fa fa-picture-o"></i> <?=htmlspecialchars(oneid_translate('admin.banner.tab'), ENT_QUOTES, 'UTF-8')?></a></li></ul></nav>
+                                                         <nav data-configuration-subtabs="security" aria-label="<?=htmlspecialchars(oneid_translate('admin.configuration.security_group'), ENT_QUOTES, 'UTF-8')?>" hidden><ul class="nav nav-pills"><li><a href="#configuration_authentication" id="configuration_authentication_tab" role="tab" data-toggle="tab" aria-controls="configuration_authentication" aria-selected="false"><i class="fa fa-shield"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.authentication_tab'), ENT_QUOTES, 'UTF-8')?></a></li><li><a href="#configuration_recovery" id="configuration_recovery_tab" role="tab" data-toggle="tab" aria-controls="configuration_recovery" aria-selected="false"><i class="fa fa-envelope-o"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.recovery_tab'), ENT_QUOTES, 'UTF-8')?></a></li></ul></nav>
+                                                         <nav data-configuration-subtabs="mfa" aria-label="<?=htmlspecialchars(oneid_translate('admin.configuration.mfa_group'), ENT_QUOTES, 'UTF-8')?>" hidden><ul class="nav nav-pills"><li><a href="#configuration_admin_2fa" id="configuration_admin_2fa_tab" role="tab" data-toggle="tab" aria-controls="configuration_admin_2fa" aria-selected="false"><i class="fa fa-mobile"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.admin_2fa'), ENT_QUOTES, 'UTF-8')?></a></li><li><a href="#configuration_user_mfa" id="configuration_user_mfa_tab" role="tab" data-toggle="tab" aria-controls="configuration_user_mfa" aria-selected="false"><i class="fa fa-lock"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_tab'), ENT_QUOTES, 'UTF-8')?></a></li></ul></nav>
+                                                      </div>
                                                       <div class="tab-content configuration-tab-content">
-                                                         <section class="tab-pane fade active in" id="configuration_authentication" role="tabpanel" aria-labelledby="configuration_authentication_tab">
+                                                         <section class="tab-pane fade" id="configuration_authentication" role="tabpanel" aria-labelledby="configuration_authentication_tab">
                                                       <div class="sso-config-panel">
                                                          <div class="sso-config-header">
                                                             <div>
@@ -1921,7 +1909,7 @@
                                                                </div>
                                                             </div>
                                                          </section>
-                                                         <section class="tab-pane fade" id="configuration_locale" role="tabpanel" aria-labelledby="configuration_locale_tab">
+                                                         <section class="tab-pane fade active in" id="configuration_locale" role="tabpanel" aria-labelledby="configuration_locale_tab">
                                                             <div class="sso-config-panel">
                                                                <div class="sso-config-header">
                                                                   <div>
@@ -2397,15 +2385,36 @@
 	         }
 	         $('#default_locale_save_button').on('click',saveSystemDefaultLocale);
 
-             $('#tab_settings .configuration-tabs a[data-toggle="tab"]').on('shown.bs.tab', function(event){
-                $('#tab_settings .configuration-tabs a[data-toggle="tab"]').attr('aria-selected', 'false');
-                $(event.target).attr('aria-selected', 'true');
-                if ($(event.target).attr('href') === '#configuration_audit') {
+             function configurationGroupForTarget(target){
+                if(target==='#configuration_locale'||target==='#configuration_login_banner'){return 'general';}
+                if(target==='#configuration_authentication'||target==='#configuration_recovery'){return 'security';}
+                if(target==='#configuration_admin_2fa'||target==='#configuration_user_mfa'){return 'mfa';}
+                return 'audit';
+             }
+             function activateConfigurationGroup(group,showFirst){
+                var primary=$('#tab_settings [data-configuration-group]');
+                primary.attr('aria-expanded','false').parent().removeClass('active');
+                primary.filter('[data-configuration-group="'+group+'"]').attr('aria-expanded','true').parent().addClass('active');
+                var secondary=$('#tab_settings [data-configuration-subtabs]');
+                secondary.prop('hidden',true);
+                var selected=secondary.filter('[data-configuration-subtabs="'+group+'"]');
+                selected.prop('hidden',false);
+                if(group==='audit'){
+                   $('#configuration_audit_tab').tab('show');
                    loadSsoConfigHistory(1);
+                }else if(showFirst){
+                   selected.find('a[data-toggle="tab"]').first().tab('show');
                 }
-                if ($(event.target).attr('href') === '#configuration_admin_2fa') {
-                   loadAdminMfaPreference();
-                }
+             }
+             $('#tab_settings [data-configuration-group]').on('click',function(event){
+                event.preventDefault();activateConfigurationGroup(String($(this).data('configuration-group')),true);
+             });
+             $('#tab_settings .configuration-secondary-navigation a[data-toggle="tab"]').on('shown.bs.tab', function(event){
+                var target=$(event.target).attr('href');
+                $('#tab_settings .configuration-secondary-navigation a[data-toggle="tab"]').attr('aria-selected','false');
+                $(event.target).attr('aria-selected','true');
+                activateConfigurationGroup(configurationGroupForTarget(target),false);
+                if(target==='#configuration_admin_2fa'){loadAdminMfaPreference();}
              });
              $('#tab_settings .user-2fa-subtabs a[data-toggle="tab"]').on('shown.bs.tab', function(event){
                 $('#tab_settings .user-2fa-subtabs a[data-toggle="tab"]').attr('aria-selected', 'false');

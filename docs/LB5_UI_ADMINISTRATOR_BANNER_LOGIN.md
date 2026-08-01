@@ -3,8 +3,13 @@
 **Status:** LOCAL PASS / MIGRATION NOT APPLIED / PUBLIC LOGIN UNCHANGED
 
 LB5 menambah tab **Banner Login** dalam halaman Konfigurasi Administrator. UI
-ini menggunakan enam action LB4 dan tidak berhubung terus dengan database atau
+ini menggunakan tujuh action request boundary dan tidak berhubung terus dengan database atau
 filesystem.
+
+Navigation Konfigurasi disusun dua tingkat: **General** (Language, Banner),
+**Security** (Authentication, Account), **Multi-factor Authentication** (Admin
+2FA, User 2FA) dan **Audit**. Semua label tersedia dalam BM dan English tanpa
+membuang panel atau deep-link sedia ada.
 
 ## Capability UI
 
