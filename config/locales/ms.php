@@ -1,6 +1,7 @@
 <?php
 return [
     'user_mfa.title.challenge' => 'Pengesahan keselamatan tambahan',
+    'user_mfa.challenge.security_intro' => 'Langkah tambahan ini membantu melindungi akaun OneID anda dengan mengesahkan bahawa individu yang log masuk benar-benar ialah anda.',
     'user_mfa.email.label' => 'Kod OTP 6 digit',
     'user_mfa.email.resend' => 'Hantar semula OTP',
     'user_mfa.submit.verify' => 'Sahkan dan log masuk',

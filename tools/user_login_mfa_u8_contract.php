@@ -77,6 +77,14 @@ $report(
     'login uses a full-page selectable email or Authenticator challenge'
 );
 $report(
+    str_contains($challengePage, "user_mfa.challenge.security_intro")
+    && !str_contains($challengePage, "\$h('stepup.security_intro')")
+    && isset($localeEn['user_mfa.challenge.security_intro'], $localeMs['user_mfa.challenge.security_intro'])
+    && !str_contains(strtolower($localeEn['user_mfa.challenge.security_intro']), 'administrator')
+    && !str_contains(strtolower($localeMs['user_mfa.challenge.security_intro']), 'pentadbir'),
+    'user challenge uses user-specific copy rather than Administrator Step-Up copy'
+);
+$report(
     str_contains($challengePage, 'placeholder="000000"')
     && str_contains($challengePage, 'startResend')
     && str_contains($challengePage, 'sendEmailButton.disabled=true')

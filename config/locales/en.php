@@ -1,6 +1,7 @@
 <?php
 return [
     'user_mfa.title.challenge' => 'Additional security verification',
+    'user_mfa.challenge.security_intro' => 'This additional step helps protect your OneID account by confirming that the person signing in is really you.',
     'user_mfa.email.label' => '6-digit OTP code',
     'user_mfa.email.resend' => 'Resend OTP',
     'user_mfa.submit.verify' => 'Verify and sign in',
