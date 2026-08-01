@@ -26,6 +26,15 @@ atau memindahkan aset.
    `docs/templates/LB8_STAGING_UAT_EVIDENCE.example.json` ke lokasi evidence
    private di luar repository. Jangan simpan token, OTP, password atau PII.
 
+Selepas backup LB7 dan full S4D post-migration restore rehearsal selesai, ikat
+kedua-dua evidence tanpa suntingan manual:
+
+```bash
+php tools/lb8_attest_backup_evidence.php \
+  /private/lb7/evidence.json \
+  /private/S4D/EVIDENCE.txt
+```
+
 ## Matriks UAT wajib
 
 Semua 19 result mesti `PASS`: same asset BM/EN, asset berbeza, explicit English
