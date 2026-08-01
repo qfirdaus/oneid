@@ -2391,6 +2391,11 @@
                 if(target==='#configuration_admin_2fa'||target==='#configuration_user_mfa'){return 'mfa';}
                 return 'audit';
              }
+             function resetConfigurationPanels(){
+                $('#tab_settings .configuration-tab-content > .tab-pane')
+                   .removeClass('active in')
+                   .attr('aria-hidden','true');
+             }
              function activateConfigurationGroup(group,showFirst){
                 var primary=$('#tab_settings [data-configuration-group]');
                 primary.attr('aria-expanded','false').parent().removeClass('active');
@@ -2400,7 +2405,10 @@
                 var selected=secondary.filter('[data-configuration-subtabs="'+group+'"]');
                 selected.prop('hidden',false);
                 if(group==='audit'){
-                   $('#configuration_audit_tab').tab('show');
+                   resetConfigurationPanels();
+                   $('#tab_settings .configuration-secondary-navigation li').removeClass('active');
+                   $('#tab_settings .configuration-secondary-navigation a[data-toggle="tab"]').attr('aria-selected','false');
+                   $('#configuration_audit').addClass('active in').attr('aria-hidden','false');
                    loadSsoConfigHistory(1);
                 }else if(showFirst){
                    selected.find('a[data-toggle="tab"]').first().tab('show');
@@ -2409,10 +2417,13 @@
              $('#tab_settings [data-configuration-group]').on('click',function(event){
                 event.preventDefault();activateConfigurationGroup(String($(this).data('configuration-group')),true);
              });
-             $('#tab_settings .configuration-secondary-navigation a[data-toggle="tab"]').on('shown.bs.tab', function(event){
+             $('#tab_settings .configuration-secondary-navigation a[data-toggle="tab"]').on('show.bs.tab', function(){
+                resetConfigurationPanels();
+             }).on('shown.bs.tab', function(event){
                 var target=$(event.target).attr('href');
                 $('#tab_settings .configuration-secondary-navigation a[data-toggle="tab"]').attr('aria-selected','false');
                 $(event.target).attr('aria-selected','true');
+                $(target).attr('aria-hidden','false');
                 activateConfigurationGroup(configurationGroupForTarget(target),false);
                 if(target==='#configuration_admin_2fa'){loadAdminMfaPreference();}
              });
