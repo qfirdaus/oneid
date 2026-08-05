@@ -86,6 +86,8 @@ function handleException($exception) {
 set_exception_handler( 'handleException' );
 
 require_once __DIR__ . '/Database.php';
-$operation=new Database();
+if (!defined('ONEID_CONFIG_SKIP_DATABASE') || ONEID_CONFIG_SKIP_DATABASE !== true) {
+  $operation=new Database();
+}
 
 ?>

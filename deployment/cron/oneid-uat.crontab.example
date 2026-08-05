@@ -1,3 +1,6 @@
-# Pasang menggunakan `crontab -e` bagi account service OneID.
-# Aktifkan command sebenar hanya selepas runbook sync dan approval gate lulus.
-# */15 * * * * cd /var/www/app/oneid-uat && /usr/bin/php cron/<command>.php >> storage/logs/cron.log 2>&1
+# JANGAN PASANG sebelum contract, dry-run dan deployment gate diluluskan.
+# Rujuk docs/AUDIT_CRON_EXTERNAL_SYNC_STAFF_UG_ODL_20260805.md dan
+# docs/S4H_CONDITIONAL_CRON_EXTERNAL_SYNC_DESIGN.md.
+#
+# Runner telah tersedia tetapi default disabled/dry-run. Contoh selepas gate lulus:
+# 15 2 * * * /usr/bin/flock -n /run/lock/oneid-external-sync.lock /usr/bin/php /var/www/app/oneid-uat/cron/run_conditional_external_sync.php >> /var/log/oneid/external-sync.log 2>&1

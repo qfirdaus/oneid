@@ -99,12 +99,33 @@ final class SyncEngineFactory
         );
     }
 
+    public function createCronCoordinator(
+        SyncApprovalStoreInterface $approvalStore,
+        SyncCronConfig $cronConfig,
+        string $sourceCode
+    ): ApprovedSyncCoordinator {
+        if (!$this->config->canApply()) {
+            throw new RuntimeException('SYNC_APPLY_DISABLED');
+        }
+        if (!$cronConfig->enabled || $cronConfig->dryRun) {
+            throw new RuntimeException('SYNC_CRON_APPLY_DISABLED');
+        }
+        if (!in_array($sourceCode, $cronConfig->sources, true)) {
+            throw new RuntimeException('SYNC_CRON_SOURCE_NOT_ENABLED');
+        }
+        return new ApprovedSyncCoordinator(
+            $this->buildSafeOrchestrator(null, $sourceCode, true),
+            new SyncApprovalService($approvalStore, new SyncPlanFingerprinter())
+        );
+    }
+
     private function buildSafeOrchestrator(
         ?SyncPlanSubsetSelector $selector = null,
-        ?string $sourceCode = null
+        ?string $sourceCode = null,
+        bool $cron = false
     ): SafeSyncOrchestrator
     {
-        [$source, $persistence] = $this->sourceScope($sourceCode);
+        [$source, $persistence] = $this->sourceScope($sourceCode, $cron);
         return new SafeSyncOrchestrator(
             $source,
             $persistence,
@@ -125,13 +146,15 @@ final class SyncEngineFactory
     }
 
     /** @return array{Contracts\ExternalUserSourceInterface,Contracts\SyncPersistenceInterface} */
-    private function sourceScope(?string $sourceCode): array
+    private function sourceScope(?string $sourceCode, bool $cron = false): array
     {
         $persistence = new DatabaseSyncPersistenceAdapter($this->operation);
         if ($sourceCode === null) {
             return [new ExternalApiUserSource(), $persistence];
         }
-        $scope = SyncSourceScope::fromCode($sourceCode);
+        $scope = $cron
+            ? SyncSourceScope::fromCodeForCron($sourceCode)
+            : SyncSourceScope::fromCode($sourceCode);
         $provenanceEnforced = $scope->provenanceEnforced;
         return [
             $scope->source,

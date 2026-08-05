@@ -23,6 +23,16 @@ final class SyncSourceScope
 
     public static function fromCode(string $sourceCode): self
     {
+        return self::resolve($sourceCode, false);
+    }
+
+    public static function fromCodeForCron(string $sourceCode): self
+    {
+        return self::resolve($sourceCode, true);
+    }
+
+    private static function resolve(string $sourceCode, bool $cron): self
+    {
         [$source, $categories, $baselineKey] = match ($sourceCode) {
             StaffSource::SOURCE_CODE => [
                 new StaffSource(),
@@ -35,7 +45,7 @@ final class SyncSourceScope
                 'ONEID_ODL_SHADOW_UG_BASELINE_ROWS',
             ],
             OdlStudentSource::SOURCE_CODE => [
-                self::odlSource(),
+                self::odlSource($cron),
                 [10],
                 'ONEID_ODL_SHADOW_ODL_BASELINE_ROWS',
             ],
@@ -65,9 +75,11 @@ final class SyncSourceScope
         );
     }
 
-    private static function odlSource(): OdlStudentSource
+    private static function odlSource(bool $cron): OdlStudentSource
     {
-        OdlOperationalConfig::fromPrivateRuntime()->assertPreviewEnabled();
+        if (!$cron) {
+            OdlOperationalConfig::fromPrivateRuntime()->assertPreviewEnabled();
+        }
         return new OdlStudentSource(OdlSourceConfig::fromPrivateRuntime());
     }
 }
