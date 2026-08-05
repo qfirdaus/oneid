@@ -133,29 +133,6 @@
   margin: 17px auto 0;
 }
 
-.oneid-admin-profile-card .oneid-admin-profile-stats {
-  padding: 19px 10px 20px;
-  border-top: 1px solid #edf1f5;
-  background: #fff;
-}
-
-.oneid-admin-profile-card .oneid-admin-profile-stats .col-xs-6:first-child {
-  border-right: 1px solid #e7edf2;
-}
-
-.oneid-admin-profile-card .oneid-admin-profile-stats .counts {
-  color: #203a54;
-  font-size: 22px;
-  font-weight: 600;
-  line-height: 1.15;
-}
-
-.oneid-admin-profile-card .oneid-admin-profile-stats .counts-text {
-  margin-top: 5px;
-  color: #718095;
-  font-size: 12px;
-}
-
 @media (max-width: 767px) {
   .oneid-admin-profile-cover {
     min-height: 175px;

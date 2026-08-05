@@ -1194,18 +1194,6 @@
                                              <a class="<?=oneid_current_locale() === 'en' ? 'is-active' : ''?>" href="?locale=en" lang="en" hreflang="en" title="English" aria-label="English" aria-current="<?=oneid_current_locale() === 'en' ? 'true' : 'false'?>">EN</a>
                                           </nav>
                                        </div>
-                                       <div class="social-info oneid-admin-profile-stats">
-                                          <div class="row">
-                                             <div class="col-xs-6 text-center">
-                                                <span class="counts block head-font"><span class="counter-anim"><?php echo $widget_data['total_sp']; ?></span></span>
-                                                <span class="counts-text block"><?=htmlspecialchars(oneid_translate('admin.stats.web_apps'), ENT_QUOTES, 'UTF-8')?></span>
-                                             </div>
-                                             <div class="col-xs-6 text-center">
-                                                <span class="counts block head-font"><span class="counter-anim"><?php echo $widget_data['total_user']; ?></span></span>
-                                                <span class="counts-text block"><?=htmlspecialchars(oneid_translate('admin.stats.users'), ENT_QUOTES, 'UTF-8')?></span>
-                                             </div>
-                                          </div>
-                                       </div>
                                     </div>
 
 
