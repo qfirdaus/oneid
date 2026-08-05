@@ -3,13 +3,14 @@
 namespace OneId\App\Admin;
 
 use InvalidArgumentException;
+use OneId\App\Admin\Adapters\SessionRevocationPreviewStore;
 
 final class ActiveSessionService
 {
     private const STATUSES = ['all', 'current', 'active', 'refresh', 'grace', 'due', 'expired'];
     private const PAGE_SIZES = [10, 25, 50];
 
-    public function __construct(private readonly object $operation)
+    public function __construct(private readonly object $operation, private readonly ?SessionRevocationPreviewStore $revocationStore = null)
     {
     }
 
@@ -78,6 +79,14 @@ final class ActiveSessionService
                 'last_activity_at' => (string) ($row['last_activity_at'] ?? ''),
                 'revoke_at' => $revokeAt === null ? null : (string) $revokeAt,
                 'status' => $state,
+                'revocation_target_id' => $this->revocationStore !== null
+                    && class_exists(ActiveSessionRevocationConfig::class)
+                    && ActiveSessionRevocationConfig::enabled()
+                    && in_array($state, ActiveSessionRevocationConfig::pilotStates(), true)
+                    && (int)($row['u_type'] ?? 0) !== 1
+                    && (int)($row['is_current'] ?? 0) !== 1
+                    ? $this->revocationStore->issueTarget($currentUserId, ['user_id'=>(string)($row['user_id']??''),'token_id'=>(string)($row['internal_token_id']??'')])
+                    : null,
             ];
         }
 

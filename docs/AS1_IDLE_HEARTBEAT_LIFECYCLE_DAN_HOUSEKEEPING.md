@@ -4,6 +4,10 @@
 **Status:** IMPLEMENTED / CHECK MODE PASS / APPLY AND SCHEDULER DISABLED
 **Scheduler:** DISABLED; activation memerlukan rehearsal dan keputusan operasi
 
+> **Semakan 5 Ogos 2026:** Lifecycle dan boundary housekeeping dokumen ini
+> masih sah. Tindakan manual Admin terhadap satu sesi ialah AS3 berasingan dan
+> dirujuk dalam `AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_AUDIT_20260805.md`.
+
 ## Polisi Diluluskan
 
 1. PHP session OneID kekal mempunyai idle timeout 30 minit dan absolute timeout
@@ -75,9 +79,11 @@ dibatalkan oleh login baharu. UAT dua browser/dua PC kekal gate berasingan.
 
 ## Admin Revoke
 
-Controlled revoke satu/semua sesi kekal deferred sehingga Admin Step-Up 2FA,
-preview sasaran, typed confirmation, self-lockout protection, transaction dan
-mandatory audit tersedia.
+Admin Step-Up 2FA telah tersedia. Controlled revoke tetap deferred sehingga
+preview sasaran, typed confirmation, self-lockout protection, transaction,
+mandatory audit dan semua exit gate AS3 dilaksanakan. Pilot AS3 tidak
+mengaktifkan housekeeping atau scheduler dan hanya meliputi single-session
+`Due`/`Expired`.
 
 ## Urutan Gate
 

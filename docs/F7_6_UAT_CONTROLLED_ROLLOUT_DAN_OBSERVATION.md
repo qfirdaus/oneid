@@ -177,5 +177,5 @@ menerima hasil tersebut. Status akhir ialah **ACCEPTED / CLOSED**.
 
 Controlled Active-Session Revocation dan Revocation Scheduler tidak termasuk
 dalam acceptance ini. Kedua-duanya direkod sebagai task berasingan dalam
-`docs/AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_BACKLOG.md` dan
+`docs/AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_AUDIT_20260805.md` dan
 `docs/SC8_REVOCATION_SCHEDULER_DECISION_BACKLOG.md`.

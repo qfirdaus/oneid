@@ -39,6 +39,10 @@ require_once dirname(__DIR__) . '/app/Admin/UserMfaGlobalPolicyService.php';
 require_once dirname(__DIR__) . '/app/Admin/UserMfaCategoryPolicyService.php';
 require_once dirname(__DIR__) . '/app/Admin/UserMfaTemporaryExemptionService.php';
 require_once dirname(__DIR__) . '/app/Admin/ActiveSessionService.php';
+require_once dirname(__DIR__) . '/app/Admin/ActiveSessionRevocationException.php';
+require_once dirname(__DIR__) . '/app/Admin/ActiveSessionRevocationConfig.php';
+require_once dirname(__DIR__) . '/app/Admin/Adapters/SessionRevocationPreviewStore.php';
+require_once dirname(__DIR__) . '/app/Admin/ActiveSessionRevocationService.php';
 require_once dirname(__DIR__) . '/app/Auth/SsoTokenLifetimePolicy.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpException.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpEmailSenderInterface.php';
@@ -1980,7 +1984,7 @@ function string_sanitize($s) {
         try{
           $rawCookie=(string)($_COOKIE['sso_cre']??'');$decoded=json_decode($rawCookie);
           $currentToken=is_object($decoded)&&isset($decoded->sso_cre)?(string)$decoded->sso_cre:$rawCookie;
-          $service=new \OneId\App\Admin\ActiveSessionService($operation);
+          $service=new \OneId\App\Admin\ActiveSessionService($operation,new \OneId\App\Admin\Adapters\SessionRevocationPreviewStore());
           echo json_encode($service->list(
             $_POST,
             (string)$_SESSION['login_user'],
@@ -1993,6 +1997,17 @@ function string_sanitize($s) {
           $correlation=bin2hex(random_bytes(8));
           error_log('AS0 active session listing failed correlation='.$correlation.' exception='.get_class($exception));
           echo json_encode(['status'=>0,'code'=>'AS0_LIST_FAILED','message'=>'Active sessions could not be loaded.','correlation_id'=>$correlation]);
+        }
+      }
+
+      if(isset($_POST['admin_preview_active_session_revocation'])||isset($_POST['admin_apply_active_session_revocation'])){
+        try{
+          $rawCookie=(string)($_COOKIE['sso_cre']??'');$decoded=json_decode($rawCookie);$currentToken=is_object($decoded)&&isset($decoded->sso_cre)?(string)$decoded->sso_cre:$rawCookie;
+          $service=new \OneId\App\Admin\ActiveSessionRevocationService($operation,new \OneId\App\Admin\Adapters\SessionRevocationPreviewStore(),(float)$token_timeout);
+          $result=isset($_POST['admin_preview_active_session_revocation'])?$service->preview($_POST,(string)$_SESSION['login_user'],$currentToken):$service->apply($_POST,(string)$_SESSION['login_user'],$currentToken,(string)($_SERVER['REMOTE_ADDR']??''));
+          echo json_encode($result);
+        }catch(\OneId\App\Admin\ActiveSessionRevocationException $exception){
+          $status=in_array($exception->getMessage(),['AS3_FEATURE_DISABLED','AS3_STEP_UP_REQUIRED','AS3_ADMIN_TARGET_BLOCKED','AS3_CURRENT_SESSION_BLOCKED','AS3_STATE_NOT_ALLOWED'],true)?403:409;if(!headers_sent())http_response_code($status);echo json_encode(['status'=>0,'code'=>$exception->getMessage(),'correlation_id'=>$exception->correlationId]);
         }
       }
 

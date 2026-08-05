@@ -4,6 +4,14 @@
 **Owner/UAT pilot:** `0530-09`  
 **Status:** IMPLEMENTED / VERIFIED / FEATURE OFF
 
+> **Nota status 5 Ogos 2026:** `FEATURE OFF` ialah snapshot penutupan F7.4 pada
+> 20 Julai, bukan keadaan selepas F7.6; pilot Step-Up kemudiannya diaktifkan dan
+> diterima. Revalidation 5 Ogos pada awal audit menghasilkan 11/14 kerana
+> inventory action telah berubah. Expectation baseline telah direconcile kepada
+> 72 action. Selepas dua action AS3 ditambah, inventory menjadi 74 action (16
+> security configuration, 56 ordinary Admin, 2 session revocation) dan
+> contract kembali 14/14.
+
 ## Authorization boundary
 
 Guard menilai state database pada setiap request. Akses hanya dibenarkan apabila
@@ -19,14 +27,17 @@ Jika audit gagal, akses turut ditolak.
 ## Purpose matrix lengkap
 
 Dua halaman `admin/dashboard.php` dan `admin/user_list.php` memerlukan
-`ADMIN_ACCESS`. Daripada 48 action admin dalam `oneid_q_func_action_map()`:
+`ADMIN_ACCESS`. Snapshot code 5 Ogos selepas wiring AS3 mempunyai 74 action admin dalam
+`oneid_q_func_action_map()`:
 
-- `SECURITY_CONFIGURATION_CHANGE` (4): `update_password_recovery`, `test_password_recovery_email`,
-  `preview_configuration_update`, `update_configuration`.
-- `ADMIN_ACCESS` (44): semua action admin lain, termasuk tiga endpoint read-only
-  bagi settings, configuration history dan password recovery settings.
-- `ACTIVE_SESSION_REVOCATION`: tiada mutation endpoint tersedia lagi; endpoint
-  revoke akan diwajibkan menggunakan purpose ini apabila dibina.
+- `SECURITY_CONFIGURATION_CHANGE` (16): empat configuration action asal,
+  mutation locale/metadata, polisi/exemption User MFA dan enam mutation Login
+  Banner.
+- `ADMIN_ACCESS` (56): semua action admin lain, termasuk endpoint read-only.
+- `ACTIVE_SESSION_REVOCATION` (2): endpoint Preview dan Apply targeted revoke.
+  Skop pilot
+  terkini dirujuk dalam
+  `AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_AUDIT_20260805.md`.
 
 Empat endpoint challenge yang dirizabkan — `admin_step_up_status`,
 `admin_step_up_request_email`, `admin_step_up_verify_email` dan

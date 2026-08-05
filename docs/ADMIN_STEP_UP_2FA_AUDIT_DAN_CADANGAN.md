@@ -9,6 +9,11 @@ active-session revocation
 F7.0 readiness dimulakan pada 20 Julai 2026; schema, runtime dan activation
 kekal tidak berubah sehingga semua gate F7.0 ditutup.
 
+> **Nota status 5 Ogos 2026:** Ayat keputusan di atas ialah baseline asal audit.
+> F7.6 kemudiannya diterima dan Step-Up tersedia. Bagi Controlled Active-Session
+> Revocation, `AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_AUDIT_20260805.md`
+> mengatasi cadangan umum dalam dokumen ini.
+
 ## 1. Objektif
 
 Dokumen ini merekod audit serta reka bentuk disyorkan untuk mewajibkan
@@ -379,8 +384,9 @@ ditukar kepada laporan kejayaan atau membuka akses.
 
 ### 7.2 Controlled Active-Session Revocation
 
-Selepas Step-Up tersedia, Active Sessions boleh ditambah tindakan revoke satu
-sesi atau semua sesi pengguna dengan syarat:
+Step-Up kini tersedia. Active Sessions hanya boleh ditambah tindakan mengikut
+pilot AS3 semasa: satu sesi `Due` atau `Expired`; revoke-all, target Admin dan
+state lain kekal disabled. Syarat berikut terus terpakai:
 
 1. purpose tepat `ACTIVE_SESSION_REVOCATION` masih fresh;
 2. server menghasilkan target preview baharu tanpa token material;
@@ -576,5 +582,5 @@ tunggal pelaksanaan Fasa 7.
 Tiada Microsoft Entra push notification berada dalam skop semasa. Task SC7-02,
 SC7-03 dan SC7-04 sudah complete dalam Fasa 3; SC7-01 Admin Step-Up 2FA kini
 diterima. Controlled Active-Session Revocation dan scheduler kekal sebagai task
-berasingan dalam `docs/AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_BACKLOG.md` dan
+berasingan dalam `docs/AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_AUDIT_20260805.md` dan
 `docs/SC8_REVOCATION_SCHEDULER_DECISION_BACKLOG.md`.

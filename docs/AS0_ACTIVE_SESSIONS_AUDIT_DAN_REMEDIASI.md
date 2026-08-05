@@ -5,6 +5,13 @@
 **Status:** IMPLEMENTED / CONTRACT AND READ-ONLY PREFLIGHT PASS  
 **Mutation daripada listing:** Dilarang
 
+> **Semakan 5 Ogos 2026:** Baseline dan hasil AS0 masih sah. Perancangan
+> mutation revocation terkini berada dalam
+> `AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_AUDIT_20260805.md`. AS3 tidak
+> mengubah kontrak read-only bagi operasi list, search, filter, refresh dan
+> pagination. Baseline dan purpose model Admin Step-Up kekal dirujuk dalam
+> `ADMIN_STEP_UP_2FA_AUDIT_DAN_CADANGAN.md`.
+
 ## Penemuan Baseline
 
 1. Persistence menggunakan `SELECT A.*`, menyebabkan token material dan medan
@@ -34,9 +41,10 @@
 
 ## Boundary Ditangguhkan
 
-Controlled revoke satu sesi atau semua sesi pengguna tidak termasuk dalam AS0.
-Ia memerlukan Admin Step-Up 2FA, typed confirmation, transaction, audit dan
-perlindungan self-lockout. Task tersebut kekal dalam handoff SC7-SC8.
+Controlled revoke tidak termasuk dalam AS0. Admin Step-Up 2FA kini tersedia,
+tetapi ia hanya satu dependency; typed confirmation, transaction, audit,
+perlindungan self-lockout dan gate AS3 masih wajib. Pilot terkini hanya
+mempertimbangkan single-session `Due`/`Expired`, bukan revoke-all.
 
 SC5 revocation runner dan Cron External Sync juga bukan sebahagian daripada
 listing ini dan tidak akan diaktifkan oleh remediasi AS0.

@@ -3,6 +3,12 @@
 **Tarikh:** 18-19 Julai 2026
 **Status:** IMPLEMENTED / CONTRACT PASS / OWNER-OBSERVED BROWSER UAT PASS
 
+> **Semakan 5 Ogos 2026:** Enforcement AS2 masih sah dan menjadi mekanisme
+> force-login selepas targeted revoke. Reka bentuk mutation Admin terkini
+> berada dalam `AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_AUDIT_20260805.md`;
+> model purpose Step-Up induk kekal dalam
+> `ADMIN_STEP_UP_2FA_AUDIT_DAN_CADANGAN.md`.
+
 ## Isu Ditutup
 
 Apabila `multi_session=0`, login Browser B merevoke token Browser A. Sebelum
@@ -28,7 +34,7 @@ login/reset action kekal boleh dicapai tanpa active token.
 | AS2-02 | UAT dua browser/dua PC bagi `multi_session=1` | **PASS** — kedua-dua sesi dibenarkan dan kekal berfungsi |
 | AS2-02B | UAT revoked token tanpa perubahan polisi global | **PASS** — revocation dikesan dan browser lama memerlukan login semula |
 | AS2-03 | Hard cap apabila multiple session dibenarkan | Pending keputusan owner sama ada 5, 10 atau visibility-only |
-| AS2-04 | Controlled revoke satu/semua sesi oleh admin | Deferred sehingga Admin Step-Up 2FA, preview, confirmation dan self-lockout protection |
+| AS2-04 | Controlled revoke sesi oleh admin | Step-Up tersedia; implementation masih deferred kepada pilot AS3 single-session `Due`/`Expired` dengan preview, confirmation dan self-lockout protection |
 | AS2-05 | Housekeeping controlled Apply | Tool tersedia tetapi Apply, rehearsal dan scheduler belum diluluskan |
 | AS2-06 | Retention token tidak aktif 90 hari | Pending schema revoked timestamp, backup, storage dan audit decision |
 | AS2-07 | Monitoring revoked-token 401 dan lonjakan relogin | Pending monitoring owner, threshold dan alert channel |
@@ -40,9 +46,9 @@ Cron External Sync kekal task berasingan dan tidak diaktifkan oleh AS2.
 
 1. Aktifkan visibility/monitoring AS2-07 sebelum menetapkan sebarang hard cap.
 2. Owner putuskan AS2-03 berdasarkan data sesi berlebihan sebenar.
-3. Lengkapkan Admin Step-Up sebelum AS2-04 Controlled Revoke dibina. Purpose,
-   preview, self-lockout, audit dan reconciliation muktamad dirujuk dalam
-   `docs/ADMIN_STEP_UP_2FA_AUDIT_DAN_CADANGAN.md`.
+3. Gunakan Admin Step-Up yang telah tersedia apabila AS2-04 dibina. Purpose,
+   preview, self-lockout, audit, reconciliation dan skop pilot muktamad dirujuk
+   dalam `docs/AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_AUDIT_20260805.md`.
 4. Jalankan rehearsal dan observation housekeeping AS2-05 secara berasingan.
 5. Tambah revoked timestamp sebelum AS2-06 retention purge dipertimbangkan.
 6. Tutup AS2-08 hanya selepas semua SSO consumer keluar daripada compatibility
@@ -63,7 +69,10 @@ UAT mengesahkan pengguna perlu login semula selepas sesi/token lama ditamatkan.
 Tiada notification khusus dipaparkan sebelum atau selepas force logout. Owner
 menerima behavior keselamatan semasa dan menangguhkan notification sebagai AS3.
 
-## AS3 Notification — Deferred by Owner
+## Notification UX Legacy — Deferred by Owner
+
+Label `AS3-01` hingga `AS3-06` di bawah ialah ID backlog UX bertarikh 19 Julai
+2026, bukan skop AS3 Controlled Active-Session Revocation semasa.
 
 Task berikut direkod tetapi tidak dilaksanakan dalam release ini:
 

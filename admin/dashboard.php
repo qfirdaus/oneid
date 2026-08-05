@@ -5632,7 +5632,7 @@
 						rows += '<td data-label="'+adminText('admin.sessions.user')+'"><span class="active-session-user-card" title="'+sessionAttribute(userName+' ('+userId+')')+'"><i class="fa fa-user-circle-o" aria-hidden="true"></i><span class="active-session-user-copy"><strong>'+userName+'</strong><small><span>'+adminText('admin.sessions.user_id')+'</span>'+userId+'</small></span></span></td>';
 						rows += '<td data-label="'+adminText('admin.sessions.activity')+'"><span class="active-session-timeline"><span><small>'+adminText('admin.sessions.issued')+'</small><time title="'+sessionAttribute(issuedAt)+'">'+issuedAt+'</time></span><span><small>'+adminText('admin.sessions.heartbeat')+'</small><time title="'+sessionAttribute(lastActivity)+'">'+lastActivity+'</time></span></span></td>';
 						rows += '<td data-label="'+adminText('admin.sessions.device')+'"><span class="active-session-cell active-session-device" title="'+sessionAttribute(deviceInfo)+'"><i class="fa fa-desktop" aria-hidden="true"></i>'+deviceInfo+'</span></td>';
-						rows += '<td data-label="'+adminText('admin.sessions.status')+'"><span class="active-session-status is-'+session.status+'" title="'+sessionAttribute(statusTitle)+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+'</span></span></td>';
+						rows += '<td data-label="'+adminText('admin.sessions.status')+'"><span class="active-session-status is-'+session.status+'" title="'+sessionAttribute(statusTitle)+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+'</span></span>'+(session.revocation_target_id?'<button type="button" class="active-session-revoke" data-revocation-target="'+sessionAttribute(session.revocation_target_id)+'"><i class="fa fa-ban" aria-hidden="true"></i> '+adminText('admin.sessions.revoke')+'</button>':'')+'</td>';
 						rows += '</tr>';
 					});
 
@@ -5656,10 +5656,33 @@
                    });
          }
 
+         function active_session_revocation_preview(targetId){
+            $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',headers:{'X-CSRF-Token':<?php echo json_encode(oneid_csrf_token()); ?>},data:{admin_preview_active_session_revocation:'',target_id:targetId}})
+            .done(function(response){
+               if(!response||Number(response.status)!==1){swal(adminText('admin.sessions.revoke_preview'),'Code: '+(response&&response.code?response.code:'AS3_PREVIEW_FAILED'),'error');return;}
+               var target=response.target||{};
+               swal({title:adminText('admin.sessions.revoke_preview'),text:String(target.name||'')+' ('+String(target.user_id||'')+')\n'+String(target.device_info||'')+'\nStatus: '+String(target.state||'')+'\n\n'+adminText('admin.sessions.reason_prompt'),type:'input',showCancelButton:true,closeOnConfirm:false,inputPlaceholder:adminText('admin.sessions.reason_prompt')},function(reason){
+                  if(reason===false)return;if(String(reason).trim().length<10){swal.showInputError(adminText('admin.sessions.reason_prompt'));return false;}
+                  swal({title:adminText('admin.sessions.confirm_prompt'),text:String(response.confirmation_phrase||''),type:'input',showCancelButton:true,closeOnConfirm:false,inputPlaceholder:String(response.confirmation_phrase||'')},function(confirmation){
+                     if(confirmation===false)return;
+                     $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',headers:{'X-CSRF-Token':<?php echo json_encode(oneid_csrf_token()); ?>},data:{admin_apply_active_session_revocation:'',approval_id:response.approval_id,reason:String(reason).trim(),confirmation:String(confirmation).trim()}})
+                     .done(function(result){if(result&&Number(result.status)===1){swal(adminText('admin.sessions.revoke'),adminText('admin.sessions.revoked')+'\nReference: '+result.correlation_id,'success');get_all_user_activ_session(activeSessionPage);}else{swal(adminText('admin.sessions.revoke'),'Code: '+(result&&result.code?result.code:'AS3_APPLY_FAILED'),'error');}})
+                     .fail(function(xhr){swal(adminText('admin.sessions.revoke'),'Code: '+(xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'AS3_APPLY_FAILED'),'error');});
+                  });
+               });
+            }).fail(function(xhr){
+               var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';
+               if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){sessionStorage.setItem('oneid_as3_pending_target',targetId);window.location.href='../page/admin-step-up?purpose=ACTIVE_SESSION_REVOCATION&return=active_sessions';return;}
+               swal(adminText('admin.sessions.revoke_preview'),'Code: '+(code||'AS3_PREVIEW_FAILED'),'error');
+            });
+         }
+
          $(document).on('click', '#active_session_search_button', function(){ activeSessionPage=1;get_all_user_activ_session(1); });
          $(document).on('change', '#active_session_status, #active_session_page_size', function(){ activeSessionPage=1;get_all_user_activ_session(1); });
          $(document).on('keydown', '#active_session_query', function(event){ if(event.key === 'Enter'){event.preventDefault();activeSessionPage=1;get_all_user_activ_session(1);} });
          $(document).on('click', '#active_session_pagination button[data-active-page]', function(){ if(!this.disabled)get_all_user_activ_session($(this).data('active-page')); });
+         $(document).on('click', '.active-session-revoke', function(){active_session_revocation_preview(String($(this).data('revocation-target')||''));});
+         $(function(){var pending=sessionStorage.getItem('oneid_as3_pending_target');if(pending){sessionStorage.removeItem('oneid_as3_pending_target');setTimeout(function(){active_session_revocation_preview(pending);},250);}});
          
          
 
@@ -8839,6 +8862,18 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         text-overflow: ellipsis;
         text-transform: uppercase;
         white-space: nowrap;
+      }
+
+      #tab_active_sessions .active-session-revoke {
+        display: block;
+        margin-top: 6px;
+        padding: 4px 8px;
+        border: 1px solid #e4a9b4;
+        border-radius: 7px;
+        background: #fff5f6;
+        color: #9f1730;
+        font-size: 9px;
+        font-weight: 700;
       }
 
       #tab_active_sessions .active-session-status.is-current {

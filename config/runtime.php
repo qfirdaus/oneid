@@ -60,6 +60,11 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_STEP_UP_EMAIL_ADMIN_DAILY_LIMIT' => '30',
         'ONEID_STEP_UP_EMAIL_SESSION_HOURLY_LIMIT' => '10',
         'ONEID_STEP_UP_EMAIL_IP_HOURLY_LIMIT' => '50',
+        // AS3 controlled single-session revocation remains dormant until staging approval.
+        'ONEID_ACTIVE_SESSION_REVOCATION_ENABLED' => 'false',
+        'ONEID_ACTIVE_SESSION_REVOCATION_PILOT_STATES' => 'due,expired',
+        'ONEID_ACTIVE_SESSION_REVOCATION_ALLOW_ADMIN_TARGET' => 'false',
+        'ONEID_ACTIVE_SESSION_REVOCATION_ALLOW_REVOKE_ALL' => 'false',
         // User Login MFA U1 remains dormant. Schema apply and every later
         // activation require separate approval; committed mode stays OFF.
         'ONEID_USER_MFA_MODE' => 'OFF',

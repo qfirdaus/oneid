@@ -128,7 +128,7 @@ $report(
 );
 $report(
     str_contains($f74, 'IMPLEMENTED / VERIFIED / FEATURE OFF')
-        && str_contains($f74, '48 action admin')
+        && str_contains($f74, '74 action admin')
         && str_contains($f74, 'Purpose matrix lengkap')
         && str_contains($f74, '0 factor, preference'),
     'F7.4 evidence covers complete purpose mapping and dormant enforcement'

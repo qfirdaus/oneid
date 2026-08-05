@@ -187,6 +187,8 @@ function oneid_q_func_action_map(): array
             'admin_login_banner_inactivate',
             'admin_login_banner_reorder',
             'admin_login_banner_rollback',
+            'admin_preview_active_session_revocation',
+            'admin_apply_active_session_revocation',
         ],
         'step_up' => [
             'admin_step_up_status',
@@ -207,6 +209,9 @@ function oneid_q_func_action_map(): array
 
 function oneid_admin_action_purpose(string $action): string
 {
+    if (in_array($action, ['admin_preview_active_session_revocation','admin_apply_active_session_revocation'], true)) {
+        return 'ACTIVE_SESSION_REVOCATION';
+    }
     $securityConfiguration = [
         'update_password_recovery',
         'test_password_recovery_email',

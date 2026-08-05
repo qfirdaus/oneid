@@ -1587,7 +1587,8 @@ class Database {
             ':search_value'=>$search===''?'':'%'.$search.'%',
             ':requested_status'=>(string)($filters['status']??'all'),
         ];
-        $base="SELECT A.user_id,COALESCE(NULLIF(B.data1,''),A.user_id) AS name,A.device_info,
+        $base="SELECT A.user_id,COALESCE(NULLIF(B.data1,''),A.user_id) AS name,A.device_info,B.u_type,
+                     A.token_id AS internal_token_id,
                      A.token_issued_at AS issued_at,A.token_datetime AS last_activity_at,
                      A.policy_revoke_at AS revoke_at,P.search_value,P.requested_status,
                      CASE
@@ -1621,10 +1622,25 @@ class Database {
                            OR M.device_info LIKE M.search_value ESCAPE '\\\\') GROUP BY lifecycle_status";
         $metricStatement=$this->pdo->prepare($metricSql);$metricStatement->execute($params);$metrics=[];
         foreach($metricStatement->fetchAll(PDO::FETCH_ASSOC) as$metric)$metrics[(string)$metric['lifecycle_status']]=(int)$metric['total'];
-        $rows=$this->pdo->prepare('SELECT user_id,name,device_info,issued_at,last_activity_at,revoke_at,lifecycle_status'.$filtered.' ORDER BY last_activity_at DESC,user_id ASC LIMIT '.$pageSize.' OFFSET '.$offset);
+        $rows=$this->pdo->prepare('SELECT user_id,name,device_info,u_type,internal_token_id,issued_at,last_activity_at,revoke_at,lifecycle_status,CASE WHEN user_id=:row_current_user_id AND (internal_token_id=:row_current_token_hash OR internal_token_id=:row_current_token) THEN 1 ELSE 0 END AS is_current'.$filtered.' ORDER BY last_activity_at DESC,user_id ASC LIMIT '.$pageSize.' OFFSET '.$offset);
+        $params[':row_current_user_id']=$params[':current_user_id'];$params[':row_current_token_hash']=$params[':current_token_hash'];$params[':row_current_token']=$params[':current_token'];
         $rows->execute($params);
         return ['rows'=>$rows->fetchAll(PDO::FETCH_ASSOC),'total'=>$total,'metrics'=>$metrics];
     }
+
+    /** @param array<string,string> $context */
+    public function admin_session_revocation_target(string $userId,string $tokenId,array $context): array|false{return $this->admin_session_revocation_target_query($userId,$tokenId,$context,false);}
+    /** @param array<string,string> $context */
+    public function admin_session_revocation_target_for_update(string $userId,string $tokenId,array $context): array|false{return $this->admin_session_revocation_target_query($userId,$tokenId,$context,true);}
+    /** @param array<string,string> $context */
+    private function admin_session_revocation_target_query(string $userId,string $tokenId,array $context,bool $lock): array|false{
+        $sql="SELECT A.user_id,A.token_id,COALESCE(NULLIF(B.data1,''),A.user_id) name,A.device_info,B.u_type,A.token_issued_at issued_at,A.token_datetime last_activity_at,A.policy_revoke_at revoke_at,
+          CASE WHEN A.token_issued_at>:now_value OR A.token_issued_at<=:refresh_cutoff THEN 'expired' WHEN A.policy_revoke_at IS NOT NULL AND A.policy_revoke_at<=:now_value2 THEN 'due' WHEN A.policy_revoke_at IS NOT NULL AND A.policy_revoke_at>:now_value3 THEN 'grace' WHEN A.token_issued_at<:active_cutoff THEN 'refresh' WHEN A.user_id=:current_user_id AND (A.token_id=:current_token_hash OR A.token_id=:current_token) THEN 'current' ELSE 'active' END lifecycle_status,
+          CASE WHEN A.user_id=:current_user_id2 AND (A.token_id=:current_token_hash2 OR A.token_id=:current_token2) THEN 1 ELSE 0 END is_current
+          FROM token_tbl A LEFT JOIN user_tbl B ON B.u_id=A.user_id WHERE A.user_id=:user_id AND A.token_id=:token_id AND A.status=1 LIMIT 1".($lock?' FOR UPDATE':'');
+        $q=$this->pdo->prepare($sql);$q->execute([':now_value'=>$context['now'],':now_value2'=>$context['now'],':now_value3'=>$context['now'],':refresh_cutoff'=>$context['refresh_cutoff'],':active_cutoff'=>$context['active_cutoff'],':current_user_id'=>$context['current_user_id'],':current_token_hash'=>$context['current_token_hash'],':current_token'=>$context['current_token'],':current_user_id2'=>$context['current_user_id'],':current_token_hash2'=>$context['current_token_hash'],':current_token2'=>$context['current_token'],':user_id'=>$userId,':token_id'=>$tokenId]);return $q->fetch(PDO::FETCH_ASSOC);
+    }
+    public function admin_revoke_exact_session(string $userId,string $tokenId):int{$q=$this->pdo->prepare('UPDATE token_tbl SET status=0 WHERE user_id=:user_id AND token_id=:token_id AND status=1');$q->execute([':user_id'=>$userId,':token_id'=>$tokenId]);return $q->rowCount();}
 
     public function remove_queue($no_matrix){
         $Q = "DELETE FROM checkpoint

@@ -1,5 +1,10 @@
 # AS3 — Controlled Active-Session Revocation
 
+> **Superseded for current implementation planning:** Rujuk
+> `AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_AUDIT_20260805.md` untuk audit code
+> semasa, pilot scope, possibility matrix dan exit gate terkini. Dokumen ini
+> dikekalkan sebagai rekod keputusan backlog 21 Julai 2026.
+
 **Status:** BACKLOG / PEMBANGUNAN BERASINGAN  
 **Tarikh keputusan owner:** 21 Julai 2026  
 **Skop:** Administrator > Active Sessions  
@@ -88,4 +93,3 @@ owner direkod. Sehingga itu:
 ACTIVE SESSION LISTING: READ-ONLY
 REVOCATION MUTATION: DISABLED / NOT IMPLEMENTED
 ```
-

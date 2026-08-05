@@ -14,6 +14,7 @@ $successRedirect=match($returnTarget){
   'admin_locale'=>APP_URL.'/admin/dashboard?configuration=admin_locale',
   'user_mfa_policy'=>APP_URL.'/admin/dashboard?configuration=user_mfa_policy',
   'admin_metadata'=>APP_URL.'/admin/dashboard?metadata=1',
+  'active_sessions'=>APP_URL.'/admin/dashboard?active_sessions=1',
   default=>APP_URL.'/admin/dashboard',
 };
 $existingGrant=oneid_admin_step_up_decision($operation,$purpose);

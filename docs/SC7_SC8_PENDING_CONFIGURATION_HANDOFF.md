@@ -83,6 +83,10 @@ Keperluan teras:
 
 ### SC7-06 Controlled Active-Session Revocation
 
+> **Semakan 5 Ogos 2026:** Step-Up dependency telah tersedia. Audit AS3 terkini
+> mengehadkan pilot kepada single-session `Due`/`Expired`; current session,
+> target Administrator, revoke-all dan bulk kekal disabled.
+
 Listing Active Sessions telah dijadikan read-only melalui AS0 dan revoked-token
 enforcement browser telah dilaksanakan melalui AS2. Tindakan revoke
 satu sesi atau semua sesi pengguna kekal ditangguhkan sehingga Step-Up tersedia:
@@ -171,6 +175,6 @@ SC8 REVOCATION SCHEDULER: SEPARATE DECISION BACKLOG
 MONITORING: CONTINUOUS OPERATIONAL PROCESS
 ```
 
-Rujuk `docs/AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_BACKLOG.md` dan
+Rujuk `docs/AS3_CONTROLLED_ACTIVE_SESSION_REVOCATION_AUDIT_20260805.md` dan
 `docs/SC8_REVOCATION_SCHEDULER_DECISION_BACKLOG.md` sebelum membuka development
 scope baharu.
