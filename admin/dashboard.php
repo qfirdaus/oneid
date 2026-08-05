@@ -10,6 +10,10 @@
    oneid_require_admin_page();
    oneid_require_active_sso_page($operation);
    oneid_require_admin_step_up($operation, 'ADMIN_ACCESS', false);
+   $admin_user_info = $operation->get_specific_user_info((string) ($_SESSION['login_user'] ?? ''));
+   if (!is_array($admin_user_info)) {
+      $admin_user_info = [];
+   }
    if (isset($_GET['locale'])) {
       if (oneid_set_session_locale((string) $_GET['locale'])) {
          oneid_set_guest_locale_cookie((string) $_GET['locale']);
@@ -1183,14 +1187,18 @@
                               <div class="panel-wrapper collapse in">
                                  <div class="panel-body  pa-0">
                                     <div class="profile-box oneid-admin-profile-card">
-                                       <div class="profile-info text-center oneid-admin-profile-identity">
+                                       <div class="profile-info oneid-admin-profile-identity">
                                           <span class="oneid-admin-profile-photo-wrap">
-                                             <img class="oneid-admin-profile-photo" src="../page/profile-photo.php" alt="<?=htmlspecialchars(oneid_translate('dashboard.profile_photo'), ENT_QUOTES, 'UTF-8')?>" width="88" height="88">
+                                             <img class="oneid-admin-profile-photo" src="../page/profile-photo.php" alt="<?=htmlspecialchars(oneid_translate('dashboard.profile_photo'), ENT_QUOTES, 'UTF-8')?>" width="70" height="70">
                                              <span class="oneid-admin-profile-online" aria-hidden="true"></span>
                                           </span>
-                                          <h5 class="block weight-500 capitalize-font txt-dark"><?=htmlspecialchars((string) ($_SESSION['user'] ?? ''), ENT_QUOTES, 'UTF-8')?></h5>
-                                          <span class="oneid-admin-profile-id"><?=htmlspecialchars((string) ($_SESSION['login_user'] ?? ''), ENT_QUOTES, 'UTF-8')?></span>
-                                          <!--<span class="time block truncate txt-grey">Your session will expire in <span id="demo">- - -</span></span> -->
+                                          <span class="oneid-admin-profile-details">
+                                             <h5 class="block weight-500 capitalize-font txt-dark"><?=htmlspecialchars((string) ($_SESSION['user'] ?? ''), ENT_QUOTES, 'UTF-8')?></h5>
+                                             <span class="oneid-admin-profile-staff-no"><?=htmlspecialchars(trim((string) ($admin_user_info['data2'] ?? '')), ENT_QUOTES, 'UTF-8')?></span>
+                                             <span class="oneid-admin-profile-department"><?=htmlspecialchars(trim((string) ($admin_user_info['data6'] ?? '')), ENT_QUOTES, 'UTF-8')?></span>
+                                          </span>
+                                       </div>
+                                       <div class="oneid-admin-profile-language-row">
                                           <nav class="profile-locale-switcher" aria-label="<?=htmlspecialchars(oneid_translate('login.language_label'), ENT_QUOTES, 'UTF-8')?>">
                                              <i class="fa fa-globe" aria-hidden="true"></i>
                                              <a class="<?=oneid_current_locale() === 'ms' ? 'is-active' : ''?>" href="?locale=ms" lang="ms" hreflang="ms" title="Bahasa Melayu" aria-label="Bahasa Melayu" aria-current="<?=oneid_current_locale() === 'ms' ? 'true' : 'false'?>">BM</a>
@@ -5641,7 +5649,7 @@
 						}
 
 						rows += '<tr>';
-						var photoUrl = 'profile-photo.php?user_id=' + encodeURIComponent(session.user_id == null ? '' : String(session.user_id));
+						var photoUrl = '../page/profile-photo.php?user_id=' + encodeURIComponent(session.user_id == null ? '' : String(session.user_id));
 						rows += '<td data-label="'+adminText('admin.sessions.user')+'"><span class="active-session-user-card" title="'+sessionAttribute(userName+' ('+userId+')')+'"><span class="active-session-avatar"><img src="'+sessionAttribute(photoUrl)+'" alt="" width="34" height="34" loading="lazy" decoding="async"></span><span class="active-session-user-copy"><strong>'+userName+'</strong><small><span>'+adminText('admin.sessions.user_id')+'</span>'+userId+'</small></span></span></td>';
 						rows += '<td data-label="'+adminText('admin.sessions.activity')+'"><span class="active-session-timeline"><span><small>'+adminText('admin.sessions.issued')+'</small><time title="'+sessionAttribute(issuedAt)+'">'+issuedAt+'</time></span><span><small>'+adminText('admin.sessions.heartbeat')+'</small><time title="'+sessionAttribute(lastActivity)+'">'+lastActivity+'</time></span></span></td>';
 						rows += '<td data-label="'+adminText('admin.sessions.device')+'"><span class="active-session-cell active-session-device" title="'+sessionAttribute(deviceInfo)+'"><i class="fa fa-desktop" aria-hidden="true"></i>'+deviceInfo+'</span></td>';

@@ -7,9 +7,7 @@ $dashboard = (string) file_get_contents($projectRoot . '/page/dashboard.php');
 $resolver = (string) file_get_contents($projectRoot . '/page/profile_photo.php');
 $sharedResponder = (string) file_get_contents($projectRoot . '/app/ProfilePhoto/ProfilePhotoResponder.php');
 $adminDashboard = (string) file_get_contents($projectRoot . '/admin/dashboard.php');
-$adminResolver = (string) file_get_contents($projectRoot . '/admin/profile_photo.php');
 $wrapper = (string) file_get_contents($projectRoot . '/public/page/profile-photo.php');
-$adminWrapper = (string) file_get_contents($projectRoot . '/public/admin/profile-photo.php');
 $fallback = (string) file_get_contents($projectRoot . '/public/img/default-profile.svg');
 
 $checks = 0;
@@ -65,15 +63,15 @@ $report(
     'public wrapper and local fallback asset are deployed'
 );
 $report(
-    str_contains($adminResolver, 'oneid_require_admin_page()')
-        && str_contains($adminResolver, 'oneid_require_active_sso_page($operation)')
-        && str_contains($adminResolver, "preg_match('/\\A[A-Za-z0-9._@-]{1,20}\\z/'")
-        && str_contains($adminWrapper, "'/admin/profile_photo.php'"),
-    'admin resolver is admin-only, active-SSO guarded and validates the requested user ID'
+    str_contains($resolver, 'oneid_require_active_sso_page($operation)')
+        && str_contains($resolver, 'oneid_require_admin_page()')
+        && str_contains($resolver, "preg_match('/\\A[A-Za-z0-9._@-]{1,20}\\z/'")
+        && str_contains($resolver, "\$_GET['user_id']"),
+    'shared resolver restricts requested user photos to active-SSO administrators and validates user IDs'
 );
 $report(
     str_contains($adminDashboard, 'src="../page/profile-photo.php"')
-        && str_contains($adminDashboard, "'profile-photo.php?user_id=' + encodeURIComponent")
+        && str_contains($adminDashboard, "'../page/profile-photo.php?user_id=' + encodeURIComponent")
         && str_contains($adminDashboard, 'class="active-session-avatar"')
         && str_contains($adminDashboard, 'loading="lazy"'),
     'admin identity and active-session rows use same-origin profile photo resolvers'
