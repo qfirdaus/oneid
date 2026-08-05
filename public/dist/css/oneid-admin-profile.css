@@ -1,0 +1,101 @@
+.oneid-admin-profile-card {
+  overflow: hidden;
+  background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+}
+
+.oneid-admin-profile-card .oneid-admin-profile-identity {
+  padding: 24px 24px 17px;
+  margin: 0;
+}
+
+.oneid-admin-profile-photo-wrap {
+  position: relative;
+  display: inline-block;
+  width: 94px;
+  height: 94px;
+  padding: 4px;
+  margin-bottom: 13px;
+  border: 1px solid #dbe8f0;
+  border-radius: 26px;
+  background: #fff;
+  box-shadow: 0 9px 24px rgba(29, 75, 108, .16);
+}
+
+.oneid-admin-profile-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 21px;
+  background: #edf4f8;
+  object-fit: cover;
+}
+
+.oneid-admin-profile-online {
+  position: absolute;
+  right: 1px;
+  bottom: 5px;
+  width: 16px;
+  height: 16px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #1dbf73;
+  box-shadow: 0 2px 5px rgba(29, 191, 115, .3);
+}
+
+.oneid-admin-profile-card h5 {
+  max-width: 100%;
+  margin: 0 0 5px;
+  overflow: hidden;
+  color: #23364b;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oneid-admin-profile-id {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: #f0f6fa;
+  color: #53677d;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .035em;
+}
+
+.oneid-admin-profile-card .profile-locale-switcher {
+  margin-top: 14px;
+}
+
+.oneid-admin-profile-card .oneid-admin-profile-stats {
+  padding: 19px 10px 20px;
+  border-top: 1px solid #edf1f5;
+  background: #fff;
+}
+
+.oneid-admin-profile-card .oneid-admin-profile-stats .col-xs-6:first-child {
+  border-right: 1px solid #e7edf2;
+}
+
+.oneid-admin-profile-card .oneid-admin-profile-stats .counts {
+  color: #203a54;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.oneid-admin-profile-card .oneid-admin-profile-stats .counts-text {
+  margin-top: 5px;
+  color: #718095;
+  font-size: 12px;
+}
+
+@media (max-width: 767px) {
+  .oneid-admin-profile-card .oneid-admin-profile-identity {
+    padding-top: 20px;
+  }
+}

@@ -68,6 +68,7 @@
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-login-banner-admin.css?v=20260801-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-configuration-navigation.css?v=20260801-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-admin-profile.css?v=20260805-1" rel="stylesheet" type="text/css">
    </head>
    <body>
       <!--Preloader-->
@@ -1181,10 +1182,14 @@
                            <div class="panel panel-default card-view  pa-0">
                               <div class="panel-wrapper collapse in">
                                  <div class="panel-body  pa-0">
-                                    <div class="profile-box">
-                                       <div class="profile-info text-center mb-15">
-                                          <h5 class="block mt-10 weight-500 capitalize-font txt-dark"><?php echo $_SESSION['user']; ?></h5>
-                                          <h6 class="block capitalize-font"><?php echo $_SESSION['login_user']; ?></h6>
+                                    <div class="profile-box oneid-admin-profile-card">
+                                       <div class="profile-info text-center oneid-admin-profile-identity">
+                                          <span class="oneid-admin-profile-photo-wrap">
+                                             <img class="oneid-admin-profile-photo" src="../page/profile-photo.php" alt="<?=htmlspecialchars(oneid_translate('dashboard.profile_photo'), ENT_QUOTES, 'UTF-8')?>" width="88" height="88">
+                                             <span class="oneid-admin-profile-online" aria-hidden="true"></span>
+                                          </span>
+                                          <h5 class="block weight-500 capitalize-font txt-dark"><?=htmlspecialchars((string) ($_SESSION['user'] ?? ''), ENT_QUOTES, 'UTF-8')?></h5>
+                                          <span class="oneid-admin-profile-id"><?=htmlspecialchars((string) ($_SESSION['login_user'] ?? ''), ENT_QUOTES, 'UTF-8')?></span>
                                           <!--<span class="time block truncate txt-grey">Your session will expire in <span id="demo">- - -</span></span> -->
                                           <nav class="profile-locale-switcher" aria-label="<?=htmlspecialchars(oneid_translate('login.language_label'), ENT_QUOTES, 'UTF-8')?>">
                                              <i class="fa fa-globe" aria-hidden="true"></i>
@@ -1192,7 +1197,7 @@
                                              <a class="<?=oneid_current_locale() === 'en' ? 'is-active' : ''?>" href="?locale=en" lang="en" hreflang="en" title="English" aria-label="English" aria-current="<?=oneid_current_locale() === 'en' ? 'true' : 'false'?>">EN</a>
                                           </nav>
                                        </div>
-                                       <div class="social-info">
+                                       <div class="social-info oneid-admin-profile-stats">
                                           <div class="row">
                                              <div class="col-xs-6 text-center">
                                                 <span class="counts block head-font"><span class="counter-anim"><?php echo $widget_data['total_sp']; ?></span></span>
@@ -5636,7 +5641,8 @@
 						}
 
 						rows += '<tr>';
-						rows += '<td data-label="'+adminText('admin.sessions.user')+'"><span class="active-session-user-card" title="'+sessionAttribute(userName+' ('+userId+')')+'"><i class="fa fa-user-circle-o" aria-hidden="true"></i><span class="active-session-user-copy"><strong>'+userName+'</strong><small><span>'+adminText('admin.sessions.user_id')+'</span>'+userId+'</small></span></span></td>';
+						var photoUrl = 'profile-photo.php?user_id=' + encodeURIComponent(session.user_id == null ? '' : String(session.user_id));
+						rows += '<td data-label="'+adminText('admin.sessions.user')+'"><span class="active-session-user-card" title="'+sessionAttribute(userName+' ('+userId+')')+'"><span class="active-session-avatar"><img src="'+sessionAttribute(photoUrl)+'" alt="" width="34" height="34" loading="lazy" decoding="async"></span><span class="active-session-user-copy"><strong>'+userName+'</strong><small><span>'+adminText('admin.sessions.user_id')+'</span>'+userId+'</small></span></span></td>';
 						rows += '<td data-label="'+adminText('admin.sessions.activity')+'"><span class="active-session-timeline"><span><small>'+adminText('admin.sessions.issued')+'</small><time title="'+sessionAttribute(issuedAt)+'">'+issuedAt+'</time></span><span><small>'+adminText('admin.sessions.heartbeat')+'</small><time title="'+sessionAttribute(lastActivity)+'">'+lastActivity+'</time></span></span></td>';
 						rows += '<td data-label="'+adminText('admin.sessions.device')+'"><span class="active-session-cell active-session-device" title="'+sessionAttribute(deviceInfo)+'"><i class="fa fa-desktop" aria-hidden="true"></i>'+deviceInfo+'</span></td>';
 						rows += '<td data-label="'+adminText('admin.sessions.status')+'"><span class="active-session-status is-'+session.status+'" title="'+sessionAttribute(statusTitle)+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+'</span></span>'+(session.revocation_target_id?'<button type="button" class="active-session-revoke" data-revocation-target="'+sessionAttribute(session.revocation_target_id)+'"><i class="fa fa-ban" aria-hidden="true"></i> '+adminText('admin.sessions.revoke')+'</button>':'')+'</td>';
@@ -8803,17 +8809,25 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         color: #405066;
       }
 
-      #tab_active_sessions .active-session-user-card > i {
-        flex: 0 0 28px;
-        width: 28px;
-        height: 28px;
-        margin: 1px 9px 0 0;
-        border-radius: 8px;
+      #tab_active_sessions .active-session-avatar {
+        flex: 0 0 34px;
+        width: 34px;
+        height: 34px;
+        padding: 2px;
+        margin: 0 9px 0 0;
+        overflow: hidden;
+        border: 1px solid #d7e7f1;
+        border-radius: 11px;
         background: #edf6fb;
-        color: #168fcb;
-        font-size: 13px;
-        line-height: 28px;
-        text-align: center;
+        box-shadow: 0 2px 7px rgba(28, 73, 105, .10);
+      }
+
+      #tab_active_sessions .active-session-avatar img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border-radius: 8px;
+        object-fit: cover;
       }
 
       #tab_active_sessions .active-session-user-copy {
