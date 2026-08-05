@@ -6328,20 +6328,20 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
   renderReleaseNotes();
       </script>
       <script
-         src="../assetsM/js/user-mfa-admin-policy.js?v=20260730-1"
+         src="../assetsM/js/user-mfa-admin-policy.js?v=20260805-1"
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"></script>
       <script
-         src="../assetsM/js/user-2fa-category-policy.js?v=20260730-1"
+         src="../assetsM/js/user-2fa-category-policy.js?v=20260805-1"
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"
          data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=configuration_user_mfa_category"></script>
       <script
-         src="../assetsM/js/user-2fa-temporary-exemption.js?v=20260731-1"
+         src="../assetsM/js/user-2fa-temporary-exemption.js?v=20260805-1"
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"
          data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=configuration_user_mfa_exemption"></script>
-      <script src="../assetsM/js/login-banner-admin.js?v=20260801-1"></script>
+      <script src="../assetsM/js/login-banner-admin.js?v=20260805-1"></script>
       <style>
          #the-basics .tt-dropdown-menu {
          max-height: 150px;
