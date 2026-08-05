@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.7.4' =>
+  array (
+    'version' => '2.7.4',
+    'date' => '2026-08-05',
+    'bm' =>
+    array (
+      0 => 'Active Sessions Administrator direka semula kepada jadual empat kolum yang lebih padat dengan carian, filter lifecycle, metrik status dan pagination 10 rekod secara default.',
+      1 => 'Administrator boleh membatalkan sesi Due atau Expired melalui aliran Preview dan Apply yang memerlukan Step-Up, sebab pentadbiran serta exact confirmation.',
+      2 => 'Pembatalan sesi menggunakan opaque one-use target, transaction tepat, perlindungan self-lockout dan audit correlation supaya sesi tidak boleh ditamatkan sewenang-wenangnya.',
+      3 => 'Centralized return-context memulihkan tab dan subtab Administrator yang tepat selepas Step-Up sebelum transaksi Preview atau Apply disambung semula.',
+      4 => 'Audit Log kini memuat rekod tarikh hari ini secara automatik apabila tab dibuka tanpa menunggu Administrator menekan Search.',
+      5 => 'Kad profil Administrator menggunakan cover OneID, badge peranan, foto bulat, nama, nombor staf, jabatan, jawatan dan pemilih bahasa dalam susun atur profesional.',
+      6 => 'Foto profil Administrator dan pengguna Active Sessions dimuat melalui resolver OneID same-origin yang berkongsi sumber Staff dan Pelajar serta fallback tempatan.',
+      7 => 'Resolver foto pengguna lain hanya tersedia kepada Administrator dengan sesi SSO aktif, ID tervalidasi, HTTPS, semakan TLS, timeout, had saiz dan pengesahan MIME.',
+      8 => 'Dashboard pengguna kini memaparkan badge peranan PENGGUNA atau USER mengikut bahasa dengan gaya visual yang selaras dengan kad Administrator.',
+      9 => 'Contract multilingual, profile photo, Active Sessions, controlled revocation dan return-context telah disahkan lulus sebelum deployment staging.',
+    ),
+    'en' =>
+    array (
+      0 => 'Administrator Active Sessions has been redesigned as a compact four-column table with search, lifecycle filters, status metrics and 10-row pagination by default.',
+      1 => 'Administrators can revoke Due or Expired sessions through a Preview and Apply flow that requires Step-Up, an administrative reason and exact confirmation.',
+      2 => 'Session revocation uses an opaque one-use target, an exact transaction, self-lockout protection and correlation auditing so sessions cannot be ended arbitrarily.',
+      3 => 'Centralized return context restores the exact Administrator tab and subtab after Step-Up before the Preview or Apply transaction resumes.',
+      4 => 'Audit Log now loads records for today automatically when its tab opens without waiting for the Administrator to press Search.',
+      5 => 'The Administrator profile card now uses a OneID cover, role badge, circular photo, name, staff number, department, position and language selector in a professional layout.',
+      6 => 'Administrator and Active Sessions profile photos are loaded through a same-origin OneID resolver that shares Staff and Student sources with a local fallback.',
+      7 => 'Resolving another user photo is limited to Administrators with an active SSO session, validated IDs, HTTPS, TLS checks, timeouts, size limits and MIME validation.',
+      8 => 'The user dashboard now displays a localized PENGGUNA or USER role badge with a visual style aligned to the Administrator card.',
+      9 => 'Multilingual, profile photo, Active Sessions, controlled revocation and return-context contracts were verified before staging deployment.',
+    ),
+  ),
   'release-2.7.3' =>
   array (
     'version' => '2.7.3',
