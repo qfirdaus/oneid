@@ -1,50 +1,92 @@
 .oneid-admin-profile-card {
   overflow: hidden;
-  background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+  border-radius: 4px 4px 0 0;
+  background: #fff;
+}
+
+.oneid-admin-profile-cover {
+  position: relative;
+  min-height: 196px;
+  overflow: hidden;
+  background: #d7e8ef url("../../img/gallery/mock8.png") center center / cover no-repeat;
+}
+
+.oneid-admin-profile-cover::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(12, 46, 71, .08), transparent 48%);
+  content: "";
+  pointer-events: none;
+}
+
+.oneid-admin-role-badge {
+  position: absolute;
+  z-index: 1;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 31px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, .58);
+  border-radius: 16px;
+  background: rgba(20, 66, 94, .88);
+  box-shadow: 0 6px 16px rgba(21, 55, 78, .18);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  gap: 7px;
+  letter-spacing: .075em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.oneid-admin-role-badge i {
+  color: #70d8ff;
+  font-size: 12px;
 }
 
 .oneid-admin-profile-card .oneid-admin-profile-identity {
-  display: flex;
-  align-items: center;
+  position: relative;
+  display: block;
   min-width: 0;
-  padding: 22px 20px 17px;
+  padding: 0 24px 23px;
   margin: 0;
-  text-align: left;
+  text-align: center;
 }
 
 .oneid-admin-profile-photo-wrap {
   position: relative;
-  display: inline-block;
-  flex: 0 0 76px;
-  width: 76px;
-  height: 76px;
-  padding: 3px;
-  margin: 0 15px 0 0;
-  border: 1px solid #dbe8f0;
-  border-radius: 21px;
+  display: block;
+  width: 118px;
+  height: 118px;
+  padding: 4px;
+  margin: -59px auto 30px;
+  border: 4px solid #ff6028;
+  border-radius: 50%;
   background: #fff;
-  box-shadow: 0 9px 24px rgba(29, 75, 108, .16);
+  box-shadow: 0 8px 22px rgba(28, 55, 76, .22);
 }
 
 .oneid-admin-profile-photo {
   display: block;
   width: 100%;
   height: 100%;
-  border-radius: 17px;
+  border-radius: 50%;
   background: #edf4f8;
   object-fit: cover;
 }
 
 .oneid-admin-profile-online {
   position: absolute;
-  right: -1px;
-  bottom: 3px;
-  width: 14px;
-  height: 14px;
+  right: 3px;
+  bottom: 8px;
+  width: 16px;
+  height: 16px;
   border: 3px solid #fff;
   border-radius: 50%;
   background: #1dbf73;
-  box-shadow: 0 2px 5px rgba(29, 191, 115, .3);
+  box-shadow: 0 2px 6px rgba(29, 191, 115, .35);
 }
 
 .oneid-admin-profile-details {
@@ -55,51 +97,40 @@
 .oneid-admin-profile-card h5 {
   display: -webkit-box;
   max-width: 100%;
-  margin: 0 0 7px;
+  margin: 0 0 5px;
   overflow: hidden;
-  color: #23364b;
-  font-size: 15px;
+  color: #1d2f43;
+  font-size: 14px;
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.oneid-admin-profile-department,
+.oneid-admin-profile-position {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.45;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
 
 .oneid-admin-profile-department {
-  display: -webkit-box;
-  margin-top: 3px;
-  overflow: hidden;
-  color: #6f7f91;
-  font-size: 11px;
-  line-height: 1.35;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  margin-top: 2px;
+  color: #687b8e;
 }
 
 .oneid-admin-profile-position {
-  display: -webkit-box;
-  margin-top: 5px;
-  overflow: hidden;
-  color: #455b72;
-  font-size: 11px;
+  margin-top: 2px;
+  color: #4e6277;
   font-weight: 500;
-  line-height: 1.35;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
-.oneid-admin-profile-language-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 8px 20px;
-  border-top: 1px solid #edf1f5;
-  background: #f8fafc;
-}
-
-.oneid-admin-profile-card .profile-locale-switcher {
-  margin: 0;
+.oneid-admin-profile-card .oneid-admin-profile-language {
+  width: max-content;
+  margin: 17px auto 0;
 }
 
 .oneid-admin-profile-card .oneid-admin-profile-stats {
@@ -126,7 +157,12 @@
 }
 
 @media (max-width: 767px) {
-  .oneid-admin-profile-card .oneid-admin-profile-identity {
-    padding: 20px 18px 16px;
+  .oneid-admin-profile-cover {
+    min-height: 175px;
+  }
+
+  .oneid-admin-role-badge {
+    top: 12px;
+    right: 12px;
   }
 }

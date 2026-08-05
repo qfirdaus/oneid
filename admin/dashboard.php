@@ -77,7 +77,7 @@
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-login-banner-admin.css?v=20260801-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-configuration-navigation.css?v=20260801-1" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-admin-profile.css?v=20260805-2" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-admin-profile.css?v=20260805-3" rel="stylesheet" type="text/css">
    </head>
    <body>
       <!--Preloader-->
@@ -1171,30 +1171,16 @@
                   <div class="col-sm-4">
                      <div class="row">
                         <div class="col-sm-12">
-                           <div class="panel panel-default card-view bg-twitter">
-                              <div class="panel-heading">
-                                 <div class="text-center">
-                                    <h6 class="panel-title txt-light "><?=htmlspecialchars(oneid_translate('admin.role'), ENT_QUOTES, 'UTF-8')?></h6>
-                                 </div>
-                                 <div class="clearfix"></div>
-                              </div>
-                              <div class="panel-wrapper collapse in">
-                                 <div  class="panel-body row pa-0">
-                                    <!--Instagram-->
-                                    <ul class="instagram-lite"></ul>
-                                    <!--/Instagram-->
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                        <div class="col-sm-12">
                            <div class="panel panel-default card-view  pa-0">
                               <div class="panel-wrapper collapse in">
                                  <div class="panel-body  pa-0">
                                     <div class="profile-box oneid-admin-profile-card">
-                                       <div class="profile-info oneid-admin-profile-identity">
+                                       <div class="oneid-admin-profile-cover">
+                                          <span class="oneid-admin-role-badge"><i class="fa fa-shield" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('admin.role'), ENT_QUOTES, 'UTF-8')?></span>
+                                       </div>
+                                       <div class="profile-info oneid-admin-profile-identity text-center">
                                           <span class="oneid-admin-profile-photo-wrap">
-                                             <img class="oneid-admin-profile-photo" src="../page/profile-photo.php" alt="<?=htmlspecialchars(oneid_translate('dashboard.profile_photo'), ENT_QUOTES, 'UTF-8')?>" width="70" height="70">
+                                             <img class="oneid-admin-profile-photo" src="../page/profile-photo.php" alt="<?=htmlspecialchars(oneid_translate('dashboard.profile_photo'), ENT_QUOTES, 'UTF-8')?>" width="108" height="108">
                                              <span class="oneid-admin-profile-online" aria-hidden="true"></span>
                                           </span>
                                           <span class="oneid-admin-profile-details">
@@ -1202,9 +1188,7 @@
                                              <span class="oneid-admin-profile-department"><?=htmlspecialchars(trim((string) ($admin_user_info['data6'] ?? '')), ENT_QUOTES, 'UTF-8')?></span>
                                              <span class="oneid-admin-profile-position"><?=htmlspecialchars(trim((string) ($admin_user_info['data7'] ?? '')), ENT_QUOTES, 'UTF-8')?></span>
                                           </span>
-                                       </div>
-                                       <div class="oneid-admin-profile-language-row">
-                                          <nav class="profile-locale-switcher" aria-label="<?=htmlspecialchars(oneid_translate('login.language_label'), ENT_QUOTES, 'UTF-8')?>">
+                                          <nav class="profile-locale-switcher oneid-admin-profile-language" aria-label="<?=htmlspecialchars(oneid_translate('login.language_label'), ENT_QUOTES, 'UTF-8')?>">
                                              <i class="fa fa-globe" aria-hidden="true"></i>
                                              <a class="<?=oneid_current_locale() === 'ms' ? 'is-active' : ''?>" href="?locale=ms" lang="ms" hreflang="ms" title="Bahasa Melayu" aria-label="Bahasa Melayu" aria-current="<?=oneid_current_locale() === 'ms' ? 'true' : 'false'?>">BM</a>
                                              <a class="<?=oneid_current_locale() === 'en' ? 'is-active' : ''?>" href="?locale=en" lang="en" hreflang="en" title="English" aria-label="English" aria-current="<?=oneid_current_locale() === 'en' ? 'true' : 'false'?>">EN</a>
