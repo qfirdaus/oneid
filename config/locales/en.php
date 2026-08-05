@@ -323,6 +323,8 @@ return [
     'admin.sessions.apply_filters' => 'Apply session filters',
     'admin.sessions.issued' => 'Issued At',
     'admin.sessions.heartbeat' => 'Last Heartbeat',
+    'admin.sessions.activity' => 'Session Activity',
+    'admin.sessions.user_id' => 'User ID',
     'admin.sessions.user' => 'User',
     'admin.sessions.device' => 'Device',
     'admin.sessions.status' => 'Status',

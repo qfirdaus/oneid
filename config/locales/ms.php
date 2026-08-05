@@ -323,6 +323,8 @@ return [
     'admin.sessions.apply_filters' => 'Gunakan penapis sesi',
     'admin.sessions.issued' => 'Dikeluarkan pada',
     'admin.sessions.heartbeat' => 'Aktiviti terakhir',
+    'admin.sessions.activity' => 'Aktiviti sesi',
+    'admin.sessions.user_id' => 'ID pengguna',
     'admin.sessions.user' => 'Pengguna',
     'admin.sessions.device' => 'Peranti',
     'admin.sessions.status' => 'Status',

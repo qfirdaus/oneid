@@ -1473,24 +1473,22 @@
                                                             <div class="active-session-table-wrap">
                                                                <table class="table active-session-table mb-0">
                                                                   <colgroup>
-                                                                     <col class="active-col-issued">
-                                                                     <col class="active-col-activity">
                                                                      <col class="active-col-user">
+                                                                     <col class="active-col-activity">
                                                                      <col class="active-col-device">
                                                                      <col class="active-col-status">
                                                                   </colgroup>
                                                                   <thead>
                                                                      <tr>
-                                                                        <th scope="col"><?=htmlspecialchars(oneid_translate('admin.sessions.issued'), ENT_QUOTES, 'UTF-8')?></th>
-                                                                        <th scope="col"><?=htmlspecialchars(oneid_translate('admin.sessions.heartbeat'), ENT_QUOTES, 'UTF-8')?></th>
                                                                         <th scope="col"><?=htmlspecialchars(oneid_translate('admin.sessions.user'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                        <th scope="col"><?=htmlspecialchars(oneid_translate('admin.sessions.activity'), ENT_QUOTES, 'UTF-8')?></th>
                                                                         <th scope="col"><?=htmlspecialchars(oneid_translate('admin.sessions.device'), ENT_QUOTES, 'UTF-8')?></th>
                                                                         <th scope="col"><?=htmlspecialchars(oneid_translate('admin.sessions.status'), ENT_QUOTES, 'UTF-8')?></th>
                                                                      </tr>
                                                                   </thead>
                                                                   <tbody id="security_tab_session">
                                                                      <tr class="active-session-state-row is-loading">
-                                                                        <td colspan="5">
+                                                                        <td colspan="4">
                                                                            <span class="active-session-state-icon"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>
                                                                            <strong><?=htmlspecialchars(oneid_translate('admin.sessions.loading'), ENT_QUOTES, 'UTF-8')?></strong>
                                                                            <small><?=htmlspecialchars(oneid_translate('admin.sessions.loading_help'), ENT_QUOTES, 'UTF-8')?></small>
@@ -5574,7 +5572,7 @@
 				render_active_session_metrics({});
 				$('#app_security_session_list').show();
 				$('#security_tab_session').html(
-					'<tr class="active-session-state-row is-loading"><td colspan="5">' +
+					'<tr class="active-session-state-row is-loading"><td colspan="4">' +
 					'<span class="active-session-state-icon"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>' +
 					'<strong>'+adminText('admin.sessions.loading')+'</strong>' +
 					'<small>'+adminText('admin.sessions.loading_help')+'</small>' +
@@ -5594,7 +5592,7 @@
 					$('#active_session_count').text('\u2014');
 					$('#active_session_pagination').html('');
 					render_active_session_metrics({});
-					$tbody.html('<tr class="active-session-state-row is-error"><td colspan="5"><span class="active-session-state-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span><strong>'+adminText('admin.sessions.unable')+'</strong><small>' + sessionText(response && response.code ? response.code : adminText('admin.sessions.retry')) + '</small></td></tr>');
+					$tbody.html('<tr class="active-session-state-row is-error"><td colspan="4"><span class="active-session-state-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span><strong>'+adminText('admin.sessions.unable')+'</strong><small>' + sessionText(response && response.code ? response.code : adminText('admin.sessions.retry')) + '</small></td></tr>');
 					return;
 				}
 				var sessions = response.data;
@@ -5602,7 +5600,7 @@
 				if (sessions.length === 0) {
 					$('#active_session_count').text('0');
 					$tbody.html(
-						'<tr class="active-session-state-row"><td colspan="5">' +
+						'<tr class="active-session-state-row"><td colspan="4">' +
 						'<span class="active-session-state-icon"><i class="fa fa-user-times" aria-hidden="true"></i></span>' +
 						'<strong>'+adminText('admin.sessions.empty')+'</strong>' +
 						'<small>'+adminText('admin.sessions.empty_help')+'</small>' +
@@ -5631,9 +5629,8 @@
 						}
 
 						rows += '<tr>';
-						rows += '<td data-label="'+adminText('admin.sessions.issued')+'"><span class="active-session-cell active-session-time" title="'+sessionAttribute(issuedAt)+'">'+issuedAt+'</span></td>';
-						rows += '<td data-label="'+adminText('admin.sessions.heartbeat')+'"><span class="active-session-cell active-session-time" title="'+sessionAttribute(lastActivity)+'">'+lastActivity+'</span></td>';
-						rows += '<td data-label="'+adminText('admin.sessions.user')+'"><span class="active-session-cell active-session-user" title="'+sessionAttribute(userName+' ('+userId+')')+'"><i class="fa fa-user-circle-o" aria-hidden="true"></i><span>'+userName+'</span></span></td>';
+						rows += '<td data-label="'+adminText('admin.sessions.user')+'"><span class="active-session-user-card" title="'+sessionAttribute(userName+' ('+userId+')')+'"><i class="fa fa-user-circle-o" aria-hidden="true"></i><span class="active-session-user-copy"><strong>'+userName+'</strong><small><span>'+adminText('admin.sessions.user_id')+'</span>'+userId+'</small></span></span></td>';
+						rows += '<td data-label="'+adminText('admin.sessions.activity')+'"><span class="active-session-timeline"><span><small>'+adminText('admin.sessions.issued')+'</small><time title="'+sessionAttribute(issuedAt)+'">'+issuedAt+'</time></span><span><small>'+adminText('admin.sessions.heartbeat')+'</small><time title="'+sessionAttribute(lastActivity)+'">'+lastActivity+'</time></span></span></td>';
 						rows += '<td data-label="'+adminText('admin.sessions.device')+'"><span class="active-session-cell active-session-device" title="'+sessionAttribute(deviceInfo)+'"><i class="fa fa-desktop" aria-hidden="true"></i>'+deviceInfo+'</span></td>';
 						rows += '<td data-label="'+adminText('admin.sessions.status')+'"><span class="active-session-status is-'+session.status+'" title="'+sessionAttribute(statusTitle)+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+'</span></span></td>';
 						rows += '</tr>';
@@ -5649,7 +5646,7 @@
 						$('#active_session_pagination').html('');
 						render_active_session_metrics({});
 						$('#security_tab_session').html(
-							'<tr class="active-session-state-row is-error"><td colspan="5">' +
+							'<tr class="active-session-state-row is-error"><td colspan="4">' +
 							'<span class="active-session-state-icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>' +
 							'<strong>'+adminText('admin.sessions.unable')+'</strong>' +
 							'<small>'+adminText('admin.sessions.retry')+'</small>' +
@@ -8672,14 +8669,13 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         border-collapse: collapse;
       }
 
-      #tab_active_sessions .active-col-issued { width: 16%; }
-      #tab_active_sessions .active-col-activity { width: 16%; }
-      #tab_active_sessions .active-col-user { width: 24%; }
-      #tab_active_sessions .active-col-device { width: 27%; }
-      #tab_active_sessions .active-col-status { width: 17%; }
+      #tab_active_sessions .active-col-user { width: 28%; }
+      #tab_active_sessions .active-col-activity { width: 31%; }
+      #tab_active_sessions .active-col-device { width: 26%; }
+      #tab_active_sessions .active-col-status { width: 15%; }
 
       #tab_active_sessions .active-session-table thead th {
-        padding: 13px 15px;
+        padding: 11px 14px;
         border: 0;
         border-bottom: 1px solid #e8ecf1;
         background: #f8fafc;
@@ -8694,13 +8690,13 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_active_sessions .active-session-table tbody td {
-        padding: 16px 15px;
+        padding: 11px 14px;
         overflow: hidden;
         border: 0;
         border-bottom: 1px solid #edf0f4;
         color: #596678;
         font-size: 12px;
-        line-height: 1.5;
+        line-height: 1.35;
         text-align: left;
         vertical-align: top;
         white-space: nowrap;
@@ -8729,22 +8725,102 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         text-align: center;
       }
 
-      #tab_active_sessions .active-session-time,
-      #tab_active_sessions .active-session-user {
-        color: #405066;
-        font-weight: 500;
-      }
-
-      #tab_active_sessions .active-session-user {
+      #tab_active_sessions .active-session-user-card {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
+        min-width: 0;
+        color: #405066;
       }
 
-      #tab_active_sessions .active-session-user > span {
+      #tab_active_sessions .active-session-user-card > i {
+        flex: 0 0 28px;
+        width: 28px;
+        height: 28px;
+        margin: 1px 9px 0 0;
+        border-radius: 8px;
+        background: #edf6fb;
+        color: #168fcb;
+        font-size: 13px;
+        line-height: 28px;
+        text-align: center;
+      }
+
+      #tab_active_sessions .active-session-user-copy {
+        display: block;
         min-width: 0;
+      }
+
+      #tab_active_sessions .active-session-user-copy strong,
+      #tab_active_sessions .active-session-user-copy small {
+        display: block;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+      }
+
+      #tab_active_sessions .active-session-user-copy strong {
+        margin-bottom: 3px;
+        color: #34465b;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      #tab_active_sessions .active-session-user-copy small {
+        color: #748094;
+        font-size: 10px;
+      }
+
+      #tab_active_sessions .active-session-user-copy small span {
+        margin-right: 5px;
+        color: #97a2b0;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+      }
+
+      #tab_active_sessions .active-session-timeline {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      #tab_active_sessions .active-session-timeline > span {
+        min-width: 0;
+        padding-left: 9px;
+        border-left: 2px solid #dceaf2;
+      }
+
+      #tab_active_sessions .active-session-timeline small,
+      #tab_active_sessions .active-session-timeline time {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      #tab_active_sessions .active-session-timeline small {
+        margin-bottom: 3px;
+        color: #8a96a5;
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: .035em;
+        text-transform: uppercase;
+      }
+
+      #tab_active_sessions .active-session-timeline time {
+        color: #405066;
+        font-size: 10px;
+        font-variant-numeric: tabular-nums;
+        font-weight: 500;
+      }
+
+      #tab_active_sessions .active-session-device {
+        display: -webkit-box;
+        line-height: 1.4;
+        white-space: normal;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
       }
 
       #tab_active_sessions .active-session-status {
@@ -8927,6 +9003,11 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
           font-weight: 700;
           letter-spacing: .05em;
           text-transform: uppercase;
+        }
+
+        #tab_active_sessions .active-session-timeline {
+          grid-template-columns: 1fr;
+          gap: 7px;
         }
       }
 
