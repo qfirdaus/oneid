@@ -18,6 +18,7 @@ $checks=[
     'token_secrecy'=>str_contains($ui,'revocation_target_id')&&!str_contains($ui,'internal_token_id'),
     'targeted_transaction'=>str_contains($db,'admin_session_revocation_target_for_update')&&str_contains($db,'admin_revoke_exact_session'),
     'ui_pilot'=>str_contains($ui,'active-session-revoke')&&str_contains($ui,'admin_preview_active_session_revocation'),
+    'guided_confirmation_ui'=>str_contains($ui,'as3-reason-chip')&&str_contains($ui,'data-as3-confirmation')&&str_contains($ui,"confirmation!==phrase")&&str_contains($ui,'show_active_session_revocation_modal'),
     'audit_event'=>is_file($root.'/docs/migrations/20260805_as3_session_revocation_audit_event_up.sql'),
 ];
 $failed=array_keys(array_filter($checks,fn($value)=>!$value));

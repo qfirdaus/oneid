@@ -2,21 +2,14 @@
 require_once __DIR__.'/../lib/session_security.php'; oneid_start_secure_session();
 require_once __DIR__.'/../lib/config.php'; require_once __DIR__.'/../lib/SSO_IDP_INC.php';
 require_once __DIR__.'/../lib/request_security.php'; oneid_require_admin_page(); oneid_require_active_sso_page($operation);
+require_once __DIR__.'/../app/Auth/AdminStepUpReturnContext.php';
 $purpose=strtoupper((string)($_GET['purpose']??'ADMIN_ACCESS'));
 if(!in_array($purpose,['ADMIN_ACCESS','SECURITY_CONFIGURATION_CHANGE','ACTIVE_SESSION_REVOCATION'],true)){$purpose='ADMIN_ACCESS';}
 $enrollmentIntent=$purpose==='SECURITY_CONFIGURATION_CHANGE'&&($_GET['intent']??'')==='totp_enroll';
 $resetIntent=$purpose==='SECURITY_CONFIGURATION_CHANGE'&&($_GET['intent']??'')==='totp_reset';
 $setupMode=$purpose==='SECURITY_CONFIGURATION_CHANGE'&&($_GET['setup']??'')==='totp';
 $returnTarget=(string)($_GET['return']??'');
-$successRedirect=match($returnTarget){
-  'admin_2fa'=>APP_URL.'/admin/dashboard?configuration=admin_2fa',
-  'account_recovery'=>APP_URL.'/admin/dashboard?configuration=account_recovery',
-  'admin_locale'=>APP_URL.'/admin/dashboard?configuration=admin_locale',
-  'user_mfa_policy'=>APP_URL.'/admin/dashboard?configuration=user_mfa_policy',
-  'admin_metadata'=>APP_URL.'/admin/dashboard?metadata=1',
-  'active_sessions'=>APP_URL.'/admin/dashboard?active_sessions=1',
-  default=>APP_URL.'/admin/dashboard',
-};
+$successRedirect=\OneId\App\Auth\AdminStepUpReturnContext::redirectUrl($returnTarget);
 $existingGrant=oneid_admin_step_up_decision($operation,$purpose);
 if(!$setupMode&&($existingGrant['allowed']??false)&&($existingGrant['reason']??'')==='STEP_UP_GRANTED'){header('Location: '.($enrollmentIntent?APP_URL.'/page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&setup=totp&intent=totp_enroll':($resetIntent?APP_URL.'/page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&setup=totp&intent=totp_reset':$successRedirect)),true,302);exit;}
 $h=static fn(string $key):string=>htmlspecialchars(oneid_translate($key),ENT_QUOTES,'UTF-8');

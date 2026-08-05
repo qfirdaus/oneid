@@ -3,6 +3,14 @@
 **Tarikh:** 5 Ogos 2026
 **Status:** CODE COMPLETE / DEFAULT OFF / STAGING ACTIVATION PENDING
 
+> **UAT finding 5 Ogos 2026:** Revocation berjaya, tetapi return selepas Step-Up
+> tidak membuka semula tab Active Sessions sebelum pending preview di-resume.
+> Isu ini dan flow lain yang berkaitan direkod dalam
+> `AUDIT_ADMIN_STEP_UP_RETURN_CONTEXT_20260805.md`. Enforcement revocation kekal
+> sah. Centralized return-context remediation kini telah dibina; staging UAT
+> perlu mengesahkan tab Active Sessions dibuka dan listing selesai refresh
+> sebelum pending preview disambung.
+
 ## Skop Yang Dibina
 
 - single-session revoke bagi state `Due` atau `Expired` sahaja;
@@ -11,6 +19,9 @@
 - exact-purpose grant `ACTIVE_SESSION_REVOCATION` wajib dan Admin 2FA mesti ON;
 - current session, target Administrator, state lain, revoke-all dan bulk block;
 - mandatory reason 10–250 aksara dan exact typed confirmation;
+- guided modal menyediakan empat alasan lazim yang boleh mengisi textarea dan
+  frasa confirmation yang boleh diklik untuk mengisi input; Apply masih perlu
+  ditekan secara eksplisit dan server tetap memvalidasi reason/phrase;
 - re-query `FOR UPDATE`, fingerprint stale check dan exact `status=1 → 0`;
 - audit event 66 dalam transaction yang sama; dan
 - exact reconciliation `requested=matched=revoked=audited=1`.

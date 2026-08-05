@@ -167,6 +167,7 @@
       var pending = restorePending();
       renderCategory();
       setLoading(false);
+      if (pending && window.oneidStepUpContextReady !== 'configuration_user_mfa_category') return;
       if (pending) {
         var target = sessionStorage.getItem('oneid_user_2fa_category_enabled') === '1';
         if (target !== Boolean(policies[selectedCategory()].enabled)) {
@@ -269,5 +270,8 @@
   document.addEventListener('shown.bs.tab', function (event) {
     if (event.target && ['#configuration_user_mfa', '#user_2fa_category_panel']
       .indexOf(event.target.getAttribute('href')) !== -1) load();
+  });
+  document.addEventListener('oneid:step-up-context-ready', function (event) {
+    if (event.detail && event.detail.context === 'configuration_user_mfa_category') load();
   });
 }());

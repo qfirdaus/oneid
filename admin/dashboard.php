@@ -6,6 +6,7 @@
    require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
    require_once __DIR__ . '/../lib/request_security.php';
    require_once __DIR__ . '/../app/Documentation/ApprovedReleaseCatalogue.php';
+   require_once __DIR__ . '/../app/Auth/AdminStepUpReturnContext.php';
    oneid_require_admin_page();
    oneid_require_active_sso_page($operation);
    oneid_require_admin_step_up($operation, 'ADMIN_ACCESS', false);
@@ -1532,7 +1533,7 @@
                                                             <form class="audit-filter-form" onsubmit="search_audit_date_range(); return false;">
                                                                <div class="audit-date-input-wrap">
                                                                   <i class="fa fa-calendar-o" aria-hidden="true"></i>
-                                                                  <input class="form-control input-daterange-datepicker" type="text" id="audit_search_daterange" name="audit_search_daterange" value="01/01/2016 - 31/01/2016" aria-label="<?=htmlspecialchars(oneid_translate('admin.audit.date_aria'), ENT_QUOTES, 'UTF-8')?>"/>
+                                                                  <input class="form-control input-daterange-datepicker" type="text" id="audit_search_daterange" name="audit_search_daterange" value="<?=htmlspecialchars(date('d/m/Y').' - '.date('d/m/Y'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('admin.audit.date_aria'), ENT_QUOTES, 'UTF-8')?>"/>
                                                                </div>
                                                                <button type="submit" class="audit-search-button" aria-label="<?=htmlspecialchars(oneid_translate('admin.audit.search'), ENT_QUOTES, 'UTF-8')?>" title="<?=htmlspecialchars(oneid_translate('admin.audit.search'), ENT_QUOTES, 'UTF-8')?>">
                                                                   <i class="fa fa-search" aria-hidden="true"></i>
@@ -1934,7 +1935,7 @@
                                                             </div>
                                                          </section>
                                                          <section class="tab-pane fade" id="configuration_login_banner" role="tabpanel" aria-labelledby="configuration_login_banner_tab">
-                                                            <div class="sso-config-panel login-banner-admin" data-api="../lib/q_func" data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>" data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=login_banner">
+                                                            <div class="sso-config-panel login-banner-admin" data-api="../lib/q_func" data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>" data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=configuration_login_banner">
                                                                <div class="sso-config-header">
                                                                   <div><span class="sso-config-eyebrow"><?=htmlspecialchars(oneid_translate('admin.banner.eyebrow'), ENT_QUOTES, 'UTF-8')?></span><h4 class="sso-config-title"><?=htmlspecialchars(oneid_translate('admin.banner.title'), ENT_QUOTES, 'UTF-8')?></h4><p class="sso-config-intro"><?=htmlspecialchars(oneid_translate('admin.banner.intro'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                                   <button type="button" class="sso-config-save" id="login_banner_refresh"><i class="fa fa-refresh"></i><span><?=htmlspecialchars(oneid_translate('admin.common.refresh'), ENT_QUOTES, 'UTF-8')?></span></button>
@@ -2375,7 +2376,7 @@
                if(xhr.status===403&&(response.code==='STEP_UP_REQUIRED'||response.code==='STEP_UP_EXPIRED'||response.code==='STEP_UP_PURPOSE_MISMATCH')){
                   sessionStorage.setItem('oneid_ml5_default_locale',locale);
                   sessionStorage.setItem('oneid_ml5_default_locale_reason',reason);
-                  window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_locale';
+                  window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=configuration_locale';
                   return;
                }
                $('#system_default_locale_status').text(localizedResponseMessage(response,adminI18n.localeFailed));
@@ -2429,37 +2430,41 @@
                 $('#tab_settings .user-2fa-subtabs a[data-toggle="tab"]').attr('aria-selected', 'false');
                 $(event.target).attr('aria-selected', 'true');
              });
-             var requestedConfiguration=new URLSearchParams(window.location.search).get('configuration');
-             if(requestedConfiguration==='admin_2fa'){
-                $('a[href="#tab_settings"]').tab('show');
-                $('#configuration_admin_2fa_tab').tab('show');
-                if(window.history&&window.history.replaceState){window.history.replaceState({},document.title,window.location.pathname);}
+             var stepUpReturnRegistry=<?php echo json_encode(\OneId\App\Auth\AdminStepUpReturnContext::registry(), JSON_UNESCAPED_SLASHES); ?>;
+             function showStepUpReturnTab(target){
+                return new Promise(function(resolve){
+                   var $link=$('a[data-toggle="tab"][href="'+target+'"]');
+                   if(!$link.length){resolve(false);return;}
+                   if($link.parent().hasClass('active')||$(target).hasClass('active')){resolve(true);return;}
+                   $link.one('shown.bs.tab.oneidReturn',function(){resolve(true);}).tab('show');
+                });
              }
-             if(requestedConfiguration==='user_mfa_policy'){
-                $('a[href="#tab_settings"]').tab('show');
-                $('#configuration_user_mfa_tab').tab('show');
-                if(window.history&&window.history.replaceState){window.history.replaceState({},document.title,window.location.pathname);}
+             async function restoreAdminStepUpReturnContext(){
+                var params=new URLSearchParams(window.location.search),context=String(params.get('step_up_return')||'');
+                var legacy=String(params.get('configuration')||'');
+                if(!context&&legacy){context={admin_2fa:'configuration_admin_2fa',account_recovery:'configuration_account_recovery',admin_locale:'configuration_locale',user_mfa_policy:'configuration_user_mfa_security'}[legacy]||'';}
+                if(!context&&params.get('metadata')==='1')context='admin_metadata';
+                var definition=stepUpReturnRegistry[context];
+                if(!definition)return;
+                if(definition.mode==='metadata'){openMetadataTranslations();}
+                else{
+                   if(!await showStepUpReturnTab(definition.primary))return;
+                   if(definition.secondary&&!await showStepUpReturnTab(definition.secondary))return;
+                   if(definition.tertiary&&!await showStepUpReturnTab(definition.tertiary))return;
+                }
+                if(context==='configuration_account_recovery'){
+                   var pendingRecoveryTest=sessionStorage.getItem('oneid_password_recovery_test_email');
+                   if(pendingRecoveryTest){$('#password_recovery_test_email').val(pendingRecoveryTest);sessionStorage.removeItem('oneid_password_recovery_test_email');swal('Pengesahan berjaya','Alamat ujian dikekalkan. Klik Send test sekali lagi untuk menghantar e-mel.','success');}
+                }
+                if(context==='configuration_locale'){
+                   $('#system_default_locale').val(sessionStorage.getItem('oneid_ml5_default_locale')||'ms');
+                   $('#system_default_locale_reason').val(sessionStorage.getItem('oneid_ml5_default_locale_reason')||'');
+                   sessionStorage.removeItem('oneid_ml5_default_locale');sessionStorage.removeItem('oneid_ml5_default_locale_reason');
+                }
+                var ready=function(){window.oneidStepUpContextReady=context;document.dispatchEvent(new CustomEvent('oneid:step-up-context-ready',{detail:{context:context}}));if(window.history&&window.history.replaceState)window.history.replaceState({},document.title,window.location.pathname);};
+                if(context==='active_sessions'){get_all_user_activ_session(1,ready);}else{ready();}
              }
-	             if(requestedConfiguration==='account_recovery'){
-                $('a[href="#tab_settings"]').tab('show');
-                $('#configuration_recovery_tab').tab('show');
-                var pendingRecoveryTest=sessionStorage.getItem('oneid_password_recovery_test_email');
-                if(pendingRecoveryTest){
-                   $('#password_recovery_test_email').val(pendingRecoveryTest);
-                   sessionStorage.removeItem('oneid_password_recovery_test_email');
-                   swal('Pengesahan berjaya','Alamat ujian dikekalkan. Klik Send test sekali lagi untuk menghantar e-mel.','success');
-	             }
-	             if(requestedConfiguration==='admin_locale'){
-	                $('a[href="#tab_settings"]').tab('show');
-	                $('#configuration_locale_tab').tab('show');
-	                $('#system_default_locale').val(sessionStorage.getItem('oneid_ml5_default_locale')||'ms');
-	                $('#system_default_locale_reason').val(sessionStorage.getItem('oneid_ml5_default_locale_reason')||'');
-	                sessionStorage.removeItem('oneid_ml5_default_locale');
-	                sessionStorage.removeItem('oneid_ml5_default_locale_reason');
-	                if(window.history&&window.history.replaceState){window.history.replaceState({},document.title,window.location.pathname);}
-	             }
-                if(window.history&&window.history.replaceState){window.history.replaceState({},document.title,window.location.pathname);}
-             }
+             restoreAdminStepUpReturnContext();
          });
          
          $('#the-basics .typeahead').typeahead(
@@ -3004,7 +3009,7 @@
                   var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';
                   if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){
                      sessionStorage.setItem('oneid_password_recovery_test_email',recipient);
-                     swal({title:adminText('admin.configuration.auth_required'),text:'Security Configuration Change',type:'warning',confirmButtonText:adminText('admin.configuration.authenticate_now'),closeOnConfirm:true},function(){window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=account_recovery';});
+                     swal({title:adminText('admin.configuration.auth_required'),text:'Security Configuration Change',type:'warning',confirmButtonText:adminText('admin.configuration.authenticate_now'),closeOnConfirm:true},function(){window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=configuration_account_recovery';});
                   }else{
                      swal('Test failed','Server request failed. HTTP '+xhr.status+(code?'\nCode: '+code:''),'error');
                   }
@@ -3031,21 +3036,23 @@
                $('#admin_mfa_enrollment_action').toggle(!r.totp_available);
                $('#admin_mfa_reset_action').toggle(Boolean(r.totp_available));
                $('#admin_mfa_preference_status').text(adminText('admin.configuration.current_factor',{factor:adminMfaPreferenceLabel(adminMfaPreferenceOriginal)}));
+               var canResumeAdmin2fa=window.oneidStepUpContextReady==='configuration_admin_2fa';
                var pendingFactor=sessionStorage.getItem('oneid_mfa_pending_factor');
-               if(adminMfaSecurityGrantValid&&(pendingFactor==='EMAIL_OTP'||(pendingFactor==='TOTP'&&r.totp_available))){$('#admin_mfa_preferred_factor').val(pendingFactor);$('#admin_mfa_preference_status').append(' Pengesahan selesai; preference sedang disimpan.');setTimeout(function(){persistAdminMfaPreference(pendingFactor);},0);}
+               if(canResumeAdmin2fa&&adminMfaSecurityGrantValid&&(pendingFactor==='EMAIL_OTP'||(pendingFactor==='TOTP'&&r.totp_available))){$('#admin_mfa_preferred_factor').val(pendingFactor);$('#admin_mfa_preference_status').append(' Pengesahan selesai; preference sedang disimpan.');setTimeout(function(){persistAdminMfaPreference(pendingFactor);},0);}
                var pendingLifetime=sessionStorage.getItem('oneid_admin_step_up_pending_lifetime'),pendingLifetimeReason=sessionStorage.getItem('oneid_admin_step_up_pending_reason');
-               if(adminMfaSecurityGrantValid&&pendingLifetime&&pendingLifetimeReason){$('#admin_step_up_lifetime_minutes').val(pendingLifetime);$('#admin_step_up_lifetime_reason').val(pendingLifetimeReason);$('#admin_step_up_lifetime_status').append(' Pengesahan selesai; polisi sedang disimpan.');setTimeout(function(){persistAdminStepUpLifetime(Number(pendingLifetime),pendingLifetimeReason);},0);}
+               if(canResumeAdmin2fa&&adminMfaSecurityGrantValid&&pendingLifetime&&pendingLifetimeReason){$('#admin_step_up_lifetime_minutes').val(pendingLifetime);$('#admin_step_up_lifetime_reason').val(pendingLifetimeReason);$('#admin_step_up_lifetime_status').append(' Pengesahan selesai; polisi sedang disimpan.');setTimeout(function(){persistAdminStepUpLifetime(Number(pendingLifetime),pendingLifetimeReason);},0);}
                $('#admin_mfa_preference_save_button').prop('disabled',false);
                $('#admin_mfa_preference_save_label').text(adminText('admin.configuration.save_preference'));
             },'json').fail(function(){adminMfaPreferenceOriginal=null;$('#admin_mfa_preference_save_label').text(adminText('admin.configuration.unavailable'));$('#admin_mfa_preference_status').text(adminText('admin.configuration.load_failed'));});
          }
+         document.addEventListener('oneid:step-up-context-ready',function(event){if(event.detail&&event.detail.context==='configuration_admin_2fa')loadAdminMfaPreference();});
          function saveAdminStepUpLifetime(){
             if(adminStepUpLifetimeOriginal===null||adminStepUpLifetimeSaving)return;
             var minutes=Number($('#admin_step_up_lifetime_minutes').val()),reason=$.trim($('#admin_step_up_lifetime_reason').val());
             if(minutes===adminStepUpLifetimeOriginal){swal('No changes','Tempoh pengesahan Administrator sudah '+minutes+' minit.','info');return;}
             if(reason.length<10){swal(adminText('admin.configuration.reason_required'),adminText('admin.configuration.reason_minimum'),'warning');return;}
             swal({title:'Ubah tempoh pengesahan?',text:'Grant baharu akan sah selama '+minutes+' minit. Grant sedia ada tidak berubah.',type:'warning',showCancelButton:true,confirmButtonText:'Save lifetime',closeOnConfirm:false},function(){
-               if(!adminMfaSecurityGrantValid){sessionStorage.setItem('oneid_admin_step_up_pending_lifetime',String(minutes));sessionStorage.setItem('oneid_admin_step_up_pending_reason',reason);window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_2fa';return;}
+            if(!adminMfaSecurityGrantValid){sessionStorage.setItem('oneid_admin_step_up_pending_lifetime',String(minutes));sessionStorage.setItem('oneid_admin_step_up_pending_reason',reason);window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=configuration_admin_2fa';return;}
                persistAdminStepUpLifetime(minutes,reason);
             });
          }
@@ -3054,13 +3061,13 @@
             $.post('../lib/q_func',{admin_2fa_update_lifetime:'',lifetime_minutes:minutes,configuration_version:adminMfaConfigurationVersion,change_reason:reason},function(r){
                if(r&&Number(r.status)===1&&(r.code==='STEP_UP_LIFETIME_UPDATED'||r.code==='STEP_UP_LIFETIME_UNCHANGED')){adminStepUpLifetimeOriginal=Number(r.lifetime_minutes);adminMfaConfigurationVersion=Number(r.configuration_version);sessionStorage.removeItem('oneid_admin_step_up_pending_lifetime');sessionStorage.removeItem('oneid_admin_step_up_pending_reason');$('#admin_step_up_lifetime_reason').val('');$('#admin_step_up_lifetime_status').text(adminText('admin.configuration.current_lifetime',{minutes:adminStepUpLifetimeOriginal}));swal(r.code==='STEP_UP_LIFETIME_UPDATED'?adminText('admin.configuration.policy_saved'):adminText('admin.configuration.no_changes'),'Reference: '+r.correlation_id,r.code==='STEP_UP_LIFETIME_UPDATED'?'success':'info');}
                else{sessionStorage.removeItem('oneid_admin_step_up_pending_lifetime');sessionStorage.removeItem('oneid_admin_step_up_pending_reason');swal('Lifetime not saved','Code: '+(r&&r.code?r.code:'STEP_UP_RESPONSE_INVALID'),'error');}
-            },'json').fail(function(xhr){var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){sessionStorage.setItem('oneid_admin_step_up_pending_lifetime',String(minutes));sessionStorage.setItem('oneid_admin_step_up_pending_reason',reason);window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_2fa';}else{sessionStorage.removeItem('oneid_admin_step_up_pending_lifetime');sessionStorage.removeItem('oneid_admin_step_up_pending_reason');swal(adminText('admin.configuration.policy_not_saved'),'HTTP '+xhr.status+(code?'\nCode: '+code:''),'error');}}).always(function(){adminStepUpLifetimeSaving=false;$('#admin_step_up_lifetime_save_button').prop('disabled',false);$('#admin_step_up_lifetime_save_label').text(adminText('admin.configuration.save_lifetime'));});
+            },'json').fail(function(xhr){var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){sessionStorage.setItem('oneid_admin_step_up_pending_lifetime',String(minutes));sessionStorage.setItem('oneid_admin_step_up_pending_reason',reason);window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=configuration_admin_2fa';}else{sessionStorage.removeItem('oneid_admin_step_up_pending_lifetime');sessionStorage.removeItem('oneid_admin_step_up_pending_reason');swal(adminText('admin.configuration.policy_not_saved'),'HTTP '+xhr.status+(code?'\nCode: '+code:''),'error');}}).always(function(){adminStepUpLifetimeSaving=false;$('#admin_step_up_lifetime_save_button').prop('disabled',false);$('#admin_step_up_lifetime_save_label').text(adminText('admin.configuration.save_lifetime'));});
          }
          function saveAdminMfaPreference(){
             if(adminMfaPreferenceOriginal===null||adminMfaPreferenceSaving)return;
             var factor=$('#admin_mfa_preferred_factor').val();
             if(factor===adminMfaPreferenceOriginal){swal('No changes','Kaedah pilihan sudah menggunakan '+adminMfaPreferenceLabel(factor)+'.','info');return;}
-            if(!adminMfaSecurityGrantValid){sessionStorage.setItem('oneid_mfa_pending_factor',factor);window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_2fa';return;}
+            if(!adminMfaSecurityGrantValid){sessionStorage.setItem('oneid_mfa_pending_factor',factor);window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=configuration_admin_2fa';return;}
             swal({title:'Simpan kaedah 2FA pilihan?',text:adminMfaPreferenceLabel(factor)+' akan dipaparkan dahulu pada pengesahan Administrator. Kaedah lain masih boleh dipilih.',type:'warning',showCancelButton:true,confirmButtonText:'Save preference',closeOnConfirm:false},function(){
                persistAdminMfaPreference(factor);
             });
@@ -3073,7 +3080,7 @@
                   else{swal('Preference not saved','Code: '+(r&&r.code?r.code:'MFA_PREFERENCE_RESPONSE_INVALID'),'error');}
                },'json').fail(function(xhr){
                   var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';
-                  if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){swal({title:'Pengesahan diperlukan',text:'Sahkan Security Configuration Change sebelum menyimpan tetapan ini.',type:'warning',confirmButtonText:'Authenticate now',closeOnConfirm:true},function(){window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_2fa';});}
+                  if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){swal({title:'Pengesahan diperlukan',text:'Sahkan Security Configuration Change sebelum menyimpan tetapan ini.',type:'warning',confirmButtonText:'Authenticate now',closeOnConfirm:true},function(){window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=configuration_admin_2fa';});}
                   else{swal('Preference not saved','Server request failed. HTTP '+xhr.status+'.','error');}
                }).always(function(){adminMfaPreferenceSaving=false;$('#admin_mfa_preference_save_button').prop('disabled',false);$('#admin_mfa_preference_save_label').text(adminText('admin.configuration.save_preference'));});
          }
@@ -5553,7 +5560,7 @@
             });
          }
 
-         function get_all_user_activ_session(page){
+         function get_all_user_activ_session(page,onLoaded){
          activeSessionPage = Number(page || activeSessionPage || 1);
          $.ajax({
           type: 'POST',
@@ -5640,6 +5647,7 @@
 					$tbody.html(rows);
 				}
 				render_active_session_pagination(response.meta);
+               if(typeof onLoaded==='function')onLoaded();
                        },
                        error: function (xhr, error, thrown) {
 						$('#active_session_count').text('\u2014');
@@ -5660,16 +5668,7 @@
             $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',headers:{'X-CSRF-Token':<?php echo json_encode(oneid_csrf_token()); ?>},data:{admin_preview_active_session_revocation:'',target_id:targetId}})
             .done(function(response){
                if(!response||Number(response.status)!==1){swal(adminText('admin.sessions.revoke_preview'),'Code: '+(response&&response.code?response.code:'AS3_PREVIEW_FAILED'),'error');return;}
-               var target=response.target||{};
-               swal({title:adminText('admin.sessions.revoke_preview'),text:String(target.name||'')+' ('+String(target.user_id||'')+')\n'+String(target.device_info||'')+'\nStatus: '+String(target.state||'')+'\n\n'+adminText('admin.sessions.reason_prompt'),type:'input',showCancelButton:true,closeOnConfirm:false,inputPlaceholder:adminText('admin.sessions.reason_prompt')},function(reason){
-                  if(reason===false)return;if(String(reason).trim().length<10){swal.showInputError(adminText('admin.sessions.reason_prompt'));return false;}
-                  swal({title:adminText('admin.sessions.confirm_prompt'),text:String(response.confirmation_phrase||''),type:'input',showCancelButton:true,closeOnConfirm:false,inputPlaceholder:String(response.confirmation_phrase||'')},function(confirmation){
-                     if(confirmation===false)return;
-                     $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',headers:{'X-CSRF-Token':<?php echo json_encode(oneid_csrf_token()); ?>},data:{admin_apply_active_session_revocation:'',approval_id:response.approval_id,reason:String(reason).trim(),confirmation:String(confirmation).trim()}})
-                     .done(function(result){if(result&&Number(result.status)===1){swal(adminText('admin.sessions.revoke'),adminText('admin.sessions.revoked')+'\nReference: '+result.correlation_id,'success');get_all_user_activ_session(activeSessionPage);}else{swal(adminText('admin.sessions.revoke'),'Code: '+(result&&result.code?result.code:'AS3_APPLY_FAILED'),'error');}})
-                     .fail(function(xhr){swal(adminText('admin.sessions.revoke'),'Code: '+(xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'AS3_APPLY_FAILED'),'error');});
-                  });
-               });
+               show_active_session_revocation_modal(response);
             }).fail(function(xhr){
                var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';
                if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){sessionStorage.setItem('oneid_as3_pending_target',targetId);window.location.href='../page/admin-step-up?purpose=ACTIVE_SESSION_REVOCATION&return=active_sessions';return;}
@@ -5677,17 +5676,66 @@
             });
          }
 
+         function show_active_session_revocation_modal(response){
+            var escape=function(value){return $('<div>').text(value==null?'':String(value)).html();};
+            var attr=function(value){return escape(value).replace(/"/g,'&quot;').replace(/'/g,'&#39;');};
+            var target=response.target||{},phrase=String(response.confirmation_phrase||'');
+            $('#active_session_revocation_modal').remove();
+            var reasons=[adminText('admin.sessions.reason_expired_cleanup'),adminText('admin.sessions.reason_user_request'),adminText('admin.sessions.reason_device_unused'),adminText('admin.sessions.reason_security_review')];
+            var chips=reasons.map(function(reason){return '<button type="button" class="as3-reason-chip" data-as3-reason="'+attr(reason)+'">'+escape(reason)+'</button>';}).join('');
+            var html='<div class="modal fade as3-revocation-modal" id="active_session_revocation_modal" tabindex="-1" role="dialog" aria-labelledby="as3_modal_title">'+
+              '<div class="modal-dialog" role="document"><div class="modal-content">'+
+              '<div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button><span class="as3-modal-eyebrow">'+escape(adminText('admin.sessions.eyebrow'))+'</span><h4 class="modal-title" id="as3_modal_title">'+escape(adminText('admin.sessions.revoke_preview'))+'</h4></div>'+
+              '<div class="modal-body"><div class="as3-target-summary"><strong>'+escape(target.name)+'</strong><span>'+escape(target.user_id)+' · '+escape(target.device_info)+'</span><span>Status: '+escape(target.state)+' · '+escape(admin_format_datetime(target.last_activity_at))+'</span></div>'+
+              '<div class="as3-field"><label for="as3_revocation_reason">'+escape(adminText('admin.sessions.reason_label'))+'</label><small>'+escape(adminText('admin.sessions.common_reasons'))+'</small><div class="as3-reason-chips">'+chips+'</div><textarea id="as3_revocation_reason" class="form-control" maxlength="250" rows="3" placeholder="'+attr(adminText('admin.sessions.reason_prompt'))+'"></textarea></div>'+
+              '<div class="as3-field"><label for="as3_revocation_confirmation">'+escape(adminText('admin.sessions.confirm_label'))+'</label><small>'+escape(adminText('admin.sessions.confirm_click_help'))+'</small><button type="button" class="as3-confirmation-phrase" data-as3-confirmation="'+attr(phrase)+'"><i class="fa fa-hand-pointer-o" aria-hidden="true"></i> '+escape(phrase)+'</button><input id="as3_revocation_confirmation" class="form-control" autocomplete="off" placeholder="'+attr(adminText('admin.sessions.confirm_prompt'))+'"></div><div class="as3-validation" role="alert" aria-live="polite"></div></div>'+
+              '<div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">'+escape(adminText('admin.banner.cancel'))+'</button><button type="button" class="btn btn-danger" id="as3_revocation_apply"><i class="fa fa-ban" aria-hidden="true"></i> '+escape(adminText('admin.sessions.apply_revoke'))+'</button></div></div></div></div>';
+            $('body').append(html);var $modal=$('#active_session_revocation_modal');
+            $modal.on('click','.as3-reason-chip',function(){$modal.find('.as3-reason-chip').removeClass('is-selected');$(this).addClass('is-selected');$('#as3_revocation_reason').val(String($(this).data('as3-reason')||'')).focus();});
+            $modal.on('click','.as3-confirmation-phrase',function(){$('#as3_revocation_confirmation').val(String($(this).data('as3-confirmation')||'')).focus();});
+            $modal.on('click','#as3_revocation_apply',function(){
+               var reason=$.trim($('#as3_revocation_reason').val()),confirmation=$.trim($('#as3_revocation_confirmation').val()),$error=$modal.find('.as3-validation');
+               if(reason.length<10){$error.text(adminText('admin.sessions.reason_prompt'));$('#as3_revocation_reason').focus();return;}
+               if(confirmation!==phrase){$error.text(adminText('admin.sessions.confirm_prompt'));$('#as3_revocation_confirmation').focus();return;}
+               $error.text('');$('#as3_revocation_apply').prop('disabled',true);
+               $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',headers:{'X-CSRF-Token':<?php echo json_encode(oneid_csrf_token()); ?>},data:{admin_apply_active_session_revocation:'',approval_id:response.approval_id,reason:reason,confirmation:confirmation}})
+               .done(function(result){if(result&&Number(result.status)===1){$modal.modal('hide');swal(adminText('admin.sessions.revoke'),adminText('admin.sessions.revoked')+'\nReference: '+result.correlation_id,'success');get_all_user_activ_session(activeSessionPage);}else{$error.text('Code: '+(result&&result.code?result.code:'AS3_APPLY_FAILED'));}})
+               .fail(function(xhr){$error.text('Code: '+(xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'AS3_APPLY_FAILED'));})
+               .always(function(){$('#as3_revocation_apply').prop('disabled',false);});
+            });
+            $modal.on('hidden.bs.modal',function(){$modal.remove();}).modal({backdrop:'static',keyboard:true,show:true});
+         }
+
          $(document).on('click', '#active_session_search_button', function(){ activeSessionPage=1;get_all_user_activ_session(1); });
          $(document).on('change', '#active_session_status, #active_session_page_size', function(){ activeSessionPage=1;get_all_user_activ_session(1); });
          $(document).on('keydown', '#active_session_query', function(event){ if(event.key === 'Enter'){event.preventDefault();activeSessionPage=1;get_all_user_activ_session(1);} });
          $(document).on('click', '#active_session_pagination button[data-active-page]', function(){ if(!this.disabled)get_all_user_activ_session($(this).data('active-page')); });
          $(document).on('click', '.active-session-revoke', function(){active_session_revocation_preview(String($(this).data('revocation-target')||''));});
-         $(function(){var pending=sessionStorage.getItem('oneid_as3_pending_target');if(pending){sessionStorage.removeItem('oneid_as3_pending_target');setTimeout(function(){active_session_revocation_preview(pending);},250);}});
+         document.addEventListener('oneid:step-up-context-ready',function(event){
+            if(!event.detail||event.detail.context!=='active_sessions')return;
+            var pending=sessionStorage.getItem('oneid_as3_pending_target');
+            if(!pending)return;
+            sessionStorage.removeItem('oneid_as3_pending_target');
+            active_session_revocation_preview(pending);
+         });
          
          
 
          var auditLogData = [];
          var AUDIT_LOG_PAGE_SIZE = 10;
+         var auditLogInitialTodayLoaded = false;
+
+         function load_audit_log_today_once(){
+            if(auditLogInitialTodayLoaded)return;
+            auditLogInitialTodayLoaded=true;
+            var today=moment().format('DD/MM/YYYY');
+            var $input=$('#audit_search_daterange'),picker=$input.data('daterangepicker');
+            $input.val(today+' - '+today);
+            if(picker){picker.setStartDate(moment());picker.setEndDate(moment());}
+            search_audit_date_range();
+         }
+
+         $('a[href="#tab_auditlog"]').on('shown.bs.tab',load_audit_log_today_once);
 
          function render_audit_pagination(currentPage, totalPages){
             if(totalPages <= 1){
@@ -6287,12 +6335,12 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          src="../assetsM/js/user-2fa-category-policy.js?v=20260730-1"
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"
-         data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=user_mfa_policy"></script>
+         data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=configuration_user_mfa_category"></script>
       <script
          src="../assetsM/js/user-2fa-temporary-exemption.js?v=20260731-1"
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"
-         data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=user_mfa_policy"></script>
+         data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=configuration_user_mfa_exemption"></script>
       <script src="../assetsM/js/login-banner-admin.js?v=20260801-1"></script>
       <style>
          #the-basics .tt-dropdown-menu {
@@ -8875,6 +8923,27 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         font-size: 9px;
         font-weight: 700;
       }
+
+      .as3-revocation-modal .modal-dialog { max-width: 620px; }
+      .as3-revocation-modal .modal-content { overflow: hidden; border: 0; border-radius: 14px; box-shadow: 0 22px 55px rgba(18,32,51,.24); }
+      .as3-revocation-modal .modal-header { padding: 22px 24px 17px; border-bottom: 1px solid #e7ebf0; background: #f8fafc; }
+      .as3-revocation-modal .modal-title { margin-top: 5px; color: #172033; font-size: 22px; font-weight: 700; }
+      .as3-modal-eyebrow { color: #9f1730; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+      .as3-revocation-modal .modal-body { padding: 22px 24px; }
+      .as3-target-summary { display: grid; gap: 4px; margin-bottom: 20px; padding: 14px 16px; border-left: 3px solid #9f1730; border-radius: 8px; background: #f7f9fc; }
+      .as3-target-summary strong { color: #27364a; font-size: 15px; }
+      .as3-target-summary span { color: #687588; font-size: 12px; }
+      .as3-field { margin-top: 18px; }
+      .as3-field label, .as3-field small { display: block; }
+      .as3-field label { margin-bottom: 4px; color: #27364a; font-size: 13px; font-weight: 700; }
+      .as3-field small { margin-bottom: 10px; color: #7c8797; }
+      .as3-reason-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; }
+      .as3-reason-chip { padding: 6px 9px; border: 1px solid #d8dfe8; border-radius: 999px; background: #fff; color: #4f5e72; font-size: 10px; font-weight: 600; }
+      .as3-reason-chip:hover, .as3-reason-chip:focus, .as3-reason-chip.is-selected { border-color: #9f1730; background: #fff2f4; color: #8c1328; }
+      .as3-confirmation-phrase { display: block; width: 100%; margin-bottom: 10px; padding: 10px 12px; border: 1px dashed #c78693; border-radius: 8px; background: #fff7f8; color: #82172a; font-family: Consolas, Monaco, monospace; font-size: 12px; text-align: left; word-break: break-word; }
+      .as3-confirmation-phrase:hover, .as3-confirmation-phrase:focus { border-style: solid; background: #fdecef; }
+      .as3-validation { min-height: 18px; margin-top: 8px; color: #a61b34; font-size: 11px; font-weight: 600; }
+      .as3-revocation-modal .modal-footer { padding: 14px 24px 20px; border-top: 0; }
 
       #tab_active_sessions .active-session-status.is-current {
         background: #e7f7ee;

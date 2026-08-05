@@ -339,6 +339,9 @@
     });
     updatePhrase();
     window.loadUser2faExemptions();
-    resume();
+    if (window.oneidStepUpContextReady === 'configuration_user_mfa_exemption') resume();
   }
+  document.addEventListener('oneid:step-up-context-ready', function (event) {
+    if (event.detail && event.detail.context === 'configuration_user_mfa_exemption') resume();
+  });
 }());

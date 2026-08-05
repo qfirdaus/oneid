@@ -13,6 +13,7 @@ $report = static function (bool $ok, string $label) use (&$checks, &$failed): vo
 };
 
 $page = file_get_contents($root . '/page/admin_step_up.php') ?: '';
+$returnContext = file_get_contents($root . '/app/Auth/AdminStepUpReturnContext.php') ?: '';
 $api = file_get_contents($root . '/lib/q_func.php') ?: '';
 $requestSecurity = file_get_contents($root . '/lib/request_security.php') ?: '';
 $sender = file_get_contents($root . '/app/Auth/AdminStepUpPhpMailerSender.php') ?: '';
@@ -52,8 +53,9 @@ $report(
     'bootstrap exact confirmation remains canonical'
 );
 $report(
-    str_contains($page, "'admin_2fa'=>APP_URL.'/admin/dashboard?configuration=admin_2fa'")
-    && str_contains($page, "default=>APP_URL.'/admin/dashboard'"),
+    str_contains($page, 'AdminStepUpReturnContext::redirectUrl')
+    && str_contains($returnContext, "'configuration_admin_2fa'")
+    && str_contains($returnContext, "return \$context === '' ? \\APP_URL.'/admin/dashboard'"),
     'return target remains server allowlisted'
 );
 $report(

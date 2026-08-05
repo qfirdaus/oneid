@@ -12,6 +12,8 @@ $report(str_contains($database,'ORDER BY A.datetime DESC,A.id DESC'),'database o
 $report(str_contains($database,'A.datetime < DATE_ADD(:date_end, INTERVAL 1 DAY)'),'selected end date includes its complete day');
 $report(str_contains($database,'LIMIT 50'),'audit query retains bounded result size');
 $report(str_contains($dashboard,'response.sort(function(a, b)')&&str_contains($dashboard,'Number(b.audit_id || 0)'),'UI applies defensive newest-first ordering');
+$report(str_contains($dashboard,'load_audit_log_today_once')&&str_contains($dashboard,"moment().format('DD/MM/YYYY')")&&!str_contains($dashboard,'01/01/2016 - 31/01/2016'),'Audit Log initializes its range to today');
+$report(str_contains($dashboard,"$('a[href=\"#tab_auditlog\"]').on('shown.bs.tab',load_audit_log_today_once)")&&str_contains($dashboard,'auditLogInitialTodayLoaded=true'),'Audit Log loads today once when its tab first becomes visible');
 
 require_once $root.'/lib/config.php';
 $operation=new Database();

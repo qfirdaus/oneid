@@ -153,6 +153,13 @@ Cadangan exact confirmation pilot:
 REVOKE SESSION <MASKED-USER-ID> <FINGERPRINT-PREFIX>
 ```
 
+**Keputusan UX owner 5 Ogos 2026:** Frasa exact boleh diklik untuk mengisi
+confirmation input dan alasan lazim boleh dipilih untuk mengisi textarea.
+Kawalan compensating dikekalkan: tiada auto-Apply, Admin masih perlu menyemak
+target dan menekan butang Apply secara eksplisit, approval kekal one-use dan
+server membandingkan phrase tepat. Ini mengutamakan ketepatan operasi berbanding
+proof-of-manual-typing; keputusan tersebut perlu diliputi staging UAT.
+
 Confirmation dijana server dan mengikat target fingerprint. Reason disyorkan
 minimum 10, maksimum 250 aksara, trim/normalize, control character ditolak dan
 tidak boleh mengandungi token/OTP.

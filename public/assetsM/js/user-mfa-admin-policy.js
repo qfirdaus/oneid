@@ -161,6 +161,10 @@
         ' | Pending challenge: ' + Number(data.pending_challenges || 0)
       );
       var target = pendingTarget();
+      if (target !== null && window.oneidStepUpContextReady !== 'configuration_user_mfa_security') {
+        setLoading(false);
+        return;
+      }
       if (target !== null && target !== state.enabled) {
         setToggle(target);
         state.resume = true;
@@ -207,7 +211,7 @@
           confirmButtonText: text.authenticate,
           closeOnConfirm: true
         }, function () {
-          window.location.href = '../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=user_mfa_policy';
+          window.location.href = '../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=configuration_user_mfa_security';
         });
         return;
       }
@@ -273,5 +277,8 @@
   load();
   document.addEventListener('shown.bs.tab', function (event) {
     if (event.target && event.target.getAttribute('href') === '#configuration_user_mfa') load();
+  });
+  document.addEventListener('oneid:step-up-context-ready', function (event) {
+    if (event.detail && event.detail.context === 'configuration_user_mfa_security') load();
   });
 }());
