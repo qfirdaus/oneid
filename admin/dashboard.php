@@ -1447,8 +1447,8 @@
                                                                   <option value="expired"><?=htmlspecialchars(oneid_translate('admin.sessions.expired'), ENT_QUOTES, 'UTF-8')?></option>
                                                                </select>
                                                                <select id="active_session_page_size" aria-label="<?=htmlspecialchars(oneid_translate('admin.sessions.results_per_page'), ENT_QUOTES, 'UTF-8')?>">
-                                                                  <option value="10">10 <?=htmlspecialchars(oneid_translate('admin.sessions.per_page'), ENT_QUOTES, 'UTF-8')?></option>
-                                                                  <option value="25" selected>25 <?=htmlspecialchars(oneid_translate('admin.sessions.per_page'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                  <option value="10" selected>10 <?=htmlspecialchars(oneid_translate('admin.sessions.per_page'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                  <option value="25">25 <?=htmlspecialchars(oneid_translate('admin.sessions.per_page'), ENT_QUOTES, 'UTF-8')?></option>
                                                                   <option value="50">50 <?=htmlspecialchars(oneid_translate('admin.sessions.per_page'), ENT_QUOTES, 'UTF-8')?></option>
                                                                </select>
                                                                <button type="button" id="active_session_search_button" class="active-session-filter-button" title="<?=htmlspecialchars(oneid_translate('admin.sessions.apply_filters'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('admin.sessions.apply_filters'), ENT_QUOTES, 'UTF-8')?>"><i class="fa fa-search" aria-hidden="true"></i></button>
@@ -5559,7 +5559,7 @@
           data: {
              admin_get_all_token_for_all_active_user:"",
              page:String(activeSessionPage),
-             page_size:String($('#active_session_page_size').val() || '25'),
+             page_size:String($('#active_session_page_size').val() || '10'),
              query:String($('#active_session_query').val() || '').trim(),
              status:String($('#active_session_status').val() || 'all')
           },

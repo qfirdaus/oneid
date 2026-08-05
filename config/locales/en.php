@@ -178,6 +178,7 @@ return [
     'dashboard.title' => 'ONEID@UPNM - Your Gateway to UPNM Digital Systems',
     'dashboard.language' => 'Display language',
     'dashboard.profile_photo' => 'Profile photo',
+    'dashboard.role' => 'USER',
     'dashboard.admin_check_title' => 'Checking Administrator access',
     'dashboard.admin_check_text' => 'Please wait while OneID verifies your security session.',
     'dashboard.first_password_notice' => 'Welcome to the OneID@UPNM Portal. Set a secure OneID password for login without MyDigital ID.',

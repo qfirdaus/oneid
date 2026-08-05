@@ -178,6 +178,7 @@ return [
     'dashboard.title' => 'ONEID@UPNM - Gerbang Tunggal ke Sistem Digital UPNM',
     'dashboard.language' => 'Bahasa paparan',
     'dashboard.profile_photo' => 'Foto profil',
+    'dashboard.role' => 'PENGGUNA',
     'dashboard.admin_check_title' => 'Menyemak akses Administrator',
     'dashboard.admin_check_text' => 'Sila tunggu sementara OneID mengesahkan sesi keselamatan anda.',
     'dashboard.first_password_notice' => 'Selamat datang ke Portal OneID@UPNM. Sila tetapkan kata laluan OneID yang selamat untuk login tanpa MyDigital ID.',

@@ -63,6 +63,7 @@
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-profile-role.css?v=20260805-1" rel="stylesheet" type="text/css">
 
       <style>
       /* Keep navbar on top */
@@ -252,8 +253,9 @@
                            <div class="panel panel-default card-view  pa-0">
                               <div class="panel-wrapper collapse in">
                                  <div class="panel-body  pa-0">
-                                    <div class="profile-box">
-                                       	<div class="profile-cover-pic">
+									<div class="profile-box">
+                                       <div class="profile-cover-pic">
+                                          <span class="oneid-user-role-badge"><i class="fa fa-user" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('dashboard.role'), ENT_QUOTES, 'UTF-8')?></span>
                                           <!-- <div class="profile-image-overlay"></div> -->
                                           </div>
                                        <div class="profile-info text-center mb-15">

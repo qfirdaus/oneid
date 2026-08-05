@@ -24,6 +24,8 @@ foreach ([
 $dashboard = file_get_contents($root . '/page/dashboard.php') ?: '';
 $adminDashboard = file_get_contents($root . '/admin/dashboard.php') ?: '';
 $adminStepUp = file_get_contents($root . '/page/admin_step_up.php') ?: '';
+$ms = file_get_contents($root . '/config/locales/ms.php') ?: '';
+$en = file_get_contents($root . '/config/locales/en.php') ?: '';
 
 $report(
     str_contains($dashboard, "oneid_translate('dashboard.menu.applications')")
@@ -38,9 +40,10 @@ $report(
     'accessibility labels and live feedback remain present'
 );
 $report(
-    !str_contains($adminDashboard, "oneid_translate('dashboard.")
+    substr_count($adminDashboard, "oneid_translate('dashboard.") === 1
+    && str_contains($adminDashboard, "oneid_translate('dashboard.profile_photo')")
     && !str_contains($adminStepUp, "oneid_translate('dashboard."),
-    'Administrator Dashboard and Admin Step-Up remain outside ML4'
+    'Administrator surfaces only reuse the shared dashboard profile-photo label'
 );
 $report(
     str_contains($dashboard, 'profile-locale-switcher')
@@ -50,6 +53,13 @@ $report(
     && str_contains($dashboard, 'oneid-locale-switcher.css')
     && str_contains($adminDashboard, 'oneid-locale-switcher.css'),
     'Login-style locale selector is centered below User and Administrator profile details'
+);
+$report(
+    str_contains($dashboard, "oneid_translate('dashboard.role')")
+    && str_contains($dashboard, 'oneid-user-role-badge')
+    && str_contains($ms, "'dashboard.role' => 'PENGGUNA'")
+    && str_contains($en, "'dashboard.role' => 'USER'"),
+    'User profile cover exposes a bilingual role badge'
 );
 $report(
     str_contains($dashboard, 'userAppText(application.sp_name)')
