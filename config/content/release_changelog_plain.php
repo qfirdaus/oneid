@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.7.3' =>
+  array (
+    'version' => '2.7.3',
+    'date' => '2026-08-05',
+    'bm' =>
+    array (
+      0 => 'External Sync kini menyediakan cronjob conditional untuk memeriksa dan menyelaraskan sumber Staff, Prasiswazah dan ODL secara automatik mengikut jadual operasi.',
+      1 => 'Cron memisahkan setiap source kepada plan dan keputusan tersendiri supaya data Staff, Prasiswazah dan ODL tidak bercampur semasa synchronization.',
+      2 => 'Apabila tiada perubahan, cron tamat sebagai SKIP_NO_CHANGES tanpa transaction, header Sync Log atau perubahan database.',
+      3 => 'New, Update dan Reactivate hanya diproses apabila jumlah berada dalam threshold khusus source dan semua safety gate lulus.',
+      4 => 'Sebarang Deactivate, collision, anomaly, warning atau perubahan melebihi threshold disekat dan diserahkan kepada Administrator untuk semakan manual.',
+      5 => 'Cron menggunakan one-use exact-plan approval, fresh snapshot verification, advisory lock, transaction, reconciliation dan audit marker yang sama ketat dengan safe writer.',
+      6 => 'Dry-run dan emergency-disable flag membolehkan scheduler diperiksa atau dihentikan tanpa menutup fungsi Preview dan Apply manual Administrator.',
+      7 => 'Staff provenance, UG membership dan ODL source isolation melindungi ownership akaun serta mencegah perubahan merentas sumber.',
+      8 => 'CLI runner menolak akses HTTP, tidak menggunakan session Administrator dan menghasilkan output beraudit tanpa IC, matrik, nama atau e-mel.',
+      9 => 'Contract cron, sync safety, source-scoped Apply dan ODL operational regression telah disahkan lulus sebelum deployment staging.',
+    ),
+    'en' =>
+    array (
+      0 => 'External Sync now provides a conditional cron job to check and synchronize Staff, Undergraduate and ODL sources automatically according to the operational schedule.',
+      1 => 'Cron separates every source into its own plan and outcome so Staff, Undergraduate and ODL data cannot be mixed during synchronization.',
+      2 => 'When there are no changes, cron exits with SKIP_NO_CHANGES without a transaction, Sync Log header or database mutation.',
+      3 => 'New, Update and Reactivate actions are processed only when their counts are within source-specific thresholds and every safety gate passes.',
+      4 => 'Any Deactivate, collision, anomaly, warning or over-threshold change is blocked and handed to an Administrator for manual review.',
+      5 => 'Cron uses one-use exact-plan approval, fresh snapshot verification, advisory locking, transactions, reconciliation and an audit marker with the same strict safe writer.',
+      6 => 'Dry-run and emergency-disable flags allow the scheduler to be assessed or stopped without disabling Administrator manual Preview and Apply.',
+      7 => 'Staff provenance, UG membership and ODL source isolation protect account ownership and prevent cross-source mutation.',
+      8 => 'The CLI runner rejects HTTP access, does not use an Administrator session and produces audited output without identity numbers, student IDs, names or e-mail addresses.',
+      9 => 'Cron, sync safety, source-scoped Apply and ODL operational regression contracts were verified before staging deployment.',
+    ),
+  ),
   'release-2.7.2' =>
   array (
     'version' => '2.7.2',
