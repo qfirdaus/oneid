@@ -53,6 +53,7 @@
 }
 
 .oneid-admin-profile-card h5 {
+  display: -webkit-box;
   max-width: 100%;
   margin: 0 0 7px;
   overflow: hidden;
@@ -60,26 +61,13 @@
   font-size: 15px;
   font-weight: 600;
   line-height: 1.35;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.oneid-admin-profile-staff-no {
-  display: inline-flex;
-  align-items: center;
-  min-height: 22px;
-  padding: 3px 9px;
-  border-radius: 12px;
-  background: #f0f6fa;
-  color: #53677d;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .035em;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .oneid-admin-profile-department {
   display: -webkit-box;
-  margin-top: 7px;
+  margin-top: 3px;
   overflow: hidden;
   color: #6f7f91;
   font-size: 11px;
@@ -88,10 +76,22 @@
   -webkit-line-clamp: 2;
 }
 
+.oneid-admin-profile-position {
+  display: -webkit-box;
+  margin-top: 5px;
+  overflow: hidden;
+  color: #455b72;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .oneid-admin-profile-language-row {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   min-height: 48px;
   padding: 8px 20px;
   border-top: 1px solid #edf1f5;

@@ -14,6 +14,11 @@
    if (!is_array($admin_user_info)) {
       $admin_user_info = [];
    }
+   $admin_display_name = trim((string) ($_SESSION['user'] ?? ''));
+   $admin_staff_number = trim((string) ($admin_user_info['data2'] ?? ''));
+   $admin_identity_line = $admin_staff_number === ''
+      ? $admin_display_name
+      : $admin_display_name . ' (' . $admin_staff_number . ')';
    if (isset($_GET['locale'])) {
       if (oneid_set_session_locale((string) $_GET['locale'])) {
          oneid_set_guest_locale_cookie((string) $_GET['locale']);
@@ -72,7 +77,7 @@
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-login-banner-admin.css?v=20260801-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-configuration-navigation.css?v=20260801-1" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-admin-profile.css?v=20260805-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-admin-profile.css?v=20260805-2" rel="stylesheet" type="text/css">
    </head>
    <body>
       <!--Preloader-->
@@ -1193,9 +1198,9 @@
                                              <span class="oneid-admin-profile-online" aria-hidden="true"></span>
                                           </span>
                                           <span class="oneid-admin-profile-details">
-                                             <h5 class="block weight-500 capitalize-font txt-dark"><?=htmlspecialchars((string) ($_SESSION['user'] ?? ''), ENT_QUOTES, 'UTF-8')?></h5>
-                                             <span class="oneid-admin-profile-staff-no"><?=htmlspecialchars(trim((string) ($admin_user_info['data2'] ?? '')), ENT_QUOTES, 'UTF-8')?></span>
+                                             <h5 class="block weight-500 txt-dark"><?=htmlspecialchars($admin_identity_line, ENT_QUOTES, 'UTF-8')?></h5>
                                              <span class="oneid-admin-profile-department"><?=htmlspecialchars(trim((string) ($admin_user_info['data6'] ?? '')), ENT_QUOTES, 'UTF-8')?></span>
+                                             <span class="oneid-admin-profile-position"><?=htmlspecialchars(trim((string) ($admin_user_info['data7'] ?? '')), ENT_QUOTES, 'UTF-8')?></span>
                                           </span>
                                        </div>
                                        <div class="oneid-admin-profile-language-row">
