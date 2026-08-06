@@ -31,6 +31,8 @@ diproses secara automatik di staging termasuk `Deactivate`.
 - private runtime dikekalkan sebagai `iqs:www-data` dengan mode `0640`.
 - baris kategori `Admin SSO` mengira dan menyenaraikan role Administrator aktif
   (`u_type=1`) tanpa memindahkan staf keluar daripada kategori asal mereka.
+- laporan senarai pengguna kategori menggunakan paparan profesional sedia cetak
+  dengan branding UPNM/OneID, metadata, jumlah, jadual A4 dan print stylesheet.
 
 ## Kontrak Operasi
 
