@@ -109,9 +109,9 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
         tbody tr:nth-child(even) { background: #f8fafc; }
         tbody tr:last-child td { border-bottom: 0; }
         .column-number { width: 5%; text-align: center; }
-        .column-id { width: 13%; white-space: nowrap; }
-        .column-name { width: 38%; }
-        .column-description { width: 44%; }
+        .column-id { width: 11%; white-space: nowrap; }
+        .column-name { width: 39%; }
+        .column-description { width: 45%; }
         td.column-number { color: var(--muted); font-weight: 700; }
         td.column-id { font-variant-numeric: tabular-nums; font-weight: 700; }
         td.column-name { font-weight: 700; }
@@ -217,6 +217,11 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
                         <tr><td class="empty-state" colspan="4"><?=$escape(oneid_translate('admin.user_list.empty'))?></td></tr>
                     <?php } else { ?>
                         <?php foreach ($userlist as $index => $user) {
+                            $isStaff = in_array((int) ($user['u_category'] ?? 0), [2, 3], true);
+                            $displayId = trim((string) ($user[$isStaff ? 'data3' : 'data4'] ?? ''));
+                            if ($displayId === '') {
+                                $displayId = trim((string) ($user['data4'] ?? ''));
+                            }
                             $description = trim(implode(' · ', array_filter([
                                 trim((string) ($user['data6'] ?? '')),
                                 trim((string) ($user['data7'] ?? '')),
@@ -224,7 +229,7 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
                         ?>
                         <tr>
                             <td class="column-number"><?=$index + 1?></td>
-                            <td class="column-id"><?=$escape($user['data4'] ?? '')?></td>
+                            <td class="column-id"><?=$escape($displayId)?></td>
                             <td class="column-name"><?=$escape($user['data1'] ?? '')?></td>
                             <td class="column-description"><?=$escape($description)?></td>
                         </tr>

@@ -1370,7 +1370,7 @@ class Database {
 
 
     public function admin_get_specific_category_user_listing($uc_id){
-        $Q = "SELECT U.u_id,U.data1,U.data2,U.data3,U.data4,U.data5,U.data6,
+        $Q = "SELECT U.u_id,U.u_category,U.data1,U.data2,U.data3,U.data4,U.data5,U.data6,
                      U.data7,U.data8,U.data9,U.data10,U.data11,U.data12
                 FROM user_tbl U
                 INNER JOIN user_category C ON C.uc_id=:uc_id AND C.avail_status=1

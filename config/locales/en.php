@@ -883,7 +883,7 @@ return [
     'admin.user_list.category' => 'Category',
     'admin.user_list.title' => 'User List',
     'admin.user_list.generated' => 'Report generated on',
-    'admin.user_list.id' => 'ID',
+    'admin.user_list.id' => 'Staff/Student ID',
     'admin.user_list.name' => 'Name',
     'admin.user_list.description' => 'Description',
     'admin.user_list.empty' => 'No data yet',

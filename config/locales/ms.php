@@ -883,7 +883,7 @@ return [
     'admin.user_list.category' => 'Kategori',
     'admin.user_list.title' => 'Senarai Pengguna',
     'admin.user_list.generated' => 'Laporan dijana pada',
-    'admin.user_list.id' => 'ID',
+    'admin.user_list.id' => 'No. Staf/Matrik',
     'admin.user_list.name' => 'Nama',
     'admin.user_list.description' => 'Keterangan',
     'admin.user_list.empty' => 'Belum ada data',

@@ -12,6 +12,8 @@ $checks = [
         str_contains($source, 'ELSE U.u_category=A.uc_id'),
     'ordinary category listing remains category scoped' =>
         str_contains($source, 'ELSE U.u_category=C.uc_id'),
+    'category listing exposes actual category for staff/student ID selection' =>
+        str_contains($source, 'SELECT U.u_id,U.u_category,U.data1'),
 ];
 
 $failed = 0;

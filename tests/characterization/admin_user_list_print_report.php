@@ -9,7 +9,7 @@ $checks = [
         str_contains($source, 'oneid_require_admin_page();')
         && str_contains($source, 'oneid_require_active_sso_page($operation);'),
     'report escapes every user-facing database field' =>
-        str_contains($source, '$escape($user[\'data4\'] ?? \'\')')
+        str_contains($source, '$escape($displayId)')
         && str_contains($source, '$escape($user[\'data1\'] ?? \'\')')
         && str_contains($source, '$escape($description)'),
     'report provides print action without external JavaScript' =>
@@ -26,9 +26,12 @@ $checks = [
         && str_contains($source, 'reportReference')
         && str_contains($source, 'count($userlist)'),
     'name column is wider than compact fixed-length ID column' =>
-        str_contains($source, '.column-id { width: 13%; white-space: nowrap; }')
-        && str_contains($source, '.column-name { width: 38%; }')
-        && str_contains($source, '.column-description { width: 44%; }'),
+        str_contains($source, '.column-id { width: 11%; white-space: nowrap; }')
+        && str_contains($source, '.column-name { width: 39%; }')
+        && str_contains($source, '.column-description { width: 45%; }'),
+    'staff uses data3 while students use data4 for displayed ID' =>
+        str_contains($source, "[2, 3]")
+        && str_contains($source, "\$user[\$isStaff ? 'data3' : 'data4']"),
 ];
 
 $failed = 0;
