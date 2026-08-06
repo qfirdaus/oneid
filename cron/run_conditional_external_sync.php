@@ -12,13 +12,14 @@ require_once dirname(__DIR__) . '/lib/config.php';
 require_once dirname(__DIR__) . '/bootstrap/sync_runtime.php';
 
 use OneId\App\Sync\ConditionalSyncCronRunner;
+use OneId\App\Sync\SyncDatabaseStageException;
 use OneId\App\Sync\SyncCronConfig;
 use OneId\App\Sync\SyncRuntimeConfig;
 
 $emit = static function (array $result): void {
     $counts = is_array($result['counts'] ?? null) ? $result['counts'] : [];
     printf(
-        '%s source=%s source_rows=%d new=%d update=%d deactivate=%d reactivate=%d header=%d correlation=%s code=%s%s',
+        '%s source=%s source_rows=%d new=%d update=%d deactivate=%d reactivate=%d header=%d correlation=%s code=%s%s%s',
         (string) ($result['outcome'] ?? 'FAILED'),
         preg_replace('/[^A-Z0-9_]/', '', (string) ($result['source'] ?? 'NONE')),
         (int) ($result['source_rows'] ?? 0),
@@ -29,6 +30,14 @@ $emit = static function (array $result): void {
         (int) ($result['header_id'] ?? 0),
         preg_replace('/[^a-f0-9]/', '', (string) ($result['correlation_id'] ?? '')),
         preg_replace('/[^A-Z0-9_]/', '', (string) ($result['code'] ?? 'NONE')),
+        isset($result['stage'])
+            ? sprintf(
+                ' stage=%s sqlstate=%s driver=%d',
+                preg_replace('/[^a-z0-9_]/', '', (string) $result['stage']),
+                preg_replace('/[^A-Z0-9]/', '', (string) ($result['sqlstate'] ?? 'unknown')),
+                (int) ($result['driver_code'] ?? 0)
+            )
+            : '',
         PHP_EOL
     );
 };
@@ -74,7 +83,8 @@ try {
         'SYNC_FLAG_COMBINATION_INVALID', 'SYNC_SOURCE_INVALID',
         'SYNC_SOURCE_BASELINE_INVALID', 'SYNC_ALREADY_RUNNING',
         'SYNC_APPROVAL_PLAN_MISMATCH', 'SYNC_SAFETY_BLOCKED',
-        'SYNC_RECONCILIATION_MISMATCH', 'ODBC_EXTENSION_UNAVAILABLE',
+        'SYNC_RECONCILIATION_MISMATCH', 'SYNC_DATABASE_WRITE_FAILED',
+        'ODBC_EXTENSION_UNAVAILABLE',
         'EXTERNAL_STAFF_CONNECTION_FAILED', 'EXTERNAL_STAFF_QUERY_FAILED',
         'EXTERNAL_STAFF_EMPTY', 'EXTERNAL_STUDENT_CONNECTION_FAILED',
         'EXTERNAL_STUDENT_QUERY_FAILED', 'EXTERNAL_STUDENT_EMPTY',
@@ -84,16 +94,31 @@ try {
     $code = in_array($exception->getMessage(), $known, true)
         ? $exception->getMessage()
         : 'SYNC_CRON_UNEXPECTED_FAILURE';
+    $databaseFailure = $exception instanceof SyncDatabaseStageException;
     error_log(sprintf(
-        '[ONEID_SYNC_CRON] correlation=%s exception=%s code=%s',
+        '[ONEID_SYNC_CRON] correlation=%s exception=%s code=%s%s',
         $correlation,
         get_class($exception),
-        $code
+        $code,
+        $databaseFailure
+            ? sprintf(
+                ' stage=%s sqlstate=%s driver=%d',
+                $exception->stage,
+                $exception->sqlState,
+                $exception->driverCode
+            )
+            : ''
     ));
-    $emit([
+    $failure = [
         'outcome' => 'FAILED',
         'correlation_id' => $correlation,
         'code' => $code,
-    ]);
+    ];
+    if ($databaseFailure) {
+        $failure['stage'] = $exception->stage;
+        $failure['sqlstate'] = $exception->sqlState;
+        $failure['driver_code'] = $exception->driverCode;
+    }
+    $emit($failure);
     exit(1);
 }
