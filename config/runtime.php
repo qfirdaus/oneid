@@ -125,7 +125,7 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_SYNC_CRON_MAX_UPDATE_STUDENT_ODL_PG' => '100',
         'ONEID_SYNC_CRON_MAX_REACTIVATE_STUDENT_ODL_PG' => '10',
         'ONEID_SYNC_CRON_MAX_TOTAL_STUDENT_ODL_PG' => '120',
-        'ONEID_SYNC_CRON_SERVICE_IDENTITY' => 'ONEID External Sync Cron',
+        'ONEID_SYNC_CRON_SERVICE_IDENTITY' => 'ONEID-CRON',
         // ODL F7 implementation is dormant until separate Preview/Apply approvals.
         'ONEID_ODL_PILOT_PREVIEW_ENABLED' => 'false',
         'ONEID_ODL_PILOT_APPLY_ENABLED' => 'false',

@@ -55,7 +55,7 @@ final class SyncCronConfig
             $sources,
             $read('ONEID_SYNC_CRON_MAX_DEACTIVATE', '0'),
             $limits,
-            $read('ONEID_SYNC_CRON_SERVICE_IDENTITY', 'ONEID External Sync Cron'),
+            $read('ONEID_SYNC_CRON_SERVICE_IDENTITY', 'ONEID-CRON'),
             $read('ONEID_SYNC_CRON_ALLOW_ALL_SAFE_CHANGES', 'false')
         );
     }
@@ -67,7 +67,7 @@ final class SyncCronConfig
         string $sourceList,
         string $maxDeactivate,
         array $limits,
-        string $serviceIdentity = 'ONEID External Sync Cron',
+        string $serviceIdentity = 'ONEID-CRON',
         string $allowAllSafeChanges = 'false'
     ): self {
         foreach ([$enabled, $dryRun, $allowAllSafeChanges] as $flag) {
@@ -88,7 +88,8 @@ final class SyncCronConfig
             throw new RuntimeException('SYNC_CRON_SOURCES_INVALID');
         }
         $identity = trim($serviceIdentity);
-        if ($identity === '' || strlen($identity) > 64
+        // ext_data_temp_header.triggered_by is a legacy short identity field.
+        if ($identity === '' || strlen($identity) > 20
             || preg_match('/^[A-Za-z0-9 _.-]+$/', $identity) !== 1
         ) {
             throw new RuntimeException('SYNC_CRON_IDENTITY_INVALID');

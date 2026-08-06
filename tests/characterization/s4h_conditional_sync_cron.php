@@ -40,7 +40,7 @@ $checks['over_limit_blocked'] = $config->blockingCode(
 
 $unrestricted = SyncCronConfig::fromValues(
     'true', 'false', implode(',', SyncCronConfig::SOURCE_CODES), '0', $limits,
-    'ONEID External Sync Cron', 'true'
+    'ONEID-CRON', 'true'
 );
 $checks['all_safe_changes_allows_deactivation_and_volume'] = $unrestricted->blockingCode(
     OdlStudentSource::SOURCE_CODE,
@@ -60,6 +60,12 @@ $checks['nonzero_deactivate_config_rejected'] = $invalid(
 $checks['duplicate_source_rejected'] = $invalid(
     fn() => SyncCronConfig::fromValues('true','true','STUDENT_UG,STUDENT_UG','0',$limits),
     'SYNC_CRON_SOURCES_INVALID'
+);
+$checks['oversized_service_identity_rejected'] = $invalid(
+    fn() => SyncCronConfig::fromValues(
+        'true','true','STUDENT_UG','0',$limits,str_repeat('A', 21)
+    ),
+    'SYNC_CRON_IDENTITY_INVALID'
 );
 
 $store = new InMemorySyncApprovalStore();
