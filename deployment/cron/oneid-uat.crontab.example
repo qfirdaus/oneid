@@ -2,5 +2,5 @@
 # Rujuk docs/AUDIT_CRON_EXTERNAL_SYNC_STAFF_UG_ODL_20260805.md dan
 # docs/S4H_CONDITIONAL_CRON_EXTERNAL_SYNC_DESIGN.md.
 #
-# Runner telah tersedia tetapi default disabled/dry-run. Contoh selepas gate lulus:
-# 15 2 * * * /usr/bin/flock -n /run/lock/oneid-external-sync.lock /usr/bin/php /var/www/app/oneid-uat/cron/run_conditional_external_sync.php >> /var/log/oneid/external-sync.log 2>&1
+# Staging hourly sync selepas private runtime dan source connectivity disahkan:
+# 15 * * * * /usr/bin/flock -n /var/www/oneid-uat/.private/locks/external-sync.lock /usr/bin/php /var/www/oneid-uat/cron/run_conditional_external_sync.php >> /var/www/oneid-uat/storage/logs/external-sync-cron.log 2>&1

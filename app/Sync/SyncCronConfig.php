@@ -23,7 +23,8 @@ final class SyncCronConfig
         public readonly bool $dryRun,
         public readonly array $sources,
         private readonly array $limits,
-        public readonly string $serviceIdentity
+        public readonly string $serviceIdentity,
+        public readonly bool $allowAllSafeChanges
     ) {}
 
     public static function fromEnvironment(): self
@@ -54,7 +55,8 @@ final class SyncCronConfig
             $sources,
             $read('ONEID_SYNC_CRON_MAX_DEACTIVATE', '0'),
             $limits,
-            $read('ONEID_SYNC_CRON_SERVICE_IDENTITY', 'ONEID External Sync Cron')
+            $read('ONEID_SYNC_CRON_SERVICE_IDENTITY', 'ONEID External Sync Cron'),
+            $read('ONEID_SYNC_CRON_ALLOW_ALL_SAFE_CHANGES', 'false')
         );
     }
 
@@ -65,9 +67,10 @@ final class SyncCronConfig
         string $sourceList,
         string $maxDeactivate,
         array $limits,
-        string $serviceIdentity = 'ONEID External Sync Cron'
+        string $serviceIdentity = 'ONEID External Sync Cron',
+        string $allowAllSafeChanges = 'false'
     ): self {
-        foreach ([$enabled, $dryRun] as $flag) {
+        foreach ([$enabled, $dryRun, $allowAllSafeChanges] as $flag) {
             if (!in_array($flag, ['true', 'false'], true)) {
                 throw new RuntimeException('SYNC_CRON_FLAG_INVALID');
             }
@@ -112,7 +115,8 @@ final class SyncCronConfig
             $dryRun === 'true',
             $sources,
             $normalized,
-            $identity
+            $identity,
+            $allowAllSafeChanges === 'true'
         );
     }
 
@@ -127,6 +131,7 @@ final class SyncCronConfig
                 throw new RuntimeException('SYNC_CRON_COUNTS_INVALID');
             }
         }
+        if ($this->allowAllSafeChanges) return null;
         if ($counts['Deactivate'] > 0) return 'SYNC_CRON_DEACTIVATION_NOT_ALLOWED';
         foreach (['New', 'Update', 'Reactivate'] as $action) {
             if ($counts[$action] > $this->limits[$source][$action]) {

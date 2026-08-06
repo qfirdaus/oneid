@@ -81,7 +81,10 @@ final class ConditionalSyncCronRunner
         $blocking = $preview['blocking_codes'] ?? [];
         $warnings = $preview['warnings'] ?? [];
         $limitCode = $this->config->blockingCode($sourceCode, $counts);
-        if ($blocking !== [] || $warnings !== [] || $limitCode !== null) {
+        if ($blocking !== []
+            || (!$this->config->allowAllSafeChanges && $warnings !== [])
+            || $limitCode !== null
+        ) {
             return $base + [
                 'outcome' => 'BLOCKED_REQUIRES_ADMIN',
                 'code' => $limitCode ?? (string) ($blocking[0] ?? $warnings[0]),

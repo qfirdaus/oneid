@@ -108,6 +108,9 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         // Conditional CLI sync. Defaults are deliberately disabled and dry-run.
         'ONEID_SYNC_CRON_ENABLED' => 'false',
         'ONEID_SYNC_CRON_DRY_RUN' => 'true',
+        // Staging-only opt-in: bypass cron volume/deactivation limits and warnings;
+        // integrity blocking codes, lock, exact-plan validation and reconciliation remain.
+        'ONEID_SYNC_CRON_ALLOW_ALL_SAFE_CHANGES' => 'false',
         'ONEID_SYNC_CRON_SOURCES' => 'STAFF_HR,STUDENT_UG,STUDENT_ODL_PG',
         'ONEID_SYNC_CRON_MAX_DEACTIVATE' => '0',
         'ONEID_SYNC_CRON_MAX_NEW_STAFF_HR' => '50',

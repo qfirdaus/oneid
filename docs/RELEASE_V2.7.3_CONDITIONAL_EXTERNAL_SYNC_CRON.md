@@ -19,9 +19,9 @@ tersedia dan menggunakan shared database advisory lock yang sama.
 ## Behavior Operasi
 
 - `SKIP_NO_CHANGES` menghasilkan zero transaction, header dan mutation;
-- `New`, `Update` dan `Reactivate` dalam threshold boleh diproses automatik;
-- `Deactivate` kekal manual dan sentiasa disekat oleh cron;
-- warning, collision, anomaly, source failure dan over-threshold plan disekat;
+- secara default, `New`, `Update` dan `Reactivate` dalam threshold boleh diproses automatik dan `Deactivate` disekat;
+- staging boleh menetapkan `ONEID_SYNC_CRON_ALLOW_ALL_SAFE_CHANGES=true` untuk memproses semua volume serta `Deactivate` tanpa threshold/warning gate;
+- collision, anomaly integriti, source failure, plan drift dan reconciliation failure kekal fail-closed;
 - Staff, UG dan ODL mempunyai source scope, provenance/membership serta
   threshold masing-masing;
 - fresh second snapshot mesti sepadan dengan exact plan approval;
@@ -40,7 +40,7 @@ dalam Git.
 Command deployment:
 
 ```cron
-0 23 * * * /usr/bin/flock -n /var/www/oneid-uat/.private/locks/external-sync.lock /usr/bin/php /var/www/oneid-uat/cron/run_conditional_external_sync.php >> /var/www/oneid-uat/storage/logs/external-sync-cron.log 2>&1
+15 * * * * /usr/bin/flock -n /var/www/oneid-uat/.private/locks/external-sync.lock /usr/bin/php /var/www/oneid-uat/cron/run_conditional_external_sync.php >> /var/www/oneid-uat/storage/logs/external-sync-cron.log 2>&1
 ```
 
 Emergency stop:

@@ -38,6 +38,15 @@ $checks['over_limit_blocked'] = $config->blockingCode(
     ['New'=>21,'Update'=>0,'Deactivate'=>0,'Reactivate'=>0]
 ) === 'SYNC_CRON_NEW_LIMIT_EXCEEDED';
 
+$unrestricted = SyncCronConfig::fromValues(
+    'true', 'false', implode(',', SyncCronConfig::SOURCE_CODES), '0', $limits,
+    'ONEID External Sync Cron', 'true'
+);
+$checks['all_safe_changes_allows_deactivation_and_volume'] = $unrestricted->blockingCode(
+    OdlStudentSource::SOURCE_CODE,
+    ['New'=>99999,'Update'=>99999,'Deactivate'=>99999,'Reactivate'=>99999]
+) === null;
+
 $invalid = static function (callable $call, string $code): bool {
     try { $call(); } catch (RuntimeException $exception) {
         return $exception->getMessage() === $code;
