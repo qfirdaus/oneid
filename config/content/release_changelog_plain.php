@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.8.0' =>
+  array (
+    'version' => '2.8.0',
+    'date' => '2026-08-06',
+    'bm' =>
+    array (
+      0 => 'External Sync staging kini dijalankan tepat pada awal setiap jam untuk sumber Staff, Prasiswazah dan ODL.',
+      1 => 'Setiap sumber dibandingkan secara berasingan dan tamat sebagai SKIP_NO_CHANGES tanpa transaction atau perubahan database apabila tiada tindakan diperlukan.',
+      2 => 'Staging boleh memproses semua perubahan selamat termasuk New, Update, Deactivate dan Reactivate tanpa had volum cron.',
+      3 => 'Kawalan integriti bagi sumber gagal atau kosong, identity collision, plan drift dan reconciliation mismatch kekal fail-closed.',
+      4 => 'Filesystem flock dan database advisory lock menghalang cron, sync manual atau run sebelumnya daripada menulis secara bertindih.',
+      5 => 'Kegagalan database cron kini melaporkan stage, SQLSTATE dan driver code yang selamat tanpa mendedahkan SQL, credential atau data pengguna.',
+      6 => 'Identiti service cron dipendekkan kepada ONEID-CRON supaya serasi dengan medan triggered_by legacy dan kekal jelas dalam audit.',
+      7 => 'Log External Sync dirotasi setiap minggu, dimampatkan dan disimpan sehingga 52 minggu untuk sejarah operasi setahun.',
+      8 => 'Runtime staging mengekalkan permission 640 serta ownership iqs:www-data supaya CLI cron dan PHP-FPM boleh membaca konfigurasi private yang sama.',
+      9 => 'Contract cron, transaction, rollback, reconciliation, metadata release dan validasi operasi staging telah disahkan lulus.',
+    ),
+    'en' =>
+    array (
+      0 => 'Staging External Sync now runs exactly at the start of every hour for Staff, Undergraduate and ODL sources.',
+      1 => 'Each source is compared separately and exits as SKIP_NO_CHANGES without a transaction or database mutation when no action is required.',
+      2 => 'Staging can process every safe change, including New, Update, Deactivate and Reactivate, without cron volume limits.',
+      3 => 'Integrity controls for failed or empty sources, identity collisions, plan drift and reconciliation mismatches remain fail-closed.',
+      4 => 'Filesystem flock and the database advisory lock prevent cron, manual sync or an earlier run from writing concurrently.',
+      5 => 'Cron database failures now report a safe stage, SQLSTATE and driver code without exposing SQL, credentials or user data.',
+      6 => 'The cron service identity is shortened to ONEID-CRON for compatibility with the legacy triggered_by field and clear audit attribution.',
+      7 => 'External Sync logs are rotated weekly, compressed and retained for up to 52 weeks to provide one year of operational history.',
+      8 => 'The staging runtime retains mode 640 and iqs:www-data ownership so CLI cron and PHP-FPM can read the same private configuration.',
+      9 => 'Cron, transaction, rollback, reconciliation, release metadata and staging operational validation contracts were verified successfully.',
+    ),
+  ),
   'release-2.7.4' =>
   array (
     'version' => '2.7.4',
