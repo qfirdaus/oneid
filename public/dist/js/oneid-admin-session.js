@@ -191,7 +191,7 @@
         warningOpen = true;
         window.swal({
             title: config.text.warningTitle,
-            text: warningMessage(),
+            text: config.text.warningBody,
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#079bd3',

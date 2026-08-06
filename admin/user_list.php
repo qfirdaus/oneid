@@ -277,6 +277,6 @@ window.OneIdAdminSessionConfig = <?=json_encode([
     ],
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
 </script>
-<script src="../dist/js/oneid-admin-session.js?v=20260806-3"></script>
+<script src="../dist/js/oneid-admin-session.js?v=20260806-4"></script>
 </body>
 </html>
