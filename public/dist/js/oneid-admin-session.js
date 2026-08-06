@@ -31,14 +31,40 @@
         return String(minutes).padStart(2, '0') + ':' + String(remainder).padStart(2, '0');
     }
 
-    function warningMessage() {
-        return config.text.warningBody.replace('{time}', formatDuration(remainingSeconds()));
+    function applyProfessionalLayout() {
+        var alert = document.querySelector('.sweet-alert.showSweetAlert');
+        var overlay = document.querySelector('.sweet-overlay');
+        if (!alert) {
+            return;
+        }
+        alert.classList.add('oneid-admin-session-alert');
+        if (overlay) {
+            overlay.classList.add('oneid-admin-session-overlay');
+        }
+        if (!alert.querySelector('.oneid-session-eyebrow')) {
+            var eyebrow = document.createElement('div');
+            eyebrow.className = 'oneid-session-eyebrow';
+            eyebrow.textContent = config.text.securityEyebrow;
+            var icon = alert.querySelector('.sa-icon');
+            alert.insertBefore(eyebrow, icon || alert.firstChild);
+        }
+        var paragraph = alert.querySelector('p');
+        if (paragraph && !paragraph.querySelector('.oneid-session-countdown')) {
+            paragraph.textContent = '';
+            var countdown = document.createElement('strong');
+            countdown.className = 'oneid-session-countdown';
+            var copy = document.createElement('span');
+            copy.className = 'oneid-session-copy';
+            copy.textContent = config.text.warningBody.replace('{time}', '').replace(/\s{2,}/g, ' ').trim();
+            paragraph.appendChild(countdown);
+            paragraph.appendChild(copy);
+        }
     }
 
     function updateWarningMessage() {
-        var paragraph = document.querySelector('.sweet-alert.showSweetAlert p');
-        if (paragraph && warningOpen) {
-            paragraph.textContent = warningMessage();
+        var countdown = document.querySelector('.sweet-alert.showSweetAlert .oneid-session-countdown');
+        if (countdown && warningOpen) {
+            countdown.textContent = formatDuration(remainingSeconds());
         }
         if (remainingSeconds() <= 0) {
             redirectToUser();
@@ -181,6 +207,7 @@
                 redirectToUser();
             }
         });
+        applyProfessionalLayout();
         updateWarningMessage();
         countdownTimer = window.setInterval(updateWarningMessage, 1000);
     }

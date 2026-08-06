@@ -32,6 +32,7 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title><?=$escape(oneid_translate('admin.user_list.title'))?> · OneID UPNM</title>
     <link href="../assetsM/css/sweetalert.css" rel="stylesheet" type="text/css">
+    <link href="../dist/css/oneid-admin-session.css?v=20260806-1" rel="stylesheet" type="text/css">
     <style>
         :root {
             --ink: #10233f;
@@ -263,6 +264,7 @@ window.OneIdAdminSessionConfig = <?=json_encode([
     'userDashboardUrl' => APP_URL . '/page/dashboard',
     'text' => [
         'warningTitle' => oneid_translate('admin.session.warning_title'),
+        'securityEyebrow' => oneid_translate('admin.session.security_eyebrow'),
         'warningBody' => oneid_translate('admin.session.warning_body'),
         'stayConnected' => oneid_translate('admin.session.stay_connected'),
         'backToUser' => oneid_translate('admin.session.back_to_user'),
@@ -275,6 +277,6 @@ window.OneIdAdminSessionConfig = <?=json_encode([
     ],
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
 </script>
-<script src="../dist/js/oneid-admin-session.js?v=20260806-2"></script>
+<script src="../dist/js/oneid-admin-session.js?v=20260806-3"></script>
 </body>
 </html>

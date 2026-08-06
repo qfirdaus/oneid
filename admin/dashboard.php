@@ -70,6 +70,7 @@
       <!-- Bootstrap Daterangepicker CSS -->
       <link href="../vendors/bower_components/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet" type="text/css"/>
       <link href="../assetsM/css/sweetalert.css" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-admin-session.css?v=20260806-1" rel="stylesheet" type="text/css">
       <link href="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css">
       <!-- Custom CSS -->
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
@@ -2040,6 +2041,7 @@
          'userDashboardUrl' => APP_URL . '/page/dashboard',
          'text' => [
             'warningTitle' => oneid_translate('admin.session.warning_title'),
+            'securityEyebrow' => oneid_translate('admin.session.security_eyebrow'),
             'warningBody' => oneid_translate('admin.session.warning_body'),
             'stayConnected' => oneid_translate('admin.session.stay_connected'),
             'backToUser' => oneid_translate('admin.session.back_to_user'),
@@ -2052,7 +2054,7 @@
          ],
       ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
       </script>
-      <script src="../dist/js/oneid-admin-session.js?v=20260806-2"></script>
+      <script src="../dist/js/oneid-admin-session.js?v=20260806-3"></script>
       <script src="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
       <script src="../assetsM/js/oneid-notifications.js?v=20260716-1"></script>
       <!-- Init JavaScript -->
