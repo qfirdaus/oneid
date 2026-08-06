@@ -108,10 +108,10 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
         td { padding: 12px; border-bottom: 1px solid #e5ebf2; vertical-align: top; overflow-wrap: anywhere; }
         tbody tr:nth-child(even) { background: #f8fafc; }
         tbody tr:last-child td { border-bottom: 0; }
-        .column-number { width: 6%; text-align: center; }
-        .column-id { width: 20%; }
-        .column-name { width: 28%; }
-        .column-description { width: 46%; }
+        .column-number { width: 5%; text-align: center; }
+        .column-id { width: 16%; }
+        .column-name { width: 37%; }
+        .column-description { width: 42%; }
         td.column-number { color: var(--muted); font-weight: 700; }
         td.column-id { font-variant-numeric: tabular-nums; font-weight: 700; }
         td.column-name { font-weight: 700; }

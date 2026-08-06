@@ -25,6 +25,9 @@ $checks = [
         && str_contains($source, 'logo_oneid.png')
         && str_contains($source, 'reportReference')
         && str_contains($source, 'count($userlist)'),
+    'name column is wider than compact fixed-length ID column' =>
+        str_contains($source, '.column-id { width: 16%; }')
+        && str_contains($source, '.column-name { width: 37%; }'),
 ];
 
 $failed = 0;
