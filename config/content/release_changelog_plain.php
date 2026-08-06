@@ -6,6 +6,43 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.8.1' =>
+  array (
+    'version' => '2.8.1',
+    'date' => '2026-08-06',
+    'bm' =>
+    array (
+      0 => 'Kategori Admin SSO kini mengira dan menyenaraikan akaun berdasarkan peranan Administrator aktif, bukan keahlian kategori biasa, supaya jumlah sebenar dipaparkan dengan tepat.',
+      1 => 'Data ujian bukan Administrator dikeluarkan daripada peranan Admin SSO manakala tiga Administrator sah dikekalkan tanpa mengubah status staf biasa mereka.',
+      2 => 'Laporan User List kategori direka semula sebagai paparan print-ready profesional dengan identiti UPNM dan OneID, metadata kategori, masa penjanaan, rujukan laporan serta jumlah pengguna.',
+      3 => 'Kolum pengenalan laporan kini memaparkan nombor staf daripada data3 bagi staf dan nombor matrik daripada data4 bagi pelajar tanpa mendedahkan nombor kad pengenalan.',
+      4 => 'Nama tambahan daripada data7 dipaparkan pada baris kecil di bawah nama utama, manakala lebar kolum ID, Nama dan Description diseimbangkan untuk cetakan A4 landskap.',
+      5 => 'Laporan cetak menyokong header berulang, baris yang tidak terpotong, warna cetakan konsisten, paparan responsif dan tindakan kembali atau cetak yang diasingkan daripada output fizikal.',
+      6 => 'Sesi Administrator kini memaparkan amaran SweetAlert dengan countdown tepat dua minit sebelum grant ADMIN_ACCESS tamat bagi semua nilai lifetime konfigurasi.',
+      7 => 'Popup sesi menggunakan layout profesional responsif dengan identiti OneID, lapisan latar kabur, hierarki keselamatan, badge countdown serta tindakan Kekal Bersambung atau kembali ke akaun pengguna.',
+      8 => 'Kekal Bersambung menggantikan grant lama secara atomik menggunakan lifetime konfigurasi semasa, CSRF, binding sesi dan pelayar, transaksi database serta audit event ADMIN_ACCESS_RENEW.',
+      9 => 'Pembaharuan grant diselaraskan merentas tab dan semakan status server diklasifikasikan sebagai technical heartbeat supaya polling tidak memanjangkan idle session pengguna.',
+      10 => 'Jika tiada respons, grant tamat secara server-side dan Administrator dikembalikan ke dashboard pengguna tanpa menamatkan token SSO yang masih aktif; akses admin seterusnya memerlukan pengesahan semula.',
+      11 => 'Selepas pembaharuan berjaya, mesej pengesahan kekal terbuka sehingga Administrator menekan OK dan tidak lagi ditutup secara automatik.',
+      12 => 'Asset JavaScript dan CSS sesi Administrator kini dilayan daripada public web root dengan cache versioning, contract runtime dan regression checks bagi mencegah kegagalan popup berulang.',
+    ),
+    'en' =>
+    array (
+      0 => 'The Admin SSO category now counts and lists accounts by active Administrator role rather than ordinary category membership, so the true total is displayed accurately.',
+      1 => 'The non-Administrator test record was removed from the Admin SSO role while the three legitimate Administrators remain unchanged as ordinary staff accounts.',
+      2 => 'The category User List report has been redesigned as a professional print-ready view with UPNM and OneID identity, category metadata, generation time, report reference and total users.',
+      3 => 'The report identifier column now displays staff numbers from data3 for staff and matric numbers from data4 for students without exposing identity card numbers.',
+      4 => 'The additional name from data7 appears as a smaller line beneath the primary name, while the ID, Name and Description columns are balanced for A4 landscape printing.',
+      5 => 'The print report supports repeating headers, unbroken rows, consistent print colours, responsive display and return or print actions that are excluded from physical output.',
+      6 => 'Administrator sessions now show a SweetAlert warning with an exact countdown two minutes before the ADMIN_ACCESS grant expires for every configured lifetime.',
+      7 => 'The session popup uses a professional responsive layout with OneID identity, a blurred backdrop, security hierarchy, countdown badge and actions to stay connected or return to the user account.',
+      8 => 'Stay Connected atomically replaces the old grant using the current configured lifetime, CSRF, session and browser binding, a database transaction and the ADMIN_ACCESS_RENEW audit event.',
+      9 => 'Grant renewal is synchronized across tabs, and server status checks are classified as technical heartbeats so polling does not extend the user idle session.',
+      10 => 'Without a response, the grant expires server-side and the Administrator returns to the user dashboard without ending an otherwise active SSO token; entering admin again requires fresh verification.',
+      11 => 'After a successful renewal, the confirmation remains open until the Administrator presses OK and no longer closes automatically.',
+      12 => 'Administrator session JavaScript and CSS assets are now served from the public web root with cache versioning, runtime contracts and regression checks to prevent recurring popup failures.',
+    ),
+  ),
   'release-2.8.0' =>
   array (
     'version' => '2.8.0',
@@ -22,10 +59,6 @@ return array_values(array (
       7 => 'Log External Sync dirotasi setiap minggu, dimampatkan dan disimpan sehingga 52 minggu untuk sejarah operasi setahun.',
       8 => 'Runtime staging mengekalkan permission 640 serta ownership iqs:www-data supaya CLI cron dan PHP-FPM boleh membaca konfigurasi private yang sama.',
       9 => 'Contract cron, transaction, rollback, reconciliation, metadata release dan validasi operasi staging telah disahkan lulus.',
-      10 => 'Sesi Administrator kini memberi amaran SweetAlert dengan kira detik tepat dua minit sebelum grant tamat bagi semua nilai tempoh konfigurasi.',
-      11 => 'Pilihan Kekal Bersambung menggantikan grant ADMIN_ACCESS secara atomik menggunakan tempoh konfigurasi semasa, binding sesi dan pelayar, perlindungan CSRF serta audit khusus.',
-      12 => 'Grant yang tidak diperbaharui tamat secara server-side dan mengembalikan Administrator ke akaun pengguna tanpa menamatkan token SSO yang masih aktif.',
-      13 => 'Pembaharuan sesi diselaraskan merentas tab dan tab yang kembali aktif menyemak semula baki grant daripada server tanpa memanjangkan idle session melalui polling.',
     ),
     'en' =>
     array (
@@ -39,10 +72,6 @@ return array_values(array (
       7 => 'External Sync logs are rotated weekly, compressed and retained for up to 52 weeks to provide one year of operational history.',
       8 => 'The staging runtime retains mode 640 and iqs:www-data ownership so CLI cron and PHP-FPM can read the same private configuration.',
       9 => 'Cron, transaction, rollback, reconciliation, release metadata and staging operational validation contracts were verified successfully.',
-      10 => 'Administrator sessions now show a SweetAlert warning with an exact countdown two minutes before grant expiry for every configured lifetime.',
-      11 => 'Stay Connected atomically replaces the ADMIN_ACCESS grant using the current configured lifetime, session and browser binding, CSRF protection and dedicated auditing.',
-      12 => 'A grant that is not renewed expires server-side and returns the Administrator to the user account without ending an otherwise active SSO token.',
-      13 => 'Session renewal is synchronized across tabs, while a tab returning to the foreground rechecks server grant time without extending idle activity through polling.',
     ),
   ),
   'release-2.7.4' =>

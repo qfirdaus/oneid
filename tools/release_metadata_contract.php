@@ -5,6 +5,7 @@ declare(strict_types=1);
 $projectRoot = dirname(__DIR__);
 require_once $projectRoot . '/bootstrap/app.php';
 require_once $projectRoot . '/lib/device_info.php';
+require_once $projectRoot . '/app/Documentation/ApprovedReleaseCatalogue.php';
 
 $checks = 0;
 $failed = 0;
@@ -15,10 +16,17 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $label);
 };
 
-$report(ONEID_APP_VERSION === '2.8.0', 'central application version is 2.8.0');
+$report(ONEID_APP_VERSION === '2.8.1', 'central application version is 2.8.1');
 $report(
-    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.8.0',
+    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.8.1',
     'central copyright and footer text match the approved release'
+);
+$approvedCatalogue = new \OneId\App\Documentation\ApprovedReleaseCatalogue($projectRoot);
+$approvedEnglish = $approvedCatalogue->forLocale('en')['releases'];
+$report(
+    ($approvedEnglish[0]['version'] ?? null) === '2.8.1'
+        && str_starts_with((string)($approvedEnglish[0]['changes'][0] ?? ''), 'The Admin SSO category'),
+    'approved English release catalogue is bound to v2.8.1 content'
 );
 
 foreach (['index.php', 'page/dashboard.php', 'admin/dashboard.php'] as $page) {
@@ -32,12 +40,12 @@ $latestPlainRelease = array_values($plainCatalogue)[0] ?? [];
 $report(array_is_list($plainCatalogue), 'canonical release catalogue is a JavaScript-compatible list');
 $report(
     ($latestPlainRelease['version'] ?? null) === ONEID_APP_VERSION
-        && count($latestPlainRelease['bm'] ?? []) === 14
-        && count($latestPlainRelease['en'] ?? []) === 14,
-    'latest admin release card reads shared v2.8.0 bilingual metadata'
+        && count($latestPlainRelease['bm'] ?? []) === 13
+        && count($latestPlainRelease['en'] ?? []) === 13,
+    'latest admin release card reads shared v2.8.1 bilingual metadata'
 );
 $expectedHistory = [
-    '2.7.4','2.7.3','2.7.2','2.7.1','2.7.0','2.6.4','2.6.3','2.6.2','2.6.1','2.6.0',
+    '2.8.0','2.7.4','2.7.3','2.7.2','2.7.1','2.7.0','2.6.4','2.6.3','2.6.2','2.6.1','2.6.0',
     '2.5.4','2.5.3','2.5.2','2.5.1','2.5.0',
     '2.4.4','2.4.3','2.4.2','2.4.1','2.4.0',
     '2.3.4','2.3.3','2.3.2','2.3.1','2.3.0',
@@ -57,12 +65,16 @@ foreach ($expectedHistory as $version) {
 }
 $report(
     $historyValid
-        && count($plainCatalogue) === 45,
-    'release history preserves all 45 releases in order'
+        && count($plainCatalogue) === 46,
+    'release history preserves all 46 releases in order'
 );
 $policy = (string) file_get_contents($projectRoot . '/docs/VERSION_NUMBERING_POLICY.md');
 $package = json_decode((string) file_get_contents($projectRoot . '/package.json'), true);
 $report(($package['version'] ?? '') === ONEID_APP_VERSION, 'package metadata matches the central application version');
+$report(
+    array_column(array_slice($plainCatalogue, 0, 2), 'version') === ['2.8.1', '2.8.0'],
+    'v2.8.1 is the exact successor to v2.8.0'
+);
 $report(
     preg_match('/^\d+\.\d+\.[0-4]$/', ONEID_APP_VERSION) === 1
         && str_contains($policy, 'Selepas `MAJOR.MINOR.4`')

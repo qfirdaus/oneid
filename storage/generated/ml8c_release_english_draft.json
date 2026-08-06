@@ -1,11 +1,163 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V274-CHANGELOG-20260805-01",
+    "authorization": "ONEID-V281-CHANGELOG-20260806-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.8.1",
+            "version": "2.8.1",
+            "date": "2026-08-06",
+            "items": [
+                {
+                    "identity": "release:2.8.1:item:001",
+                    "bm": "Kategori Admin SSO kini mengira dan menyenaraikan akaun berdasarkan peranan Administrator aktif, bukan keahlian kategori biasa, supaya jumlah sebenar dipaparkan dengan tepat.",
+                    "en_draft": "The Admin SSO category now counts and lists accounts by active Administrator role rather than ordinary category membership, so the true total is displayed accurately.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.1:item:002",
+                    "bm": "Data ujian bukan Administrator dikeluarkan daripada peranan Admin SSO manakala tiga Administrator sah dikekalkan tanpa mengubah status staf biasa mereka.",
+                    "en_draft": "The non-Administrator test record was removed from the Admin SSO role while the three legitimate Administrators remain unchanged as ordinary staff accounts.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.1:item:003",
+                    "bm": "Laporan User List kategori direka semula sebagai paparan print-ready profesional dengan identiti UPNM dan OneID, metadata kategori, masa penjanaan, rujukan laporan serta jumlah pengguna.",
+                    "en_draft": "The category User List report has been redesigned as a professional print-ready view with UPNM and OneID identity, category metadata, generation time, report reference and total users.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.1:item:004",
+                    "bm": "Kolum pengenalan laporan kini memaparkan nombor staf daripada data3 bagi staf dan nombor matrik daripada data4 bagi pelajar tanpa mendedahkan nombor kad pengenalan.",
+                    "en_draft": "The report identifier column now displays staff numbers from data3 for staff and matric numbers from data4 for students without exposing identity card numbers.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.1:item:005",
+                    "bm": "Nama tambahan daripada data7 dipaparkan pada baris kecil di bawah nama utama, manakala lebar kolum ID, Nama dan Description diseimbangkan untuk cetakan A4 landskap.",
+                    "en_draft": "The additional name from data7 appears as a smaller line beneath the primary name, while the ID, Name and Description columns are balanced for A4 landscape printing.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.1:item:006",
+                    "bm": "Laporan cetak menyokong header berulang, baris yang tidak terpotong, warna cetakan konsisten, paparan responsif dan tindakan kembali atau cetak yang diasingkan daripada output fizikal.",
+                    "en_draft": "The print report supports repeating headers, unbroken rows, consistent print colours, responsive display and return or print actions that are excluded from physical output.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.1:item:007",
+                    "bm": "Sesi Administrator kini memaparkan amaran SweetAlert dengan countdown tepat dua minit sebelum grant ADMIN_ACCESS tamat bagi semua nilai lifetime konfigurasi.",
+                    "en_draft": "Administrator sessions now show a SweetAlert warning with an exact countdown two minutes before the ADMIN_ACCESS grant expires for every configured lifetime.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.1:item:008",
+                    "bm": "Popup sesi menggunakan layout profesional responsif dengan identiti OneID, lapisan latar kabur, hierarki keselamatan, badge countdown serta tindakan Kekal Bersambung atau kembali ke akaun pengguna.",
+                    "en_draft": "The session popup uses a professional responsive layout with OneID identity, a blurred backdrop, security hierarchy, countdown badge and actions to stay connected or return to the user account.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.1:item:009",
+                    "bm": "Kekal Bersambung menggantikan grant lama secara atomik menggunakan lifetime konfigurasi semasa, CSRF, binding sesi dan pelayar, transaksi database serta audit event ADMIN_ACCESS_RENEW.",
+                    "en_draft": "Stay Connected atomically replaces the old grant using the current configured lifetime, CSRF, session and browser binding, a database transaction and the ADMIN_ACCESS_RENEW audit event.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.1:item:010",
+                    "bm": "Pembaharuan grant diselaraskan merentas tab dan semakan status server diklasifikasikan sebagai technical heartbeat supaya polling tidak memanjangkan idle session pengguna.",
+                    "en_draft": "Grant renewal is synchronized across tabs, and server status checks are classified as technical heartbeats so polling does not extend the user idle session.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.1:item:011",
+                    "bm": "Jika tiada respons, grant tamat secara server-side dan Administrator dikembalikan ke dashboard pengguna tanpa menamatkan token SSO yang masih aktif; akses admin seterusnya memerlukan pengesahan semula.",
+                    "en_draft": "Without a response, the grant expires server-side and the Administrator returns to the user dashboard without ending an otherwise active SSO token; entering admin again requires fresh verification.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.1:item:012",
+                    "bm": "Selepas pembaharuan berjaya, mesej pengesahan kekal terbuka sehingga Administrator menekan OK dan tidak lagi ditutup secara automatik.",
+                    "en_draft": "After a successful renewal, the confirmation remains open until the Administrator presses OK and no longer closes automatically.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.1:item:013",
+                    "bm": "Asset JavaScript dan CSS sesi Administrator kini dilayan daripada public web root dengan cache versioning, contract runtime dan regression checks bagi mencegah kegagalan popup berulang.",
+                    "en_draft": "Administrator session JavaScript and CSS assets are now served from the public web root with cache versioning, runtime contracts and regression checks to prevent recurring popup failures.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
+            "identity": "release:2.8.0",
+            "version": "2.8.0",
+            "date": "2026-08-06",
+            "items": [
+                {
+                    "identity": "release:2.8.0:item:001",
+                    "bm": "External Sync staging kini dijalankan tepat pada awal setiap jam untuk sumber Staff, Prasiswazah dan ODL.",
+                    "en_draft": "Staging External Sync now runs exactly at the start of every hour for Staff, Undergraduate and ODL sources.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.0:item:002",
+                    "bm": "Setiap sumber dibandingkan secara berasingan dan tamat sebagai SKIP_NO_CHANGES tanpa transaction atau perubahan database apabila tiada tindakan diperlukan.",
+                    "en_draft": "Each source is compared separately and exits as SKIP_NO_CHANGES without a transaction or database mutation when no action is required.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.0:item:003",
+                    "bm": "Staging boleh memproses semua perubahan selamat termasuk New, Update, Deactivate dan Reactivate tanpa had volum cron.",
+                    "en_draft": "Staging can process every safe change, including New, Update, Deactivate and Reactivate, without cron volume limits.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.0:item:004",
+                    "bm": "Kawalan integriti bagi sumber gagal atau kosong, identity collision, plan drift dan reconciliation mismatch kekal fail-closed.",
+                    "en_draft": "Integrity controls for failed or empty sources, identity collisions, plan drift and reconciliation mismatches remain fail-closed.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.0:item:005",
+                    "bm": "Filesystem flock dan database advisory lock menghalang cron, sync manual atau run sebelumnya daripada menulis secara bertindih.",
+                    "en_draft": "Filesystem flock and the database advisory lock prevent cron, manual sync or an earlier run from writing concurrently.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.0:item:006",
+                    "bm": "Kegagalan database cron kini melaporkan stage, SQLSTATE dan driver code yang selamat tanpa mendedahkan SQL, credential atau data pengguna.",
+                    "en_draft": "Cron database failures now report a safe stage, SQLSTATE and driver code without exposing SQL, credentials or user data.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.0:item:007",
+                    "bm": "Identiti service cron dipendekkan kepada ONEID-CRON supaya serasi dengan medan triggered_by legacy dan kekal jelas dalam audit.",
+                    "en_draft": "The cron service identity is shortened to ONEID-CRON for compatibility with the legacy triggered_by field and clear audit attribution.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.0:item:008",
+                    "bm": "Log External Sync dirotasi setiap minggu, dimampatkan dan disimpan sehingga 52 minggu untuk sejarah operasi setahun.",
+                    "en_draft": "External Sync logs are rotated weekly, compressed and retained for up to 52 weeks to provide one year of operational history.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.0:item:009",
+                    "bm": "Runtime staging mengekalkan permission 640 serta ownership iqs:www-data supaya CLI cron dan PHP-FPM boleh membaca konfigurasi private yang sama.",
+                    "en_draft": "The staging runtime retains mode 640 and iqs:www-data ownership so CLI cron and PHP-FPM can read the same private configuration.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.0:item:010",
+                    "bm": "Contract cron, transaction, rollback, reconciliation, metadata release dan validasi operasi staging telah disahkan lulus.",
+                    "en_draft": "Cron, transaction, rollback, reconciliation, release metadata and staging operational validation contracts were verified successfully.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.7.4",
             "version": "2.7.4",
@@ -2025,5 +2177,5 @@
             ]
         }
     ],
-    "manifest_digest": "e6618c5ac900035a2dbbd997a105ac7f90fa93214354fe8e37ae76ff1ffddef9"
+    "manifest_digest": "75b45757eb83a2b8ebad790b6e686576de3c7e8273732a8ad725f84e22d5a561"
 }

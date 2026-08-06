@@ -8,14 +8,6 @@
 
 **Status:** IMPLEMENTED / STAGING ACTIVATED
 
-## Administrator session expiry warning
-
-- Semua tempoh Admin Step-Up memaparkan SweetAlert apabila baki grant mencapai dua minit.
-- Countdown menggunakan baki grant server dan tamat dengan redirect ke akaun pengguna tanpa logout SSO yang masih sah.
-- `Stay Connected` menggantikan grant `ADMIN_ACCESS` lama secara atomik mengikut nilai konfigurasi semasa.
-- Pembaharuan dilindungi CSRF, session/browser binding, transaksi, audit event 67 dan penyelarasan multi-tab.
-- Status polling diklasifikasikan sebagai technical heartbeat supaya semakan masa tidak dianggap aktiviti manusia.
-
 ## Ringkasan
 
 Release ini mengaktifkan External Sync pada awal setiap jam bagi Staff,
