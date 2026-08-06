@@ -1353,7 +1353,14 @@ class Database {
 
 
     public function admin_get_all_user_category(){
-        $Q = "SELECT A.*, (SELECT COUNT(*) FROM user_tbl WHERE u_category=A.uc_id AND avail_status=1) as total
+        $Q = "SELECT A.*, (
+                  SELECT COUNT(*) FROM user_tbl U
+                  WHERE U.avail_status=1
+                    AND CASE
+                      WHEN A.uc_name='Admin SSO' THEN U.u_type=1
+                      ELSE U.u_category=A.uc_id
+                    END
+                ) as total
                 FROM user_category A WHERE A.avail_status =1";
         $R = $this->pdo->prepare($Q);   
         $R->execute();
@@ -1363,9 +1370,15 @@ class Database {
 
 
     public function admin_get_specific_category_user_listing($uc_id){
-        $Q = "SELECT u_id,data1,data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12
-                FROM user_tbl 
-                WHERE u_category=:uc_id AND avail_status=1";
+        $Q = "SELECT U.u_id,U.data1,U.data2,U.data3,U.data4,U.data5,U.data6,
+                     U.data7,U.data8,U.data9,U.data10,U.data11,U.data12
+                FROM user_tbl U
+                INNER JOIN user_category C ON C.uc_id=:uc_id AND C.avail_status=1
+                WHERE U.avail_status=1
+                  AND CASE
+                    WHEN C.uc_name='Admin SSO' THEN U.u_type=1
+                    ELSE U.u_category=C.uc_id
+                  END";
         $R = $this->pdo->prepare($Q);   
         $R->bindParam(':uc_id', $uc_id);
         $R->execute();

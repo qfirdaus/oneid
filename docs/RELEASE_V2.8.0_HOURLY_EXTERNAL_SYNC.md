@@ -29,6 +29,8 @@ diproses secara automatik di staging termasuk `Deactivate`.
 - service identity `ONEID-CRON` serasi dengan `triggered_by` legacy;
 - log dirotasi mingguan, dimampatkan dan disimpan selama 52 minggu; dan
 - private runtime dikekalkan sebagai `iqs:www-data` dengan mode `0640`.
+- baris kategori `Admin SSO` mengira dan menyenaraikan role Administrator aktif
+  (`u_type=1`) tanpa memindahkan staf keluar daripada kategori asal mereka.
 
 ## Kontrak Operasi
 
