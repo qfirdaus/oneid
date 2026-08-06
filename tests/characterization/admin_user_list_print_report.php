@@ -32,6 +32,12 @@ $checks = [
     'staff uses data3 while students use data4 for displayed ID' =>
         str_contains($source, "[2, 3]")
         && str_contains($source, "\$user[\$isStaff ? 'data3' : 'data4']"),
+    'data7 appears as small non-bold line below the name' =>
+        str_contains($source, "\$secondaryName = trim((string) (\$user['data7'] ?? ''))")
+        && str_contains($source, 'class="user-secondary"')
+        && str_contains($source, 'font-size: 11px; font-weight: 400;'),
+    'description contains data6 without duplicating data7' =>
+        str_contains($source, "\$description = trim((string) (\$user['data6'] ?? ''))"),
 ];
 
 $failed = 0;

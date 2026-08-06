@@ -114,7 +114,12 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
         .column-description { width: 45%; }
         td.column-number { color: var(--muted); font-weight: 700; }
         td.column-id { font-variant-numeric: tabular-nums; font-weight: 700; }
-        td.column-name { font-weight: 700; }
+        td.column-name { font-weight: 400; }
+        .user-name { display: block; font-weight: 700; }
+        .user-secondary {
+            display: block; margin-top: 3px; color: var(--muted);
+            font-size: 11px; font-weight: 400; line-height: 1.35;
+        }
         td.column-description { color: #334b68; }
         .empty-state { padding: 36px 18px; color: var(--muted); text-align: center; }
         .report-footer {
@@ -222,15 +227,18 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
                             if ($displayId === '') {
                                 $displayId = trim((string) ($user['data4'] ?? ''));
                             }
-                            $description = trim(implode(' · ', array_filter([
-                                trim((string) ($user['data6'] ?? '')),
-                                trim((string) ($user['data7'] ?? '')),
-                            ], static fn(string $value): bool => $value !== '')));
+                            $secondaryName = trim((string) ($user['data7'] ?? ''));
+                            $description = trim((string) ($user['data6'] ?? ''));
                         ?>
                         <tr>
                             <td class="column-number"><?=$index + 1?></td>
                             <td class="column-id"><?=$escape($displayId)?></td>
-                            <td class="column-name"><?=$escape($user['data1'] ?? '')?></td>
+                            <td class="column-name">
+                                <span class="user-name"><?=$escape($user['data1'] ?? '')?></span>
+                                <?php if ($secondaryName !== '') { ?>
+                                    <span class="user-secondary"><?=$escape($secondaryName)?></span>
+                                <?php } ?>
+                            </td>
                             <td class="column-description"><?=$escape($description)?></td>
                         </tr>
                         <?php } ?>
