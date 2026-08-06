@@ -24,13 +24,14 @@ $expired=clone $operation;$expired->committed=false;$expired->rolledBack=false;$
 try{(new AdminStepUpSessionService($expired))->renew('530','session-id','browser','127.0.0.1');}catch(AdminStepUpException $exception){$thrown=$exception->reason;}
 $report($thrown==='STEP_UP_EXPIRED','expired grant cannot be renewed');
 $report($expired->rolledBack&&!$expired->committed,'failed renewal rolls back');
-$root=dirname(__DIR__,2);$client=file_get_contents($root.'/dist/js/oneid-admin-session.js')?:'';$security=file_get_contents($root.'/lib/request_security.php')?:'';$session=file_get_contents($root.'/lib/session_security.php')?:'';$dashboard=file_get_contents($root.'/admin/dashboard.php')?:'';
+$root=dirname(__DIR__,2);$client=file_get_contents($root.'/public/dist/js/oneid-admin-session.js')?:'';$security=file_get_contents($root.'/lib/request_security.php')?:'';$session=file_get_contents($root.'/lib/session_security.php')?:'';$dashboard=file_get_contents($root.'/admin/dashboard.php')?:'';
 $report(str_contains($client,'var warningSeconds = 120;'),'warning is fixed at two minutes for every configured lifetime');
 $report(str_contains($client,"post('admin_step_up_renew')")&&str_contains($security,"'admin_step_up_renew'"),'renewal action is wired through the guarded endpoint');
 $report(str_contains($client,'BroadcastChannel')&&str_contains($client,"addEventListener('storage'"),'renewed deadline is synchronized across tabs');
 $report(str_contains($client,"document.addEventListener('visibilitychange'")&&str_contains($client,'admin_step_up_status'),'visible tab revalidates against server state');
 $report(str_contains($session,"['admin_step_up_status', 'purpose']"),'status polling is a technical heartbeat');
-$report(str_contains($dashboard,'oneid-admin-session.js?v=20260806-1'),'Administrator dashboard loads the session controller');
+$report(str_contains($dashboard,'oneid-admin-session.js?v=20260806-2'),'Administrator dashboard loads the cache-busted session controller');
+$report(is_file($root.'/public/dist/js/oneid-admin-session.js')&&!is_file($root.'/dist/js/oneid-admin-session.js'),'session controller is stored under the public web asset root');
 $up=file_get_contents($root.'/docs/migrations/20260806_admin_access_renewal_audit_up.sql')?:'';$down=file_get_contents($root.'/docs/migrations/20260806_admin_access_renewal_audit_down.sql')?:'';
 $report(str_contains($up,"67,'ADMIN_ACCESS_RENEW'")&&str_contains($down,'syslog_event_id=67'),'audit dictionary migration is reversible');
 $schemaTool=file_get_contents($root.'/tools/admin_access_renewal_schema.php')?:'';
