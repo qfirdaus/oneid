@@ -30,11 +30,12 @@ $report(str_contains($client,"post('admin_step_up_renew')")&&str_contains($secur
 $report(str_contains($client,'BroadcastChannel')&&str_contains($client,"addEventListener('storage'"),'renewed deadline is synchronized across tabs');
 $report(str_contains($client,"document.addEventListener('visibilitychange'")&&str_contains($client,'admin_step_up_status'),'visible tab revalidates against server state');
 $report(str_contains($session,"['admin_step_up_status', 'purpose']"),'status polling is a technical heartbeat');
-$report(str_contains($dashboard,'oneid-admin-session.js?v=20260806-4')&&str_contains($dashboard,'oneid-admin-session.css?v=20260806-1'),'Administrator dashboard loads cache-busted session presentation assets');
+$report(str_contains($dashboard,'oneid-admin-session.js?v=20260806-5')&&str_contains($dashboard,'oneid-admin-session.css?v=20260806-1'),'Administrator dashboard loads cache-busted session presentation assets');
 $report(is_file($root.'/public/dist/js/oneid-admin-session.js')&&!is_file($root.'/dist/js/oneid-admin-session.js'),'session controller is stored under the public web asset root');
 $sessionCss=file_get_contents($root.'/public/dist/css/oneid-admin-session.css')?:'';
 $report(str_contains($client,'applyProfessionalLayout')&&str_contains($client,'oneid-session-countdown')&&str_contains($sessionCss,'.oneid-admin-session-alert'),'session warning has isolated professional layout and countdown styling');
 $report(str_contains($client,'text: config.text.warningBody')&&!str_contains($client,'warningMessage()'),'session warning does not call a removed message formatter');
+$report(str_contains($client,'confirmButtonText: config.text.ok')&&str_contains($client,'showConfirmButton: true')&&!str_contains($client,'timer: 1800'),'renewal success remains open until Administrator confirms OK');
 $up=file_get_contents($root.'/docs/migrations/20260806_admin_access_renewal_audit_up.sql')?:'';$down=file_get_contents($root.'/docs/migrations/20260806_admin_access_renewal_audit_down.sql')?:'';
 $report(str_contains($up,"67,'ADMIN_ACCESS_RENEW'")&&str_contains($down,'syslog_event_id=67'),'audit dictionary migration is reversible');
 $schemaTool=file_get_contents($root.'/tools/admin_access_renewal_schema.php')?:'';

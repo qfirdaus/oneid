@@ -697,6 +697,7 @@ return [
     'admin.session.back_to_user' => 'Back to User Account',
     'admin.session.renewed_title' => 'Administrator session renewed',
     'admin.session.renewed_body' => 'Your Administrator access is now valid for another {minutes} minutes.',
+    'admin.session.ok' => 'OK',
     'admin.session.renew_failed_title' => 'Session could not be renewed',
     'admin.session.renew_failed_body' => 'OneID could not renew Administrator access. Try again before the countdown ends.',
     'admin.session.try_again' => 'Try Again',

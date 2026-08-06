@@ -697,6 +697,7 @@ return [
     'admin.session.back_to_user' => 'Kembali ke Akaun Pengguna',
     'admin.session.renewed_title' => 'Sesi Administrator diperbaharui',
     'admin.session.renewed_body' => 'Akses Administrator anda kini sah untuk {minutes} minit lagi.',
+    'admin.session.ok' => 'OK',
     'admin.session.renew_failed_title' => 'Sesi tidak dapat diperbaharui',
     'admin.session.renew_failed_body' => 'OneID tidak dapat memperbaharui akses Administrator. Cuba lagi sebelum kira detik tamat.',
     'admin.session.try_again' => 'Cuba Lagi',

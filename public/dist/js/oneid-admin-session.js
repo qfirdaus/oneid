@@ -159,8 +159,10 @@
                 title: config.text.renewedTitle,
                 text: config.text.renewedBody.replace('{minutes}', String(payload.admin_step_up_lifetime_minutes)),
                 type: 'success',
-                timer: 1800,
-                showConfirmButton: false
+                confirmButtonText: config.text.ok,
+                showConfirmButton: true,
+                closeOnConfirm: true,
+                allowEscapeKey: false
             });
             schedule(payload.grant_remaining_seconds, true);
         }).catch(function (error) {

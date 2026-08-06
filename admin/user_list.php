@@ -270,6 +270,7 @@ window.OneIdAdminSessionConfig = <?=json_encode([
         'backToUser' => oneid_translate('admin.session.back_to_user'),
         'renewedTitle' => oneid_translate('admin.session.renewed_title'),
         'renewedBody' => oneid_translate('admin.session.renewed_body'),
+        'ok' => oneid_translate('admin.session.ok'),
         'renewFailedTitle' => oneid_translate('admin.session.renew_failed_title'),
         'renewFailedBody' => oneid_translate('admin.session.renew_failed_body'),
         'tryAgain' => oneid_translate('admin.session.try_again'),
@@ -277,6 +278,6 @@ window.OneIdAdminSessionConfig = <?=json_encode([
     ],
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
 </script>
-<script src="../dist/js/oneid-admin-session.js?v=20260806-4"></script>
+<script src="../dist/js/oneid-admin-session.js?v=20260806-5"></script>
 </body>
 </html>
