@@ -1,6 +1,6 @@
 /var/www/oneid-uat/storage/logs/external-sync-cron.log {
     weekly
-    rotate 12
+    rotate 52
     compress
     delaycompress
     missingok
