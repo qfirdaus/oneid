@@ -4,6 +4,8 @@ if(PHP_SAPI!=='cli'){exit(2);}require_once dirname(__DIR__,2).'/lib/session_secu
 $checks=0;$failed=0;$report=static function(bool $ok,string $label)use(&$checks,&$failed):void{$checks++;if(!$ok)$failed++;printf("%s %s\n",$ok?'PASS':'FAIL',$label);};
 $_SERVER['REQUEST_METHOD']='POST';
 $report(oneid_is_technical_heartbeat_request(['update_specific_token_datetime'=>'1']),'exact heartbeat action is classified as technical');
+$report(oneid_is_technical_heartbeat_request(['admin_step_up_status'=>'1','purpose'=>'ADMIN_ACCESS']),'exact Admin access status check is classified as technical');
+$report(!oneid_is_technical_heartbeat_request(['admin_step_up_status'=>'1','purpose'=>'ADMIN_ACCESS','other'=>'x']),'mixed Admin access status request cannot masquerade as technical');
 $report(!oneid_is_technical_heartbeat_request(['update_specific_token_datetime'=>'1','other'=>'x']),'mixed request cannot masquerade as a technical heartbeat');
 $_SERVER['REQUEST_METHOD']='GET';
 $report(!oneid_is_technical_heartbeat_request(['update_specific_token_datetime'=>'1']),'non-POST request is not a technical heartbeat');

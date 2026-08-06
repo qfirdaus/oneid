@@ -192,6 +192,7 @@ function oneid_q_func_action_map(): array
         ],
         'step_up' => [
             'admin_step_up_status',
+            'admin_step_up_renew',
             'admin_step_up_request_email',
             'admin_step_up_verify_email',
             'admin_step_up_verify_totp',

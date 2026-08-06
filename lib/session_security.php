@@ -6,7 +6,10 @@ require_once __DIR__ . '/locale.php';
 function oneid_is_technical_heartbeat_request(array $post): bool
 {
     return ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST'
-        && array_keys($post) === ['update_specific_token_datetime'];
+        && in_array(array_keys($post), [
+            ['update_specific_token_datetime'],
+            ['admin_step_up_status', 'purpose'],
+        ], true);
 }
 
 function oneid_session_is_expired(int $now, int $createdAt, int $lastActivity): bool

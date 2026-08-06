@@ -1917,6 +1917,28 @@ class Database {
         ]);return $R->rowCount();
     }
 
+    public function admin_step_up_renewal_context_for_update($adminId,$sessionHash,$browserDigest){
+        $Q="SELECT u.u_type,u.avail_status,c.admin_2fa_enabled,c.admin_step_up_lifetime_minutes,
+                   g.grant_id,g.verified_factor,g.expires_at
+            FROM user_tbl u CROSS JOIN sys_config c
+            JOIN admin_step_up_grants g ON g.admin_user_id=u.u_id
+            WHERE u.u_id=:admin_id AND c.singleton_key=1
+              AND g.session_binding_hash=:session_hash AND g.browser_digest=:browser
+              AND g.purpose='ADMIN_ACCESS' AND g.revoked_at IS NULL AND g.expires_at>NOW()
+            ORDER BY g.expires_at DESC,g.issued_at DESC LIMIT 1 FOR UPDATE";
+        $R=$this->pdo->prepare($Q);$R->execute([':admin_id'=>$adminId,':session_hash'=>$sessionHash,':browser'=>$browserDigest]);
+        return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_step_up_revoke_active_access_grants($adminId,$sessionHash,$browserDigest){
+        $Q="UPDATE admin_step_up_grants SET revoked_at=NOW()
+            WHERE admin_user_id=:admin_id AND session_binding_hash=:session_hash
+              AND browser_digest=:browser AND purpose='ADMIN_ACCESS'
+              AND revoked_at IS NULL AND expires_at>NOW()";
+        $R=$this->pdo->prepare($Q);$R->execute([':admin_id'=>$adminId,':session_hash'=>$sessionHash,':browser'=>$browserDigest]);
+        return $R->rowCount();
+    }
+
     public function admin_mfa_enrollment_context_for_update($adminId){
         $Q="SELECT u_type,avail_status,u_password,data5 email FROM user_tbl
             WHERE u_id=:admin_id FOR UPDATE";

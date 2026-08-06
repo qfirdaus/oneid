@@ -55,6 +55,7 @@ require_once dirname(__DIR__) . '/app/Auth/AdminTotpFactorService.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpTotpService.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminMfaPreferenceService.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpPolicyService.php';
+require_once dirname(__DIR__) . '/app/Auth/AdminStepUpSessionService.php';
 require_once dirname(__DIR__) . '/app/Auth/Admin2faBootstrapService.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserLoginMfaPolicy.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaRuntimeGate.php';
@@ -271,7 +272,8 @@ if(str_starts_with($oneidGuardedAction,'admin_step_up_')||str_starts_with($oneid
   $admin=(string)$_SESSION['login_user'];$session=session_id();$ua=(string)($_SERVER['HTTP_USER_AGENT']??'');$ip=(string)($_SERVER['REMOTE_ADDR']??'');
   try{
     $preference=new \OneId\App\Auth\AdminMfaPreferenceService($operation);
-    if($oneidGuardedAction==='admin_step_up_status'){$purpose=strtoupper(trim((string)($_POST['purpose']??'ADMIN_ACCESS')));$results=$preference->status($admin);$decision=oneid_admin_step_up_decision($operation,$purpose);$results['purpose']=$purpose;$results['grant_valid']=$decision['allowed']&&($decision['reason']??'')==='STEP_UP_GRANTED';$results['grant_remaining_seconds']=(int)($decision['remaining_seconds']??0);}
+    if($oneidGuardedAction==='admin_step_up_status'){$purpose=strtoupper(trim((string)($_POST['purpose']??'ADMIN_ACCESS')));$results=$preference->status($admin);$decision=oneid_admin_step_up_decision($operation,$purpose);$results['purpose']=$purpose;$results['grant_valid']=$decision['allowed']&&($decision['reason']??'')==='STEP_UP_GRANTED';$results['grant_remaining_seconds']=(int)($decision['remaining_seconds']??0);$results['server_epoch']=time();}
+    elseif($oneidGuardedAction==='admin_step_up_renew'){$results=(new \OneId\App\Auth\AdminStepUpSessionService($operation))->renew($admin,$session,$ua,$ip);}
     elseif($oneidGuardedAction==='admin_step_up_request_email'){$results=(new \OneId\App\Auth\AdminStepUpEmailOtpService($operation,new \OneId\App\Auth\AdminStepUpPhpMailerSender()))->request($admin,(string)($_POST['purpose']??''),$session,$ua,$ip);}
     elseif($oneidGuardedAction==='admin_step_up_verify_email'){$results=(new \OneId\App\Auth\AdminStepUpEmailOtpService($operation,new \OneId\App\Auth\AdminStepUpPhpMailerSender()))->verify($admin,(string)($_POST['purpose']??''),(string)($_POST['challenge_id']??''),(string)($_POST['code']??''),$session,$ua,$ip);$results+=oneid_complete_step_up_rotation($operation,$results['purpose'],$results['correlation_id']);}
     elseif($oneidGuardedAction==='admin_step_up_verify_totp'){$path=(string)oneid_config('ONEID_TOTP_KEYRING_PATH','');$cipher=new \OneId\App\Auth\TotpSecretCipher(\OneId\App\Auth\TotpKeyring::fromFile($path));$results=(new \OneId\App\Auth\AdminStepUpTotpService($operation,$cipher))->verify($admin,(string)($_POST['purpose']??''),(string)($_POST['code']??''),$session,$ua,$ip);$results+=oneid_complete_step_up_rotation($operation,$results['purpose'],$results['correlation_id']);}

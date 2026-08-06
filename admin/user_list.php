@@ -31,6 +31,7 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title><?=$escape(oneid_translate('admin.user_list.title'))?> · OneID UPNM</title>
+    <link href="../assetsM/css/sweetalert.css" rel="stylesheet" type="text/css">
     <style>
         :root {
             --ink: #10233f;
@@ -254,5 +255,26 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
         </div>
     </article>
 </main>
+<script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+window.OneIdAdminSessionConfig = <?=json_encode([
+    'apiUrl' => APP_URL . '/lib/q_func.php',
+    'csrfToken' => oneid_csrf_token(),
+    'userDashboardUrl' => APP_URL . '/page/dashboard',
+    'text' => [
+        'warningTitle' => oneid_translate('admin.session.warning_title'),
+        'warningBody' => oneid_translate('admin.session.warning_body'),
+        'stayConnected' => oneid_translate('admin.session.stay_connected'),
+        'backToUser' => oneid_translate('admin.session.back_to_user'),
+        'renewedTitle' => oneid_translate('admin.session.renewed_title'),
+        'renewedBody' => oneid_translate('admin.session.renewed_body'),
+        'renewFailedTitle' => oneid_translate('admin.session.renew_failed_title'),
+        'renewFailedBody' => oneid_translate('admin.session.renew_failed_body'),
+        'tryAgain' => oneid_translate('admin.session.try_again'),
+        'requestFailed' => oneid_translate('common.request_failed'),
+    ],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
+</script>
+<script src="../dist/js/oneid-admin-session.js?v=20260806-1"></script>
 </body>
 </html>

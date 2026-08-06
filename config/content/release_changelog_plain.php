@@ -22,6 +22,10 @@ return array_values(array (
       7 => 'Log External Sync dirotasi setiap minggu, dimampatkan dan disimpan sehingga 52 minggu untuk sejarah operasi setahun.',
       8 => 'Runtime staging mengekalkan permission 640 serta ownership iqs:www-data supaya CLI cron dan PHP-FPM boleh membaca konfigurasi private yang sama.',
       9 => 'Contract cron, transaction, rollback, reconciliation, metadata release dan validasi operasi staging telah disahkan lulus.',
+      10 => 'Sesi Administrator kini memberi amaran SweetAlert dengan kira detik tepat dua minit sebelum grant tamat bagi semua nilai tempoh konfigurasi.',
+      11 => 'Pilihan Kekal Bersambung menggantikan grant ADMIN_ACCESS secara atomik menggunakan tempoh konfigurasi semasa, binding sesi dan pelayar, perlindungan CSRF serta audit khusus.',
+      12 => 'Grant yang tidak diperbaharui tamat secara server-side dan mengembalikan Administrator ke akaun pengguna tanpa menamatkan token SSO yang masih aktif.',
+      13 => 'Pembaharuan sesi diselaraskan merentas tab dan tab yang kembali aktif menyemak semula baki grant daripada server tanpa memanjangkan idle session melalui polling.',
     ),
     'en' =>
     array (
@@ -35,6 +39,10 @@ return array_values(array (
       7 => 'External Sync logs are rotated weekly, compressed and retained for up to 52 weeks to provide one year of operational history.',
       8 => 'The staging runtime retains mode 640 and iqs:www-data ownership so CLI cron and PHP-FPM can read the same private configuration.',
       9 => 'Cron, transaction, rollback, reconciliation, release metadata and staging operational validation contracts were verified successfully.',
+      10 => 'Administrator sessions now show a SweetAlert warning with an exact countdown two minutes before grant expiry for every configured lifetime.',
+      11 => 'Stay Connected atomically replaces the ADMIN_ACCESS grant using the current configured lifetime, session and browser binding, CSRF protection and dedicated auditing.',
+      12 => 'A grant that is not renewed expires server-side and returns the Administrator to the user account without ending an otherwise active SSO token.',
+      13 => 'Session renewal is synchronized across tabs, while a tab returning to the foreground rechecks server grant time without extending idle activity through polling.',
     ),
   ),
   'release-2.7.4' =>

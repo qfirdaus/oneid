@@ -32,8 +32,8 @@ $latestPlainRelease = array_values($plainCatalogue)[0] ?? [];
 $report(array_is_list($plainCatalogue), 'canonical release catalogue is a JavaScript-compatible list');
 $report(
     ($latestPlainRelease['version'] ?? null) === ONEID_APP_VERSION
-        && count($latestPlainRelease['bm'] ?? []) === 10
-        && count($latestPlainRelease['en'] ?? []) === 10,
+        && count($latestPlainRelease['bm'] ?? []) === 14
+        && count($latestPlainRelease['en'] ?? []) === 14,
     'latest admin release card reads shared v2.8.0 bilingual metadata'
 );
 $expectedHistory = [
