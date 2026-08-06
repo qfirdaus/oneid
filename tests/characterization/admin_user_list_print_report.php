@@ -26,8 +26,9 @@ $checks = [
         && str_contains($source, 'reportReference')
         && str_contains($source, 'count($userlist)'),
     'name column is wider than compact fixed-length ID column' =>
-        str_contains($source, '.column-id { width: 16%; }')
-        && str_contains($source, '.column-name { width: 37%; }'),
+        str_contains($source, '.column-id { width: 13%; white-space: nowrap; }')
+        && str_contains($source, '.column-name { width: 38%; }')
+        && str_contains($source, '.column-description { width: 44%; }'),
 ];
 
 $failed = 0;

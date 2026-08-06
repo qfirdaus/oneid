@@ -109,9 +109,9 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
         tbody tr:nth-child(even) { background: #f8fafc; }
         tbody tr:last-child td { border-bottom: 0; }
         .column-number { width: 5%; text-align: center; }
-        .column-id { width: 16%; }
-        .column-name { width: 37%; }
-        .column-description { width: 42%; }
+        .column-id { width: 13%; white-space: nowrap; }
+        .column-name { width: 38%; }
+        .column-description { width: 44%; }
         td.column-number { color: var(--muted); font-weight: 700; }
         td.column-id { font-variant-numeric: tabular-nums; font-weight: 700; }
         td.column-name { font-weight: 700; }
