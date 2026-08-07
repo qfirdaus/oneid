@@ -45,7 +45,7 @@ final class MyDigitalIdLocalLoginFinalizer implements MyDigitalIdLocalLoginFinal
         $generate = $this->tokenGenerator
             ?? static fn(): string => \oneid_generate_sso_token();
         $setCookie = $this->cookieSetter
-            ?? static fn(string $token): mixed => \oneid_set_sso_cookie($token);
+            ?? fn(string $token): mixed => \oneid_set_configured_sso_cookie($this->operation, $token);
         $establishSession = $this->sessionEstablisher
             ?? static fn(array $account): mixed => \oneid_establish_authenticated_session($account);
         $token = $generate();

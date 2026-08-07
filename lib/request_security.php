@@ -29,7 +29,7 @@ function oneid_is_admin(): bool
         && (string) ($_SESSION['login_user_type'] ?? '') === '1';
 }
 
-function oneid_json_deny(int $status, string $message): void
+function oneid_json_deny(int $status, string $message, string $code = ''): void
 {
     if (!headers_sent()) {
         http_response_code($status);
@@ -37,10 +37,14 @@ function oneid_json_deny(int $status, string $message): void
         header('Cache-Control: no-store');
     }
 
-    echo json_encode([
+    $payload = [
         'error' => $message,
         'status' => $status,
-    ]);
+    ];
+    if ($code !== '') {
+        $payload['code'] = $code;
+    }
+    echo json_encode($payload);
     exit;
 }
 
@@ -71,7 +75,7 @@ function oneid_authenticated_sso_token_is_active(object $operation): bool
 function oneid_deny_revoked_sso_token(): never
 {
     oneid_clear_local_authenticated_session();
-    oneid_json_deny(401, 'SSO session token is no longer active');
+    oneid_json_deny(401, 'SSO session token is no longer active', 'SSO_TOKEN_REVOKED');
 }
 
 function oneid_require_csrf(): void
@@ -80,7 +84,7 @@ function oneid_require_csrf(): void
     $providedToken = oneid_request_csrf_token();
 
     if ($providedToken === '' || !hash_equals($expectedToken, $providedToken)) {
-        oneid_json_deny(403, 'Invalid CSRF token');
+        oneid_json_deny(403, 'Invalid CSRF token', 'CSRF_INVALID');
     }
 }
 
@@ -98,6 +102,9 @@ function oneid_q_func_action_map(): array
             'user_mfa_totp_verify_login',
         ],
         'user' => [
+            'user_session_status',
+            'user_session_renew',
+            'user_session_expire',
             'check_default_password',
             'action_change_password',
             'action_set_initial_password',
@@ -318,6 +325,14 @@ function oneid_guard_q_func_request(array $post, ?object $operation = null): str
         oneid_json_deny(400, 'Exactly one recognized action is required');
     }
 
+    if (($matchedLevel !== 'public'
+            && isset($_SESSION['oneid_portal_session_expired_at']))
+        || (in_array($matchedActions[0], ['user_session_status','user_session_renew','user_session_expire'], true)
+            && !oneid_is_authenticated())
+    ) {
+        oneid_json_deny(401, 'OneID portal session has expired', 'USER_SESSION_EXPIRED');
+    }
+
     oneid_require_csrf();
 
     if ($matchedLevel === 'user' && !oneid_is_authenticated()) {
@@ -338,7 +353,10 @@ function oneid_guard_q_func_request(array $post, ?object $operation = null): str
             oneid_deny_revoked_sso_token();
         }
         $state=$operation->get_password_change_requirement((string)$_SESSION['login_user']);
-        if(!is_array($state)||(int)($state['avail_status']??0)!==1){oneid_json_deny(401,'Account is not active');}
+        if(!is_array($state)||(int)($state['avail_status']??0)!==1){
+            oneid_clear_local_authenticated_session();
+            oneid_json_deny(401,'Account is not active','ACCOUNT_INACTIVE');
+        }
         $_SESSION['password_change_required']=(int)($state['password_change_required']??0);
         if($_SESSION['password_change_required']===1&&!in_array($matchedActions[0],['check_default_password','action_change_password','action_set_initial_password'],true)){
             if(!headers_sent()){http_response_code(403);header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');}

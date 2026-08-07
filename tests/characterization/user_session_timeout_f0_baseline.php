@@ -95,12 +95,15 @@ $report(
 
 // Current portal-expiry and logout distinction.
 $expiryOffset = strpos($session, 'if (oneid_session_is_expired(');
-$sessionExpiryBlock = $expiryOffset === false ? '' : substr($session, $expiryOffset, 320);
+$expiryEnd = $expiryOffset === false ? false : strpos($session, 'function oneid_establish_authenticated_session', $expiryOffset);
+$sessionExpiryBlock = ($expiryOffset === false || $expiryEnd === false)
+    ? ''
+    : substr($session, $expiryOffset, $expiryEnd - $expiryOffset);
 $report(
     str_contains($sessionExpiryBlock, '$_SESSION = [];')
         && !str_contains($sessionExpiryBlock, 'update_specific_token_status')
-        && !str_contains($sessionExpiryBlock, 'oneid_clear_sso_cookie'),
-    'idle PHP expiry currently clears session state without revoking the SSO token'
+        && str_contains($sessionExpiryBlock, 'oneid_clear_sso_cookie'),
+    'idle PHP expiry clears portal state and cookie without revoking the SSO token'
 );
 $report(
     str_contains($logout, 'update_specific_token_status')
@@ -114,8 +117,9 @@ $report(
     'valid SSO flow can establish an authenticated OneID session from a token'
 );
 $report(
-    str_contains($authSecurity, "'expires' => time() + 1800"),
-    'OneID SSO browser cookie currently has a fixed 30-minute lifetime'
+    str_contains($authSecurity, "'expires' => time() + \$lifetimeSeconds")
+        && str_contains($session, 'oneid_set_configured_sso_cookie'),
+    'OneID browser cookie retention follows the effective portal deadline'
 );
 
 // Admin is a grant above the same authenticated PHP session.

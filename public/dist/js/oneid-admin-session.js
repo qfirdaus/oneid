@@ -164,7 +164,9 @@
                 closeOnConfirm: true,
                 allowEscapeKey: false
             });
-            schedule(payload.grant_remaining_seconds, true);
+            schedule(payload.effective_remaining_seconds !== undefined
+                ? payload.effective_remaining_seconds
+                : payload.grant_remaining_seconds, true);
         }).catch(function (error) {
             renewalPending = false;
             if (error.status === 401 || error.code === 'STEP_UP_EXPIRED' || remainingSeconds() <= 0) {
@@ -223,7 +225,9 @@
                 redirectToUser();
                 return;
             }
-            schedule(payload.grant_remaining_seconds, false);
+            schedule(payload.effective_remaining_seconds !== undefined
+                ? payload.effective_remaining_seconds
+                : payload.grant_remaining_seconds, false);
         }).catch(function () {
             redirectToUser();
         });

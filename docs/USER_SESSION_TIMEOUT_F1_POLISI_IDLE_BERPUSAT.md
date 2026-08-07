@@ -4,7 +4,7 @@
 
 **Environment sasaran:** Staging/UAT
 
-**Status:** IMPLEMENTED / PENDING STAGING ACTIVATION
+**Status:** COMPLETE / STAGING UAT PASSED
 
 **Dokumen induk:** `USER_SESSION_TIMEOUT_SWEETALERT_REKA_BENTUK_DAN_PELAN.md`
 
@@ -182,9 +182,9 @@ telah disahkan dalam Fasa 0.
 Fasa 2 hanya bermula apabila:
 
 - [x] policy/source contracts lulus;
-- [ ] Fasa 1 dipush dan diaktifkan pada staging;
-- [ ] setting 30 minit disahkan;
-- [ ] setting 1 jam disahkan melepasi sempadan 30 minit;
-- [ ] admin hierarchy dan technical heartbeat lulus staging;
-- [ ] regression authenticated/SSO lulus;
-- [ ] rollback source disahkan.
+- [x] Fasa 1 dipush dan diaktifkan pada staging;
+- [x] setting 30 minit disahkan;
+- [x] setting 1 jam disahkan melepasi sempadan 30 minit;
+- [x] admin hierarchy dan technical heartbeat lulus staging;
+- [x] regression authenticated/SSO lulus;
+- [x] rollback source disahkan.

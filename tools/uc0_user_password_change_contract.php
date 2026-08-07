@@ -7,7 +7,7 @@ $check(str_contains($ui,"data: {check_default_password:\"\"}")&&str_contains($ui
 $check(str_contains($service,'oneid_password_verify($current,$stored)')&&str_contains($q,'UserPasswordChangeService'),'backend service verifies current password for the session user');
 $check(str_contains($auth,'strlen($password) < 12')&&str_contains($auth,"preg_match('/[A-Z]/'")&&str_contains($q,'oneid_validate_new_password'),'12-character composition policy is enforced server-side');
 $check(str_contains($db,'oneid_password_hash($password)')&&str_contains($db,'password_hash($password, PASSWORD_DEFAULT)')===false,'database writer delegates to centralized modern password hash');
-$check(str_contains($service,'update_whole_token_status')&&str_contains($service,'add_new_token')&&str_contains($q,'oneid_set_sso_cookie'),'success revokes tokens and creates a browser replacement when allowed');
+$check(str_contains($service,'update_whole_token_status')&&str_contains($service,'add_new_token')&&str_contains($q,'oneid_set_configured_sso_cookie'),'success revokes tokens and creates a browser replacement when allowed');
 $check(str_contains($q,'syslog_record(20')&&str_contains($service,'syslog_record(21'),'attempt and success audit events are present');
 $changeStart=strpos($q,"if(isset( \$_POST['action_change_password']))");$changeEnd=strpos($q,'return;',($changeStart?:0));$block=$changeStart!==false?substr($q,$changeStart,($changeEnd?:strlen($q))-$changeStart):'';
 $check(str_contains($service,'beginTransaction')&&str_contains($service,'commit()'),'password change workflow is now atomic');

@@ -198,7 +198,8 @@ function API_REQUEST($API_DATA,$SSO_IDP_DOMAIN){
 
 
 function COOKIE_SETTER($sso_cre,$respond_user_packet){
-	oneid_set_sso_cookie((string) $sso_cre);
+	global $operation;
+	oneid_set_configured_sso_cookie($operation, (string) $sso_cre);
 }
 function GET_CURRENT_PAGE_URI(){
 	$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";  

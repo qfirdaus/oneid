@@ -44,6 +44,7 @@ require_once dirname(__DIR__) . '/app/Admin/ActiveSessionRevocationConfig.php';
 require_once dirname(__DIR__) . '/app/Admin/Adapters/SessionRevocationPreviewStore.php';
 require_once dirname(__DIR__) . '/app/Admin/ActiveSessionRevocationService.php';
 require_once dirname(__DIR__) . '/app/Auth/SsoTokenLifetimePolicy.php';
+require_once dirname(__DIR__) . '/app/Auth/UserPortalSessionService.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpException.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpEmailSenderInterface.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpEmailOtpService.php';
@@ -118,6 +119,21 @@ $detectedDeviceInfo = oneid_format_device_info(
 );
 $oneidGuardedAction=oneid_guard_q_func_request($_POST,$operation);
 
+if(in_array($oneidGuardedAction,['user_session_status','user_session_renew','user_session_expire'],true)){
+  try{
+    $service=new \OneId\App\Auth\UserPortalSessionService($operation);
+    $user=(string)$_SESSION['login_user'];$ip=(string)($_SERVER['REMOTE_ADDR']??'');
+    if($oneidGuardedAction==='user_session_status'){$results=$service->status();}
+    elseif($oneidGuardedAction==='user_session_renew'){$results=$service->renew($user,$ip);}
+    else{$results=$service->expire($user,$ip);}
+  }catch(\RuntimeException $e){
+    $known=['USER_SESSION_EXPIRED'=>401,'SESSION_STATUS_UNAVAILABLE'=>503];$code=$e->getMessage();
+    if(!isset($known[$code])){$code='SESSION_STATUS_UNAVAILABLE';}
+    http_response_code($known[$code]);$results=['status'=>0,'authenticated'=>false,'code'=>$code,'error'=>'OneID portal session request was not completed.'];
+  }
+  header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
+}
+
 if(str_starts_with($oneidGuardedAction,'user_mfa_')){
   $mode=(string)oneid_config('ONEID_USER_MFA_MODE','OFF');
   $schemaApply=filter_var(oneid_config('ONEID_USER_MFA_SCHEMA_APPLY_ENABLED','false'),FILTER_VALIDATE_BOOLEAN);
@@ -159,7 +175,7 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
         );
         $handle=$final['completion_handle'];$userInfo=$operation->get_specific_user_info((string)$final['user_id']);
         if(!is_array($userInfo)){throw new RuntimeException('USER_MFA_USER_SESSION_UNAVAILABLE');}
-        oneid_set_sso_cookie((string)$handle['token']);
+        oneid_set_configured_sso_cookie($operation,(string)$handle['token']);
         oneid_establish_authenticated_session($userInfo);
         unset($_SESSION['user_mfa_pending_user'],$_SESSION['user_mfa_pending_transaction']);
         $site=(string)($_SESSION['user_mfa_pending_site_id']??'');unset($_SESSION['user_mfa_pending_site_id']);
@@ -272,8 +288,8 @@ if(str_starts_with($oneidGuardedAction,'admin_step_up_')||str_starts_with($oneid
   $admin=(string)$_SESSION['login_user'];$session=session_id();$ua=(string)($_SERVER['HTTP_USER_AGENT']??'');$ip=(string)($_SERVER['REMOTE_ADDR']??'');
   try{
     $preference=new \OneId\App\Auth\AdminMfaPreferenceService($operation);
-    if($oneidGuardedAction==='admin_step_up_status'){$purpose=strtoupper(trim((string)($_POST['purpose']??'ADMIN_ACCESS')));$results=$preference->status($admin);$decision=oneid_admin_step_up_decision($operation,$purpose);$results['purpose']=$purpose;$results['grant_valid']=$decision['allowed']&&($decision['reason']??'')==='STEP_UP_GRANTED';$results['grant_remaining_seconds']=(int)($decision['remaining_seconds']??0);$results['server_epoch']=time();}
-    elseif($oneidGuardedAction==='admin_step_up_renew'){$results=(new \OneId\App\Auth\AdminStepUpSessionService($operation))->renew($admin,$session,$ua,$ip);}
+    if($oneidGuardedAction==='admin_step_up_status'){$purpose=strtoupper(trim((string)($_POST['purpose']??'ADMIN_ACCESS')));$results=$preference->status($admin);$decision=oneid_admin_step_up_decision($operation,$purpose);$results['purpose']=$purpose;$results['grant_valid']=$decision['allowed']&&($decision['reason']??'')==='STEP_UP_GRANTED';$results['grant_remaining_seconds']=(int)($decision['remaining_seconds']??0);$base=oneid_current_session_deadline_state($operation);$results+=$base;$results['effective_remaining_seconds']=min((int)$base['effective_remaining_seconds'],(int)$results['grant_remaining_seconds']);}
+    elseif($oneidGuardedAction==='admin_step_up_renew'){$results=(new \OneId\App\Auth\AdminStepUpSessionService($operation))->renew($admin,$session,$ua,$ip);oneid_refresh_session_activity();oneid_refresh_configured_sso_cookie($operation);$base=oneid_current_session_deadline_state($operation);$results+=$base;$results['effective_remaining_seconds']=min((int)$base['effective_remaining_seconds'],(int)$results['grant_remaining_seconds']);}
     elseif($oneidGuardedAction==='admin_step_up_request_email'){$results=(new \OneId\App\Auth\AdminStepUpEmailOtpService($operation,new \OneId\App\Auth\AdminStepUpPhpMailerSender()))->request($admin,(string)($_POST['purpose']??''),$session,$ua,$ip);}
     elseif($oneidGuardedAction==='admin_step_up_verify_email'){$results=(new \OneId\App\Auth\AdminStepUpEmailOtpService($operation,new \OneId\App\Auth\AdminStepUpPhpMailerSender()))->verify($admin,(string)($_POST['purpose']??''),(string)($_POST['challenge_id']??''),(string)($_POST['code']??''),$session,$ua,$ip);$results+=oneid_complete_step_up_rotation($operation,$results['purpose'],$results['correlation_id']);}
     elseif($oneidGuardedAction==='admin_step_up_verify_totp'){$path=(string)oneid_config('ONEID_TOTP_KEYRING_PATH','');$cipher=new \OneId\App\Auth\TotpSecretCipher(\OneId\App\Auth\TotpKeyring::fromFile($path));$results=(new \OneId\App\Auth\AdminStepUpTotpService($operation,$cipher))->verify($admin,(string)($_POST['purpose']??''),(string)($_POST['code']??''),$session,$ua,$ip);$results+=oneid_complete_step_up_rotation($operation,$results['purpose'],$results['correlation_id']);}
@@ -563,7 +579,7 @@ function string_sanitize($s) {
             $operation->add_new_token($new_refresh_token, $results['u_id'], $detectedDeviceInfo);
 
             $user_info = $operation->get_specific_user_info($results['u_id']);
-            oneid_set_sso_cookie($new_refresh_token);
+            oneid_set_configured_sso_cookie($operation,$new_refresh_token);
 
             $array['login_status'] = 1;
 
@@ -989,7 +1005,7 @@ function string_sanitize($s) {
         if($operation->count_recent_invalid_current_password_attempts($userId,$ip,15)>=5){$correlation=bin2hex(random_bytes(8));$operation->syslog_record(20,'user='.$userId.' outcome=rejected reason=UC4_RATE_LIMITED correlation='.$correlation,$ip);if(!headers_sent())http_response_code(429);echo json_encode(['status'=>0,'code'=>'UC4_RATE_LIMITED','translation_key'=>'dashboard.password.rate_limited','msg'=>oneid_translate('dashboard.password.rate_limited'),'correlation_id'=>$correlation]);return;}
         try{$service=new \OneId\App\User\UserPasswordChangeService($operation);$result=$service->change($userId,(string)($_POST['change_password_current']??''),(string)($_POST['change_password_new']??''),(string)($_POST['change_password_new_reconfirm']??''),$detectedDeviceInfo,$ip,!$wasForced);$token=$result['replacement_token'];unset($result['replacement_token']);
           if($wasForced){oneid_clear_sso_cookie();$_SESSION=[];session_regenerate_id(true);$result['redirect_uri']=APP_URL.'/';}
-          else{session_regenerate_id(true);$_SESSION['password_change_required']=0;unset($_SESSION['oneid_csrf_token']);$result['csrf_token']=oneid_csrf_token();oneid_set_sso_cookie((string)$token);}
+          else{session_regenerate_id(true);$_SESSION['password_change_required']=0;unset($_SESSION['oneid_csrf_token']);$result['csrf_token']=oneid_csrf_token();oneid_set_configured_sso_cookie($operation,(string)$token);}
           $result['translation_key']='dashboard.password.success';$result['msg']=oneid_translate('dashboard.password.success');echo json_encode($result);}
         catch(\OneId\App\User\UserPasswordChangeException $e){$operation->syslog_record(20,'user='.$_SESSION['login_user'].' outcome=rejected reason='.$e->reason.' correlation='.$e->correlationId,getUserIP());$passwordErrorKey=match($e->reason){'UC2_CONFIRMATION_MISMATCH'=>'dashboard.password.mismatch','UC5_PASSWORD_QUALITY_REJECTED'=>'dashboard.password.quality_rejected','UC2_USER_NOT_ACTIVE'=>'dashboard.password.user_inactive','UC2_CURRENT_PASSWORD_INVALID'=>'dashboard.password.current_invalid','UC2_PASSWORD_REUSE_CURRENT'=>'dashboard.password.reuse_current','UC5_PASSWORD_HISTORY_REUSED'=>'dashboard.password.history_reused',default=>'dashboard.password.operation_failed'};echo json_encode(['status'=>0,'code'=>$e->reason,'translation_key'=>$passwordErrorKey,'msg'=>oneid_translate($passwordErrorKey),'correlation_id'=>$e->correlationId]);}
       }

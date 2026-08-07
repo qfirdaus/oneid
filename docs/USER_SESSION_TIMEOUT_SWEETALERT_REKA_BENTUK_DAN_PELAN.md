@@ -312,6 +312,11 @@ masih diperlukan sebelum Fasa 1 ditutup.
 
 ### Fasa 2 — Endpoint Status, Renew dan Portal Expiry
 
+**Rekod pelaksanaan:** Lihat
+`docs/USER_SESSION_TIMEOUT_F2_ENDPOINT_DAN_PORTAL_EXPIRY.md`. Backend endpoint,
+kod respons, audit dan hierarchy Administrator telah diimplementasi tanpa
+memuatkan popup user atau mengubah API service provider.
+
 - tambah action authenticated untuk status teknikal;
 - tambah action eksplisit untuk Stay Connected;
 - tambah expiry handler portal-only yang tidak revoke token;

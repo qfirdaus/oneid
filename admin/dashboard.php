@@ -2055,7 +2055,7 @@
          ],
       ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
       </script>
-      <script src="../dist/js/oneid-admin-session.js?v=20260806-5"></script>
+      <script src="../dist/js/oneid-admin-session.js?v=20260807-1"></script>
       <script src="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
       <script src="../assetsM/js/oneid-notifications.js?v=20260716-1"></script>
       <!-- Init JavaScript -->

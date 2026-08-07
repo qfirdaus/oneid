@@ -71,10 +71,11 @@ function oneid_is_https_request(): bool
         || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443;
 }
 
-function oneid_set_sso_cookie(string $token): void
+function oneid_set_sso_cookie(string $token, int $lifetimeSeconds = 1800): void
 {
+    $lifetimeSeconds = max(1, $lifetimeSeconds);
     setcookie('sso_cre', $token, [
-        'expires' => time() + 1800,
+        'expires' => time() + $lifetimeSeconds,
         'path' => '/',
         'secure' => oneid_is_https_request(),
         'httponly' => true,

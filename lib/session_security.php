@@ -8,11 +8,19 @@ use OneId\App\Auth\UserSessionTimeoutPolicy;
 
 function oneid_is_technical_heartbeat_request(array $post): bool
 {
-    return ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST'
-        && in_array(array_keys($post), [
-            ['update_specific_token_datetime'],
-            ['admin_step_up_status', 'purpose'],
-        ], true);
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+        return false;
+    }
+    $keys = array_values(array_diff(array_keys($post), ['_csrf_token']));
+    sort($keys);
+    return in_array($keys, [
+        ['update_specific_token_datetime'],
+        ['admin_step_up_status', 'purpose'],
+        ['admin_step_up_renew'],
+        ['user_session_status'],
+        ['user_session_renew'],
+        ['user_session_expire'],
+    ], true);
 }
 
 function oneid_session_is_expired(
@@ -28,6 +36,32 @@ function oneid_session_is_expired(
 function oneid_session_next_activity(int $now, int $lastActivity, bool $technicalHeartbeat): int
 {
     return $technicalHeartbeat ? $lastActivity : $now;
+}
+
+/** @return array<string, int> */
+function oneid_session_deadline_state(int $now, int $createdAt, int $lastActivity, int $idleSeconds): array
+{
+    $idleRemaining = max(0, ($lastActivity + $idleSeconds) - $now);
+    $absoluteRemaining = max(0, ($createdAt + UserSessionTimeoutPolicy::ABSOLUTE_SECONDS) - $now);
+
+    return [
+        'idle_timeout_seconds' => $idleSeconds,
+        'idle_remaining_seconds' => $idleRemaining,
+        'absolute_remaining_seconds' => $absoluteRemaining,
+        'effective_remaining_seconds' => min($idleRemaining, $absoluteRemaining),
+        'server_epoch' => $now,
+    ];
+}
+
+function oneid_refresh_session_activity(?int $now = null): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE
+        || ($_SESSION['login_status'] ?? '') !== 'true'
+        || trim((string) ($_SESSION['login_user'] ?? '')) === ''
+    ) {
+        return;
+    }
+    $_SESSION['oneid_session_last_activity'] = $now ?? time();
 }
 
 function oneid_start_secure_session(): void
@@ -75,6 +109,36 @@ function oneid_configured_session_idle_seconds(object $operation): int
     }
 }
 
+/** @return array<string, int> */
+function oneid_current_session_deadline_state(object $operation, ?int $now = null): array
+{
+    $currentTime = $now ?? time();
+    return oneid_session_deadline_state(
+        $currentTime,
+        (int) ($_SESSION['oneid_session_created_at'] ?? $currentTime),
+        (int) ($_SESSION['oneid_session_last_activity'] ?? $currentTime),
+        oneid_configured_session_idle_seconds($operation)
+    );
+}
+
+function oneid_set_configured_sso_cookie(object $operation, string $token): void
+{
+    $idleSeconds = oneid_configured_session_idle_seconds($operation);
+    $lifetime = min($idleSeconds, UserSessionTimeoutPolicy::ABSOLUTE_SECONDS);
+    if (($_SESSION['login_status'] ?? '') === 'true') {
+        $lifetime = oneid_current_session_deadline_state($operation)['effective_remaining_seconds'];
+    }
+    oneid_set_sso_cookie($token, max(1, $lifetime));
+}
+
+function oneid_refresh_configured_sso_cookie(object $operation): void
+{
+    $token = oneid_sso_cookie_token();
+    if ($token !== '') {
+        oneid_set_configured_sso_cookie($operation, $token);
+    }
+}
+
 function oneid_apply_configured_session_policy(object $operation): void
 {
     if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -88,10 +152,36 @@ function oneid_apply_configured_session_policy(object $operation): void
     $technicalHeartbeat = oneid_is_technical_heartbeat_request($_POST ?? []);
 
     if (oneid_session_is_expired($now, $createdAt, $lastActivity, $idleSeconds)) {
+        $expiredUser = ($_SESSION['login_status'] ?? '') === 'true'
+            ? trim((string) ($_SESSION['login_user'] ?? ''))
+            : '';
+        if ($expiredUser !== '') {
+            oneid_clear_sso_cookie();
+            $ipAddress = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+            if (filter_var($ipAddress, FILTER_VALIDATE_IP) === false) {
+                $ipAddress = '0.0.0.0';
+            }
+            $detail = sprintf(
+                'user=%s action=user_portal_session_expire outcome=expired reason=idle_or_absolute token_revoked=0',
+                $expiredUser
+            );
+            try {
+                $auditWritten = method_exists($operation, 'syslog_record')
+                    && $operation->syslog_record(68, $detail, $ipAddress) === 1;
+            } catch (Throwable) {
+                $auditWritten = false;
+            }
+            if (!$auditWritten) {
+                error_log('User portal session expiry audit unavailable');
+            }
+        }
         $_SESSION = [];
         session_regenerate_id(true);
         $createdAt = $now;
         $lastActivity = $now;
+        if ($expiredUser !== '') {
+            $_SESSION['oneid_portal_session_expired_at'] = $now;
+        }
     }
 
     $_SESSION['oneid_session_created_at'] = $createdAt;
