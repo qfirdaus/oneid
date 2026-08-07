@@ -367,6 +367,11 @@ selepas request pengguna yang berjaya.
 
 ### Fasa 5 — Regression, UAT dan Controlled Rollout
 
+**Rekod pelaksanaan:** Lihat
+`docs/USER_SESSION_TIMEOUT_F5_REGRESSION_DAN_ROLLOUT.md`. Readiness suite
+read-only merangkumi 14 kontrak dan rollout/rollback per-environment telah
+didokumenkan; penutupan akhir memerlukan tandatangan bukti UAT pemilik sistem.
+
 - jalankan automated contracts dan smoke-test authenticated;
 - uji 30 minit dan 1 jam menggunakan jam terkawal/test override yang tidak aktif
   di production;
