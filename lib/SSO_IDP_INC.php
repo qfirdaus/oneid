@@ -42,7 +42,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 					break;
 					case "1": //Valid
 						//Set the sso_cre token to cookies
-						COOKIE_SETTER($_GET['new_sso_cre'],$API_REQUEST_RESULT['respond_user_packet']);
+						COOKIE_SETTER($_GET['new_sso_cre'],$API_REQUEST_RESULT['respond_user_packet'],$operation);
 			            oneid_establish_authenticated_session($API_REQUEST_RESULT['respond_user_packet']);
 
 						if($SSO_IDP_DOMAIN == $SP_current_page){
@@ -100,7 +100,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 										break;
 										case "1": //Valid
 											//Set the sso_cre token to cookies
-											COOKIE_SETTER($_GET['new_sso_cre'],$API_REQUEST_RESULT['respond_user_packet']);								
+											COOKIE_SETTER($_GET['new_sso_cre'],$API_REQUEST_RESULT['respond_user_packet'],$operation);
 									            oneid_establish_authenticated_session($API_REQUEST_RESULT['respond_user_packet']);
 											if($SSO_IDP_DOMAIN == $SP_current_page){
 												header('Location: '.$SSO_SP_DASHBOARD); 
@@ -129,7 +129,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 					case "1": //Valid
 							// echo json_encode($API_REQUEST_RESULT);
 						//Update the sso_cre token to cookies
-						COOKIE_SETTER($cookie->sso_cre,$API_REQUEST_RESULT['respond_user_packet']);
+						COOKIE_SETTER($cookie->sso_cre,$API_REQUEST_RESULT['respond_user_packet'],$operation);
 			            oneid_establish_authenticated_session($API_REQUEST_RESULT['respond_user_packet']);
 			            //Check is there any redirect to service proveder "side_id"
 			            if(isset($_GET['site_id'])){
@@ -149,7 +149,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 				}
 			break;
 			case "2": //Auto Reissue token
-				COOKIE_SETTER($API_REQUEST_RESULT['respond_new_token'],$API_REQUEST_RESULT['respond_user_packet']);
+				COOKIE_SETTER($API_REQUEST_RESULT['respond_new_token'],$API_REQUEST_RESULT['respond_user_packet'],$operation);
 				oneid_establish_authenticated_session($API_REQUEST_RESULT['respond_user_packet']);
 				if($SSO_IDP_DOMAIN == $SP_current_page){
 					header('Location: '.$SSO_SP_DASHBOARD); 
@@ -197,8 +197,7 @@ function API_REQUEST($API_DATA,$SSO_IDP_DOMAIN){
 
 
 
-function COOKIE_SETTER($sso_cre,$respond_user_packet){
-	global $operation;
+function COOKIE_SETTER($sso_cre,$respond_user_packet,object $operation){
 	oneid_set_configured_sso_cookie($operation, (string) $sso_cre);
 }
 function GET_CURRENT_PAGE_URI(){

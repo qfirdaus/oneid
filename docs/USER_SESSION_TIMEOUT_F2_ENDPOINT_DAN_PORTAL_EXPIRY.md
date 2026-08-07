@@ -108,7 +108,7 @@ Rollback dictionary tersedia dalam
 php tests/characterization/user_session_timeout_f2_endpoints.php
 ```
 
-Keputusan source: `RESULT checks=23 failed=0`.
+Keputusan source selepas logout-scope regression fix: `RESULT checks=24 failed=0`.
 
 ## UAT Fasa 2
 

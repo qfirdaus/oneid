@@ -78,6 +78,7 @@ $qFuncSource = file_get_contents($root.'/lib/q_func.php') ?: '';
 $apiSource = file_get_contents($root.'/api.php') ?: '';
 $adminSource = file_get_contents($root.'/app/Auth/AdminStepUpSessionService.php') ?: '';
 $authSource = file_get_contents($root.'/lib/auth_security.php') ?: '';
+$ssoSource = file_get_contents($root.'/lib/SSO_IDP_INC.php') ?: '';
 $report(str_contains($guardSource, "'SSO_TOKEN_REVOKED'") && str_contains($guardSource, "'ACCOUNT_INACTIVE'") && str_contains($guardSource, "'CSRF_INVALID'"), 'guard distinguishes revoked token, inactive account and invalid CSRF');
 $report(str_contains($guardSource, "'USER_SESSION_EXPIRED'") && str_contains($qFuncSource, "'SESSION_STATUS_UNAVAILABLE'"), 'expired and unavailable responses have stable codes');
 $report(str_contains($qFuncSource, 'oneid_current_session_deadline_state($operation)') && str_contains($qFuncSource, "min((int)\$base['effective_remaining_seconds']"), 'Admin status and renewal use effective base-session deadline');
@@ -85,6 +86,7 @@ $report(str_contains($qFuncSource, 'oneid_refresh_session_activity();') && !str_
 $report(str_contains($sessionSource, 'syslog_record(68') && str_contains($sessionSource, 'oneid_portal_session_expired_at'), 'automatic expiry records marker and dedicated audit event');
 $report(str_contains($authSource, "'expires' => time() + \$lifetimeSeconds") && str_contains($sessionSource, 'oneid_refresh_configured_sso_cookie'), 'browser cookie follows effective portal deadline without changing token value');
 $report(!str_contains($apiSource, 'user_session_status') && !str_contains($apiSource, 'UserPortalSessionService'), 'service-provider API remains unchanged');
+$report(str_contains($ssoSource, 'function COOKIE_SETTER($sso_cre,$respond_user_packet,object $operation)') && !str_contains($ssoSource, 'global $operation;'), 'SSO cookie refresh receives the request-scoped operation during logout bootstrap');
 $up = file_get_contents($root.'/docs/migrations/20260807_user_portal_session_audit_up.sql') ?: '';
 $down = file_get_contents($root.'/docs/migrations/20260807_user_portal_session_audit_down.sql') ?: '';
 $report(str_contains($up, "68, 'USER_PORTAL_SESSION_EXPIRED'") && str_contains($up, "69, 'USER_PORTAL_SESSION_RENEWED'") && str_contains($up, "70, 'USER_PORTAL_SESSION_ENDED'") && str_contains($down, 'syslog_event_id = 70'), 'audit dictionary migration is complete and reversible');
