@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.8.2' =>
+  array (
+    'version' => '2.8.2',
+    'date' => '2026-08-07',
+    'bm' =>
+    array (
+      0 => 'PHP idle timeout portal pengguna kini mengikuti tetapan timeout Administrator semasa, dengan fallback selamat 30 minit dan had mutlak sesi lapan jam.',
+      1 => 'Endpoint status, pembaharuan dan tamat sesi menggunakan deadline server yang berautoriti, CSRF serta kod respons stabil tanpa mengubah kontrak API aplikasi SSO lain.',
+      2 => 'Popup SweetAlert pengguna memberi amaran dua minit sebelum deadline efektif dan Stay Connected hanya memperbaharui sesi portal OneID tanpa rotate atau revoke token SSO.',
+      3 => 'Jika pengguna tidak memberi respons, sesi portal setempat tamat dengan selamat tanpa menutup sesi aplikasi lain yang masih menggunakan token SSO aktif.',
+      4 => 'Technical heartbeat dan status polling tidak memanjangkan idle session, manakala aktiviti pengguna yang bermakna menyelaraskan semula deadline dengan server.',
+      5 => 'Keadaan multi-tab, tab tersembunyi, back-forward cache, rangkaian terputus, ralat server, CSRF tidak sah, akaun tidak aktif dan token dibatalkan dikendalikan secara berasingan.',
+      6 => 'Sesi Administrator dan pengguna berkongsi deadline asas yang konsisten; pembaharuan grant Administrator tidak boleh menghidupkan semula sesi pengguna yang sudah tamat.',
+      7 => 'Audit khusus merekodkan sesi portal tamat, diperbaharui atau ditamatkan tanpa menambah perubahan kepada token validation dan integrasi service provider sedia ada.',
+      8 => 'Readiness gate staging mengesahkan polisi timeout, endpoint, popup, heartbeat, sesi Administrator, SSO, multilingual dan kontrak keselamatan sebelum release.',
+      9 => 'Konfigurasi private runtime boleh disusun mengikut kategori dengan komen yang konsisten, backup automatik, pengesahan nilai dan pengekalan permission asal untuk akses PHP-FPM.',
+    ),
+    'en' =>
+    array (
+      0 => 'The user portal PHP idle timeout now follows the current Administrator timeout setting, with a safe 30-minute fallback and an eight-hour absolute session boundary.',
+      1 => 'Session status, renewal and end endpoints use authoritative server deadlines, CSRF and stable response codes without changing other SSO application API contracts.',
+      2 => 'The user SweetAlert appears two minutes before the effective deadline, and Stay Connected renews only the OneID portal session without rotating or revoking the SSO token.',
+      3 => 'If the user does not respond, the local portal session ends safely without closing other applications that continue to use an active SSO token.',
+      4 => 'Technical heartbeat and status polling do not extend the idle session, while meaningful user activity resynchronizes the deadline with the server.',
+      5 => 'Multi-tab, hidden-tab, back-forward cache, offline, server-error, invalid-CSRF, inactive-account and revoked-token states are handled independently.',
+      6 => 'Administrator and user sessions share a consistent base deadline; renewing the Administrator grant cannot revive a user session that has already expired.',
+      7 => 'Dedicated audit events record portal session expiry, renewal and termination without changing existing token-validation and service-provider integrations.',
+      8 => 'The staging readiness gate verifies timeout policy, endpoints, popup, heartbeat, Administrator sessions, SSO, multilingual and security contracts before release.',
+      9 => 'Private runtime configuration can be organized into documented categories with automatic backup, value preservation checks and original permission retention for PHP-FPM access.',
+    ),
+  ),
   'release-2.8.1' =>
   array (
     'version' => '2.8.1',

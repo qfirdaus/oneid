@@ -20,9 +20,9 @@ $report = static function (bool $ok, string $label) use (&$checks, &$failed): vo
     }
 };
 $report(
-    $preview['release_count'] === 44
-    && $preview['bm_item_count'] === 285
-    && $preview['en_item_count'] === 285,
+    $preview['release_count'] === 47
+    && $preview['bm_item_count'] === 318
+    && $preview['en_item_count'] === 318,
     'approved repository exposes exact BM and English parity'
 );
 $report(
@@ -39,8 +39,8 @@ $report(
 );
 $report(
     $preview['approved_manifest_digest']
-        === 'e6618c5ac900035a2dbbd997a105ac7f90fa93214354fe8e37ae76ff1ffddef9'
-    && $preview['evidence_reference'] === 'ONEID-V274-CHANGELOG-20260805-01',
+        === '9a3685df3e43d897a06a4cea5a2e16fc66453cd4bf2bc45f924271f1a6b9ab16'
+    && $preview['evidence_reference'] === 'ONEID-V282-CHANGELOG-20260807-01',
     'catalogue is bound to exact owner approval'
 );
 $report(

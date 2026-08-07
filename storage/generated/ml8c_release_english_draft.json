@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V281-CHANGELOG-20260806-01",
+    "authorization": "ONEID-V282-CHANGELOG-20260807-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.8.2",
+            "version": "2.8.2",
+            "date": "2026-08-07",
+            "items": [
+                {
+                    "identity": "release:2.8.2:item:001",
+                    "bm": "PHP idle timeout portal pengguna kini mengikuti tetapan timeout Administrator semasa, dengan fallback selamat 30 minit dan had mutlak sesi lapan jam.",
+                    "en_draft": "The user portal PHP idle timeout now follows the current Administrator timeout setting, with a safe 30-minute fallback and an eight-hour absolute session boundary.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.2:item:002",
+                    "bm": "Endpoint status, pembaharuan dan tamat sesi menggunakan deadline server yang berautoriti, CSRF serta kod respons stabil tanpa mengubah kontrak API aplikasi SSO lain.",
+                    "en_draft": "Session status, renewal and end endpoints use authoritative server deadlines, CSRF and stable response codes without changing other SSO application API contracts.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.2:item:003",
+                    "bm": "Popup SweetAlert pengguna memberi amaran dua minit sebelum deadline efektif dan Stay Connected hanya memperbaharui sesi portal OneID tanpa rotate atau revoke token SSO.",
+                    "en_draft": "The user SweetAlert appears two minutes before the effective deadline, and Stay Connected renews only the OneID portal session without rotating or revoking the SSO token.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.2:item:004",
+                    "bm": "Jika pengguna tidak memberi respons, sesi portal setempat tamat dengan selamat tanpa menutup sesi aplikasi lain yang masih menggunakan token SSO aktif.",
+                    "en_draft": "If the user does not respond, the local portal session ends safely without closing other applications that continue to use an active SSO token.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.2:item:005",
+                    "bm": "Technical heartbeat dan status polling tidak memanjangkan idle session, manakala aktiviti pengguna yang bermakna menyelaraskan semula deadline dengan server.",
+                    "en_draft": "Technical heartbeat and status polling do not extend the idle session, while meaningful user activity resynchronizes the deadline with the server.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.2:item:006",
+                    "bm": "Keadaan multi-tab, tab tersembunyi, back-forward cache, rangkaian terputus, ralat server, CSRF tidak sah, akaun tidak aktif dan token dibatalkan dikendalikan secara berasingan.",
+                    "en_draft": "Multi-tab, hidden-tab, back-forward cache, offline, server-error, invalid-CSRF, inactive-account and revoked-token states are handled independently.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.2:item:007",
+                    "bm": "Sesi Administrator dan pengguna berkongsi deadline asas yang konsisten; pembaharuan grant Administrator tidak boleh menghidupkan semula sesi pengguna yang sudah tamat.",
+                    "en_draft": "Administrator and user sessions share a consistent base deadline; renewing the Administrator grant cannot revive a user session that has already expired.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.2:item:008",
+                    "bm": "Audit khusus merekodkan sesi portal tamat, diperbaharui atau ditamatkan tanpa menambah perubahan kepada token validation dan integrasi service provider sedia ada.",
+                    "en_draft": "Dedicated audit events record portal session expiry, renewal and termination without changing existing token-validation and service-provider integrations.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.2:item:009",
+                    "bm": "Readiness gate staging mengesahkan polisi timeout, endpoint, popup, heartbeat, sesi Administrator, SSO, multilingual dan kontrak keselamatan sebelum release.",
+                    "en_draft": "The staging readiness gate verifies timeout policy, endpoints, popup, heartbeat, Administrator sessions, SSO, multilingual and security contracts before release.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.2:item:010",
+                    "bm": "Konfigurasi private runtime boleh disusun mengikut kategori dengan komen yang konsisten, backup automatik, pengesahan nilai dan pengekalan permission asal untuk akses PHP-FPM.",
+                    "en_draft": "Private runtime configuration can be organized into documented categories with automatic backup, value preservation checks and original permission retention for PHP-FPM access.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.8.1",
             "version": "2.8.1",
@@ -2177,5 +2244,5 @@
             ]
         }
     ],
-    "manifest_digest": "75b45757eb83a2b8ebad790b6e686576de3c7e8273732a8ad725f84e22d5a561"
+    "manifest_digest": "9a3685df3e43d897a06a4cea5a2e16fc66453cd4bf2bc45f924271f1a6b9ab16"
 }
