@@ -20,6 +20,12 @@ if ($realPath === false || !is_file($realPath) || !is_readable($realPath)) {
     exit(1);
 }
 
+$originalPermissions = fileperms($realPath);
+if ($originalPermissions === false) {
+    throw new RuntimeException('Unable to read private runtime permissions.');
+}
+$originalMode = $originalPermissions & 0777;
+
 $values = require $realPath;
 if (!is_array($values)) {
     fwrite(STDERR, "Private runtime must return an array.\n");
@@ -178,17 +184,21 @@ if ($mode === '--check') {
 
 $backup = $realPath . '.backup-before-format-' . date('Ymd-His');
 if (!copy($realPath, $backup)) { throw new RuntimeException('Unable to create runtime backup.'); }
-chmod($backup, 0600);
+if (!chmod($backup, $originalMode)) {
+    throw new RuntimeException('Unable to preserve runtime backup permissions.');
+}
 $temporary = $realPath . '.formatting-' . bin2hex(random_bytes(6));
 if (file_put_contents($temporary, $rendered, LOCK_EX) === false) {
     throw new RuntimeException('Unable to write formatted runtime.');
 }
-chmod($temporary, 0600);
+if (!chmod($temporary, $originalMode)) {
+    @unlink($temporary);
+    throw new RuntimeException('Unable to preserve private runtime permissions.');
+}
 if (!rename($temporary, $realPath)) {
     @unlink($temporary);
     throw new RuntimeException('Unable to activate formatted runtime.');
 }
-chmod($realPath, 0600);
 
 echo 'PASS private_runtime_formatted keys=' . count($values)
     . ' sections=' . count($ordered)
