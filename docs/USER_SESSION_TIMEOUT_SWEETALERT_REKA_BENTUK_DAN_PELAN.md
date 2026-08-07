@@ -4,7 +4,7 @@
 
 **Environment sasaran awal:** Staging/UAT
 
-**Status:** REKA BENTUK DIPERSETUJUI / FASA 0 DILAKSANAKAN
+**Status:** REKA BENTUK DIPERSETUJUI / FASA 0 SELESAI DAN STAGING VALIDATED
 
 **Pendekatan:** OneID-only, berisiko rendah dan serasi dengan service provider sedia ada
 
@@ -282,8 +282,9 @@ Pelaksanaan mesti membuktikan perkara berikut sebelum rollout:
 
 **Rekod pelaksanaan:** Lihat
 `docs/USER_SESSION_TIMEOUT_F0_BASELINE_DAN_CONTRACT.md`. Characterization source
-baseline lulus 17/17 tanpa mutation runtime. Pengesahan konfigurasi host UAT
-masih menjadi gate sebelum Fasa 1.
+baseline lulus 17/17 tanpa mutation runtime. FPM staging retention dinaikkan
+secara terkawal kepada lapan jam, rollback satu-baris disahkan dan smoke-test
+authenticated OneID, Administrator, SSO serta sistem UAT lain semuanya lulus.
 
 - rekod behavior semasa PHP session, cookie, token dan logout;
 - tambah characterization test yang mengunci kontrak aplikasi luar;

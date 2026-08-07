@@ -4,7 +4,7 @@
 
 **Environment:** Source/UAT workspace
 
-**Status:** IMPLEMENTED / READ-ONLY RUNTIME
+**Status:** COMPLETED / STAGING VALIDATED
 
 **Dokumen induk:** `USER_SESSION_TIMEOUT_SWEETALERT_REKA_BENTUK_DAN_PELAN.md`
 
@@ -185,21 +185,168 @@ Fasa 1 hanya boleh bermula apabila:
 - [x] characterization test Fasa 0 lulus;
 - [x] setting `sys_config.token_timeout` UAT direkod sebagai `0.5` jam melalui
   semakan read-only;
+- [x] PHP 8.3 FPM, `session.gc_maxlifetime=1440` dan file-based session handler
+  pada staging direkod;
 - [ ] pemilik sistem meluluskan permulaan Fasa 1;
-- [ ] nilai runtime web `session.gc_maxlifetime` dan session save handler UAT
-  disahkan pada PHP SAPI yang melayan request sebenar.
+- [ ] mekanisme cleanup, effective save path dan topology web node disahkan.
 
 ## 8. Perkara Belum Disahkan pada Host UAT
 
-Source sahaja tidak boleh membuktikan:
+Semakan source dan konfigurasi host masih belum membuktikan:
 
-- nilai sebenar `session.gc_maxlifetime` pada PHP-FPM/Apache. PHP CLI melaporkan
-  `1440` saat, tetapi nilai ini tidak boleh dianggap mewakili web SAPI;
-- session save handler web dan permission storage. PHP CLI melaporkan handler
-  `files` dengan path `/var/lib/php/sessions`;
 - sama ada deployment mempunyai lebih daripada satu web node;
 - behavior sebenar setiap service provider selepas local session mereka terbina;
 - header cache daripada reverse proxy/web server.
 
 Semua item ini perlu disahkan secara read-only sebelum Fasa 1 mengubah polisi
 PHP session.
+
+## 9. Bukti Konfigurasi Web Staging
+
+Semakan read-only pada `AppsStagingv1` pada 7 Ogos 2026 mengesahkan:
+
+```text
+PHP version:              8.3.33
+Web runtime:              PHP 8.3 FPM, pool www
+FPM service:              php8.3-fpm.service active/running
+session.save_handler:     files
+session.gc_maxlifetime:   1440 saat (24 minit)
+session.gc_probability:   0
+session.gc_divisor:       1000
+session.save_path:        /var/lib/php/sessions
+session cleanup:          systemd phpsessionclean setiap 30 minit (:09/:39)
+project-level override:   tiada ditemui
+session directory:        /var/lib/php/sessions
+session directory mode:   1733 (drwx-wx-wt), root:root
+token_timeout UAT:        0.5 jam (30 minit)
+PHP-FPM socket:            /run/php/php8.3-fpm.sock
+FPM pool scope:            shared by OneID and multiple other applications
+session storage usage:     1 file / 8 KiB
+filesystem capacity:       85 GiB available (24% used)
+```
+
+FPM SAPI mengesahkan path efektif `/var/lib/php/sessions`. Konfigurasi
+`/etc/php/8.3/fpm/php.ini` menetapkan `session.gc_maxlifetime = 1440`,
+`session.gc_probability = 0` dan file handler. Tiada override aktif ditemui
+dalam FPM pool, Apache, Nginx atau source OneID bagi arahan session yang diaudit.
+
+Oleh sebab probabiliti GC dalam request ialah sifar, cleanup dilaksanakan oleh
+`phpsessionclean.timer`. Timer aktif sejak 28 Julai 2026 dan menjalankan
+`/usr/lib/php/sessionclean` setiap 30 minit pada minit `:09` dan `:39`. Run yang
+disemak pada 7 Ogos 2026 selesai dengan status berjaya.
+
+### 9.1 Risiko yang Disahkan
+
+Nilai garbage-collection 24 minit lebih pendek daripada setting Administrator
+30 minit. Oleh sebab storage menggunakan fail dan cleanup berjalan setiap 30
+minit, session tanpa file access boleh menjadi layak selepas 24 minit dan
+dibersihkan pada run timer berikutnya. Secara operasi, deletion boleh berlaku
+kira-kira 24 hingga 54 minit selepas file session kali terakhir disentuh.
+
+Heartbeat dashboard yang membuka PHP session setiap lima minit mungkin mengubah
+mtime fail dan menyembunyikan risiko semasa tab terus berjalan. Ia bukan jaminan:
+browser sleep, tab ditutup, request gagal atau halaman authenticated tanpa
+heartbeat masih boleh kehilangan fail session sebelum lifecycle aplikasi yang
+dirancang selesai. Fasa 1 tidak boleh bergantung pada heartbeat untuk retention.
+
+Fasa 1 tidak boleh menganggap aplikasi sahaja mampu menguatkuasakan timeout.
+Konfigurasi storage PHP mesti menyimpan session sekurang-kurangnya sehingga
+absolute deadline yang diluluskan. Dengan absolute cap semasa lapan jam, nilai
+minimum yang dicadangkan untuk `session.gc_maxlifetime` ialah `28800` saat,
+tertakluk kepada semakan mekanisme `phpsessionclean` dan semua web node.
+
+### 9.2 Gate Baki
+
+Sebelum perubahan konfigurasi diluluskan:
+
+- [x] sahkan nilai efektif FPM bagi `session.save_path`, `gc_probability` dan
+  `gc_divisor`;
+- [x] semak timer/service `phpsessionclean` tanpa menjalankan cleanup manual;
+- [x] rekod host pelaksanaan `AppsStagingv1` dan shared local FPM/session storage;
+- [x] sediakan dan validate perubahan global FPM staging serta rollback
+  `gc_maxlifetime` yang diterima pemilik sistem;
+- [x] kekalkan absolute cap lapan jam semasa sebagai retention minimum Fasa 1.
+
+### 9.3 Shared FPM Impact dan Keputusan Pemilik Sistem
+
+Nginx active configuration menunjukkan OneID berkongsi socket
+`/run/php/php8.3-fpm.sock` dengan sekurang-kurangnya aplikasi berikut:
+
+- APEL;
+- e-Facility;
+- e-HEPA;
+- e-PMS;
+- e-Prestasi;
+- e-PR;
+- IQS Framework;
+- MyMOHES;
+- SAP UAT;
+- SPK UAT;
+- Survey UAT.
+
+Perubahan global pada `/etc/php/8.3/fpm/php.ini` akan memanjangkan retention fail
+session bagi semua aplikasi yang menggunakan pool tersebut. Pada 7 Ogos 2026,
+pemilik sistem menerima perubahan global untuk staging berdasarkan keadaan
+berikut:
+
+1. staging ialah environment testing terkawal;
+2. semua sistem berkaitan mempunyai timeout aplikasi masing-masing;
+3. perubahan `gc_maxlifetime` hanya menetapkan kelayakan cleanup fail dan tidak
+   menggantikan enforcement timeout pada aplikasi tersebut;
+4. kapasiti storage semasa mencukupi;
+5. smoke-test sistem berkongsi FPM dan rollback konfigurasi diwajibkan;
+6. production OneID mempunyai server khas dan tidak berkongsi FPM dengan sistem
+   lain.
+
+Keputusan pelaksanaan ialah menaikkan `session.gc_maxlifetime` global FPM staging
+daripada `1440` kepada `28800` saat. `session.gc_probability` kekal `0` dan
+`phpsessionclean.timer` kekal sebagai mekanisme cleanup. Perubahan tidak boleh
+mengubah `session.save_path`, socket FPM, Nginx vhost atau source aplikasi lain.
+
+Sebelum activation, salinan konfigurasi bertarikh, `php-fpm8.3 -t`, graceful
+reload, effective-value verification dan smoke-test mesti dibuat. Rollback ialah
+memulihkan nilai `1440`, mengesahkan konfigurasi dan melakukan graceful reload.
+
+### 9.4 Activation Staging
+
+Perubahan global FPM staging diaktifkan pada 7 Ogos 2026:
+
+```text
+php-fpm8.3 configuration test: successful
+reload method:                  systemctl reload php8.3-fpm
+effective gc_maxlifetime:       28800 => 28800
+FPM service after reload:       active/running
+FPM reload errors:              none observed
+Nginx error output:             none observed in inspected tail
+OneID public endpoint:          HTTP 200
+IQS Framework endpoint:         HTTP 200
+e-Facility endpoint:            HTTP 200
+planned pre-change backup:      missing
+controlled rollback artifact:   php.ini.rollback-oneid-session-20260807
+rollback difference:            gc_maxlifetime 28800 -> 1440 only
+rollback configuration test:    successful
+```
+
+Activation tidak mengubah Nginx, socket FPM, save path, source atau database.
+Service/log dan unauthenticated HTTP smoke-test aplikasi berkongsi pool lulus.
+Fail backup bernama `php.ini.before-oneid-session-20260807` tidak diwujudkan
+sebelum activation. Sebagai kawalan gantian, artefak rollback
+`php.ini.rollback-oneid-session-20260807` dibina daripada konfigurasi aktif dan
+hanya mengembalikan `gc_maxlifetime` kepada `1440`. Perbandingan mengesahkan
+hanya satu baris berbeza dan konfigurasi rollback lulus `php-fpm8.3 -t`.
+
+### 9.5 Authenticated Smoke-Test
+
+Pemilik sistem melaksanakan smoke-test browser selepas graceful reload. Keputusan:
+
+```text
+Login OneID:          PASS
+Dashboard user:       PASS
+Administrator:        PASS
+Launch aplikasi SSO:  PASS
+Sistem UAT lain:      PASS
+```
+
+Tiada regression dilaporkan pada OneID, akses Administrator, pelancaran SSO atau
+sistem UAT lain. Dengan contract, konfigurasi, rollback dan smoke-test lengkap,
+Fasa 0 ditutup dan staging bersedia untuk perubahan aplikasi Fasa 1.
