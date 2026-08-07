@@ -55,8 +55,9 @@ $report(
     'user dashboard refreshes token activity every five minutes'
 );
 $report(
-    str_contains($dashboard, 'location.reload(true);'),
-    'user dashboard currently reloads after a token-heartbeat error'
+    !str_contains($dashboard, 'location.reload(true);')
+        && str_contains($dashboard, 'OneIdUserSession.handleExternalError'),
+    'user dashboard routes token-heartbeat errors without forced reload'
 );
 $report(
     str_contains($dashboard, 'sweetalert.min.js')

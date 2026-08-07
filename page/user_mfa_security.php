@@ -179,14 +179,14 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 </main>
 <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
 <script>window.OneIdUserSessionConfig=<?=json_encode(oneid_user_session_presentation_config(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;</script>
-<script src="../dist/js/oneid-user-session.js?v=20260807-1"></script>
+<script src="../dist/js/oneid-user-session.js?v=20260807-2"></script>
 <script>
 const api='../lib/q_func',csrf=<?=json_encode(oneid_csrf_token())?>;
 const messageElement=document.getElementById('mfaMessage');
 let factorId='';
 let recoveryChallengeId='';
 function showMessage(text,ok=false){messageElement.innerHTML='<div class="mfa-message '+(ok?'mfa-ok':'mfa-bad')+'"></div>';messageElement.firstChild.textContent=text}
-async function post(action,data={}){const response=await fetch(api,{method:'POST',headers:{'X-CSRF-Token':csrf,'Accept':'application/json'},body:new URLSearchParams({_csrf_token:csrf,[action]:'1',...data})});const result=await response.json();if(!response.ok||result.status===0)throw result;return result}
+async function post(action,data={}){const response=await fetch(api,{method:'POST',headers:{'X-CSRF-Token':csrf,'Accept':'application/json'},body:new URLSearchParams({_csrf_token:csrf,[action]:'1',...data})});const result=await response.json();if(!response.ok||result.status===0)throw result;document.dispatchEvent(new CustomEvent('oneid:user-activity-committed'));return result}
 <?php if ($activeTotp): ?>
 document.getElementById('savePreference').addEventListener('click',async()=>{try{await post('user_mfa_totp_preference',{factor:document.getElementById('preferredFactor').value});showMessage(<?=json_encode(oneid_translate('user_mfa.security.preference_saved'))?>,true)}catch(e){showMessage(e.code||<?=json_encode(oneid_translate('user_mfa.security.failed'))?>)}});
 <?php endif; ?>

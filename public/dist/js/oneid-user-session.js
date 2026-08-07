@@ -12,6 +12,7 @@
     var countdownTimer = null;
     var warningOpen = false;
     var requestPending = false;
+    var resyncRequested = false;
     var ending = false;
     var channel = typeof window.BroadcastChannel === 'function'
         ? new window.BroadcastChannel('oneid-user-portal-session')
@@ -116,7 +117,6 @@
         if (error.code === 'USER_SESSION_EXPIRED'
             || error.code === 'SSO_TOKEN_REVOKED'
             || error.code === 'ACCOUNT_INACTIVE'
-            || error.status === 401
         ) {
             broadcast('ended');
             terminalMessage(error.code);
@@ -224,18 +224,30 @@
 
     function schedule(payload) {
         clearTimers();
-        warningOpen = false;
         var remaining = Math.max(0, Number(payload.effective_remaining_seconds) || 0);
+        if (warningOpen
+            && remaining > Number(config.warningSeconds || 120)
+            && typeof window.swal.close === 'function'
+        ) {
+            window.swal.close();
+            warningOpen = false;
+        }
         deadlineMs = Date.now() + (remaining * 1000);
         if (remaining <= 0) {
             expirePortal();
             return;
         }
-        warningTimer = window.setTimeout(
-            synchronizeForWarning,
-            Math.max(0, remaining - Number(config.warningSeconds || 120)) * 1000
-        );
+        if (remaining > Number(config.warningSeconds || 120)) {
+            warningTimer = window.setTimeout(
+                synchronizeForWarning,
+                (remaining - Number(config.warningSeconds || 120)) * 1000
+            );
+        }
         expiryTimer = window.setTimeout(expirePortal, remaining * 1000 + 250);
+        if (warningOpen) {
+            countdownTimer = window.setInterval(updateCountdown, 1000);
+            updateCountdown();
+        }
     }
 
     function synchronizeForWarning() {
@@ -254,8 +266,13 @@
             if (showWhenDue && Number(payload.effective_remaining_seconds) <= Number(config.warningSeconds || 120)) {
                 showWarning();
             }
+            if (resyncRequested) {
+                resyncRequested = false;
+                window.setTimeout(function () { synchronize(false); }, 0);
+            }
         }).catch(function (error) {
             requestPending = false;
+            resyncRequested = false;
             handleError(error);
         });
     }
@@ -318,8 +335,33 @@
                 window.swal.close();
                 warningOpen = false;
             }
-            synchronize(false);
+            synchronize(true);
         }
+    }
+
+    function handleExternalError(status, code) {
+        var normalizedStatus = Number(status) || 0;
+        var normalizedCode = String(code || 'SESSION_STATUS_UNAVAILABLE');
+        if (normalizedStatus === 401
+            && normalizedCode !== 'USER_SESSION_EXPIRED'
+            && normalizedCode !== 'SSO_TOKEN_REVOKED'
+            && normalizedCode !== 'ACCOUNT_INACTIVE'
+        ) {
+            synchronize(false);
+            return;
+        }
+        var error = new Error(config.text.requestFailed);
+        error.status = normalizedStatus;
+        error.code = normalizedCode;
+        handleError(error);
+    }
+
+    function activityCommitted() {
+        if (requestPending) {
+            resyncRequested = true;
+            return;
+        }
+        synchronize(false);
     }
 
     if (channel) {
@@ -333,14 +375,21 @@
     });
     document.addEventListener('visibilitychange', function () {
         if (!document.hidden) {
-            synchronize(false);
+            synchronize(true);
         }
     });
     window.addEventListener('pageshow', function (event) {
         if (event.persisted) {
-            synchronize(false);
+            synchronize(true);
         }
     });
+    document.addEventListener('oneid:user-activity-committed', activityCommitted);
 
-    synchronize(false);
+    window.OneIdUserSession = {
+        revalidate: function () { synchronize(false); },
+        handleExternalError: handleExternalError,
+        activityCommitted: activityCommitted
+    };
+
+    synchronize(true);
 })(window, document);

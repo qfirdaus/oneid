@@ -504,7 +504,7 @@
             JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
          )?>;
       </script>
-      <script src="../dist/js/oneid-user-session.js?v=20260807-1"></script>
+      <script src="../dist/js/oneid-user-session.js?v=20260807-2"></script>
       <script src="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
       <script src="../assetsM/js/oneid-notifications.js?v=20260716-1"></script>
       <!-- Init JavaScript -->
@@ -559,9 +559,21 @@
             'passwordHttpFailed' => oneid_translate('dashboard.password.http_failed', ['status' => '{status}']),
             'feedbackCode' => oneid_translate('dashboard.feedback.code'),
             'feedbackReference' => oneid_translate('dashboard.feedback.reference'),
+            'sessionStatusUnavailable' => oneid_translate('user_session.request_failed'),
          ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
          $.ajaxSetup({
             headers: {'X-CSRF-Token': <?php echo json_encode(oneid_csrf_token()); ?>}
+         });
+         var oneidHeartbeatLastWarningAt = 0;
+         $(document).ajaxSuccess(function(event, xhr, settings) {
+            var url = String(settings.url || '');
+            if (url.indexOf('lib/q_func') === -1) return;
+            var data = typeof settings.data === 'string' ? new URLSearchParams(settings.data) : settings.data || {};
+            var technical = ['update_specific_token_datetime','user_session_status','admin_step_up_status'];
+            var meaningful = technical.every(function(action) {
+               return !(data instanceof URLSearchParams ? data.has(action) : Object.prototype.hasOwnProperty.call(data, action));
+            });
+            if (meaningful) document.dispatchEvent(new CustomEvent('oneid:user-activity-committed'));
          });
 
          $(document).ready(function() {
@@ -1153,13 +1165,21 @@
                   update_specific_token_datetime:"1"
               },
               success: function(response) {
-                  // Handle response, e.g., update UI
-                  // $('#result').html('Posted successfully: ' + JSON.stringify(response));
+                  oneidHeartbeatLastWarningAt = 0;
               },
               error: function(xhr, status, error) {
-                  console.error('Error:', "Token Had Been Removed/Expired");
-                  location.reload(true);
-                  // Handle errors
+                  var code = xhr.responseJSON && xhr.responseJSON.code ? xhr.responseJSON.code : '';
+                  var terminalCodes = ['USER_SESSION_EXPIRED','SSO_TOKEN_REVOKED','ACCOUNT_INACTIVE'];
+                  if (window.OneIdUserSession && typeof window.OneIdUserSession.handleExternalError === 'function') {
+                     window.OneIdUserSession.handleExternalError(xhr.status, code);
+                  } else if (terminalCodes.indexOf(code) !== -1) {
+                     window.location.replace(<?=json_encode(APP_URL.'/')?>);
+                  }
+                  if (terminalCodes.indexOf(code) === -1 && Date.now() - oneidHeartbeatLastWarningAt > 60000) {
+                     oneidHeartbeatLastWarningAt = Date.now();
+                     $.toast().reset('all');
+                     $.toast({heading:'OneID',text:dashboardI18n.sessionStatusUnavailable,position:'bottom-center',loaderBg:'#fec107',icon:'warning',hideAfter:5000,stack:1});
+                  }
               }
           });
       }

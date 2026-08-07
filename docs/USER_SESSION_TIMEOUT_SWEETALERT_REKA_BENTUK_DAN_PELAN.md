@@ -352,6 +352,11 @@ keyboard navigation.
 
 ### Fasa 4 — Heartbeat dan Error Handling Dashboard
 
+**Rekod pelaksanaan:** Lihat
+`docs/USER_SESSION_TIMEOUT_F4_HEARTBEAT_DAN_ERROR.md`. Reload heartbeat telah
+diganti dengan routing kod backend, retry non-terminal dan penyelarasan deadline
+selepas request pengguna yang berjaya.
+
 - gantikan `location.reload(true)` apabila heartbeat gagal;
 - route `401` berdasarkan kod sebenar;
 - jangan samakan offline/5xx dengan expiry;
