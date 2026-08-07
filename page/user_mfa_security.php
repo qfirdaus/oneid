@@ -7,6 +7,7 @@ oneid_start_secure_session();
 require_once __DIR__ . '/../lib/config.php';
 require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
 require_once __DIR__ . '/../lib/request_security.php';
+require_once __DIR__ . '/../lib/user_session_presentation.php';
 require_once __DIR__ . '/../app/Auth/UserMfa/UserLoginMfaPolicy.php';
 require_once __DIR__ . '/../app/Auth/UserMfa/PdoUserMfaPolicyReader.php';
 
@@ -73,6 +74,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
   <link rel="stylesheet" href="../assetsM/css/sweetalert.css">
   <link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260730-5">
   <link rel="stylesheet" href="../dist/css/user-mfa-security.css?v=20260731-1">
+  <link rel="stylesheet" href="../dist/css/oneid-user-session.css?v=20260807-1">
 </head>
 <body class="user-mfa-flow account-security-page">
 <main class="mfa-shell">
@@ -176,6 +178,8 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
   </section>
 </main>
 <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
+<script>window.OneIdUserSessionConfig=<?=json_encode(oneid_user_session_presentation_config(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;</script>
+<script src="../dist/js/oneid-user-session.js?v=20260807-1"></script>
 <script>
 const api='../lib/q_func',csrf=<?=json_encode(oneid_csrf_token())?>;
 const messageElement=document.getElementById('mfaMessage');

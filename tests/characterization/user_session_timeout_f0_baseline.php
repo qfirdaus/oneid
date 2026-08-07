@@ -60,9 +60,10 @@ $report(
 );
 $report(
     str_contains($dashboard, 'sweetalert.min.js')
-        && !str_contains($dashboard, 'OneIdUserSessionConfig')
-        && !str_contains($dashboard, 'oneid-user-session.js'),
-    'SweetAlert is available but no user-session controller is active yet'
+        && str_contains($dashboard, 'OneIdUserSessionConfig')
+        && str_contains($dashboard, 'oneid-user-session.js')
+        && str_contains((string) file_get_contents($root . '/config/runtime.php'), "'ONEID_USER_SESSION_WARNING_ENABLED' => 'false'"),
+    'SweetAlert user controller is installed behind a fail-closed environment flag'
 );
 
 // Existing service-provider contract must remain unchanged by this project.

@@ -5,6 +5,7 @@
    require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
    require_once __DIR__ . '/../lib/request_security.php';
    require_once __DIR__ . '/../lib/shared_faq.php';
+   require_once __DIR__ . '/../lib/user_session_presentation.php';
    require_once __DIR__ . '/../app/Auth/UserMfa/UserLoginMfaPolicy.php';
    require_once __DIR__ . '/../app/Auth/UserMfa/PdoUserMfaPolicyReader.php';
    oneid_require_authenticated_page();
@@ -64,6 +65,7 @@
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260805-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-session.css?v=20260807-1" rel="stylesheet" type="text/css">
 
       <style>
       /* Keep navbar on top */
@@ -496,6 +498,13 @@
       <script src="../vendors/bower_components/switchery/dist/switchery.min.js"></script>
       <!-- Sweet-Alert  -->
       <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
+      <script>
+         window.OneIdUserSessionConfig = <?=json_encode(
+            oneid_user_session_presentation_config((int) ($_SESSION['password_change_required'] ?? 0) !== 1),
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+         )?>;
+      </script>
+      <script src="../dist/js/oneid-user-session.js?v=20260807-1"></script>
       <script src="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
       <script src="../assetsM/js/oneid-notifications.js?v=20260716-1"></script>
       <!-- Init JavaScript -->

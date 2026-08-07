@@ -333,6 +333,11 @@ memberikan hasil yang berbeza dan fail-closed.
 
 ### Fasa 3 — SweetAlert dan Integrasi Halaman User
 
+**Rekod pelaksanaan:** Lihat
+`docs/USER_SESSION_TIMEOUT_F3_SWEETALERT_USER.md`. Controller user, BM/English,
+multi-tab dan integrasi halaman telah diimplementasi di belakang feature flag
+per-environment yang default kepada `false`.
+
 - bina aset JS/CSS berasingan daripada controller admin;
 - load config localized daripada server;
 - tambah countdown, Stay Connected dan logout/exit action;

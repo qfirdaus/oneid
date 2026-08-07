@@ -1,0 +1,76 @@
+.sweet-overlay.oneid-user-session-overlay {
+  z-index: 12990 !important;
+}
+
+.sweet-alert.oneid-user-session-alert {
+  z-index: 13000 !important;
+  width: min(470px, calc(100vw - 32px));
+  margin-left: 0 !important;
+  transform: translate(-50%, -50%);
+  padding: 30px 30px 26px;
+  border-radius: 18px;
+  box-shadow: 0 28px 80px rgba(8, 30, 55, .34);
+}
+
+.oneid-user-session-alert .oneid-user-session-eyebrow {
+  display: block;
+  margin-bottom: 10px;
+  color: #1769aa;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.oneid-user-session-alert h2 {
+  color: #172b4d;
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.oneid-user-session-alert p {
+  display: flex !important;
+  flex-direction: column;
+  gap: 9px;
+  color: #52637a;
+}
+
+.oneid-user-session-countdown {
+  color: #b4233b;
+  font-size: 36px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+}
+
+.oneid-user-session-copy {
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.oneid-user-session-note {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: #eff6fc;
+  color: #35516d;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.oneid-user-session-alert button {
+  min-height: 42px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+@media (max-width: 520px) {
+  .sweet-alert.oneid-user-session-alert {
+    top: 50% !important;
+    left: 50% !important;
+    padding: 24px 18px 20px;
+  }
+  .oneid-user-session-alert button {
+    width: 100%;
+    margin: 6px 0 0 !important;
+  }
+}
