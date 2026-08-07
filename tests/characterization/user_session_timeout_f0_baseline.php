@@ -17,6 +17,7 @@ $authSecurity = (string) file_get_contents($root . '/lib/auth_security.php');
 $logout = (string) file_get_contents($root . '/app/Auth/LogoutHandler.php');
 $adminSession = (string) file_get_contents($root . '/public/dist/js/oneid-admin-session.js');
 $adminRenewal = (string) file_get_contents($root . '/app/Auth/AdminStepUpSessionService.php');
+$userSessionPolicy = (string) file_get_contents($root . '/app/Auth/UserSessionTimeoutPolicy.php');
 
 $checks = 0;
 $failed = 0;
@@ -28,11 +29,11 @@ $report = static function (bool $ok, string $label) use (&$checks, &$failed): vo
     printf("%s %s\n", $ok ? 'PASS' : 'FAIL', $label);
 };
 
-// Current PHP-session baseline. Fasa 1 is expected to replace the hard-coded idle value.
+// Fasa 1 transition: Administrator setting now drives logical PHP idle timeout.
 $report(
-    str_contains($session, '($now - $lastActivity) > 1800')
-        && str_contains($session, '($now - $createdAt) > 28800'),
-    'PHP session currently uses a hard-coded 30-minute idle and 8-hour absolute boundary'
+    str_contains($userSessionPolicy, 'DEFAULT_IDLE_SECONDS = 1800')
+        && str_contains($userSessionPolicy, 'ABSOLUTE_SECONDS = 28800'),
+    'PHP session retains safe 30-minute fallback and 8-hour absolute boundary'
 );
 $report(
     str_contains($session, "['update_specific_token_datetime']")
@@ -40,8 +41,10 @@ $report(
     'user token heartbeat and Admin status polling are technical heartbeats'
 );
 $report(
-    !str_contains($session, 'get_system_config') && !str_contains($session, 'token_timeout'),
-    'PHP session timeout is not yet sourced from the Administrator setting'
+    str_contains($session, "['token_timeout']")
+        && str_contains($session, 'oneid_apply_configured_session_policy')
+        && str_contains((string) file_get_contents($root . '/lib/config.php'), 'oneid_apply_configured_session_policy($operation)'),
+    'PHP idle timeout is sourced from Administrator setting at the shared configuration boundary'
 );
 
 // Current dashboard heartbeat and failure behavior.
@@ -91,11 +94,8 @@ $report(
 );
 
 // Current portal-expiry and logout distinction.
-$sessionExpiryBlock = substr(
-    $session,
-    strpos($session, 'if ($expired) {'),
-    240
-);
+$expiryOffset = strpos($session, 'if (oneid_session_is_expired(');
+$sessionExpiryBlock = $expiryOffset === false ? '' : substr($session, $expiryOffset, 320);
 $report(
     str_contains($sessionExpiryBlock, '$_SESSION = [];')
         && !str_contains($sessionExpiryBlock, 'update_specific_token_status')

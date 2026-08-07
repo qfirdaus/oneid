@@ -88,6 +88,9 @@ set_exception_handler( 'handleException' );
 require_once __DIR__ . '/Database.php';
 if (!defined('ONEID_CONFIG_SKIP_DATABASE') || ONEID_CONFIG_SKIP_DATABASE !== true) {
   $operation=new Database();
+  if (function_exists('oneid_apply_configured_session_policy')) {
+    oneid_apply_configured_session_policy($operation);
+  }
 }
 
 ?>

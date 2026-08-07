@@ -20,6 +20,7 @@ final class MyDigitalIdLoginEndpoint
         }
 
         \oneid_start_secure_session();
+        require_once dirname(__DIR__, 3) . '/lib/config.php';
         if (($_SESSION['login_status'] ?? '') === 'true') {
             session_write_close();
             http_response_code(409);

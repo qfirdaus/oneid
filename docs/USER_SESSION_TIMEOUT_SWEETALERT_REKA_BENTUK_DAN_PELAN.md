@@ -295,6 +295,11 @@ authenticated OneID, Administrator, SSO serta sistem UAT lain semuanya lulus.
 
 ### Fasa 1 — Polisi Timeout Berpusat dalam OneID
 
+**Rekod pelaksanaan:** Lihat
+`docs/USER_SESSION_TIMEOUT_F1_POLISI_IDLE_BERPUSAT.md`. Source policy telah
+diimplementasi tanpa popup atau perubahan kontrak service provider; staging UAT
+masih diperlukan sebelum Fasa 1 ditutup.
+
 - perkenalkan pembaca polisi timeout daripada `sys_config.token_timeout`;
 - tukar unit jam kepada saat secara terkawal;
 - gunakan polisi sama untuk PHP idle session;

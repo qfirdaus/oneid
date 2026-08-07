@@ -6,6 +6,8 @@ $qFunc = file_get_contents($root . '/lib/q_func.php');
 $database = file_get_contents($root . '/lib/Database.php');
 $requestSecurity = file_get_contents($root . '/lib/request_security.php');
 $sessionSecurity = file_get_contents($root . '/lib/session_security.php');
+$sessionTimeoutPolicy = file_get_contents($root . '/app/Auth/UserSessionTimeoutPolicy.php');
+$config = file_get_contents($root . '/lib/config.php');
 $api = file_get_contents($root . '/api.php');
 $configurationService = file_get_contents($root . '/app/Admin/SsoConfigurationService.php');
 
@@ -22,7 +24,12 @@ $check = static function (bool $condition, string $description) use (&$failures)
 
 $check(
     $dashboard !== false
-        && preg_match_all('/<option value="(?:0\.5|1|2|12|24|48|72|168)">/', $dashboard) === 8,
+        && preg_match(
+            '/<select[^>]+id="sso_settings_token_session_timeout"[^>]*>(.*?)<\/select>/s',
+            $dashboard,
+            $timeoutSelect
+        ) === 1
+        && preg_match_all('/<option value="(?:0\.5|1|2|12|24|48|72|168)">/', $timeoutSelect[1]) === 8,
     'UI exposes the eight characterized token timeout choices'
 );
 $check(
@@ -64,9 +71,14 @@ $check(
 );
 $check(
     $sessionSecurity !== false
-        && str_contains($sessionSecurity, '> 1800')
-        && str_contains($sessionSecurity, '> 28800'),
-    'PHP session retains 30-minute idle and 8-hour absolute limits'
+        && $sessionTimeoutPolicy !== false
+        && $config !== false
+        && str_contains($sessionSecurity, 'get_system_config()')
+        && str_contains($sessionSecurity, 'function oneid_apply_configured_session_policy(object $operation)')
+        && str_contains($config, 'oneid_apply_configured_session_policy($operation)')
+        && str_contains($sessionTimeoutPolicy, 'DEFAULT_IDLE_SECONDS = 1800')
+        && str_contains($sessionTimeoutPolicy, 'ABSOLUTE_SECONDS = 28800'),
+    'PHP idle timeout follows admin policy with safe 30-minute default and 8-hour absolute cap'
 );
 $check(
     $api !== false

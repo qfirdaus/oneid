@@ -2,6 +2,9 @@
 
 require_once __DIR__ . '/auth_security.php';
 require_once __DIR__ . '/locale.php';
+require_once dirname(__DIR__) . '/app/Auth/UserSessionTimeoutPolicy.php';
+
+use OneId\App\Auth\UserSessionTimeoutPolicy;
 
 function oneid_is_technical_heartbeat_request(array $post): bool
 {
@@ -12,9 +15,14 @@ function oneid_is_technical_heartbeat_request(array $post): bool
         ], true);
 }
 
-function oneid_session_is_expired(int $now, int $createdAt, int $lastActivity): bool
+function oneid_session_is_expired(
+    int $now,
+    int $createdAt,
+    int $lastActivity,
+    int $idleSeconds = UserSessionTimeoutPolicy::DEFAULT_IDLE_SECONDS
+): bool
 {
-    return ($now - $lastActivity) > 1800 || ($now - $createdAt) > 28800;
+    return UserSessionTimeoutPolicy::isExpired($now, $createdAt, $lastActivity, $idleSeconds);
 }
 
 function oneid_session_next_activity(int $now, int $lastActivity, bool $technicalHeartbeat): int
@@ -45,12 +53,41 @@ function oneid_start_secure_session(): void
     session_start();
 
     $now = time();
+    $_SESSION['oneid_session_created_at'] = (int) ($_SESSION['oneid_session_created_at'] ?? $now);
+    $_SESSION['oneid_session_last_activity'] = (int) ($_SESSION['oneid_session_last_activity'] ?? $now);
+}
+
+function oneid_configured_session_idle_seconds(object $operation): int
+{
+    try {
+        if (!method_exists($operation, 'get_system_config')) {
+            throw new RuntimeException('Session configuration reader is unavailable.');
+        }
+        $configuration = $operation->get_system_config();
+        if (!is_array($configuration)) {
+            throw new RuntimeException('Session configuration was not found.');
+        }
+
+        return UserSessionTimeoutPolicy::idleSeconds($configuration['token_timeout'] ?? null);
+    } catch (Throwable $exception) {
+        error_log('User session timeout policy fallback reason=' . get_class($exception));
+        return UserSessionTimeoutPolicy::DEFAULT_IDLE_SECONDS;
+    }
+}
+
+function oneid_apply_configured_session_policy(object $operation): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        return;
+    }
+
+    $now = time();
     $createdAt = (int) ($_SESSION['oneid_session_created_at'] ?? $now);
     $lastActivity = (int) ($_SESSION['oneid_session_last_activity'] ?? $now);
-    $expired = oneid_session_is_expired($now, $createdAt, $lastActivity);
+    $idleSeconds = oneid_configured_session_idle_seconds($operation);
     $technicalHeartbeat = oneid_is_technical_heartbeat_request($_POST ?? []);
 
-    if ($expired) {
+    if (oneid_session_is_expired($now, $createdAt, $lastActivity, $idleSeconds)) {
         $_SESSION = [];
         session_regenerate_id(true);
         $createdAt = $now;
@@ -58,7 +95,11 @@ function oneid_start_secure_session(): void
     }
 
     $_SESSION['oneid_session_created_at'] = $createdAt;
-    $_SESSION['oneid_session_last_activity'] = oneid_session_next_activity($now, $lastActivity, $technicalHeartbeat);
+    $_SESSION['oneid_session_last_activity'] = oneid_session_next_activity(
+        $now,
+        $lastActivity,
+        $technicalHeartbeat
+    );
 }
 
 function oneid_establish_authenticated_session(array $user): void
