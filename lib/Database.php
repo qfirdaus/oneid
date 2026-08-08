@@ -875,10 +875,13 @@ class Database {
     }
 
     public function sync_get_change_log_by_session($ext_head_id){
-        $Q = "SELECT log_id, ext_head_id, u_id, action, old_data, new_data, changed_fields, logged_at
-              FROM sync_change_log
-              WHERE ext_head_id = :ext_head_id
-              ORDER BY logged_at ASC, log_id ASC";
+        $Q = "SELECT l.log_id, l.ext_head_id, l.u_id, l.action, l.old_data,
+                     l.new_data, l.changed_fields, l.logged_at,
+                     u.data1 AS target_name, u.data3 AS target_staff_no
+              FROM sync_change_log l
+              LEFT JOIN user_tbl u ON u.u_id = l.u_id
+              WHERE l.ext_head_id = :ext_head_id
+              ORDER BY l.logged_at ASC, l.log_id ASC";
         $R = $this->pdo->prepare($Q);
         $R->bindParam(':ext_head_id', $ext_head_id);
         $R->execute();

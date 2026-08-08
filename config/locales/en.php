@@ -402,7 +402,7 @@ return [
     'admin.synclog.trail' => 'Session audit trail',
     'admin.synclog.detail_title' => 'Changes in Session',
     'admin.synclog.detail_intro' => 'Recorded change details for the selected synchronization session.',
-    'admin.synclog.user_id' => 'User ID',
+    'admin.synclog.user_id' => 'Target',
     'admin.synclog.action' => 'Action',
     'admin.synclog.change_details' => 'Change Details',
     'admin.synclog.time' => 'Time',

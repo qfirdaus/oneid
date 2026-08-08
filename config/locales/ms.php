@@ -402,7 +402,7 @@ return [
     'admin.synclog.trail' => 'Jejak audit sesi',
     'admin.synclog.detail_title' => 'Perubahan dalam Sesi',
     'admin.synclog.detail_intro' => 'Butiran perubahan yang direkodkan untuk sesi sinkronisasi terpilih.',
-    'admin.synclog.user_id' => 'ID Pengguna',
+    'admin.synclog.user_id' => 'Sasaran',
     'admin.synclog.action' => 'Tindakan',
     'admin.synclog.change_details' => 'Butiran Perubahan',
     'admin.synclog.time' => 'Masa',

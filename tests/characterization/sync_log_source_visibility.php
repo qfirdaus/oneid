@@ -65,6 +65,19 @@ $report(
         && str_contains($dashboard, "admin.synclog.detail_title"),
     'session detail header retains the selected source identity'
 );
+$report(
+    str_contains($database, 'u.data1 AS target_name')
+        && str_contains($database, 'u.data3 AS target_staff_no')
+        && str_contains($dashboard, 'function sync_format_target(row)')
+        && str_contains($dashboard, "newer.data3 || older.data3 || row.u_id"),
+    'detail target renders current name and full staff number with snapshot fallback'
+);
+$report(
+    str_contains($dashboard, 'sync-session-identity')
+        && str_contains($dashboard, "sync_source_badge(row.source_code)")
+        && !str_contains($dashboard, 'colspan="7"><i class="fa fa-circle-o-notch fa-spin"'),
+    'session list combines identity and source into a compact six-column layout'
+);
 
 printf("RESULT checks=%d failed=%d\n", $checks, $failed);
 exit($failed === 0 ? 0 : 1);

@@ -65,6 +65,13 @@ Senarai Sync Log menambah kolum `Sumber` dengan badge localized:
 Header detail turut menunjukkan sumber sesi. Paparan ini bukan live progress
 tracker; ia menerangkan sumber bagi header sync yang telah direkodkan.
 
+Senarai sesi menggunakan susun atur enam kolum yang lebih padat: ID sesi dan
+sumber digabungkan, masa mula/tamat disusun menegak, dan metrik perubahan
+dikekalkan dalam grid ringkas. Dalam detail, kolum Sasaran memaparkan
+`Nama (No. Staf)` menggunakan `user_tbl.data1` dan `user_tbl.data3`. Snapshot
+audit menjadi fallback untuk rekod lama, kemudian ID asal jika kedua-duanya
+tidak tersedia.
+
 ## UAT
 
 1. Apply/check migration, uji konfigurasi PHP-FPM dan reload PHP-FPM.

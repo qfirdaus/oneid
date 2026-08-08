@@ -1608,9 +1608,8 @@
                                                                      <table class="table sync-log-table mb-0">
                                                                         <thead>
                                                                            <tr>
-                                                                              <th class="sync-col-session"><?=htmlspecialchars(oneid_translate('admin.synclog.session'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                              <th class="sync-col-session"><?=htmlspecialchars(oneid_translate('admin.synclog.session'), ENT_QUOTES, 'UTF-8')?> / <?=htmlspecialchars(oneid_translate('admin.synclog.source'), ENT_QUOTES, 'UTF-8')?></th>
                                                                               <th><?=htmlspecialchars(oneid_translate('admin.synclog.datetime'), ENT_QUOTES, 'UTF-8')?></th>
-                                                                              <th><?=htmlspecialchars(oneid_translate('admin.synclog.source'), ENT_QUOTES, 'UTF-8')?></th>
                                                                               <th><?=htmlspecialchars(oneid_translate('admin.synclog.triggered'), ENT_QUOTES, 'UTF-8')?></th>
                                                                               <th><?=htmlspecialchars(oneid_translate('admin.synclog.changes'), ENT_QUOTES, 'UTF-8')?></th>
                                                                               <th><?=htmlspecialchars(oneid_translate('admin.synclog.status'), ENT_QUOTES, 'UTF-8')?></th>
@@ -1619,7 +1618,7 @@
                                                                         </thead>
                                                                         <tbody id="sync_session_tbody">
                                                                            <tr class="sync-empty-row">
-                                                                              <td colspan="7"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> <?=htmlspecialchars(oneid_translate('admin.synclog.loading'), ENT_QUOTES, 'UTF-8')?></td>
+                                                                              <td colspan="6"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> <?=htmlspecialchars(oneid_translate('admin.synclog.loading'), ENT_QUOTES, 'UTF-8')?></td>
                                                                            </tr>
                                                                         </tbody>
                                                                      </table>
@@ -5953,6 +5952,31 @@
             }
          }
 
+         function sync_log_snapshot(value){
+            if(!value){ return {}; }
+            if(typeof value === 'object'){ return value || {}; }
+            try {
+               var parsed = JSON.parse(value);
+               return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch(e){
+               return {};
+            }
+         }
+
+         function sync_format_target(row){
+            var currentName = String(row.target_name || '').trim();
+            var currentStaffNo = String(row.target_staff_no || '').trim();
+            var newer = sync_log_snapshot(row.new_data);
+            var older = sync_log_snapshot(row.old_data);
+            var name = currentName || String(newer.data1 || older.data1 || '').trim();
+            var staffNo = currentStaffNo || String(newer.data3 || older.data3 || row.u_id || '').trim();
+            var html = '<span class="sync-target-name">' + sync_escape_html(name || '-') + '</span>';
+            if(staffNo){
+               html += '<small class="sync-target-staff-no">(' + sync_escape_html(staffNo) + ')</small>';
+            }
+            return html;
+         }
+
          function show_sync_session_list(){
             $('#sync_detail_panel').hide();
             $('#sync_session_panel').show();
@@ -6023,11 +6047,10 @@
             var tr = '';
             $.each(rows, function(i, row){
                var dtStart = admin_format_datetime(row.ext_head_dt_start);
-               var dtEnd = row.ext_head_dt_end ? ' — ' + admin_format_datetime(row.ext_head_dt_end) : '';
+               var dtEnd = row.ext_head_dt_end ? admin_format_datetime(row.ext_head_dt_end) : '';
                tr += '<tr class="sync-session-row">';
-               tr += '<td data-label="'+adminText('admin.synclog.session')+'"><span class="sync-session-id">#' + row.ext_head_id + '</span></td>';
-               tr += '<td data-label="'+adminText('admin.synclog.datetime')+'"><span class="sync-session-time">' + dtStart + dtEnd + '</span></td>';
-               tr += '<td data-label="'+adminText('admin.synclog.source')+'">' + sync_source_badge(row.source_code) + '</td>';
+               tr += '<td data-label="'+adminText('admin.synclog.session')+' / '+adminText('admin.synclog.source')+'"><div class="sync-session-identity"><span class="sync-session-id">#' + row.ext_head_id + '</span>' + sync_source_badge(row.source_code) + '</div></td>';
+               tr += '<td data-label="'+adminText('admin.synclog.datetime')+'"><span class="sync-session-time"><span>' + sync_escape_html(dtStart) + '</span>' + (dtEnd ? '<small><i class="fa fa-long-arrow-right" aria-hidden="true"></i> ' + sync_escape_html(dtEnd) + '</small>' : '') + '</span></td>';
                tr += '<td data-label="'+adminText('admin.synclog.triggered')+'"><span class="sync-session-trigger">' + sync_format_triggered_by(row) + '</span></td>';
                tr += '<td data-label="'+adminText('admin.synclog.changes')+'"><div class="sync-change-metrics">';
                tr += '<span><small>'+adminText('admin.synclog.new')+'</small><strong>' + (row.total_new || 0) + '</strong></span>';
@@ -6039,7 +6062,7 @@
                tr += '<td class="sync-action-column" data-label="#"><button type="button" class="sync-view-button" title="'+adminText('admin.synclog.view')+'" aria-label="'+adminText('admin.synclog.view')+'" onclick="load_sync_log_detail(' + row.ext_head_id + ', \'' + String(dtStart).replace(/'/g, "\\'") + '\');"><i class="fa fa-eye" aria-hidden="true"></i><span class="sr-only">'+adminText('admin.synclog.view')+'</span></button></td>';
                tr += '</tr>';
             });
-            $('#sync_session_tbody').html(tr || '<tr class="sync-empty-row"><td colspan="7">'+adminText('admin.synclog.empty')+'</td></tr>');
+            $('#sync_session_tbody').html(tr || '<tr class="sync-empty-row"><td colspan="6">'+adminText('admin.synclog.empty')+'</td></tr>');
             render_sync_pagination(page, totalPages);
          }
 
@@ -6083,7 +6106,7 @@
             $.each(rows, function(i, row){
                tr += '<tr>';
                tr += '<td data-label="#"><span class="sync-row-number">' + (start + i + 1) + '</span></td>';
-               tr += '<td data-label="'+adminText('admin.synclog.user_id')+'"><span class="sync-detail-user">' + row.u_id + '</span></td>';
+               tr += '<td data-label="'+adminText('admin.synclog.user_id')+'"><span class="sync-detail-user">' + sync_format_target(row) + '</span></td>';
                tr += '<td data-label="'+adminText('admin.synclog.action')+'">' + sync_action_badge(row.action) + '</td>';
                tr += '<td data-label="'+adminText('admin.synclog.change_details')+'"><div class="sync-detail-data">';
                tr += '<div><span>'+adminText('admin.synclog.changed_fields')+'</span><p>' + sync_format_json_cell(row.changed_fields) + '</p></div>';
@@ -6105,14 +6128,14 @@
                data: { admin_get_sync_sessions: '' },
                beforeSend: function(){
                   sync_update_summary(null);
-                  $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="7"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> '+adminText('admin.synclog.loading')+'</td></tr>');
+                  $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> '+adminText('admin.synclog.loading')+'</td></tr>');
                   $('#sync_session_pagination').html('');
                },
                success: function(response){
                   if(!response || response.length === 0){
                      syncSessionsData = [];
                      sync_update_summary([]);
-                     $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="7">'+adminText('admin.synclog.empty')+'</td></tr>');
+                     $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6">'+adminText('admin.synclog.empty')+'</td></tr>');
                      $('#sync_session_pagination').html('');
                      return;
                   }
@@ -6123,7 +6146,7 @@
                error: function(xhr){
                   syncSessionsData = [];
                   sync_update_summary([]);
-                  $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="7">'+adminText('admin.synclog.failed_sessions')+'</td></tr>');
+                  $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6">'+adminText('admin.synclog.failed_sessions')+'</td></tr>');
                   $('#sync_session_pagination').html('');
                }
             });
@@ -9801,7 +9824,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_synclog .sync-log-table tbody td {
-        padding: 16px 13px;
+        padding: 12px 11px;
         border-top: 1px solid #edf0f4;
         color: #5f6c7c;
         font-size: 12px;
@@ -9811,13 +9834,12 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         overflow-wrap: anywhere;
       }
 
-      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(1) { width: 7%; }
-      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(2) { width: 17%; }
-      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(3) { width: 12%; }
-      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(4) { width: 15%; }
-      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(5) { width: 30%; }
-      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(6) { width: 12%; }
-      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(7) { width: 7%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(1) { width: 17%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(2) { width: 19%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(3) { width: 18%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(4) { width: 29%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(5) { width: 11%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(6) { width: 6%; }
 
       #tab_synclog .sync-log-table .sync-action-column {
         text-align: left !important;
@@ -9835,12 +9857,19 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 42px;
-        padding: 5px 9px;
+        min-width: 38px;
+        padding: 4px 8px;
         border-radius: 5px;
         background: #eef8fd;
         color: #087eaf;
         font-weight: 700;
+      }
+
+      #tab_synclog .sync-session-identity {
+        display: flex;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
       }
 
       #tab_synclog .sync-session-time,
@@ -9860,8 +9889,8 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #tab_synclog .sync-source-badge {
         display: inline-flex;
         align-items: center;
-        min-height: 25px;
-        padding: 5px 9px;
+        min-height: 22px;
+        padding: 4px 8px;
         border: 1px solid transparent;
         border-radius: 999px;
         font-size: 10px;
@@ -9874,7 +9903,25 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #tab_synclog .sync-source-legacy { background: #f2f4f7; border-color: #dfe4ea; color: #697586; }
 
       #tab_synclog .sync-session-time {
-        min-width: 155px;
+        min-width: 0;
+        line-height: 1.55;
+      }
+
+      #tab_synclog .sync-session-time > span,
+      #tab_synclog .sync-session-time > small {
+        display: block;
+        white-space: nowrap;
+      }
+
+      #tab_synclog .sync-session-time > small {
+        margin-top: 2px;
+        color: #8a96a6;
+        font-size: 10px;
+      }
+
+      #tab_synclog .sync-session-time > small i {
+        margin-right: 3px;
+        color: #a5afbc;
       }
 
       #tab_synclog .sync-metric-value {
@@ -9888,7 +9935,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #tab_synclog .sync-change-metrics {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 6px;
+        gap: 4px;
       }
 
       #tab_synclog .sync-change-metrics > span {
@@ -9897,7 +9944,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         justify-content: space-between;
         gap: 5px;
         min-width: 0;
-        padding: 6px 7px;
+        padding: 5px 7px;
         border-radius: 5px;
         background: #f5f7f9;
       }
@@ -10034,10 +10081,10 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_synclog .sync-detail-table th:nth-child(1) { width: 7%; }
-      #tab_synclog .sync-detail-table th:nth-child(2) { width: 14%; }
+      #tab_synclog .sync-detail-table th:nth-child(2) { width: 19%; }
       #tab_synclog .sync-detail-table th:nth-child(3) { width: 13%; }
-      #tab_synclog .sync-detail-table th:nth-child(4) { width: 47%; }
-      #tab_synclog .sync-detail-table th:nth-child(5) { width: 19%; }
+      #tab_synclog .sync-detail-table th:nth-child(4) { width: 45%; }
+      #tab_synclog .sync-detail-table th:nth-child(5) { width: 16%; }
 
       #tab_synclog .sync-detail-table th:nth-child(1),
       #tab_synclog .sync-detail-table td:nth-child(1) {
@@ -10051,6 +10098,25 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #tab_synclog .sync-detail-user {
         color: #3f4d60;
         font-weight: 600;
+      }
+
+      #tab_synclog .sync-target-name,
+      #tab_synclog .sync-target-staff-no {
+        display: block;
+      }
+
+      #tab_synclog .sync-target-name {
+        color: #344257;
+        font-weight: 700;
+        line-height: 1.4;
+      }
+
+      #tab_synclog .sync-target-staff-no {
+        margin-top: 3px;
+        color: #7b8796;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: .02em;
       }
 
       #tab_synclog .sync-detail-data {

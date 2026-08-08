@@ -213,7 +213,7 @@ $report(
 
 $runtimeHashes = [
     'lib/sync_user_runner.php' => '965fd187492e1f120b074601746b031474405480f234412e458f64189108c8bb',
-    'lib/Database.php' => '1b6f2ed2e950d90cc5400349a2027cfbf7c2b1b6e542353ef450683eeff94537',
+    'lib/Database.php' => 'f663eb5e02ad201ec42fae8aacb3985e1376ea0f6bcb15dd4e853b1e66ad6c7c',
     'lib/q_func.php' => '5d67614b94f0b9bb226222c9a8ed49caf1e78c63d13a2251128020c7d0001f8b',
 ];
 foreach ($runtimeHashes as $file => $expectedHash) {
