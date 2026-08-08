@@ -879,7 +879,7 @@ class Database {
                      l.new_data, l.changed_fields, l.logged_at,
                      u.data1 AS target_name, u.data3 AS target_staff_no
               FROM sync_change_log l
-              LEFT JOIN user_tbl u ON u.u_id = l.u_id
+              LEFT JOIN user_tbl u ON BINARY u.u_id = BINARY l.u_id
               WHERE l.ext_head_id = :ext_head_id
               ORDER BY l.logged_at ASC, l.log_id ASC";
         $R = $this->pdo->prepare($Q);

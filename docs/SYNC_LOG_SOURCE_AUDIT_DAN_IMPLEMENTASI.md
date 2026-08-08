@@ -71,7 +71,8 @@ sumber digabungkan, masa mula/tamat disusun menegak, dan metrik perubahan
 dikekalkan dalam grid ringkas. Dalam detail, kolum Sasaran memaparkan
 `Nama (No. Staf)` menggunakan `user_tbl.data1` dan `user_tbl.data3`. Snapshot
 audit menjadi fallback untuk rekod lama, kemudian ID asal jika kedua-duanya
-tidak tersedia.
+tidak tersedia. JOIN detail menggunakan perbandingan ID binary kerana kolum
+legacy `sync_change_log.u_id` dan `user_tbl.u_id` mempunyai collation berbeza.
 
 ## UAT
 

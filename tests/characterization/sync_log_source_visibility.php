@@ -70,6 +70,7 @@ $report(
 $report(
     str_contains($database, 'u.data1 AS target_name')
         && str_contains($database, 'u.data3 AS target_staff_no')
+        && str_contains($database, 'BINARY u.u_id = BINARY l.u_id')
         && str_contains($dashboard, 'function sync_format_target(row)')
         && str_contains($dashboard, "newer.data3 || older.data3 || row.u_id"),
     'detail target renders current name and full staff number with snapshot fallback'
