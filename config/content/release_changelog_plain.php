@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.8.3' =>
+  array (
+    'version' => '2.8.3',
+    'date' => '2026-08-08',
+    'bm' =>
+    array (
+      0 => 'Sync Log Administrator kini merekod dan memaparkan sumber canonical bagi setiap sesi baharu sebagai Staf, Prasiswazah atau ODL.',
+      1 => 'Setiap sumber yang diproses oleh cron menghasilkan sesi audit berasingan apabila terdapat perubahan, manakala sumber tanpa perubahan kekal tanpa header baharu.',
+      2 => 'Rekod sejarah tanpa metadata sumber dipaparkan secara jujur sebagai Legacy / Tidak diketahui tanpa membuat inferens yang berisiko daripada data perubahan.',
+      3 => 'Sesi yang dimulakan oleh cron dan Administrator dibezakan dengan label Cron atau Manual serta identiti pelaksana yang jelas.',
+      4 => 'Identiti Administrator manual kini memaparkan nama bersama nombor staf penuh daripada data3 dan tidak lagi mendedahkan nombor kad pengenalan sebagai paparan utama.',
+      5 => 'Senarai Sync Log direka semula kepada susun atur enam kolum yang lebih padat dengan ID dan sumber digabungkan, masa mula dan tamat tersusun serta metrik perubahan yang kemas.',
+      6 => 'Detail sesi memaparkan sasaran sebagai Nama dan nombor staf dengan fallback snapshot audit atau ID asal untuk rekod lama yang tidak lengkap.',
+      7 => 'Pembacaan detail menyokong perbezaan collation antara jadual legacy melalui perbandingan ID binary tanpa migration atau perubahan kepada data pengguna.',
+      8 => 'Migration idempotent menambah source_code nullable dan indeks khusus pada header Sync Log, sementara Apply baharu gagal secara selamat jika schema belum tersedia.',
+      9 => 'Perubahan ini kekal setempat kepada OneID Admin dan tidak mengubah token SSO, kontrak service provider, sumber data luaran atau aplikasi lain.',
+    ),
+    'en' =>
+    array (
+      0 => 'The Administrator Sync Log now records and displays the canonical source for each new session as Staff, Undergraduate or ODL.',
+      1 => 'Each source processed by cron creates a separate audit session when changes exist, while sources with no changes continue without a new header.',
+      2 => 'Historical records without source metadata are honestly displayed as Legacy / Unknown without risky inference from change data.',
+      3 => 'Cron-triggered and Administrator-triggered sessions are distinguished with Cron or Manual labels and clear actor identity.',
+      4 => 'Manual Administrator identity now shows the name with the full staff number from data3 and no longer exposes the identity card number as the primary display.',
+      5 => 'The Sync Log list has been redesigned as a compact six-column layout with combined session and source, structured start and end times, and concise change metrics.',
+      6 => 'Session details display the target as name and staff number with an audit snapshot or original ID fallback for incomplete historical records.',
+      7 => 'Detail reads support differing legacy table collations through binary ID comparison without a migration or user-data changes.',
+      8 => 'An idempotent migration adds a nullable source_code and dedicated index to Sync Log headers, while new Apply operations fail safely when the schema is unavailable.',
+      9 => 'These changes remain local to OneID Admin and do not alter SSO tokens, service-provider contracts, external data sources or other applications.',
+    ),
+  ),
   'release-2.8.2' =>
   array (
     'version' => '2.8.2',

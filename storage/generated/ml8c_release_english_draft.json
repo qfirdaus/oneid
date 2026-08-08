@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V282-CHANGELOG-20260807-01",
+    "authorization": "ONEID-V283-CHANGELOG-20260808-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.8.3",
+            "version": "2.8.3",
+            "date": "2026-08-08",
+            "items": [
+                {
+                    "identity": "release:2.8.3:item:001",
+                    "bm": "Sync Log Administrator kini merekod dan memaparkan sumber canonical bagi setiap sesi baharu sebagai Staf, Prasiswazah atau ODL.",
+                    "en_draft": "The Administrator Sync Log now records and displays the canonical source for each new session as Staff, Undergraduate or ODL.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.3:item:002",
+                    "bm": "Setiap sumber yang diproses oleh cron menghasilkan sesi audit berasingan apabila terdapat perubahan, manakala sumber tanpa perubahan kekal tanpa header baharu.",
+                    "en_draft": "Each source processed by cron creates a separate audit session when changes exist, while sources with no changes continue without a new header.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.3:item:003",
+                    "bm": "Rekod sejarah tanpa metadata sumber dipaparkan secara jujur sebagai Legacy / Tidak diketahui tanpa membuat inferens yang berisiko daripada data perubahan.",
+                    "en_draft": "Historical records without source metadata are honestly displayed as Legacy / Unknown without risky inference from change data.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.3:item:004",
+                    "bm": "Sesi yang dimulakan oleh cron dan Administrator dibezakan dengan label Cron atau Manual serta identiti pelaksana yang jelas.",
+                    "en_draft": "Cron-triggered and Administrator-triggered sessions are distinguished with Cron or Manual labels and clear actor identity.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.3:item:005",
+                    "bm": "Identiti Administrator manual kini memaparkan nama bersama nombor staf penuh daripada data3 dan tidak lagi mendedahkan nombor kad pengenalan sebagai paparan utama.",
+                    "en_draft": "Manual Administrator identity now shows the name with the full staff number from data3 and no longer exposes the identity card number as the primary display.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.3:item:006",
+                    "bm": "Senarai Sync Log direka semula kepada susun atur enam kolum yang lebih padat dengan ID dan sumber digabungkan, masa mula dan tamat tersusun serta metrik perubahan yang kemas.",
+                    "en_draft": "The Sync Log list has been redesigned as a compact six-column layout with combined session and source, structured start and end times, and concise change metrics.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.3:item:007",
+                    "bm": "Detail sesi memaparkan sasaran sebagai Nama dan nombor staf dengan fallback snapshot audit atau ID asal untuk rekod lama yang tidak lengkap.",
+                    "en_draft": "Session details display the target as name and staff number with an audit snapshot or original ID fallback for incomplete historical records.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.3:item:008",
+                    "bm": "Pembacaan detail menyokong perbezaan collation antara jadual legacy melalui perbandingan ID binary tanpa migration atau perubahan kepada data pengguna.",
+                    "en_draft": "Detail reads support differing legacy table collations through binary ID comparison without a migration or user-data changes.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.3:item:009",
+                    "bm": "Migration idempotent menambah source_code nullable dan indeks khusus pada header Sync Log, sementara Apply baharu gagal secara selamat jika schema belum tersedia.",
+                    "en_draft": "An idempotent migration adds a nullable source_code and dedicated index to Sync Log headers, while new Apply operations fail safely when the schema is unavailable.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.8.3:item:010",
+                    "bm": "Perubahan ini kekal setempat kepada OneID Admin dan tidak mengubah token SSO, kontrak service provider, sumber data luaran atau aplikasi lain.",
+                    "en_draft": "These changes remain local to OneID Admin and do not alter SSO tokens, service-provider contracts, external data sources or other applications.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.8.2",
             "version": "2.8.2",
@@ -2244,5 +2311,5 @@
             ]
         }
     ],
-    "manifest_digest": "9a3685df3e43d897a06a4cea5a2e16fc66453cd4bf2bc45f924271f1a6b9ab16"
+    "manifest_digest": "7218d3aac9a86d7939ce6313a53f849c450cd1a3087820d836a3a58d1afe4650"
 }
