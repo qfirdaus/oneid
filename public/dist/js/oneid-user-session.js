@@ -177,6 +177,13 @@
         var alert = document.querySelector('.sweet-alert.showSweetAlert');
         if (alert) {
             alert.classList.add('oneid-user-session-alert');
+            if (!alert.querySelector('.oneid-user-session-eyebrow')) {
+                var eyebrow = document.createElement('div');
+                eyebrow.className = 'oneid-user-session-eyebrow';
+                eyebrow.textContent = config.text.eyebrow;
+                var icon = alert.querySelector('.sa-icon');
+                alert.insertBefore(eyebrow, icon || alert.firstChild);
+            }
         }
         markSessionOverlay();
     }
@@ -306,6 +313,7 @@
                 showConfirmButton: true,
                 closeOnConfirm: true
             });
+            window.setTimeout(markTerminalDialog, 0);
         }).catch(function (error) {
             requestPending = false;
             handleError(error);

@@ -65,7 +65,7 @@
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260805-1" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-user-session.css?v=20260807-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
 
       <style>
       /* Keep navbar on top */
@@ -504,7 +504,7 @@
             JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
          )?>;
       </script>
-      <script src="../dist/js/oneid-user-session.js?v=20260808-1"></script>
+      <script src="../dist/js/oneid-user-session.js?v=20260808-2"></script>
       <script src="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
       <script src="../assetsM/js/oneid-notifications.js?v=20260716-1"></script>
       <!-- Init JavaScript -->

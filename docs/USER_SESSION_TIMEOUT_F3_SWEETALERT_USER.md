@@ -9,6 +9,12 @@ Controller terdahulu menganggap class tersebut sebagai dialog aktif dan menahan
 popup sesi. Pengesanan kini turut mensyaratkan dialog benar-benar visible,
 bersaiz dan bukan `aria-hidden=true`.
 
+**Penyelarasan UI 8 Ogos 2026:** Warning, renewal success dan terminal dialog
+pengguna menggunakan visual system sesi Administrator yang sama: overlay navy
+kabur, jalur warna OneID, eyebrow keselamatan, ikon warning padat, tipografi,
+countdown badge, butang dan responsive breakpoint yang sepadan. Teks serta
+tindakan kekal khusus kepada portal pengguna.
+
 ## Skop
 
 Fasa 3 menambah presentation controller kepada:
