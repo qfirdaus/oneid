@@ -4,7 +4,7 @@
 **Environment disahkan:** Staging/UAT  
 **Release:** 2.8.2  
 **Commit release:** `a282017`  
-**Status:** IMPLEMENTASI SELESAI DAN STAGING VALIDATED / PRODUCTION PENDING
+**Status:** PEMBETULAN UAT POPUP DIPERLUKAN / VALIDASI SEMULA STAGING PENDING
 
 ## 1. Objektif dan Keputusan
 
@@ -131,8 +131,12 @@ Sebelum production:
 
 ## 10. Keputusan Audit
 
-Implementasi memenuhi objektif berisiko rendah: timeout portal mengikut setting
-Administrator, popup dan renewal berfungsi dalam sempadan sesi OneID, heartbeat
-tidak mengekalkan sesi secara senyap, token/aplikasi lain tidak diubah, dan
-rollback presentation tersedia. Tiada finding teknikal terbuka untuk staging.
-Satu-satunya item terbuka ialah kelulusan serta pelaksanaan production.
+Ujian masa sebenar pada 8 Ogos 2026 mendapati popup tidak muncul kerana modal
+Bootstrap tersembunyi masih mempunyai class `in`. Modal tersebut mempunyai
+`display:none`, saiz `0x0` dan `aria-hidden=true`, tetapi pengesanan lama hanya
+menilai selector class. Finding ini membatalkan penutupan staging sebelumnya.
+
+Pembetulan mengehadkan penghalang popup kepada dialog yang benar-benar visible
+dan menaikkan cache version controller. Acceptance test 30 minit, Stay Connected
+dan tanpa tindakan mesti diulang sebelum status dikembalikan kepada staging
+validated. Production kekal tidak diluluskan.

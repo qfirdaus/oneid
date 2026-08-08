@@ -26,7 +26,7 @@ $report(str_contains($security,"new CustomEvent('oneid:user-activity-committed')
 $report(str_contains($controller,"document.addEventListener('oneid:user-activity-committed'")&&str_contains($controller,'activityCommitted: activityCommitted'),'controller exposes and consumes the activity synchronization boundary');
 $report(str_contains($controller,'resyncRequested = true')&&str_contains($controller,'if (resyncRequested)'),'activity synchronization is queued when a status request is already in flight');
 $report(!str_contains($controller,'setInterval(synchronize')&&str_contains($session,"['update_specific_token_datetime']"),'deadline synchronization adds no session-keeping polling and token heartbeat remains technical');
-$report(str_contains($dashboard,'oneid-user-session.js?v=20260807-2')&&str_contains($security,'oneid-user-session.js?v=20260807-2'),'both authenticated user pages load the F4 cache-busted controller');
+$report(str_contains($dashboard,'oneid-user-session.js?v=20260808-1')&&str_contains($security,'oneid-user-session.js?v=20260808-1'),'both authenticated user pages load the F4 cache-busted controller');
 $report(!str_contains($api,'OneIdUserSession')&&!str_contains($api,'user-activity-committed'),'service-provider API remains outside presentation error handling');
 
 echo"RESULT checks={$checks} failed={$failed}".PHP_EOL;exit($failed===0?0:1);

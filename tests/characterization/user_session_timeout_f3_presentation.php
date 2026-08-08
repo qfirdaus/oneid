@@ -25,9 +25,9 @@ $report=static function(bool $ok,string $label)use(&$checks,&$failed):void{
 
 $report(str_contains($runtime, "'ONEID_USER_SESSION_WARNING_ENABLED' => 'false'"), 'presentation feature flag fails closed by default');
 $report(str_contains($presentation, "oneid_config('ONEID_USER_SESSION_WARNING_ENABLED', 'false')") && str_contains($presentation, "'warningSeconds' => 120"), 'server presentation config controls activation and two-minute warning');
-$report(str_contains($dashboard, 'oneid-user-session.js?v=20260807-2') && str_contains($dashboard, 'oneid-user-session.css?v=20260807-1'), 'user dashboard loads cache-busted controller assets');
+$report(str_contains($dashboard, 'oneid-user-session.js?v=20260808-1') && str_contains($dashboard, 'oneid-user-session.css?v=20260807-1'), 'user dashboard loads cache-busted controller assets');
 $report(str_contains($dashboard, "password_change_required'] ?? 0) !== 1"), 'mandatory password-change dashboard disables session popup controller');
-$report(str_contains($security, 'oneid-user-session.js?v=20260807-2') && str_contains($security, 'OneIdUserSessionConfig'), 'authenticated Account Security page loads user controller');
+$report(str_contains($security, 'oneid-user-session.js?v=20260808-1') && str_contains($security, 'OneIdUserSessionConfig'), 'authenticated Account Security page loads user controller');
 $report(!str_contains($admin, 'oneid-user-session.js') && !str_contains($challenge, 'oneid-user-session.js') && !str_contains($qr, 'oneid-user-session.js'), 'Admin, pre-auth challenge and QR endpoints do not load user controller');
 $report(str_contains($controller, "post('user_session_status')") && str_contains($controller, "post('user_session_renew')") && str_contains($controller, "post('user_session_expire')"), 'controller consumes only the F2 portal session actions');
 $report(str_contains($controller, 'payload.effective_remaining_seconds') && str_contains($controller, 'config.warningSeconds || 120'), 'warning schedule uses authoritative effective remainder');
@@ -38,6 +38,12 @@ $report(str_contains($controller, "window.setTimeout(synchronize, 15000)") && st
 $report(str_contains($controller, 'BroadcastChannel') && str_contains($controller, "addEventListener('storage'") && str_contains($controller, "addEventListener('visibilitychange'") && str_contains($controller, "addEventListener('pageshow'"), 'multi-tab, visibility and back-forward cache revalidation are wired');
 $report(str_contains($controller, 'clearSensitiveInputs') && str_contains($controller, 'input[type="password"]') && str_contains($controller, 'input[autocomplete="one-time-code"]'), 'portal expiry clears sensitive password and OTP fields');
 $report(str_contains($controller, 'anotherDialogIsOpen') && str_contains($controller, '.modal.in, .modal.show'), 'warning avoids replacing an active Bootstrap or SweetAlert dialog');
+$report(
+    str_contains($controller, "dialog.getAttribute('aria-hidden') !== 'true'")
+        && str_contains($controller, "style.display !== 'none'")
+        && str_contains($controller, 'dialog.offsetWidth > 0 || dialog.offsetHeight > 0'),
+    'stale hidden Bootstrap modal cannot suppress the session warning'
+);
 $report(str_contains($controller, 'config.text.otherAppsNote') && str_contains($controller, 'textContent ='), 'popup safely states that other applications are not closed');
 $report(str_contains($css, 'z-index: 13000') && str_contains($css, '@media (max-width: 520px)') && str_contains($css, 'font-variant-numeric: tabular-nums'), 'popup has isolated modal-safe, mobile and countdown styling');
 $keys=['eyebrow','warning_title','warning_body','other_apps_note','stay_connected','end_session','renewed_title','renewed_body','expired_title','expired_body','revoked_body','inactive_body','request_failed','ok'];

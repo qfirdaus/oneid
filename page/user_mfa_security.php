@@ -179,7 +179,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 </main>
 <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
 <script>window.OneIdUserSessionConfig=<?=json_encode(oneid_user_session_presentation_config(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;</script>
-<script src="../dist/js/oneid-user-session.js?v=20260807-2"></script>
+<script src="../dist/js/oneid-user-session.js?v=20260808-1"></script>
 <script>
 const api='../lib/q_func',csrf=<?=json_encode(oneid_csrf_token())?>;
 const messageElement=document.getElementById('mfaMessage');

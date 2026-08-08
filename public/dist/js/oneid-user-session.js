@@ -182,9 +182,19 @@
     }
 
     function anotherDialogIsOpen() {
-        return !warningOpen && Boolean(document.querySelector(
+        if (warningOpen) {
+            return false;
+        }
+        return Array.prototype.some.call(document.querySelectorAll(
             '.sweet-alert.showSweetAlert, .modal.in, .modal.show'
-        ));
+        ), function (dialog) {
+            var style = window.getComputedStyle(dialog);
+            return dialog.getAttribute('aria-hidden') !== 'true'
+                && style.display !== 'none'
+                && style.visibility !== 'hidden'
+                && Number(style.opacity) !== 0
+                && (dialog.offsetWidth > 0 || dialog.offsetHeight > 0);
+        });
     }
 
     function showWarning() {

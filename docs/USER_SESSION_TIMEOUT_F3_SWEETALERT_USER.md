@@ -3,6 +3,12 @@
 **Tarikh:** 7 Ogos 2026  
 **Status:** COMPLETE / STAGING ACTIVATED AND UAT PASSED
 
+**UAT correction 8 Ogos 2026:** Ujian masa sebenar pertama menemui modal tukar
+kata laluan yang tersembunyi tetapi masih mempunyai class Bootstrap `in`.
+Controller terdahulu menganggap class tersebut sebagai dialog aktif dan menahan
+popup sesi. Pengesanan kini turut mensyaratkan dialog benar-benar visible,
+bersaiz dan bukan `aria-hidden=true`.
+
 ## Skop
 
 Fasa 3 menambah presentation controller kepada:
