@@ -4,7 +4,7 @@
 
 **Environment sasaran awal:** Staging/UAT
 
-**Status:** REKA BENTUK DIPERSETUJUI / FASA 0 SELESAI DAN STAGING VALIDATED
+**Status:** FASA 0–5 SELESAI / STAGING VALIDATED / PRODUCTION BELUM DILAKSANAKAN
 
 **Pendekatan:** OneID-only, berisiko rendah dan serasi dengan service provider sedia ada
 
@@ -15,8 +15,10 @@ SweetAlert. Perubahan mesti menggunakan setting timeout Administrator sebagai
 sumber tempoh, melindungi kerja pengguna pada halaman OneID dan tidak memerlukan
 sebarang perubahan kod pada aplikasi atau service provider lain.
 
-Dokumen ini bukan rekod bahawa fungsi tersebut telah diaktifkan. Semua perubahan
-runtime masih perlu melalui fasa pelaksanaan, ujian dan kelulusan UAT.
+Fungsi telah diimplementasi dan diaktifkan pada staging dalam release `2.8.2`.
+Rekod penutupan audit dan bukti deployment diringkaskan dalam
+`USER_SESSION_TIMEOUT_AUDIT_PENUTUPAN_V2.8.2.md`. Aktivasi production masih
+memerlukan rollout berasingan.
 
 ## 2. Keputusan Pemilik Sistem
 
@@ -297,8 +299,8 @@ authenticated OneID, Administrator, SSO serta sistem UAT lain semuanya lulus.
 
 **Rekod pelaksanaan:** Lihat
 `docs/USER_SESSION_TIMEOUT_F1_POLISI_IDLE_BERPUSAT.md`. Source policy telah
-diimplementasi tanpa popup atau perubahan kontrak service provider; staging UAT
-masih diperlukan sebelum Fasa 1 ditutup.
+diimplementasi tanpa popup atau perubahan kontrak service provider dan telah
+disahkan pada staging.
 
 - perkenalkan pembaca polisi timeout daripada `sys_config.token_timeout`;
 - tukar unit jam kepada saat secara terkawal;
@@ -370,7 +372,8 @@ selepas request pengguna yang berjaya.
 **Rekod pelaksanaan:** Lihat
 `docs/USER_SESSION_TIMEOUT_F5_REGRESSION_DAN_ROLLOUT.md`. Readiness suite
 read-only merangkumi 14 kontrak dan rollout/rollback per-environment telah
-didokumenkan; penutupan akhir memerlukan tandatangan bukti UAT pemilik sistem.
+didokumenkan. Readiness staging berakhir dengan `contracts=14 failures=0` dan
+smoke test HTTP selepas reload PHP-FPM memberikan `200`.
 
 - jalankan automated contracts dan smoke-test authenticated;
 - uji 30 minit dan 1 jam menggunakan jam terkawal/test override yang tidak aktif

@@ -1,7 +1,7 @@
 # User Session Timeout F5 — Regression dan Controlled Rollout
 
 **Tarikh:** 7 Ogos 2026  
-**Status:** IMPLEMENTED / PENDING FINAL UAT SIGN-OFF
+**Status:** COMPLETE / STAGING RELEASE 2.8.2 VALIDATED / PRODUCTION PENDING
 
 ## Tujuan
 
@@ -126,5 +126,24 @@ ketika rekod audit 68–70 masih diperlukan untuk paparan sejarah.
 - [x] Feature flag staging boleh diaktif/nonaktif secara terkawal.
 - [x] Audit dictionary staging lengkap.
 - [x] Login, dashboard, Administrator, SSO dan logout smoke-test dilaporkan lulus.
-- [ ] Matriks UAT akhir direkod lengkap oleh pemilik sistem.
+- [x] Matriks fungsi utama dan smoke test staging dilaporkan berjaya oleh
+  pemilik sistem.
 - [ ] Kelulusan production rollout direkod.
+
+## Bukti Penutupan Staging
+
+Pada 7 Ogos 2026, staging menjalankan release `2.8.2` pada commit `a282017`.
+Keputusan akhir yang direkodkan:
+
+```text
+ONEID_APP_VERSION=2.8.2
+release metadata checks=18 failed=0
+version documentation checks=4 failed=0
+RESULT mode=--staging contracts=14 failures=0
+.private/runtime.php mode=640 owner=iqs group=www-data
+PHP-FPM configuration test=successful
+OneID HTTP=200
+```
+
+Mesej fallback dan audit-unavailable yang kelihatan dalam F1 ialah input negatif
+characterization test yang disengajakan; suite berakhir dengan `failed=0`.

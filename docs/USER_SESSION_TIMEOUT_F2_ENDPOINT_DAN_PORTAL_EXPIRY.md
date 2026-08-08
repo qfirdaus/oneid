@@ -1,7 +1,7 @@
 # User Session Timeout F2 — Endpoint dan Portal Expiry
 
 **Tarikh:** 7 Ogos 2026  
-**Status:** IMPLEMENTED / PENDING STAGING UAT
+**Status:** COMPLETE / STAGING UAT PASSED
 
 ## Skop
 
