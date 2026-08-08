@@ -26,7 +26,8 @@ Rekod lama kekal `NULL` dan dipaparkan sebagai `Legacy / Tidak diketahui`.
 Sistem tidak membuat inferens daripada kategori pengguna atau change detail.
 
 `triggered_by=ONEID-CRON` dipaparkan sebagai Cron. Identiti lain dipaparkan
-sebagai Manual bersama nama/ID Administrator sedia ada.
+sebagai Manual bersama nama dan nombor staf `user_tbl.data3`. ID Administrator
+asal hanya menjadi fallback jika nombor staf tiada.
 
 ## Migration
 

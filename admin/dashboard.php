@@ -5893,10 +5893,13 @@
             var uid = row.triggered_by || '';
             if(!uid){ return '-'; }
             var name = String(row.triggered_by_name || '').trim();
+            var staffNo = String(row.triggered_by_staff_no || '').trim();
             var mode = uid === 'ONEID-CRON'
                ? adminText('admin.synclog.trigger_cron')
                : adminText('admin.synclog.trigger_manual');
-            var identity = name ? name + ' (' + uid + ')' : uid;
+            var identity = uid === 'ONEID-CRON'
+               ? uid
+               : (name ? name + ' (' + (staffNo || uid) + ')' : (staffNo || uid));
             return '<small class="sync-trigger-mode">' + mode + '</small>' + sync_escape_html(identity);
          }
 

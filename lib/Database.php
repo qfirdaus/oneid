@@ -893,7 +893,8 @@ class Database {
         $Q = "SELECT h.ext_head_id, h.ext_head_dt_start, h.ext_head_dt_end,
                      h.ext_head_status, h.total_new, h.total_updated,
                      h.total_deactivated, h.total_reactivated, h.triggered_by,
-                     {$sourceColumn}, u.data1 AS triggered_by_name
+                     {$sourceColumn}, u.data1 AS triggered_by_name,
+                     u.data3 AS triggered_by_staff_no
               FROM ext_data_temp_header h
               LEFT JOIN user_tbl u ON u.u_id = h.triggered_by
               ORDER BY h.ext_head_id DESC";

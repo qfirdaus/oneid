@@ -44,6 +44,8 @@ $report(
 $report(
     str_contains($dashboard, "uid === 'ONEID-CRON'")
         && str_contains($dashboard, "adminText('admin.synclog.trigger_manual')")
+        && str_contains($database, 'u.data3 AS triggered_by_staff_no')
+        && str_contains($dashboard, 'staffNo || uid')
         && str_contains($dashboard, 'sync_escape_html(identity)'),
     'cron and manual trigger labels remain safe and distinct'
 );
