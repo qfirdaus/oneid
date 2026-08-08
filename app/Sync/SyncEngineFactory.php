@@ -148,7 +148,7 @@ final class SyncEngineFactory
     /** @return array{Contracts\ExternalUserSourceInterface,Contracts\SyncPersistenceInterface} */
     private function sourceScope(?string $sourceCode, bool $cron = false): array
     {
-        $persistence = new DatabaseSyncPersistenceAdapter($this->operation);
+        $persistence = new DatabaseSyncPersistenceAdapter($this->operation, $sourceCode);
         if ($sourceCode === null) {
             return [new ExternalApiUserSource(), $persistence];
         }

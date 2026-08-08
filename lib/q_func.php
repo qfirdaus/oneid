@@ -1338,7 +1338,8 @@ function string_sanitize($s) {
                     $operation->syslog_record(
                         22,
                         sprintf(
-                            'ADMIN_SYNC_OPERATIONAL_SAFE header=%d new=%d updated=%d deactivated=%d reactivated=%d',
+                            'ADMIN_SYNC_OPERATIONAL_SAFE source=%s header=%d new=%d updated=%d deactivated=%d reactivated=%d',
+                            $syncSourceCode,
                             $summary->headerId,
                             $summary->new,
                             $summary->updated,
@@ -1361,6 +1362,7 @@ function string_sanitize($s) {
                         ? 'SYNC_OPERATIONAL_APPLY_COMPLETED'
                         : 'SYNC_OPERATIONAL_APPLY_COMPLETED_AUDIT_WARNING',
                     'header_id' => $summary->headerId,
+                    'source_code' => $syncSourceCode,
                     'audit_marker_recorded' => $auditMarkerRecorded,
                     'counts' => [
                         'New' => $summary->new,
@@ -1394,6 +1396,7 @@ function string_sanitize($s) {
                     'SYNC_SAFETY_BLOCKED',
                     'SYNC_RECONCILIATION_MISMATCH',
                     'SYNC_DATABASE_WRITE_FAILED',
+                    'SYNC_LOG_SOURCE_SCHEMA_UNAVAILABLE',
                     'SYNC_SOURCE_INVALID',
                     'SYNC_SOURCE_BASELINE_INVALID',
                     'ODL_OPERATIONAL_APPLY_DISABLED',
@@ -1462,7 +1465,8 @@ function string_sanitize($s) {
                     $operation->syslog_record(
                         22,
                         sprintf(
-                            'ADMIN_SYNC_FULL_SAFE header=%d new=%d updated=%d deactivated=%d reactivated=%d',
+                            'ADMIN_SYNC_FULL_SAFE source=%s header=%d new=%d updated=%d deactivated=%d reactivated=%d',
+                            $syncSourceCode,
                             $summary->headerId,
                             $summary->new,
                             $summary->updated,
@@ -1485,6 +1489,7 @@ function string_sanitize($s) {
                         ? 'SYNC_FULL_APPLY_COMPLETED'
                         : 'SYNC_FULL_APPLY_COMPLETED_AUDIT_WARNING',
                     'header_id' => $summary->headerId,
+                    'source_code' => $syncSourceCode,
                     'audit_marker_recorded' => $auditMarkerRecorded,
                     'counts' => [
                         'New' => $summary->new,
@@ -1518,6 +1523,7 @@ function string_sanitize($s) {
                     'SYNC_SAFETY_BLOCKED',
                     'SYNC_RECONCILIATION_MISMATCH',
                     'SYNC_DATABASE_WRITE_FAILED',
+                    'SYNC_LOG_SOURCE_SCHEMA_UNAVAILABLE',
                     'SYNC_SOURCE_INVALID',
                     'SYNC_SOURCE_BASELINE_INVALID',
                 ];
@@ -1566,7 +1572,8 @@ function string_sanitize($s) {
                 $operation->syslog_record(
                     22,
                     sprintf(
-                        'ADMIN_SYNC_SAFE header=%d new=%d updated=%d deactivated=%d reactivated=%d',
+                        'ADMIN_SYNC_SAFE source=%s header=%d new=%d updated=%d deactivated=%d reactivated=%d',
+                        $syncSourceCode,
                         $summary->headerId,
                         $summary->new,
                         $summary->updated,
@@ -1579,6 +1586,7 @@ function string_sanitize($s) {
                     'status' => 1,
                     'code' => 'SYNC_APPLY_COMPLETED',
                     'header_id' => $summary->headerId,
+                    'source_code' => $syncSourceCode,
                     'counts' => [
                         'New' => $summary->new,
                         'Update' => $summary->updated,
@@ -1600,6 +1608,7 @@ function string_sanitize($s) {
                     'SYNC_PILOT_DISABLED',
                     'SYNC_PILOT_SUBSET_UNAVAILABLE',
                     'SYNC_DATABASE_WRITE_FAILED',
+                    'SYNC_LOG_SOURCE_SCHEMA_UNAVAILABLE',
                     'SYNC_APPROVAL_INVALID',
                     'SYNC_APPROVAL_NOT_AVAILABLE',
                     'SYNC_APPROVAL_EXPIRED',

@@ -9,7 +9,7 @@ use PDOException;
 /** Bridge from the sync persistence contract to the legacy Database API. */
 final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
 {
-    public function __construct(private object $operation)
+    public function __construct(private object $operation, private ?string $sourceCode = null)
     {
     }
 
@@ -30,7 +30,12 @@ final class DatabaseSyncPersistenceAdapter implements SyncPersistenceInterface
 
     public function createHeader(int $type): int
     {
-        $headerId = (int) $this->guard('create_header', fn() => $this->operation->action_add_new_ext_header($type));
+        $headerId = (int) $this->guard(
+            'create_header',
+            fn() => $this->sourceCode === null
+                ? $this->operation->action_add_new_ext_header($type)
+                : $this->operation->action_add_new_ext_header($type, $this->sourceCode)
+        );
         if ($headerId < 1) {
             throw new \RuntimeException('SYNC_HEADER_CREATE_FAILED');
         }

@@ -1610,6 +1610,7 @@
                                                                            <tr>
                                                                               <th class="sync-col-session"><?=htmlspecialchars(oneid_translate('admin.synclog.session'), ENT_QUOTES, 'UTF-8')?></th>
                                                                               <th><?=htmlspecialchars(oneid_translate('admin.synclog.datetime'), ENT_QUOTES, 'UTF-8')?></th>
+                                                                              <th><?=htmlspecialchars(oneid_translate('admin.synclog.source'), ENT_QUOTES, 'UTF-8')?></th>
                                                                               <th><?=htmlspecialchars(oneid_translate('admin.synclog.triggered'), ENT_QUOTES, 'UTF-8')?></th>
                                                                               <th><?=htmlspecialchars(oneid_translate('admin.synclog.changes'), ENT_QUOTES, 'UTF-8')?></th>
                                                                               <th><?=htmlspecialchars(oneid_translate('admin.synclog.status'), ENT_QUOTES, 'UTF-8')?></th>
@@ -1618,7 +1619,7 @@
                                                                         </thead>
                                                                         <tbody id="sync_session_tbody">
                                                                            <tr class="sync-empty-row">
-                                                                              <td colspan="6"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> <?=htmlspecialchars(oneid_translate('admin.synclog.loading'), ENT_QUOTES, 'UTF-8')?></td>
+                                                                              <td colspan="7"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> <?=htmlspecialchars(oneid_translate('admin.synclog.loading'), ENT_QUOTES, 'UTF-8')?></td>
                                                                            </tr>
                                                                         </tbody>
                                                                      </table>
@@ -5893,8 +5894,30 @@
             var uid = row.triggered_by || '';
             if(!uid){ return '-'; }
             var name = String(row.triggered_by_name || '').trim();
-            if(name){ return name + ' (' + uid + ')'; }
-            return uid;
+            var mode = uid === 'ONEID-CRON'
+               ? adminText('admin.synclog.trigger_cron')
+               : adminText('admin.synclog.trigger_manual');
+            var identity = name ? name + ' (' + uid + ')' : uid;
+            return '<small class="sync-trigger-mode">' + mode + '</small>' + sync_escape_html(identity);
+         }
+
+         function sync_escape_html(value){
+            return $('<div>').text(String(value === null || value === undefined ? '' : value)).html();
+         }
+
+         function sync_source_info(sourceCode){
+            var sources = {
+               STAFF_HR: [adminText('admin.synclog.source_staff'), 'sync-source-staff'],
+               STUDENT_UG_SMP: [adminText('admin.synclog.source_ug'), 'sync-source-ug'],
+               STUDENT_ODL_PG: [adminText('admin.synclog.source_odl'), 'sync-source-odl']
+            };
+            return sources[String(sourceCode || '')]
+               || [adminText('admin.synclog.source_legacy'), 'sync-source-legacy'];
+         }
+
+         function sync_source_badge(sourceCode){
+            var info = sync_source_info(sourceCode);
+            return '<span class="sync-source-badge ' + info[1] + '">' + info[0] + '</span>';
          }
 
          function sync_action_badge(action){
@@ -6004,6 +6027,7 @@
                tr += '<tr class="sync-session-row">';
                tr += '<td data-label="'+adminText('admin.synclog.session')+'"><span class="sync-session-id">#' + row.ext_head_id + '</span></td>';
                tr += '<td data-label="'+adminText('admin.synclog.datetime')+'"><span class="sync-session-time">' + dtStart + dtEnd + '</span></td>';
+               tr += '<td data-label="'+adminText('admin.synclog.source')+'">' + sync_source_badge(row.source_code) + '</td>';
                tr += '<td data-label="'+adminText('admin.synclog.triggered')+'"><span class="sync-session-trigger">' + sync_format_triggered_by(row) + '</span></td>';
                tr += '<td data-label="'+adminText('admin.synclog.changes')+'"><div class="sync-change-metrics">';
                tr += '<span><small>'+adminText('admin.synclog.new')+'</small><strong>' + (row.total_new || 0) + '</strong></span>';
@@ -6015,7 +6039,7 @@
                tr += '<td class="sync-action-column" data-label="#"><button type="button" class="sync-view-button" title="'+adminText('admin.synclog.view')+'" aria-label="'+adminText('admin.synclog.view')+'" onclick="load_sync_log_detail(' + row.ext_head_id + ', \'' + String(dtStart).replace(/'/g, "\\'") + '\');"><i class="fa fa-eye" aria-hidden="true"></i><span class="sr-only">'+adminText('admin.synclog.view')+'</span></button></td>';
                tr += '</tr>';
             });
-            $('#sync_session_tbody').html(tr || '<tr class="sync-empty-row"><td colspan="6">'+adminText('admin.synclog.empty')+'</td></tr>');
+            $('#sync_session_tbody').html(tr || '<tr class="sync-empty-row"><td colspan="7">'+adminText('admin.synclog.empty')+'</td></tr>');
             render_sync_pagination(page, totalPages);
          }
 
@@ -6081,14 +6105,14 @@
                data: { admin_get_sync_sessions: '' },
                beforeSend: function(){
                   sync_update_summary(null);
-                  $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> '+adminText('admin.synclog.loading')+'</td></tr>');
+                  $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="7"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> '+adminText('admin.synclog.loading')+'</td></tr>');
                   $('#sync_session_pagination').html('');
                },
                success: function(response){
                   if(!response || response.length === 0){
                      syncSessionsData = [];
                      sync_update_summary([]);
-                     $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6">'+adminText('admin.synclog.empty')+'</td></tr>');
+                     $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="7">'+adminText('admin.synclog.empty')+'</td></tr>');
                      $('#sync_session_pagination').html('');
                      return;
                   }
@@ -6099,7 +6123,7 @@
                error: function(xhr){
                   syncSessionsData = [];
                   sync_update_summary([]);
-                  $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="6">'+adminText('admin.synclog.failed_sessions')+'</td></tr>');
+                  $('#sync_session_tbody').html('<tr class="sync-empty-row"><td colspan="7">'+adminText('admin.synclog.failed_sessions')+'</td></tr>');
                   $('#sync_session_pagination').html('');
                }
             });
@@ -6115,7 +6139,9 @@
                   syncLogDetailData = [];
                   $('#sync_detail_tbody').html('<tr class="sync-empty-row"><td colspan="5"><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i> '+adminText('admin.synclog.loading_details')+'</td></tr>');
                   $('#sync_detail_pagination').html('');
-                  $('#sync_detail_header').text(adminText('admin.synclog.detail_title', {id: ext_head_id}) + (sessionDate ? ' — ' + sessionDate : ''));
+                  var selected = syncSessionsData.find(function(row){ return Number(row.ext_head_id) === Number(ext_head_id); });
+                  var source = sync_source_info(selected ? selected.source_code : null)[0];
+                  $('#sync_detail_header').text(adminText('admin.synclog.detail_title', {id: ext_head_id}) + ' — ' + source + (sessionDate ? ' — ' + sessionDate : ''));
                   $('#sync_session_panel').hide();
                   $('#sync_detail_panel').show();
                },
@@ -9785,12 +9811,13 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         overflow-wrap: anywhere;
       }
 
-      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(1) { width: 9%; }
-      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(2) { width: 20%; }
-      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(3) { width: 16%; }
-      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(4) { width: 34%; }
-      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(5) { width: 14%; }
-      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(6) { width: 7%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(1) { width: 7%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(2) { width: 17%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(3) { width: 12%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(4) { width: 15%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(5) { width: 30%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(6) { width: 12%; }
+      #tab_synclog .sync-log-table:not(.sync-detail-table) th:nth-child(7) { width: 7%; }
 
       #tab_synclog .sync-log-table .sync-action-column {
         text-align: left !important;
@@ -9821,6 +9848,30 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         display: block;
         color: #4f5e70;
       }
+      #tab_synclog .sync-trigger-mode {
+        display: block;
+        margin-bottom: 3px;
+        color: #8795a8;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      #tab_synclog .sync-source-badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 25px;
+        padding: 5px 9px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 800;
+        line-height: 1.2;
+      }
+      #tab_synclog .sync-source-staff { background: #eaf8f1; border-color: #bfe6d2; color: #146c46; }
+      #tab_synclog .sync-source-ug { background: #eef6ff; border-color: #c9def6; color: #245b91; }
+      #tab_synclog .sync-source-odl { background: #fff5e9; border-color: #f2d5ad; color: #945713; }
+      #tab_synclog .sync-source-legacy { background: #f2f4f7; border-color: #dfe4ea; color: #697586; }
 
       #tab_synclog .sync-session-time {
         min-width: 155px;

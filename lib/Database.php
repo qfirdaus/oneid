@@ -330,13 +330,33 @@ class Database {
         return $result;
     }
 
-   public function action_add_new_ext_header($ext_head_type){
-        $Q = "INSERT INTO  ext_data_temp_header(ext_head_type,ext_head_dt_start,ext_head_dt_end,ext_head_status,ext_head_initial_sourcedata,ext_head_uploaded_data) VALUES (:ext_head_type,NOW(),NOW(),0,0,0)";
+   public function action_add_new_ext_header($ext_head_type, ?string $source_code = null){
+        $source_code = $source_code !== null ? trim($source_code) : null;
+        if ($source_code !== null && !in_array($source_code, ['STAFF_HR','STUDENT_UG_SMP','STUDENT_ODL_PG'], true)) {
+            throw new RuntimeException('SYNC_SOURCE_INVALID');
+        }
+        $hasSourceCode = $this->sync_header_source_code_available();
+        if ($source_code !== null && !$hasSourceCode) {
+            throw new RuntimeException('SYNC_LOG_SOURCE_SCHEMA_UNAVAILABLE');
+        }
+        $Q = $hasSourceCode
+            ? "INSERT INTO ext_data_temp_header(ext_head_type,source_code,ext_head_dt_start,ext_head_dt_end,ext_head_status,ext_head_initial_sourcedata,ext_head_uploaded_data) VALUES (:ext_head_type,:source_code,NOW(),NOW(),0,0,0)"
+            : "INSERT INTO ext_data_temp_header(ext_head_type,ext_head_dt_start,ext_head_dt_end,ext_head_status,ext_head_initial_sourcedata,ext_head_uploaded_data) VALUES (:ext_head_type,NOW(),NOW(),0,0,0)";
         $R = $this->pdo->prepare($Q);
         $R->bindParam(':ext_head_type', $ext_head_type);
+        if ($hasSourceCode) {
+            $R->bindValue(':source_code', $source_code);
+        }
         $R->execute();        
         $result = $this->pdo->lastInsertId();
         return $result;
+    }
+
+    public function sync_header_source_code_available(): bool{
+        static $available = null;
+        if ($available !== null) return $available;
+        $R = $this->pdo->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='ext_data_temp_header' AND column_name='source_code'");
+        return $available = (int) $R->fetchColumn() === 1;
     }
 
 
@@ -866,10 +886,11 @@ class Database {
     }
 
     public function sync_get_all_sessions(){
+        $sourceColumn = $this->sync_header_source_code_available() ? 'h.source_code' : 'NULL AS source_code';
         $Q = "SELECT h.ext_head_id, h.ext_head_dt_start, h.ext_head_dt_end,
                      h.ext_head_status, h.total_new, h.total_updated,
                      h.total_deactivated, h.total_reactivated, h.triggered_by,
-                     u.data1 AS triggered_by_name
+                     {$sourceColumn}, u.data1 AS triggered_by_name
               FROM ext_data_temp_header h
               LEFT JOIN user_tbl u ON u.u_id = h.triggered_by
               ORDER BY h.ext_head_id DESC";
