@@ -20,6 +20,7 @@ $check = static function (bool $passed, string $description) use (&$checks, &$fa
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $description);
 };
 $runtime = [
+    'ONEID_ENVIRONMENT' => 'staging',
     'ONEID_MYDID_ENABLED' => 'true',
     'ONEID_MYDID_ISSUER' => 'https://sso.digital-id.my/realms/upnm',
     'ONEID_MYDID_CLIENT_ID' => 'upnm-generic',

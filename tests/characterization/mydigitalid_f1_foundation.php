@@ -24,6 +24,7 @@ $check = static function (bool $passed, string $description) use (&$checks, &$fa
 };
 
 $valid = [
+    'ONEID_ENVIRONMENT' => 'staging',
     'ONEID_MYDID_ENABLED' => 'false',
     'ONEID_MYDID_ISSUER' => 'https://sso.digital-id.my/realms/upnm',
     'ONEID_MYDID_CLIENT_ID' => 'upnm-generic',
@@ -64,6 +65,52 @@ $check(
         && $client->getIssuer() === $enabled->issuer,
     'enabled fixture builds the expected confidential client without network I/O'
 );
+
+$productionValues = $valid;
+$productionValues['ONEID_ENVIRONMENT'] = 'production';
+$productionValues['ONEID_MYDID_REDIRECT_URI'] =
+    'https://oneid.upnm.edu.my/auth/mydigitalid/callback.php';
+$productionValues['ONEID_MYDID_POST_LOGOUT_REDIRECT_URI'] =
+    'https://oneid.upnm.edu.my/';
+$production = MyDigitalIdConfig::fromRuntime(
+    static fn(string $key, mixed $fallback = null): mixed =>
+        $productionValues[$key] ?? $fallback,
+    $secretReader
+);
+$check(
+    $production->redirectUri === $productionValues['ONEID_MYDID_REDIRECT_URI']
+        && $production->postLogoutRedirectUri
+            === $productionValues['ONEID_MYDID_POST_LOGOUT_REDIRECT_URI'],
+    'production environment accepts only the registered production callback host'
+);
+
+foreach ([
+    'staging_rejects_production_host' => [
+        'staging',
+        'https://oneid.upnm.edu.my/auth/mydigitalid/callback.php',
+    ],
+    'production_rejects_staging_host' => [
+        'production',
+        'https://oneid-uat.upnm.edu.my/auth/mydigitalid/callback.php',
+    ],
+] as $name => [$environment, $redirectUri]) {
+    $case = $valid;
+    $case['ONEID_ENVIRONMENT'] = $environment;
+    $case['ONEID_MYDID_REDIRECT_URI'] = $redirectUri;
+    if ($environment === 'production') {
+        $case['ONEID_MYDID_POST_LOGOUT_REDIRECT_URI'] = 'https://oneid.upnm.edu.my/';
+    }
+    try {
+        MyDigitalIdConfig::fromRuntime(
+            static fn(string $key, mixed $fallback = null): mixed => $case[$key] ?? $fallback,
+            $secretReader
+        );
+        $blocked = false;
+    } catch (MyDigitalIdConfigurationException $exception) {
+        $blocked = $exception->reason === 'MYDID_REDIRECT_URI_INVALID';
+    }
+    $check($blocked, 'cross-environment callback host is rejected: ' . $name);
+}
 $check(
     $client->getRedirectURL() === $enabled->redirectUri
         && $client->getScopes() === ['openid']
@@ -119,6 +166,7 @@ try {
 $check($weakPkceBlocked, 'provider without PKCE S256 is rejected');
 
 $invalidCases = [
+    'environment' => ['ONEID_ENVIRONMENT', 'development', 'MYDID_ENVIRONMENT_INVALID'],
     'enabled' => ['ONEID_MYDID_ENABLED', 'sometimes', 'MYDID_ENABLED_INVALID'],
     'issuer' => ['ONEID_MYDID_ISSUER', 'https://attacker.invalid/realms/upnm', 'MYDID_ISSUER_INVALID'],
     'client' => ['ONEID_MYDID_CLIENT_ID', 'bad client id', 'MYDID_CLIENT_ID_INVALID'],

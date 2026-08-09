@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.8.4' =>
+  array (
+    'version' => '2.8.4',
+    'date' => '2026-08-09',
+    'bm' =>
+    array (
+      0 => 'MyDigital ID kini memilih host callback berdaftar berdasarkan environment deployment OneID.',
+      1 => 'Environment staging hanya menerima callback oneid-uat.upnm.edu.my.',
+      2 => 'Environment production hanya menerima callback oneid.upnm.edu.my.',
+      3 => 'Callback silang antara staging dan production ditolak secara fail-closed.',
+      4 => 'Nilai environment yang kosong, tidak dikenali atau bukan string ditolak sebelum klien OIDC dibina.',
+      5 => 'Callback kekal diwajibkan menggunakan HTTPS tanpa port, query, fragment atau maklumat pengguna.',
+      6 => 'Path callback kekal dikunci kepada /auth/mydigitalid/callback.php.',
+      7 => 'Post-logout redirect kekal dikunci kepada root domain environment yang sama.',
+      8 => 'Ujian characterization meliputi konfigurasi staging, production dan penolakan silang kedua-dua arah.',
+      9 => 'Perubahan tidak mengaktifkan MyDigital ID, mengubah secret, menjalankan migration atau memutasi database.',
+    ),
+    'en' =>
+    array (
+      0 => 'MyDigital ID now selects the registered callback host from the OneID deployment environment.',
+      1 => 'The staging environment accepts only the oneid-uat.upnm.edu.my callback.',
+      2 => 'The production environment accepts only the oneid.upnm.edu.my callback.',
+      3 => 'Cross-environment callbacks between staging and production are rejected fail-closed.',
+      4 => 'Empty, unknown or non-string environment values are rejected before the OIDC client is built.',
+      5 => 'Callbacks continue to require HTTPS without ports, queries, fragments or user information.',
+      6 => 'The callback path remains pinned to /auth/mydigitalid/callback.php.',
+      7 => 'The post-logout redirect remains pinned to the root of the same environment domain.',
+      8 => 'Characterization tests cover staging, production and cross-environment rejection in both directions.',
+      9 => 'The change does not activate MyDigital ID, alter secrets, run migrations or mutate the database.',
+    ),
+  ),
   'release-2.8.3' =>
   array (
     'version' => '2.8.3',

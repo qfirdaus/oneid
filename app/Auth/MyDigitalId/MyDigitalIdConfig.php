@@ -9,6 +9,10 @@ final class MyDigitalIdConfig
     private const EXPECTED_ISSUER = 'https://sso.digital-id.my/realms/upnm';
     private const EXPECTED_SCOPE = 'openid';
     private const EXPECTED_PKCE_METHOD = 'S256';
+    private const EXPECTED_HOSTS = [
+        'staging' => 'oneid-uat.upnm.edu.my',
+        'production' => 'oneid.upnm.edu.my',
+    ];
 
     private function __construct(
         public readonly bool $enabled,
@@ -49,14 +53,19 @@ final class MyDigitalIdConfig
             $configReader('ONEID_MYDID_CLIENT_ID', ''),
             'MYDID_CLIENT_ID_INVALID'
         );
+        $expectedHost = self::expectedHost(
+            $configReader('ONEID_ENVIRONMENT', '')
+        );
         $redirectUri = self::httpsUri(
             $configReader('ONEID_MYDID_REDIRECT_URI', ''),
             true,
+            $expectedHost,
             'MYDID_REDIRECT_URI_INVALID'
         );
         $postLogoutRedirectUri = self::httpsUri(
             $configReader('ONEID_MYDID_POST_LOGOUT_REDIRECT_URI', ''),
             false,
+            $expectedHost,
             'MYDID_POST_LOGOUT_REDIRECT_URI_INVALID'
         );
         $scope = self::exactString(
@@ -142,7 +151,26 @@ final class MyDigitalIdConfig
         return $normalized;
     }
 
-    private static function httpsUri(mixed $value, bool $callback, string $reason): string
+    private static function expectedHost(mixed $environment): string
+    {
+        if (!is_string($environment)) {
+            throw new MyDigitalIdConfigurationException('MYDID_ENVIRONMENT_INVALID');
+        }
+
+        $normalized = strtolower(trim($environment));
+        if (!isset(self::EXPECTED_HOSTS[$normalized])) {
+            throw new MyDigitalIdConfigurationException('MYDID_ENVIRONMENT_INVALID');
+        }
+
+        return self::EXPECTED_HOSTS[$normalized];
+    }
+
+    private static function httpsUri(
+        mixed $value,
+        bool $callback,
+        string $expectedHost,
+        string $reason
+    ): string
     {
         if (!is_string($value)) {
             throw new MyDigitalIdConfigurationException($reason);
@@ -152,7 +180,7 @@ final class MyDigitalIdConfig
         if (
             !is_array($parts)
             || ($parts['scheme'] ?? '') !== 'https'
-            || ($parts['host'] ?? '') !== 'oneid-uat.upnm.edu.my'
+            || ($parts['host'] ?? '') !== $expectedHost
             || array_intersect(['user', 'pass', 'query', 'fragment'], array_keys($parts)) !== []
             || isset($parts['port'])
         ) {
