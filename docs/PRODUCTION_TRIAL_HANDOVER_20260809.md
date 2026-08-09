@@ -187,6 +187,34 @@ anggap semua timestamp sama antara environment.
 - Empat login-banner file staging telah disalin untuk preservation tetapi tidak
   dipetakan/diaktifkan dalam production. Jangan delete sebelum reconciliation
   dan retention gate yang diluluskan.
+- Empat directory upload production telah disahkan dengan identity pool
+  `iqs:www-data`:
+  - private `storage/runtime/app-icon-staging` mode `0700`;
+  - private `storage/runtime/login-banner-staging` mode `0700`;
+  - public `public/public_img` mode setgid `2750`;
+  - public `public/login_banners` mode setgid `2750`.
+- Write probe dan atomic rename daripada private staging ke public directory
+  lulus untuk app icon dan login banner; semua probe dibuang selepas ujian.
+- GD, Fileinfo dan WebP runtime tersedia. WA2/WA3/WA5 serta LB2/LB3/LB4/LB6
+  upload, atomicity, normalization, guard dan public-reader contracts semuanya
+  lulus tanpa mutation production sebenar.
+
+### 3.8 Pre-clearance security surface audit
+
+- External listeners terhad kepada SSH `22`, HTTP `80` dan HTTPS `443`; resolver
+  serta guest/VM agent listeners lain hanya bind pada loopback.
+- UFW aktif dengan default incoming deny, SSH rate limit dan HTTP/HTTPS allow.
+  Trial audience masih dihadkan lagi pada lapisan Nginx allowlist.
+- Composer manifest sah dan `composer audit --no-dev` melaporkan tiada security
+  vulnerability advisory.
+- TLS 1.2 berjaya dengan `ECDHE-RSA-AES256-GCM-SHA384`; TLS 1.0 dan 1.1 tidak
+  dapat merundingkan protocol/cipher dan dianggap ditolak.
+- Secure session cookie, CSP, nosniff, SAMEORIGIN, referrer policy dan permissions
+  policy hadir. HSTS belum dihantar dan sengaja tidak diaktifkan ketika DNS rasmi
+  masih menunjuk sistem lama.
+- OS mempunyai pending security updates termasuk libc, OpenSSL, Samba libraries,
+  NetworkManager, timezone data dan kernel userspace headers. Tiada package
+  dipasang semasa audit read-only ini.
 
 ## 4. Perkara sementara yang mesti kekal sepanjang trial
 
@@ -248,6 +276,8 @@ anggap semua timestamp sama antara environment.
   pasukan DNS.
 - [ ] Sahkan sijil production, chain, expiry, renewal automation dan private-key
   permission.
+- [ ] Selepas DNS/TLS cutover disahkan stabil, tentukan polisi HSTS dan rollout
+  berperingkat. Jangan tambah `includeSubDomains` tanpa semakan semua subdomain.
 - [ ] Bersihkan konflik Netplan/NetworkManager dan pastikan DNS resolver
   `172.16.2.10` serta default route kekal selepas reboot. Perubahan ini berisiko
   memutuskan SSH dan perlu window/console akses sendiri.
@@ -297,6 +327,11 @@ anggap semua timestamp sama antara environment.
   secara recoverable dengan mode `0600` dan tidak dicipta semula.
 - [ ] Tetapkan owner/proses renewal wildcard Sectigo sebelum Januari 2027;
   tiada Certbot/ACME timer tempatan ditemui.
+- [x] Audit open ports/UFW, Composer advisory, TLS protocol, security headers dan
+  upload-directory atomic write telah selesai tanpa blocker trial.
+- [ ] Jadualkan OS security update dalam maintenance window dengan snapshot,
+  console access dan regression selepas reboot; khususnya OpenSSL, libc dan
+  NetworkManager tidak dikemas kini semasa trial aktif.
 - [ ] Semak log terdahulu yang mengandungi query callback mengikut polisi
   retention/access; jangan edit log audit secara ad hoc.
 - [ ] Jalankan vulnerability/dependency scan dan production configuration review
