@@ -116,6 +116,20 @@ attempts. Observation tunggal kekal rotation aplikasi automatik pertama yang
 belum berlaku. Selepas runtime diselaraskan, kesemua tujuh target private
 configuration manifest dibaseline semula dan disahkan `OK`.
 
+### Status penutupan pre-clearance
+
+Semua kerja minor yang boleh dilaksanakan dengan selamat sebelum clearance telah
+ditutup. Production trial kini berada dalam keadaan observation-only. Aktiviti
+rutin yang dibenarkan hanyalah health check read-only, semakan checksum manifest,
+smoke test terkawal dan pemerhatian rotation/log/TLS tanpa perubahan konfigurasi.
+
+Baki pelaksanaan ialah perubahan major: database production berasingan, schema
+dan data migration, DNS/public-access cutover, network/reboot, production asset
+mapping, authentication/service-provider integration, mutation sync/cron,
+security-update window, HSTS dan cleanup yang memerlukan keputusan owner.
+Kesemuanya kekal deferred sehingga clearance bertulis dan change reference
+diterima.
+
 ## Manual smoke test
 
 Jalankan selepas perubahan yang diluluskan dan sekurang-kurangnya sekali bagi

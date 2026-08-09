@@ -235,7 +235,28 @@ anggap semua timestamp sama antara environment.
 6. Jangan delete runtime backup, keyring, copied banner atau orphan candidate
    ketika observation trial belum ditutup.
 
-## 5. Checklist belum selesai sebelum clearance go-live
+## 5. Baki kerja major selepas clearance go-live
+
+### 5.0 Penutupan kerja minor/pre-clearance
+
+Setakat observation production `v2.9.0`, semua kerja teknikal minor yang selamat
+dibuat tanpa clearance telah selesai. Ini merangkumi deployment dan dependency,
+Nginx/PHP-FPM, TLS trial, allowlist, private runtime dan keyring, manual login,
+MFA, MyDigital ID, locale BM/EN, upload-directory permission, app-icon parity,
+safe logging, logrotate configuration, checksum manifest, health evidence serta
+read-only Staff/Undergraduate/ODL Sync Preview.
+
+Tiada lagi task konfigurasi atau deployment minor yang perlu dijalankan sebelum
+clearance. Dua item berikut kekal sebagai observation/ownership sahaja dan bukan
+authorization untuk perubahan sistem:
+
+1. tunggu dan sahkan kitaran logrotate aplikasi automatik pertama;
+2. rekod pasukan/pegawai pemilik pembaharuan wildcard Sectigo sebelum tarikh
+   escalation 90 hari.
+
+Semua item belum bertanda selesai di bawah Seksyen 5.1 hingga 5.7 kini dianggap
+kerja major/cutover atau keputusan owner. Jangan laksanakan sebahagian daripadanya
+atas alasan housekeeping tanpa clearance dan change reference.
 
 ### 5.1 Keputusan dan authorization
 
