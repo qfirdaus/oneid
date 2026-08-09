@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V284-CHANGELOG-20260809-01",
+    "authorization": "ONEID-V290-CHANGELOG-20260809-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.9.0",
+            "version": "2.9.0",
+            "date": "2026-08-09",
+            "items": [
+                {
+                    "identity": "release:2.9.0:item:001",
+                    "bm": "Ringkasan sinkronisasi kini menyemak gate Shadow Preview sebelum membina konfigurasi atau sambungan sumber ODL.",
+                    "en_draft": "The synchronization summary now checks the Shadow Preview gate before constructing ODL source configuration or connections.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.0:item:002",
+                    "bm": "Apabila Shadow Preview dimatikan, endpoint memulangkan kod ODL_SHADOW_PREVIEW_DISABLED yang tepat dan bukan kegagalan generik.",
+                    "en_draft": "When Shadow Preview is disabled, the endpoint returns the precise ODL_SHADOW_PREVIEW_DISABLED code instead of a generic failure.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.0:item:003",
+                    "bm": "Laluan fail-closed yang dimatikan tidak lagi memerlukan credential, host, port atau pangkalan data ODL tersedia.",
+                    "en_draft": "The disabled fail-closed path no longer requires ODL credentials, host, port or database configuration to be available.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.0:item:004",
+                    "bm": "Perubahan mengekalkan Summary sebagai operasi baca sahaja tanpa membina approval atau laluan Apply.",
+                    "en_draft": "The change keeps Summary strictly read-only without constructing an approval or Apply path.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.0:item:005",
+                    "bm": "Preview Staf, Prasiswazah dan ODL kekal diasingkan mengikut sumber serta tertakluk kepada baseline dan konfigurasi masing-masing.",
+                    "en_draft": "Staff, Undergraduate and ODL previews remain source-isolated and subject to their respective baselines and configuration.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.0:item:006",
+                    "bm": "Semua respons kegagalan Summary terus menetapkan can_apply=false dan mutation_statements=0.",
+                    "en_draft": "Every Summary failure response continues to set can_apply=false and mutation_statements=0.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.0:item:007",
+                    "bm": "Kontrak Shadow Preview mengesahkan susunan gate berlaku sebelum pembinaan dependency ODL luaran.",
+                    "en_draft": "The Shadow Preview contract verifies that the gate is evaluated before external ODL dependencies are constructed.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.0:item:008",
+                    "bm": "Kontrak zero-mutation Sync Preview mengesahkan tiada panggilan persistence write diperkenalkan.",
+                    "en_draft": "The zero-mutation Sync Preview contract confirms that no persistence write call was introduced.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.0:item:009",
+                    "bm": "Ujian browser staging mengesahkan Summary, Staf, Prasiswazah dan ODL Review berfungsi dengan konfigurasi read-only yang diluluskan.",
+                    "en_draft": "Staging browser tests confirm that Summary, Staff, Undergraduate and ODL Review work with the approved read-only configuration.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.0:item:010",
+                    "bm": "Release ini tidak mengaktifkan Apply, Pilot, Full, Operational Apply, cron atau sebarang mutasi database production.",
+                    "en_draft": "This release does not activate Apply, Pilot, Full, Operational Apply, cron or any production database mutation.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.8.4",
             "version": "2.8.4",
@@ -2378,5 +2445,5 @@
             ]
         }
     ],
-    "manifest_digest": "1c17a23a23f152583e8a0c374938266b800a7313f6b82d5afcf83420d38b9daf"
+    "manifest_digest": "ee541e091662ab8e6f279b286830c579a3b71a0db85eca03c82cd92d757ce315"
 }

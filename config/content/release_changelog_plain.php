@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.9.0' =>
+  array (
+    'version' => '2.9.0',
+    'date' => '2026-08-09',
+    'bm' =>
+    array (
+      0 => 'Ringkasan sinkronisasi kini menyemak gate Shadow Preview sebelum membina konfigurasi atau sambungan sumber ODL.',
+      1 => 'Apabila Shadow Preview dimatikan, endpoint memulangkan kod ODL_SHADOW_PREVIEW_DISABLED yang tepat dan bukan kegagalan generik.',
+      2 => 'Laluan fail-closed yang dimatikan tidak lagi memerlukan credential, host, port atau pangkalan data ODL tersedia.',
+      3 => 'Perubahan mengekalkan Summary sebagai operasi baca sahaja tanpa membina approval atau laluan Apply.',
+      4 => 'Preview Staf, Prasiswazah dan ODL kekal diasingkan mengikut sumber serta tertakluk kepada baseline dan konfigurasi masing-masing.',
+      5 => 'Semua respons kegagalan Summary terus menetapkan can_apply=false dan mutation_statements=0.',
+      6 => 'Kontrak Shadow Preview mengesahkan susunan gate berlaku sebelum pembinaan dependency ODL luaran.',
+      7 => 'Kontrak zero-mutation Sync Preview mengesahkan tiada panggilan persistence write diperkenalkan.',
+      8 => 'Ujian browser staging mengesahkan Summary, Staf, Prasiswazah dan ODL Review berfungsi dengan konfigurasi read-only yang diluluskan.',
+      9 => 'Release ini tidak mengaktifkan Apply, Pilot, Full, Operational Apply, cron atau sebarang mutasi database production.',
+    ),
+    'en' =>
+    array (
+      0 => 'The synchronization summary now checks the Shadow Preview gate before constructing ODL source configuration or connections.',
+      1 => 'When Shadow Preview is disabled, the endpoint returns the precise ODL_SHADOW_PREVIEW_DISABLED code instead of a generic failure.',
+      2 => 'The disabled fail-closed path no longer requires ODL credentials, host, port or database configuration to be available.',
+      3 => 'The change keeps Summary strictly read-only without constructing an approval or Apply path.',
+      4 => 'Staff, Undergraduate and ODL previews remain source-isolated and subject to their respective baselines and configuration.',
+      5 => 'Every Summary failure response continues to set can_apply=false and mutation_statements=0.',
+      6 => 'The Shadow Preview contract verifies that the gate is evaluated before external ODL dependencies are constructed.',
+      7 => 'The zero-mutation Sync Preview contract confirms that no persistence write call was introduced.',
+      8 => 'Staging browser tests confirm that Summary, Staff, Undergraduate and ODL Review work with the approved read-only configuration.',
+      9 => 'This release does not activate Apply, Pilot, Full, Operational Apply, cron or any production database mutation.',
+    ),
+  ),
   'release-2.8.4' =>
   array (
     'version' => '2.8.4',

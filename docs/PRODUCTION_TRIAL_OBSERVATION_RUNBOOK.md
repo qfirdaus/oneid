@@ -2,7 +2,7 @@
 
 **Environment:** production trial  
 **Server:** `APPSSSOPRODv1`  
-**Release baseline:** OneID `v2.8.4`  
+**Release baseline selepas sync-preview patch:** OneID `v2.9.0`
 **Mutation authorization:** none
 
 ## Automated read-only health check
