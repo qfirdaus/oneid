@@ -13,6 +13,8 @@
 
 # Logs
 *.log
+/storage/logs/*.log*
+!/storage/logs/.gitkeep
 
 # OS
 Thumbs.db
@@ -33,6 +35,7 @@ public_img/*
 /.vscode/
 
 # Runtime data selepas migrasi ke public root
+/public/login_banners/
 /public/public_img/*
 /public/public_docs/*
 /public/videos/*
