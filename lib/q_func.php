@@ -1039,6 +1039,9 @@ function string_sanitize($s) {
       if(isset($_POST['admin_preview_odl_shadow'])){
             try {
                 $shadowConfig = \OneId\App\Sync\Odl\OdlShadowPreviewConfig::fromPrivateRuntime();
+                if (!$shadowConfig->enabled) {
+                    throw new \RuntimeException('ODL_SHADOW_PREVIEW_DISABLED');
+                }
                 $readPdo = new \PDO(DB_DSN, DB_USERNAME, DB_PASSWORD, [
                     \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                     \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,

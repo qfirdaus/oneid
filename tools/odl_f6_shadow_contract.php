@@ -15,6 +15,17 @@ $report = static function (bool $ok, string $label) use (&$checks, &$failed): vo
 $report(str_contains($service, "'mode'] = 'odl_shadow_preview'") && str_contains($service, '$plan->safeProjection()'), 'service returns safe shadow projection');
 $report(!str_contains($service, 'SyncApprovalService') && !str_contains($service, 'ApprovedSyncCoordinator'), 'service has no approval or Apply dependency');
 $report(str_contains($endpoint, "isset(\$_POST['admin_preview_odl_shadow'])") && str_contains($endpoint, 'OdlShadowPreviewService'), 'admin endpoint wired separately');
+$configPosition = strpos($endpoint, 'OdlShadowPreviewConfig::fromPrivateRuntime()');
+$disabledPosition = strpos($endpoint, "throw new \\RuntimeException('ODL_SHADOW_PREVIEW_DISABLED')", $configPosition === false ? 0 : $configPosition);
+$sourcePosition = strpos($endpoint, 'OdlSourceConfig::fromPrivateRuntime()', $configPosition === false ? 0 : $configPosition);
+$report(
+    $configPosition !== false
+        && $disabledPosition !== false
+        && $sourcePosition !== false
+        && $configPosition < $disabledPosition
+        && $disabledPosition < $sourcePosition,
+    'disabled shadow preview fails before external ODL configuration is constructed'
+);
 $report(
     str_contains($security, "'admin_preview_odl_shadow'")
         && str_contains($security, "'admin_preview_sync_user'"),
