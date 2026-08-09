@@ -4,7 +4,7 @@
 **Server:** `APPSSSOPRODv1` (`172.16.2.109`)  
 **Path:** `/var/www/oneid`  
 **Domain akhir:** `oneid.upnm.edu.my`  
-**Release trial:** `b3b0155` — OneID `v2.8.4`  
+**Release trial semasa:** `48a759b` — OneID `v2.9.0`
 **Status:** Trial production terhad berjaya; **belum mendapat clearance go-live**
 
 ## 1. Tujuan dan batas semasa
@@ -22,7 +22,7 @@ memberi authorization untuk mengaktifkan mana-mana gate tersebut.
 
 | Komponen | Status | Keadaan disahkan |
 | --- | --- | --- |
-| Source | PASS | Detached HEAD pada commit tepat `b3b0155`, release `v2.8.4` |
+| Source | PASS | Detached HEAD pada commit tepat `48a759b`, release `v2.9.0` |
 | Web root | PASS | Nginx menggunakan `/var/www/oneid/public` |
 | PHP | PASS | PHP 8.3 dan dedicated pool `oneid` |
 | FPM socket | PASS | `/run/php/php8.3-fpm-oneid.sock` |
@@ -36,6 +36,7 @@ memberi authorization untuk mengaktifkan mana-mana gate tersebut.
 | App icons | PASS | Tiga ikon production dipromote dan HTTP 200 |
 | Login banner | DISABLED | Tiada mapping banner environment production diluluskan |
 | Sync/schema gates | SAFE/OFF | Apply, cron, ODL dan schema mutation ditutup |
+| Sync Preview | PASS/READ-ONLY | Summary, Staff, Undergraduate dan ODL Review berjaya; tindakan semasa sifar |
 | Sensitive access logging | PASS | HTTP/HTTPS menggunakan `oneid_safe`, query callback tidak direkodkan |
 
 ## 3. Kerja yang telah selesai
@@ -47,9 +48,10 @@ memberi authorization untuk mengaktifkan mana-mana gate tersebut.
 - Release staging asal `ec6be0e` dipasang untuk baseline production.
 - Kecacatan MyDigital ID yang mengunci callback kepada host UAT dibaiki dalam
   repository, diuji di staging dan diterbitkan sebagai `v2.8.4`.
-- Release akhir dipush ke branch
-  `agent/close-odl-mydigitalid-audits` dan production dipasang pada commit tepat
-  `b3b0155`.
+- Release MyDigital ID asal dipasang pada `b3b0155`; production kemudiannya
+  dinaik taraf kepada release Sync Preview `v2.9.0` pada commit tepat `48a759b`.
+- Release semasa dipush ke branch `agent/close-odl-mydigitalid-audits` dan diuji
+  di staging sebelum deployment production.
 - `composer install --no-dev --classmap-authoritative` berjaya; dependency OIDC
   tersedia dan Composer audit terdahulu tidak menemukan advisory.
 - Semua contract MyDigital ID, characterization berkaitan dan release metadata
@@ -247,7 +249,7 @@ item lain secara automatik.
 - [ ] Tetapkan change reference, owner, approver, rollback owner dan saluran
   komunikasi insiden.
 - [ ] Tetapkan commit/tag canonical yang diluluskan. Production kini detached
-  pada `b3b0155`; tentukan sama ada release perlu merge/tag daripada branch
+  pada `48a759b`; tentukan sama ada release perlu merge/tag daripada branch
   rasmi sebelum cutover.
 - [ ] Bekukan perubahan staging/production sepanjang cutover window.
 
@@ -357,6 +359,13 @@ item lain secara automatik.
   Pertukaran EN/BM, cookie `oneid_locale`, redirect dan active-state telah
   disahkan; tiada perubahan source code diperlukan. Manifest private dijana
   semula dan kesemua tujuh target lulus checksum.
+- [x] Release `v2.9.0` commit `48a759b` dideploy selepas ujian staging. Read-only
+  Summary, Staff, Undergraduate dan ODL Review lulus dengan tindakan sync sifar;
+  ODL preflight membaca 179 rekod dan melaporkan `mutation_statements=0`.
+- [x] Health evidence `production-health-v290-readonly-sync-20260809.log`
+  disimpan sebagai `root:www-data` mode `0640`; 13 checks, 0 failures dan hanya
+  observation rotation pertama masih pending. Manifest tujuh target dibaseline
+  semula dan semuanya `OK`.
 - [ ] Jadualkan OS security update dalam maintenance window dengan snapshot,
   console access dan regression selepas reboot; khususnya OpenSSL, libc dan
   NetworkManager tidak dikemas kini semasa trial aktif.

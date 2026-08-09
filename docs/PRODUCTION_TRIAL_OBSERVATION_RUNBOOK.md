@@ -85,6 +85,37 @@ Private production configuration manifest dijana semula selepas perubahan
 runtime. Kesemua tujuh target manifest disahkan `OK`; nilai digest kekal private
 dan tidak direkodkan dalam Git.
 
+### Deployment v2.9.0 dan read-only Sync Preview
+
+Release `v2.9.0` pada commit `48a759b` telah diuji di staging dan dideploy ke
+production. Release metadata, Shadow Preview dan zero-mutation Sync Preview
+contracts masing-masing lulus `18/18`, `10/10` dan `28/28`.
+
+Production trial dibenarkan membuat sambungan baca sahaja kepada sumber HR,
+Undergraduate dan ODL. Runtime diselaraskan dengan baseline staging dan hanya
+gate berikut diaktifkan:
+
+- `ONEID_ODL_SHADOW_PREVIEW_ENABLED=true`;
+- `ONEID_ODL_OPERATIONAL_PREVIEW_ENABLED=true`.
+
+Semua gate Apply, Pilot, Full, Operational Apply, on-demand dan cron kekal
+disabled; Sync Engine production kekal `disabled`. ODL runtime preflight membaca
+179 rekod dengan sifar medan canonical tidak sah dan
+`mutation_statements=0`.
+
+Ujian browser production mengesahkan Summary, Staff, Undergraduate dan ODL
+Review dapat menyediakan preview. Semua kiraan tindakan sync adalah sifar,
+menunjukkan sumber dan shared-UAT target semasa adalah up to date. Access log
+menunjukkan HTTP 200 dan tiada error preview baharu, Apply atau cron direkodkan
+semasa observation window.
+
+Evidence `production-health-v290-readonly-sync-20260809.log` disimpan secara
+private dengan owner `root:www-data` dan mode `0640`. Health check melaporkan
+13 checks, 0 failures, 1 observation, 0 mutation statements dan 0 authentication
+attempts. Observation tunggal kekal rotation aplikasi automatik pertama yang
+belum berlaku. Selepas runtime diselaraskan, kesemua tujuh target private
+configuration manifest dibaseline semula dan disahkan `OK`.
+
 ## Manual smoke test
 
 Jalankan selepas perubahan yang diluluskan dan sekurang-kurangnya sekali bagi
