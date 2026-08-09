@@ -215,6 +215,11 @@ anggap semua timestamp sama antara environment.
 - OS mempunyai pending security updates termasuk libc, OpenSSL, Samba libraries,
   NetworkManager, timezone data dan kernel userspace headers. Tiada package
   dipasang semasa audit read-only ini.
+- Private checksum baseline bagi Nginx site/safe-log, dedicated FPM pool,
+  logrotate, runtime, TOTP keyring dan `/etc/hosts` disimpan pada production di
+  `.private/production-config-manifest-20260809.sha256`, owner `root:www-data`,
+  mode `0640`. Nilai digest tidak diterbitkan ke Git kerana manifest mengikat
+  fail konfigurasi yang mengandungi secret.
 
 ## 4. Perkara sementara yang mesti kekal sepanjang trial
 
@@ -329,6 +334,8 @@ anggap semua timestamp sama antara environment.
   tiada Certbot/ACME timer tempatan ditemui.
 - [x] Audit open ports/UFW, Composer advisory, TLS protocol, security headers dan
   upload-directory atomic write telah selesai tanpa blocker trial.
+- [x] Private checksum baseline konfigurasi production telah diwujudkan dengan
+  permission `0640`; gunakan untuk change detection sebelum cutover.
 - [ ] Jadualkan OS security update dalam maintenance window dengan snapshot,
   console access dan regression selepas reboot; khususnya OpenSSL, libc dan
   NetworkManager tidak dikemas kini semasa trial aktif.
