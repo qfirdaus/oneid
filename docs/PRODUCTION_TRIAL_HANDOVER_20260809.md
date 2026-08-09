@@ -237,6 +237,11 @@ anggap semua timestamp sama antara environment.
 
 ### 5.1 Keputusan dan authorization
 
+Semua item dalam Seksyen 5 berstatus **DEFERRED — DO NOT EXECUTE BEFORE OWNER
+CLEARANCE**. Selepas clearance diterima, buka semula hanya item yang termasuk
+dalam skop change reference tersebut; clearance satu item tidak mengaktifkan
+item lain secara automatik.
+
 - [ ] Dapatkan clearance bertulis untuk production go-live dan maintenance
   window.
 - [ ] Tetapkan change reference, owner, approver, rollback owner dan saluran
@@ -328,10 +333,15 @@ anggap semua timestamp sama antara environment.
 - [ ] Sahkan permission dan kelakuan sebenar selepas rotation automatik pertama;
   force rotation tidak dilakukan semasa trial.
 - [ ] Tetapkan monitoring HTTP/TLS/FPM/disk/database, alert owner dan retention.
+- [x] Read-only production trial health-check dan manual authentication
+  observation runbook tersedia di
+  `tools/production_trial_health_check.php` dan
+  `docs/PRODUCTION_TRIAL_OBSERVATION_RUNBOOK.md`.
 - [x] Temporary cookie-debug config disahkan tiada; log lama telah diretire
   secara recoverable dengan mode `0600` dan tidak dicipta semula.
 - [ ] Tetapkan owner/proses renewal wildcard Sectigo sebelum Januari 2027;
-  tiada Certbot/ACME timer tempatan ditemui.
+  tiada Certbot/ACME timer tempatan ditemui. Owner semasa direkodkan sebagai
+  `PENDING CONFIRMATION BY SYSTEM OWNER`, bukan dianggap selesai.
 - [x] Audit open ports/UFW, Composer advisory, TLS protocol, security headers dan
   upload-directory atomic write telah selesai tanpa blocker trial.
 - [x] Private checksum baseline konfigurasi production telah diwujudkan dengan
