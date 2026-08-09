@@ -332,6 +332,12 @@ item lain secara automatik.
   debug validation; application log mode `0640` dan writable oleh pool.
 - [ ] Sahkan permission dan kelakuan sebenar selepas rotation automatik pertama;
   force rotation tidak dilakukan semasa trial.
+- [x] Rekod health check awal dan dua recheck disimpan secara private dengan
+  owner `root:www-data` dan mode `0640`; semua semakan mempunyai 0 failures,
+  manakala rotation automatik pertama masih berstatus observation/pending.
+- [x] Manual smoke test 09 Ogos 2026 oleh Norfirdaus Harun pada commit `f706008`
+  merekodkan PASS untuk manual login, MFA, dashboard, profile photo,
+  MyDigital ID, logout dan safe callback logging.
 - [ ] Tetapkan monitoring HTTP/TLS/FPM/disk/database, alert owner dan retention.
 - [x] Read-only production trial health-check dan manual authentication
   observation runbook tersedia di

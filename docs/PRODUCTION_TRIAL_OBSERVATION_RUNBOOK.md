@@ -32,6 +32,38 @@ sudo stat -c '%U:%G %a %s %y %n' \
 Fail aktif mesti kekal writable oleh pool `iqs:www-data` dan tidak boleh menjadi
 world-readable.
 
+## Rekod pemerhatian 09 Ogos 2026
+
+Pemerhatian awal production trial telah direkodkan secara private pada server
+production di bawah `/var/www/oneid/.private/observations/`. Direktori evidence
+dimiliki `root:www-data` dengan mode `0750`; semua fail evidence dimiliki
+`root:www-data` dengan mode `0640`.
+
+Evidence yang tersedia:
+
+- `production-health-20260809-initial.log` — health check awal;
+- `production-health-recheck-pending-rotation.log` — semakan semula semasa
+  rotation pertama masih pending;
+- `production-health-recheck2-pending-rotation.log` — semakan kedua semasa
+  rotation pertama masih pending;
+- `manual-smoke-20260809.md` — keputusan smoke test manual oleh Norfirdaus
+  Harun terhadap commit `f706008`.
+
+Keputusan health check: 13 checks, 0 failures, 1 observation. Runtime/version,
+Nginx, PHP-FPM, disk, memory, private checksum manifest, TLS, HTTPS root,
+MyDigital ID configuration dan konfigurasi logrotate semuanya lulus. Satu-satunya
+observation ialah rotation automatik pertama `php-error.log` masih belum berlaku.
+
+Keputusan manual smoke test: manual login, MFA, dashboard, profile photo,
+MyDigital ID, logout dan safe callback logging semuanya `PASS`. Trial menggunakan
+hosts override ke `172.16.2.109`, akses tester `2.0.1.7`, dan database shared UAT.
+
+Pada semakan terakhir, hanya fail aktif `storage/logs/php-error.log` wujud dan
+belum ada rekod path tersebut dalam `/var/lib/logrotate/status`. Oleh itu, jangan
+cipta evidence bernama `production-health-after-first-rotation.log` sehingga
+fail rotation atau rekod status automatik benar-benar wujud. Force rotation
+tidak dilakukan.
+
 ## Manual smoke test
 
 Jalankan selepas perubahan yang diluluskan dan sekurang-kurangnya sekali bagi
@@ -93,4 +125,3 @@ CLEARANCE**:
 
 Senarai terperinci, rollback dan definition of done berada dalam
 `docs/PRODUCTION_TRIAL_HANDOVER_20260809.md`.
-
