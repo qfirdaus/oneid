@@ -352,6 +352,11 @@ item lain secara automatik.
   upload-directory atomic write telah selesai tanpa blocker trial.
 - [x] Private checksum baseline konfigurasi production telah diwujudkan dengan
   permission `0640`; gunakan untuk change detection sebelum cutover.
+- [x] Login-page guest locale parity diselaraskan dengan staging melalui
+  `ONEID_LOCALE_INFRASTRUCTURE_ENABLED=true` dan `ONEID_DEFAULT_LOCALE=ms`.
+  Pertukaran EN/BM, cookie `oneid_locale`, redirect dan active-state telah
+  disahkan; tiada perubahan source code diperlukan. Manifest private dijana
+  semula dan kesemua tujuh target lulus checksum.
 - [ ] Jadualkan OS security update dalam maintenance window dengan snapshot,
   console access dan regression selepas reboot; khususnya OpenSSL, libc dan
   NetworkManager tidak dikemas kini semasa trial aktif.

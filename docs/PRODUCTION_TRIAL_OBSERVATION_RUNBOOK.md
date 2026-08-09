@@ -64,6 +64,27 @@ cipta evidence bernama `production-health-after-first-rotation.log` sehingga
 fail rotation atau rekod status automatik benar-benar wujud. Force rotation
 tidak dilakukan.
 
+### Pembetulan parity locale production
+
+Language switch pada halaman login pada mulanya tidak berfungsi kerana
+`ONEID_LOCALE_INFRASTRUCTURE_ENABLED` dan `ONEID_DEFAULT_LOCALE` tidak terdapat
+dalam private runtime production. Default aplikasi mematikan locale
+infrastructure dan kembali kepada Bahasa Melayu. Staging disahkan menggunakan
+`ONEID_LOCALE_INFRASTRUCTURE_ENABLED=true` dan `ONEID_DEFAULT_LOCALE=ms`.
+
+Production telah diselaraskan kepada nilai staging tersebut tanpa perubahan
+source code. Ujian guest session baharu mengesahkan:
+
+- `?locale=en` memberikan HTTP 303, halaman seterusnya `lang="en"`, dan EN aktif;
+- `?locale=ms` memberikan HTTP 303, halaman seterusnya `lang="ms"`, dan BM aktif;
+- cookie jar mengandungi hanya nama yang dijangka untuk ujian ini:
+  `oneid_locale` dan `PHPSESSID`;
+- semua fail ujian sementara di `/tmp` telah dibuang.
+
+Private production configuration manifest dijana semula selepas perubahan
+runtime. Kesemua tujuh target manifest disahkan `OK`; nilai digest kekal private
+dan tidak direkodkan dalam Git.
+
 ## Manual smoke test
 
 Jalankan selepas perubahan yang diluluskan dan sekurang-kurangnya sekali bagi
