@@ -96,6 +96,9 @@ anggap semua timestamp sama antara environment.
   `/etc/oneid/keys/admin-totp-keyring.php`, owner `root:www-data`, mode `0640`.
 - Keyring boleh dibaca oleh identity pool OneID dan checksum sepadan dengan
   staging. Fail pemindahan sementara di `/tmp` telah dibuang.
+- Semakan semula sebagai identity efektif `iqs:www-data` pada 9 Ogos 2026
+  mengesahkan keyring `READABLE=yes` dengan SHA-256
+  `7cc9e21f8f967230f3f5f0511f1b22821c1f2ffd5776922ca9d938ae0c18d75c`.
 
 ### 3.4 Nginx, TLS dan trial access
 
@@ -111,6 +114,30 @@ anggap semua timestamp sama antara environment.
 - HTTP dan HTTPS access log kini menggunakan format `oneid_safe`, yang
   merekodkan `$uri` tanpa query string dan tidak merekodkan referrer.
 - Nginx syntax test dan reload selepas perubahan log berjaya.
+- Temporary cookie-debug configuration tidak lagi wujud dalam konfigurasi
+  aktif. Fail lama 3,957 byte telah dipindahkan secara recoverable kepada
+  `/var/log/nginx/oneid-cookie-debug.log.retired-20260809`, owner `root:root`,
+  mode `0600`; health request tidak mencipta semula log debug tersebut.
+- Nginx log telah diliputi polisi harian sedia ada `/etc/logrotate.d/nginx`
+  dengan 14 rotation.
+- Application log `/var/www/oneid/storage/logs/php-error.log` kini diliputi
+  `/etc/logrotate.d/oneid-app`: harian, 14 rotation, `maxsize 10M`, compression,
+  `copytruncate` dan `su iqs www-data`. Debug validation lulus tanpa rotation.
+- Application log diketatkan daripada `0644` kepada `0640`; identity pool
+  `iqs:www-data` kekal boleh menulis.
+
+### 3.4.1 Pre-clearance host health evidence
+
+- Root filesystem menggunakan 22% daripada 118 GiB; inode menggunakan 4%.
+- Memory tersedia kira-kira 14 GiB daripada 15 GiB; swap 8 GiB tidak digunakan.
+- Load average semasa audit rendah (`0.29, 0.15, 0.10`).
+- Timezone `Asia/Kuala_Lumpur`, system clock synchronized dan NTP aktif.
+- Nginx serta PHP-FPM kedua-duanya `enabled` dan `active`; dedicated OneID socket
+  wujud dengan owner `www-data:www-data`, mode `0660`.
+- Wildcard TLS `*.upnm.edu.my` dikeluarkan oleh Sectigo dan sah sehingga
+  16 Januari 2027. Tiada Certbot/ACME timer tempatan ditemui; renewal ownership
+  masih perlu disahkan secara operasi sebelum expiry.
+- Audit project mendapati sifar symlink aktif dan sifar world-writable path.
 
 ### 3.5 DNS/hosts trial routing
 
@@ -261,12 +288,15 @@ anggap semua timestamp sama antara environment.
 
 ### 5.7 Operations, monitoring dan security
 
-- [ ] Sahkan logrotate untuk `oneid.access.log`, `oneid.error.log` dan
-  `storage/logs/php-error.log` serta permission selepas rotation.
+- [x] Logrotate Nginx dan `storage/logs/php-error.log` dikonfigurasi serta lulus
+  debug validation; application log mode `0640` dan writable oleh pool.
+- [ ] Sahkan permission dan kelakuan sebenar selepas rotation automatik pertama;
+  force rotation tidak dilakukan semasa trial.
 - [ ] Tetapkan monitoring HTTP/TLS/FPM/disk/database, alert owner dan retention.
-- [ ] Audit `/etc/nginx/conf.d/oneid-cookie-debug.conf` dan sebarang temporary
-  `oneid-cookie-debug.log`; status cleanup belum direkodkan sebagai PASS dalam
-  handover ini. Buang hanya selepas semak config aktif dan buat backup.
+- [x] Temporary cookie-debug config disahkan tiada; log lama telah diretire
+  secara recoverable dengan mode `0600` dan tidak dicipta semula.
+- [ ] Tetapkan owner/proses renewal wildcard Sectigo sebelum Januari 2027;
+  tiada Certbot/ACME timer tempatan ditemui.
 - [ ] Semak log terdahulu yang mengandungi query callback mengikut polisi
   retention/access; jangan edit log audit secara ad hoc.
 - [ ] Jalankan vulnerability/dependency scan dan production configuration review
@@ -337,4 +367,3 @@ Production hanya boleh dianggap live apabila semua perkara berikut benar:
 - monitoring, logrotate, backup dan rollback tersedia;
 - access control dibuka hanya kepada audience yang diluluskan;
 - observation awal selesai tanpa insiden blocker.
-
