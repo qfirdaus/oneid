@@ -1,0 +1,340 @@
+# OneID Production Trial Handover
+
+**Tarikh rekod:** 9 Ogos 2026  
+**Server:** `APPSSSOPRODv1` (`172.16.2.109`)  
+**Path:** `/var/www/oneid`  
+**Domain akhir:** `oneid.upnm.edu.my`  
+**Release trial:** `b3b0155` — OneID `v2.8.4`  
+**Status:** Trial production terhad berjaya; **belum mendapat clearance go-live**
+
+## 1. Tujuan dan batas semasa
+
+Environment production telah disediakan untuk trial oleh pemilik sahaja. Ia
+belum menjadi production live penuh. DNS rasmi masih menunjuk sistem lama,
+akses server baharu dihadkan melalui allowlist, dan deployment baharu masih
+menggunakan database UAT yang sama dengan staging.
+
+Sepanjang trial, perubahan data/schema automatik, External Sync, cron, ODL Apply
+dan activation gate lain dikekalkan dalam keadaan ditutup. Dokumen ini tidak
+memberi authorization untuk mengaktifkan mana-mana gate tersebut.
+
+## 2. Keadaan akhir yang telah disahkan
+
+| Komponen | Status | Keadaan disahkan |
+| --- | --- | --- |
+| Source | PASS | Detached HEAD pada commit tepat `b3b0155`, release `v2.8.4` |
+| Web root | PASS | Nginx menggunakan `/var/www/oneid/public` |
+| PHP | PASS | PHP 8.3 dan dedicated pool `oneid` |
+| FPM socket | PASS | `/run/php/php8.3-fpm-oneid.sock` |
+| TLS/domain | PASS untuk trial | HTTPS `oneid.upnm.edu.my` berfungsi melalui hosts override |
+| Access control | PASS untuk trial | Hanya IP pemilik, localhost dan server sendiri dibenarkan |
+| Database | TEMPORARY | Production masih menggunakan shared UAT database |
+| Login manual | PASS | Login, dashboard, profile photo dan logout berjaya |
+| User MFA | PASS untuk shared UAT | Runtime diselaraskan dengan polisi DB `ENFORCED/PASSWORD_ONLY` |
+| MyDigital ID | PASS | Login, callback, dashboard dan logout berjaya |
+| Admin step-up | PASS | Step-up dan dashboard Administrator berjaya |
+| App icons | PASS | Tiga ikon production dipromote dan HTTP 200 |
+| Login banner | DISABLED | Tiada mapping banner environment production diluluskan |
+| Sync/schema gates | SAFE/OFF | Apply, cron, ODL dan schema mutation ditutup |
+| Sensitive access logging | PASS | HTTP/HTTPS menggunakan `oneid_safe`, query callback tidak direkodkan |
+
+## 3. Kerja yang telah selesai
+
+### 3.1 Source dan dependency
+
+- DNS resolver server dibaiki sementara sehingga GitHub boleh di-resolve dan
+  SSH GitHub berjaya authenticate.
+- Release staging asal `ec6be0e` dipasang untuk baseline production.
+- Kecacatan MyDigital ID yang mengunci callback kepada host UAT dibaiki dalam
+  repository, diuji di staging dan diterbitkan sebagai `v2.8.4`.
+- Release akhir dipush ke branch
+  `agent/close-odl-mydigitalid-audits` dan production dipasang pada commit tepat
+  `b3b0155`.
+- `composer install --no-dev --classmap-authoritative` berjaya; dependency OIDC
+  tersedia dan Composer audit terdahulu tidak menemukan advisory.
+- Semua contract MyDigital ID, characterization berkaitan dan release metadata
+  lulus dengan sifar kegagalan.
+
+### 3.2 Runtime private production
+
+- `.private/runtime.php` diformat, syntax sah, owner/group `iqs:www-data`, mode
+  `0640`, dan mempunyai backup bertimestamp.
+- Nilai asas production disahkan:
+  - `ONEID_ENVIRONMENT=production`;
+  - `ONEID_APP_URL=https://oneid.upnm.edu.my`;
+  - debug ditutup;
+  - SSO/callback/post-logout menggunakan domain production;
+  - credential database, SMTP dan MyDigital ID tersedia tanpa direkodkan dalam
+    output atau Git.
+- Gate mutation ditutup, termasuk Sync Apply, Operational/Pilot/Full Sync, cron,
+  ODL Apply, ML1 schema, MyDigital ID schema dan User MFA schema.
+- Login banner production ditutup kerana shared DB hanya mempunyai mapping
+  staging bagi aset semasa.
+
+Backup penting yang direkodkan semasa kerja termasuk:
+
+- `.private/runtime.php.backup-before-production-20260809-105629`;
+- `.private/runtime.php.backup-before-production-trial-*`;
+- `.private/runtime.php.backup-before-mfa-parity-*`;
+- `.private/runtime.php.backup-before-totp-keyring-*`;
+- `.private/runtime.php.backup-before-mydid-*`;
+- `.private/runtime.php.backup-before-enable-mydid-v284-20260809-125043`;
+- backup formatter `runtime.php.backup-before-format-*`.
+
+Nama bertanda `*` perlu disenaraikan semula pada server sebelum rollback; jangan
+anggap semua timestamp sama antara environment.
+
+### 3.3 PHP-FPM dan permission
+
+- Dedicated pool `/etc/php/8.3/fpm/pool.d/oneid.conf` diwujudkan dengan user
+  `iqs`, group `www-data` dan runtime file production.
+- Default pool `www` tidak dibuang supaya servis lain tidak terjejas.
+- `storage/runtime` diselaraskan kepada akses `iqs:www-data`; directory `0770`
+  dan file `0660`.
+- PHP-FPM configuration test dan reload berjaya.
+- TOTP keyring dipasang di luar repository:
+  `/etc/oneid/keys/admin-totp-keyring.php`, owner `root:www-data`, mode `0640`.
+- Keyring boleh dibaca oleh identity pool OneID dan checksum sepadan dengan
+  staging. Fail pemindahan sementara di `/tmp` telah dibuang.
+
+### 3.4 Nginx, TLS dan trial access
+
+- Site `/etc/nginx/sites-available/oneid` diaktifkan dengan domain akhir
+  `oneid.upnm.edu.my`, public web root dan dedicated FPM socket.
+- Backup Nginx diwujudkan:
+  - `/etc/nginx/sites-available/oneid.backup-before-production`;
+  - `/etc/nginx/sites-available/oneid.backup-before-safe-log`.
+- Allowlist trial mengandungi IP pemilik `2.0.1.7`, localhost, IPv6 localhost
+  dan IP server `172.16.2.109`; selainnya ditolak.
+- Private/project paths seperti README, package, docs, config, `.private`,
+  storage dan tools telah diuji sebagai `403/404`.
+- HTTP dan HTTPS access log kini menggunakan format `oneid_safe`, yang
+  merekodkan `$uri` tanpa query string dan tidak merekodkan referrer.
+- Nginx syntax test dan reload selepas perubahan log berjaya.
+
+### 3.5 DNS/hosts trial routing
+
+- DNS rasmi `oneid.upnm.edu.my` masih menunjuk server lama `172.16.4.23` ketika
+  rekod ini dibuat.
+- Windows pemilik menggunakan hosts override ke `172.16.2.109`.
+- Production server menggunakan `/etc/hosts` override ke `172.16.2.109` supaya
+  internal SSO/API request tidak kembali ke server lama.
+- Backup `/etc/hosts.backup-before-oneid-trial` tersedia.
+- Internal request dan browser request telah disahkan sampai ke server baharu.
+
+### 3.6 MyDigital ID
+
+- Production credential yang telah diuji di staging dipasang melalui private
+  runtime tanpa mendedahkan secret.
+- Callback production:
+  `https://oneid.upnm.edu.my/auth/mydigitalid/callback.php`.
+- Issuer, confidential client, TLS verification, `openid`, authorization-code
+  flow dan PKCE `S256` berjaya divalidasi.
+- Source `v2.8.4` kini fail-closed mengikut environment:
+  - staging hanya menerima `oneid-uat.upnm.edu.my`;
+  - production hanya menerima `oneid.upnm.edu.my`;
+  - callback silang dan environment tidak dikenali ditolak.
+- End-to-end production berjaya:
+  `login 303 -> callback 303 -> dashboard 200 -> logout 303`.
+- Access log production pada awal trial pernah merekodkan satu authorization
+  code sebelum `oneid_safe` dipasang. Code tersebut telah digunakan/single-use.
+  Log sejarah tidak diubah bagi mengekalkan integriti audit.
+
+### 3.7 App icons dan banner
+
+- Tiga ikon aplikasi sebenar dipromote daripada staging ke production:
+
+| Aplikasi | App ID | Production filename |
+| --- | --- | --- |
+| Sistem E-Hepa | `PEYYRREE2B` | `app_icon_a66ff37d06dcb122c4da64fb2d829d77.png` |
+| Sistem E-PR | `2RARD39ZMP` | `app_icon_4d9b3fec1e39f4e2c0c8f90e13ab13cc.png` |
+| Sistem ODL | `EJEN8QNV9N` | `app_icon_0c02065a8efc2e6c96209bfe9ae07686.png` |
+
+- Ketiga-tiga fail mempunyai SHA-256
+  `9c48c20e50a44fb42e01fe4e32b0c7aeafb0878c2cc1c8611523ec53d9ef2a94`
+  dan memberikan `200 image/png`.
+- Tiga row `sp_app_asset` environment `production` diwujudkan secara transaction
+  dengan `updated_by=deploy-v284`.
+- Fixture WA2/WA5 tidak dipromote. Satu missing reference berbaki untuk fixture
+  tidak aktif `2WJ4USYRS9`; ia bukan blocker aplikasi aktif.
+- Empat login-banner file staging telah disalin untuk preservation tetapi tidak
+  dipetakan/diaktifkan dalam production. Jangan delete sebelum reconciliation
+  dan retention gate yang diluluskan.
+
+## 4. Perkara sementara yang mesti kekal sepanjang trial
+
+1. Kekalkan Nginx IP allowlist; jangan buka kepada umum.
+2. Kekalkan Windows hosts override dan production `/etc/hosts` override selagi
+   DNS rasmi masih menunjuk server lama.
+3. Kekalkan shared UAT DB sehingga database production diluluskan dan siap.
+4. Kekalkan semua sync, cron, ODL Apply dan schema Apply dalam keadaan off.
+5. Kekalkan `ONEID_LOGIN_BANNER_ENABLED=false` sehingga mapping production
+   dipromote melalui gate banner yang sesuai.
+6. Jangan delete runtime backup, keyring, copied banner atau orphan candidate
+   ketika observation trial belum ditutup.
+
+## 5. Checklist belum selesai sebelum clearance go-live
+
+### 5.1 Keputusan dan authorization
+
+- [ ] Dapatkan clearance bertulis untuk production go-live dan maintenance
+  window.
+- [ ] Tetapkan change reference, owner, approver, rollback owner dan saluran
+  komunikasi insiden.
+- [ ] Tetapkan commit/tag canonical yang diluluskan. Production kini detached
+  pada `b3b0155`; tentukan sama ada release perlu merge/tag daripada branch
+  rasmi sebelum cutover.
+- [ ] Bekukan perubahan staging/production sepanjang cutover window.
+
+### 5.2 Database production
+
+- [ ] Provision database production berasingan.
+- [ ] Tetapkan DSN, least-privilege DB user, credential rotation dan network
+  allowlist production.
+- [ ] Tentukan kaedah baseline data: clone terkawal, migration atau clean
+  initialization; jangan terus menyalin UAT tanpa keputusan data owner.
+- [ ] Ambil backup sumber dan sasaran serta sahkan checksum/restore rehearsal.
+- [ ] Jalankan schema inventory dan migration readiness secara read-only.
+- [ ] Dapatkan approval berasingan sebelum mana-mana schema Apply.
+- [ ] Rekonsiliasi akaun, role Admin, MFA policy, TOTP factors, MyDigital ID
+  identity links, app catalogue, categories, translations, banner dan audit
+  retention pada DB production.
+- [ ] Tukar runtime DB production, reload FPM dan buktikan aplikasi tidak lagi
+  tersambung ke UAT sebelum membuka akses.
+- [ ] Pastikan staging kekal pada DB UAT selepas pemisahan.
+
+### 5.3 Asset promotion
+
+- [ ] Hasilkan manifest final semua environment-specific app icons yang perlu
+  berada di production dan jalankan WA6 reconciliation.
+- [ ] Selesaikan atau rekod acceptance bagi fixture tidak aktif
+  `2WJ4USYRS9`; jangan promote fixture tanpa keperluan.
+- [ ] Laksanakan gate promotion login banner production jika banner dinamik
+  diperlukan; cipta mapping DB production dan sahkan checksum.
+- [ ] Audit runtime uploads lain seperti profile photos/manual/public documents
+  berdasarkan keperluan DB production baharu.
+- [ ] Tetapkan backup/replication bagi aset runtime yang tidak berada dalam Git.
+
+### 5.4 DNS, TLS dan networking
+
+- [ ] Sahkan A/AAAA record akhir, TTL semasa dan jadual pengurangan TTL dengan
+  pasukan DNS.
+- [ ] Sahkan sijil production, chain, expiry, renewal automation dan private-key
+  permission.
+- [ ] Bersihkan konflik Netplan/NetworkManager dan pastikan DNS resolver
+  `172.16.2.10` serta default route kekal selepas reboot. Perubahan ini berisiko
+  memutuskan SSH dan perlu window/console akses sendiri.
+- [ ] Uji outbound DNS/HTTPS ke GitHub, MyDigital ID, SMTP dan dependency lain
+  selepas reboot atau network remediation.
+- [ ] Selepas DNS cutover, buang Windows hosts override dan baris production
+  `/etc/hosts`, kemudian sahkan `getent hosts oneid.upnm.edu.my` menunjuk
+  `172.16.2.109` melalui DNS sebenar.
+- [ ] Uji dari sekurang-kurangnya satu klien tanpa hosts override.
+- [ ] Tentukan allowlist go-live atau buka akses secara terkawal mengikut polisi
+  firewall/WAF; jangan sekadar membuang `deny all` tanpa keputusan.
+
+### 5.5 Authentication dan integration
+
+- [ ] Sahkan MyDigital ID registered redirect/post-logout URI dalam provider
+  untuk keadaan DNS sebenar dan lakukan smoke test selepas cutover.
+- [ ] Sahkan SMTP delivery, sender policy, throttling dan mailbox monitoring
+  untuk OTP/MFA production.
+- [ ] Tentukan sama ada keyring production kekal sama atau perlu rotation;
+  rotation mesti mengambil kira faktor TOTP sedia ada.
+- [ ] Jalankan login manual, MFA email, MFA TOTP, forgot-password, MyDigital ID,
+  account-switch guard, logout dan session timeout regression menggunakan DB
+  production.
+- [ ] Sahkan internal SSO API tidak lagi bergantung pada hosts override.
+- [ ] Daftarkan/validasi setiap service provider yang akan menerima token
+  production dan uji tanpa mengganggu sistem lama.
+
+### 5.6 Sync, cron dan mutation gates
+
+- [ ] Putuskan sama ada External Sync diperlukan pada hari pertama go-live.
+- [ ] Jika diperlukan, lakukan preview/read-only reconciliation dan dapatkan
+  approval berasingan untuk Operational/Pilot/Full Apply.
+- [ ] Provision lock/log/backup, exact counts dan plan hash sebelum Apply.
+- [ ] Pasang cron/systemd timer hanya selepas dry-run dan owner approval.
+- [ ] Pastikan satu scheduler sahaja aktif untuk mengelakkan duplicate run.
+- [ ] Kekalkan ODL, ML1, MyDigital ID dan User MFA schema flags `false` sehingga
+  gate masing-masing lengkap.
+
+### 5.7 Operations, monitoring dan security
+
+- [ ] Sahkan logrotate untuk `oneid.access.log`, `oneid.error.log` dan
+  `storage/logs/php-error.log` serta permission selepas rotation.
+- [ ] Tetapkan monitoring HTTP/TLS/FPM/disk/database, alert owner dan retention.
+- [ ] Audit `/etc/nginx/conf.d/oneid-cookie-debug.conf` dan sebarang temporary
+  `oneid-cookie-debug.log`; status cleanup belum direkodkan sebagai PASS dalam
+  handover ini. Buang hanya selepas semak config aktif dan buat backup.
+- [ ] Semak log terdahulu yang mengandungi query callback mengikut polisi
+  retention/access; jangan edit log audit secara ad hoc.
+- [ ] Jalankan vulnerability/dependency scan dan production configuration review
+  terkini sebelum clearance.
+- [ ] Uji reboot terkawal: network, DNS, Nginx, FPM sockets, keyring permission,
+  runtime read, scheduler state dan application health.
+- [ ] Ambil snapshot/backup server sebelum cutover dan rehearse rollback ke
+  sistem lama/DNS lama.
+- [ ] Selepas observation berjaya, semak dan kurangkan backup runtime lama secara
+  terkawal; jangan guna wildcard deletion.
+
+## 6. Minimum go-live validation selepas clearance
+
+Jalankan sekurang-kurangnya bukti berikut selepas DB dan DNS production sebenar
+siap:
+
+```bash
+cd /var/www/oneid
+
+git status --short --branch
+git log -1 --oneline --decorate
+php tools/format_private_runtime.php --check
+php tools/release_metadata_contract.php
+php tools/wa6_web_app_asset_reconciliation.php
+sudo php-fpm8.3 -tt
+sudo nginx -t
+getent hosts oneid.upnm.edu.my
+curl -I https://oneid.upnm.edu.my/
+```
+
+Kemudian lakukan smoke test browser:
+
+1. login manual dan MFA;
+2. MyDigital ID login/callback;
+3. dashboard dan profile photo;
+4. Administrator step-up;
+5. app catalogue/icon/link;
+6. logout dan session expiry;
+7. endpoint private kekal `403/404`;
+8. access log tidak mengandungi query OIDC.
+
+## 7. Rollback ringkas trial
+
+Jika trial perlu ditutup sebelum go-live:
+
+1. set `ONEID_MYDID_ENABLED=false`, format runtime dan reload PHP-FPM;
+2. kekalkan `deny all`/allowlist dan jangan tukar DNS;
+3. rollback source hanya kepada commit yang telah direkodkan dan diuji;
+4. gunakan backup runtime bertimestamp yang tepat, bukan fail yang diteka;
+5. jangan delete row asset production atau fail ikon tanpa manifest dan rollback
+   authorization;
+6. sahkan login manual, HTTP health dan log selepas rollback.
+
+Rollback DNS selepas cutover kelak mesti diselaraskan dengan pasukan DNS dan
+sistem lama; ia bukan sebahagian daripada authorization trial ini.
+
+## 8. Definisi siap untuk production live
+
+Production hanya boleh dianggap live apabila semua perkara berikut benar:
+
+- clearance dan change window direkodkan;
+- release/tag canonical diluluskan;
+- DB production berasingan, dibackup dan diuji restore;
+- DNS sebenar menunjuk server baharu tanpa hosts override;
+- authentication/integration smoke test lulus;
+- asset reconciliation tiada missing reference aktif;
+- scheduler/mutation state sepadan keputusan owner;
+- monitoring, logrotate, backup dan rollback tersedia;
+- access control dibuka hanya kepada audience yang diluluskan;
+- observation awal selesai tanpa insiden blocker.
+
