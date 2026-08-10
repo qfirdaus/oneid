@@ -941,7 +941,6 @@ return [
     'admin.metadata.no_changes' => 'Tiada perubahan dikesan. Terjemahan sedia ada tidak dikemas kini.',
     'admin.metadata.failed' => 'Terjemahan metadata tidak dapat diproses.',
     'admin.metadata.reason_required' => 'Sila masukkan sebab perubahan sekurang-kurangnya 10 aksara.',
-    'admin.metadata.fallback' => 'Nama terjemahan wajib diisi. Jika rekod terjemahan belum wujud, metadata asal akan dipaparkan.',
     'admin.metadata.original_panel' => 'Metadata asal',
     'admin.metadata.original_name' => 'Nama asal',
     'admin.metadata.original_description' => 'Keterangan asal',

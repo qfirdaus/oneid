@@ -941,7 +941,6 @@ return [
     'admin.metadata.no_changes' => 'No changes detected. The existing translation was not updated.',
     'admin.metadata.failed' => 'The metadata translation could not be processed.',
     'admin.metadata.reason_required' => 'Enter a change reason of at least 10 characters.',
-    'admin.metadata.fallback' => 'The translated name is required. When no translation record exists, the original metadata is displayed.',
     'admin.metadata.original_panel' => 'Original metadata',
     'admin.metadata.original_name' => 'Original name',
     'admin.metadata.original_description' => 'Original description',

@@ -83,7 +83,8 @@ final class BilingualMetadataRepository
     public function preview(): array
     {
         $schema = $this->schemaStatus();
-        $apps = (int) $this->pdo->query('SELECT COUNT(*) FROM sp_list')->fetchColumn();
+        $allApps = (int) $this->pdo->query('SELECT COUNT(*) FROM sp_list')->fetchColumn();
+        $apps = (int) $this->pdo->query('SELECT COUNT(*) FROM sp_list WHERE avail_status=1')->fetchColumn();
         $categories = (int) $this->pdo->query('SELECT COUNT(*) FROM sp_group')->fetchColumn();
         $appTranslations = 0;
         $categoryTranslations = 0;
@@ -92,10 +93,13 @@ final class BilingualMetadataRepository
             'en' => ['applications' => 0, 'categories' => 0],
         ];
         if ($schema['available']) {
-            $appTranslations = (int) $this->pdo->query('SELECT COUNT(*) FROM sp_app_translation')->fetchColumn();
+            $appTranslations = (int) $this->pdo->query(
+                'SELECT COUNT(*) FROM sp_app_translation t INNER JOIN sp_list a ON a.sp_id=t.sp_id WHERE a.avail_status=1'
+            )->fetchColumn();
             $categoryTranslations = (int) $this->pdo->query('SELECT COUNT(*) FROM sp_group_translation')->fetchColumn();
             foreach ($this->pdo->query(
-                'SELECT locale,COUNT(*) AS total FROM sp_app_translation GROUP BY locale'
+                'SELECT t.locale,COUNT(*) AS total FROM sp_app_translation t
+                 INNER JOIN sp_list a ON a.sp_id=t.sp_id WHERE a.avail_status=1 GROUP BY t.locale'
             )->fetchAll() as $row) {
                 $byLocale[(string) $row['locale']]['applications'] = (int) $row['total'];
             }
@@ -122,6 +126,7 @@ final class BilingualMetadataRepository
             'schema_available' => $schema['available'],
             'tables' => $schema['tables'],
             'source' => ['applications' => $apps, 'categories' => $categories],
+            'source_total' => ['applications' => $allApps, 'categories' => $categories],
             'translations' => [
                 'applications' => $appTranslations,
                 'categories' => $categoryTranslations,

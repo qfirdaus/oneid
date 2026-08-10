@@ -431,7 +431,6 @@
                            <textarea class="form-control" id="metadata_change_reason" minlength="10" maxlength="500" rows="2" required aria-describedby="metadata_change_reason_help"></textarea>
                            <small class="help-block" id="metadata_change_reason_help"><?=htmlspecialchars(oneid_translate('admin.metadata.reason_custom'), ENT_QUOTES, 'UTF-8')?> <?=htmlspecialchars(oneid_translate('admin.metadata.reason_required'), ENT_QUOTES, 'UTF-8')?></small>
                         </div>
-                        <p class="help-block"><?=htmlspecialchars(oneid_translate('admin.metadata.fallback'), ENT_QUOTES, 'UTF-8')?></p>
                         <input type="hidden" id="metadata_translation_version" value="0">
                      </div>
                      <div class="modal-footer oneid-sync-child-footer">
