@@ -33,6 +33,10 @@ $check(!str_contains($localMarkup, '<script'), 'banner requires no script');
 $root = dirname(__DIR__);
 $stylesheet = (string) file_get_contents($root . '/public/dist/css/oneid-environment-banner.css');
 $check(
+    str_contains($stylesheet, 'linear-gradient(118deg, #075e68 0%, #087f8c 58%, #13a3ad 100%)'),
+    'development uses the approved teal gradient'
+);
+$check(
     str_contains($stylesheet, 'linear-gradient(118deg, #075b9a 0%, #087fbd 58%, #09a3c6 100%)'),
     'staging uses the approved MyDigital ID gradient'
 );

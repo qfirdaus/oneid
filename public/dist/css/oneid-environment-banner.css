@@ -29,7 +29,13 @@
 }
 
 .oneid-environment-banner--development {
-  background: #087f8c;
+  border-bottom: 1px solid rgba(3, 87, 94, .34);
+  background: linear-gradient(118deg, #075e68 0%, #087f8c 58%, #13a3ad 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .24),
+    0 4px 14px rgba(6, 112, 122, .24),
+    0 1px 3px rgba(15, 23, 42, .14);
+  text-shadow: 0 1px 1px rgba(2, 57, 63, .22);
 }
 
 .oneid-environment-banner--staging {
