@@ -92,6 +92,14 @@ $report(
         && !str_contains($dashboard, 'colspan="7"><i class="fa fa-circle-o-notch fa-spin"'),
     'session list combines identity and source into a compact six-column layout'
 );
+$report(
+    str_contains($dashboard, 'th:nth-child(4) { width: 27%; }')
+        && str_contains($dashboard, 'th:nth-child(5) { width: 17%; }')
+        && str_contains($dashboard, 'td:nth-child(5)')
+        && str_contains($dashboard, 'justify-content: flex-start')
+        && str_contains($dashboard, 'max-width: 150px'),
+    'compact session layout reserves readable left-aligned space for every status'
+);
 
 printf("RESULT checks=%d failed=%d\n", $checks, $failed);
 exit($failed === 0 ? 0 : 1);
