@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OneId\App\Admin;
 
+use OneId\App\Audit\AuditIdentityResolver;
 use PDO;
 use Throwable;
 
@@ -70,6 +71,7 @@ final class UserMfaGlobalPolicyService
         if ($enabled && !$this->activationAvailable()) {
             throw new SsoConfigurationException('USER_MFA_GLOBAL_ACTIVATION_NOT_AUTHORIZED', bin2hex(random_bytes(8)));
         }
+        $publicAdminId = (new AuditIdentityResolver($this->pdo))->resolve($adminId);
 
         $correlation = bin2hex(random_bytes(16));
         $started = false;
@@ -148,7 +150,7 @@ final class UserMfaGlobalPolicyService
             ]);
             $detail = sprintf(
                 'admin=%s action=user_mfa_global_policy from=%s to=%s pending_transactions=%d pending_challenges=%d reference=%s correlation=%s',
-                $adminId,
+                $publicAdminId,
                 (string) $before['policy_mode'],
                 $target,
                 $revokedTransactions,

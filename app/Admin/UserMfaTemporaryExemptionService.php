@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OneId\App\Admin;
 
+use OneId\App\Audit\AuditIdentityResolver;
 use PDO;
 use Throwable;
 
@@ -90,8 +91,13 @@ final class UserMfaTemporaryExemptionService
         $statement->execute($params);
         $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
         $now = time();
+        $identity = new AuditIdentityResolver($this->pdo);
         foreach ($rows as &$row) {
             $row['exemption_id'] = (int) $row['exemption_id'];
+            $row['approved_by'] = $identity->resolve((string) ($row['approved_by'] ?? ''));
+            if (($row['revoked_by'] ?? null) !== null) {
+                $row['revoked_by'] = $identity->resolve((string) $row['revoked_by']);
+            }
             $row['expires_soon'] = $row['exemption_status'] === 'ACTIVE'
                 && strtotime((string) $row['expires_at']) <= $now + 14400;
         }
@@ -304,9 +310,11 @@ final class UserMfaTemporaryExemptionService
         int $transactions,
         int $challenges
     ): void {
+        $identity = new AuditIdentityResolver($this->pdo);
         $detail = sprintf(
             'admin=%s action=user_mfa_exemption_%s user=%s reference=%s pending_transactions=%d pending_challenges=%d correlation=%s',
-            $admin, $action, $user, $reference, $transactions, $challenges, $correlation
+            $identity->resolve($admin), $action, $identity->resolve($user),
+            $reference, $transactions, $challenges, $correlation
         );
         $audit = $this->pdo->prepare(
             'INSERT INTO syslog(log_type,log_detail,ip_addr,datetime)

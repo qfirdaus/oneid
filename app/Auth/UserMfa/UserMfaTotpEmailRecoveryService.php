@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OneId\App\Auth\UserMfa;
 
+use OneId\App\Audit\AuditIdentityResolver;
 use PDO;
 use Throwable;
 
@@ -56,10 +57,11 @@ final class UserMfaTotpEmailRecoveryService
                     AND datetime>=DATE_SUB(NOW(),INTERVAL 15 MINUTE)
                     AND log_detail LIKE :detail"
             );
+            $publicUserId = (new AuditIdentityResolver($this->pdo))->resolve($userId);
             $passwordFailures->execute([
                 ':ip' => $ipAddress,
-                ':detail' => 'event=USER_MFA_FACTOR_REVOKE target=' . $userId
-                    . ' actor=' . $userId
+                ':detail' => 'event=USER_MFA_FACTOR_REVOKE target=' . $publicUserId
+                    . ' actor=' . $publicUserId
                     . ' outcome=rejected reason=RECOVERY_PASSWORD_INVALID%',
             ]);
             if ((int) $passwordFailures->fetchColumn() >= 5) {
@@ -389,10 +391,11 @@ final class UserMfaTotpEmailRecoveryService
         string $correlation,
         string $ip
     ): void {
+        $publicUserId = (new AuditIdentityResolver($this->pdo))->resolve($userId);
         $detail = sprintf(
             'event=USER_MFA_FACTOR_REVOKE target=%s actor=%s outcome=%s reason=%s reference= correlation=%s',
-            $userId,
-            $userId,
+            $publicUserId,
+            $publicUserId,
             $outcome,
             $reason,
             $correlation

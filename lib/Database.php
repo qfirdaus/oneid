@@ -1,4 +1,6 @@
 <?php
+
+require_once dirname(__DIR__) . '/app/Audit/AuditIdentityResolver.php';
  
 class Database {
   
@@ -6,6 +8,7 @@ class Database {
     private ?bool $userProvenanceSupported = null;
     private ?bool $userAppFavouritesSupported = null;
     private string $environment;
+    private ?\OneId\App\Audit\AuditIdentityResolver $auditIdentityResolver = null;
     public function __construct()
     {
         try
@@ -178,7 +181,7 @@ class Database {
         $Q="INSERT INTO configuration_change_history(configuration_version_before,configuration_version_after,actor_id,ip_address,action_name,outcome,reason_code,change_reason,before_json,after_json,correlation_id,created_at) VALUES(:version_before,:version_after,:actor_id,:ip_address,:action_name,:outcome,:reason_code,:change_reason,:before_json,:after_json,:correlation_id,NOW())";
         $R=$this->pdo->prepare($Q);$R->execute([
             ':version_before'=>$entry['version_before']??null,':version_after'=>$entry['version_after']??null,
-            ':actor_id'=>$entry['actor_id'],':ip_address'=>$entry['ip_address'],':action_name'=>$entry['action_name'],
+            ':actor_id'=>$this->audit_identifier((string)$entry['actor_id']),':ip_address'=>$entry['ip_address'],':action_name'=>$entry['action_name'],
             ':outcome'=>$entry['outcome'],':reason_code'=>$entry['reason_code'],':change_reason'=>$entry['change_reason']??null,
             ':before_json'=>isset($entry['before'])?json_encode($entry['before'],JSON_THROW_ON_ERROR):null,
             ':after_json'=>isset($entry['after'])?json_encode($entry['after'],JSON_THROW_ON_ERROR):null,
@@ -188,14 +191,14 @@ class Database {
 
     public function configuration_history_latest_success(){
         $R=$this->pdo->query("SELECT actor_id,created_at,configuration_version_after FROM configuration_change_history WHERE outcome='SUCCESS' ORDER BY history_id DESC LIMIT 1");
-        return $R->fetch(PDO::FETCH_ASSOC)?:null;
+        $row=$R->fetch(PDO::FETCH_ASSOC)?:null;if(is_array($row)){$row['actor_id']=$this->audit_identifier((string)$row['actor_id']);}return $row;
     }
 
     public function configuration_history_list($page,$pageSize){
         $page=max(1,(int)$page);$pageSize=in_array((int)$pageSize,[10,25,50],true)?(int)$pageSize:10;$offset=($page-1)*$pageSize;
         $total=(int)$this->pdo->query('SELECT COUNT(*) FROM configuration_change_history')->fetchColumn();
         $Q="SELECT history_id,configuration_version_before,configuration_version_after,actor_id,action_name,outcome,reason_code,change_reason,before_json,after_json,correlation_id,created_at FROM configuration_change_history ORDER BY history_id DESC LIMIT {$pageSize} OFFSET {$offset}";
-        return ['rows'=>$this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC),'total'=>$total];
+        $rows=$this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);foreach($rows as &$row){$row['actor_id']=$this->audit_identifier((string)$row['actor_id']);}unset($row);return ['rows'=>$rows,'total'=>$total];
     }
 
     public function update_password_recovery_by_id($configId,$enabled){
@@ -1253,7 +1256,7 @@ class Database {
             VALUES(:app_id,:environment,:filename,:updated_by)
             ON DUPLICATE KEY UPDATE image_filename=VALUES(image_filename),updated_by=VALUES(updated_by),updated_at=CURRENT_TIMESTAMP";
         $R=$this->pdo->prepare($Q);
-        $R->execute([':app_id'=>$appId,':environment'=>$this->environment,':filename'=>$filename,':updated_by'=>$updatedBy]);
+        $R->execute([':app_id'=>$appId,':environment'=>$this->environment,':filename'=>$filename,':updated_by'=>$this->audit_identifier($updatedBy)]);
         return $R->rowCount();
     }
 
@@ -1741,6 +1744,7 @@ class Database {
     }
 
     public function syslog_record($log_type,$log_detail,$ip_addr){
+        $log_detail=$this->auditIdentity()->sanitizeDetail((string)$log_detail);
         $Q = "INSERT INTO  syslog(log_type,log_detail,ip_addr,datetime) VALUES (:log_type,:log_detail,:ip_addr,NOW())";
         $R = $this->pdo->prepare($Q);
         $R->bindParam(':log_type', $log_type);
@@ -1764,7 +1768,16 @@ class Database {
         $R->bindParam(':date_end', $date_end);
         $R->execute();
         $result = $R->fetchAll(PDO::FETCH_ASSOC);
+        foreach($result as &$row){$row['log_detail']=$this->auditIdentity()->sanitizeDetail((string)$row['log_detail']);}unset($row);
         return $result;
+    }
+
+    public function audit_identifier(string $identifier): string{
+        return $this->auditIdentity()->resolve($identifier);
+    }
+
+    private function auditIdentity(): \OneId\App\Audit\AuditIdentityResolver{
+        return $this->auditIdentityResolver??=new \OneId\App\Audit\AuditIdentityResolver($this->pdo);
     }
 
 

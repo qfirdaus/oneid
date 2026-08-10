@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace OneId\App\Metadata;
 
+use OneId\App\Audit\AuditIdentityResolver;
 use PDO;
 use PDOException;
 use RuntimeException;
@@ -177,6 +178,7 @@ final class BilingualMetadataRepository
         string $reason
     ): array {
         $this->assertEntity($entityType, $entityId, $locale);
+        $actor = (new AuditIdentityResolver($this->pdo))->resolve($actor);
         if (!$this->schemaStatus()['available']) {
             throw new RuntimeException('ML7_METADATA_SCHEMA_UNAVAILABLE');
         }

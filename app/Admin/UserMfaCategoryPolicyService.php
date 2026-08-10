@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OneId\App\Admin;
 
+use OneId\App\Audit\AuditIdentityResolver;
 use PDO;
 use Throwable;
 
@@ -85,6 +86,7 @@ final class UserMfaCategoryPolicyService
             );
         }
         $correlation = bin2hex(random_bytes(16));
+        $publicAdmin = (new AuditIdentityResolver($this->pdo))->resolve($admin);
         try {
             $this->pdo->beginTransaction();
             $select = $this->pdo->prepare(
@@ -128,7 +130,7 @@ final class UserMfaCategoryPolicyService
             ]);
             $detail = sprintf(
                 'admin=%s action=user_mfa_category_policy category=%s from=%d to=%d reference=%s correlation=%s',
-                $admin, $category, (int) $before['enforcement_enabled'],
+                $publicAdmin, $category, (int) $before['enforcement_enabled'],
                 $enabled ? 1 : 0, $reference, $correlation
             );
             $audit = $this->pdo->prepare(

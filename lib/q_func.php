@@ -7,6 +7,7 @@ require __DIR__ . '/src/Exception.php';
 require __DIR__ . '/src/PHPMailer.php';
 require __DIR__ . '/src/SMTP.php';
 require_once __DIR__ . '/config.php';
+require_once dirname(__DIR__) . '/app/Audit/AuditIdentityResolver.php';
 require_once __DIR__ . '/upload_security.php';
 require_once __DIR__ . '/device_info.php';
 include_once dirname(__DIR__) . '/vendors/spyc-master/Spyc.php';
@@ -339,7 +340,7 @@ if(str_starts_with($oneidGuardedAction,'admin_login_banner_')){
     );
     $results=$endpoint->handle(
       $oneidGuardedAction,$_POST,$_FILES,
-      (string)$_SESSION['login_user'],(string)getUserIP()
+      $operation->audit_identifier((string)$_SESSION['login_user']),(string)getUserIP()
     );
     $status=(int)($results['_http_status']??500);unset($results['_http_status']);
   }catch(\Throwable $exception){
@@ -701,7 +702,7 @@ function string_sanitize($s) {
             (string)($_POST['locale']??''),
             ['name'=>(string)($_POST['translated_name']??''),'description'=>(string)($_POST['translated_description']??'')],
             (int)($_POST['translation_version']??0),
-            (string)$_SESSION['login_user'],
+            $operation->audit_identifier((string)$_SESSION['login_user']),
             (string)($_POST['change_reason']??'')
           );
           $translationKey=($result['code']??'')==='ML7_METADATA_NO_CHANGES'
