@@ -102,7 +102,6 @@ require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerDomainException.php
 require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerService.php';
 require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerAdminEndpoint.php';
 require_once dirname(__DIR__) . '/app/Metadata/BilingualMetadataRepository.php';
-require_once dirname(__DIR__) . '/app/Metadata/MetadataContentInventory.php';
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
 
@@ -675,32 +674,6 @@ function string_sanitize($s) {
 
       if(isset($_POST['admin_metadata_translation_preview'])){
         echo json_encode(oneid_metadata_repository()->preview());
-      }
-
-      if(isset($_POST['admin_metadata_content_preview'])){
-        try{
-          $inventory=new \OneId\App\Metadata\MetadataContentInventory(new PDO(
-            DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]
-          ));
-          echo json_encode($inventory->preview());
-        }catch(\Throwable $exception){
-          $correlation=bin2hex(random_bytes(8));
-          error_log('ML7A content preview failed correlation='.$correlation.' exception='.get_class($exception));
-          echo json_encode(['status'=>0,'code'=>'ML7A_CONTENT_PREVIEW_FAILED','translation_key'=>'admin.metadata.failed','msg'=>oneid_translate('admin.metadata.failed'),'correlation_id'=>$correlation]);
-        }
-      }
-
-      if(isset($_POST['admin_metadata_bulk_content_preview'])){
-        try{
-          $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-          $inventory=new \OneId\App\Metadata\MetadataContentInventory($pdo);
-          $planner=new \OneId\App\Metadata\MetadataBulkContentPlanner($inventory);
-          echo json_encode($planner->preview());
-        }catch(\Throwable $exception){
-          $correlation=bin2hex(random_bytes(8));
-          error_log('ML7A bulk content preview failed correlation='.$correlation.' exception='.get_class($exception));
-          echo json_encode(['status'=>0,'code'=>'ML7A_BULK_PREVIEW_FAILED','translation_key'=>'admin.metadata.failed','msg'=>oneid_translate('admin.metadata.failed'),'correlation_id'=>$correlation]);
-        }
       }
 
       if(isset($_POST['admin_get_metadata_translation'])){

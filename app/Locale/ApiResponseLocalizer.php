@@ -68,9 +68,7 @@ final class ApiResponseLocalizer
                     : (str_contains($code, 'LOADED') || str_contains($code, 'READY')
                         ? 'admin.metadata.schema_ready'
                         : 'admin.metadata.failed')),
-            str_starts_with($code, 'ML7A_') => str_contains($code, 'READY')
-                ? 'admin.metadata.content_summary'
-                : 'admin.metadata.failed',
+            str_starts_with($code, 'ML7A_') => 'admin.metadata.failed',
             str_starts_with($code, 'LB2_') || str_starts_with($code, 'LB3_')
                 || str_starts_with($code, 'LB4_') => match ($code) {
                     'LB4_BANNERS_LOADED' => 'admin.banner.loaded',

@@ -140,8 +140,6 @@ function oneid_q_func_action_map(): array
             'admin_get_default_locale',
             'admin_update_default_locale',
             'admin_metadata_translation_preview',
-            'admin_metadata_content_preview',
-            'admin_metadata_bulk_content_preview',
             'admin_get_metadata_translation',
             'admin_save_metadata_translation',
             'update_password_recovery',

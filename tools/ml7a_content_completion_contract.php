@@ -54,10 +54,10 @@ $report(
     'content inventory cannot write metadata or translations'
 );
 $report(
-    str_contains($security, "'admin_metadata_content_preview'")
-    && str_contains($endpoint, 'MetadataContentInventory')
-    && str_contains($admin, 'metadata_content_preview_rows'),
-    'Administrator read-only content review UI is wired'
+    !str_contains($security, "'admin_metadata_content_preview'")
+    && !str_contains($endpoint, 'admin_metadata_content_preview')
+    && !str_contains($admin, 'metadata_content_preview_rows'),
+    'retired Administrator content review UI and endpoint leave no web surface'
 );
 $report(
     !str_contains($admin, 'admin_apply_metadata_content')

@@ -432,37 +432,6 @@
                            <small class="help-block" id="metadata_change_reason_help"><?=htmlspecialchars(oneid_translate('admin.metadata.reason_custom'), ENT_QUOTES, 'UTF-8')?> <?=htmlspecialchars(oneid_translate('admin.metadata.reason_required'), ENT_QUOTES, 'UTF-8')?></small>
                         </div>
                         <p class="help-block"><?=htmlspecialchars(oneid_translate('admin.metadata.fallback'), ENT_QUOTES, 'UTF-8')?></p>
-                        <section class="oneid-metadata-governance" aria-labelledby="metadata_governance_heading">
-                        <h6 id="metadata_governance_heading"><?=htmlspecialchars(oneid_translate('admin.metadata.advanced_review'), ENT_QUOTES, 'UTF-8')?></h6>
-                        <p><?=htmlspecialchars(oneid_translate('admin.metadata.advanced_help'), ENT_QUOTES, 'UTF-8')?></p>
-                        <button type="button" class="btn btn-default oneid-metadata-review-toggle" id="metadata_content_preview_button" onclick="toggleMetadataContentPreview();" aria-expanded="false" aria-controls="metadata_content_preview_panel">
-                           <i class="fa fa-list-alt" aria-hidden="true"></i>
-                           <span><?=htmlspecialchars(oneid_translate('admin.metadata.content_review'), ENT_QUOTES, 'UTF-8')?></span>
-                           <i class="fa fa-chevron-down oneid-metadata-review-chevron" aria-hidden="true"></i>
-                        </button>
-                        <button type="button" class="btn btn-default oneid-metadata-bulk-preview-button" id="metadata_bulk_preview_button" onclick="loadMetadataBulkPreview();">
-                           <i class="fa fa-shield" aria-hidden="true"></i>
-                           <span><?=htmlspecialchars(oneid_translate('admin.metadata.bulk_preview'), ENT_QUOTES, 'UTF-8')?></span>
-                        </button>
-                        <div id="metadata_bulk_preview_result" class="alert mt-15" role="status" aria-live="polite" hidden></div>
-                        <div id="metadata_content_preview_panel" class="mt-20" hidden>
-                           <h5><?=htmlspecialchars(oneid_translate('admin.metadata.content_summary'), ENT_QUOTES, 'UTF-8')?></h5>
-                           <div class="alert alert-warning" id="metadata_content_preview_summary"></div>
-                           <div class="table-responsive oneid-metadata-review-table">
-                              <table class="table table-striped table-condensed">
-                                 <thead><tr>
-                                    <th><?=htmlspecialchars(oneid_translate('admin.metadata.entity'), ENT_QUOTES, 'UTF-8')?></th>
-                                    <th><?=htmlspecialchars(oneid_translate('admin.metadata.original'), ENT_QUOTES, 'UTF-8')?></th>
-                                    <th><?=htmlspecialchars(oneid_translate('admin.metadata.draft'), ENT_QUOTES, 'UTF-8')?></th>
-                                    <th><?=htmlspecialchars(oneid_translate('admin.metadata.classification'), ENT_QUOTES, 'UTF-8')?></th>
-                                    <th><?=htmlspecialchars(oneid_translate('admin.metadata.decision'), ENT_QUOTES, 'UTF-8')?></th>
-                                 </tr></thead>
-                                 <tbody id="metadata_content_preview_rows"></tbody>
-                              </table>
-                           </div>
-                           <p class="help-block"><?=htmlspecialchars(oneid_translate('admin.metadata.no_apply'), ENT_QUOTES, 'UTF-8')?></p>
-                        </div>
-                        </section>
                         <input type="hidden" id="metadata_translation_version" value="0">
                      </div>
                      <div class="modal-footer oneid-sync-child-footer">
@@ -2116,21 +2085,11 @@
             'metadataNoChanges' => oneid_translate('admin.metadata.no_changes'),
             'metadataFailed' => oneid_translate('admin.metadata.failed'),
             'metadataReasonRequired' => oneid_translate('admin.metadata.reason_required'),
-            'metadataBulkReady' => oneid_translate('admin.metadata.bulk_ready'),
-            'metadataBulkBlocked' => oneid_translate('admin.metadata.bulk_blocked'),
-            'metadataPending' => oneid_translate('admin.metadata.pending'),
             'metadataCoverage' => oneid_translate('admin.metadata.coverage'),
             'metadataApps' => oneid_translate('admin.metadata.apps'),
             'metadataCategories' => oneid_translate('admin.metadata.categories'),
             'metadataTranslated' => oneid_translate('admin.metadata.status_translated'),
             'metadataFallback' => oneid_translate('admin.metadata.status_fallback'),
-            'metadataCompletion' => oneid_translate('admin.metadata.completion'),
-            'metadataDigest' => oneid_translate('admin.metadata.digest'),
-            'metadataReviewDecisions' => oneid_translate('admin.metadata.review_decisions'),
-            'metadataTranslations' => oneid_translate('admin.metadata.translations'),
-            'metadataOriginalUpdates' => oneid_translate('admin.metadata.original_updates'),
-            'metadataPlanHash' => oneid_translate('admin.metadata.plan_hash'),
-            'metadataBlocks' => oneid_translate('admin.metadata.blocks'),
          ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
          function localizedResponseMessage(response,fallback){
             if(response&&typeof response.localized_msg==='string'&&response.localized_msg.trim()!==''){
@@ -2150,12 +2109,6 @@
          var metadataReadRequest=null;
          function metadataText(value){
             return $('<div>').text(value==null?'':String(value)).html();
-         }
-         function metadataReviewLabel(value){
-            return String(value||'')
-               .replace(/_/g,' ')
-               .toLowerCase()
-               .replace(/\b\w/g,function(letter){return letter.toUpperCase();});
          }
          function metadataEntityOptions(){
             var type=String($('#metadata_entity_type').val()||'application');
@@ -2256,78 +2209,6 @@
             },'json').fail(function(){
                metadataSchemaAvailable=false;
                $('#metadata_translation_status').text(adminI18n.metadataFailed);
-            });
-         }
-         function closeMetadataContentPreview(){
-            $('#metadata_content_preview_panel').prop('hidden',true);
-            $('#metadata_content_preview_button').attr('aria-expanded','false').removeClass('is-open');
-         }
-         function toggleMetadataContentPreview(){
-            if(!$('#metadata_content_preview_panel').prop('hidden')){
-               closeMetadataContentPreview();
-               return;
-            }
-            loadMetadataContentPreview();
-         }
-         function loadMetadataContentPreview(){
-            $('#metadata_content_preview_button').prop('disabled',true);
-            $('#metadata_content_preview_panel').prop('hidden',false);
-            $('#metadata_content_preview_button').attr('aria-expanded','true').addClass('is-open');
-            $('#metadata_content_preview_summary').text(adminI18n.loading);
-            $('#metadata_content_preview_rows').empty();
-            $.post('../lib/q_func',{admin_metadata_content_preview:''},function(response){
-               if(!response||Number(response.status)!==1){
-                  $('#metadata_content_preview_summary').text(localizedResponseMessage(response,adminI18n.metadataFailed));
-                  return;
-               }
-               var manifest=response.manifest||{};var counts=manifest.classification_counts||{};
-               $('#metadata_content_preview_summary').text(
-                  adminI18n.metadataPending+': '+Number(manifest.pending_owner_review||0)
-                  +' / '+Number((manifest.source&&manifest.source.applications||0)+(manifest.source&&manifest.source.categories||0))
-                  +'. '+adminI18n.metadataCompletion+': '+Number(manifest.completion_percent||0)+'%. '
-                  +adminI18n.metadataDigest+': '+String(response.manifest_digest||'')+'.'
-               );
-               var rows='';
-               $.each(Array.isArray(manifest.items)?manifest.items:[],function(_,item){
-                  rows+='<tr><td><span class="oneid-metadata-entity-type">'+metadataText(metadataReviewLabel(item.entity_type))+'</span><br><code>'+metadataText(item.entity_id)+'</code></td>'
-                     +'<td><strong>'+metadataText(item.original_name)+'</strong><br><small>'+metadataText(item.original_description)+'</small></td>'
-                     +'<td><strong>'+metadataText(item.draft_en_name)+'</strong><br><small>'+metadataText(item.draft_en_description)+'</small></td>'
-                     +'<td><span class="oneid-metadata-review-label">'+metadataText(metadataReviewLabel(item.classification))+'</span></td>'
-                     +'<td><span class="oneid-metadata-review-label">'+metadataText(metadataReviewLabel(item.review_decision))+'</span></td></tr>';
-               });
-               $('#metadata_content_preview_rows').html(rows);
-            },'json').fail(function(){
-               $('#metadata_content_preview_summary').text(adminI18n.metadataFailed);
-            }).always(function(){
-               $('#metadata_content_preview_button').prop('disabled',false);
-            });
-         }
-         function loadMetadataBulkPreview(){
-            var button=$('#metadata_bulk_preview_button');
-            var result=$('#metadata_bulk_preview_result');
-            button.prop('disabled',true);
-            result.prop('hidden',false)
-               .removeClass('alert-success alert-danger')
-               .addClass('alert-info')
-               .text(adminI18n.loading);
-            $.post('../lib/q_func',{admin_metadata_bulk_content_preview:''},function(response){
-               var proposed=response&&response.proposed_mutations?response.proposed_mutations:{};
-               var blocks=Array.isArray(response&&response.blocking_codes)?response.blocking_codes:[];
-               var ready=response&&Number(response.status)===1&&blocks.length===0;
-               result.removeClass('alert-info')
-                  .addClass(ready?'alert-success':'alert-danger')
-                  .text(
-                     (ready?adminI18n.metadataBulkReady:adminI18n.metadataBulkBlocked)
-                     +' '+adminI18n.metadataReviewDecisions+': '+Number(proposed.review_decision_inserts||0)
-                     +'; '+adminI18n.metadataTranslations+': '+Number(proposed.translation_inserts||0)
-                     +'; '+adminI18n.metadataOriginalUpdates+': '+Number(proposed.original_metadata_updates||0)
-                     +'; '+adminI18n.metadataPlanHash+': '+String(response&&response.plan_hash||'-')
-                     +(blocks.length?'; '+adminI18n.metadataBlocks+': '+blocks.join(', '):'')
-                  );
-            },'json').fail(function(){
-               result.removeClass('alert-info').addClass('alert-danger').text(adminI18n.metadataFailed);
-            }).always(function(){
-               button.prop('disabled',false);
             });
          }
          $.ajaxSetup({
@@ -7558,11 +7439,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #modal_metadata_translations .oneid-metadata-body > .row,
       #modal_metadata_translations .oneid-metadata-body > .form-group,
       #modal_metadata_translations .oneid-metadata-body > .oneid-metadata-original,
-      #modal_metadata_translations .oneid-metadata-body > .oneid-metadata-governance,
-      #modal_metadata_translations .oneid-metadata-body > .help-block,
-      #modal_metadata_translations .oneid-metadata-body > hr,
-      #modal_metadata_translations .oneid-metadata-body > button,
-      #modal_metadata_translations .oneid-metadata-body > #metadata_content_preview_panel {
+      #modal_metadata_translations .oneid-metadata-body > .help-block {
          position: relative;
          z-index: 1;
       }
@@ -7660,8 +7537,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          gap: 12px;
       }
 
-      #modal_metadata_translations .oneid-metadata-original h6,
-      #modal_metadata_translations .oneid-metadata-governance h6 {
+      #modal_metadata_translations .oneid-metadata-original h6 {
          margin: 0;
          color: #29384b;
          font-size: 13px;
@@ -7708,20 +7584,6 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          color: #946200;
       }
 
-      #modal_metadata_translations .oneid-metadata-governance {
-         margin-top: 22px;
-         padding: 16px;
-         border: 1px solid #e1e7ed;
-         border-radius: 8px;
-         background: #fafbfd;
-      }
-
-      #modal_metadata_translations .oneid-metadata-governance > p {
-         margin: 5px 0 13px;
-         color: #68798b;
-         font-size: 12px;
-      }
-
       #modal_metadata_translations .oneid-metadata-reason-label {
          display: block;
          margin: 1px 0 7px;
@@ -7755,149 +7617,6 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          background: #eaf7fc;
          color: #087eaf;
          outline: none;
-      }
-
-      #modal_metadata_translations .oneid-metadata-body > hr {
-         border-color: #e7ecf1;
-      }
-
-      #modal_metadata_translations .oneid-metadata-review-toggle {
-         display: inline-flex;
-         align-items: center;
-         min-height: 42px;
-         padding: 0 15px;
-         border-color: #d7dfe7;
-         border-radius: 6px;
-         background: #f5f7f9;
-         color: #34495e;
-         font-weight: 600;
-         gap: 9px;
-      }
-
-      #modal_metadata_translations .oneid-metadata-bulk-preview-button {
-         display: inline-flex;
-         align-items: center;
-         min-height: 42px;
-         margin-left: 8px;
-         padding: 0 15px;
-         border-color: #c9c1ed;
-         border-radius: 6px;
-         background: #f6f3ff;
-         color: #5d4bb7;
-         font-weight: 600;
-         gap: 9px;
-      }
-
-      #modal_metadata_translations #metadata_bulk_preview_result {
-         line-height: 1.6;
-         overflow-wrap: anywhere;
-      }
-
-      #modal_metadata_translations .oneid-metadata-review-toggle:hover,
-      #modal_metadata_translations .oneid-metadata-review-toggle:focus,
-      #modal_metadata_translations .oneid-metadata-review-toggle.is-open {
-         border-color: #9ed2e6;
-         background: #eef8fd;
-         color: #087eaf;
-      }
-
-      #modal_metadata_translations .oneid-metadata-review-chevron {
-         margin-left: 4px;
-         transition: transform .2s ease;
-      }
-
-      #modal_metadata_translations .oneid-metadata-review-toggle.is-open .oneid-metadata-review-chevron {
-         transform: rotate(180deg);
-      }
-
-      #modal_metadata_translations #metadata_content_preview_panel {
-         margin-top: 18px;
-         padding-top: 18px;
-         border-top: 1px solid #e7ecf1;
-      }
-
-      #modal_metadata_translations #metadata_content_preview_panel > h5 {
-         margin: 0 0 10px;
-         color: #29384b;
-         font-size: 15px;
-         font-weight: 700;
-      }
-
-      #modal_metadata_translations #metadata_content_preview_summary {
-         margin-bottom: 14px;
-         padding: 12px 14px;
-         border: 1px solid #f0d791;
-         border-radius: 7px;
-         background: #fff8df;
-         color: #765817;
-         font-size: 12px;
-         line-height: 1.6;
-         overflow-wrap: anywhere;
-      }
-
-      #modal_metadata_translations .oneid-metadata-review-table {
-         max-height: 360px;
-         overflow: auto;
-         border: 1px solid #e1e7ed;
-         border-radius: 7px;
-         background: #fff;
-      }
-
-      #modal_metadata_translations .oneid-metadata-review-table table {
-         width: 100%;
-         min-width: 960px;
-         margin: 0;
-         table-layout: fixed;
-      }
-
-      #modal_metadata_translations .oneid-metadata-review-table th,
-      #modal_metadata_translations .oneid-metadata-review-table td {
-         padding: 12px 14px;
-         vertical-align: top;
-         line-height: 1.45;
-         overflow-wrap: break-word;
-      }
-
-      #modal_metadata_translations .oneid-metadata-review-table th {
-         position: sticky;
-         z-index: 2;
-         top: 0;
-         background: #f5f8fa;
-         color: #405164;
-         font-size: 10px;
-         letter-spacing: .04em;
-         text-transform: uppercase;
-      }
-
-      #modal_metadata_translations .oneid-metadata-review-table th:nth-child(1) {
-         width: 130px;
-      }
-
-      #modal_metadata_translations .oneid-metadata-review-table th:nth-child(2),
-      #modal_metadata_translations .oneid-metadata-review-table th:nth-child(3) {
-         width: 260px;
-      }
-
-      #modal_metadata_translations .oneid-metadata-review-table th:nth-child(4) {
-         width: 175px;
-      }
-
-      #modal_metadata_translations .oneid-metadata-review-table th:nth-child(5) {
-         width: 135px;
-      }
-
-      #modal_metadata_translations .oneid-metadata-review-table code {
-         display: inline-block;
-         margin-top: 4px;
-         white-space: nowrap;
-      }
-
-      #modal_metadata_translations .oneid-metadata-entity-type,
-      #modal_metadata_translations .oneid-metadata-review-label {
-         display: inline-block;
-         color: #536476;
-         font-size: 11px;
-         font-weight: 600;
       }
 
       @media (max-width: 767px) {

@@ -53,9 +53,9 @@ $report(
     'review-decision migration is additive and reversible'
 );
 $report(
-    str_contains($security, "'admin_metadata_bulk_content_preview'")
-    && str_contains($endpoint, "isset(\$_POST['admin_metadata_bulk_content_preview'])"),
-    'read-only Administrator bulk Preview is wired'
+    !str_contains($security, "'admin_metadata_bulk_content_preview'")
+    && !str_contains($endpoint, 'admin_metadata_bulk_content_preview'),
+    'retired Administrator bulk Preview leaves no web endpoint'
 );
 $report(
     !str_contains($endpoint, 'admin_apply_metadata_bulk_content')
