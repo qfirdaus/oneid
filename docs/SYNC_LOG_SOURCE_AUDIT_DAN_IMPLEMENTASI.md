@@ -22,7 +22,7 @@ Kod canonical:
 sync dicipta. Ini meliputi pilot, full, operational dan cron menggunakan laluan
 safe orchestrator yang sama.
 
-Rekod lama kekal `NULL` dan dipaparkan sebagai `Legacy / Tidak diketahui`.
+Rekod lama kekal `NULL` dan dipaparkan ringkas sebagai `Legacy`.
 Sistem tidak membuat inferens daripada kategori pengguna atau change detail.
 
 `triggered_by=ONEID-CRON` dipaparkan sebagai Cron. Identiti lain dipaparkan
@@ -61,7 +61,7 @@ Senarai Sync Log menambah kolum `Sumber` dengan badge localized:
 - Staf;
 - Prasiswazah;
 - ODL;
-- Legacy / Tidak diketahui.
+- Legacy.
 
 Header detail turut menunjukkan sumber sesi. Paparan ini bukan live progress
 tracker; ia menerangkan sumber bagi header sync yang telah direkodkan.

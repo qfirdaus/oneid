@@ -57,6 +57,17 @@ foreach ($keys as $key) {
 }
 $report($localized, 'source and trigger labels have BM and English parity');
 $report(
+    ($ms['admin.synclog.source_legacy'] ?? null) === 'Legacy'
+        && ($en['admin.synclog.source_legacy'] ?? null) === 'Legacy',
+    'legacy source fallback is concise and does not imply an additional unknown state'
+);
+$report(
+    str_contains($dashboard, "['2','4'].indexOf(String(row.ext_head_status))")
+        && str_contains($dashboard, "admin.synclog.complete_direct")
+        && str_contains($dashboard, "sync_status_badge(row)"),
+    'completed summary and status badge distinguish direct changes from true no-change sessions'
+);
+$report(
     str_contains($tool, "['--check', '--apply']")
         && str_contains($tool, 'information_schema.columns')
         && str_contains($tool, 'information_schema.statistics'),

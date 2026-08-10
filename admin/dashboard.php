@@ -5880,15 +5880,22 @@
          });
          }
 
-         function sync_status_badge(status){
+         function sync_status_badge(row){
+            var status = String(row && row.ext_head_status !== undefined ? row.ext_head_status : '');
             var labels = {
                '0': [adminText('admin.synclog.in_progress'), 'sync-status-progress'],
                '1': [adminText('admin.synclog.temp_only'), 'sync-status-temp'],
                '2': [adminText('admin.synclog.complete'), 'sync-status-complete'],
-               '3': [adminText('admin.synclog.no_data'), 'sync-status-empty'],
-               '4': [adminText('admin.synclog.unchanged'), 'sync-status-unchanged']
+               '3': [adminText('admin.synclog.no_data'), 'sync-status-empty']
             };
-            var info = labels[String(status)] || [adminText('admin.synclog.unknown'), 'sync-status-unknown'];
+            if(status === '4'){
+               var recordedChanges = ['total_new','total_updated','total_deactivated','total_reactivated']
+                  .reduce(function(total, key){ return total + (parseInt(row[key] || 0, 10) || 0); }, 0);
+               labels['4'] = recordedChanges > 0
+                  ? [adminText('admin.synclog.complete_direct'), 'sync-status-direct']
+                  : [adminText('admin.synclog.unchanged'), 'sync-status-unchanged'];
+            }
+            var info = labels[status] || [adminText('admin.synclog.unknown'), 'sync-status-unknown'];
             return '<span class="sync-status-badge ' + info[1] + '">' + info[0] + '</span>';
          }
 
@@ -6001,7 +6008,7 @@
             var completed = 0;
             var changes = 0;
             $.each(rows, function(i, row){
-               if(String(row.ext_head_status) === '2'){
+               if(['2','4'].indexOf(String(row.ext_head_status)) !== -1){
                   completed++;
                }
                changes += parseInt(row.total_new || 0, 10);
@@ -6064,7 +6071,7 @@
                tr += '<span><small>'+adminText('admin.synclog.deactivated')+'</small><strong>' + (row.total_deactivated || 0) + '</strong></span>';
                tr += '<span><small>'+adminText('admin.synclog.reactivated')+'</small><strong>' + (row.total_reactivated || 0) + '</strong></span>';
                tr += '</div></td>';
-               tr += '<td data-label="'+adminText('admin.synclog.status')+'">' + sync_status_badge(row.ext_head_status) + '</td>';
+               tr += '<td data-label="'+adminText('admin.synclog.status')+'">' + sync_status_badge(row) + '</td>';
                tr += '<td class="sync-action-column" data-label="#"><button type="button" class="sync-view-button" title="'+adminText('admin.synclog.view')+'" aria-label="'+adminText('admin.synclog.view')+'" onclick="load_sync_log_detail(' + row.ext_head_id + ', \'' + String(dtStart).replace(/'/g, "\\'") + '\');"><i class="fa fa-eye" aria-hidden="true"></i><span class="sr-only">'+adminText('admin.synclog.view')+'</span></button></td>';
                tr += '</tr>';
             });
@@ -10001,9 +10008,16 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_synclog .sync-status-complete,
+      #tab_synclog .sync-status-direct,
       #tab_synclog .sync-action-new {
         background: #eaf7ee;
         color: #247a3d;
+      }
+
+      #tab_synclog .sync-status-direct {
+        min-width: 104px;
+        white-space: normal;
+        text-align: center;
       }
 
       #tab_synclog .sync-status-empty,
