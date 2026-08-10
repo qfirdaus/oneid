@@ -4,7 +4,7 @@
 
 **Diluluskan:** 19 Julai 2026
 **Baseline selepas normalisasi:** 2.4.0
-**Versi semasa:** 2.9.0
+**Versi semasa:** 2.9.1
 
 ## Polisi
 
@@ -52,7 +52,7 @@ tertakluk kepada polisi OneID.
 
 **Approved:** 19 July 2026
 **Post-normalisation baseline:** 2.4.0
-**Current version:** 2.9.0
+**Current version:** 2.9.1
 
 ### Policy
 

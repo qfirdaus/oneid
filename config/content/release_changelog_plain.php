@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.9.1' =>
+  array (
+    'version' => '2.9.1',
+    'date' => '2026-08-10',
+    'bm' =>
+    array (
+      0 => 'OneID kini memaparkan penanda environment yang berterusan pada halaman login dan permukaan utama selepas login.',
+      1 => 'Runtime local dan development memaparkan label DEVELOPMENT ENVIRONMENT dengan identiti gradient teal yang khusus.',
+      2 => 'Runtime staging memaparkan label STAGING ENVIRONMENT menggunakan gradient rasmi yang selaras dengan butang MyDigital ID.',
+      3 => 'Runtime production tidak menghasilkan sebarang markup banner supaya pengalaman pengguna production kekal bersih.',
+      4 => 'Environment kosong atau tidak dikenali memaparkan amaran konfigurasi secara fail-visible dan tidak disalah anggap sebagai production.',
+      5 => 'Banner dikongsi oleh login, cabaran MFA, dashboard pengguna, Account Security, Admin Step-Up, dashboard admin dan laporan pengguna.',
+      6 => 'Offset responsif memastikan banner tidak bertindih dengan navbar tetap pada paparan desktop atau mudah alih.',
+      7 => 'Gaya visual menggunakan highlight dalaman, border halus dan bayang berlapis tanpa animasi yang mengganggu.',
+      8 => 'Contract release mengesahkan pemetaan local, staging, production, konfigurasi tidak sah serta liputan semua permukaan utama.',
+      9 => 'Release ini tidak mengubah database, secret, token SSO, polisi MFA, MyDigital ID, Sync Apply atau integrasi service provider.',
+    ),
+    'en' =>
+    array (
+      0 => 'OneID now displays a persistent environment indicator on the login page and the primary authenticated surfaces.',
+      1 => 'Local and development runtimes display DEVELOPMENT ENVIRONMENT with a dedicated teal gradient identity.',
+      2 => 'The staging runtime displays STAGING ENVIRONMENT using the official gradient aligned with the MyDigital ID button.',
+      3 => 'The production runtime emits no banner markup, keeping the production user experience clean.',
+      4 => 'An empty or unknown environment is fail-visible as a configuration warning and is never mistaken for production.',
+      5 => 'The shared banner covers login, MFA challenge, user dashboard, Account Security, Admin Step-Up, admin dashboard and user reports.',
+      6 => 'Responsive offsets prevent the banner from overlapping fixed navigation on desktop or mobile displays.',
+      7 => 'The visual treatment uses an inset highlight, subtle border and layered shadow without distracting animation.',
+      8 => 'Release contracts verify local, staging, production and invalid mappings together with coverage of every primary surface.',
+      9 => 'This release does not alter the database, secrets, SSO tokens, MFA policy, MyDigital ID, Sync Apply or service-provider integrations.',
+    ),
+  ),
   'release-2.9.0' =>
   array (
     'version' => '2.9.0',
