@@ -913,6 +913,14 @@ $('.otp-input').on('input', function() {
 });
 
 $('.otp-input').on('keydown', function(e) {
+  if (e.key === "Enter" && !(e.originalEvent && e.originalEvent.isComposing) && !e.repeat) {
+    e.preventDefault();
+    var submitButton = document.getElementById('btn_otp_submit');
+    if (submitButton && !submitButton.disabled) {
+      submitButton.click();
+    }
+    return;
+  }
   if (e.key === "Backspace" && $(this).val() === '') {
     $(this).prev('.otp-input').focus();
   }
