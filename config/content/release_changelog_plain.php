@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.9.2' =>
+  array (
+    'version' => '2.9.2',
+    'date' => '2026-08-11',
+    'bm' =>
+    array (
+      0 => 'Label environment local/development dan staging kini menyokong BM/English, kekal dipaparkan sebelum dan selepas login serta menggunakan gaya gradient dan bayang yang lebih profesional.',
+      1 => 'Status sesi External Sync kini membezakan sesi lengkap tanpa perubahan daripada sesi lengkap yang mempunyai perubahan terus, supaya nilai Updated tidak lagi bercanggah dengan label No Changes.',
+      2 => 'Jadual Sync Sessions dipadatkan dan disusun semula dengan status dijajarkan ke kiri supaya semua kiraan dan label boleh dibaca tanpa terpotong.',
+      3 => 'Editor Application and Category Metadata diperkukuh dengan susunan lebih jelas, validasi yang konsisten dan ringkasan liputan berdasarkan rekod aplikasi aktif.',
+      4 => 'Pemilih rekod metadata kini menggunakan Select2 yang boleh dicari, dengan aset vendor diselaraskan kepada laluan public yang dilayan oleh Nginx.',
+      5 => 'Change reason metadata menyediakan pilihan sebab lazim dan masih membenarkan sebab tersuai, manakala panel governance dan kod lebihan yang tidak digunakan telah dibuang.',
+      6 => 'Terjemahan BM dan English bagi semua aplikasi dan kategori aktif telah dilengkapkan, dan kiraan coverage kini membezakan locale serta rekod aktif dengan tepat.',
+      7 => 'Audit Log, Configuration History, metadata dan login banner kini menggunakan No. Staf atau No. Matrik; pola No. IC lama dinormalkan dan nilai yang tidak dapat dipadankan disunting selamat.',
+      8 => 'Medan identiti MFA yang terikat kepada foreign key kekal menggunakan ID dalaman untuk integriti, tetapi semua paparan dan butiran audit menggunakan identiti awam yang selamat.',
+      9 => 'Semua ruangan OTP e-mel dan Microsoft Authenticator aktif kini menerima kekunci Enter untuk pengesahan melalui aliran yang sama seperti klik, tanpa memintas validasi, CSRF, rate limit atau dialog keselamatan.',
+    ),
+    'en' =>
+    array (
+      0 => 'Local/development and staging environment labels now support BM/English, remain visible before and after sign-in, and use a more professional gradient and shadow treatment.',
+      1 => 'External Sync session status now distinguishes a completed session with no changes from one with direct changes, so an Updated count no longer conflicts with a No Changes label.',
+      2 => 'The Sync Sessions table has been compacted and reorganized with left-aligned status content so every count and label remains readable without clipping.',
+      3 => 'The Application and Category Metadata editor has clearer structure, consistent validation and coverage summaries based on active application records.',
+      4 => 'The metadata record selector now uses searchable Select2, with vendor assets aligned to the public path served by Nginx.',
+      5 => 'Metadata Change reason provides common reason presets while retaining a custom reason option, and the unused governance panel and residual code have been removed.',
+      6 => 'BM and English translations for every active application and category have been completed, with coverage now reporting each locale and active record scope accurately.',
+      7 => 'Audit Log, Configuration History, metadata and login banners now use Staff No. or Matric No.; historical identity-card patterns were normalized and unmatched values are safely redacted.',
+      8 => 'MFA identity fields governed by foreign keys retain their internal IDs for integrity, while every display and audit detail uses the safe public identity.',
+      9 => 'Every active e-mail OTP and Microsoft Authenticator code field now accepts Enter for verification through the same click path without bypassing validation, CSRF, rate limits or security confirmation dialogs.',
+    ),
+  ),
   'release-2.9.1' =>
   array (
     'version' => '2.9.1',

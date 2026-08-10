@@ -66,7 +66,7 @@ $computedDigest = hash(
     'sha256',
     json_encode($digestPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)
 );
-if ($releaseCount !== 51 || $itemCount !== 358) {
+if ($releaseCount !== 52 || $itemCount !== 368) {
     $blocking[] = 'ML8C_ENGLISH_DRAFT_COUNT_MISMATCH';
 }
 if (count($identities) !== count(array_unique($identities))) {
