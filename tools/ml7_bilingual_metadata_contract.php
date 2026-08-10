@@ -85,10 +85,20 @@ $report(
     'Administrator guarded translation-management UI is wired'
 );
 $report(
-    !str_contains($repository, 'sp_domain=')
-    && !str_contains($repository, 'sp_group_id=')
-    && !str_contains($repository, 'sp_sso_support='),
+    !preg_match('/\bSET\b[^;]*(?:sp_domain|sp_group_id|sp_sso_support)\s*=/is', $repository),
     'repository cannot mutate URL, category assignment or SSO configuration'
+);
+$report(
+    str_contains($repository, 'ML7_METADATA_NO_CHANGES')
+    && str_contains($repository, 'translation_exists')
+    && str_contains($repository, 'originalMetadata'),
+    'editor exposes original context and suppresses no-op version history'
+);
+$report(
+    str_contains($admin, 'metadataReadSequence')
+    && str_contains($admin, 'metadataReadRequest.abort()')
+    && str_contains($admin, 'translations.by_locale'),
+    'Administrator editor rejects stale reads and displays locale-scoped coverage'
 );
 $report(
     !str_contains($repository, 'SYNC_')

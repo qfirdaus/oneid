@@ -386,14 +386,14 @@
                         <div class="alert alert-info" id="metadata_translation_status" role="status" aria-live="polite"></div>
                         <div class="row">
                            <div class="col-sm-4 form-group">
-                              <label for="metadata_entity_type"><?=htmlspecialchars(oneid_translate('admin.metadata.entity'), ENT_QUOTES, 'UTF-8')?></label>
+                              <label for="metadata_entity_type"><?=htmlspecialchars(oneid_translate('admin.metadata.entity_type'), ENT_QUOTES, 'UTF-8')?></label>
                               <select class="form-control" id="metadata_entity_type">
                                  <option value="application"><?=htmlspecialchars(oneid_translate('admin.metadata.application'), ENT_QUOTES, 'UTF-8')?></option>
                                  <option value="category"><?=htmlspecialchars(oneid_translate('admin.metadata.category'), ENT_QUOTES, 'UTF-8')?></option>
                               </select>
                            </div>
                            <div class="col-sm-5 form-group">
-                              <label for="metadata_entity_id"><?=htmlspecialchars(oneid_translate('admin.metadata.entity'), ENT_QUOTES, 'UTF-8')?></label>
+                              <label for="metadata_entity_id"><?=htmlspecialchars(oneid_translate('admin.metadata.entity_record'), ENT_QUOTES, 'UTF-8')?></label>
                               <select class="form-control" id="metadata_entity_id"></select>
                            </div>
                            <div class="col-sm-3 form-group">
@@ -401,6 +401,16 @@
                               <select class="form-control" id="metadata_locale"><option value="ms">BM</option><option value="en">English</option></select>
                            </div>
                         </div>
+                        <section class="oneid-metadata-original" aria-labelledby="metadata_original_heading">
+                           <div class="oneid-metadata-original-header">
+                              <h6 id="metadata_original_heading"><?=htmlspecialchars(oneid_translate('admin.metadata.original_panel'), ENT_QUOTES, 'UTF-8')?></h6>
+                              <span id="metadata_record_state" class="oneid-metadata-state"></span>
+                           </div>
+                           <dl>
+                              <div><dt><?=htmlspecialchars(oneid_translate('admin.metadata.original_name'), ENT_QUOTES, 'UTF-8')?></dt><dd id="metadata_original_name">—</dd></div>
+                              <div id="metadata_original_description_row"><dt><?=htmlspecialchars(oneid_translate('admin.metadata.original_description'), ENT_QUOTES, 'UTF-8')?></dt><dd id="metadata_original_description">—</dd></div>
+                           </dl>
+                        </section>
                         <div class="form-group">
                            <label for="metadata_translated_name"><?=htmlspecialchars(oneid_translate('admin.metadata.name'), ENT_QUOTES, 'UTF-8')?></label>
                            <input class="form-control" id="metadata_translated_name" maxlength="255" autocomplete="off">
@@ -415,7 +425,9 @@
                            <small class="help-block" id="metadata_change_reason_help"><?=htmlspecialchars(oneid_translate('admin.metadata.reason_required'), ENT_QUOTES, 'UTF-8')?></small>
                         </div>
                         <p class="help-block"><?=htmlspecialchars(oneid_translate('admin.metadata.fallback'), ENT_QUOTES, 'UTF-8')?></p>
-                        <hr>
+                        <section class="oneid-metadata-governance" aria-labelledby="metadata_governance_heading">
+                        <h6 id="metadata_governance_heading"><?=htmlspecialchars(oneid_translate('admin.metadata.advanced_review'), ENT_QUOTES, 'UTF-8')?></h6>
+                        <p><?=htmlspecialchars(oneid_translate('admin.metadata.advanced_help'), ENT_QUOTES, 'UTF-8')?></p>
                         <button type="button" class="btn btn-default oneid-metadata-review-toggle" id="metadata_content_preview_button" onclick="toggleMetadataContentPreview();" aria-expanded="false" aria-controls="metadata_content_preview_panel">
                            <i class="fa fa-list-alt" aria-hidden="true"></i>
                            <span><?=htmlspecialchars(oneid_translate('admin.metadata.content_review'), ENT_QUOTES, 'UTF-8')?></span>
@@ -443,6 +455,7 @@
                            </div>
                            <p class="help-block"><?=htmlspecialchars(oneid_translate('admin.metadata.no_apply'), ENT_QUOTES, 'UTF-8')?></p>
                         </div>
+                        </section>
                         <input type="hidden" id="metadata_translation_version" value="0">
                      </div>
                      <div class="modal-footer oneid-sync-child-footer">
@@ -2092,11 +2105,24 @@
             'metadataDormant' => oneid_translate('admin.metadata.schema_dormant'),
             'metadataReady' => oneid_translate('admin.metadata.schema_ready'),
             'metadataSaved' => oneid_translate('admin.metadata.saved'),
+            'metadataNoChanges' => oneid_translate('admin.metadata.no_changes'),
             'metadataFailed' => oneid_translate('admin.metadata.failed'),
             'metadataReasonRequired' => oneid_translate('admin.metadata.reason_required'),
             'metadataBulkReady' => oneid_translate('admin.metadata.bulk_ready'),
             'metadataBulkBlocked' => oneid_translate('admin.metadata.bulk_blocked'),
             'metadataPending' => oneid_translate('admin.metadata.pending'),
+            'metadataCoverage' => oneid_translate('admin.metadata.coverage'),
+            'metadataApps' => oneid_translate('admin.metadata.apps'),
+            'metadataCategories' => oneid_translate('admin.metadata.categories'),
+            'metadataTranslated' => oneid_translate('admin.metadata.status_translated'),
+            'metadataFallback' => oneid_translate('admin.metadata.status_fallback'),
+            'metadataCompletion' => oneid_translate('admin.metadata.completion'),
+            'metadataDigest' => oneid_translate('admin.metadata.digest'),
+            'metadataReviewDecisions' => oneid_translate('admin.metadata.review_decisions'),
+            'metadataTranslations' => oneid_translate('admin.metadata.translations'),
+            'metadataOriginalUpdates' => oneid_translate('admin.metadata.original_updates'),
+            'metadataPlanHash' => oneid_translate('admin.metadata.plan_hash'),
+            'metadataBlocks' => oneid_translate('admin.metadata.blocks'),
          ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
          function localizedResponseMessage(response,fallback){
             if(response&&typeof response.localized_msg==='string'&&response.localized_msg.trim()!==''){
@@ -2112,6 +2138,8 @@
          }
          var metadataSchemaAvailable=false;
          var metadataWebAppGroups=[];
+         var metadataReadSequence=0;
+         var metadataReadRequest=null;
          function metadataText(value){
             return $('<div>').text(value==null?'':String(value)).html();
          }
@@ -2143,20 +2171,40 @@
             });
             $('#metadata_entity_id').html(options);
             $('#metadata_description_group').toggle(type==='application');
+            $('#metadata_original_description_row').toggle(type==='application');
          }
          function loadMetadataTranslation(){
             if(!metadataSchemaAvailable||!$('#metadata_entity_id').val()){return;}
-            $.post('../lib/q_func',{
+            var requestSequence=++metadataReadSequence;
+            var requestedIdentity=[
+               $('#metadata_entity_type').val(),
+               $('#metadata_entity_id').val(),
+               $('#metadata_locale').val()
+            ].join(':');
+            if(metadataReadRequest&&metadataReadRequest.readyState!==4){metadataReadRequest.abort();}
+            $('#metadata_translation_save').prop('disabled',true);
+            $('#metadata_translated_name,#metadata_translated_description').val('');
+            $('#metadata_original_name,#metadata_original_description').text('—');
+            $('#metadata_record_state').text(adminI18n.loading).removeClass('is-translated is-fallback');
+            metadataReadRequest=$.post('../lib/q_func',{
                admin_get_metadata_translation:'',
                entity_type:$('#metadata_entity_type').val(),
                entity_id:$('#metadata_entity_id').val(),
                locale:$('#metadata_locale').val()
             },function(response){
+               var currentIdentity=[$('#metadata_entity_type').val(),$('#metadata_entity_id').val(),$('#metadata_locale').val()].join(':');
+               if(requestSequence!==metadataReadSequence||requestedIdentity!==currentIdentity){return;}
                if(response&&Number(response.status)===1){
                   var data=response.data||{};
                   $('#metadata_translated_name').val(data.sp_name||data.sp_group_name||'');
                   $('#metadata_translated_description').val(data.sp_description||'');
                   $('#metadata_translation_version').val(Number(data.translation_version||0));
+                  $('#metadata_original_name').text(data.original_name||'—');
+                  $('#metadata_original_description').text(data.original_description||'—');
+                  $('#metadata_record_state')
+                     .text(data.translation_exists?adminI18n.metadataTranslated:adminI18n.metadataFallback)
+                     .toggleClass('is-translated',!!data.translation_exists)
+                     .toggleClass('is-fallback',!data.translation_exists);
                   $('#metadata_translation_save').prop('disabled',false);
                }else{
                   $('#metadata_translation_status').text(localizedResponseMessage(response,adminI18n.metadataFailed));
@@ -2171,12 +2219,16 @@
             $.post('../lib/q_func',{admin_metadata_translation_preview:''},function(response){
                metadataSchemaAvailable=!!(response&&response.schema_available);
                var source=response&&response.source?response.source:{applications:0,categories:0};
-               var translated=response&&response.translations?response.translations:{applications:0,categories:0};
+               var coverage=response&&response.translations&&response.translations.by_locale?response.translations.by_locale:{};
+               var ms=coverage.ms||{};var en=coverage.en||{};
                $('#metadata_translation_status').text(
                   (metadataSchemaAvailable?adminI18n.metadataReady:adminI18n.metadataDormant)
-                  +' Apps: '+Number(translated.applications||0)+'/'+Number(source.applications||0)
-                  +'; Categories: '+Number(translated.categories||0)+'/'+Number(source.categories||0)+'.'
-               );
+                  +' '+adminI18n.metadataCoverage+': BM — '
+                  +adminI18n.metadataApps+' '+Number(ms.applications||0)+'/'+Number(source.applications||0)+', '
+                  +adminI18n.metadataCategories+' '+Number(ms.categories||0)+'/'+Number(source.categories||0)
+                  +'; English — '+adminI18n.metadataApps+' '+Number(en.applications||0)+'/'+Number(source.applications||0)+', '
+                  +adminI18n.metadataCategories+' '+Number(en.categories||0)+'/'+Number(source.categories||0)+'.'
+               ).removeClass('alert-danger alert-success').addClass(metadataSchemaAvailable?'alert-info':'alert-danger');
                if(metadataSchemaAvailable){loadMetadataTranslation();}
             },'json').fail(function(){
                metadataSchemaAvailable=false;
@@ -2209,7 +2261,8 @@
                $('#metadata_content_preview_summary').text(
                   adminI18n.metadataPending+': '+Number(manifest.pending_owner_review||0)
                   +' / '+Number((manifest.source&&manifest.source.applications||0)+(manifest.source&&manifest.source.categories||0))
-                  +'. Completion: '+Number(manifest.completion_percent||0)+'%. Digest: '+String(response.manifest_digest||'')+'.'
+                  +'. '+adminI18n.metadataCompletion+': '+Number(manifest.completion_percent||0)+'%. '
+                  +adminI18n.metadataDigest+': '+String(response.manifest_digest||'')+'.'
                );
                var rows='';
                $.each(Array.isArray(manifest.items)?manifest.items:[],function(_,item){
@@ -2242,11 +2295,11 @@
                   .addClass(ready?'alert-success':'alert-danger')
                   .text(
                      (ready?adminI18n.metadataBulkReady:adminI18n.metadataBulkBlocked)
-                     +' Review decisions: '+Number(proposed.review_decision_inserts||0)
-                     +'; translations: '+Number(proposed.translation_inserts||0)
-                     +'; original updates: '+Number(proposed.original_metadata_updates||0)
-                     +'; plan hash: '+String(response&&response.plan_hash||'-')
-                     +(blocks.length?'; blocks: '+blocks.join(', '):'')
+                     +' '+adminI18n.metadataReviewDecisions+': '+Number(proposed.review_decision_inserts||0)
+                     +'; '+adminI18n.metadataTranslations+': '+Number(proposed.translation_inserts||0)
+                     +'; '+adminI18n.metadataOriginalUpdates+': '+Number(proposed.original_metadata_updates||0)
+                     +'; '+adminI18n.metadataPlanHash+': '+String(response&&response.plan_hash||'-')
+                     +(blocks.length?'; '+adminI18n.metadataBlocks+': '+blocks.join(', '):'')
                   );
             },'json').fail(function(){
                result.removeClass('alert-info').addClass('alert-danger').text(adminI18n.metadataFailed);
@@ -2295,7 +2348,7 @@
                      $('#metadata_translation_status')
                         .removeClass('alert-info alert-danger')
                         .addClass('alert-success')
-                        .text(localizedResponseMessage(response,adminI18n.metadataSaved));
+                        .text(response.no_changes?adminI18n.metadataNoChanges:localizedResponseMessage(response,adminI18n.metadataSaved));
                      get_service_provider_list();
                   }else{
                      $('#metadata_translation_status')
@@ -7468,6 +7521,8 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #modal_metadata_translations .oneid-metadata-body > .alert,
       #modal_metadata_translations .oneid-metadata-body > .row,
       #modal_metadata_translations .oneid-metadata-body > .form-group,
+      #modal_metadata_translations .oneid-metadata-body > .oneid-metadata-original,
+      #modal_metadata_translations .oneid-metadata-body > .oneid-metadata-governance,
       #modal_metadata_translations .oneid-metadata-body > .help-block,
       #modal_metadata_translations .oneid-metadata-body > hr,
       #modal_metadata_translations .oneid-metadata-body > button,
@@ -7512,6 +7567,85 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #modal_metadata_translations .oneid-metadata-body .form-control:focus {
          border-color: #39aeda;
          box-shadow: 0 0 0 3px rgba(17, 168, 223, .10);
+      }
+
+      #modal_metadata_translations .oneid-metadata-original {
+         margin: 2px 0 20px;
+         padding: 14px 16px;
+         border: 1px solid #d8e5ec;
+         border-left: 4px solid #1598ca;
+         border-radius: 7px;
+         background: #f7fbfd;
+      }
+
+      #modal_metadata_translations .oneid-metadata-original-header {
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         margin-bottom: 10px;
+         gap: 12px;
+      }
+
+      #modal_metadata_translations .oneid-metadata-original h6,
+      #modal_metadata_translations .oneid-metadata-governance h6 {
+         margin: 0;
+         color: #29384b;
+         font-size: 13px;
+         font-weight: 700;
+      }
+
+      #modal_metadata_translations .oneid-metadata-original dl {
+         display: grid;
+         grid-template-columns: 1fr 1.6fr;
+         margin: 0;
+         gap: 16px;
+      }
+
+      #modal_metadata_translations .oneid-metadata-original dt {
+         margin-bottom: 3px;
+         color: #748396;
+         font-size: 10px;
+         letter-spacing: .04em;
+         text-transform: uppercase;
+      }
+
+      #modal_metadata_translations .oneid-metadata-original dd {
+         margin: 0;
+         color: #34495e;
+         line-height: 1.45;
+      }
+
+      #modal_metadata_translations .oneid-metadata-state {
+         padding: 4px 9px;
+         border-radius: 999px;
+         background: #edf1f5;
+         color: #667789;
+         font-size: 10px;
+         font-weight: 700;
+      }
+
+      #modal_metadata_translations .oneid-metadata-state.is-translated {
+         background: #e8f7ee;
+         color: #168044;
+      }
+
+      #modal_metadata_translations .oneid-metadata-state.is-fallback {
+         background: #fff4dd;
+         color: #946200;
+      }
+
+      #modal_metadata_translations .oneid-metadata-governance {
+         margin-top: 22px;
+         padding: 16px;
+         border: 1px solid #e1e7ed;
+         border-radius: 8px;
+         background: #fafbfd;
+      }
+
+      #modal_metadata_translations .oneid-metadata-governance > p {
+         margin: 5px 0 13px;
+         color: #68798b;
+         font-size: 12px;
       }
 
       #modal_metadata_translations .oneid-metadata-body > hr {
@@ -7668,6 +7802,10 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
             right: 14px;
             bottom: 14px;
             left: 14px;
+         }
+
+         #modal_metadata_translations .oneid-metadata-original dl {
+            grid-template-columns: 1fr;
          }
       }
 

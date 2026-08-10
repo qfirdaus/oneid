@@ -141,15 +141,22 @@ final class BilingualMetadataRepository
             throw new RuntimeException('ML7_METADATA_SCHEMA_UNAVAILABLE');
         }
         [$table, $idColumn] = $this->tableFor($entityType);
+        $original = $this->originalMetadata($entityType, $entityId);
         $statement = $this->pdo->prepare(
             "SELECT * FROM {$table} WHERE {$idColumn}=:entity_id AND locale=:locale LIMIT 1"
         );
         $statement->execute([':entity_id' => $entityId, ':locale' => $locale]);
-        return $statement->fetch() ?: [
+        $translation = $statement->fetch();
+        return array_merge($translation ?: [
             $idColumn => $entityId,
             'locale' => $locale,
             'translation_version' => 0,
-        ];
+        ], [
+            'translation_exists' => $translation !== false,
+            'metadata_fallback' => $translation === false,
+            'original_name' => $original['name'],
+            'original_description' => $original['description'],
+        ]);
     }
 
     /** @param array<string,string> $values
@@ -183,6 +190,17 @@ final class BilingualMetadataRepository
                 throw new RuntimeException('ML7_METADATA_STALE');
             }
             $normalized = $this->normalizedValues($entityType, $values);
+            if ($currentVersion > 0 && $this->sameTranslation($entityType, $current, $normalized)) {
+                $this->pdo->commit();
+                $started = false;
+                return [
+                    'status' => 1,
+                    'code' => 'ML7_METADATA_NO_CHANGES',
+                    'no_changes' => true,
+                    'translation_version' => $currentVersion,
+                    'correlation_id' => $correlation,
+                ];
+            }
             $nextVersion = $currentVersion + 1;
             if ($currentVersion === 0) {
                 $columns = $entityType === 'application'
@@ -357,6 +375,39 @@ final class BilingualMetadataRepository
         ) {
             throw new RuntimeException('ML7_METADATA_IDENTITY_INVALID');
         }
+    }
+
+    /** @return array{name:string,description:string} */
+    private function originalMetadata(string $entityType, string $entityId): array
+    {
+        if ($entityType === 'application') {
+            $statement = $this->pdo->prepare(
+                'SELECT sp_name AS name,sp_description AS description FROM sp_list WHERE sp_id=:entity_id LIMIT 1'
+            );
+        } else {
+            $statement = $this->pdo->prepare(
+                "SELECT sp_group_name AS name,'' AS description FROM sp_group WHERE sp_group_id=:entity_id LIMIT 1"
+            );
+        }
+        $statement->execute([':entity_id' => $entityId]);
+        $row = $statement->fetch();
+        if (!is_array($row)) {
+            throw new RuntimeException('ML7_METADATA_IDENTITY_INVALID');
+        }
+        return ['name' => (string) $row['name'], 'description' => (string) $row['description']];
+    }
+
+    /** @param array<string,mixed> $current
+     *  @param array{name:string,description:string} $normalized
+     */
+    private function sameTranslation(string $entityType, array $current, array $normalized): bool
+    {
+        $currentName = $entityType === 'application'
+            ? trim((string) ($current['sp_name'] ?? ''))
+            : trim((string) ($current['sp_group_name'] ?? ''));
+        return $currentName === $normalized['name']
+            && ($entityType !== 'application'
+                || trim((string) ($current['sp_description'] ?? '')) === $normalized['description']);
     }
 
     /** @param array<string,string> $values

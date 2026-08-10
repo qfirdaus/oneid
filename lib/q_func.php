@@ -731,8 +731,11 @@ function string_sanitize($s) {
             (string)$_SESSION['login_user'],
             (string)($_POST['change_reason']??'')
           );
-          $result['translation_key']='admin.metadata.saved';
-          $result['msg']=oneid_translate('admin.metadata.saved');
+          $translationKey=($result['code']??'')==='ML7_METADATA_NO_CHANGES'
+            ?'admin.metadata.no_changes'
+            :'admin.metadata.saved';
+          $result['translation_key']=$translationKey;
+          $result['msg']=oneid_translate($translationKey);
           echo json_encode($result);
         }catch(\RuntimeException $exception){
           $code=$exception->getMessage();

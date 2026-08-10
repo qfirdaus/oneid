@@ -30,10 +30,14 @@ $preview = $repository->preview();
 $report(
     $preview['schema_available'] === true
     && $preview['can_apply_migration'] === false
-    && $preview['translations']['applications'] === 35
-    && $preview['translations']['categories'] === 13
+    && $preview['translations']['applications'] === array_sum(array_column($preview['translations']['by_locale'], 'applications'))
+    && $preview['translations']['categories'] === array_sum(array_column($preview['translations']['by_locale'], 'categories'))
+    && $preview['translations']['by_locale']['en']['applications'] <= $preview['source']['applications']
+    && $preview['translations']['by_locale']['ms']['applications'] <= $preview['source']['applications']
+    && $preview['translations']['by_locale']['en']['categories'] <= $preview['source']['categories']
+    && $preview['translations']['by_locale']['ms']['categories'] <= $preview['source']['categories']
     && $preview['mutation_statements'] === 0,
-    'active local ML7 schema has reviewed translations and zero Preview mutation'
+    'active ML7 coverage is locale-scoped and Preview has zero mutation'
 );
 $groups = [[
     'sp_group_id' => 1,

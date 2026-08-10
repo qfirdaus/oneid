@@ -92,6 +92,16 @@ try {
             'sp_description' => 'Original Description',
         ]],
     ]], 'en');
+    $loaded = $repository->read('application', 'APP1', 'en');
+    $noChange = $repository->save(
+        'application',
+        'APP1',
+        'en',
+        ['name' => 'English App', 'description' => 'English Description'],
+        1,
+        'ML7-ADMIN',
+        'Approved unchanged translation rehearsal'
+    );
     $staleRejected = false;
     try {
         $repository->save(
@@ -113,12 +123,16 @@ try {
         || $localized[0]['sp_group_name'] !== 'English Category'
         || $localized[0]['data'][0]['sp_name'] !== 'English App'
         || $localized[0]['data'][0]['sp_description'] !== 'English Description'
+        || $loaded['original_name'] !== 'Original App'
+        || $loaded['translation_exists'] !== true
+        || ($noChange['code'] ?? '') !== 'ML7_METADATA_NO_CHANGES'
+        || ($noChange['translation_version'] ?? 0) !== 1
         || !$staleRejected
         || $history !== 2
     ) {
         throw new RuntimeException('ML7_FORWARD_RECONCILIATION_FAILED');
     }
-    echo "PASS forward localized=yes audit=2 stale_rejected=yes originals_unchanged=yes\n";
+    echo "PASS forward localized=yes audit=2 no_change_suppressed=yes stale_rejected=yes originals_unchanged=yes\n";
 
     $pdo->exec((string) file_get_contents(
         $root . '/docs/migrations/20260725_ml7_metadata_translation_down.sql'
