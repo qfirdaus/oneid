@@ -107,6 +107,12 @@ $report(
     'record selector uses a modal-safe searchable Select2 control'
 );
 $report(
+    str_contains($admin, 'oneid-metadata-reason-chip')
+    && str_contains($admin, "data('metadata-reason')")
+    && str_contains($admin, "$('#metadata_change_reason').on('input'"),
+    'change reason offers localized presets while preserving custom input'
+);
+$report(
     !str_contains($repository, 'SYNC_')
     && !str_contains($repository, 'ODL_')
     && !str_contains($repository, 'AdminStepUp'),

@@ -422,8 +422,14 @@
                         </div>
                         <div class="form-group">
                            <label for="metadata_change_reason"><?=htmlspecialchars(oneid_translate('admin.metadata.reason'), ENT_QUOTES, 'UTF-8')?></label>
+                           <small class="oneid-metadata-reason-label"><?=htmlspecialchars(oneid_translate('admin.metadata.common_reasons'), ENT_QUOTES, 'UTF-8')?></small>
+                           <div class="oneid-metadata-reason-options" role="group" aria-label="<?=htmlspecialchars(oneid_translate('admin.metadata.common_reasons'), ENT_QUOTES, 'UTF-8')?>">
+                              <?php foreach (['reason_translation_fix','reason_wording','reason_terminology','reason_missing','reason_information'] as $metadata_reason_key): ?>
+                                 <button type="button" class="oneid-metadata-reason-chip" data-metadata-reason="<?=htmlspecialchars(oneid_translate('admin.metadata.' . $metadata_reason_key), ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars(oneid_translate('admin.metadata.' . $metadata_reason_key), ENT_QUOTES, 'UTF-8')?></button>
+                              <?php endforeach; ?>
+                           </div>
                            <textarea class="form-control" id="metadata_change_reason" minlength="10" maxlength="500" rows="2" required aria-describedby="metadata_change_reason_help"></textarea>
-                           <small class="help-block" id="metadata_change_reason_help"><?=htmlspecialchars(oneid_translate('admin.metadata.reason_required'), ENT_QUOTES, 'UTF-8')?></small>
+                           <small class="help-block" id="metadata_change_reason_help"><?=htmlspecialchars(oneid_translate('admin.metadata.reason_custom'), ENT_QUOTES, 'UTF-8')?> <?=htmlspecialchars(oneid_translate('admin.metadata.reason_required'), ENT_QUOTES, 'UTF-8')?></small>
                         </div>
                         <p class="help-block"><?=htmlspecialchars(oneid_translate('admin.metadata.fallback'), ENT_QUOTES, 'UTF-8')?></p>
                         <section class="oneid-metadata-governance" aria-labelledby="metadata_governance_heading">
@@ -2198,6 +2204,8 @@
             ].join(':');
             if(metadataReadRequest&&metadataReadRequest.readyState!==4){metadataReadRequest.abort();}
             $('#metadata_translation_save').prop('disabled',true);
+            $('#metadata_change_reason').val('');
+            $('.oneid-metadata-reason-chip').removeClass('is-selected').attr('aria-pressed','false');
             $('#metadata_translated_name,#metadata_translated_description').val('');
             $('#metadata_original_name,#metadata_original_description').text('—');
             $('#metadata_record_state').text(adminI18n.loading).removeClass('is-translated is-fallback');
@@ -2332,6 +2340,18 @@
          // 	new Switchery($(this)[0], $(this).data());
          // });
          $(document).ready(function() {
+            $('.oneid-metadata-reason-chip').attr('aria-pressed','false').on('click',function(){
+               $('.oneid-metadata-reason-chip').removeClass('is-selected').attr('aria-pressed','false');
+               $(this).addClass('is-selected').attr('aria-pressed','true');
+               $('#metadata_change_reason').val(String($(this).data('metadata-reason')||'')).focus();
+            });
+            $('#metadata_change_reason').on('input',function(){
+               var current=String($(this).val()||'');
+               $('.oneid-metadata-reason-chip').each(function(){
+                  var selected=current===String($(this).data('metadata-reason')||'');
+                  $(this).toggleClass('is-selected',selected).attr('aria-pressed',selected?'true':'false');
+               });
+            });
             $('#metadata_entity_type').on('change',function(){metadataEntityOptions();loadMetadataTranslation();});
             $('#metadata_entity_id, #metadata_locale').on('change',loadMetadataTranslation);
             $('#form_metadata_translation').on('submit',function(event){
@@ -2359,6 +2379,7 @@
                },function(response){
                   if(response&&Number(response.status)===1){
                      $('#metadata_change_reason').val('');
+                     $('.oneid-metadata-reason-chip').removeClass('is-selected').attr('aria-pressed','false');
                      $('#metadata_translation_version').val(Number(response.translation_version||0));
                      $('#metadata_translation_status')
                         .removeClass('alert-info alert-danger')
@@ -7699,6 +7720,41 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          margin: 5px 0 13px;
          color: #68798b;
          font-size: 12px;
+      }
+
+      #modal_metadata_translations .oneid-metadata-reason-label {
+         display: block;
+         margin: 1px 0 7px;
+         color: #748396;
+         font-size: 11px;
+      }
+
+      #modal_metadata_translations .oneid-metadata-reason-options {
+         display: flex;
+         flex-wrap: wrap;
+         margin-bottom: 10px;
+         gap: 7px;
+      }
+
+      #modal_metadata_translations .oneid-metadata-reason-chip {
+         padding: 6px 10px;
+         border: 1px solid #cfdce5;
+         border-radius: 999px;
+         background: #fff;
+         color: #526477;
+         font-size: 10px;
+         font-weight: 600;
+         line-height: 1.35;
+         transition: border-color .15s ease, background .15s ease, color .15s ease;
+      }
+
+      #modal_metadata_translations .oneid-metadata-reason-chip:hover,
+      #modal_metadata_translations .oneid-metadata-reason-chip:focus,
+      #modal_metadata_translations .oneid-metadata-reason-chip.is-selected {
+         border-color: #1598ca;
+         background: #eaf7fc;
+         color: #087eaf;
+         outline: none;
       }
 
       #modal_metadata_translations .oneid-metadata-body > hr {
