@@ -1,6 +1,6 @@
 # OneID v2.9.1 — Environment Banner
 
-**Tarikh:** 10 Ogos 2026  
+**Tarikh:** 10 Ogos 2026
 **Skop:** Penanda visual environment pada login dan permukaan authenticated utama.
 
 ## Ringkasan
