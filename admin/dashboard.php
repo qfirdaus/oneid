@@ -73,6 +73,7 @@
       <link href="../assetsM/css/sweetalert.css" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-admin-session.css?v=20260806-1" rel="stylesheet" type="text/css">
       <link href="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css">
+      <link href="../public/vendors/bower_components/select2/dist/css/select2.min.css?v=4.0.3" rel="stylesheet" type="text/css">
       <!-- Custom CSS -->
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
@@ -2037,6 +2038,7 @@
       <!-- JavaScript -->
       <!-- jQuery -->
       <script src="../vendors/bower_components/jquery/dist/jquery.min.js"></script>
+      <script src="../public/vendors/bower_components/select2/dist/js/select2.min.js?v=4.0.3"></script>
       <!-- Bootstrap Core JavaScript -->
       <script src="../vendors/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
       <!-- Counter Animation JavaScript -->
@@ -2151,6 +2153,9 @@
          }
          function metadataEntityOptions(){
             var type=String($('#metadata_entity_type').val()||'application');
+            var entitySelect=$('#metadata_entity_id');
+            var selectedEntity=String(entitySelect.val()||'');
+            if(entitySelect.hasClass('select2-hidden-accessible')){entitySelect.select2('destroy');}
             var seen={};var options='';
             $.each(Array.isArray(metadataWebAppGroups)?metadataWebAppGroups:[],function(_,group){
                if(type==='category'){
@@ -2169,7 +2174,15 @@
                   }
                });
             });
-            $('#metadata_entity_id').html(options);
+            entitySelect.html(options);
+            if(selectedEntity!==''&&entitySelect.find('option').filter(function(){return this.value===selectedEntity;}).length){
+               entitySelect.val(selectedEntity);
+            }
+            entitySelect.select2({
+               width:'100%',
+               dropdownParent:$('#modal_metadata_translations'),
+               minimumResultsForSearch:0
+            });
             $('#metadata_description_group').toggle(type==='application');
             $('#metadata_original_description_row').toggle(type==='application');
          }
@@ -7567,6 +7580,44 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #modal_metadata_translations .oneid-metadata-body .form-control:focus {
          border-color: #39aeda;
          box-shadow: 0 0 0 3px rgba(17, 168, 223, .10);
+      }
+
+      #modal_metadata_translations .select2-container {
+         width: 100% !important;
+      }
+
+      #modal_metadata_translations .select2-container--default .select2-selection--single {
+         height: 42px;
+         border-color: #d8e1e9;
+         border-radius: 6px;
+         background: #fff;
+      }
+
+      #modal_metadata_translations .select2-container--default .select2-selection--single .select2-selection__rendered {
+         padding-left: 12px;
+         color: #2f3b49;
+         line-height: 40px;
+      }
+
+      #modal_metadata_translations .select2-container--default .select2-selection--single .select2-selection__arrow {
+         height: 40px;
+         right: 7px;
+      }
+
+      #modal_metadata_translations .select2-container--default.select2-container--focus .select2-selection--single,
+      #modal_metadata_translations .select2-container--default.select2-container--open .select2-selection--single {
+         border-color: #39aeda;
+         box-shadow: 0 0 0 3px rgba(17, 168, 223, .10);
+      }
+
+      .select2-container--open {
+         z-index: 10060;
+      }
+
+      .select2-container--default .select2-search--dropdown .select2-search__field {
+         border: 1px solid #b9d7e4;
+         border-radius: 5px;
+         outline: none;
       }
 
       #modal_metadata_translations .oneid-metadata-original {
