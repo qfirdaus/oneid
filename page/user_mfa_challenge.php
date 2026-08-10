@@ -3,6 +3,7 @@ declare(strict_types=1);
 require_once __DIR__.'/../lib/session_security.php'; oneid_start_secure_session();
 require_once __DIR__.'/../lib/config.php';
 require_once __DIR__.'/../lib/request_security.php';
+require_once __DIR__.'/../lib/environment_banner.php';
 $transaction=(string)($_SESSION['user_mfa_pending_transaction']??'');
 $user=(string)($_SESSION['user_mfa_pending_user']??'');
 if($transaction===''||$user===''||oneid_is_authenticated()){header('Location: '.APP_URL.'/',true,303);exit;}
@@ -27,8 +28,8 @@ $totpUnavailableKey=$activeTotp?'stepup.unavailable':'stepup.not_registered';
 $h=static fn(string$key):string=>htmlspecialchars(oneid_translate($key),ENT_QUOTES,'UTF-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 ?><!doctype html><html lang="<?=htmlspecialchars(oneid_current_locale(),ENT_QUOTES,'UTF-8')?>"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?=$h('user_mfa.title.challenge')?> | OneID@UPNM</title><link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260730-5"></head>
-<body class="user-mfa-flow"><main class="mfa-shell"><aside class="mfa-brand"><img class="mfa-logo" src="../img/logo_oneid-1.png" alt="OneID@UPNM"><div class="mfa-brand-copy"><span class="mfa-eyebrow"><?=$h('stepup.protected_access')?></span><h1><?=$h('user_mfa.title.challenge')?></h1><p><?=$h('user_mfa.challenge.security_intro')?></p></div></aside>
+<title><?=$h('user_mfa.title.challenge')?> | OneID@UPNM</title><link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260730-5"><link rel="stylesheet" href="../dist/css/oneid-environment-banner.css?v=20260810-1"></head>
+<body class="user-mfa-flow<?=oneid_environment_body_class()?>"><?php oneid_render_environment_banner(); ?><main class="mfa-shell"><aside class="mfa-brand"><img class="mfa-logo" src="../img/logo_oneid-1.png" alt="OneID@UPNM"><div class="mfa-brand-copy"><span class="mfa-eyebrow"><?=$h('stepup.protected_access')?></span><h1><?=$h('user_mfa.title.challenge')?></h1><p><?=$h('user_mfa.challenge.security_intro')?></p></div></aside>
 <section class="mfa-content"><header class="mfa-top"><div><h2><?=$h('stepup.verify_identity')?></h2><p><?=$h('stepup.choose_available')?></p></div><span class="mfa-badge"><?=$h('user_mfa.security.badge')?></span></header><div id="message"></div>
 <section class="mfa-card"><h3><?=$h('stepup.method_title')?></h3><p class="mfa-intro"><?=$h('stepup.method_intro')?></p>
 <div class="mfa-field"><label for="factor"><?=$h('stepup.choose_method')?></label><select id="factor" class="mfa-control"><option value="EMAIL_OTP" <?=$preferredTotp?'':'selected'?>><?=$h('stepup.email_title')?></option><option value="TOTP" <?=$preferredTotp?'selected':''?> <?=$totp?'':'disabled'?>>Microsoft Authenticator<?=$totp?'':' — '.$h($totpUnavailableKey)?></option></select></div>

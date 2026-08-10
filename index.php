@@ -5,6 +5,7 @@ oneid_start_secure_session();
 require_once __DIR__ . '/lib/request_security.php';
 require_once __DIR__ . '/lib/SSO_IDP_INC.php';
 require_once __DIR__ . '/lib/shared_faq.php';
+require_once __DIR__ . '/lib/environment_banner.php';
 require_once __DIR__ . '/app/LoginBanner/LoginBannerPersistenceException.php';
 require_once __DIR__ . '/app/LoginBanner/LoginBannerPersistenceInterface.php';
 require_once __DIR__ . '/app/LoginBanner/PdoLoginBannerPersistence.php';
@@ -80,11 +81,13 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
   <link rel="stylesheet" href="assetsM/css/custom.css" />
   <link rel="stylesheet" href="vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" />
   <link rel="stylesheet" href="assetsM/css/sweetalert.css" />
+  <link rel="stylesheet" href="dist/css/oneid-environment-banner.css?v=20260810-1" />
   <link href="https://fonts.googleapis.com/css2?family=Moon+Dance&display=swap" rel="stylesheet" />
 
 </head>
 
-<body class="login-container">
+<body class="login-container<?=oneid_environment_body_class()?>">
+<?php oneid_render_environment_banner(); ?>
 <div class="container py-5">
   <div class="row shadow-lg rounded-4 overflow-hidden" style="background: white;">
   

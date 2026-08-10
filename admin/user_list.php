@@ -4,6 +4,7 @@ oneid_start_secure_session();
 require_once __DIR__ . '/../lib/config.php';
 require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
 require_once __DIR__ . '/../lib/request_security.php';
+require_once __DIR__ . '/../lib/environment_banner.php';
 oneid_require_admin_page();
 oneid_require_active_sso_page($operation);
 oneid_require_admin_step_up($operation, 'ADMIN_ACCESS', false);
@@ -33,6 +34,7 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
     <title><?=$escape(oneid_translate('admin.user_list.title'))?> · OneID UPNM</title>
     <link href="../assetsM/css/sweetalert.css" rel="stylesheet" type="text/css">
     <link href="../dist/css/oneid-admin-session.css?v=20260806-1" rel="stylesheet" type="text/css">
+    <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
     <style>
         :root {
             --ink: #10233f;
@@ -165,7 +167,8 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
         }
     </style>
 </head>
-<body>
+<body class="<?=trim(oneid_environment_body_class())?>">
+<?php oneid_render_environment_banner(); ?>
 <main class="report-shell">
     <div class="screen-toolbar" aria-label="Report actions">
         <p><?=$escape(oneid_translate('admin.user_list.preview_help'))?></p>

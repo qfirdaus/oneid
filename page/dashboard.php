@@ -6,6 +6,7 @@
    require_once __DIR__ . '/../lib/request_security.php';
    require_once __DIR__ . '/../lib/shared_faq.php';
    require_once __DIR__ . '/../lib/user_session_presentation.php';
+   require_once __DIR__ . '/../lib/environment_banner.php';
    require_once __DIR__ . '/../app/Auth/UserMfa/UserLoginMfaPolicy.php';
    require_once __DIR__ . '/../app/Auth/UserMfa/PdoUserMfaPolicyReader.php';
    oneid_require_authenticated_page();
@@ -66,6 +67,7 @@
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260805-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
 
       <style>
       /* Keep navbar on top */
@@ -120,7 +122,8 @@
 
       </style>
    </head>
-   <body>
+   <body class="<?=trim(oneid_environment_body_class())?>">
+      <?php oneid_render_environment_banner(); ?>
       <div id="adminEntryLoader" class="admin-entry-loader" role="status" aria-live="polite" aria-hidden="true"><div class="admin-entry-loader-card"><div class="admin-entry-loader-shield"><i class="fa fa-lock"></i></div><div class="admin-entry-loader-ring"></div><p class="admin-entry-loader-title"><?=htmlspecialchars(oneid_translate('dashboard.admin_check_title'), ENT_QUOTES, 'UTF-8')?></p><p class="admin-entry-loader-text"><?=htmlspecialchars(oneid_translate('dashboard.admin_check_text'), ENT_QUOTES, 'UTF-8')?></p></div></div>
       <!--Preloader-->
       <div class="preloader-it">

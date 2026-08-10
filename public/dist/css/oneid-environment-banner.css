@@ -1,0 +1,75 @@
+:root {
+  --oneid-environment-banner-height: 30px;
+}
+
+.oneid-environment-visible {
+  padding-top: var(--oneid-environment-banner-height) !important;
+}
+
+.oneid-environment-banner {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 9998;
+  min-height: var(--oneid-environment-banner-height);
+  padding: 6px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #fff;
+  font: 600 12px/18px Inter, "Segoe UI", Arial, sans-serif;
+  letter-spacing: .1px;
+  text-align: center;
+  box-shadow: 0 1px 5px rgba(15, 23, 42, .22);
+}
+
+.oneid-environment-banner strong {
+  font-size: 11px;
+  letter-spacing: .65px;
+}
+
+.oneid-environment-banner--development {
+  background: #3157a4;
+}
+
+.oneid-environment-banner--staging {
+  background: #a84f08;
+}
+
+.oneid-environment-banner--warning {
+  background: #a1122f;
+}
+
+.oneid-environment-visible .navbar-fixed-top {
+  top: var(--oneid-environment-banner-height) !important;
+}
+
+@media (max-width: 600px) {
+  :root {
+    --oneid-environment-banner-height: 42px;
+  }
+
+  .oneid-environment-banner {
+    padding: 5px 10px;
+    flex-wrap: wrap;
+    align-content: center;
+    gap: 0 5px;
+    font-size: 10px;
+    line-height: 14px;
+  }
+
+  .oneid-environment-banner strong {
+    width: 100%;
+    font-size: 10px;
+  }
+}
+
+@media print {
+  .oneid-environment-visible {
+    padding-top: 0 !important;
+  }
+
+  .oneid-environment-banner {
+    display: none !important;
+  }
+}

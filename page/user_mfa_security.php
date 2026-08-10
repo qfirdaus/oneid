@@ -8,6 +8,7 @@ require_once __DIR__ . '/../lib/config.php';
 require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
 require_once __DIR__ . '/../lib/request_security.php';
 require_once __DIR__ . '/../lib/user_session_presentation.php';
+require_once __DIR__ . '/../lib/environment_banner.php';
 require_once __DIR__ . '/../app/Auth/UserMfa/UserLoginMfaPolicy.php';
 require_once __DIR__ . '/../app/Auth/UserMfa/PdoUserMfaPolicyReader.php';
 
@@ -75,8 +76,10 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
   <link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260730-5">
   <link rel="stylesheet" href="../dist/css/user-mfa-security.css?v=20260731-1">
   <link rel="stylesheet" href="../dist/css/oneid-user-session.css?v=20260808-2">
+  <link rel="stylesheet" href="../dist/css/oneid-environment-banner.css?v=20260810-1">
 </head>
-<body class="user-mfa-flow account-security-page">
+<body class="user-mfa-flow account-security-page<?=oneid_environment_body_class()?>">
+<?php oneid_render_environment_banner(); ?>
 <main class="mfa-shell">
   <aside class="mfa-brand">
     <img class="mfa-logo" src="../img/logo_oneid-1.png" alt="OneID@UPNM">

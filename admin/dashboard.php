@@ -5,6 +5,7 @@
    //return;
    require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
    require_once __DIR__ . '/../lib/request_security.php';
+   require_once __DIR__ . '/../lib/environment_banner.php';
    require_once __DIR__ . '/../app/Documentation/ApprovedReleaseCatalogue.php';
    require_once __DIR__ . '/../app/Auth/AdminStepUpReturnContext.php';
    oneid_require_admin_page();
@@ -79,8 +80,10 @@
       <link href="../dist/css/oneid-login-banner-admin.css?v=20260801-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-configuration-navigation.css?v=20260801-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-admin-profile.css?v=20260805-3" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
    </head>
-   <body>
+   <body class="<?=trim(oneid_environment_body_class())?>">
+      <?php oneid_render_environment_banner(); ?>
       <!--Preloader-->
       <div class="preloader-it">
          <div class="la-anim-1"></div>
