@@ -101,7 +101,7 @@ $report(
     'Administrator editor rejects stale reads and displays locale-scoped coverage'
 );
 $report(
-    str_contains($admin, 'select2.min.js?v=4.0.3')
+    str_contains($admin, '../vendors/bower_components/select2/dist/js/select2.min.js?v=4.0.3')
     && str_contains($admin, "entitySelect.select2({")
     && str_contains($admin, "dropdownParent:$('#modal_metadata_translations')"),
     'record selector uses a modal-safe searchable Select2 control'
