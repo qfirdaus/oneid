@@ -31,6 +31,11 @@ $check(str_contains($localMarkup, 'DEVELOPMENT ENVIRONMENT'), 'development marku
 $check(!str_contains($localMarkup, '<script'), 'banner requires no script');
 
 $root = dirname(__DIR__);
+$stylesheet = (string) file_get_contents($root . '/public/dist/css/oneid-environment-banner.css');
+$check(
+    str_contains($stylesheet, 'linear-gradient(118deg, #075b9a 0%, #087fbd 58%, #09a3c6 100%)'),
+    'staging uses the approved MyDigital ID gradient'
+);
 $surfaces = [
     'index.php',
     'page/dashboard.php',
