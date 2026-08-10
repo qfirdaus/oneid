@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @return null|array{mode:string,label:string,message:string}
  */
-function oneid_environment_banner_state(?string $environment = null): ?array
+function oneid_environment_banner_state(?string $environment = null, ?string $locale = null): ?array
 {
     $environment ??= (string) oneid_config('ONEID_ENVIRONMENT', '');
     $environment = strtolower(trim($environment));
@@ -14,20 +14,51 @@ function oneid_environment_banner_state(?string $environment = null): ?array
         'production' => null,
         'local', 'development' => [
             'mode' => 'development',
-            'label' => 'DEVELOPMENT ENVIRONMENT',
-            'message' => 'Sistem ini untuk pembangunan dan ujian sahaja',
+            'label' => oneid_environment_banner_copy(
+                'environment_banner.development.label',
+                'DEVELOPMENT ENVIRONMENT',
+                $locale
+            ),
+            'message' => oneid_environment_banner_copy(
+                'environment_banner.development.message',
+                'This system is for development and testing only',
+                $locale
+            ),
         ],
         'staging' => [
             'mode' => 'staging',
-            'label' => 'STAGING ENVIRONMENT',
-            'message' => 'Sistem ini bukan persekitaran production',
+            'label' => oneid_environment_banner_copy(
+                'environment_banner.staging.label',
+                'STAGING ENVIRONMENT',
+                $locale
+            ),
+            'message' => oneid_environment_banner_copy(
+                'environment_banner.staging.message',
+                'This is not the production environment',
+                $locale
+            ),
         ],
         default => [
             'mode' => 'warning',
-            'label' => 'ENVIRONMENT NOT CONFIGURED',
-            'message' => 'Sahkan konfigurasi runtime sebelum meneruskan',
+            'label' => oneid_environment_banner_copy(
+                'environment_banner.warning.label',
+                'ENVIRONMENT NOT CONFIGURED',
+                $locale
+            ),
+            'message' => oneid_environment_banner_copy(
+                'environment_banner.warning.message',
+                'Verify the runtime configuration before continuing',
+                $locale
+            ),
         ],
     };
+}
+
+function oneid_environment_banner_copy(string $key, string $fallback, ?string $locale = null): string
+{
+    return function_exists('oneid_translate')
+        ? oneid_translate($key, [], $locale)
+        : $fallback;
 }
 
 function oneid_environment_body_class(?string $environment = null): string
@@ -37,9 +68,9 @@ function oneid_environment_body_class(?string $environment = null): string
         : ' oneid-environment-visible';
 }
 
-function oneid_render_environment_banner(?string $environment = null): void
+function oneid_render_environment_banner(?string $environment = null, ?string $locale = null): void
 {
-    $state = oneid_environment_banner_state($environment);
+    $state = oneid_environment_banner_state($environment, $locale);
     if ($state === null) {
         return;
     }

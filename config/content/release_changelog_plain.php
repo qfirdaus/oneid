@@ -12,7 +12,7 @@ return array_values(array (
     'date' => '2026-08-10',
     'bm' =>
     array (
-      0 => 'OneID kini memaparkan penanda environment yang berterusan pada halaman login dan permukaan utama selepas login.',
+      0 => 'OneID kini memaparkan penanda environment BM/English yang berterusan pada halaman login dan permukaan utama selepas login mengikut locale aktif.',
       1 => 'Runtime local dan development memaparkan label DEVELOPMENT ENVIRONMENT dengan identiti gradient teal yang khusus.',
       2 => 'Runtime staging memaparkan label STAGING ENVIRONMENT menggunakan gradient rasmi yang selaras dengan butang MyDigital ID.',
       3 => 'Runtime production tidak menghasilkan sebarang markup banner supaya pengalaman pengguna production kekal bersih.',
@@ -25,7 +25,7 @@ return array_values(array (
     ),
     'en' =>
     array (
-      0 => 'OneID now displays a persistent environment indicator on the login page and the primary authenticated surfaces.',
+      0 => 'OneID now displays a persistent BM/English environment indicator on the login page and primary authenticated surfaces according to the active locale.',
       1 => 'Local and development runtimes display DEVELOPMENT ENVIRONMENT with a dedicated teal gradient identity.',
       2 => 'The staging runtime displays STAGING ENVIRONMENT using the official gradient aligned with the MyDigital ID button.',
       3 => 'The production runtime emits no banner markup, keeping the production user experience clean.',

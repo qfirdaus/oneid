@@ -31,6 +31,27 @@ $check(str_contains($localMarkup, 'DEVELOPMENT ENVIRONMENT'), 'development marku
 $check(!str_contains($localMarkup, '<script'), 'banner requires no script');
 
 $root = dirname(__DIR__);
+$msCatalogue = require $root . '/config/locales/ms.php';
+$enCatalogue = require $root . '/config/locales/en.php';
+$localeKeys = [
+    'environment_banner.development.label',
+    'environment_banner.development.message',
+    'environment_banner.staging.label',
+    'environment_banner.staging.message',
+    'environment_banner.warning.label',
+    'environment_banner.warning.message',
+];
+$check(
+    array_diff($localeKeys, array_keys($msCatalogue)) === []
+        && array_diff($localeKeys, array_keys($enCatalogue)) === [],
+    'BM and English catalogues contain every environment banner key'
+);
+$check(
+    count(array_unique(array_map(static fn (string $key): string => $msCatalogue[$key], $localeKeys))) === count($localeKeys)
+        && count(array_unique(array_map(static fn (string $key): string => $enCatalogue[$key], $localeKeys))) === count($localeKeys),
+    'BM and English environment banner copy is complete'
+);
+
 $stylesheet = (string) file_get_contents($root . '/public/dist/css/oneid-environment-banner.css');
 $check(
     str_contains($stylesheet, 'linear-gradient(118deg, #075e68 0%, #087f8c 58%, #13a3ad 100%)'),

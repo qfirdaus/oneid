@@ -965,4 +965,10 @@ return [
     'user_session.inactive_body' => 'Akaun OneID ini tidak lagi aktif.',
     'user_session.request_failed' => 'Status sesi tidak dapat disahkan. Sambungan akan dicuba semula.',
     'user_session.ok' => 'OK',
+    'environment_banner.development.label' => 'PERSEKITARAN PEMBANGUNAN',
+    'environment_banner.development.message' => 'Sistem ini untuk pembangunan dan ujian sahaja',
+    'environment_banner.staging.label' => 'PERSEKITARAN STAGING',
+    'environment_banner.staging.message' => 'Sistem ini bukan persekitaran production',
+    'environment_banner.warning.label' => 'ENVIRONMENT BELUM DIKONFIGURASI',
+    'environment_banner.warning.message' => 'Sahkan konfigurasi runtime sebelum meneruskan',
 ];

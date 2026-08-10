@@ -7,6 +7,7 @@
 
 - Local/development menggunakan gradient teal dan label `DEVELOPMENT ENVIRONMENT`.
 - Staging menggunakan gradient MyDigital ID dan label `STAGING ENVIRONMENT`.
+- Label dan mesej bertukar antara Bahasa Melayu dan English mengikut locale aktif.
 - Production tidak menghasilkan markup banner.
 - Runtime kosong atau tidak dikenali menghasilkan amaran konfigurasi.
 - Tiada perubahan database, secret, autentikasi, Sync Apply atau integrasi luar.

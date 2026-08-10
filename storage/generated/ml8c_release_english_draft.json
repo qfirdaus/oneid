@@ -13,8 +13,8 @@
             "items": [
                 {
                     "identity": "release:2.9.1:item:001",
-                    "bm": "OneID kini memaparkan penanda environment yang berterusan pada halaman login dan permukaan utama selepas login.",
-                    "en_draft": "OneID now displays a persistent environment indicator on the login page and the primary authenticated surfaces.",
+                    "bm": "OneID kini memaparkan penanda environment BM/English yang berterusan pada halaman login dan permukaan utama selepas login mengikut locale aktif.",
+                    "en_draft": "OneID now displays a persistent BM/English environment indicator on the login page and primary authenticated surfaces according to the active locale.",
                     "review_status": "APPROVED"
                 },
                 {
@@ -2512,5 +2512,5 @@
             ]
         }
     ],
-    "manifest_digest": "dd0f1d0b14510ee4a1863e1c191a2c11113aa76cade772d1cf9fda6ceafee8c4"
+    "manifest_digest": "8b2419456946863e27a327a05db28e31ce0898de3f6483bf811aadb131750189"
 }

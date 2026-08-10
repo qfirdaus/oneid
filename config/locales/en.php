@@ -965,4 +965,10 @@ return [
     'user_session.inactive_body' => 'This OneID account is no longer active.',
     'user_session.request_failed' => 'Session status could not be confirmed. The connection will be retried.',
     'user_session.ok' => 'OK',
+    'environment_banner.development.label' => 'DEVELOPMENT ENVIRONMENT',
+    'environment_banner.development.message' => 'This system is for development and testing only',
+    'environment_banner.staging.label' => 'STAGING ENVIRONMENT',
+    'environment_banner.staging.message' => 'This is not the production environment',
+    'environment_banner.warning.label' => 'ENVIRONMENT NOT CONFIGURED',
+    'environment_banner.warning.message' => 'Verify the runtime configuration before continuing',
 ];
