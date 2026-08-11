@@ -326,6 +326,8 @@ return [
     'admin.sessions.heartbeat' => 'Aktiviti terakhir',
     'admin.sessions.activity' => 'Aktiviti sesi',
     'admin.sessions.user_id' => 'ID pengguna',
+    'admin.sessions.staff_no' => 'No. staf',
+    'admin.sessions.matric_no' => 'No. matrik',
     'admin.sessions.user' => 'Pengguna',
     'admin.sessions.device' => 'Peranti',
     'admin.sessions.status' => 'Status',

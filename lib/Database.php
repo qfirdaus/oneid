@@ -1628,7 +1628,8 @@ class Database {
             ':search_value'=>$search===''?'':'%'.$search.'%',
             ':requested_status'=>(string)($filters['status']??'all'),
         ];
-        $base="SELECT A.user_id,COALESCE(NULLIF(B.data1,''),A.user_id) AS name,A.device_info,B.u_type,
+        $base="SELECT A.user_id,COALESCE(NULLIF(B.data1,''),A.user_id) AS name,A.device_info,B.u_type,B.u_category,
+                     CASE WHEN B.u_category IN (2,3) THEN NULLIF(TRIM(B.data3),'') ELSE NULLIF(TRIM(B.data4),'') END AS public_user_id,
                      A.token_id AS internal_token_id,
                      A.token_issued_at AS issued_at,A.token_datetime AS last_activity_at,
                      A.policy_revoke_at AS revoke_at,P.search_value,P.requested_status,
@@ -1653,17 +1654,19 @@ class Database {
               WHERE A.status=1";
         $filtered=" FROM (".$base.") S
                     WHERE (S.search_value='' OR S.user_id LIKE S.search_value ESCAPE '\\\\'
+                           OR S.public_user_id LIKE S.search_value ESCAPE '\\\\'
                            OR S.name LIKE S.search_value ESCAPE '\\\\'
                            OR S.device_info LIKE S.search_value ESCAPE '\\\\')
                       AND (S.requested_status='all' OR S.lifecycle_status=S.requested_status)";
         $count=$this->pdo->prepare('SELECT COUNT(*)'.$filtered);$count->execute($params);$total=(int)$count->fetchColumn();
         $metricSql="SELECT lifecycle_status,COUNT(*) total FROM (".$base.") M
                     WHERE (M.search_value='' OR M.user_id LIKE M.search_value ESCAPE '\\\\'
+                           OR M.public_user_id LIKE M.search_value ESCAPE '\\\\'
                            OR M.name LIKE M.search_value ESCAPE '\\\\'
                            OR M.device_info LIKE M.search_value ESCAPE '\\\\') GROUP BY lifecycle_status";
         $metricStatement=$this->pdo->prepare($metricSql);$metricStatement->execute($params);$metrics=[];
         foreach($metricStatement->fetchAll(PDO::FETCH_ASSOC) as$metric)$metrics[(string)$metric['lifecycle_status']]=(int)$metric['total'];
-        $rows=$this->pdo->prepare('SELECT user_id,name,device_info,u_type,internal_token_id,issued_at,last_activity_at,revoke_at,lifecycle_status,CASE WHEN user_id=:row_current_user_id AND (internal_token_id=:row_current_token_hash OR internal_token_id=:row_current_token) THEN 1 ELSE 0 END AS is_current'.$filtered.' ORDER BY last_activity_at DESC,user_id ASC LIMIT '.$pageSize.' OFFSET '.$offset);
+        $rows=$this->pdo->prepare('SELECT user_id,name,device_info,u_type,u_category,public_user_id,internal_token_id,issued_at,last_activity_at,revoke_at,lifecycle_status,CASE WHEN user_id=:row_current_user_id AND (internal_token_id=:row_current_token_hash OR internal_token_id=:row_current_token) THEN 1 ELSE 0 END AS is_current'.$filtered.' ORDER BY last_activity_at DESC,user_id ASC LIMIT '.$pageSize.' OFFSET '.$offset);
         $params[':row_current_user_id']=$params[':current_user_id'];$params[':row_current_token_hash']=$params[':current_token_hash'];$params[':row_current_token']=$params[':current_token'];
         $rows->execute($params);
         return ['rows'=>$rows->fetchAll(PDO::FETCH_ASSOC),'total'=>$total,'metrics'=>$metrics];

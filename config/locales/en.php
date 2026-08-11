@@ -326,6 +326,8 @@ return [
     'admin.sessions.heartbeat' => 'Last Heartbeat',
     'admin.sessions.activity' => 'Session Activity',
     'admin.sessions.user_id' => 'User ID',
+    'admin.sessions.staff_no' => 'Staff No.',
+    'admin.sessions.matric_no' => 'Matric No.',
     'admin.sessions.user' => 'User',
     'admin.sessions.device' => 'Device',
     'admin.sessions.status' => 'Status',

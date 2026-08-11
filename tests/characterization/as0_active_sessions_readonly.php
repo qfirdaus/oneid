@@ -17,7 +17,7 @@ final class As0Operation
     {
         $this->reads++;$this->filters=$filters;
         return ['total'=>1,'metrics'=>['current'=>1,'active'=>0,'refresh'=>0,'grace'=>0,'due'=>0,'expired'=>0],'rows'=>[[
-            'user_id'=>'USER-1','name'=>'Example User','device_info'=>'Desktop',
+            'user_id'=>'IC-MUST-NOT-DISPLAY','public_user_id'=>'0530-09','u_category'=>2,'name'=>'Example User','device_info'=>'Desktop',
             'issued_at'=>'2026-07-18 10:00:00','last_activity_at'=>'2026-07-18 10:10:00',
             'revoke_at'=>null,'lifecycle_status'=>'current','token_id'=>'must-not-project',
         ]]];
@@ -33,6 +33,7 @@ $report($operation->reads===1&&$operation->mutations===0,'listing performs one b
 $report(($operation->filters['offset']??-1)===0&&($operation->filters['page_size']??0)===25,'page and page size are server normalized');
 $report(($operation->filters['current_token_hash']??'')===hash('sha256','raw-token'),'current token comparison uses a server-side hash');
 $report(($result['data'][0]['status']??'')==='current'&&($result['meta']['total']??0)===1,'response projects lifecycle state and pagination metadata');
+$report(($result['data'][0]['public_user_id']??'')==='0530-09'&&($result['data'][0]['public_user_id_type']??'')==='staff','response projects the staff number and its identity type');
 $report(($result['meta']['metrics']['current']??0)===1&&array_key_exists('refresh',$result['meta']['metrics']),'response includes complete lifecycle metrics');
 $report(!array_key_exists('token_id',$result['data'][0]),'token material is absent from the response projection');
 $report($reason(fn()=>$service->list(['page'=>'1','page_size'=>'100','status'=>'all'],'','',0.5))==='AS0_PAGE_SIZE_INVALID','page size outside the allowlist is rejected');

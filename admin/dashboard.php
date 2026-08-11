@@ -5612,7 +5612,8 @@
 						var issuedAt = sessionText(admin_format_datetime(session.issued_at));
 						var lastActivity = sessionText(admin_format_datetime(session.last_activity_at));
 						var userName = sessionText(session.name);
-						var userId = sessionText(session.user_id);
+						var publicUserId = sessionText(session.public_user_id || '-');
+						var publicUserIdLabel = session.public_user_id_type === 'staff' ? adminText('admin.sessions.staff_no') : adminText('admin.sessions.matric_no');
 						var deviceInfo = sessionText(session.device_info);
 						var status = statusMap[session.status] || statusMap.expired;
 						var statusTitle = status.label;
@@ -5622,7 +5623,7 @@
 
 						rows += '<tr>';
 						var photoUrl = '../page/profile-photo.php?user_id=' + encodeURIComponent(session.user_id == null ? '' : String(session.user_id));
-						rows += '<td data-label="'+adminText('admin.sessions.user')+'"><span class="active-session-user-card" title="'+sessionAttribute(userName+' ('+userId+')')+'"><span class="active-session-avatar"><img src="'+sessionAttribute(photoUrl)+'" alt="" width="34" height="34" loading="lazy" decoding="async"></span><span class="active-session-user-copy"><strong>'+userName+'</strong><small><span>'+adminText('admin.sessions.user_id')+'</span>'+userId+'</small></span></span></td>';
+						rows += '<td data-label="'+adminText('admin.sessions.user')+'"><span class="active-session-user-card" title="'+sessionAttribute(userName+' ('+publicUserIdLabel+' '+publicUserId+')')+'"><span class="active-session-avatar"><img src="'+sessionAttribute(photoUrl)+'" alt="" width="30" height="30" loading="lazy" decoding="async"></span><span class="active-session-user-copy"><strong>'+userName+'</strong><small><span>'+publicUserIdLabel+'</span>'+publicUserId+'</small></span></span></td>';
 						rows += '<td data-label="'+adminText('admin.sessions.activity')+'"><span class="active-session-timeline"><span><small>'+adminText('admin.sessions.issued')+'</small><time title="'+sessionAttribute(issuedAt)+'">'+issuedAt+'</time></span><span><small>'+adminText('admin.sessions.heartbeat')+'</small><time title="'+sessionAttribute(lastActivity)+'">'+lastActivity+'</time></span></span></td>';
 						rows += '<td data-label="'+adminText('admin.sessions.device')+'"><span class="active-session-cell active-session-device" title="'+sessionAttribute(deviceInfo)+'"><i class="fa fa-desktop" aria-hidden="true"></i>'+deviceInfo+'</span></td>';
 						rows += '<td data-label="'+adminText('admin.sessions.status')+'"><span class="active-session-status is-'+session.status+'" title="'+sessionAttribute(statusTitle)+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+'</span></span>'+(session.revocation_target_id?'<button type="button" class="active-session-revoke" data-revocation-target="'+sessionAttribute(session.revocation_target_id)+'"><i class="fa fa-ban" aria-hidden="true"></i> '+adminText('admin.sessions.revoke')+'</button>':'')+'</td>';
@@ -8781,13 +8782,13 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         border-collapse: collapse;
       }
 
-      #tab_active_sessions .active-col-user { width: 28%; }
-      #tab_active_sessions .active-col-activity { width: 31%; }
-      #tab_active_sessions .active-col-device { width: 26%; }
+      #tab_active_sessions .active-col-user { width: 27%; }
+      #tab_active_sessions .active-col-activity { width: 34%; }
+      #tab_active_sessions .active-col-device { width: 24%; }
       #tab_active_sessions .active-col-status { width: 15%; }
 
       #tab_active_sessions .active-session-table thead th {
-        padding: 11px 14px;
+        padding: 9px 10px;
         border: 0;
         border-bottom: 1px solid #e8ecf1;
         background: #f8fafc;
@@ -8802,7 +8803,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_active_sessions .active-session-table tbody td {
-        padding: 11px 14px;
+        padding: 8px 10px;
         overflow: hidden;
         border: 0;
         border-bottom: 1px solid #edf0f4;
@@ -8845,9 +8846,9 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_active_sessions .active-session-avatar {
-        flex: 0 0 34px;
-        width: 34px;
-        height: 34px;
+        flex: 0 0 30px;
+        width: 30px;
+        height: 30px;
         padding: 2px;
         margin: 0 9px 0 0;
         overflow: hidden;
@@ -8902,12 +8903,12 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #tab_active_sessions .active-session-timeline {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
+        gap: 5px;
       }
 
       #tab_active_sessions .active-session-timeline > span {
         min-width: 0;
-        padding-left: 9px;
+        padding-left: 6px;
         border-left: 2px solid #dceaf2;
       }
 

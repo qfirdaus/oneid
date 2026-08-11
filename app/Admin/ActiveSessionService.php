@@ -71,8 +71,11 @@ final class ActiveSessionService
                 throw new InvalidArgumentException('AS0_RESULT_INVALID');
             }
             $revokeAt = $row['revoke_at'] ?? null;
+            $isStaff = in_array((int) ($row['u_category'] ?? 0), [2, 3], true);
             $rows[] = [
                 'user_id' => (string) ($row['user_id'] ?? ''),
+                'public_user_id' => trim((string) ($row['public_user_id'] ?? '')) ?: '-',
+                'public_user_id_type' => $isStaff ? 'staff' : 'student',
                 'name' => trim((string) ($row['name'] ?? '')) ?: 'Unknown user',
                 'device_info' => $this->normalizeDevice($row['device_info'] ?? ''),
                 'issued_at' => (string) ($row['issued_at'] ?? ''),
