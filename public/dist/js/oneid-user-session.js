@@ -5,6 +5,7 @@
     if (!config || !config.enabled || typeof window.swal !== 'function' || typeof window.fetch !== 'function') {
         return;
     }
+    var sessionSwal = window.swal;
 
     var deadlineMs = 0;
     var warningTimer = null;
@@ -14,6 +15,7 @@
     var requestPending = false;
     var resyncRequested = false;
     var ending = false;
+    var terminalDialogOpen = false;
     var channel = typeof window.BroadcastChannel === 'function'
         ? new window.BroadcastChannel('oneid-user-portal-session')
         : null;
@@ -84,13 +86,17 @@
     }
 
     function terminalMessage(code) {
+        if (terminalDialogOpen) {
+            return;
+        }
+        terminalDialogOpen = true;
         ending = true;
         clearTimers();
         clearSensitiveInputs();
         var body = code === 'SSO_TOKEN_REVOKED'
             ? config.text.revokedBody
             : (code === 'ACCOUNT_INACTIVE' ? config.text.inactiveBody : config.text.expiredBody);
-        window.swal({
+        sessionSwal({
             title: config.text.expiredTitle,
             text: body,
             type: 'warning',
@@ -217,7 +223,7 @@
             return;
         }
         warningOpen = true;
-        window.swal({
+        sessionSwal({
             title: config.text.warningTitle,
             text: config.text.warningBody,
             type: 'warning',
@@ -244,9 +250,9 @@
         var remaining = Math.max(0, Number(payload.effective_remaining_seconds) || 0);
         if (warningOpen
             && remaining > Number(config.warningSeconds || 120)
-            && typeof window.swal.close === 'function'
+            && typeof sessionSwal.close === 'function'
         ) {
-            window.swal.close();
+            sessionSwal.close();
             warningOpen = false;
         }
         deadlineMs = Date.now() + (remaining * 1000);
@@ -302,13 +308,19 @@
         post('user_session_renew').then(function (payload) {
             requestPending = false;
             try { window.sessionStorage.removeItem('oneid-user-session-csrf-retried'); } catch (ignored) {}
+            if (typeof sessionSwal.close === 'function') {
+                sessionSwal.close();
+            }
             warningOpen = false;
             schedule(payload);
             broadcast('renewed');
-            window.swal({
-                title: config.text.renewedTitle,
-                text: config.text.renewedBody,
-                type: 'success',
+            var absoluteLimited = Number(payload.absolute_remaining_seconds || 0)
+                <= Number(payload.idle_remaining_seconds || 0)
+                && Number(payload.effective_remaining_seconds || 0) <= Number(config.warningSeconds || 120);
+            sessionSwal({
+                title: absoluteLimited ? config.text.absoluteLimitTitle : config.text.renewedTitle,
+                text: absoluteLimited ? config.text.absoluteLimitBody : config.text.renewedBody,
+                type: absoluteLimited ? 'warning' : 'success',
                 confirmButtonText: config.text.ok,
                 showConfirmButton: true,
                 closeOnConfirm: true
@@ -349,8 +361,8 @@
         if (message.type === 'ended') {
             redirectToLanding();
         } else if (message.type === 'renewed') {
-            if (warningOpen && typeof window.swal.close === 'function') {
-                window.swal.close();
+            if (warningOpen && typeof sessionSwal.close === 'function') {
+                sessionSwal.close();
                 warningOpen = false;
             }
             synchronize(true);

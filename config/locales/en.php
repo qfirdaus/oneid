@@ -968,6 +968,8 @@ return [
     'user_session.end_session' => 'End OneID Session',
     'user_session.renewed_title' => 'Session renewed',
     'user_session.renewed_body' => 'Your OneID portal session has been renewed.',
+    'user_session.absolute_limit_title' => 'Maximum session limit approaching',
+    'user_session.absolute_limit_body' => 'This session cannot be extended further. Save your work and sign in again when the session ends.',
     'user_session.expired_title' => 'OneID session ended',
     'user_session.expired_body' => 'Your OneID portal session has ended. Sign in again to continue.',
     'user_session.revoked_body' => 'Access for this OneID session is no longer active.',

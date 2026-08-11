@@ -968,6 +968,8 @@ return [
     'user_session.end_session' => 'Tamatkan Sesi OneID',
     'user_session.renewed_title' => 'Sesi telah disambung',
     'user_session.renewed_body' => 'Sesi portal OneID anda telah diperbaharui.',
+    'user_session.absolute_limit_title' => 'Had maksimum sesi hampir dicapai',
+    'user_session.absolute_limit_body' => 'Sesi ini tidak boleh dilanjutkan lagi. Sila simpan kerja anda dan log masuk semula apabila sesi tamat.',
     'user_session.expired_title' => 'Sesi OneID telah tamat',
     'user_session.expired_body' => 'Sesi portal OneID telah tamat. Sila log masuk semula untuk meneruskan.',
     'user_session.revoked_body' => 'Akses sesi OneID ini tidak lagi aktif.',
