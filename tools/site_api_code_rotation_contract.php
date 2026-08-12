@@ -57,9 +57,9 @@ $report(str_contains($ui,"response['site_api_code']")&&str_contains($ui,'Legacy 
 $appModalCss=(string)file_get_contents(dirname(__DIR__).'/public/dist/css/oneid-web-app-modal.css');
 $report(str_contains($ui,'modal-lg oneid-app-info-dialog')&&str_contains($ui,'oneid-sync-child-header oneid-app-info-header'),'App Info reuses the wide Metadata Translation modal language');
 $report(str_contains($appModalCss,'grid-template-columns:minmax(0,1.35fr)')&&str_contains($appModalCss,'.oneid-app-info-footer'),'App Info uses a responsive two-column card layout and structured footer');
-$report(str_contains($appModalCss,'.oneid-app-info-footer{gap:9px;justify-content:flex-end}')&&str_contains($ui,'oneid-web-app-modal.css?v=20260812-4'),'App Info footer actions are right-aligned with refreshed styling');
+$report(str_contains($appModalCss,'.oneid-app-info-footer{gap:9px;justify-content:flex-end}')&&str_contains($ui,'oneid-web-app-modal.css?v=20260812-5'),'App Info footer actions are right-aligned with refreshed styling');
 $report(str_contains($ui,'Only secure HTTPS URLs are allowed')&&str_contains($appModalCss,'input[type=checkbox]{flex:0 0 auto'),'App Info explains HTTPS-only URLs and keeps Direct Link checkbox inside its card');
-$report(str_contains($ui,'oneid-direct-link-setting__switch')&&str_contains($appModalCss,'input:checked~.oneid-direct-link-setting__switch')&&str_contains($ui,'oneid-web-app-modal.css?v=20260812-4'),'Direct Link uses a styled clickable setting card and toggle switch');
+$report(str_contains($ui,'oneid-direct-link-setting__title')&&str_contains($ui,'oneid-direct-link-setting__switch')&&str_contains($appModalCss,'input:checked~.oneid-direct-link-setting__switch')&&str_contains($ui,'oneid-web-app-modal.css?v=20260812-5'),'Direct Link uses a left-aligned card title and styled toggle switch');
 
 printf("RESULT checks=%d failed=%d\n",$checks,$failed);
 exit($failed===0?0:1);

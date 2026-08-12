@@ -83,7 +83,7 @@
       <link href="../dist/css/oneid-admin-profile.css?v=20260805-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-2" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-web-app-modal.css?v=20260812-4" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-web-app-modal.css?v=20260812-5" rel="stylesheet" type="text/css">
    </head>
    <body class="<?=trim(oneid_environment_body_class())?>">
       <?php oneid_render_environment_banner(); ?>
@@ -526,10 +526,11 @@
 													</select>
 												</div>
                                                 <div class="oneid-direct-link-setting">
+                                                   <div class="oneid-direct-link-setting__title">Direct link only</div>
                                                    <label class="oneid-direct-link-setting__control" for="app_info_sso_checkbox">
                                                       <input id="app_info_sso_checkbox" type="checkbox" name="app_info_sso_checkbox">
                                                       <span class="oneid-direct-link-setting__icon"><i class="fa fa-external-link"></i></span>
-                                                      <span class="oneid-direct-link-setting__content"><strong>Direct link only</strong><small>Open the application directly without the OneID SSO redirect flow.</small></span>
+                                                      <span class="oneid-direct-link-setting__content"><small>Open the application directly without the OneID SSO redirect flow.</small></span>
                                                       <span class="oneid-direct-link-setting__switch" aria-hidden="true"><span></span></span>
                                                    </label>
 								</div>
