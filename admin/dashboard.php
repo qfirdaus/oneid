@@ -3954,9 +3954,32 @@
             });
            });
 
+           var siteApiModalFocusSuspended=false;
+
+           function suspend_site_api_parent_modal_focus(){
+              if(siteApiModalFocusSuspended){return;}
+              $(document).off('focusin.bs.modal');
+              siteApiModalFocusSuspended=true;
+           }
+
+           function restore_site_api_parent_modal_focus(){
+              if(!siteApiModalFocusSuspended){return;}
+              siteApiModalFocusSuspended=false;
+              var modal=$('#modal_edit_app');
+              var instance=modal.data('bs.modal');
+              if(modal.hasClass('in')&&instance&&typeof instance.enforceFocus==='function'){
+                 instance.enforceFocus();
+              }
+           }
+
+           function show_site_api_rotation_error(title,message){
+              swal(String(title),String(message),'error',restore_site_api_parent_modal_focus);
+           }
+
            function rotate_site_api_code(){
               var appId=String($('#edit_app_id').val()||'');
               if(!appId){return;}
+              suspend_site_api_parent_modal_focus();
               var reasonOptions=''+
                  '<div class="rotation-reason-dialog">'+
                  '<p class="rotation-reason-dialog__intro">Choose the reason that best describes why this application credential must be replaced.</p>'+
@@ -3977,8 +4000,8 @@
                  '</div>'+
                  '<div class="rotation-reason-dialog__notice"><i class="fa fa-exclamation-triangle"></i><span>Generating a new code will immediately invalidate the existing code for this app. Other apps are not affected.</span></div>'+
                  '</div>';
-              swal({title:'Generate New Site API Code',text:reasonOptions,html:true,type:'warning',showCancelButton:true,confirmButtonColor:'#e6a23c',confirmButtonText:'Generate New Code',cancelButtonText:'Cancel',closeOnConfirm:false},function(selected){
-                 if(!selected){return;}
+              swal({title:'Generate New Site API Code',text:reasonOptions,html:true,type:'warning',showCancelButton:true,confirmButtonColor:'#e6a23c',confirmButtonText:'Generate New Code',cancelButtonText:'Cancel',closeOnConfirm:false,allowEscapeKey:false,allowOutsideClick:false},function(selected){
+                 if(!selected){restore_site_api_parent_modal_focus();return;}
                  var reason=String($('.rotation-reason-dialog__choice.is-selected').data('reason')||'');
                  if(!reason){swal.showInputError('Select a reason before continuing.');return false;}
                  if(reason==='OTHER'){
@@ -4005,7 +4028,7 @@
               $('.sweet-alert .confirm').text('Generating...');
               $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',headers:{'X-CSRF-Token':<?php echo json_encode(oneid_csrf_token()); ?>},data:{admin_rotate_site_api_code:'',app_id:appId,change_reason:reason}})
                  .done(function(response){
-                    if(Number(response.status)!==1){swal('Code not generated',String(response.msg||response.code||'The operation was rejected.'),'error');return;}
+                    if(Number(response.status)!==1){show_site_api_rotation_error('Code not generated',response.msg||response.code||'The operation was rejected.');return;}
                     var newCode=String(response.site_api_code||'');
                     $('#edit_app_code').val(newCode).data('rotated',1);
                     $('#btn_copy_site_api_code').prop('disabled',false).find('.copy-label').text('Copy');
@@ -4017,7 +4040,7 @@
                        '<div class="site-api-code-result__feedback" id="site_api_code_copy_feedback"><i class="fa fa-info-circle"></i> This full code is shown once only. If it is lost, generate another code.</div>'+
                        '<div class="site-api-code-result__warning"><i class="fa fa-ban"></i> The previous Site API Code is no longer valid.</div>'+
                        '</div>';
-                    swal({title:'New Site API Code',text:codePanel,html:true,type:'success',confirmButtonText:'Done',allowEscapeKey:false,allowOutsideClick:false},function(){get_specific_app_info(appId);});
+                    swal({title:'New Site API Code',text:codePanel,html:true,type:'success',confirmButtonText:'Done',allowEscapeKey:false,allowOutsideClick:false},function(){restore_site_api_parent_modal_focus();get_specific_app_info(appId);});
                     apply_site_api_alert_layout('result','Credential Generated');
                     $('#generated_site_api_code').text(newCode);
                     $('#copy_generated_site_api_code').on('click',function(event){
@@ -4034,7 +4057,7 @@
                     });
                  }).fail(function(xhr){
                     var response=xhr&&xhr.responseJSON?xhr.responseJSON:{};
-                    swal('Code not generated',String(response.error||response.code||'Request failed.'),'error');
+                    show_site_api_rotation_error('Code not generated',response.error||response.code||'Request failed.');
                  }).always(function(){$('#btn_rotate_site_api_code').prop('disabled',false);});
            }
 
