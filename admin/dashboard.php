@@ -5842,8 +5842,8 @@
 						var photoUrl = '../page/profile-photo.php?user_id=' + encodeURIComponent(session.user_id == null ? '' : String(session.user_id));
 						rows += '<td data-label="'+adminText('admin.sessions.user')+'"><span class="active-session-user-card" title="'+sessionAttribute(userName+' ('+publicUserIdLabel+' '+publicUserId+')')+'"><span class="active-session-avatar"><img src="'+sessionAttribute(photoUrl)+'" alt="" width="30" height="30" loading="lazy" decoding="async"></span><span class="active-session-user-copy"><strong>'+userName+'</strong><small><span>'+publicUserIdLabel+'</span>'+publicUserId+'</small></span></span></td>';
 						rows += '<td data-label="'+adminText('admin.sessions.activity')+'"><span class="active-session-timeline"><span><small>'+adminText('admin.sessions.issued')+'</small><time title="'+sessionAttribute(issuedAt)+'">'+issuedAt+'</time></span><span><small>'+adminText('admin.sessions.heartbeat')+'</small><time title="'+sessionAttribute(lastActivity)+'">'+lastActivity+'</time></span></span></td>';
-						rows += '<td data-label="'+adminText('admin.sessions.device')+'"><span class="active-session-cell active-session-device" title="'+sessionAttribute(deviceInfo)+'"><i class="fa fa-desktop" aria-hidden="true"></i>'+deviceInfo+'</span></td>';
-						rows += '<td data-label="'+adminText('admin.sessions.status')+'"><span class="active-session-status is-'+session.status+'" title="'+sessionAttribute(statusTitle)+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+'</span></span>'+(session.revocation_target_id?'<button type="button" class="active-session-revoke" data-revocation-target="'+sessionAttribute(session.revocation_target_id)+'"><i class="fa fa-ban" aria-hidden="true"></i> '+adminText('admin.sessions.revoke')+'</button>':'')+'</td>';
+						rows += '<td data-label="'+adminText('admin.sessions.device')+'"><span class="active-session-cell active-session-device" title="'+sessionAttribute(deviceInfo)+'"><i class="fa fa-desktop" aria-hidden="true"></i><span>'+deviceInfo+'</span></span></td>';
+						rows += '<td data-label="'+adminText('admin.sessions.status')+'"><span class="active-session-status is-'+session.status+'" title="'+sessionAttribute(statusTitle)+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+'</span></span>'+(session.revocation_target_id?'<button type="button" class="active-session-revoke" data-revocation-target="'+sessionAttribute(session.revocation_target_id)+'" title="'+sessionAttribute(adminText('admin.sessions.revoke'))+'" aria-label="'+sessionAttribute(adminText('admin.sessions.revoke'))+'"><i class="fa fa-ban" aria-hidden="true"></i></button>':'')+'</td>';
 						rows += '</tr>';
 					});
 
@@ -8890,7 +8890,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         box-shadow: 0 2px 7px rgba(31, 41, 55, .04);
       }
       #tab_active_sessions .session-view-tabs{display:flex;gap:8px;margin:0 0 14px}#tab_active_sessions .session-view-tabs button{background:#fff;border:1px solid #cfdae4;border-radius:8px;color:#52697a;font-size:12px;font-weight:700;padding:10px 15px}#tab_active_sessions .session-view-tabs button.is-active{background:#0b97c8;border-color:#0b97c8;color:#fff;box-shadow:0 6px 15px rgba(11,151,200,.18)}#tab_active_sessions .session-history-card[hidden]{display:none!important}#tab_active_sessions .session-history-admin{background:#e8f5fb;border-radius:4px;color:#087da8;font-size:9px!important;margin-left:4px;padding:3px 5px}#tab_active_sessions .session-history-card input[type=date]{border:1px solid #d2dce5;border-radius:7px;color:#42586a;min-height:40px;padding:7px}
-      #tab_active_sessions .session-history-filter{grid-template-columns:minmax(150px,1fr) minmax(150px,1fr) minmax(240px,1.5fr) 112px 42px}#tab_active_sessions .session-history-filter__query{grid-column:1/-1}#tab_active_sessions .session-history-filter input.session-history-filter__date{padding:8px 10px}#tab_active_sessions .session-history-filter__reason{min-width:0;text-overflow:ellipsis}#tab_active_sessions .session-history-filter__size{min-width:0}#tab_active_sessions .session-history-filter__submit{width:42px}
+      #tab_active_sessions .session-history-filter{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(180px,1.2fr) 100px 42px}#tab_active_sessions .session-history-filter__query{grid-column:1/-1}#tab_active_sessions .session-history-filter input.session-history-filter__date{min-width:0;padding:8px 10px;width:100%}#tab_active_sessions .session-history-filter__reason{min-width:0;text-overflow:ellipsis}#tab_active_sessions .session-history-filter__size{min-width:0}#tab_active_sessions .session-history-filter__submit{width:42px}
 
       #tab_active_sessions .active-session-card-heading {
         padding: 18px 20px 15px;
@@ -9163,12 +9163,14 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_active_sessions .active-session-device {
-        display: -webkit-box;
+        align-items: center;
+        display: flex;
         line-height: 1.4;
-        white-space: normal;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
+        max-width: 100%;
+        min-width: 0;
+        white-space: nowrap;
       }
+      #tab_active_sessions .active-session-device > span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
       #tab_active_sessions .active-session-status {
         display: inline-flex;
@@ -9189,16 +9191,21 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_active_sessions .active-session-revoke {
-        display: block;
-        margin-top: 6px;
-        padding: 4px 8px;
+        align-items:center;
+        display:flex;
+        height:28px;
+        justify-content:center;
+        margin-top:6px;
+        padding:0;
+        width:28px;
         border: 1px solid #e4a9b4;
         border-radius: 7px;
         background: #fff5f6;
         color: #9f1730;
-        font-size: 9px;
+        font-size: 11px;
         font-weight: 700;
       }
+      #tab_active_sessions .active-session-revoke:hover,#tab_active_sessions .active-session-revoke:focus{background:#9f1730;color:#fff;outline:0}
 
       .as3-revocation-modal .modal-dialog { max-width: 620px; }
       .as3-revocation-modal .modal-content { overflow: hidden; border: 0; border-radius: 14px; box-shadow: 0 22px 55px rgba(18,32,51,.24); }
