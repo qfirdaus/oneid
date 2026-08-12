@@ -54,6 +54,9 @@ $report(str_contains($ui,"confirmButtonText:'Generate New Code'")&&str_contains(
 $report(str_contains($ui,'copy_generated_site_api_code')&&str_contains($ui,"navigator.clipboard.writeText(newCode)")&&str_contains($rotationCss,'.site-api-code-result__copy'),'generated code result provides a styled copy control and one-time recovery guidance');
 $report(str_contains($ui,'oneid-site-api-rotation.css?v=20260812-2'),'rotation dialog stylesheet uses the current cache-busting version');
 $report(str_contains($ui,"response['site_api_code']")&&str_contains($ui,'Legacy Site API Code')&&str_contains($ui,'stored encrypted'),'App Info clearly supports both legacy and retrievable rotated codes');
+$appModalCss=(string)file_get_contents(dirname(__DIR__).'/public/dist/css/oneid-web-app-modal.css');
+$report(str_contains($ui,'modal-lg oneid-app-info-dialog')&&str_contains($ui,'oneid-sync-child-header oneid-app-info-header'),'App Info reuses the wide Metadata Translation modal language');
+$report(str_contains($appModalCss,'grid-template-columns:minmax(0,1.35fr)')&&str_contains($appModalCss,'.oneid-app-info-footer'),'App Info uses a responsive two-column card layout and structured footer');
 
 printf("RESULT checks=%d failed=%d\n",$checks,$failed);
 exit($failed===0?0:1);

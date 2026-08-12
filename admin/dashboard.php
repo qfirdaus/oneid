@@ -83,6 +83,7 @@
       <link href="../dist/css/oneid-admin-profile.css?v=20260805-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-2" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-web-app-modal.css?v=20260812-1" rel="stylesheet" type="text/css">
    </head>
    <body class="<?=trim(oneid_environment_body_class())?>">
       <?php oneid_render_environment_banner(); ?>
@@ -446,14 +447,17 @@
 
 
          <div id="modal_edit_app" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_edit_app" aria-hidden="true">
-            <div class="modal-dialog">
-               <div class="modal-content">
-                  <div class="modal-header">
-                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_edit_app">App Info</h5>
+            <div class="modal-dialog modal-lg oneid-app-info-dialog">
+               <div class="modal-content oneid-sync-child-modal oneid-app-info-modal">
+                  <div class="modal-header oneid-sync-child-header oneid-app-info-header">
+                     <div class="oneid-sync-child-heading">
+                        <span class="oneid-sync-child-heading-icon" aria-hidden="true"><i class="fa fa-cubes"></i></span>
+                        <div><h5 class="modal-title" id="aria_modal_edit_app">Application Details</h5><p>Manage metadata, branding, integration credential and access behaviour.</p></div>
+                     </div>
+                     <button type="button" class="close oneid-sync-child-close" data-dismiss="modal" aria-label="Close">×</button>
                   </div>
                   <form id="form_edit_app">
-                     <div class="modal-body">
+                     <div class="modal-body oneid-sync-child-body oneid-app-info-body">
                         <!-- Row -->
                         <div class="row" id="modal_edit_row_loading">
                            <br/>
@@ -536,10 +540,9 @@
                         </div>
                      </div>
                      <input type="hidden" id="edit_app_id" name="edit_app_id">
-                     <div class="modal-footer"  id="modal_edit_btn">
-                        <button type="button" class="btn btn-danger waves-effect" onclick="remove_app();">Remove</button>
-                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary waves-effect" id="btn_edit_app_submit"><span class="submit-label">Save Changes</span></button>
+                     <div class="modal-footer oneid-sync-child-footer oneid-app-info-footer" id="modal_edit_btn">
+                        <button type="button" class="btn btn-danger oneid-app-remove" onclick="remove_app();"><i class="fa fa-trash-o"></i> Remove App</button>
+                        <div class="oneid-app-footer-actions"><button type="button" class="btn btn-default" data-dismiss="modal">Close</button><button type="submit" class="btn btn-primary" id="btn_edit_app_submit"><i class="fa fa-check"></i> <span class="submit-label">Save Changes</span></button></div>
                      </div>
                   </form>
                </div>
