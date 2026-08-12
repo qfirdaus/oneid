@@ -52,7 +52,7 @@ $report(str_contains($rotationCss,'.rotation-reason-dialog__choices')&&str_conta
 $report(str_contains($ui,'id="btn_copy_site_api_code"')&&str_contains($ui,'id="btn_rotate_site_api_code"')&&str_contains($ui,'id="edit_app_code"'),'copy, Site API Code and generate controls share one input group');
 $report(str_contains($ui,"confirmButtonText:'Generate New Code'")&&str_contains($ui,'execute_site_api_code_rotation(appId,reason)')&&!str_contains($ui,'confirm_site_api_code_rotation'),'reason selection and code generation use one SweetAlert');
 $report(str_contains($ui,'copy_generated_site_api_code')&&str_contains($ui,"navigator.clipboard.writeText(newCode)")&&str_contains($rotationCss,'.site-api-code-result__copy'),'generated code result provides a styled copy control and one-time recovery guidance');
-$report(str_contains($ui,'oneid-site-api-rotation.css?v=20260812-2'),'rotation dialog stylesheet uses the current cache-busting version');
+$report(str_contains($ui,'oneid-site-api-rotation.css?v=20260812-3'),'rotation dialog stylesheet uses the current cache-busting version');
 $report(str_contains($ui,"response['site_api_code']")&&str_contains($ui,'Legacy Site API Code')&&str_contains($ui,'stored encrypted'),'App Info clearly supports both legacy and retrievable rotated codes');
 $appModalCss=(string)file_get_contents(dirname(__DIR__).'/public/dist/css/oneid-web-app-modal.css');
 $report(str_contains($ui,'modal-lg oneid-app-info-dialog')&&str_contains($ui,'oneid-sync-child-header oneid-app-info-header'),'App Info reuses the wide Metadata Translation modal language');
@@ -60,6 +60,7 @@ $report(str_contains($appModalCss,'grid-template-columns:minmax(0,1.35fr)')&&str
 $report(str_contains($appModalCss,'.oneid-app-info-footer{gap:9px;justify-content:flex-end}')&&str_contains($ui,'oneid-web-app-modal.css?v=20260812-5'),'App Info footer actions are right-aligned with refreshed styling');
 $report(str_contains($ui,'Only secure HTTPS URLs are allowed')&&str_contains($appModalCss,'input[type=checkbox]{flex:0 0 auto'),'App Info explains HTTPS-only URLs and keeps Direct Link checkbox inside its card');
 $report(str_contains($ui,'oneid-direct-link-setting__title')&&str_contains($ui,'oneid-direct-link-setting__switch')&&str_contains($appModalCss,'input:checked~.oneid-direct-link-setting__switch')&&str_contains($ui,'oneid-web-app-modal.css?v=20260812-5'),'Direct Link uses a left-aligned card title and styled toggle switch');
+$report(str_contains($ui,"apply_site_api_alert_layout('rotation'")&&str_contains($ui,"apply_site_api_alert_layout('result'")&&str_contains($rotationCss,'.sweet-alert.oneid-site-api-alert:before'),'both Site API Code alerts reuse the professional renew-session visual system');
 
 printf("RESULT checks=%d failed=%d\n",$checks,$failed);
 exit($failed===0?0:1);

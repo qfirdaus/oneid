@@ -82,7 +82,7 @@
       <link href="../dist/css/oneid-configuration-navigation.css?v=20260801-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-admin-profile.css?v=20260805-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-2" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-web-app-modal.css?v=20260812-5" rel="stylesheet" type="text/css">
    </head>
    <body class="<?=trim(oneid_environment_body_class())?>">
@@ -3987,6 +3987,7 @@
                  }
                  execute_site_api_code_rotation(appId,reason);
               });
+              apply_site_api_alert_layout('rotation','Application Security');
               $('.rotation-reason-dialog__choice').on('click',function(event){
                  event.preventDefault();event.stopPropagation();
                  $('.rotation-reason-dialog__choice').removeClass('is-selected').attr('aria-checked','false');
@@ -4017,6 +4018,7 @@
                        '<div class="site-api-code-result__warning"><i class="fa fa-ban"></i> The previous Site API Code is no longer valid.</div>'+
                        '</div>';
                     swal({title:'New Site API Code',text:codePanel,html:true,type:'success',confirmButtonText:'Done',allowEscapeKey:false,allowOutsideClick:false},function(){get_specific_app_info(appId);});
+                    apply_site_api_alert_layout('result','Credential Generated');
                     $('#generated_site_api_code').text(newCode);
                     $('#copy_generated_site_api_code').on('click',function(event){
                        event.preventDefault();event.stopPropagation();
@@ -4034,6 +4036,20 @@
                     var response=xhr&&xhr.responseJSON?xhr.responseJSON:{};
                     swal('Code not generated',String(response.error||response.code||'Request failed.'),'error');
                  }).always(function(){$('#btn_rotate_site_api_code').prop('disabled',false);});
+           }
+
+           function apply_site_api_alert_layout(kind,eyebrowText){
+              var alert=document.querySelector('.sweet-alert.showSweetAlert');
+              var overlay=document.querySelector('.sweet-overlay');
+              if(!alert){return;}
+              alert.classList.remove('oneid-site-api-alert--rotation','oneid-site-api-alert--result');
+              alert.classList.add('oneid-site-api-alert','oneid-site-api-alert--'+kind);
+              if(overlay){overlay.classList.add('oneid-site-api-overlay');}
+              var existing=alert.querySelector('.oneid-site-api-eyebrow');
+              if(existing){existing.parentNode.removeChild(existing);}
+              var eyebrow=document.createElement('div');
+              eyebrow.className='oneid-site-api-eyebrow';eyebrow.textContent=eyebrowText;
+              var icon=alert.querySelector('.sa-icon');alert.insertBefore(eyebrow,icon||alert.firstChild);
            }
          
          
