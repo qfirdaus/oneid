@@ -72,6 +72,7 @@ return [
     'login.new_user_help' => 'Pengguna baharu perlu menggunakan fungsi Lupa Kata Laluan untuk menetapkan kata laluan pertama.',
     'login.forgot_password' => 'Lupa Kata Laluan?',
     'login.submit' => 'Log Masuk',
+    'login.maintenance_admin_access' => 'Akses khas pentadbir semasa penyelenggaraan',
     'login.required_user' => 'Sila masukkan ID Pengguna.',
     'login.required_password' => 'Sila masukkan Kata Laluan.',
     'login.processing' => 'Log masuk sedang diproses. Sila tunggu sebentar.',

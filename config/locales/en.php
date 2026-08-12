@@ -72,6 +72,7 @@ return [
     'login.new_user_help' => 'New users must use Forgot Password to set their first password.',
     'login.forgot_password' => 'Forgot Password?',
     'login.submit' => 'Sign In',
+    'login.maintenance_admin_access' => 'Administrator maintenance access',
     'login.required_user' => 'Enter your User ID.',
     'login.required_password' => 'Enter your password.',
     'login.processing' => 'Signing in. Please wait.',

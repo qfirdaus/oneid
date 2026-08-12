@@ -144,7 +144,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-3" >
-          <?php if (!defined('ONEID_ADMIN_MAINTENANCE_LOGIN')): ?><a style="cursor: pointer;" class="text-primary" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></a><?php else: ?><span class="text-muted">Administrator maintenance access</span><?php endif; ?>
+          <?php if (!defined('ONEID_ADMIN_MAINTENANCE_LOGIN')): ?><a style="cursor: pointer;" class="text-primary" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></a><?php else: ?><span class="maintenance-admin-login-label"><i class="fas fa-shield-alt" aria-hidden="true"></i> <?=htmlspecialchars(oneid_translate('login.maintenance_admin_access'), ENT_QUOTES, 'UTF-8')?></span><?php endif; ?>
           <button type="submit" class="btn btn-warning px-4">
             <i class="icon-login me-1 animate__animated animate__swing animate__infinite infinite"></i> <?=htmlspecialchars(oneid_translate('login.submit'), ENT_QUOTES, 'UTF-8')?>
           </button>
@@ -1032,6 +1032,21 @@ $('#otp_inputs').on('paste', function(e) {
   body.login-container {
     background: linear-gradient(to bottom right, #f5f7fa, #c3cfe2);
   }
+
+  .maintenance-admin-login-label {
+    align-items: center;
+    background: #eaf6fb;
+    border: 1px solid #b9deec;
+    border-radius: 7px;
+    color: #18566f !important;
+    display: inline-flex;
+    font-size: 11px;
+    font-weight: 700;
+    gap: 6px;
+    line-height: 1.35;
+    padding: 8px 10px;
+  }
+  .maintenance-admin-login-label i { color: #078fbe; }
 
   .mydigitalid-preview {
     margin: 18px auto 4px;
