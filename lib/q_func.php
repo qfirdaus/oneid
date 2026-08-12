@@ -579,7 +579,7 @@ function string_sanitize($s) {
             //SSO Token Initialize
             $new_refresh_token = generate_token(); //generate new token
             if($sys_config_multisession == 0){
-              $operation->update_whole_token_status($results['u_id'],0); //expired all token for specific user
+              $operation->update_whole_token_status($results['u_id'],0,'NEW_LOGIN_REPLACED'); //expired all token for specific user
             }
             //
             //Add new token to DB
@@ -2001,7 +2001,7 @@ function string_sanitize($s) {
           // echo $hour_diff."#";
           if($tokenEvaluation['state'] !== \OneId\App\Auth\SsoTokenLifetimePolicy::ACTIVE){
               $unset_flag = 1;
-              $operation->update_specific_token_status($_SESSION['login_user'],$results[$i]['token_id'],0); //expired current browser token for specific browser
+              $operation->update_specific_token_status($_SESSION['login_user'],$results[$i]['token_id'],0,'SECURITY_ACTION'); //expired current browser token for specific browser
               unset($results[$i]);
               continue;
           }
@@ -2045,6 +2045,12 @@ function string_sanitize($s) {
           error_log('AS0 active session listing failed correlation='.$correlation.' exception='.get_class($exception));
           echo json_encode(['status'=>0,'code'=>'AS0_LIST_FAILED','message'=>'Active sessions could not be loaded.','correlation_id'=>$correlation]);
         }
+      }
+
+      if(isset($_POST['admin_get_session_history'])){
+        try{require_once dirname(__DIR__).'/app/Admin/SessionHistoryService.php';echo json_encode((new \OneId\App\Admin\SessionHistoryService($operation))->list($_POST));}
+        catch(\InvalidArgumentException|\RuntimeException $exception){echo json_encode(['status'=>0,'code'=>$exception->getMessage(),'message'=>'Session history could not be loaded.']);}
+        catch(\Throwable $exception){$correlation=bin2hex(random_bytes(8));error_log('SH1 session history failed correlation='.$correlation.' exception='.get_class($exception));echo json_encode(['status'=>0,'code'=>'SH1_HISTORY_FAILED','correlation_id'=>$correlation]);}
       }
 
       if(isset($_POST['admin_preview_active_session_revocation'])||isset($_POST['admin_apply_active_session_revocation'])){
@@ -2418,7 +2424,7 @@ function string_sanitize($s) {
       }
 
       $operation->set_user_password($resetUser, $newPassword, 0);
-      $operation->update_whole_token_status($resetUser, 0);
+      $operation->update_whole_token_status($resetUser, 0, 'PASSWORD_RESET');
       $operation->syslog_record(21, 'Password reset completed for user ID: '.$resetUser, getUserIP());
       unset($_SESSION['password_reset_user'], $_SESSION['password_reset_verified_at']);
       echo json_encode([
@@ -2484,7 +2490,7 @@ function string_sanitize($s) {
 
 
       if(isset( $_POST['user_signoff_security_sessions'])){
-        $results = $operation->update_specific_token_status($_SESSION['login_user'],$_POST['token_id'],0);
+        $results = $operation->update_specific_token_status($_SESSION['login_user'],$_POST['token_id'],0,'SECURITY_ACTION');
         echo json_encode($results);
       }
 

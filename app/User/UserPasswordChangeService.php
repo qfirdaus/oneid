@@ -18,7 +18,7 @@ final class UserPasswordChangeService
             if($this->operation->record_password_history($userId,$stored)!==1)throw new UserPasswordChangeException('UC5_PASSWORD_HISTORY_WRITE_FAILED',$correlation);
             if($this->operation->set_user_password($userId,$new,0)!==1)throw new UserPasswordChangeException('UC2_PASSWORD_NOT_CHANGED',$correlation);
             $this->operation->prune_password_history($userId,5);
-            $revoked=(int)$this->operation->update_whole_token_status($userId,0);
+            $revoked=(int)$this->operation->update_whole_token_status($userId,0,'PASSWORD_RESET');
             $invalidated=(int)$this->operation->otp_invalidate_active($userId);
             $token=null;if($keepCurrentSession){$token=oneid_generate_sso_token();if($this->operation->add_new_token($token,$userId,$device)!==1)throw new UserPasswordChangeException('UC2_REPLACEMENT_TOKEN_FAILED',$correlation);}
             $detail=sprintf('user=%s action=change_password tokens_revoked=%d otp_invalidated=%d correlation=%s',$userId,$revoked,$invalidated,$correlation);

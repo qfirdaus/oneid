@@ -85,7 +85,7 @@ final class UserAclManagementService
                 }
             }
 
-            $this->operation->update_whole_token_status($userId, 0);
+            $this->operation->update_whole_token_status($userId, 0, 'SECURITY_ACTION');
             $detail = sprintf('admin=%s action=acl_%s user=%s app=%s correlation=%s', $adminId, $action, $userId, $spId, $correlationId);
             if ($this->operation->syslog_record($event, $detail, $ipAddress) !== 1) {
                 throw new UserManagementException('M3_AUDIT_NOT_WRITTEN', $correlationId);

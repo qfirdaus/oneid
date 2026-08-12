@@ -79,7 +79,7 @@ final class UserSecurityActionService
 
             // Zero affected rows is valid when no active token/OTP exists. A
             // database error still throws and rolls the whole transaction back.
-            $this->operation->update_whole_token_status($userId, 0);
+            $this->operation->update_whole_token_status($userId, 0, 'SECURITY_ACTION');
             $this->operation->otp_invalidate_active($userId);
 
             $detail = sprintf(

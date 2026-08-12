@@ -1,0 +1,11 @@
+<?php
+declare(strict_types=1);if(PHP_SAPI!=='cli')exit(2);$root=dirname(__DIR__);$db=(string)file_get_contents($root.'/lib/Database.php');$ui=(string)file_get_contents($root.'/admin/dashboard.php');$q=(string)file_get_contents($root.'/lib/q_func.php');$security=(string)file_get_contents($root.'/lib/request_security.php');$up=(string)file_get_contents($root.'/docs/migrations/20260813_session_history_up.sql');$checks=[
+'schema records end timestamp and reason'=>str_contains($up,'ended_at')&&str_contains($up,'end_reason'),
+'migration runner is idempotent'=>str_contains((string)file_get_contents($root.'/tools/session_history_schema_migrate.php'),'already installed'),
+'history query is read-only and includes status zero'=>str_contains($db,'admin_list_session_history')&&str_contains($db,'A.status=0')&&!str_contains($db,'DELETE FROM token_tbl'),
+'history endpoint is admin guarded'=>str_contains($security,"'admin_get_session_history'")&&str_contains($q,"isset(\$_POST['admin_get_session_history'])"),
+'active and history views are separate'=>str_contains($ui,'id="session_view_active"')&&str_contains($ui,'id="session_view_history"')&&str_contains($ui,'id="session_history_list"'),
+'history supports search dates reason and pagination'=>str_contains($ui,'session_history_query')&&str_contains($ui,'session_history_from')&&str_contains($ui,'session_history_reason')&&str_contains($ui,'session_history_pagination'),
+'old records use an honest unknown reason'=>str_contains($db,"COALESCE(A.end_reason,'UNKNOWN')")&&str_contains($ui,"admin.sessions.end_UNKNOWN"),
+'new endings record specific reasons'=>str_contains($q,'NEW_LOGIN_REPLACED')&&str_contains((string)file_get_contents($root.'/app/Auth/LogoutHandler.php'),'USER_LOGOUT')&&str_contains($db,'ADMIN_REVOKED')&&str_contains((string)file_get_contents($root.'/app/User/UserPasswordChangeService.php'),'PASSWORD_RESET'),
+];$failed=0;foreach($checks as$l=>$ok){echo($ok?'PASS ':'FAIL ').$l.PHP_EOL;$failed+=$ok?0:1;}echo'RESULT checks='.count($checks).' failed='.$failed.PHP_EOL;exit($failed?1:0);

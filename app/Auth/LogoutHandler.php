@@ -15,7 +15,8 @@ final class LogoutHandler
             $operation->update_specific_token_status(
                 (string) ($_SESSION['login_user'] ?? ''),
                 $cookie->sso_cre,
-                0
+                0,
+                'USER_LOGOUT'
             );
             \oneid_clear_sso_cookie();
         }

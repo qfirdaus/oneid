@@ -49,7 +49,7 @@ final class InitialPasswordSetupService
                 throw new UserPasswordChangeException('UC2_PASSWORD_NOT_CHANGED', $correlation);
             }
             $this->operation->prune_password_history($userId, 5);
-            $revoked = (int) $this->operation->update_whole_token_status($userId, 0);
+            $revoked = (int) $this->operation->update_whole_token_status($userId, 0, 'PASSWORD_RESET');
             $invalidated = (int) $this->operation->otp_invalidate_active($userId);
             $detail = sprintf(
                 'user=%s action=mydigitalid_initial_password_setup tokens_revoked=%d otp_invalidated=%d correlation=%s',

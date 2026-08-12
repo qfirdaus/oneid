@@ -60,7 +60,7 @@ final class UserProfilePolicyService
                 throw new UserManagementException('M3_PROFILE_NOT_SAVED', $correlationId);
             }
             if ($categoryChanged) {
-                $this->operation->update_whole_token_status($userId, 0);
+                $this->operation->update_whole_token_status($userId, 0, 'ACCOUNT_DISABLED');
             }
 
             $changed = [];

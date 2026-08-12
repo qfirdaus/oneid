@@ -255,7 +255,7 @@ function SSO_logOut_IDP($operation){
 		$cookie = LOCAL_COOKIES_HANDLER();
 		$results = $operation->check_token($cookie->sso_cre);
 		if ($results) {
-			$operation->update_specific_token_status($results['user_id'],$cookie->sso_cre,0);
+			$operation->update_specific_token_status($results['user_id'],$cookie->sso_cre,0,'SESSION_EXPIRED');
 		}
 		oneid_clear_sso_cookie();
 	}	

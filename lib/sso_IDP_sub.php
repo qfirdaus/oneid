@@ -163,7 +163,7 @@ function SSO_logOut_IDP($operation){
 	return;
 	if (isset($_COOKIE['sso_cre'])) {		
         $results = $operation->check_token($_COOKIE['sso_cre']);
-        $operation->update_specific_token_status($results['user_id'],$_COOKIE['sso_cre'],0); //expired specific token for specific site & user
+        $operation->update_specific_token_status($results['user_id'],$_COOKIE['sso_cre'],0,'SESSION_EXPIRED'); //expired specific token for specific site & user
     	unset($_COOKIE['sso_cre']); 
     	setcookie('sso_cre', null, -1, '/'); 
 	}	

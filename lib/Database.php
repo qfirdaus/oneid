@@ -1606,27 +1606,47 @@ class Database {
         return $result;
     }
 
-    public function update_whole_token_status($user_id,$status){
-            $Q = "UPDATE token_tbl SET status = :status WHERE user_id = :user_id";
+    public function update_whole_token_status($user_id,$status,$reason='UNKNOWN'){
+            $ending=(int)$status===0&&$this->token_end_metadata_available();
+            $Q = "UPDATE token_tbl SET status = :status".($ending?",ended_at=COALESCE(ended_at,NOW()),end_reason=COALESCE(end_reason,:reason)":"")." WHERE user_id = :user_id";
             $R = $this->pdo->prepare($Q);
         $R->bindParam(':status', $status);
         $R->bindParam(':user_id', $user_id);
+        if($ending)$R->bindValue(':reason',$reason);
         $R->execute();
         $result = $R->rowCount();
         return $result;
     }
 
-    public function update_specific_token_status($user_id,$token_id,$status){
+    public function update_specific_token_status($user_id,$token_id,$status,$reason='UNKNOWN'){
         $tokenHash = oneid_token_hash((string) $token_id);
-            $Q = "UPDATE token_tbl SET status = :status WHERE user_id = :user_id AND (token_id=:token_hash OR token_id=:token_id)";
+            $ending=(int)$status===0&&$this->token_end_metadata_available();
+            $Q = "UPDATE token_tbl SET status = :status".($ending?",ended_at=COALESCE(ended_at,NOW()),end_reason=COALESCE(end_reason,:reason)":"")." WHERE user_id = :user_id AND (token_id=:token_hash OR token_id=:token_id)";
             $R = $this->pdo->prepare($Q);
         $R->bindParam(':status', $status);
         $R->bindParam(':user_id', $user_id);
         $R->bindParam(':token_hash', $tokenHash);
         $R->bindParam(':token_id', $token_id);
+        if($ending)$R->bindValue(':reason',$reason);
         $R->execute();
         $result = $R->rowCount();
         return $result;
+    }
+
+    private function token_end_metadata_available():bool{
+        static $available=null;if($available!==null)return $available;
+        try{$q=$this->pdo->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='token_tbl' AND column_name IN ('ended_at','end_reason')");return $available=(int)$q->fetchColumn()===2;}catch(\Throwable){return $available=false;}
+    }
+
+    public function admin_list_session_history(array $filters):array{
+        if(!$this->token_end_metadata_available())throw new RuntimeException('SH1_SCHEMA_UNAVAILABLE');
+        $size=(int)($filters['page_size']??0);$offset=(int)($filters['offset']??-1);if(!in_array($size,[10,25,50],true)||$offset<0)throw new InvalidArgumentException('SH1_PAGINATION_INVALID');
+        $search=str_replace(['\\','%','_'],['\\\\','\\%','\\_'],trim((string)($filters['query']??'')));$reason=(string)($filters['reason']??'all');
+        $params=[':search'=>$search===''?'':'%'.$search.'%',':reason'=>$reason,':from'=>$filters['from']??'1970-01-01 00:00:00',':to'=>$filters['to']??'2999-12-31 23:59:59'];
+        $base=" FROM token_tbl A LEFT JOIN user_tbl B ON B.u_id=A.user_id WHERE A.status=0 AND A.token_issued_at BETWEEN :from AND :to AND (:search='' OR A.user_id LIKE :search ESCAPE '\\\\' OR B.data3 LIKE :search ESCAPE '\\\\' OR B.data4 LIKE :search ESCAPE '\\\\' OR B.data1 LIKE :search ESCAPE '\\\\' OR A.device_info LIKE :search ESCAPE '\\\\') AND (:reason='all' OR COALESCE(A.end_reason,'UNKNOWN')=:reason)";
+        $c=$this->pdo->prepare('SELECT COUNT(*)'.$base);$c->execute($params);$total=(int)$c->fetchColumn();
+        $q=$this->pdo->prepare("SELECT A.user_id,COALESCE(NULLIF(B.data1,''),A.user_id) name,B.u_type,B.u_category,CASE WHEN B.u_category IN(2,3) THEN NULLIF(TRIM(B.data3),'') ELSE NULLIF(TRIM(B.data4),'') END public_user_id,A.token_issued_at issued_at,A.token_datetime last_activity_at,A.ended_at,COALESCE(A.end_reason,'UNKNOWN') end_reason,A.device_info".$base.' ORDER BY COALESCE(A.ended_at,A.token_datetime) DESC,A.token_issued_at DESC LIMIT '.$size.' OFFSET '.$offset);$q->execute($params);
+        return ['rows'=>$q->fetchAll(PDO::FETCH_ASSOC),'total'=>$total];
     }
 
    public function update_specific_token_datetime($user_id,$token_id){
@@ -1730,7 +1750,7 @@ class Database {
           FROM token_tbl A LEFT JOIN user_tbl B ON B.u_id=A.user_id WHERE A.user_id=:user_id AND A.token_id=:token_id AND A.status=1 LIMIT 1".($lock?' FOR UPDATE':'');
         $q=$this->pdo->prepare($sql);$q->execute([':now_value'=>$context['now'],':now_value2'=>$context['now'],':now_value3'=>$context['now'],':refresh_cutoff'=>$context['refresh_cutoff'],':active_cutoff'=>$context['active_cutoff'],':current_user_id'=>$context['current_user_id'],':current_token_hash'=>$context['current_token_hash'],':current_token'=>$context['current_token'],':current_user_id2'=>$context['current_user_id'],':current_token_hash2'=>$context['current_token_hash'],':current_token2'=>$context['current_token'],':user_id'=>$userId,':token_id'=>$tokenId]);return $q->fetch(PDO::FETCH_ASSOC);
     }
-    public function admin_revoke_exact_session(string $userId,string $tokenId):int{$q=$this->pdo->prepare('UPDATE token_tbl SET status=0 WHERE user_id=:user_id AND token_id=:token_id AND status=1');$q->execute([':user_id'=>$userId,':token_id'=>$tokenId]);return $q->rowCount();}
+    public function admin_revoke_exact_session(string $userId,string $tokenId):int{$meta=$this->token_end_metadata_available();$q=$this->pdo->prepare('UPDATE token_tbl SET status=0'.($meta?",ended_at=NOW(),end_reason='ADMIN_REVOKED'":'').' WHERE user_id=:user_id AND token_id=:token_id AND status=1');$q->execute([':user_id'=>$userId,':token_id'=>$tokenId]);return $q->rowCount();}
 
     public function remove_queue($no_matrix){
         $Q = "DELETE FROM checkpoint
