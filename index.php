@@ -132,6 +132,13 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
           </div>
         <?php endif; ?></div>
 
+        <?php if (defined('ONEID_ADMIN_MAINTENANCE_LOGIN')): ?>
+          <div class="maintenance-admin-login-label" role="note">
+            <i class="fas fa-shield-alt" aria-hidden="true"></i>
+            <span><?=htmlspecialchars(oneid_translate('login.maintenance_admin_access'), ENT_QUOTES, 'UTF-8')?></span>
+          </div>
+        <?php endif; ?>
+
         <div class="login-form-block" style="display: flex; flex-direction: column; gap: 4px;margin-bottom: 20px;">
           <label for="username" class="login-form-label" style="margin-bottom: 4px; font-weight: 500; color: #2c2c2c;"> <?=htmlspecialchars(oneid_translate('login.user_id'), ENT_QUOTES, 'UTF-8')?></label>
           <input id="username" name="username" type="text" class="login-form-control custom_input login_placeholder" placeholder="<?=htmlspecialchars(oneid_translate('login.user_id_placeholder'), ENT_QUOTES, 'UTF-8')?>" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@\-]*" autocomplete="username" />
@@ -144,7 +151,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-3" >
-          <?php if (!defined('ONEID_ADMIN_MAINTENANCE_LOGIN')): ?><a style="cursor: pointer;" class="text-primary" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></a><?php else: ?><span class="maintenance-admin-login-label"><i class="fas fa-shield-alt" aria-hidden="true"></i> <?=htmlspecialchars(oneid_translate('login.maintenance_admin_access'), ENT_QUOTES, 'UTF-8')?></span><?php endif; ?>
+          <?php if (!defined('ONEID_ADMIN_MAINTENANCE_LOGIN')): ?><a style="cursor: pointer;" class="text-primary" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></a><?php else: ?><span aria-hidden="true"></span><?php endif; ?>
           <button type="submit" class="btn btn-warning px-4">
             <i class="icon-login me-1 animate__animated animate__swing animate__infinite infinite"></i> <?=htmlspecialchars(oneid_translate('login.submit'), ENT_QUOTES, 'UTF-8')?>
           </button>
@@ -1039,12 +1046,14 @@ $('#otp_inputs').on('paste', function(e) {
     border: 1px solid #b9deec;
     border-radius: 7px;
     color: #18566f !important;
-    display: inline-flex;
-    font-size: 11px;
+    display: flex;
+    font-size: 12px;
     font-weight: 700;
     gap: 6px;
     line-height: 1.35;
-    padding: 8px 10px;
+    margin: 0 0 18px;
+    padding: 10px 12px;
+    width: 100%;
   }
   .maintenance-admin-login-label i { color: #078fbe; }
 
