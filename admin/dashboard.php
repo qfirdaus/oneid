@@ -504,16 +504,16 @@
                                                 </div>
                                                 <div class="form-group">
                                                    <label class="control-label mb-10" for="edit_app_code">Site API Code</label>
-                                                   <span class="input-group-btn">
-                                                   <div class="input-group mb-15"> <span class="input-group-btn">
+                                                   <div class="input-group mb-15">
+                                                      <span class="input-group-btn">
                                                       <button type="button" class="btn btn-primary" id="btn_copy_site_api_code" onclick="copyToClipboard('edit_app_code');"><i class="fa fa-copy"></i> Copy</button>
                                                       </span>
                                                       <input type="text" id="edit_app_code" class="form-control" disabled="">
+                                                      <span class="input-group-btn">
+                                                         <button type="button" class="btn btn-warning" id="btn_rotate_site_api_code" onclick="rotate_site_api_code();"><i class="fa fa-refresh"></i> Generate New Code</button>
+                                                      </span>
                                                    </div>
                                                    <small class="text-muted" id="edit_app_code_status"></small>
-                                                   <div class="mt-10">
-                                                      <button type="button" class="btn btn-warning btn-sm" id="btn_rotate_site_api_code" onclick="rotate_site_api_code();"><i class="fa fa-refresh"></i> Generate New Site API Code</button>
-                                                   </div>
                                                 </div>
                                                 <div class="form-group mb-10">
 											<label class="control-label mb-10 text-left" for="edit_app_category">App Category</label>
@@ -3948,17 +3948,16 @@
               var reasonOptions=''+
                  '<div class="rotation-reason-dialog">'+
                  '<p class="rotation-reason-dialog__intro">Choose the reason that best describes why this application credential must be replaced.</p>'+
-                 '<label class="rotation-reason-dialog__label" for="site_api_rotation_reason_select">Rotation reason</label>'+
-                 '<select class="rotation-reason-dialog__select" id="site_api_rotation_reason_select">'+
-                 '<option value="">Select a reason...</option>'+
-                 '<option value="Scheduled credential rotation">Scheduled credential rotation</option>'+
-                 '<option value="Suspected credential exposure">Suspected credential exposure</option>'+
-                 '<option value="Developer or integration team access change">Developer or integration team access change</option>'+
-                 '<option value="Integration environment or configuration rebuild">Integration environment or configuration rebuild</option>'+
-                 '<option value="Security audit or compliance requirement">Security audit or compliance requirement</option>'+
-                 '<option value="Application ownership or vendor change">Application ownership or vendor change</option>'+
-                 '<option value="OTHER">Other reason</option>'+
-                 '</select>'+
+                 '<span class="rotation-reason-dialog__label">Rotation reason</span>'+
+                 '<div class="rotation-reason-dialog__choices" role="radiogroup" aria-label="Rotation reason">'+
+                 '<button type="button" class="rotation-reason-dialog__choice" data-reason="Scheduled credential rotation"><i class="fa fa-calendar"></i><span>Scheduled rotation</span></button>'+
+                 '<button type="button" class="rotation-reason-dialog__choice" data-reason="Suspected credential exposure"><i class="fa fa-shield"></i><span>Credential exposure</span></button>'+
+                 '<button type="button" class="rotation-reason-dialog__choice" data-reason="Developer or integration team access change"><i class="fa fa-users"></i><span>Team access change</span></button>'+
+                 '<button type="button" class="rotation-reason-dialog__choice" data-reason="Integration environment or configuration rebuild"><i class="fa fa-cogs"></i><span>Environment rebuild</span></button>'+
+                 '<button type="button" class="rotation-reason-dialog__choice" data-reason="Security audit or compliance requirement"><i class="fa fa-check-square-o"></i><span>Audit or compliance</span></button>'+
+                 '<button type="button" class="rotation-reason-dialog__choice" data-reason="Application ownership or vendor change"><i class="fa fa-exchange"></i><span>Owner/vendor change</span></button>'+
+                 '<button type="button" class="rotation-reason-dialog__choice rotation-reason-dialog__choice--wide" data-reason="OTHER"><i class="fa fa-pencil"></i><span>Other reason</span></button>'+
+                 '</div>'+
                  '<div class="rotation-reason-dialog__other-wrap" id="site_api_rotation_other_wrap" style="display:none">'+
                  '<label class="rotation-reason-dialog__label" for="site_api_rotation_other_reason">Describe the reason</label>'+
                  '<textarea class="rotation-reason-dialog__other" id="site_api_rotation_other_reason" maxlength="500" placeholder="Enter a clear operational or security reason"></textarea>'+
@@ -3968,7 +3967,7 @@
                  '</div>';
               swal({title:'Select Rotation Reason',text:reasonOptions,html:true,type:'info',showCancelButton:true,confirmButtonText:'Continue',cancelButtonText:'Cancel',closeOnConfirm:false},function(selected){
                  if(!selected){return;}
-                 var reason=String($('#site_api_rotation_reason_select').val()||'');
+                 var reason=String($('.rotation-reason-dialog__choice.is-selected').data('reason')||'');
                  if(!reason){swal.showInputError('Select a reason before continuing.');return false;}
                  if(reason==='OTHER'){
                     reason=String($('#site_api_rotation_other_reason').val()||'').trim();
@@ -3976,11 +3975,15 @@
                  }
                  confirm_site_api_code_rotation(appId,reason);
               });
-              $('#site_api_rotation_reason_select').on('change',function(){
-                 var isOther=String($(this).val()||'')==='OTHER';
+              $('.rotation-reason-dialog__choice').on('mousedown click',function(event){
+                 event.preventDefault();event.stopPropagation();
+                 if(event.type!=='click'){return;}
+                 $('.rotation-reason-dialog__choice').removeClass('is-selected').attr('aria-checked','false');
+                 $(this).addClass('is-selected').attr('aria-checked','true');
+                 var isOther=String($(this).data('reason')||'')==='OTHER';
                  $('#site_api_rotation_other_wrap').toggle(isOther);
                  if(isOther){setTimeout(function(){$('#site_api_rotation_other_reason').focus();},0);}
-              }).focus();
+              }).attr('role','radio').attr('aria-checked','false');
            }
 
            function confirm_site_api_code_rotation(appId,reason){
