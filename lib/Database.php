@@ -1345,8 +1345,11 @@ class Database {
 
 
     public function admin_get_specific_service_provider($sp_id){
-        $Q = "SELECT S.*,COALESCE(NULLIF(E.image_filename,''),S.sp_image) AS sp_image
+        $Q = "SELECT S.*,COALESCE(NULLIF(E.image_filename,''),S.sp_image) AS sp_image,
+                     CASE WHEN C.sp_id IS NULL THEN 0 ELSE 1 END AS api_code_rotated,
+                     C.code_hint AS api_code_hint,C.credential_version AS api_code_version,C.rotated_at AS api_code_rotated_at
                 FROM sp_list S LEFT JOIN sp_app_asset E ON E.sp_id=S.sp_id AND E.environment=:environment
+                LEFT JOIN sp_api_credential C ON C.sp_id=S.sp_id
                 WHERE S.sp_id=:sp_id";
         $R = $this->pdo->prepare($Q);   
         $R->bindParam(':sp_id', $sp_id);  
@@ -1354,6 +1357,29 @@ class Database {
         $R->execute();
         $result = $R->fetch(PDO::FETCH_ASSOC);
         return $result;
+    }
+
+    public function admin_rotate_site_api_code(string $spId,string $codeHash,string $hint,string $adminId): int{
+        $Q="INSERT INTO sp_api_credential(sp_id,code_hash,code_hint,credential_version,rotated_at,rotated_by)
+            VALUES(:sp_id,:code_hash,:hint,1,NOW(),:admin_id)
+            ON DUPLICATE KEY UPDATE code_hash=VALUES(code_hash),code_hint=VALUES(code_hint),
+                credential_version=credential_version+1,rotated_at=NOW(),rotated_by=VALUES(rotated_by)";
+        $R=$this->pdo->prepare($Q);
+        $R->execute([':sp_id'=>$spId,':code_hash'=>$codeHash,':hint'=>$hint,':admin_id'=>$adminId]);
+        return $R->rowCount();
+    }
+
+    public function resolve_site_api_code(string $presentedCode): array|false{
+        $code=trim($presentedCode);
+        if($code===''||strlen($code)>128)return false;
+        $hash=hash('sha256',$code);
+        $Q="SELECT S.sp_id,S.sp_domain,S.avail_status
+            FROM sp_list S LEFT JOIN sp_api_credential C ON C.sp_id=S.sp_id
+            WHERE S.avail_status=1 AND ((C.sp_id IS NOT NULL AND C.code_hash=:code_hash)
+              OR (C.sp_id IS NULL AND S.sp_id=:legacy_code)) LIMIT 1";
+        $R=$this->pdo->prepare($Q);
+        $R->execute([':code_hash'=>$hash,':legacy_code'=>$code]);
+        return $R->fetch(PDO::FETCH_ASSOC);
     }
 
 

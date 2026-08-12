@@ -150,6 +150,7 @@ function oneid_q_func_action_map(): array
             'action_remove_app_category',
             'action_add_new_app',
             'action_edit_app_info',
+            'admin_rotate_site_api_code',
             'admin_search_user_account',
             'admin_preview_sync_user',
             'admin_preview_odl_shadow',

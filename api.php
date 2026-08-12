@@ -22,6 +22,13 @@ $tokenLifetimePolicy = new \OneId\App\Auth\SsoTokenLifetimePolicy();
 switch($data['flag'] ?? null){
 	case "1": //check SSO Token RESULT = (1) OK, (0) Invalid
 		$API_respond_fields = array();
+		$presentedSite=(string)($data['data']['site_id']??'');
+		$resolvedSite=$presentedSite==='IDP'?['sp_id'=>'IDP']:$operation->resolve_site_api_code($presentedSite);
+		if(!is_array($resolvedSite)){
+			echo json_encode(['respond_flag'=>'1','respond'=>'0','respond_description'=>'Application credential is invalid.']);
+			break;
+		}
+		$data['data']['site_id']=$resolvedSite['sp_id'];
 		//respond_flag = 0-error,1-normal,2-auto reissue token
         $results = $operation->check_token($data['data']['token']);
         if(!$results){

@@ -208,6 +208,9 @@ function GET_CURRENT_PAGE_URI(){
 }
 
  function GET_CHECK_SPECIFIC_SP_ALLOWED($operation,$sp_id){
+        $resolved=$operation->resolve_site_api_code((string)$sp_id);
+        if(!is_array($resolved))return array('domain'=>'','status'=>0);
+        $sp_id=$resolved['sp_id'];
          //get user info
         $user_info = $operation->get_specific_user_info($_SESSION['login_user']);
         //get category acl 

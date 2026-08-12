@@ -586,7 +586,10 @@ function string_sanitize($s) {
             oneid_establish_authenticated_session($results);
 
             if(isset($_POST['site_id'])){
-                $check_result = check_specific_sp_allowed($operation,$_POST['site_id']);
+                $resolvedSite = $operation->resolve_site_api_code((string)$_POST['site_id']);
+                $check_result = is_array($resolvedSite)
+                  ? check_specific_sp_allowed($operation,$resolvedSite['sp_id'])
+                  : ['status'=>0,'domain'=>''];
                 // echo json_encode($check_result);
                 if($check_result['status']==1){                  
                   $array['redirect_uri'] = $check_result['domain'].'?new_sso_cre='.$new_refresh_token; 
@@ -973,6 +976,15 @@ function string_sanitize($s) {
           echo json_encode($service->update($_POST,$_FILES['app_icon']??null,oneid_public_path('public_img'),(string)$_SESSION['login_user'],getUserIP()));
         } catch (\OneId\App\Admin\WebAppManagementException $exception) {
           echo json_encode(['status'=>0,'code'=>$exception->reason,'msg'=>'Application was not updated.','correlation_id'=>$exception->correlationId]);
+        }
+      }
+
+      if(isset($_POST['admin_rotate_site_api_code'])){
+        try{
+          $service=new \OneId\App\Admin\WebAppService($operation);
+          echo json_encode($service->rotateSiteApiCode((string)($_POST['app_id']??''),(string)($_POST['change_reason']??''),(string)$_SESSION['login_user'],getUserIP()));
+        }catch(\OneId\App\Admin\WebAppManagementException $exception){
+          echo json_encode(['status'=>0,'code'=>$exception->reason,'msg'=>'Site API Code was not regenerated.','correlation_id'=>$exception->correlationId]);
         }
       }
 

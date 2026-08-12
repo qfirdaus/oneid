@@ -305,4 +305,32 @@ final class WebAppService
             throw new WebAppManagementException('W3_APP_OPERATION_FAILED', $correlationId);
         }
     }
+
+    public function rotateSiteApiCode(string $appId,string $reason,string $adminId,string $ipAddress): array
+    {
+        $correlationId=bin2hex(random_bytes(8));
+        $appId=trim($appId);$reason=trim($reason);$adminId=trim($adminId);
+        if($appId===''||strlen($appId)>20||preg_match('/^[A-Za-z0-9_-]+$/',$appId)!==1)throw new WebAppManagementException('WA2_APP_ID_INVALID',$correlationId);
+        if(mb_strlen($reason)<10||mb_strlen($reason)>500||preg_match('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u',$reason)===1)throw new WebAppManagementException('WA2_ROTATION_REASON_INVALID',$correlationId);
+        $this->validateActor($adminId,$ipAddress,$correlationId);
+        $started=false;
+        try{
+            $this->operation->beginTransaction();$started=true;
+            $app=$this->operation->admin_get_service_provider_for_update($appId);
+            if(!is_array($app))throw new WebAppManagementException('WA2_APP_NOT_FOUND',$correlationId);
+            if((int)($app['avail_status']??0)!==1)throw new WebAppManagementException('WA2_APP_INACTIVE',$correlationId);
+            $raw='oid_sp_'.rtrim(strtr(base64_encode(random_bytes(32)),'+/','-_'),'=');
+            $hash=hash('sha256',$raw);$hint='...'.substr($raw,-4);
+            if($this->operation->admin_rotate_site_api_code($appId,$hash,$hint,$adminId)<1)throw new WebAppManagementException('WA3_API_CODE_NOT_ROTATED',$correlationId);
+            $detail=sprintf('admin=%s action=rotate_site_api_code app=%s outcome=success reason_sha256=%s correlation=%s',$adminId,$appId,hash('sha256',$reason),$correlationId);
+            if($this->operation->syslog_record(41,$detail,$ipAddress)!==1)throw new WebAppManagementException('WA3_AUDIT_NOT_WRITTEN',$correlationId);
+            $this->operation->commit();$started=false;
+            return ['status'=>1,'code'=>'WA5_SITE_API_CODE_ROTATED','site_api_code'=>$raw,'site_api_code_hint'=>$hint,'correlation_id'=>$correlationId];
+        }catch(Throwable $exception){
+            if($started){try{$this->operation->rollback();}catch(Throwable $ignored){}}
+            if($exception instanceof WebAppManagementException)throw $exception;
+            error_log('WA5 site API code rotation failed correlation_id='.$correlationId.' exception='.get_class($exception));
+            throw new WebAppManagementException('WA3_API_CODE_ROTATION_FAILED',$correlationId);
+        }
+    }
 }

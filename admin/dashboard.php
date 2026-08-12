@@ -505,9 +505,13 @@
                                                    <label class="control-label mb-10" for="edit_app_code">Site API Code</label>
                                                    <span class="input-group-btn">
                                                    <div class="input-group mb-15"> <span class="input-group-btn">
-                                                      <button type="button" class="btn  btn-primary" onclick="copyToClipboard('edit_app_code');"><i class="fa fa-copy"></i> Copy</button>
+                                                      <button type="button" class="btn btn-primary" id="btn_copy_site_api_code" onclick="copyToClipboard('edit_app_code');"><i class="fa fa-copy"></i> Copy</button>
                                                       </span>
                                                       <input type="text" id="edit_app_code" class="form-control" disabled="">
+                                                   </div>
+                                                   <small class="text-muted" id="edit_app_code_status"></small>
+                                                   <div class="mt-10">
+                                                      <button type="button" class="btn btn-warning btn-sm" id="btn_rotate_site_api_code" onclick="rotate_site_api_code();"><i class="fa fa-refresh"></i> Generate New Site API Code</button>
                                                    </div>
                                                 </div>
                                                 <div class="form-group mb-10">
@@ -3799,8 +3803,14 @@
            			$('#edit_app_id').val(sp_id);         	
            			$('#edit_app_name').val(response['sp_name']);
            			$('#edit_app_desc').val(response['sp_description']);
-           			$('#edit_app_url').val(response['sp_domain']);
-           			$('#edit_app_code').val(sp_id);
+					$('#edit_app_url').val(response['sp_domain']);
+					var rotated = Number(response['api_code_rotated'] || 0) === 1;
+					$('#edit_app_code').val(rotated ? String(response['api_code_hint'] || '') : sp_id);
+                  $('#edit_app_code_status').text(rotated
+                     ? 'Rotated credential version ' + String(response['api_code_version'] || 1) + '. Full code is only shown once when generated.'
+                     : 'Legacy Site API Code. It remains valid until this app is regenerated.');
+                  $('#edit_app_code').data('rotated', rotated ? 1 : 0);
+                  $('#btn_copy_site_api_code').prop('disabled',rotated);
                   $('#edit_existing_app_icon').val(response['sp_image']);
            			if(+response['sp_sso_support']==0){
            				$('#app_info_sso_checkbox').prop('checked', false);
@@ -3930,10 +3940,37 @@
 			  });
             });
            });
+
+           function rotate_site_api_code(){
+              var appId=String($('#edit_app_id').val()||'');
+              if(!appId){return;}
+              var reason=window.prompt('Reason for regenerating this Site API Code (minimum 10 characters):','Scheduled credential rotation');
+              if(reason===null){return;}
+              reason=String(reason).trim();
+              if(reason.length<10||reason.length>500){
+                 swal('Invalid reason','Enter a reason between 10 and 500 characters.','error');return;
+              }
+              swal({title:'Generate New Site API Code?',text:'The current code for this app will stop working immediately. Other apps are not affected.',type:'warning',showCancelButton:true,confirmButtonColor:'#DD6B55',confirmButtonText:'Yes, generate now',closeOnConfirm:false},function(confirmed){
+                 if(!confirmed){return;}
+                 $('#btn_rotate_site_api_code').prop('disabled',true);
+                 $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',headers:{'X-CSRF-Token':<?php echo json_encode(oneid_csrf_token()); ?>},data:{admin_rotate_site_api_code:'',app_id:appId,change_reason:reason}})
+                 .done(function(response){
+                    if(Number(response.status)!==1){swal('Code not generated',String(response.msg||response.code||'The operation was rejected.'),'error');return;}
+                    var newCode=String(response.site_api_code||'');
+                    $('#edit_app_code').val(newCode).data('rotated',1);
+                    $('#btn_copy_site_api_code').prop('disabled',false);
+                    $('#edit_app_code_status').text('New code generated. Copy it now; the full value will not be shown again.');
+                    swal({title:'New Site API Code',text:newCode+'\n\nCopy this code now. The previous code is no longer valid.',type:'success',confirmButtonText:'I have copied it'},function(){get_specific_app_info(appId);});
+                 }).fail(function(xhr){
+                    var response=xhr&&xhr.responseJSON?xhr.responseJSON:{};
+                    swal('Code not generated',String(response.error||response.code||'Request failed.'),'error');
+                 }).always(function(){$('#btn_rotate_site_api_code').prop('disabled',false);});
+              });
+           }
          
          
            function remove_app(){
-           	var app_id = $('#edit_app_code').val();
+			var app_id = $('#edit_app_id').val();
            	swal({   
            		title: "Remove App",   
            		text: "Are you sure you want to remove this app?",   
