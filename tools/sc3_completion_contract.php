@@ -14,7 +14,7 @@ $report(count($fake->history)===2&&$fake->history[0]['outcome']==='SUCCESS'&&$fa
 $root=dirname(__DIR__);$ui=(string)file_get_contents($root.'/admin/dashboard.php');$db=(string)file_get_contents($root.'/lib/Database.php');$migration=(string)file_get_contents($root.'/docs/migrations/20260719_sc3_completion_up.sql');
 $report(str_contains($migration,'configuration_version')&&str_contains($migration,'configuration_change_history'),'forward migration contains revision and structured history schema');
 $report(str_contains($db,'configuration_history_record')&&str_contains($db,'configuration_history_list'),'persistence provides atomic history writer and bounded history reader');
-$report(str_contains($ui,'sso_config_change_reason')&&str_contains($ui,'Configuration History')&&str_contains($ui,'sso_config_last_changed'),'UI requires change reason and exposes Last Changed plus read-only history');
+$report(str_contains($ui,'sso_config_change_reason')&&str_contains($ui,'configuration_audit')&&str_contains($ui,'sso_config_last_changed'),'UI requires change reason and exposes Last Changed plus read-only history');
 $report(
     str_contains($ui, 'id="configuration_authentication"')
         && str_contains($ui, 'id="configuration_recovery"')

@@ -37,6 +37,7 @@ require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationException.php';
 require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/PasswordRecoveryConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/SystemLocaleConfigurationService.php';
+require_once dirname(__DIR__) . '/app/Admin/MaintenanceConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/UserMfaGlobalPolicyService.php';
 require_once dirname(__DIR__) . '/app/Admin/UserMfaCategoryPolicyService.php';
 require_once dirname(__DIR__) . '/app/Admin/UserMfaTemporaryExemptionService.php';
@@ -179,8 +180,9 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
         oneid_set_configured_sso_cookie($operation,(string)$handle['token']);
         oneid_establish_authenticated_session($userInfo);
         unset($_SESSION['user_mfa_pending_user'],$_SESSION['user_mfa_pending_transaction']);
+        $maintenanceAdmin=(bool)($_SESSION['user_mfa_pending_admin_maintenance']??false);unset($_SESSION['user_mfa_pending_admin_maintenance']);
         $site=(string)($_SESSION['user_mfa_pending_site_id']??'');unset($_SESSION['user_mfa_pending_site_id']);
-        $redirect=APP_URL.'/page/dashboard';
+        $redirect=$maintenanceAdmin?APP_URL.'/admin/dashboard':APP_URL.'/page/dashboard';
         if($site!==''){
           $_POST['site_id']=$site;$allowed=check_specific_sp_allowed($operation,$site);
           if(($allowed['status']??0)==1){$redirect=(string)$allowed['domain'].'?new_sso_cre='.(string)$handle['token'];}
@@ -474,6 +476,10 @@ function string_sanitize($s) {
           //check_uid
         $results = $operation->func_authenticate($_POST['username'], $_POST['password']);
         if ($results != false){
+           if ((string)($_POST['maintenance_admin_login'] ?? '') === '1' && (string)($results['u_type'] ?? '') !== '1') {
+              echo json_encode(['login_status'=>0,'code'=>'MAINTENANCE_ADMIN_REQUIRED','login_response_msg'=>'Only authorized administrators may sign in during maintenance.']);
+              return;
+           }
         }else{
           //check data2
           $results = $operation->func_authenticate2($_POST['username'], $_POST['password']);
@@ -543,6 +549,7 @@ function string_sanitize($s) {
                 $_SESSION['user_mfa_pending_user']=(string)$results['u_id'];
                 $_SESSION['user_mfa_pending_transaction']=(string)$userMfaResult['transaction_id'];
                 $_SESSION['user_mfa_pending_site_id']=isset($_POST['site_id'])?(string)$_POST['site_id']:'';
+                $_SESSION['user_mfa_pending_admin_maintenance']=(string)($_POST['maintenance_admin_login']??'')==='1';
                 echo json_encode([
                   'login_status'=>2,
                   'code'=>'USER_MFA_REQUIRED',
@@ -586,7 +593,9 @@ function string_sanitize($s) {
 
             oneid_establish_authenticated_session($results);
 
-            if(isset($_POST['site_id'])){
+            if((string)($_POST['maintenance_admin_login']??'')==='1'){
+                $array['redirect_uri'] = 'admin/dashboard';
+            }elseif(isset($_POST['site_id'])){
                 $resolvedSite = $operation->resolve_site_api_code((string)$_POST['site_id']);
                 $check_result = is_array($resolvedSite)
                   ? check_specific_sp_allowed($operation,$resolvedSite['sp_id'])
@@ -961,6 +970,11 @@ function string_sanitize($s) {
         }
       }
 
+
+      if(isset($_POST['admin_get_maintenance_configuration'])||isset($_POST['admin_update_maintenance_configuration'])){
+        try{$service=new \OneId\App\Admin\MaintenanceConfigurationService($operation);$result=isset($_POST['admin_get_maintenance_configuration'])?$service->read():$service->update($_POST,(string)$_SESSION['login_user'],(string)getUserIP());echo json_encode($result);}
+        catch(\OneId\App\Admin\SsoConfigurationException $exception){echo json_encode(['status'=>0,'code'=>$exception->reason,'message'=>'Maintenance configuration was not completed.','correlation_id'=>$exception->correlationId]);}
+      }
 
       if(isset( $_POST['action_add_new_app'])){
         try {

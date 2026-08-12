@@ -154,6 +154,24 @@ class Database {
         return $result;
     }
 
+    public function get_maintenance_config(): array|false{
+        try{
+            $Q="SELECT configuration_version,maintenance_mode,maintenance_starts_at,maintenance_ends_at,maintenance_title_ms,maintenance_title_en,maintenance_message_ms,maintenance_message_en FROM sys_config WHERE singleton_key=1";
+            $row=$this->pdo->query($Q)->fetch(PDO::FETCH_ASSOC);
+            return is_array($row)?$row:false;
+        }catch(\Throwable){return false;}
+    }
+
+    public function get_maintenance_config_for_update(): array|false{
+        $Q="SELECT id,configuration_version,maintenance_mode,maintenance_starts_at,maintenance_ends_at,maintenance_title_ms,maintenance_title_en,maintenance_message_ms,maintenance_message_en FROM sys_config WHERE singleton_key=1 FOR UPDATE";
+        $row=$this->pdo->query($Q)->fetch(PDO::FETCH_ASSOC);return is_array($row)?$row:false;
+    }
+
+    public function update_maintenance_config_by_version(int $id,array $data,int $version): int{
+        $Q="UPDATE sys_config SET maintenance_mode=:mode,maintenance_starts_at=:starts,maintenance_ends_at=:ends,maintenance_title_ms=:title_ms,maintenance_title_en=:title_en,maintenance_message_ms=:message_ms,maintenance_message_en=:message_en,configuration_version=configuration_version+1 WHERE id=:id AND singleton_key=1 AND configuration_version=:version";
+        $R=$this->pdo->prepare($Q);$R->execute([':mode'=>$data['mode'],':starts'=>$data['starts_at'],':ends'=>$data['ends_at'],':title_ms'=>$data['title_ms'],':title_en'=>$data['title_en'],':message_ms'=>$data['message_ms'],':message_en'=>$data['message_en'],':id'=>$id,':version'=>$version]);return $R->rowCount();
+    }
+
     public function get_system_config_for_update(){
         $Q = "SELECT id, configuration_version, token_timeout, multi_session, password_reset_email_enabled, admin_2fa_enabled, admin_step_up_lifetime_minutes FROM sys_config WHERE singleton_key = 1 FOR UPDATE";
         $R = $this->pdo->prepare($Q);

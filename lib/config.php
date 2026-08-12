@@ -2,6 +2,8 @@
 require_once dirname(__DIR__) . '/bootstrap/app.php';
 require_once __DIR__ . '/secrets.php';
 require_once __DIR__ . '/auth_security.php';
+require_once dirname(__DIR__) . '/app/Maintenance/MaintenancePolicy.php';
+require_once dirname(__DIR__) . '/app/Maintenance/MaintenanceGate.php';
 
 date_default_timezone_set((string) oneid_config('ONEID_TIMEZONE'));
 
@@ -91,6 +93,7 @@ if (!defined('ONEID_CONFIG_SKIP_DATABASE') || ONEID_CONFIG_SKIP_DATABASE !== tru
   if (function_exists('oneid_apply_configured_session_policy')) {
     oneid_apply_configured_session_policy($operation);
   }
+  \OneId\App\Maintenance\MaintenanceGate::enforce($operation);
 }
 
 ?>

@@ -67,6 +67,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
 <html lang="<?=htmlspecialchars(oneid_current_locale(), ENT_QUOTES, 'UTF-8')?>">
 <head>
   <meta charset="utf-8" />
+  <base href="<?=htmlspecialchars(APP_URL.'/', ENT_QUOTES, 'UTF-8')?>" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><?=htmlspecialchars(oneid_translate('login.page_title'), ENT_QUOTES, 'UTF-8')?></title>
 
@@ -97,6 +98,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
       </div>   
 
       <form id="loginform">
+        <?php if (defined('ONEID_ADMIN_MAINTENANCE_LOGIN')): ?><input type="hidden" name="maintenance_admin_login" value="1"><?php endif; ?>
         <div style="text-align: center; margin-bottom: 12px;">          
           <img src="img/logo_oneid.png" alt="UPNM Logo" style="width: 80%; height: auto !important;" />
           <img src="img/logo_upnm_30.png" alt="UPNM 30 Tahun Logo" style="width: 40%; height: auto !important;" />
@@ -136,13 +138,13 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-3" >
-          <a style="cursor: pointer;" class="text-primary" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></a>
+          <?php if (!defined('ONEID_ADMIN_MAINTENANCE_LOGIN')): ?><a style="cursor: pointer;" class="text-primary" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></a><?php else: ?><span class="text-muted">Administrator maintenance access</span><?php endif; ?>
           <button type="submit" class="btn btn-warning px-4">
             <i class="icon-login me-1 animate__animated animate__swing animate__infinite infinite"></i> <?=htmlspecialchars(oneid_translate('login.submit'), ENT_QUOTES, 'UTF-8')?>
           </button>
         </div>
 
-        <?php if ($myDigitalIdEnabled): ?>
+        <?php if ($myDigitalIdEnabled && !defined('ONEID_ADMIN_MAINTENANCE_LOGIN')): ?>
           <div class="mydigitalid-login-option" role="region" aria-labelledby="mydigitalid-divider">
             <div class="mydigitalid-divider">
               <span id="mydigitalid-divider"><?=htmlspecialchars(oneid_translate('login.mydigitalid.divider'), ENT_QUOTES, 'UTF-8')?></span>

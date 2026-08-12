@@ -139,6 +139,8 @@ function oneid_q_func_action_map(): array
             'admin_get_password_recovery_settings',
             'admin_get_default_locale',
             'admin_update_default_locale',
+            'admin_get_maintenance_configuration',
+            'admin_update_maintenance_configuration',
             'admin_metadata_translation_preview',
             'admin_get_metadata_translation',
             'admin_save_metadata_translation',
@@ -236,6 +238,7 @@ function oneid_admin_action_purpose(string $action): string
         'admin_login_banner_inactivate',
         'admin_login_banner_reorder',
         'admin_login_banner_rollback',
+        'admin_update_maintenance_configuration',
     ];
     return in_array($action, $securityConfiguration, true)
         ? 'SECURITY_CONFIGURATION_CHANGE'

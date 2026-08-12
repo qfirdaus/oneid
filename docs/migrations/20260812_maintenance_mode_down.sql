@@ -1,0 +1,9 @@
+ALTER TABLE sys_config
+    DROP CONSTRAINT chk_sys_config_maintenance_mode,
+    DROP COLUMN maintenance_message_en,
+    DROP COLUMN maintenance_message_ms,
+    DROP COLUMN maintenance_title_en,
+    DROP COLUMN maintenance_title_ms,
+    DROP COLUMN maintenance_ends_at,
+    DROP COLUMN maintenance_starts_at,
+    DROP COLUMN maintenance_mode;
