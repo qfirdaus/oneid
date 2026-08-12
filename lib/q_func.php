@@ -32,6 +32,7 @@ require_once dirname(__DIR__) . '/app/User/UserAclManagementService.php';
 require_once dirname(__DIR__) . '/app/Admin/WebAppManagementException.php';
 require_once dirname(__DIR__) . '/app/Admin/WebAppCategoryService.php';
 require_once dirname(__DIR__) . '/app/Admin/WebAppService.php';
+require_once dirname(__DIR__) . '/app/Admin/SiteApiCodeCipher.php';
 require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationException.php';
 require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/PasswordRecoveryConfigurationService.php';
@@ -981,7 +982,8 @@ function string_sanitize($s) {
 
       if(isset($_POST['admin_rotate_site_api_code'])){
         try{
-          $service=new \OneId\App\Admin\WebAppService($operation);
+          $cipher=new \OneId\App\Admin\SiteApiCodeCipher(\OneId\App\Auth\TotpKeyring::fromFile((string)oneid_config('ONEID_TOTP_KEYRING_PATH','')));
+          $service=new \OneId\App\Admin\WebAppService($operation,$cipher);
           echo json_encode($service->rotateSiteApiCode((string)($_POST['app_id']??''),(string)($_POST['change_reason']??''),(string)$_SESSION['login_user'],getUserIP()));
         }catch(\OneId\App\Admin\WebAppManagementException $exception){
           echo json_encode(['status'=>0,'code'=>$exception->reason,'msg'=>'Site API Code was not regenerated.','correlation_id'=>$exception->correlationId]);
@@ -1875,6 +1877,13 @@ function string_sanitize($s) {
 
       if(isset( $_POST['admin_get_specific_service_provider'])){
         $results = $operation->admin_get_specific_service_provider($_POST['sp_id']);
+        if(is_array($results)&&!empty($results['code_ciphertext'])){
+          try{
+            $cipher=new \OneId\App\Admin\SiteApiCodeCipher(\OneId\App\Auth\TotpKeyring::fromFile((string)oneid_config('ONEID_TOTP_KEYRING_PATH','')));
+            $results['site_api_code']=$cipher->decrypt($results['code_ciphertext'],$results['code_nonce'],(string)$results['key_version']);
+          }catch(\Throwable $exception){$results['api_code_retrieval_error']=1;}
+        }
+        if(is_array($results)){unset($results['code_ciphertext'],$results['code_nonce'],$results['key_version']);}
         echo json_encode($results);
       }
 

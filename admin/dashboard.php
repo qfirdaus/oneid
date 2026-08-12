@@ -506,7 +506,7 @@
                                                    <label class="control-label mb-10" for="edit_app_code">Site API Code</label>
                                                    <div class="input-group mb-15">
                                                       <span class="input-group-btn">
-                                                      <button type="button" class="btn btn-primary" id="btn_copy_site_api_code" onclick="copyToClipboard('edit_app_code');"><i class="fa fa-copy"></i> Copy</button>
+                                                      <button type="button" class="btn btn-primary" id="btn_copy_site_api_code" onclick="copyToClipboard('edit_app_code');"><i class="fa fa-copy"></i> <span class="copy-label">Copy</span></button>
                                                       </span>
                                                       <input type="text" id="edit_app_code" class="form-control" disabled="">
                                                       <span class="input-group-btn">
@@ -3806,12 +3806,17 @@
            			$('#edit_app_desc').val(response['sp_description']);
 					$('#edit_app_url').val(response['sp_domain']);
 					var rotated = Number(response['api_code_rotated'] || 0) === 1;
-					$('#edit_app_code').val(rotated ? String(response['api_code_hint'] || '') : sp_id);
-                  $('#edit_app_code_status').text(rotated
-                     ? 'Rotated credential version ' + String(response['api_code_version'] || 1) + '. Full code is only shown once when generated.'
-                     : 'Legacy Site API Code. It remains valid until this app is regenerated.');
+                  var retrievableCode=String(response['site_api_code']||'');
+					$('#edit_app_code').val(rotated ? (retrievableCode||String(response['api_code_hint']||'')) : sp_id);
+                  if(!rotated){
+                     $('#edit_app_code_status').text('Legacy Site API Code — active and available to copy. Generate a new code only when rotation is required.');
+                  }else if(retrievableCode){
+                     $('#edit_app_code_status').text('Rotated Site API Code version '+String(response['api_code_version']||1)+' — stored encrypted and available to authorized administrators.');
+                  }else{
+                     $('#edit_app_code_status').text('Rotated Site API Code version '+String(response['api_code_version']||1)+' — full code is unavailable because it was generated before secure retrieval was enabled. Generate a new code to replace it.');
+                  }
                   $('#edit_app_code').data('rotated', rotated ? 1 : 0);
-                  $('#btn_copy_site_api_code').prop('disabled',rotated);
+                  $('#btn_copy_site_api_code').prop('disabled',rotated&&retrievableCode==='').find('.copy-label').text(rotated&&retrievableCode===''?'Unavailable':'Copy');
                   $('#edit_existing_app_icon').val(response['sp_image']);
            			if(+response['sp_sso_support']==0){
            				$('#app_info_sso_checkbox').prop('checked', false);
@@ -3995,7 +4000,7 @@
                     if(Number(response.status)!==1){swal('Code not generated',String(response.msg||response.code||'The operation was rejected.'),'error');return;}
                     var newCode=String(response.site_api_code||'');
                     $('#edit_app_code').val(newCode).data('rotated',1);
-                    $('#btn_copy_site_api_code').prop('disabled',false);
+                    $('#btn_copy_site_api_code').prop('disabled',false).find('.copy-label').text('Copy');
                     $('#edit_app_code_status').text('New code generated. Copy it now; the full value will not be shown again.');
                     var codePanel=''+
                        '<div class="site-api-code-result">'+

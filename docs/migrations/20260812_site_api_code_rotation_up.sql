@@ -1,6 +1,9 @@
 CREATE TABLE IF NOT EXISTS sp_api_credential (
     sp_id VARCHAR(20) NOT NULL,
     code_hash CHAR(64) NOT NULL,
+    code_ciphertext VARBINARY(255) NULL,
+    code_nonce BINARY(24) NULL,
+    key_version VARCHAR(32) NULL,
     code_hint VARCHAR(12) NOT NULL,
     credential_version BIGINT UNSIGNED NOT NULL DEFAULT 1,
     rotated_at DATETIME NOT NULL,

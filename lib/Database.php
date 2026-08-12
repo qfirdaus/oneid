@@ -1347,7 +1347,8 @@ class Database {
     public function admin_get_specific_service_provider($sp_id){
         $Q = "SELECT S.*,COALESCE(NULLIF(E.image_filename,''),S.sp_image) AS sp_image,
                      CASE WHEN C.sp_id IS NULL THEN 0 ELSE 1 END AS api_code_rotated,
-                     C.code_hint AS api_code_hint,C.credential_version AS api_code_version,C.rotated_at AS api_code_rotated_at
+                     C.code_hint AS api_code_hint,C.credential_version AS api_code_version,C.rotated_at AS api_code_rotated_at,
+                     C.code_ciphertext,C.code_nonce,C.key_version
                 FROM sp_list S LEFT JOIN sp_app_asset E ON E.sp_id=S.sp_id AND E.environment=:environment
                 LEFT JOIN sp_api_credential C ON C.sp_id=S.sp_id
                 WHERE S.sp_id=:sp_id";
@@ -1359,13 +1360,14 @@ class Database {
         return $result;
     }
 
-    public function admin_rotate_site_api_code(string $spId,string $codeHash,string $hint,string $adminId): int{
-        $Q="INSERT INTO sp_api_credential(sp_id,code_hash,code_hint,credential_version,rotated_at,rotated_by)
-            VALUES(:sp_id,:code_hash,:hint,1,NOW(),:admin_id)
+    public function admin_rotate_site_api_code(string $spId,string $codeHash,string $hint,string $adminId,string $ciphertext='',string $nonce='',string $keyVersion=''): int{
+        $Q="INSERT INTO sp_api_credential(sp_id,code_hash,code_ciphertext,code_nonce,key_version,code_hint,credential_version,rotated_at,rotated_by)
+            VALUES(:sp_id,:code_hash,:ciphertext,:nonce,:key_version,:hint,1,NOW(),:admin_id)
             ON DUPLICATE KEY UPDATE code_hash=VALUES(code_hash),code_hint=VALUES(code_hint),
+                code_ciphertext=VALUES(code_ciphertext),code_nonce=VALUES(code_nonce),key_version=VALUES(key_version),
                 credential_version=credential_version+1,rotated_at=NOW(),rotated_by=VALUES(rotated_by)";
         $R=$this->pdo->prepare($Q);
-        $R->execute([':sp_id'=>$spId,':code_hash'=>$codeHash,':hint'=>$hint,':admin_id'=>$adminId]);
+        $R->execute([':sp_id'=>$spId,':code_hash'=>$codeHash,':ciphertext'=>$ciphertext?:null,':nonce'=>$nonce?:null,':key_version'=>$keyVersion?:null,':hint'=>$hint,':admin_id'=>$adminId]);
         return $R->rowCount();
     }
 

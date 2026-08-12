@@ -8,7 +8,7 @@ final class WebAppService
 {
     private const APP_ID_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
-    public function __construct(private readonly object $operation)
+    public function __construct(private readonly object $operation,private readonly ?SiteApiCodeCipher $siteApiCodeCipher=null)
     {
     }
 
@@ -321,7 +321,9 @@ final class WebAppService
             if((int)($app['avail_status']??0)!==1)throw new WebAppManagementException('WA2_APP_INACTIVE',$correlationId);
             $raw='oid_sp_'.rtrim(strtr(base64_encode(random_bytes(32)),'+/','-_'),'=');
             $hash=hash('sha256',$raw);$hint='...'.substr($raw,-4);
-            if($this->operation->admin_rotate_site_api_code($appId,$hash,$hint,$adminId)<1)throw new WebAppManagementException('WA3_API_CODE_NOT_ROTATED',$correlationId);
+            if($this->siteApiCodeCipher===null)throw new WebAppManagementException('WA3_API_CODE_ENCRYPTION_UNAVAILABLE',$correlationId);
+            $encrypted=$this->siteApiCodeCipher->encrypt($raw);
+            if($this->operation->admin_rotate_site_api_code($appId,$hash,$hint,$adminId,$encrypted['ciphertext'],$encrypted['nonce'],$encrypted['key_version'])<1)throw new WebAppManagementException('WA3_API_CODE_NOT_ROTATED',$correlationId);
             $detail=sprintf('admin=%s action=rotate_site_api_code app=%s outcome=success reason_sha256=%s correlation=%s',$adminId,$appId,hash('sha256',$reason),$correlationId);
             if($this->operation->syslog_record(41,$detail,$ipAddress)!==1)throw new WebAppManagementException('WA3_AUDIT_NOT_WRITTEN',$correlationId);
             $this->operation->commit();$started=false;
