@@ -82,6 +82,7 @@
       <link href="../dist/css/oneid-configuration-navigation.css?v=20260801-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-admin-profile.css?v=20260805-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-1" rel="stylesheet" type="text/css">
    </head>
    <body class="<?=trim(oneid_environment_body_class())?>">
       <?php oneid_render_environment_banner(); ?>
@@ -3945,30 +3946,41 @@
               var appId=String($('#edit_app_id').val()||'');
               if(!appId){return;}
               var reasonOptions=''+
-                 '<div class="text-left" style="margin:10px 20px">'+
-                 '<label style="display:block;margin-bottom:9px"><input type="radio" name="site_api_rotation_reason" value="Scheduled credential rotation"> Scheduled credential rotation</label>'+
-                 '<label style="display:block;margin-bottom:9px"><input type="radio" name="site_api_rotation_reason" value="Suspected credential exposure"> Suspected credential exposure</label>'+
-                 '<label style="display:block;margin-bottom:9px"><input type="radio" name="site_api_rotation_reason" value="Developer or integration team access change"> Developer or integration team access change</label>'+
-                 '<label style="display:block;margin-bottom:9px"><input type="radio" name="site_api_rotation_reason" value="Integration environment or configuration rebuild"> Integration environment or configuration rebuild</label>'+
-                 '<label style="display:block;margin-bottom:9px"><input type="radio" name="site_api_rotation_reason" value="Security audit or compliance requirement"> Security audit or compliance requirement</label>'+
-                 '<label style="display:block;margin-bottom:9px"><input type="radio" name="site_api_rotation_reason" value="Application ownership or vendor change"> Application ownership or vendor change</label>'+
-                 '<label style="display:block"><input type="radio" name="site_api_rotation_reason" value="OTHER"> Other reason</label>'+
+                 '<div class="rotation-reason-dialog">'+
+                 '<p class="rotation-reason-dialog__intro">Choose the reason that best describes why this application credential must be replaced.</p>'+
+                 '<label class="rotation-reason-dialog__label" for="site_api_rotation_reason_select">Rotation reason</label>'+
+                 '<select class="rotation-reason-dialog__select" id="site_api_rotation_reason_select">'+
+                 '<option value="">Select a reason...</option>'+
+                 '<option value="Scheduled credential rotation">Scheduled credential rotation</option>'+
+                 '<option value="Suspected credential exposure">Suspected credential exposure</option>'+
+                 '<option value="Developer or integration team access change">Developer or integration team access change</option>'+
+                 '<option value="Integration environment or configuration rebuild">Integration environment or configuration rebuild</option>'+
+                 '<option value="Security audit or compliance requirement">Security audit or compliance requirement</option>'+
+                 '<option value="Application ownership or vendor change">Application ownership or vendor change</option>'+
+                 '<option value="OTHER">Other reason</option>'+
+                 '</select>'+
+                 '<div class="rotation-reason-dialog__other-wrap" id="site_api_rotation_other_wrap" style="display:none">'+
+                 '<label class="rotation-reason-dialog__label" for="site_api_rotation_other_reason">Describe the reason</label>'+
+                 '<textarea class="rotation-reason-dialog__other" id="site_api_rotation_other_reason" maxlength="500" placeholder="Enter a clear operational or security reason"></textarea>'+
+                 '<small class="rotation-reason-dialog__help">Minimum 10 characters, maximum 500 characters.</small>'+
+                 '</div>'+
+                 '<div class="rotation-reason-dialog__notice"><i class="fa fa-exclamation-triangle"></i><span>The existing code will remain unchanged until you confirm the next step.</span></div>'+
                  '</div>';
               swal({title:'Select Rotation Reason',text:reasonOptions,html:true,type:'info',showCancelButton:true,confirmButtonText:'Continue',cancelButtonText:'Cancel',closeOnConfirm:false},function(selected){
                  if(!selected){return;}
-                 var reason=String($('input[name="site_api_rotation_reason"]:checked').val()||'');
+                 var reason=String($('#site_api_rotation_reason_select').val()||'');
                  if(!reason){swal.showInputError('Select a reason before continuing.');return false;}
                  if(reason==='OTHER'){
-                    swal({title:'Other Rotation Reason',text:'Enter a reason between 10 and 500 characters.',type:'input',showCancelButton:true,confirmButtonText:'Continue',cancelButtonText:'Cancel',closeOnConfirm:false,inputPlaceholder:'Describe why this code must be regenerated'},function(customReason){
-                       if(customReason===false){return;}
-                       customReason=String(customReason||'').trim();
-                       if(customReason.length<10||customReason.length>500){swal.showInputError('Enter a reason between 10 and 500 characters.');return false;}
-                       confirm_site_api_code_rotation(appId,customReason);
-                    });
-                    return;
+                    reason=String($('#site_api_rotation_other_reason').val()||'').trim();
+                    if(reason.length<10||reason.length>500){swal.showInputError('Enter an Other reason between 10 and 500 characters.');return false;}
                  }
                  confirm_site_api_code_rotation(appId,reason);
               });
+              $('#site_api_rotation_reason_select').on('change',function(){
+                 var isOther=String($(this).val()||'')==='OTHER';
+                 $('#site_api_rotation_other_wrap').toggle(isOther);
+                 if(isOther){setTimeout(function(){$('#site_api_rotation_other_reason').focus();},0);}
+              }).focus();
            }
 
            function confirm_site_api_code_rotation(appId,reason){
