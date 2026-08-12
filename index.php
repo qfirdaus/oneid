@@ -3,7 +3,13 @@ require_once __DIR__ . '/app/Auth/MyDigitalId/MyDigitalIdRejectedLogoutState.php
 require_once __DIR__ . '/lib/session_security.php';
 oneid_start_secure_session();
 require_once __DIR__ . '/lib/request_security.php';
-require_once __DIR__ . '/lib/SSO_IDP_INC.php';
+if (defined('ONEID_ADMIN_MAINTENANCE_LOGIN')) {
+  // The legacy SSO bootstrap redirects non-root login URLs back to APP_URL.
+  // The dedicated maintenance login must render locally before credentials exist.
+  require_once __DIR__ . '/lib/config.php';
+} else {
+  require_once __DIR__ . '/lib/SSO_IDP_INC.php';
+}
 require_once __DIR__ . '/lib/shared_faq.php';
 require_once __DIR__ . '/lib/environment_banner.php';
 require_once __DIR__ . '/app/LoginBanner/LoginBannerPersistenceException.php';
