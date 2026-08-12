@@ -992,6 +992,7 @@ return [
     'admin.maintenance.status_SCHEDULED' => 'Dijadualkan — belum bermula',
     'admin.maintenance.status_ACTIVE' => 'Aktif — akses awam disekat',
     'admin.maintenance.status_COMPLETED' => 'Selesai — akses awam dipulihkan',
+    'admin.maintenance.status_pending' => 'Pilihan baharu belum disimpan — klik Semak & Simpan untuk menggunakannya',
     'admin.maintenance.load_failed' => 'Konfigurasi tidak tersedia. Jalankan migration yang diluluskan terlebih dahulu.',
     'admin.maintenance.reason_required_title' => 'Sebab diperlukan',
     'admin.maintenance.reason_required' => 'Pilih satu sebab sebelum meneruskan.',

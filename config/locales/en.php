@@ -992,6 +992,7 @@ return [
     'admin.maintenance.status_SCHEDULED' => 'Scheduled — not started',
     'admin.maintenance.status_ACTIVE' => 'Active — public access blocked',
     'admin.maintenance.status_COMPLETED' => 'Completed — public access restored',
+    'admin.maintenance.status_pending' => 'New selection not saved — click Review & Save to apply it',
     'admin.maintenance.load_failed' => 'Configuration is unavailable. Apply the approved migration first.',
     'admin.maintenance.reason_required_title' => 'Reason required',
     'admin.maintenance.reason_required' => 'Select a reason before continuing.',
