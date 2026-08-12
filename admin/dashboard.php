@@ -3997,7 +3997,27 @@
                     $('#edit_app_code').val(newCode).data('rotated',1);
                     $('#btn_copy_site_api_code').prop('disabled',false);
                     $('#edit_app_code_status').text('New code generated. Copy it now; the full value will not be shown again.');
-                    swal({title:'New Site API Code',text:newCode+'\n\nCopy this code now. The previous code is no longer valid.',type:'success',confirmButtonText:'I have copied it'},function(){get_specific_app_info(appId);});
+                    var codePanel=''+
+                       '<div class="site-api-code-result">'+
+                       '<p class="site-api-code-result__intro">Copy and store this credential securely in the integrated application.</p>'+
+                       '<div class="site-api-code-result__code"><code id="generated_site_api_code"></code><div class="site-api-code-result__copy" id="copy_generated_site_api_code" role="button" tabindex="0" aria-label="Copy new Site API Code"><i class="fa fa-copy"></i><span>Copy</span></div></div>'+
+                       '<div class="site-api-code-result__feedback" id="site_api_code_copy_feedback"><i class="fa fa-info-circle"></i> This full code is shown once only. If it is lost, generate another code.</div>'+
+                       '<div class="site-api-code-result__warning"><i class="fa fa-ban"></i> The previous Site API Code is no longer valid.</div>'+
+                       '</div>';
+                    swal({title:'New Site API Code',text:codePanel,html:true,type:'success',confirmButtonText:'Done',allowEscapeKey:false,allowOutsideClick:false},function(){get_specific_app_info(appId);});
+                    $('#generated_site_api_code').text(newCode);
+                    $('#copy_generated_site_api_code').on('click',function(event){
+                       event.preventDefault();event.stopPropagation();
+                       navigator.clipboard.writeText(newCode).then(function(){
+                          $('#copy_generated_site_api_code').addClass('is-copied').find('span').text('Copied');
+                          $('#copy_generated_site_api_code i').removeClass('fa-copy').addClass('fa-check');
+                          $('#site_api_code_copy_feedback').addClass('is-copied').html('<i class="fa fa-check-circle"></i> Code copied. Update the integrated application before closing this message.');
+                       },function(){
+                          $('#site_api_code_copy_feedback').html('<i class="fa fa-exclamation-circle"></i> Automatic copy failed. Select and copy the code manually.');
+                       });
+                    }).on('keydown',function(event){
+                       if(event.key==='Enter'||event.key===' '){event.preventDefault();$(this).trigger('click');}
+                    });
                  }).fail(function(xhr){
                     var response=xhr&&xhr.responseJSON?xhr.responseJSON:{};
                     swal('Code not generated',String(response.error||response.code||'Request failed.'),'error');
