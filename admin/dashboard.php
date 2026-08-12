@@ -85,7 +85,7 @@
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-web-app-modal.css?v=20260812-6" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-maintenance-admin.css?v=20260812-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-maintenance-admin.css?v=20260812-2" rel="stylesheet" type="text/css">
    </head>
    <body class="<?=trim(oneid_environment_body_class())?>">
       <?php oneid_render_environment_banner(); ?>
@@ -2892,7 +2892,7 @@
          function maintenanceLocalValue(utc){if(!utc)return'';var d=new Date(String(utc).replace(' ','T')+'Z');if(isNaN(d.getTime()))return'';var p=function(v){return String(v).padStart(2,'0');};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());}
          function maintenanceStatusText(state){var key='admin.maintenance.status_'+String(state||'OFF').toUpperCase();var translated=adminText(key);return translated===key?String(state||'OFF'):translated;}
          function loadMaintenanceConfiguration(){$.post('../lib/q_func',{admin_get_maintenance_configuration:''},function(r){if(!r||Number(r.status)!==1){$('#maintenance_status').text(adminText('admin.maintenance.load_failed'));return;}var d=r.data||{};maintenanceConfigurationVersion=Number(d.configuration_version||0);$('#maintenance_mode').val(d.mode||'OFF');$('#maintenance_starts_at').val(maintenanceLocalValue(d.starts_at));$('#maintenance_ends_at').val(maintenanceLocalValue(d.ends_at));$('#maintenance_title_ms').val(d.title_ms||'');$('#maintenance_title_en').val(d.title_en||'');$('#maintenance_message_ms').val(d.message_ms||'');$('#maintenance_message_en').val(d.message_en||'');$('#maintenance_status').text(maintenanceStatusText(d.state));toggleMaintenanceTimes();},'json').fail(function(){$('#maintenance_status').text(adminText('admin.maintenance.load_failed'));});}
-         function toggleMaintenanceTimes(){var mode=$('#maintenance_mode').val();$('#maintenance_time_row').toggle(mode!=='OFF');$('#maintenance_ends_wrap').toggle(mode==='SCHEDULED');$('#maintenance_ends_at').prop('disabled',mode!=='SCHEDULED');}
+         function toggleMaintenanceTimes(){var mode=$('#maintenance_mode').val();$('#maintenance_time_row').toggle(mode!=='OFF').removeClass('maintenance-form-card--scheduled maintenance-form-card--indefinite').addClass(mode==='SCHEDULED'?'maintenance-form-card--scheduled':(mode==='INDEFINITE'?'maintenance-form-card--indefinite':''));$('#maintenance_ends_wrap').toggle(mode==='SCHEDULED');$('#maintenance_ends_at').prop('disabled',mode!=='SCHEDULED');}
          $('#maintenance_mode').on('change',toggleMaintenanceTimes);
          $('.maintenance-reason-options button').on('click',function(){var value=String($(this).data('reason')||'');maintenanceSelectedReason=value;$('.maintenance-reason-options button').removeClass('is-selected').attr('aria-checked','false');$(this).addClass('is-selected').attr('aria-checked','true');var other=value==='OTHER';$('#maintenance_other_reason_wrap').prop('hidden',!other);if(other){setTimeout(function(){$('#maintenance_reason').focus();},0);}else{$('#maintenance_reason').val('');}}).attr('role','radio').attr('aria-checked','false');
          function saveMaintenanceConfiguration(){
