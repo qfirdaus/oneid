@@ -37,6 +37,7 @@ $ui=(string)file_get_contents(dirname(__DIR__).'/admin/dashboard.php');
 $report(str_contains($service,"random_bytes(32)")&&str_contains($service,"hash('sha256',\$raw)"),'rotation generates a strong code and stores its hash');
 $report(str_contains($api,'resolve_site_api_code'),'SSO API resolves Site API Code before ACL checks');
 $report(str_contains($ui,'Generate New Site API Code')&&str_contains($ui,'admin_rotate_site_api_code'),'admin Web Apps UI exposes per-app rotation');
+$report(substr_count($ui,'name="site_api_rotation_reason"')>=7&&str_contains($ui,"type:'input'")&&str_contains($ui,'Other Rotation Reason'),'rotation reason uses SweetAlert choices with a custom Other option');
 
 printf("RESULT checks=%d failed=%d\n",$checks,$failed);
 exit($failed===0?0:1);

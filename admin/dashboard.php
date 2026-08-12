@@ -3944,12 +3944,34 @@
            function rotate_site_api_code(){
               var appId=String($('#edit_app_id').val()||'');
               if(!appId){return;}
-              var reason=window.prompt('Reason for regenerating this Site API Code (minimum 10 characters):','Scheduled credential rotation');
-              if(reason===null){return;}
-              reason=String(reason).trim();
-              if(reason.length<10||reason.length>500){
-                 swal('Invalid reason','Enter a reason between 10 and 500 characters.','error');return;
-              }
+              var reasonOptions=''+
+                 '<div class="text-left" style="margin:10px 20px">'+
+                 '<label style="display:block;margin-bottom:9px"><input type="radio" name="site_api_rotation_reason" value="Scheduled credential rotation"> Scheduled credential rotation</label>'+
+                 '<label style="display:block;margin-bottom:9px"><input type="radio" name="site_api_rotation_reason" value="Suspected credential exposure"> Suspected credential exposure</label>'+
+                 '<label style="display:block;margin-bottom:9px"><input type="radio" name="site_api_rotation_reason" value="Developer or integration team access change"> Developer or integration team access change</label>'+
+                 '<label style="display:block;margin-bottom:9px"><input type="radio" name="site_api_rotation_reason" value="Integration environment or configuration rebuild"> Integration environment or configuration rebuild</label>'+
+                 '<label style="display:block;margin-bottom:9px"><input type="radio" name="site_api_rotation_reason" value="Security audit or compliance requirement"> Security audit or compliance requirement</label>'+
+                 '<label style="display:block;margin-bottom:9px"><input type="radio" name="site_api_rotation_reason" value="Application ownership or vendor change"> Application ownership or vendor change</label>'+
+                 '<label style="display:block"><input type="radio" name="site_api_rotation_reason" value="OTHER"> Other reason</label>'+
+                 '</div>';
+              swal({title:'Select Rotation Reason',text:reasonOptions,html:true,type:'info',showCancelButton:true,confirmButtonText:'Continue',cancelButtonText:'Cancel',closeOnConfirm:false},function(selected){
+                 if(!selected){return;}
+                 var reason=String($('input[name="site_api_rotation_reason"]:checked').val()||'');
+                 if(!reason){swal.showInputError('Select a reason before continuing.');return false;}
+                 if(reason==='OTHER'){
+                    swal({title:'Other Rotation Reason',text:'Enter a reason between 10 and 500 characters.',type:'input',showCancelButton:true,confirmButtonText:'Continue',cancelButtonText:'Cancel',closeOnConfirm:false,inputPlaceholder:'Describe why this code must be regenerated'},function(customReason){
+                       if(customReason===false){return;}
+                       customReason=String(customReason||'').trim();
+                       if(customReason.length<10||customReason.length>500){swal.showInputError('Enter a reason between 10 and 500 characters.');return false;}
+                       confirm_site_api_code_rotation(appId,customReason);
+                    });
+                    return;
+                 }
+                 confirm_site_api_code_rotation(appId,reason);
+              });
+           }
+
+           function confirm_site_api_code_rotation(appId,reason){
               swal({title:'Generate New Site API Code?',text:'The current code for this app will stop working immediately. Other apps are not affected.',type:'warning',showCancelButton:true,confirmButtonColor:'#DD6B55',confirmButtonText:'Yes, generate now',closeOnConfirm:false},function(confirmed){
                  if(!confirmed){return;}
                  $('#btn_rotate_site_api_code').prop('disabled',true);
