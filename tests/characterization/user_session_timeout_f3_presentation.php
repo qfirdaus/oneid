@@ -25,9 +25,9 @@ $report=static function(bool $ok,string $label)use(&$checks,&$failed):void{
 
 $report(str_contains($runtime, "'ONEID_USER_SESSION_WARNING_ENABLED' => 'false'"), 'presentation feature flag fails closed by default');
 $report(str_contains($presentation, "oneid_config('ONEID_USER_SESSION_WARNING_ENABLED', 'false')") && str_contains($presentation, "'warningSeconds' => 120"), 'server presentation config controls activation and two-minute warning');
-$report(str_contains($dashboard, 'oneid-user-session.js?v=20260811-1') && str_contains($dashboard, 'oneid-user-session.css?v=20260808-2'), 'user dashboard loads cache-busted controller assets');
+$report(str_contains($dashboard, 'oneid-user-session.js?v=20260812-1') && str_contains($dashboard, 'oneid-user-session.css?v=20260808-2'), 'user dashboard loads cache-busted controller assets');
 $report(str_contains($dashboard, "password_change_required'] ?? 0) !== 1"), 'mandatory password-change dashboard disables session popup controller');
-$report(str_contains($security, 'oneid-user-session.js?v=20260811-1') && str_contains($security, 'OneIdUserSessionConfig'), 'authenticated Account Security page loads user controller');
+$report(str_contains($security, 'oneid-user-session.js?v=20260812-1') && str_contains($security, 'OneIdUserSessionConfig'), 'authenticated Account Security page loads user controller');
 $report(!str_contains($admin, 'oneid-user-session.js') && !str_contains($challenge, 'oneid-user-session.js') && !str_contains($qr, 'oneid-user-session.js'), 'Admin, pre-auth challenge and QR endpoints do not load user controller');
 $report(str_contains($controller, "post('user_session_status')") && str_contains($controller, "post('user_session_renew')") && str_contains($controller, "post('user_session_expire')"), 'controller consumes only the F2 portal session actions');
 $report(str_contains($controller, 'payload.effective_remaining_seconds') && str_contains($controller, 'config.warningSeconds || 120'), 'warning schedule uses authoritative effective remainder');

@@ -16,6 +16,7 @@
     var resyncRequested = false;
     var ending = false;
     var terminalDialogOpen = false;
+    var terminalRedirectStarted = false;
     var channel = typeof window.BroadcastChannel === 'function'
         ? new window.BroadcastChannel('oneid-user-portal-session')
         : null;
@@ -81,8 +82,21 @@
     }
 
     function redirectToLanding() {
+        if (terminalRedirectStarted) {
+            return;
+        }
+        terminalRedirectStarted = true;
+        ending = true;
+        clearTimers();
         clearSensitiveInputs();
-        window.location.replace(config.landingUrl);
+        if (channel) {
+            channel.close();
+        }
+        if (typeof sessionSwal.close === 'function') {
+            sessionSwal.close();
+        }
+        var separator = config.landingUrl.indexOf('?') === -1 ? '?' : '&';
+        window.location.replace(config.landingUrl + separator + 'session=expired');
     }
 
     function terminalMessage(code) {
@@ -189,6 +203,11 @@
                 eyebrow.textContent = config.text.eyebrow;
                 var icon = alert.querySelector('.sa-icon');
                 alert.insertBefore(eyebrow, icon || alert.firstChild);
+            }
+            var confirmButton = alert.querySelector('button.confirm');
+            if (confirmButton && confirmButton.getAttribute('data-oneid-terminal-bound') !== '1') {
+                confirmButton.setAttribute('data-oneid-terminal-bound', '1');
+                confirmButton.addEventListener('click', redirectToLanding);
             }
         }
         markSessionOverlay();

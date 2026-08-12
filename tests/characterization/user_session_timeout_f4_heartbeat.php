@@ -26,7 +26,9 @@ $report(str_contains($security,"new CustomEvent('oneid:user-activity-committed')
 $report(str_contains($controller,"document.addEventListener('oneid:user-activity-committed'")&&str_contains($controller,'activityCommitted: activityCommitted'),'controller exposes and consumes the activity synchronization boundary');
 $report(str_contains($controller,'resyncRequested = true')&&str_contains($controller,'if (resyncRequested)'),'activity synchronization is queued when a status request is already in flight');
 $report(!str_contains($controller,'setInterval(synchronize')&&str_contains($session,"['update_specific_token_datetime']"),'deadline synchronization adds no session-keeping polling and token heartbeat remains technical');
-$report(str_contains($dashboard,'oneid-user-session.js?v=20260811-1')&&str_contains($security,'oneid-user-session.js?v=20260811-1'),'both authenticated user pages load the corrected cache-busted controller');
+$report(str_contains($dashboard,'oneid-user-session.js?v=20260812-1')&&str_contains($security,'oneid-user-session.js?v=20260812-1'),'both authenticated user pages load the corrected cache-busted controller');
+$report(str_contains($controller,'terminalRedirectStarted = true')&&str_contains($controller,"channel.close()"),'terminal redirect is single-flight and stops cross-tab session delivery');
+$report(str_contains($controller,"confirmButton.addEventListener('click', redirectToLanding)")&&str_contains($controller,"'session=expired'"),'expired-session OK button has a direct cache-safe landing redirect');
 $report(!str_contains($api,'OneIdUserSession')&&!str_contains($api,'user-activity-committed'),'service-provider API remains outside presentation error handling');
 
 echo"RESULT checks={$checks} failed={$failed}".PHP_EOL;exit($failed===0?0:1);
