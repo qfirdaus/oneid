@@ -964,10 +964,15 @@ function string_sanitize($s) {
 
       if(isset( $_POST['action_add_new_app'])){
         try {
-          $service = new \OneId\App\Admin\WebAppService($operation);
+          $cipher = new \OneId\App\Admin\SiteApiCodeCipher(\OneId\App\Auth\TotpKeyring::fromFile((string)oneid_config('ONEID_TOTP_KEYRING_PATH','')));
+          $service = new \OneId\App\Admin\WebAppService($operation,$cipher);
           echo json_encode($service->create($_POST,$_FILES['app_icon']??null,oneid_public_path('public_img'),(string)$_SESSION['login_user'],getUserIP()));
         } catch (\OneId\App\Admin\WebAppManagementException $exception) {
           echo json_encode(['status'=>0,'code'=>$exception->reason,'msg'=>'Application was not created.','correlation_id'=>$exception->correlationId]);
+        } catch (\Throwable $exception) {
+          $correlation=bin2hex(random_bytes(8));
+          error_log('WA3 app credential initialization failed correlation_id='.$correlation.' exception='.get_class($exception));
+          echo json_encode(['status'=>0,'code'=>'WA3_API_CODE_ENCRYPTION_UNAVAILABLE','msg'=>'Application was not created.','correlation_id'=>$correlation]);
         }
       }
 

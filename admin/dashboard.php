@@ -83,7 +83,7 @@
       <link href="../dist/css/oneid-admin-profile.css?v=20260805-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-6" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-web-app-modal.css?v=20260812-5" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-web-app-modal.css?v=20260812-6" rel="stylesheet" type="text/css">
    </head>
    <body class="<?=trim(oneid_environment_body_class())?>">
       <?php oneid_render_environment_banner(); ?>
@@ -213,22 +213,18 @@
             <!-- /.modal-dialog -->
          </div>
          <div id="modal_add_new_app" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_add_new_app" aria-hidden="true">
-            <div class="modal-dialog">
-               <div class="modal-content">
-                  <div class="modal-header">
-                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_add_new_app">Add New App</h5>
+            <div class="modal-dialog modal-lg oneid-app-info-dialog">
+               <div class="modal-content oneid-sync-child-modal oneid-app-info-modal">
+                  <div class="modal-header oneid-sync-child-header oneid-app-info-header">
+                     <div class="oneid-sync-child-heading">
+                        <span class="oneid-sync-child-heading-icon" aria-hidden="true"><i class="fa fa-plus-square"></i></span>
+                        <div><h5 class="modal-title" id="aria_modal_add_new_app">Add New Application</h5><p>Register metadata, branding, integration credential and access behaviour.</p></div>
+                     </div>
+                     <button type="button" class="close oneid-sync-child-close" data-dismiss="modal" aria-label="Close">×</button>
                   </div>
                   <form id="form_add_new_app">
-                     <div class="modal-body">
-                        <div class="row">
-                           <div class="col-lg-12">
-                              <div class="">
-                                 <div class="panel-wrapper collapse in">
-                                    <div class="panel-body pa-0">
-                                       <div class="col-sm-12 col-xs-12">
-                                          <div class="form-wrap">
-                                             <div class="form-body overflow-hide">
+                     <div class="modal-body oneid-sync-child-body oneid-app-info-body">
+                        <div class="oneid-add-app-grid">
                                                 <div class="form-group">
                                                    <label class="control-label mb-10" for="add_new_app_name">App Name</label>
                                                    <input type="text" class="form-control" id="add_new_app_name" name="add_new_app_name" placeholder="Name of the application" required="">
@@ -240,47 +236,38 @@
 
                                                 <div class="form-group">
                                                    <label class="control-label mb-10" for="add_new_app_icon">App Icon (optional)</label>
-                                                   <div class="mt-1">
+                                                   <div>
                                                       <input type="file" id="add_new_app_icon" name="add_new_app_icon" class="dropify" data-default-file="../img/thumb-1.jpg" data-height="100" accept="image/jpeg,image/png,image/gif,image/webp" />
                                                       <small class="text-muted">JPEG, PNG, GIF or WebP, maximum 5 MB and 4096×4096. The server converts it to a static 256×256 PNG.</small>
                                                    </div>  
                                                 </div> 
-
-
                                                 <div class="form-group">
                                                    <label class="control-label mb-10" for="add_new_app_url">Url</label>
                                                    <input type="text" class="form-control" id="add_new_app_url" name="add_new_app_url" placeholder="Url of the app" required="">
-                                                   <i style="font-style: italic;"><small class="text-muted mb-10">Example: https://domain.com.my or https://subdomain.domain.com.my</small></i>
+                                                   <small class="help-block oneid-app-url-help"><i class="fa fa-lock"></i> Only secure HTTPS URLs are allowed. Example: https://application.upnm.edu.my</small>
                                                 </div>
                                                 <div class="form-group mb-10">
-											<label class="control-label mb-10 text-left" for="add_new_app_category">App Category</label>
-													<select class="form-control" id="add_new_app_category" name="add_new_app_category">
-													</select>
-												</div>
-                                                <div class="checkbox checkbox-primary">
-														<input id="add_new_app_sso_checkbox" name="add_new_app_sso_checkbox" type="checkbox">
-												<label for="add_new_app_sso_checkbox">
-													Direct link only (this app does not support OneID SSO)
-												</label>
-										</div>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
+                                                   <label class="control-label mb-10 text-left" for="add_new_app_category">App Category</label>
+                                                   <select class="form-control" id="add_new_app_category" name="add_new_app_category"></select>
+                                                </div>
+                                                <div class="oneid-direct-link-setting">
+                                                   <div class="oneid-direct-link-setting__title">Direct link only</div>
+                                                   <label class="oneid-direct-link-setting__control" for="add_new_app_sso_checkbox">
+                                                      <input id="add_new_app_sso_checkbox" name="add_new_app_sso_checkbox" type="checkbox">
+                                                      <span class="oneid-direct-link-setting__icon"><i class="fa fa-external-link"></i></span>
+                                                      <span class="oneid-direct-link-setting__content"><small>Open the application directly without the OneID SSO redirect flow.</small></span>
+                                                      <span class="oneid-direct-link-setting__switch" aria-hidden="true"><span></span></span>
+                                                   </label>
+                                                </div>
                         </div>
                      </div>
-                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary waves-effect" id="btn_add_app_submit"><span class="submit-label">Add App</span></button>
+                     <div class="modal-footer oneid-sync-child-footer oneid-app-info-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn_add_app_submit"><i class="fa fa-plus"></i> <span class="submit-label">Add Application</span></button>
                      </div>
                   </form>
                </div>
-               <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
          </div>
 
 
@@ -3674,6 +3661,36 @@
            }
 
            var addAppSubmitting = false;
+           function show_created_app_credential(response){
+              var newCode=String(response.site_api_code||'');
+              var appId=String(response.app_id||'');
+              var codePanel=''+
+                 '<div class="site-api-code-result">'+
+                 '<p class="site-api-code-result__intro">The application was created with a new encrypted integration credential. Copy it for the integration developer.</p>'+
+                 '<div class="site-api-code-result__code"><code id="created_site_api_code"></code><div class="site-api-code-result__copy" id="copy_created_site_api_code" role="button" tabindex="0" aria-label="Copy Site API Code"><i class="fa fa-copy"></i><span>Copy</span></div></div>'+
+                 '<div class="site-api-code-result__feedback" id="created_site_api_code_feedback"><i class="fa fa-info-circle"></i> This code is stored securely and remains available from Application Details.</div>'+
+                 '<div class="site-api-code-result__warning"><i class="fa fa-shield"></i> Keep this credential private and update only the intended integrated application.</div>'+
+                 '</div>';
+              $('#modal_add_new_app').modal('hide');
+              window.setTimeout(function(){
+                 swal({title:'Application Created',text:codePanel,html:true,type:'success',confirmButtonText:'Done',allowEscapeKey:false,allowOutsideClick:false},function(){if(appId){get_service_provider_list();}});
+                 apply_site_api_alert_layout('result','Credential Issued');
+                 $('#created_site_api_code').text(newCode);
+                 $('#copy_created_site_api_code').on('click',function(event){
+                    event.preventDefault();event.stopPropagation();
+                    navigator.clipboard.writeText(newCode).then(function(){
+                       $('#copy_created_site_api_code').addClass('is-copied').find('span').text('Copied');
+                       $('#copy_created_site_api_code i').removeClass('fa-copy').addClass('fa-check');
+                       $('#created_site_api_code_feedback').addClass('is-copied').html('<i class="fa fa-check-circle"></i> Code copied. Send it securely to the integration developer.');
+                    },function(){
+                       $('#created_site_api_code_feedback').html('<i class="fa fa-exclamation-circle"></i> Automatic copy failed. Select and copy the code manually.');
+                    });
+                 }).on('keydown',function(event){
+                    if(event.key==='Enter'||event.key===' '){event.preventDefault();$(this).trigger('click');}
+                 });
+              },300);
+           }
+
            var form_add_new_app = $('#form_add_new_app');
            form_add_new_app.on('submit', function(ev){
               ev.preventDefault();
@@ -3725,13 +3742,12 @@
                contentType: false, // important
 				beforeSend: function(){
                   addAppSubmitting = true;
-                  setAppFormSubmitting('#btn_add_app_submit', true, 'Add App', 'Adding...');
+                  setAppFormSubmitting('#btn_add_app_submit', true, 'Add Application', 'Adding...');
 				},
 				success: function (response) {
 					if (Number(response.status) === 1){
 						get_service_provider_list();
-						var iconRejected = response.icon_status === 'rejected';
-                  showAppOperationalAlert(iconRejected ? 'warning' : 'success', iconRejected ? 'App added without the selected icon.' : 'App successfully added.', iconRejected ? 'The selected icon was rejected. The application record was created without a custom icon.' : (response.icon_status === 'stored' ? 'The application metadata and icon were saved.' : 'The application metadata was saved using the default icon.'), response);
+						show_created_app_credential(response);
            				$('#add_new_app_name').val('');
            				$('#add_new_app_desc').val('');
            				$('#add_new_app_url').val('');
@@ -3759,7 +3775,7 @@
 				},
                complete: function(){
                   addAppSubmitting = false;
-                  setAppFormSubmitting('#btn_add_app_submit', false, 'Add App', 'Adding...');
+                  setAppFormSubmitting('#btn_add_app_submit', false, 'Add Application', 'Adding...');
 				}
 			  });
             });

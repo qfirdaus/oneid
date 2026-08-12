@@ -48,11 +48,28 @@ final class WebAppService
             if ($affected !== 1) {
                 throw new WebAppManagementException('WA3_APP_NOT_CREATED', $correlationId);
             }
+            if ($this->siteApiCodeCipher === null) {
+                throw new WebAppManagementException('WA3_API_CODE_ENCRYPTION_UNAVAILABLE', $correlationId);
+            }
+            $siteApiCode = 'oid_sp_' . rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
+            $siteApiCodeHint = '...' . substr($siteApiCode, -4);
+            $encryptedCode = $this->siteApiCodeCipher->encrypt($siteApiCode);
+            if ($this->operation->admin_rotate_site_api_code(
+                $appId,
+                hash('sha256', $siteApiCode),
+                $siteApiCodeHint,
+                trim($adminId),
+                $encryptedCode['ciphertext'],
+                $encryptedCode['nonce'],
+                $encryptedCode['key_version']
+            ) < 1) {
+                throw new WebAppManagementException('WA3_API_CODE_NOT_ISSUED', $correlationId);
+            }
             if ($uploadRequested && $this->operation->admin_upsert_app_asset($appId,$staged['filename'],trim($adminId)) < 1) {
                 throw new WebAppManagementException('WA4_ASSET_NOT_WRITTEN',$correlationId);
             }
             $iconStatus = $uploadRequested ? 'stored' : 'not_requested';
-            $detail = sprintf('admin=%s action=create_app app=%s environment=%s outcome=success icon=%s correlation=%s',trim($adminId),$appId,$environment,$iconStatus,$correlationId);
+            $detail = sprintf('admin=%s action=create_app app=%s environment=%s outcome=success icon=%s credential=initial_issuance credential_version=1 correlation=%s',trim($adminId),$appId,$environment,$iconStatus,$correlationId);
             if ($this->operation->syslog_record(13, $detail, trim($ipAddress)) !== 1) {
                 throw new WebAppManagementException('WA3_AUDIT_NOT_WRITTEN', $correlationId);
             }
@@ -65,6 +82,9 @@ final class WebAppService
                 'status'=>1,
                 'code'=>'WA4_APP_CREATED_ENVIRONMENT_ASSET',
                 'app_id'=>$appId,
+                'site_api_code'=>$siteApiCode,
+                'site_api_code_hint'=>$siteApiCodeHint,
+                'credential_version'=>1,
                 'icon_status'=>$iconStatus,
                 'app_icon'=>$uploadRequested?'Upload published':'No file uploaded',
                 'correlation_id'=>$correlationId,
