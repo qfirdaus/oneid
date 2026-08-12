@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V292-CHANGELOG-20260811-01",
+    "authorization": "ONEID-V293-CHANGELOG-20260812-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.9.3",
+            "version": "2.9.3",
+            "date": "2026-08-12",
+            "items": [
+                {
+                    "identity": "release:2.9.3:item:001",
+                    "bm": "Pentadbir kini boleh menjana semula Site API Code bagi aplikasi tertentu tanpa memadam atau mencipta semula aplikasi tersebut.",
+                    "en_draft": "Administrators can now regenerate the Site API Code for an individual application without deleting or recreating that application.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.3:item:002",
+                    "bm": "Aplikasi yang belum melalui rotation terus menerima Site API Code legacy, manakala aplikasi yang telah dirotate hanya menerima kod aktif terbaharu.",
+                    "en_draft": "Applications that have not been rotated continue accepting their legacy Site API Code, while rotated applications accept only their latest active code.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.3:item:003",
+                    "bm": "Site API Code baharu dijana secara kriptografi, disimpan sebagai hash untuk pengesahan dan ciphertext untuk paparan semula kepada pentadbir yang dibenarkan.",
+                    "en_draft": "New Site API Codes are cryptographically generated, stored as a verification hash and encrypted ciphertext for authorized administrator retrieval.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.3:item:004",
+                    "bm": "Rotation dilindungi oleh akses pentadbir, step-up authentication, CSRF, sebab perubahan, transaksi database dan audit correlation ID.",
+                    "en_draft": "Rotation is protected by administrator access, step-up authentication, CSRF, a change reason, a database transaction and a correlated audit record.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.3:item:005",
+                    "bm": "App Info menyokong paparan serta salinan kod legacy dan kod rotated dengan status credential yang jelas, termasuk panduan bagi kod lama yang tidak boleh dipulihkan.",
+                    "en_draft": "App Info supports displaying and copying both legacy and rotated codes with clear credential status and guidance for older unrecoverable rotations.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.3:item:006",
+                    "bm": "Popup rotation menyediakan pilihan sebab operasi, sebab tersuai, amaran pembatalan kod lama dan tindakan salin kod baharu dalam aliran yang tersusun.",
+                    "en_draft": "The rotation popup provides operational reason choices, a custom reason, old-code invalidation warnings and one-click copying of the new code.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.3:item:007",
+                    "bm": "Popup Site API Code menggunakan gaya keselamatan profesional yang selaras dengan dialog renew session, termasuk overlay blur, accent gradient dan susun atur responsif.",
+                    "en_draft": "Site API Code alerts use the professional security treatment of the session-renewal dialog, including a blurred overlay, gradient accent and responsive layout.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.3:item:008",
+                    "bm": "Modal Application Details direka semula sebagai modal lebar dua kolum dengan card metadata, icon, kategori, URL, credential dan footer tindakan yang lebih kemas.",
+                    "en_draft": "Application Details has been redesigned as a wide two-column modal with structured cards for metadata, icon, category, URL, credential and footer actions.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.3:item:009",
+                    "bm": "Tetapan Direct link only menggunakan toggle moden dengan tajuk dan penerangan yang seragam, manakala medan URL menerangkan keperluan HTTPS sahaja.",
+                    "en_draft": "Direct link only uses a modern toggle with consistent heading and guidance, while the URL field clearly explains the HTTPS-only requirement.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.9.3:item:010",
+                    "bm": "Migration dan contract test memastikan app ID, ACL, blacklist, favourite, icon serta metadata kekal tidak berubah semasa Site API Code dirotate.",
+                    "en_draft": "Migrations and contract tests ensure app IDs, ACLs, blacklists, favourites, icons and metadata remain unchanged when a Site API Code is rotated.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.9.2",
             "version": "2.9.2",
@@ -2579,5 +2646,5 @@
             ]
         }
     ],
-    "manifest_digest": "3f964f6baabda7a770d12ecf0363d4554b00fa6bad6d21ffdd379cd7c8b8a83d"
+    "manifest_digest": "17150ad0472e8e72d6810569273202b88c653d56ccf687ac0af8a490ba4b460b"
 }

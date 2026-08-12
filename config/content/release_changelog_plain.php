@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.9.3' =>
+  array (
+    'version' => '2.9.3',
+    'date' => '2026-08-12',
+    'bm' =>
+    array (
+      0 => 'Pentadbir kini boleh menjana semula Site API Code bagi aplikasi tertentu tanpa memadam atau mencipta semula aplikasi tersebut.',
+      1 => 'Aplikasi yang belum melalui rotation terus menerima Site API Code legacy, manakala aplikasi yang telah dirotate hanya menerima kod aktif terbaharu.',
+      2 => 'Site API Code baharu dijana secara kriptografi, disimpan sebagai hash untuk pengesahan dan ciphertext untuk paparan semula kepada pentadbir yang dibenarkan.',
+      3 => 'Rotation dilindungi oleh akses pentadbir, step-up authentication, CSRF, sebab perubahan, transaksi database dan audit correlation ID.',
+      4 => 'App Info menyokong paparan serta salinan kod legacy dan kod rotated dengan status credential yang jelas, termasuk panduan bagi kod lama yang tidak boleh dipulihkan.',
+      5 => 'Popup rotation menyediakan pilihan sebab operasi, sebab tersuai, amaran pembatalan kod lama dan tindakan salin kod baharu dalam aliran yang tersusun.',
+      6 => 'Popup Site API Code menggunakan gaya keselamatan profesional yang selaras dengan dialog renew session, termasuk overlay blur, accent gradient dan susun atur responsif.',
+      7 => 'Modal Application Details direka semula sebagai modal lebar dua kolum dengan card metadata, icon, kategori, URL, credential dan footer tindakan yang lebih kemas.',
+      8 => 'Tetapan Direct link only menggunakan toggle moden dengan tajuk dan penerangan yang seragam, manakala medan URL menerangkan keperluan HTTPS sahaja.',
+      9 => 'Migration dan contract test memastikan app ID, ACL, blacklist, favourite, icon serta metadata kekal tidak berubah semasa Site API Code dirotate.',
+    ),
+    'en' =>
+    array (
+      0 => 'Administrators can now regenerate the Site API Code for an individual application without deleting or recreating that application.',
+      1 => 'Applications that have not been rotated continue accepting their legacy Site API Code, while rotated applications accept only their latest active code.',
+      2 => 'New Site API Codes are cryptographically generated, stored as a verification hash and encrypted ciphertext for authorized administrator retrieval.',
+      3 => 'Rotation is protected by administrator access, step-up authentication, CSRF, a change reason, a database transaction and a correlated audit record.',
+      4 => 'App Info supports displaying and copying both legacy and rotated codes with clear credential status and guidance for older unrecoverable rotations.',
+      5 => 'The rotation popup provides operational reason choices, a custom reason, old-code invalidation warnings and one-click copying of the new code.',
+      6 => 'Site API Code alerts use the professional security treatment of the session-renewal dialog, including a blurred overlay, gradient accent and responsive layout.',
+      7 => 'Application Details has been redesigned as a wide two-column modal with structured cards for metadata, icon, category, URL, credential and footer actions.',
+      8 => 'Direct link only uses a modern toggle with consistent heading and guidance, while the URL field clearly explains the HTTPS-only requirement.',
+      9 => 'Migrations and contract tests ensure app IDs, ACLs, blacklists, favourites, icons and metadata remain unchanged when a Site API Code is rotated.',
+    ),
+  ),
   'release-2.9.2' =>
   array (
     'version' => '2.9.2',
