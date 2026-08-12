@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.9.4' =>
+  array (
+    'version' => '2.9.4',
+    'date' => '2026-08-13',
+    'bm' =>
+    array (
+      0 => 'Maintenance Mode baharu membolehkan pentadbir menyekat akses awam mengikut jadual atau sehingga dimatikan, dengan pemulihan akses automatik selepas tempoh tamat.',
+      1 => 'Halaman penyelenggaraan dwibahasa kini memaparkan identiti rasmi OneID dan menyediakan laluan khas yang selamat untuk pentadbir aktif terus mengurus sistem.',
+      2 => 'Laluan /admin dan /admin/login telah diperbetulkan supaya tidak menghasilkan halaman 403 nginx serta kembali kepada aliran log masuk biasa apabila penyelenggaraan tidak aktif.',
+      3 => 'Borang Maintenance Mode dan dialog pengesahan direka semula dengan arahan lebih jelas, pilihan sebab tersusun, sebab tersuai dan susun atur responsif.',
+      4 => 'Proses Add App kini menggunakan perlindungan serta paparan credential moden yang konsisten dengan penjanaan semula Site API Code.',
+      5 => 'Pengawal sesi pengguna diperkuat supaya dialog sesi tamat boleh ditutup dengan selamat dan tidak berulang tanpa henti selepas pengguna memilih OK.',
+      6 => 'Akaun pendua bagi nombor staf yang sama boleh disatukan kepada satu identiti aktif sambil mengekalkan akses pentadbir yang sah dan jejak audit.',
+      7 => 'Active Sessions kini memaparkan sesi portal pengguna dan pentadbir di bawah identiti yang konsisten, dengan maklumat peranti ringkas serta tindakan revoke berikon.',
+      8 => 'Session History baharu menyediakan rekod sesi yang telah tamat, carian, julat tarikh, sebab tamat, pagination dan penandaan akses pentadbir secara read-only.',
+      9 => 'Paparan Active Sessions dan Session History telah dikemaskan dengan filter dua baris, saiz tarikh seimbang, status sebaris dan tooltip untuk maklumat penuh.',
+    ),
+    'en' =>
+    array (
+      0 => 'The new Maintenance Mode lets administrators suspend public access on a schedule or until manually disabled, with automatic access restoration when a scheduled period ends.',
+      1 => 'The bilingual maintenance page now displays the official OneID identity and provides a secure dedicated route for active administrators to continue managing the system.',
+      2 => 'The /admin and /admin/login routes no longer produce an nginx 403 page and return to the normal sign-in flow whenever maintenance is inactive.',
+      3 => 'The Maintenance Mode form and confirmation dialog have been redesigned with clearer guidance, structured reason choices, a custom reason and responsive layout.',
+      4 => 'The Add App flow now uses modern credential protection and presentation consistent with Site API Code regeneration.',
+      5 => 'The user session controller now closes an expired-session dialog safely and prevents it from reopening continuously after the user selects OK.',
+      6 => 'Duplicate accounts for the same staff number can be consolidated into one active identity while preserving valid administrator access and an audit trail.',
+      7 => 'Active Sessions now presents user and administrator portal sessions under consistent identities, with concise device information and an icon-only revoke action.',
+      8 => 'The new read-only Session History provides ended-session records, search, date range, end-reason filtering, pagination and administrator-access labels.',
+      9 => 'Active Sessions and Session History now use a cleaner two-row filter layout, balanced date fields, inline status actions and tooltips for complete details.',
+    ),
+  ),
   'release-2.9.3' =>
   array (
     'version' => '2.9.3',
