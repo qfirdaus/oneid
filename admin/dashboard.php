@@ -8890,7 +8890,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         box-shadow: 0 2px 7px rgba(31, 41, 55, .04);
       }
       #tab_active_sessions .session-view-tabs{display:flex;gap:8px;margin:0 0 14px}#tab_active_sessions .session-view-tabs button{background:#fff;border:1px solid #cfdae4;border-radius:8px;color:#52697a;font-size:12px;font-weight:700;padding:10px 15px}#tab_active_sessions .session-view-tabs button.is-active{background:#0b97c8;border-color:#0b97c8;color:#fff;box-shadow:0 6px 15px rgba(11,151,200,.18)}#tab_active_sessions .session-history-card[hidden]{display:none!important}#tab_active_sessions .session-history-admin{background:#e8f5fb;border-radius:4px;color:#087da8;font-size:9px!important;margin-left:4px;padding:3px 5px}#tab_active_sessions .session-history-card input[type=date]{border:1px solid #d2dce5;border-radius:7px;color:#42586a;min-height:40px;padding:7px}
-      #tab_active_sessions .session-history-filter{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(180px,1.2fr) 100px 42px}#tab_active_sessions .session-history-filter__query{grid-column:1/-1}#tab_active_sessions .session-history-filter input.session-history-filter__date{min-width:0;padding:8px 10px;width:100%}#tab_active_sessions .session-history-filter__reason{min-width:0;text-overflow:ellipsis}#tab_active_sessions .session-history-filter__size{min-width:0}#tab_active_sessions .session-history-filter__submit{width:42px}
+      #tab_active_sessions .session-history-filter{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(170px,1fr) 100px 42px;grid-template-rows:auto auto}#tab_active_sessions .session-history-filter__query{grid-column:1/-1;grid-row:1}#tab_active_sessions .session-history-filter input.session-history-filter__date{grid-row:2;min-width:0;padding:8px 10px;width:100%}#tab_active_sessions .session-history-filter__reason{grid-column:3;grid-row:2;min-width:0;text-overflow:ellipsis}#tab_active_sessions .session-history-filter__size{grid-column:4;grid-row:2;min-width:0}#tab_active_sessions .session-history-filter__submit{grid-column:5;grid-row:2;width:42px}
 
       #tab_active_sessions .active-session-card-heading {
         padding: 18px 20px 15px;
@@ -9010,8 +9010,8 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
       #tab_active_sessions .active-col-user { width: 27%; }
       #tab_active_sessions .active-col-activity { width: 34%; }
-      #tab_active_sessions .active-col-device { width: 24%; }
-      #tab_active_sessions .active-col-status { width: 15%; }
+      #tab_active_sessions .active-col-device { width: 21%; }
+      #tab_active_sessions .active-col-status { width: 18%; }
 
       #tab_active_sessions .active-session-table thead th {
         padding: 9px 10px;
@@ -9192,11 +9192,12 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
       #tab_active_sessions .active-session-revoke {
         align-items:center;
-        display:flex;
+        display:inline-flex;
         height:28px;
         justify-content:center;
-        margin-top:6px;
+        margin:0 0 0 6px;
         padding:0;
+        vertical-align:middle;
         width:28px;
         border: 1px solid #e4a9b4;
         border-radius: 7px;
@@ -9343,13 +9344,18 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
         #tab_active_sessions .session-history-filter__reason {
           grid-column: 1 / -1;
+          grid-row: 3;
         }
 
         #tab_active_sessions .session-history-filter__size {
+          grid-column: 1;
+          grid-row: 4;
           width: 130px;
         }
 
         #tab_active_sessions .session-history-filter__submit {
+          grid-column: 2;
+          grid-row: 4;
           justify-self: end;
         }
 
