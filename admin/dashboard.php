@@ -83,7 +83,7 @@
       <link href="../dist/css/oneid-admin-profile.css?v=20260805-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-2" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-web-app-modal.css?v=20260812-2" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-web-app-modal.css?v=20260812-3" rel="stylesheet" type="text/css">
    </head>
    <body class="<?=trim(oneid_environment_body_class())?>">
       <?php oneid_render_environment_banner(); ?>
@@ -505,6 +505,7 @@
                                                 <div class="form-group">
                                                    <label class="control-label mb-10" for="edit_app_url">Url</label>
                                                    <input type="text" class="form-control" id="edit_app_url" name="edit_app_url" placeholder="Url of the app">
+                                                   <small class="help-block oneid-app-url-help"><i class="fa fa-lock"></i> Only secure HTTPS URLs are allowed. Example: https://application.upnm.edu.my</small>
                                                 </div>
                                                 <div class="form-group">
                                                    <label class="control-label mb-10" for="edit_app_code">Site API Code</label>
