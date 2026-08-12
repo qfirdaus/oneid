@@ -3950,22 +3950,22 @@
                  '<p class="rotation-reason-dialog__intro">Choose the reason that best describes why this application credential must be replaced.</p>'+
                  '<span class="rotation-reason-dialog__label">Rotation reason</span>'+
                  '<div class="rotation-reason-dialog__choices" role="radiogroup" aria-label="Rotation reason">'+
-                 '<button type="button" class="rotation-reason-dialog__choice" data-reason="Scheduled credential rotation"><i class="fa fa-calendar"></i><span>Scheduled rotation</span></button>'+
-                 '<button type="button" class="rotation-reason-dialog__choice" data-reason="Suspected credential exposure"><i class="fa fa-shield"></i><span>Credential exposure</span></button>'+
-                 '<button type="button" class="rotation-reason-dialog__choice" data-reason="Developer or integration team access change"><i class="fa fa-users"></i><span>Team access change</span></button>'+
-                 '<button type="button" class="rotation-reason-dialog__choice" data-reason="Integration environment or configuration rebuild"><i class="fa fa-cogs"></i><span>Environment rebuild</span></button>'+
-                 '<button type="button" class="rotation-reason-dialog__choice" data-reason="Security audit or compliance requirement"><i class="fa fa-check-square-o"></i><span>Audit or compliance</span></button>'+
-                 '<button type="button" class="rotation-reason-dialog__choice" data-reason="Application ownership or vendor change"><i class="fa fa-exchange"></i><span>Owner/vendor change</span></button>'+
-                 '<button type="button" class="rotation-reason-dialog__choice rotation-reason-dialog__choice--wide" data-reason="OTHER"><i class="fa fa-pencil"></i><span>Other reason</span></button>'+
+                 '<div class="rotation-reason-dialog__choice" data-reason="Scheduled credential rotation" tabindex="0"><i class="fa fa-calendar"></i><span>Scheduled rotation</span></div>'+
+                 '<div class="rotation-reason-dialog__choice" data-reason="Suspected credential exposure" tabindex="0"><i class="fa fa-shield"></i><span>Credential exposure</span></div>'+
+                 '<div class="rotation-reason-dialog__choice" data-reason="Developer or integration team access change" tabindex="0"><i class="fa fa-users"></i><span>Team access change</span></div>'+
+                 '<div class="rotation-reason-dialog__choice" data-reason="Integration environment or configuration rebuild" tabindex="0"><i class="fa fa-cogs"></i><span>Environment rebuild</span></div>'+
+                 '<div class="rotation-reason-dialog__choice" data-reason="Security audit or compliance requirement" tabindex="0"><i class="fa fa-check-square-o"></i><span>Audit or compliance</span></div>'+
+                 '<div class="rotation-reason-dialog__choice" data-reason="Application ownership or vendor change" tabindex="0"><i class="fa fa-exchange"></i><span>Owner/vendor change</span></div>'+
+                 '<div class="rotation-reason-dialog__choice rotation-reason-dialog__choice--wide" data-reason="OTHER" tabindex="0"><i class="fa fa-pencil"></i><span>Other reason</span></div>'+
                  '</div>'+
                  '<div class="rotation-reason-dialog__other-wrap" id="site_api_rotation_other_wrap" style="display:none">'+
                  '<label class="rotation-reason-dialog__label" for="site_api_rotation_other_reason">Describe the reason</label>'+
                  '<textarea class="rotation-reason-dialog__other" id="site_api_rotation_other_reason" maxlength="500" placeholder="Enter a clear operational or security reason"></textarea>'+
                  '<small class="rotation-reason-dialog__help">Minimum 10 characters, maximum 500 characters.</small>'+
                  '</div>'+
-                 '<div class="rotation-reason-dialog__notice"><i class="fa fa-exclamation-triangle"></i><span>The existing code will remain unchanged until you confirm the next step.</span></div>'+
+                 '<div class="rotation-reason-dialog__notice"><i class="fa fa-exclamation-triangle"></i><span>Generating a new code will immediately invalidate the existing code for this app. Other apps are not affected.</span></div>'+
                  '</div>';
-              swal({title:'Select Rotation Reason',text:reasonOptions,html:true,type:'info',showCancelButton:true,confirmButtonText:'Continue',cancelButtonText:'Cancel',closeOnConfirm:false},function(selected){
+              swal({title:'Generate New Site API Code',text:reasonOptions,html:true,type:'warning',showCancelButton:true,confirmButtonColor:'#e6a23c',confirmButtonText:'Generate New Code',cancelButtonText:'Cancel',closeOnConfirm:false},function(selected){
                  if(!selected){return;}
                  var reason=String($('.rotation-reason-dialog__choice.is-selected').data('reason')||'');
                  if(!reason){swal.showInputError('Select a reason before continuing.');return false;}
@@ -3973,24 +3973,24 @@
                     reason=String($('#site_api_rotation_other_reason').val()||'').trim();
                     if(reason.length<10||reason.length>500){swal.showInputError('Enter an Other reason between 10 and 500 characters.');return false;}
                  }
-                 confirm_site_api_code_rotation(appId,reason);
+                 execute_site_api_code_rotation(appId,reason);
               });
-              $('.rotation-reason-dialog__choice').on('mousedown click',function(event){
+              $('.rotation-reason-dialog__choice').on('click',function(event){
                  event.preventDefault();event.stopPropagation();
-                 if(event.type!=='click'){return;}
                  $('.rotation-reason-dialog__choice').removeClass('is-selected').attr('aria-checked','false');
                  $(this).addClass('is-selected').attr('aria-checked','true');
                  var isOther=String($(this).data('reason')||'')==='OTHER';
                  $('#site_api_rotation_other_wrap').toggle(isOther);
                  if(isOther){setTimeout(function(){$('#site_api_rotation_other_reason').focus();},0);}
+              }).on('keydown',function(event){
+                 if(event.key==='Enter'||event.key===' '){event.preventDefault();$(this).trigger('click');}
               }).attr('role','radio').attr('aria-checked','false');
            }
 
-           function confirm_site_api_code_rotation(appId,reason){
-              swal({title:'Generate New Site API Code?',text:'The current code for this app will stop working immediately. Other apps are not affected.',type:'warning',showCancelButton:true,confirmButtonColor:'#DD6B55',confirmButtonText:'Yes, generate now',closeOnConfirm:false},function(confirmed){
-                 if(!confirmed){return;}
-                 $('#btn_rotate_site_api_code').prop('disabled',true);
-                 $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',headers:{'X-CSRF-Token':<?php echo json_encode(oneid_csrf_token()); ?>},data:{admin_rotate_site_api_code:'',app_id:appId,change_reason:reason}})
+           function execute_site_api_code_rotation(appId,reason){
+              $('#btn_rotate_site_api_code, .sweet-alert .confirm').prop('disabled',true);
+              $('.sweet-alert .confirm').text('Generating...');
+              $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',headers:{'X-CSRF-Token':<?php echo json_encode(oneid_csrf_token()); ?>},data:{admin_rotate_site_api_code:'',app_id:appId,change_reason:reason}})
                  .done(function(response){
                     if(Number(response.status)!==1){swal('Code not generated',String(response.msg||response.code||'The operation was rejected.'),'error');return;}
                     var newCode=String(response.site_api_code||'');
@@ -4002,7 +4002,6 @@
                     var response=xhr&&xhr.responseJSON?xhr.responseJSON:{};
                     swal('Code not generated',String(response.error||response.code||'Request failed.'),'error');
                  }).always(function(){$('#btn_rotate_site_api_code').prop('disabled',false);});
-              });
            }
          
          

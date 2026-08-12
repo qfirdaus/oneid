@@ -31,6 +31,7 @@
   border: 1px solid #d5dee5;
   border-radius: 7px;
   color: #3f4d57;
+  cursor: pointer;
   display: flex;
   font-size: 12px;
   font-weight: 600;

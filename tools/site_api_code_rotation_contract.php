@@ -38,9 +38,10 @@ $report(str_contains($service,"random_bytes(32)")&&str_contains($service,"hash('
 $report(str_contains($api,'resolve_site_api_code'),'SSO API resolves Site API Code before ACL checks');
 $report(str_contains($ui,'Generate New Site API Code')&&str_contains($ui,'admin_rotate_site_api_code'),'admin Web Apps UI exposes per-app rotation');
 $rotationCss=(string)file_get_contents(dirname(__DIR__).'/dist/css/oneid-site-api-rotation.css');
-$report(substr_count($ui,'rotation-reason-dialog__choice')>=7&&str_contains($ui,'site_api_rotation_other_reason'),'rotation reason uses seven stable selectable cards with an inline Other option');
+$report(substr_count($ui,'<div class="rotation-reason-dialog__choice')>=7&&str_contains($ui,'site_api_rotation_other_reason'),'rotation reason uses seven non-button selectable cards with an inline Other option');
 $report(str_contains($rotationCss,'.rotation-reason-dialog__choices')&&str_contains($rotationCss,'.rotation-reason-dialog__choice.is-selected')&&str_contains($rotationCss,'.rotation-reason-dialog__notice'),'rotation reason SweetAlert has dedicated selected-state styling');
 $report(str_contains($ui,'id="btn_copy_site_api_code"')&&str_contains($ui,'id="btn_rotate_site_api_code"')&&str_contains($ui,'id="edit_app_code"'),'copy, Site API Code and generate controls share one input group');
+$report(str_contains($ui,"confirmButtonText:'Generate New Code'")&&str_contains($ui,'execute_site_api_code_rotation(appId,reason)')&&!str_contains($ui,'confirm_site_api_code_rotation'),'reason selection and code generation use one SweetAlert');
 
 printf("RESULT checks=%d failed=%d\n",$checks,$failed);
 exit($failed===0?0:1);
