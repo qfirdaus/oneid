@@ -43,6 +43,7 @@ $report(str_contains($rotationCss,'.rotation-reason-dialog__choices')&&str_conta
 $report(str_contains($ui,'id="btn_copy_site_api_code"')&&str_contains($ui,'id="btn_rotate_site_api_code"')&&str_contains($ui,'id="edit_app_code"'),'copy, Site API Code and generate controls share one input group');
 $report(str_contains($ui,"confirmButtonText:'Generate New Code'")&&str_contains($ui,'execute_site_api_code_rotation(appId,reason)')&&!str_contains($ui,'confirm_site_api_code_rotation'),'reason selection and code generation use one SweetAlert');
 $report(str_contains($ui,'copy_generated_site_api_code')&&str_contains($ui,"navigator.clipboard.writeText(newCode)")&&str_contains($rotationCss,'.site-api-code-result__copy'),'generated code result provides a styled copy control and one-time recovery guidance');
+$report(str_contains($ui,'oneid-site-api-rotation.css?v=20260812-2'),'rotation dialog stylesheet uses the current cache-busting version');
 
 printf("RESULT checks=%d failed=%d\n",$checks,$failed);
 exit($failed===0?0:1);
