@@ -955,7 +955,7 @@ return [
     'admin.sessions.active_tab' => 'Active Sessions',
     'admin.sessions.history_tab' => 'Session History',
     'admin.sessions.history_title' => 'User session history',
-    'admin.sessions.history_intro' => 'Ended session records. This view is read-only and cannot revoke sessions.',
+    'admin.sessions.history_intro' => 'Sessions ended today are shown by default. Change the date range to find older records; this view is read-only.',
     'admin.sessions.date_from' => 'From date',
     'admin.sessions.date_to' => 'To date',
     'admin.sessions.all_end_reasons' => 'All end reasons',

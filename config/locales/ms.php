@@ -955,7 +955,7 @@ return [
     'admin.sessions.active_tab' => 'Sesi Aktif',
     'admin.sessions.history_tab' => 'Sejarah Sesi',
     'admin.sessions.history_title' => 'Sejarah sesi pengguna',
-    'admin.sessions.history_intro' => 'Rekod sesi yang telah tamat. Paparan ini untuk audit sahaja dan tidak boleh direvoke.',
+    'admin.sessions.history_intro' => 'Rekod sesi yang tamat hari ini dipaparkan secara lalai. Ubah julat tarikh untuk mencari rekod lama; paparan ini untuk audit sahaja.',
     'admin.sessions.date_from' => 'Tarikh mula',
     'admin.sessions.date_to' => 'Tarikh tamat',
     'admin.sessions.all_end_reasons' => 'Semua sebab tamat',
