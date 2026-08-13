@@ -6117,6 +6117,7 @@
          function sync_source_info(sourceCode){
             var sources = {
                STAFF_HR: [adminText('admin.synclog.source_staff'), 'sync-source-staff'],
+               STUDENT_UG: [adminText('admin.synclog.source_ug'), 'sync-source-ug'],
                STUDENT_UG_SMP: [adminText('admin.synclog.source_ug'), 'sync-source-ug'],
                STUDENT_ODL_PG: [adminText('admin.synclog.source_odl'), 'sync-source-odl']
             };

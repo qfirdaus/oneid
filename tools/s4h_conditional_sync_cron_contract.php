@@ -12,6 +12,7 @@ $files = [
     'cron/run_conditional_external_sync.php',
     'config/runtime.php',
     'lib/q_func.php',
+    'lib/Database.php',
 ];
 $source = [];
 $failed = 0;
@@ -30,6 +31,7 @@ $cli = $source['cron/run_conditional_external_sync.php'];
 $factory = $source['app/Sync/SyncEngineFactory.php'];
 $scope = $source['app/Sync/SyncSourceScope.php'];
 $q = $source['lib/q_func.php'];
+$database = $source['lib/Database.php'];
 $report(
     str_contains($config, "'ONEID_SYNC_CRON_ENABLED' => 'false'")
         && str_contains($config, "'ONEID_SYNC_CRON_DRY_RUN' => 'true'")
@@ -64,6 +66,11 @@ $report(
         && str_contains($runner, 'APPLIED_AUDIT_WARNING'),
     'successful mutation has source-specific audit marker and uncertainty outcome'
 );
+$report(
+    str_contains($database, "['STAFF_HR','STUDENT_UG','STUDENT_ODL_PG']")
+        && !str_contains($database, "['STAFF_HR','STUDENT_UG_SMP','STUDENT_ODL_PG']"),
+    'cron writer accepts the canonical UG source code used by the runner'
+);
 exec(
     escapeshellarg(PHP_BINARY) . ' '
         . escapeshellarg($root . '/tests/characterization/s4h_conditional_sync_cron.php'),
@@ -72,5 +79,5 @@ exec(
 );
 foreach ($output as $line) echo $line, PHP_EOL;
 $report($code === 0, 'pure cron configuration characterization passes');
-printf("RESULT checks=%d failed=%d\n", count($files) + 7, $failed);
+printf("RESULT checks=%d failed=%d\n", count($files) + 8, $failed);
 exit($failed === 0 ? 0 : 1);

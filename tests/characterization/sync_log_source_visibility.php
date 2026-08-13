@@ -30,9 +30,15 @@ $report(
     'all source-scoped safe coordinators persist the canonical source code'
 );
 $report(
-    str_contains($database, "['STAFF_HR','STUDENT_UG_SMP','STUDENT_ODL_PG']")
+    str_contains($database, "['STAFF_HR','STUDENT_UG','STUDENT_ODL_PG']")
+        && !str_contains($database, "['STAFF_HR','STUDENT_UG_SMP','STUDENT_ODL_PG']")
         && str_contains($database, 'h.source_code'),
     'database accepts only canonical sources and projects source in Sync Log'
+);
+$report(
+    str_contains($dashboard, "STUDENT_UG: [adminText('admin.synclog.source_ug')")
+        && str_contains($dashboard, "STUDENT_UG_SMP: [adminText('admin.synclog.source_ug')"),
+    'Sync Log displays canonical UG sessions and retains legacy UG label compatibility'
 );
 $report(
     str_contains($dashboard, "adminText('admin.synclog.source_staff')")
