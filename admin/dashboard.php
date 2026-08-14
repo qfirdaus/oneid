@@ -249,6 +249,14 @@
                                                    <input type="text" class="form-control" id="add_new_app_url" name="add_new_app_url" placeholder="Url of the app" required="">
                                                    <small class="help-block oneid-app-url-help"><i class="fa fa-lock"></i> Only secure HTTPS URLs are allowed. Example: https://application.upnm.edu.my</small>
                                                 </div>
+                                                <div class="form-group">
+                                                   <label class="control-label mb-10" for="add_new_app_production_url">Production URL</label>
+                                                   <input type="text" class="form-control" id="add_new_app_production_url" name="add_new_app_production_url" placeholder="https://application.upnm.edu.my">
+                                                   <small class="help-block">Required only when the application is marked ready for production.</small>
+                                                </div>
+                                                <div class="checkbox">
+                                                   <label for="add_new_app_production_ready"><input id="add_new_app_production_ready" name="add_new_app_production_ready" type="checkbox" value="1"> Ready for Production</label>
+                                                </div>
                                                 <div class="form-group mb-10">
                                                    <label class="control-label mb-10 text-left" for="add_new_app_category">App Category</label>
                                                    <select class="form-control" id="add_new_app_category" name="add_new_app_category"></select>
@@ -496,6 +504,14 @@
                                                    <label class="control-label mb-10" for="edit_app_url">Url</label>
                                                    <input type="text" class="form-control" id="edit_app_url" name="edit_app_url" placeholder="Url of the app">
                                                    <small class="help-block oneid-app-url-help"><i class="fa fa-lock"></i> Only secure HTTPS URLs are allowed. Example: https://application.upnm.edu.my</small>
+                                                </div>
+                                                <div class="form-group">
+                                                   <label class="control-label mb-10" for="edit_app_production_url">Production URL</label>
+                                                   <input type="text" class="form-control" id="edit_app_production_url" name="edit_app_production_url" placeholder="https://application.upnm.edu.my">
+                                                   <small class="help-block">Production will use this URL instead of the staging URL.</small>
+                                                </div>
+                                                <div class="checkbox">
+                                                   <label for="edit_app_production_ready"><input id="edit_app_production_ready" name="edit_app_production_ready" type="checkbox" value="1"> Ready for Production</label>
                                                 </div>
                                                 <div class="form-group">
                                                    <label class="control-label mb-10" for="edit_app_code">Site API Code</label>
@@ -3665,6 +3681,8 @@
 			$('#add_new_app_name').val('');
 			$('#add_new_app_desc').val('');
 			$('#add_new_app_url').val('');
+			$('#add_new_app_production_url').val('');
+			$('#add_new_app_production_ready').prop('checked', false);
 			$('#modal_add_new_app').modal('show');
          		},
          		error: function (xhr, error, thrown) {
@@ -3806,8 +3824,10 @@
 						get_service_provider_list();
 						show_created_app_credential(response);
            				$('#add_new_app_name').val('');
-           				$('#add_new_app_desc').val('');
-           				$('#add_new_app_url').val('');
+					$('#add_new_app_desc').val('');
+					$('#add_new_app_url').val('');
+					$('#add_new_app_production_url').val('');
+					$('#add_new_app_production_ready').prop('checked', false);
 
                      var input = $('#add_new_app_icon');
                      // 1. Destroy existing instance
@@ -3885,6 +3905,8 @@
            			$('#edit_app_name').val(response['sp_name']);
            			$('#edit_app_desc').val(response['sp_description']);
 					$('#edit_app_url').val(response['sp_domain']);
+					$('#edit_app_production_url').val(response['production_domain'] || '');
+					$('#edit_app_production_ready').prop('checked', Number(response['production_ready'] || 0) === 1);
 					var rotated = Number(response['api_code_rotated'] || 0) === 1;
                   var retrievableCode=String(response['site_api_code']||'');
 					$('#edit_app_code').val(rotated ? (retrievableCode||String(response['api_code_hint']||'')) : sp_id);

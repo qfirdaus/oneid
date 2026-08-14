@@ -65,6 +65,8 @@ $validEdit = [
     'edit_app_desc'=>'Controlled application',
     'edit_app_url'=>'https://pilot.example.test/path',
     'edit_app_category'=>'2',
+    'edit_app_production_url'=>'https://pilot.example.test',
+    'edit_app_production_ready'=>'1',
 ];
 
 $reason = static function (callable $call): string {
@@ -79,7 +81,9 @@ $checks['create issues encrypted version 1 credential'] = str_starts_with((strin
 $checks['app ID uses expected unambiguous alphabet and length'] = preg_match('/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{10}$/', (string) $created['app_id'])===1;
 $op = new Wa2FakeOperation();
 $updated = (new WebAppService($op))->update($validEdit, null, sys_get_temp_dir(), 'ADMIN1', '127.0.0.1');
-$checks['valid edit retains server-side existing icon'] = $updated['code']==='WA4_APP_UPDATED_ENVIRONMENT_ASSET' && $updated['icon_status']==='retained' && count($op->updated)===6;
+$checks['valid edit retains icon and saves production release fields'] = $updated['code']==='WA4_APP_UPDATED_ENVIRONMENT_ASSET' && $updated['icon_status']==='retained' && count($op->updated)===8 && $op->updated[6]===1 && $op->updated[7]==='https://pilot.example.test';
+$checks['production-ready requires production URL'] = $reason(fn()=>(new WebAppService(new Wa2FakeOperation(),$cipher))->create(array_replace($validAdd,['add_new_app_production_ready'=>'1']),null,sys_get_temp_dir(),'ADMIN1','127.0.0.1'))==='WA2_PRODUCTION_URL_REQUIRED';
+$checks['production URL must use HTTPS'] = $reason(fn()=>(new WebAppService(new Wa2FakeOperation(),$cipher))->create(array_replace($validAdd,['add_new_app_production_url'=>'http://pilot.example.test']),null,sys_get_temp_dir(),'ADMIN1','127.0.0.1'))==='WA2_PRODUCTION_URL_NOT_ALLOWED';
 $checks['HTTP URL rejected'] = $reason(fn()=>(new WebAppService(new Wa2FakeOperation(),$cipher))->create(array_replace($validAdd,['add_new_app_url'=>'http://pilot.example.test']),null,sys_get_temp_dir(),'ADMIN1','127.0.0.1'))==='WA2_APP_URL_NOT_ALLOWED';
 $checks['URL credentials rejected'] = $reason(fn()=>(new WebAppService(new Wa2FakeOperation(),$cipher))->create(array_replace($validAdd,['add_new_app_url'=>'https://user:pass@pilot.example.test']),null,sys_get_temp_dir(),'ADMIN1','127.0.0.1'))==='WA2_APP_URL_NOT_ALLOWED';
 $checks['empty name rejected'] = $reason(fn()=>(new WebAppService(new Wa2FakeOperation(),$cipher))->create(array_replace($validAdd,['add_new_app_name'=>'']),null,sys_get_temp_dir(),'ADMIN1','127.0.0.1'))==='WA2_APP_NAME_INVALID';

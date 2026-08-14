@@ -1099,28 +1099,32 @@ class Database {
 
 
     public function specfic_user_get_sp_list_by_group($uc_id){
-        $Q = "SELECT A.sp_id,B.sp_name,B.sp_description,B.sp_domain,COALESCE(NULLIF(E.image_filename,''),B.sp_image) AS sp_image,B.sp_group_id
+        $visibility = $this->environment === 'production' ? " AND B.production_ready=1 AND COALESCE(TRIM(B.production_domain),'')<>''" : '';
+        $Q = "SELECT A.sp_id,B.sp_name,B.sp_description,CASE WHEN :domain_environment='production' THEN B.production_domain ELSE B.sp_domain END AS sp_domain,COALESCE(NULLIF(E.image_filename,''),B.sp_image) AS sp_image,B.sp_group_id
                 FROM acl_group A 
                 LEFT JOIN sp_list B ON B.sp_id = A.sp_id
                 LEFT JOIN sp_app_asset E ON E.sp_id=B.sp_id AND E.environment=:environment
-                WHERE A.uc_id=:uc_id AND B.avail_status=1";
+                WHERE A.uc_id=:uc_id AND B.avail_status=1{$visibility}";
         $R = $this->pdo->prepare($Q);        
         $R->bindParam(':uc_id', $uc_id);  
         $R->bindValue(':environment',$this->environment);
+        $R->bindValue(':domain_environment',$this->environment);
         $R->execute();
         $result = $R->fetchAll(PDO::FETCH_ASSOC);
         return $result;
     }
 
     public function specfic_user_get_sp_list_by_specific_sp($u_id){
-        $Q = "SELECT A.sp_id,B.sp_name,B.sp_description,B.sp_domain,COALESCE(NULLIF(E.image_filename,''),B.sp_image) AS sp_image,B.sp_group_id
+        $visibility = $this->environment === 'production' ? " AND B.production_ready=1 AND COALESCE(TRIM(B.production_domain),'')<>''" : '';
+        $Q = "SELECT A.sp_id,B.sp_name,B.sp_description,CASE WHEN :domain_environment='production' THEN B.production_domain ELSE B.sp_domain END AS sp_domain,COALESCE(NULLIF(E.image_filename,''),B.sp_image) AS sp_image,B.sp_group_id
                 FROM acl_single A
                 LEFT JOIN sp_list B ON B.sp_id = A.sp_id
                 LEFT JOIN sp_app_asset E ON E.sp_id=B.sp_id AND E.environment=:environment
-                WHERE A.u_id=:u_id AND B.avail_status=1";
+                WHERE A.u_id=:u_id AND B.avail_status=1{$visibility}";
         $R = $this->pdo->prepare($Q);        
         $R->bindParam(':u_id', $u_id);  
         $R->bindValue(':environment',$this->environment);
+        $R->bindValue(':domain_environment',$this->environment);
         $R->execute();
         $result = $R->fetchAll(PDO::FETCH_ASSOC);
         return $result;
@@ -1242,13 +1246,15 @@ class Database {
         return $R->rowCount();
     }
 
-   public function action_add_new_app($sp_id,$sp_name,$sp_description,$sp_domain,$sp_image,$sp_group_id,$sp_sso_support){
-        $Q = "INSERT INTO  sp_list(sp_id,sp_name,sp_description,sp_domain,sp_image,avail_status,sp_group_id,sp_sso_support) VALUES (:sp_id,:sp_name,:sp_description,:sp_domain,:sp_image,1,:sp_group_id,:sp_sso_support)";
+   public function action_add_new_app($sp_id,$sp_name,$sp_description,$sp_domain,$sp_image,$sp_group_id,$sp_sso_support,$production_ready=0,$production_domain=''){
+        $Q = "INSERT INTO sp_list(sp_id,sp_name,sp_description,sp_domain,production_domain,production_ready,sp_image,avail_status,sp_group_id,sp_sso_support) VALUES (:sp_id,:sp_name,:sp_description,:sp_domain,:production_domain,:production_ready,:sp_image,1,:sp_group_id,:sp_sso_support)";
         $R = $this->pdo->prepare($Q);
         $R->bindParam(':sp_id', $sp_id);
         $R->bindParam(':sp_name', $sp_name);
         $R->bindParam(':sp_description', $sp_description);
         $R->bindParam(':sp_domain', $sp_domain);
+        $R->bindParam(':production_domain', $production_domain);
+        $R->bindParam(':production_ready', $production_ready);
         $R->bindParam(':sp_image', $sp_image);
         $R->bindParam(':sp_group_id', $sp_group_id);
         $R->bindParam(':sp_sso_support', $sp_sso_support);
@@ -1297,10 +1303,10 @@ class Database {
         return $result;
     }
 
-    public function admin_update_app_metadata($sp_id,$sp_name,$sp_description,$sp_domain,$sp_group_id,$sp_sso_support): int{
-        $Q="UPDATE sp_list SET sp_name=:sp_name,sp_description=:sp_description,sp_domain=:sp_domain,sp_sso_support=:sp_sso_support,sp_group_id=:sp_group_id WHERE sp_id=:sp_id";
+    public function admin_update_app_metadata($sp_id,$sp_name,$sp_description,$sp_domain,$sp_group_id,$sp_sso_support,$production_ready=0,$production_domain=''): int{
+        $Q="UPDATE sp_list SET sp_name=:sp_name,sp_description=:sp_description,sp_domain=:sp_domain,production_domain=:production_domain,production_ready=:production_ready,sp_sso_support=:sp_sso_support,sp_group_id=:sp_group_id WHERE sp_id=:sp_id";
         $R=$this->pdo->prepare($Q);
-        $R->execute([':sp_id'=>$sp_id,':sp_name'=>$sp_name,':sp_description'=>$sp_description,':sp_domain'=>$sp_domain,':sp_group_id'=>$sp_group_id,':sp_sso_support'=>$sp_sso_support]);
+        $R->execute([':sp_id'=>$sp_id,':sp_name'=>$sp_name,':sp_description'=>$sp_description,':sp_domain'=>$sp_domain,':production_domain'=>$production_domain,':production_ready'=>$production_ready,':sp_group_id'=>$sp_group_id,':sp_sso_support'=>$sp_sso_support]);
         return $R->rowCount();
     }
 
@@ -1327,7 +1333,7 @@ class Database {
     }
 
     public function admin_get_service_provider_for_update(string $appId): array|false{
-        $Q = "SELECT S.sp_id,S.sp_name,S.sp_description,S.sp_domain,
+        $Q = "SELECT S.sp_id,S.sp_name,S.sp_description,S.sp_domain,S.production_domain,S.production_ready,
                      COALESCE(NULLIF(E.image_filename,''),S.sp_image) AS sp_image,
                      S.sp_image AS legacy_sp_image,E.image_filename AS environment_sp_image,
                      S.avail_status,S.sp_group_id,S.sp_sso_support
@@ -1393,12 +1399,13 @@ class Database {
         $code=trim($presentedCode);
         if($code===''||strlen($code)>128)return false;
         $hash=hash('sha256',$code);
-        $Q="SELECT S.sp_id,S.sp_domain,S.avail_status
+        $visibility = $this->environment === 'production' ? " AND S.production_ready=1 AND COALESCE(TRIM(S.production_domain),'')<>''" : '';
+        $Q="SELECT S.sp_id,CASE WHEN :environment='production' THEN S.production_domain ELSE S.sp_domain END AS sp_domain,S.avail_status
             FROM sp_list S LEFT JOIN sp_api_credential C ON C.sp_id=S.sp_id
             WHERE S.avail_status=1 AND ((C.sp_id IS NOT NULL AND C.code_hash=:code_hash)
-              OR (C.sp_id IS NULL AND S.sp_id=:legacy_code)) LIMIT 1";
+              OR (C.sp_id IS NULL AND S.sp_id=:legacy_code)){$visibility} LIMIT 1";
         $R=$this->pdo->prepare($Q);
-        $R->execute([':code_hash'=>$hash,':legacy_code'=>$code]);
+        $R->execute([':code_hash'=>$hash,':legacy_code'=>$code,':environment'=>$this->environment]);
         return $R->fetch(PDO::FETCH_ASSOC);
     }
 

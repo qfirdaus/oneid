@@ -43,7 +43,9 @@ final class WebAppService
                 $data['url'],
                 '',
                 $data['category_id'],
-                $data['sso_mode']
+                $data['sso_mode'],
+                $data['production_ready'],
+                $data['production_url']
             );
             if ($affected !== 1) {
                 throw new WebAppManagementException('WA3_APP_NOT_CREATED', $correlationId);
@@ -69,7 +71,7 @@ final class WebAppService
                 throw new WebAppManagementException('WA4_ASSET_NOT_WRITTEN',$correlationId);
             }
             $iconStatus = $uploadRequested ? 'stored' : 'not_requested';
-            $detail = sprintf('admin=%s action=create_app app=%s environment=%s outcome=success icon=%s credential=initial_issuance credential_version=1 correlation=%s',trim($adminId),$appId,$environment,$iconStatus,$correlationId);
+            $detail = sprintf('admin=%s action=create_app app=%s environment=%s production_ready=%d outcome=success icon=%s credential=initial_issuance credential_version=1 correlation=%s',trim($adminId),$appId,$environment,$data['production_ready'],$iconStatus,$correlationId);
             if ($this->operation->syslog_record(13, $detail, trim($ipAddress)) !== 1) {
                 throw new WebAppManagementException('WA3_AUDIT_NOT_WRITTEN', $correlationId);
             }
@@ -136,7 +138,9 @@ final class WebAppService
                 $data['description'],
                 $data['url'],
                 $data['category_id'],
-                $data['sso_mode']
+                $data['sso_mode'],
+                $data['production_ready'],
+                $data['production_url']
             );
             $assetAffected=0;
             if($uploadRequested){
@@ -152,7 +156,7 @@ final class WebAppService
             if ($affected < 0 || $affected > 1) {
                 throw new WebAppManagementException('WA3_APP_UPDATE_COUNT_INVALID', $correlationId);
             }
-            $detail = sprintf('admin=%s action=update_app app=%s environment=%s outcome=success icon=%s correlation=%s',trim($adminId),$data['app_id'],$environment,$iconStatus,$correlationId);
+            $detail = sprintf('admin=%s action=update_app app=%s environment=%s production_ready=%d outcome=success icon=%s correlation=%s',trim($adminId),$data['app_id'],$environment,$data['production_ready'],$iconStatus,$correlationId);
             if ($this->operation->syslog_record(14, $detail, trim($ipAddress)) !== 1) {
                 throw new WebAppManagementException('WA3_AUDIT_NOT_WRITTEN', $correlationId);
             }
@@ -189,13 +193,15 @@ final class WebAppService
         }
     }
 
-    /** @param array<string,mixed> $input @return array{name:string,description:string,url:string,category_id:int,sso_mode:int,app_id?:string} */
+    /** @param array<string,mixed> $input @return array{name:string,description:string,url:string,production_url:string,production_ready:int,category_id:int,sso_mode:int,app_id?:string} */
     private function normalizeInput(array $input, bool $editing, string $correlationId): array
     {
         $prefix = $editing ? 'edit_app_' : 'add_new_app_';
         $name = preg_replace('/\s+/u', ' ', trim((string) ($input[$prefix.'name'] ?? ''))) ?? '';
         $description = trim((string) ($input[$prefix.'desc'] ?? ''));
         $url = trim((string) ($input[$prefix.'url'] ?? ''));
+        $productionUrl = trim((string) ($input[$prefix.'production_url'] ?? ''));
+        $productionReady = isset($input[$prefix.'production_ready']) ? 1 : 0;
         $category = trim((string) ($input[$prefix.'category'] ?? ''));
         if ($name === '' || mb_strlen($name) > 150 || preg_match('/[\x00-\x1F\x7F]/u', $name) === 1) {
             throw new WebAppManagementException('WA2_APP_NAME_INVALID', $correlationId);
@@ -211,6 +217,19 @@ final class WebAppService
             throw new WebAppManagementException('WA2_APP_URL_NOT_ALLOWED', $correlationId);
         }
         $url = rtrim($url, '/');
+        if ($productionUrl !== '') {
+            if (strlen($productionUrl) > 2048 || filter_var($productionUrl, FILTER_VALIDATE_URL) === false) {
+                throw new WebAppManagementException('WA2_PRODUCTION_URL_INVALID', $correlationId);
+            }
+            $productionParts = parse_url($productionUrl);
+            if (!is_array($productionParts) || strtolower((string) ($productionParts['scheme'] ?? '')) !== 'https' || empty($productionParts['host']) || isset($productionParts['user']) || isset($productionParts['pass']) || isset($productionParts['fragment'])) {
+                throw new WebAppManagementException('WA2_PRODUCTION_URL_NOT_ALLOWED', $correlationId);
+            }
+            $productionUrl = rtrim($productionUrl, '/');
+        }
+        if ($productionReady === 1 && $productionUrl === '') {
+            throw new WebAppManagementException('WA2_PRODUCTION_URL_REQUIRED', $correlationId);
+        }
         if (preg_match('/^\d{1,20}$/', $category) !== 1) {
             throw new WebAppManagementException('WA2_CATEGORY_ID_INVALID', $correlationId);
         }
@@ -218,6 +237,8 @@ final class WebAppService
             'name'=>$name,
             'description'=>$description,
             'url'=>$url,
+            'production_url'=>$productionUrl,
+            'production_ready'=>$productionReady,
             'category_id'=>(int) $category,
             'sso_mode'=>isset($input[$editing ? 'app_info_sso_checkbox' : 'add_new_app_sso_checkbox']) ? 1 : 0,
         ];
