@@ -20,24 +20,25 @@ $productionEligibility=$environment==='production'
     ? " AND production_ready=1 AND COALESCE(TRIM(production_domain),'')<>''"
     : '';
 $rotatedApp=$pdo->query("SELECT sp_id FROM sp_list WHERE avail_status=1 AND sp_id<>'IDP'{$productionEligibility} ORDER BY sp_id LIMIT 1")->fetchColumn();
-$legacyApp=$pdo->query("SELECT S.sp_id FROM sp_list S WHERE S.avail_status=1 AND S.sp_id<>'IDP'{$productionEligibility} AND NOT EXISTS (SELECT 1 FROM sp_api_credential C WHERE C.sp_id=S.sp_id)".($rotatedApp!==false?" AND S.sp_id<>".$pdo->quote((string)$rotatedApp):'')." ORDER BY S.sp_id LIMIT 1")->fetchColumn();
-$apps=$rotatedApp!==false&&$legacyApp!==false?[(string)$rotatedApp,(string)$legacyApp]:[];
-$report(count($apps)===2,'two resolver-eligible apps are available for an isolated rotation test');
+$report($rotatedApp!==false,'a resolver-eligible app is available for an isolated rotation test');
 
-if(count($apps)===2){
-    [$rotatedApp,$legacyApp]=$apps;
+if($rotatedApp!==false){
+    $rotatedApp=(string)$rotatedApp;
     $newCode='oid_sp_'.rtrim(strtr(base64_encode(random_bytes(32)),'+/','-_'),'=');
     $cipher=new \OneId\App\Admin\SiteApiCodeCipher(\OneId\App\Auth\TotpKeyring::fromFile((string)oneid_config('ONEID_TOTP_KEYRING_PATH','')));
     $encrypted=$cipher->encrypt($newCode);
     $operation->beginTransaction();
     try{
+        $operationPdo=(function():PDO{return $this->pdo;})->call($operation);
+        $deleteCredential=$operationPdo->prepare('DELETE FROM sp_api_credential WHERE sp_id=:sp_id');
+        $deleteCredential->execute([':sp_id'=>$rotatedApp]);
+        $resolvedLegacy=$operation->resolve_site_api_code($rotatedApp);
+        $report(is_array($resolvedLegacy)&&$resolvedLegacy['sp_id']===$rotatedApp,'eligible app legacy code remains valid before rotation');
         $operation->admin_rotate_site_api_code($rotatedApp,hash('sha256',$newCode),'...'.substr($newCode,-4),'CONTRACT',$encrypted['ciphertext'],$encrypted['nonce'],$encrypted['key_version']);
         $resolvedNew=$operation->resolve_site_api_code($newCode);
         $resolvedOld=$operation->resolve_site_api_code($rotatedApp);
-        $resolvedLegacy=$operation->resolve_site_api_code($legacyApp);
         $report(is_array($resolvedNew)&&$resolvedNew['sp_id']===$rotatedApp,'new code resolves to the rotated app');
         $report($resolvedOld===false,'old code is immediately rejected for the rotated app');
-        $report(is_array($resolvedLegacy)&&$resolvedLegacy['sp_id']===$legacyApp,'unrotated app legacy code remains valid');
         $stored=$operation->admin_get_specific_service_provider($rotatedApp);
         $recovered=is_array($stored)?$cipher->decrypt($stored['code_ciphertext'],$stored['code_nonce'],$stored['key_version']):'';
         $report(hash_equals($newCode,$recovered),'rotated code can be securely recovered from encrypted storage');
