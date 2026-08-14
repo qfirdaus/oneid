@@ -18,7 +18,7 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
 };
 
 $report(
-    str_contains($page, 'oneid-web-app-modal.css?v=20260814-5'),
+    str_contains($page, 'oneid-web-app-modal.css?v=20260814-6'),
     'Administrator dashboard loads the refreshed category modal stylesheet'
 );
 $report(
@@ -45,6 +45,13 @@ $report(
         && str_contains($css, '.oneid-category-form-card{')
         && str_contains($css, 'grid-template-columns:40px minmax(0,1fr) auto auto'),
     'category dialogs use rounded cards and a correctly sized action grid'
+);
+$report(
+    str_contains($css, '#modal_add_new_webapp_category .oneid-category-header,#modal_manage_webapp_categories .oneid-category-header,#modal_edit_webapp_category .oneid-category-header')
+        && str_contains($css, 'background:linear-gradient(135deg,#f7fbfd 0%,#eef7fb 100%)!important')
+        && str_contains($css, '.oneid-category-header h5{color:#173848!important')
+        && str_contains($css, '.oneid-category-header p{color:#637986!important'),
+    'category headers override legacy modal colours with the Add Application appearance'
 );
 $report(
     str_contains($css, '@media(max-width:640px)')
