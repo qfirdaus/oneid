@@ -85,7 +85,7 @@
       <link href="../dist/css/oneid-admin-profile.css?v=20260814-5" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-6" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-web-app-modal.css?v=20260814-4" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-web-app-modal.css?v=20260814-5" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-maintenance-admin.css?v=20260812-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-locale-admin.css?v=20260814-1" rel="stylesheet" type="text/css">
    </head>
@@ -262,86 +262,75 @@
 
 
          <div id="modal_add_new_webapp_category" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_add_new_webapp_category" aria-hidden="true">
-            <div class="modal-dialog">
-               <div class="modal-content">
-                  <div class="modal-header">
-                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_add_new_category">New Apps Category</h5>
+            <div class="modal-dialog oneid-category-dialog oneid-category-dialog--form">
+               <div class="modal-content oneid-sync-child-modal oneid-category-modal">
+                  <div class="modal-header oneid-sync-child-header oneid-category-header">
+                     <div class="oneid-sync-child-heading">
+                        <span class="oneid-sync-child-heading-icon" aria-hidden="true"><i class="fa fa-folder-o"></i></span>
+                        <div><h5 class="modal-title" id="aria_modal_add_new_webapp_category">Add Application Category</h5><p>Create a directory group for organizing related applications.</p></div>
+                     </div>
+                     <button type="button" class="close oneid-sync-child-close" data-dismiss="modal" aria-label="Close">×</button>
                   </div>
                   <form id="form_add_new_webapp_category">
-                     <div class="modal-body">
-                        <div class="row">
-                           <div class="col-lg-12">
-                              <div class="">
-                                 <div class="panel-wrapper collapse in">
-                                    <div class="panel-body pa-0">
-                                       <div class="col-sm-12 col-xs-12">
-                                          <div class="form-wrap">
-                                             <div class="form-body overflow-hide">
-                                                <div class="form-group">
-                                                   <label class="control-label mb-10" for="add_new_webapp_category_name">Category title</label>
-                                                   <input type="text" class="form-control" id="add_new_webapp_category_name" name="add_new_webapp_category_name" placeholder="Title of the category" required="">
-                                                </div>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
+                     <div class="modal-body oneid-sync-child-body oneid-category-body">
+                        <section class="oneid-category-form-card">
+                           <div class="oneid-category-form-heading"><span><i class="fa fa-tag"></i></span><div><h6>Category Information</h6><p>Use a short, recognizable title that administrators can identify easily.</p></div></div>
+                           <div class="oneid-category-form-content"><div class="form-group"><label for="add_new_webapp_category_name">Category title</label><input type="text" class="form-control" id="add_new_webapp_category_name" name="add_new_webapp_category_name" maxlength="100" autocomplete="off" placeholder="Example: Academic Services" required><small><i class="fa fa-info-circle"></i> Maximum 100 characters. Category names must be unique.</small></div></div>
+                        </section>
                      </div>
-                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary waves-effect">Add</button>
+                     <div class="modal-footer oneid-sync-child-footer oneid-category-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn_add_webapp_category"><i class="fa fa-plus"></i> <span>Add Category</span></button>
                      </div>
                   </form>
                </div>
-               <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
          </div>
 
          <div id="modal_manage_webapp_categories" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_manage_webapp_categories" aria-hidden="true">
-            <div class="modal-dialog">
-               <div class="modal-content">
-                  <div class="modal-header">
-                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_manage_webapp_categories">Manage Application Categories</h5>
+            <div class="modal-dialog modal-lg oneid-category-dialog oneid-category-dialog--manage">
+               <div class="modal-content oneid-sync-child-modal oneid-category-modal">
+                  <div class="modal-header oneid-sync-child-header oneid-category-header">
+                     <div class="oneid-sync-child-heading">
+                        <span class="oneid-sync-child-heading-icon" aria-hidden="true"><i class="fa fa-folder-open-o"></i></span>
+                        <div><h5 class="modal-title" id="aria_modal_manage_webapp_categories">Manage Application Categories</h5><p>Review assignments, rename categories and remove categories that are no longer used.</p></div>
+                     </div>
+                     <button type="button" class="close oneid-sync-child-close" data-dismiss="modal" aria-label="Close">×</button>
                   </div>
-                  <div class="modal-body">
-                     <p class="category-manage-intro">Kategori hanya boleh dipadam apabila tiada aplikasi aktif atau inactive masih assigned kepadanya.</p>
+                  <div class="modal-body oneid-sync-child-body oneid-category-body oneid-category-manage-body">
+                     <div class="category-manage-intro"><span><i class="fa fa-shield"></i></span><div><strong>Safe category management</strong><p>A category can only be removed when no active or inactive application remains assigned to it.</p></div></div>
                      <div id="category_manage_loading" class="category-manage-state">
                         <i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i>
                         <span>Loading categories</span>
                      </div>
                      <div id="category_manage_list" class="category-manage-list" aria-live="polite"></div>
                   </div>
-                  <div class="modal-footer">
-                     <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                  <div class="modal-footer oneid-sync-child-footer oneid-category-footer">
+                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                     <button type="button" class="btn btn-primary" onclick="open_add_new_webapp_category_from_manager();"><i class="fa fa-plus"></i> Add Category</button>
                   </div>
                </div>
             </div>
          </div>
 
          <div id="modal_edit_webapp_category" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_edit_webapp_category" aria-hidden="true">
-            <div class="modal-dialog">
-               <div class="modal-content">
-                  <div class="modal-header">
-                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_edit_webapp_category">Edit Application Category</h5>
+            <div class="modal-dialog oneid-category-dialog oneid-category-dialog--form">
+               <div class="modal-content oneid-sync-child-modal oneid-category-modal">
+                  <div class="modal-header oneid-sync-child-header oneid-category-header">
+                     <div class="oneid-sync-child-heading">
+                        <span class="oneid-sync-child-heading-icon" aria-hidden="true"><i class="fa fa-pencil"></i></span>
+                        <div><h5 class="modal-title" id="aria_modal_edit_webapp_category">Edit Application Category</h5><p>Update the category title without changing assigned applications.</p></div>
+                     </div>
+                     <button type="button" class="close oneid-sync-child-close" data-dismiss="modal" aria-label="Close">×</button>
                   </div>
                   <form id="form_edit_webapp_category">
-                     <div class="modal-body">
+                     <div class="modal-body oneid-sync-child-body oneid-category-body">
                         <input type="hidden" id="edit_webapp_category_id" name="app_category_id">
-                        <div class="form-group">
-                           <label class="control-label mb-10" for="edit_webapp_category_name">Category title</label>
-                           <input type="text" class="form-control" id="edit_webapp_category_name" name="app_category_name" maxlength="100" autocomplete="off" required>
-                        </div>
+                        <section class="oneid-category-form-card"><div class="oneid-category-form-heading"><span><i class="fa fa-tag"></i></span><div><h6>Category Information</h6><p>Assigned applications remain linked after the title is updated.</p></div></div><div class="oneid-category-form-content"><div class="form-group"><label for="edit_webapp_category_name">Category title</label><input type="text" class="form-control" id="edit_webapp_category_name" name="app_category_name" maxlength="100" autocomplete="off" required><small><i class="fa fa-info-circle"></i> Maximum 100 characters. Category names must be unique.</small></div></div></section>
                      </div>
-                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary waves-effect" id="btn_save_webapp_category">Save changes</button>
+                     <div class="modal-footer oneid-sync-child-footer oneid-category-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn_save_webapp_category"><i class="fa fa-check"></i> Save Changes</button>
                      </div>
                   </form>
                </div>
@@ -3463,7 +3452,13 @@
          
 
            function open_add_new_webapp_category(){
+               $('#add_new_webapp_category_name').val('');
                $('#modal_add_new_webapp_category').modal('show');
+           }
+
+           function open_add_new_webapp_category_from_manager(){
+               $('#modal_manage_webapp_categories').modal('hide');
+               setTimeout(open_add_new_webapp_category, 220);
            }
 
 
@@ -3472,12 +3467,15 @@
             ev.preventDefault();
             var data = $('#form_add_new_webapp_category').serializeArray();
             data.push({name: 'action_add_new_webapp_category', value: ''});
+            var submitButton = $('#btn_add_webapp_category');
             $.ajax({
                type: 'POST',
                url: '../lib/q_func',
                dataType: "json",
                data:data,
                beforeSend: function(){
+                  submitButton.prop('disabled', true).attr('aria-busy', 'true');
+                  submitButton.find('span').text('Adding Category...');
                },
                success: function (response) {
                   if (Number(response.status) === 1){
@@ -3493,6 +3491,7 @@
                         stack: 6
                      });                        
                      $('#add_new_webapp_category_name').val('');
+                     $('#modal_add_new_webapp_category').modal('hide');
                   }else{                        
                      $.toast().reset('all');            
                      $.toast({
@@ -3508,6 +3507,11 @@
          
                },
                error: function (xhr, error, thrown) {
+                  oneidToast('Category was not created', 'The server request failed. HTTP ' + xhr.status + '.', 'error');
+               },
+               complete: function(){
+                  submitButton.prop('disabled', false).removeAttr('aria-busy');
+                  submitButton.find('span').text('Add Category');
                }
             });
            });
@@ -3552,6 +3556,7 @@
                         ? 'System category — protected'
                         : (assignedCount > 0 ? assignedCount + ' assigned app(s) must be moved first' : 'Empty category — eligible for removal');
                      rows += '<div class="category-manage-row">';
+                     rows += '<span class="category-manage-icon" aria-hidden="true"><i class="fa '+(isSystem ? 'fa-lock' : 'fa-folder-o')+'"></i></span>';
                      rows += '<div class="category-manage-name"><strong title="'+categoryName+'">'+categoryName+'</strong><small>'+webAppManagementText(reason)+'</small></div>';
                      rows += '<div class="category-manage-counts"><span><strong>'+activeCount+'</strong><small>Active</small></span><span><strong>'+inactiveCount+'</strong><small>Inactive</small></span></div>';
                      rows += '<div class="category-manage-actions">';
