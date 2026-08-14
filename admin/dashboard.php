@@ -84,7 +84,7 @@
       <link href="../dist/css/oneid-admin-profile.css?v=20260805-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-6" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-web-app-modal.css?v=20260814-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-web-app-modal.css?v=20260814-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-maintenance-admin.css?v=20260812-3" rel="stylesheet" type="text/css">
    </head>
    <body class="<?=trim(oneid_environment_body_class())?>">
@@ -226,50 +226,27 @@
                      <button type="button" class="close oneid-sync-child-close" data-dismiss="modal" aria-label="Close">×</button>
                   </div>
                   <form id="form_add_new_app">
-                     <div class="modal-body oneid-sync-child-body oneid-app-info-body">
-                        <div class="oneid-add-app-grid">
-                                                <div class="form-group">
-                                                   <label class="control-label mb-10" for="add_new_app_name">App Name</label>
-                                                   <input type="text" class="form-control" id="add_new_app_name" name="add_new_app_name" placeholder="Name of the application" required="">
-                                                </div>
-                                                <div class="form-group">
-                                                   <label class="control-label mb-10" for="add_new_app_desc">Description</label>
-                                                   <textarea class="form-control" rows="3" id="add_new_app_desc" name="add_new_app_desc" placeholder="Describe what the app does" required=""></textarea>
-                                                </div>
-
-                                                <div class="form-group">
-                                                   <label class="control-label mb-10" for="add_new_app_icon">App Icon (optional)</label>
-                                                   <div>
-                                                      <input type="file" id="add_new_app_icon" name="add_new_app_icon" class="dropify" data-default-file="../img/thumb-1.jpg" data-height="100" accept="image/jpeg,image/png,image/gif,image/webp" />
-                                                      <small class="text-muted">JPEG, PNG, GIF or WebP, maximum 5 MB and 4096×4096. The server converts it to a static 256×256 PNG.</small>
-                                                   </div>  
-                                                </div> 
-                                                <div class="form-group">
-                                                   <label class="control-label mb-10" for="add_new_app_url">Url</label>
-                                                   <input type="text" class="form-control" id="add_new_app_url" name="add_new_app_url" placeholder="Url of the app" required="">
-                                                   <small class="help-block oneid-app-url-help"><i class="fa fa-lock"></i> Only secure HTTPS URLs are allowed. Example: https://application.upnm.edu.my</small>
-                                                </div>
-                                                <div class="form-group">
-                                                   <label class="control-label mb-10" for="add_new_app_production_url">Production URL</label>
-                                                   <input type="text" class="form-control" id="add_new_app_production_url" name="add_new_app_production_url" placeholder="https://application.upnm.edu.my">
-                                                   <small class="help-block">Required only when the application is marked ready for production.</small>
-                                                </div>
-                                                <div class="checkbox">
-                                                   <label for="add_new_app_production_ready"><input id="add_new_app_production_ready" name="add_new_app_production_ready" type="checkbox" value="1"> Ready for Production</label>
-                                                </div>
-                                                <div class="form-group mb-10">
-                                                   <label class="control-label mb-10 text-left" for="add_new_app_category">App Category</label>
-                                                   <select class="form-control" id="add_new_app_category" name="add_new_app_category"></select>
-                                                </div>
-                                                <div class="oneid-direct-link-setting">
-                                                   <div class="oneid-direct-link-setting__title">Direct link only</div>
-                                                   <label class="oneid-direct-link-setting__control" for="add_new_app_sso_checkbox">
-                                                      <input id="add_new_app_sso_checkbox" name="add_new_app_sso_checkbox" type="checkbox">
-                                                      <span class="oneid-direct-link-setting__icon"><i class="fa fa-external-link"></i></span>
-                                                      <span class="oneid-direct-link-setting__content"><small>Open the application directly without the OneID SSO redirect flow.</small></span>
-                                                      <span class="oneid-direct-link-setting__switch" aria-hidden="true"><span></span></span>
-                                                   </label>
-                                                </div>
+                     <div class="modal-body oneid-sync-child-body oneid-app-info-body oneid-app-tab-shell">
+                        <ul class="nav oneid-app-tabs" role="tablist">
+                           <li class="active"><a href="#add_app_details_tab" data-toggle="tab" role="tab"><i class="fa fa-info-circle"></i><span>Details</span><small>Identity &amp; branding</small></a></li>
+                           <li><a href="#add_app_environment_tab" data-toggle="tab" role="tab"><i class="fa fa-cloud-upload"></i><span>Environment &amp; Release</span><small>Staging &amp; production</small></a></li>
+                           <li><a href="#add_app_access_tab" data-toggle="tab" role="tab"><i class="fa fa-random"></i><span>Access &amp; Integration</span><small>Application behaviour</small></a></li>
+                        </ul>
+                        <div class="tab-content oneid-app-tab-content">
+                           <div id="add_app_details_tab" class="tab-pane fade in active" role="tabpanel"><div class="oneid-tab-grid oneid-tab-grid--details">
+                              <section class="oneid-app-card"><div class="oneid-app-card__heading"><span><i class="fa fa-info-circle"></i></span><div><h6>Application Information</h6><p>Name, description and directory category.</p></div></div><div class="oneid-app-card__content">
+                                 <div class="form-group"><label for="add_new_app_name">App Name</label><input type="text" class="form-control" id="add_new_app_name" name="add_new_app_name" placeholder="Name of the application" required></div>
+                                 <div class="form-group"><label for="add_new_app_desc">Description</label><textarea class="form-control" rows="3" id="add_new_app_desc" name="add_new_app_desc" placeholder="Describe what the app does" required></textarea></div>
+                                 <div class="form-group"><label for="add_new_app_category">App Category</label><select class="form-control" id="add_new_app_category" name="add_new_app_category"></select></div>
+                              </div></section>
+                              <section class="oneid-app-card"><div class="oneid-app-card__heading"><span><i class="fa fa-picture-o"></i></span><div><h6>Application Icon</h6><p>Optional branding shown to users.</p></div></div><div class="oneid-app-card__content"><input type="file" id="add_new_app_icon" name="add_new_app_icon" class="dropify" data-default-file="../img/thumb-1.jpg" data-height="100" accept="image/jpeg,image/png,image/gif,image/webp"><small class="text-muted">Maximum 5 MB; converted to a static 256×256 PNG.</small></div></section>
+                           </div></div>
+                           <div id="add_app_environment_tab" class="tab-pane fade" role="tabpanel"><section class="oneid-app-card oneid-app-card--environment"><div class="oneid-app-card__heading"><span><i class="fa fa-cloud-upload"></i></span><div><h6>Environment &amp; Release</h6><p>Configure staging first, then explicitly approve production.</p></div><em class="oneid-release-badge">Staging only</em></div><div class="oneid-app-card__content oneid-environment-fields">
+                              <div class="form-group oneid-environment-field"><div class="oneid-environment-label"><span class="oneid-environment-dot oneid-environment-dot--staging"></span><label for="add_new_app_url">Staging URL</label><small>Required</small></div><input type="text" class="form-control" id="add_new_app_url" name="add_new_app_url" placeholder="https://application-uat.upnm.edu.my" required><small class="help-block"><i class="fa fa-lock"></i> Secure HTTPS URL used for testing.</small></div>
+                              <div class="form-group oneid-environment-field oneid-environment-field--production"><div class="oneid-environment-label"><span class="oneid-environment-dot oneid-environment-dot--production"></span><label for="add_new_app_production_url">Production URL</label><small>Before release</small></div><input type="text" class="form-control" id="add_new_app_production_url" name="add_new_app_production_url" placeholder="https://application.upnm.edu.my"><small class="help-block"><i class="fa fa-lock"></i> Required when production readiness is enabled.</small></div>
+                              <label class="oneid-release-control" for="add_new_app_production_ready"><input id="add_new_app_production_ready" name="add_new_app_production_ready" type="checkbox" value="1"><span class="oneid-release-control__icon"><i class="fa fa-rocket"></i></span><span class="oneid-release-control__copy"><strong>Ready for Production</strong><small>Publish this application when OneID runs in production.</small></span><span class="oneid-release-control__switch"><span></span></span></label>
+                           </div></section></div>
+                           <div id="add_app_access_tab" class="tab-pane fade" role="tabpanel"><section class="oneid-app-card"><div class="oneid-app-card__heading"><span><i class="fa fa-random"></i></span><div><h6>Access Behaviour</h6><p>Choose how OneID opens this application.</p></div></div><label class="oneid-direct-link-setting__control" for="add_new_app_sso_checkbox"><input id="add_new_app_sso_checkbox" name="add_new_app_sso_checkbox" type="checkbox"><span class="oneid-direct-link-setting__icon"><i class="fa fa-external-link"></i></span><span class="oneid-direct-link-setting__content"><strong>Direct link only</strong><small>Open directly without the OneID SSO redirect flow.</small></span><span class="oneid-direct-link-setting__switch"><span></span></span></label></section><div class="oneid-credential-notice"><i class="fa fa-key"></i><div><strong>Site API Code</strong><p>A secure credential will be generated automatically after the application is created.</p></div></div></div>
                         </div>
                      </div>
                      <div class="modal-footer oneid-sync-child-footer oneid-app-info-footer">
@@ -483,7 +460,14 @@
                                     <div class="panel-body pa-0">
                                        <div class="col-sm-12 col-xs-12">
                                           <div class="form-wrap">
-                                             <div class="form-body overflow-hide oneid-app-details-grid">
+                                             <div class="oneid-app-tab-shell">
+                                                <ul class="nav oneid-app-tabs" role="tablist">
+                                                   <li class="active"><a href="#edit_app_details_tab" data-toggle="tab" role="tab"><i class="fa fa-info-circle"></i><span>Details</span><small>Identity &amp; branding</small></a></li>
+                                                   <li><a href="#edit_app_environment_tab" data-toggle="tab" role="tab"><i class="fa fa-cloud-upload"></i><span>Environment &amp; Release</span><small>Staging &amp; production</small></a></li>
+                                                   <li><a href="#edit_app_access_tab" data-toggle="tab" role="tab"><i class="fa fa-key"></i><span>Access &amp; Integration</span><small>Credential &amp; behaviour</small></a></li>
+                                                </ul>
+                                                <div class="tab-content oneid-app-tab-content">
+                                                   <div id="edit_app_details_tab" class="tab-pane fade in active" role="tabpanel"><div class="oneid-tab-grid oneid-tab-grid--details">
                                                 <section class="oneid-app-card oneid-app-card--identity">
                                                    <div class="oneid-app-card__heading"><span><i class="fa fa-info-circle"></i></span><div><h6>Application Information</h6><p>Name, description and directory category.</p></div></div>
                                                    <div class="oneid-app-card__content">
@@ -500,6 +484,8 @@
                                                       <small class="text-muted">Leave empty to retain the current icon. Maximum 5 MB; converted to 256×256 PNG.</small>
                                                    </div>
                                                 </section>
+                                                   </div></div>
+                                                   <div id="edit_app_environment_tab" class="tab-pane fade" role="tabpanel">
                                                 <section class="oneid-app-card oneid-app-card--environment">
                                                    <div class="oneid-app-card__heading oneid-app-card__heading--release"><span><i class="fa fa-cloud-upload"></i></span><div><h6>Environment &amp; Release</h6><p>Keep staging available while controlling production publication.</p></div><em id="edit_app_release_badge" class="oneid-release-badge">Staging only</em></div>
                                                    <div class="oneid-app-card__content oneid-environment-fields">
@@ -508,6 +494,8 @@
                                                       <label class="oneid-release-control" for="edit_app_production_ready"><input id="edit_app_production_ready" name="edit_app_production_ready" type="checkbox" value="1"><span class="oneid-release-control__icon"><i class="fa fa-rocket"></i></span><span class="oneid-release-control__copy"><strong>Ready for Production</strong><small>Allow this application to appear and authenticate users when OneID runs in production.</small></span><span class="oneid-release-control__switch" aria-hidden="true"><span></span></span></label>
                                                    </div>
                                                 </section>
+                                                   </div>
+                                                   <div id="edit_app_access_tab" class="tab-pane fade" role="tabpanel"><div class="oneid-tab-grid oneid-tab-grid--access">
                                                 <section class="oneid-app-card oneid-app-card--integration">
                                                    <div class="oneid-app-card__heading"><span><i class="fa fa-key"></i></span><div><h6>Integration Credential</h6><p>Credential used by the connected application.</p></div></div>
                                                    <div class="oneid-app-card__content"><div class="input-group"><span class="input-group-btn"><button type="button" class="btn btn-primary" id="btn_copy_site_api_code" onclick="copyToClipboard('edit_app_code');"><i class="fa fa-copy"></i> <span class="copy-label">Copy</span></button></span><input type="text" id="edit_app_code" class="form-control" disabled=""><span class="input-group-btn"><button type="button" class="btn btn-warning" id="btn_rotate_site_api_code" onclick="rotate_site_api_code();"><i class="fa fa-refresh"></i> Generate New Code</button></span></div><small class="text-muted" id="edit_app_code_status"></small></div>
@@ -516,6 +504,8 @@
                                                    <div class="oneid-app-card__heading"><span><i class="fa fa-random"></i></span><div><h6>Access Behaviour</h6><p>Choose how OneID opens this application.</p></div></div>
                                                    <label class="oneid-direct-link-setting__control" for="app_info_sso_checkbox"><input id="app_info_sso_checkbox" type="checkbox" name="app_info_sso_checkbox"><span class="oneid-direct-link-setting__icon"><i class="fa fa-external-link"></i></span><span class="oneid-direct-link-setting__content"><strong>Direct link only</strong><small>Open directly without the OneID SSO redirect flow.</small></span><span class="oneid-direct-link-setting__switch" aria-hidden="true"><span></span></span></label>
                                                 </section>
+                                                   </div></div>
+                                                </div>
                                              </div>
                                           </div>
                                        </div>
@@ -3657,9 +3647,11 @@
 			$('#add_new_app_name').val('');
 			$('#add_new_app_desc').val('');
 			$('#add_new_app_url').val('');
-			$('#add_new_app_production_url').val('');
-			$('#add_new_app_production_ready').prop('checked', false);
-			$('#modal_add_new_app').modal('show');
+				$('#add_new_app_production_url').val('');
+				$('#add_new_app_production_ready').prop('checked', false);
+				$('#modal_add_new_app .oneid-app-tabs a:first').tab('show');
+				updateAddAppProductionReadinessUi();
+				$('#modal_add_new_app').modal('show');
          		},
          		error: function (xhr, error, thrown) {
          		}
@@ -3836,7 +3828,8 @@
          
          
          // edit_app_category
-           function open_edit_webapp(sp_id){
+	           function open_edit_webapp(sp_id){
+			$('#modal_edit_app .oneid-app-tabs a:first').tab('show');
            	$.ajax({
            		type: 'POST',
            		url: '../lib/q_func',
@@ -3866,7 +3859,26 @@
               $('#edit_app_release_badge').text(ready ? 'Production ready' : 'Staging only');
            }
 
+           function updateAddAppProductionReadinessUi(){
+              var ready = $('#add_new_app_production_ready').is(':checked');
+              var $card = $('#modal_add_new_app .oneid-app-card--environment');
+              $card.toggleClass('is-production-ready', ready);
+              $card.find('.oneid-release-badge').text(ready ? 'Production ready' : 'Staging only');
+           }
+
            $(document).on('change', '#edit_app_production_ready', updateAppProductionReadinessUi);
+           $(document).on('change', '#add_new_app_production_ready', updateAddAppProductionReadinessUi);
+
+           ['form_add_new_app','form_edit_app'].forEach(function(formId){
+              var form = document.getElementById(formId);
+              if (!form) return;
+              form.addEventListener('invalid', function(event){
+                 var pane = $(event.target).closest('.tab-pane');
+                 if (pane.length) {
+                    $(form).find('.oneid-app-tabs a[href="#'+pane.attr('id')+'"]').tab('show');
+                 }
+              }, true);
+           });
          
          
            function get_specific_app_info(sp_id){

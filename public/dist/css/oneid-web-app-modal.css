@@ -54,3 +54,55 @@
 #modal_edit_app .oneid-release-control:focus-within{box-shadow:0 0 0 3px rgba(32,169,121,.14)}
 #modal_edit_app .oneid-app-card--access .oneid-direct-link-setting__control{min-height:76px;padding:12px 16px}
 @media(max-width:767px){#modal_edit_app .form-body.oneid-app-details-grid{display:block}#modal_edit_app .oneid-app-card{margin-bottom:12px}#modal_edit_app .oneid-environment-fields{grid-template-columns:1fr}#modal_edit_app .oneid-release-control{grid-column:1}#modal_edit_app .oneid-app-card__heading p{display:none}#modal_edit_app .oneid-release-control__copy small{display:none}}
+
+/* Tabbed application workflow shared by Add and Edit modals. */
+#modal_add_new_app .oneid-app-info-body,#modal_edit_app .oneid-app-info-body{padding:0}
+.oneid-app-tab-shell .oneid-app-tabs{background:#fff;border:0;border-bottom:1px solid #dbe7ec;display:grid;grid-template-columns:repeat(3,1fr);margin:0;padding:0 22px}
+.oneid-app-tab-shell .oneid-app-tabs>li{margin:0;padding:0}
+.oneid-app-tab-shell .oneid-app-tabs>li>a{align-items:center;background:transparent;border:0;border-bottom:3px solid transparent;border-radius:0;color:#6b808b;display:grid;gap:1px 10px;grid-template-columns:34px 1fr;margin:0;padding:14px 12px 12px;transition:all .16s ease}
+.oneid-app-tab-shell .oneid-app-tabs>li>a i{align-items:center;background:#edf5f8;border-radius:8px;color:#6a818c;display:flex;font-size:14px;grid-row:1/span 2;height:34px;justify-content:center;width:34px}
+.oneid-app-tab-shell .oneid-app-tabs>li>a span{font-size:12px;font-weight:700;letter-spacing:.02em;line-height:1.25;text-transform:uppercase}
+.oneid-app-tab-shell .oneid-app-tabs>li>a small{font-size:10px;line-height:1.25}
+.oneid-app-tab-shell .oneid-app-tabs>li>a:hover{background:#f7fbfd;border-color:transparent;color:#26748f}
+.oneid-app-tab-shell .oneid-app-tabs>li.active>a,.oneid-app-tab-shell .oneid-app-tabs>li.active>a:focus,.oneid-app-tab-shell .oneid-app-tabs>li.active>a:hover{background:#f5fbfd;border:0;border-bottom:3px solid #0c9bca;color:#08789f}
+.oneid-app-tab-shell .oneid-app-tabs>li.active>a i{background:#dff3fa;color:#0787b3}
+.oneid-app-tab-content{background:#f3f7f9;padding:18px 22px}
+.oneid-app-tab-content>.tab-pane{min-height:330px}
+.oneid-tab-grid{display:grid;gap:14px}
+.oneid-tab-grid--details{grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr)}
+.oneid-tab-grid--access{grid-template-columns:1fr 1fr}
+#modal_edit_app .oneid-tab-grid .oneid-app-card,#modal_edit_app .oneid-app-tab-content>.tab-pane>.oneid-app-card{grid-column:auto;grid-row:auto}
+#modal_edit_app .oneid-tab-grid--details .oneid-app-card--identity{grid-column:1;grid-row:1}
+#modal_edit_app .oneid-tab-grid--details .oneid-app-card--branding{grid-column:2;grid-row:1}
+#modal_add_new_app .oneid-app-card{background:#fff;border:1px solid #dce7ec;border-radius:11px;box-shadow:0 3px 12px rgba(30,65,82,.055);min-width:0;overflow:hidden}
+#modal_add_new_app .oneid-app-card__heading{align-items:center;background:#fbfdfe;border-bottom:1px solid #e8eff2;display:flex;gap:11px;padding:13px 16px}
+#modal_add_new_app .oneid-app-card__heading>span{align-items:center;background:#e9f6fb;border-radius:8px;color:#118ab4;display:flex;flex:0 0 34px;height:34px;justify-content:center}
+#modal_add_new_app .oneid-app-card__heading h6{color:#203f4e;font-size:12px;font-weight:700;letter-spacing:.035em;margin:0;text-transform:uppercase}
+#modal_add_new_app .oneid-app-card__heading p{color:#768994;font-size:11px;line-height:1.35;margin:2px 0 0}
+#modal_add_new_app .oneid-app-card__content{padding:15px 16px}
+#modal_add_new_app .oneid-app-card .form-group{margin:0 0 14px;padding:0}
+#modal_add_new_app .oneid-app-card .form-group:last-child{margin-bottom:0}
+#modal_add_new_app .oneid-app-card label{color:#29424f;font-size:11px;font-weight:700;letter-spacing:.035em;margin-bottom:7px;text-transform:uppercase}
+#modal_add_new_app .oneid-app-card textarea{min-height:105px}
+#modal_add_new_app .oneid-app-card .dropify-wrapper{height:150px!important}
+#modal_add_new_app .oneid-release-badge{background:#e8f3f7;border:1px solid #cfe3ea;border-radius:20px;color:#527180;font-size:10px;font-style:normal;font-weight:700;letter-spacing:.035em;margin-left:auto;padding:6px 10px;text-transform:uppercase}
+#modal_add_new_app .oneid-environment-fields{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+#modal_add_new_app .oneid-environment-field{background:#f8fafb;border:1px solid #e3eaee;border-radius:9px;margin:0;padding:13px 14px}
+#modal_add_new_app .oneid-environment-field--production{background:#f5fafc;border-color:#d8eaf1}
+#modal_add_new_app .oneid-environment-label{align-items:center;display:grid;grid-template-columns:auto 1fr auto;margin-bottom:8px}
+#modal_add_new_app .oneid-environment-label label{margin:0 0 0 7px}
+#modal_add_new_app .oneid-environment-label small{color:#82949e;font-size:10px}
+#modal_add_new_app .oneid-environment-dot{border-radius:50%;display:block;height:8px;width:8px}
+#modal_add_new_app .oneid-environment-dot--staging{background:#edaa22;box-shadow:0 0 0 3px rgba(237,170,34,.14)}
+#modal_add_new_app .oneid-environment-dot--production{background:#21a878;box-shadow:0 0 0 3px rgba(33,168,120,.14)}
+#modal_add_new_app .oneid-environment-field .help-block{align-items:center;display:flex;margin-top:7px}
+#modal_add_new_app .oneid-environment-field .help-block i{color:#168db8;margin-right:6px}
+#modal_add_new_app .oneid-release-control{align-items:center;background:#f7fafb;border:1px solid #dfe8ec;border-radius:9px;cursor:pointer;display:flex;gap:12px;grid-column:1/-1;margin:0;padding:13px 14px;text-transform:none}
+#modal_add_new_app .oneid-release-control input{height:1px;opacity:0;position:absolute;width:1px}
+#modal_add_new_app .oneid-release-control__icon{align-items:center;background:#e8f1f4;border-radius:9px;color:#69808b;display:flex;flex:0 0 40px;height:40px;justify-content:center}
+#modal_add_new_app .oneid-release-control__copy{display:flex;flex:1;flex-direction:column}.oneid-release-control__copy strong{color:#29424f;font-size:13px}.oneid-release-control__copy small{color:#71838e;font-size:11px;font-weight:400;margin-top:2px}
+#modal_add_new_app .oneid-release-control__switch{background:#cbd7dd;border-radius:20px;flex:0 0 44px;height:26px;padding:3px}.oneid-release-control__switch span{background:#fff;border-radius:50%;box-shadow:0 2px 5px rgba(30,55,70,.25);display:block;height:20px;transition:transform .2s ease;width:20px}
+#modal_add_new_app .oneid-release-control input:checked~.oneid-release-control__icon{background:#dcf5eb;color:#16855f}#modal_add_new_app .oneid-release-control input:checked~.oneid-release-control__switch{background:#20a979}#modal_add_new_app .oneid-release-control input:checked~.oneid-release-control__switch span{transform:translateX(18px)}
+#modal_add_new_app .oneid-app-card--environment.is-production-ready{border-color:#9ed9c2}#modal_add_new_app .oneid-app-card--environment.is-production-ready .oneid-release-badge{background:#e5f8f0;border-color:#b8e6d3;color:#147a58}
+.oneid-credential-notice{align-items:center;background:#eef7fb;border:1px solid #d2e8f1;border-radius:10px;color:#426777;display:flex;gap:13px;margin-top:14px;padding:14px 16px}.oneid-credential-notice>i{align-items:center;background:#d9eff7;border-radius:9px;color:#1088b2;display:flex;flex:0 0 40px;height:40px;justify-content:center}.oneid-credential-notice strong{color:#284a59;font-size:12px;text-transform:uppercase}.oneid-credential-notice p{font-size:11px;margin:3px 0 0}
+@media(max-width:767px){.oneid-app-tab-shell .oneid-app-tabs{padding:0 8px}.oneid-app-tab-shell .oneid-app-tabs>li>a{display:flex;justify-content:center;padding:11px 6px}.oneid-app-tab-shell .oneid-app-tabs>li>a i{flex:0 0 32px;height:32px;width:32px}.oneid-app-tab-shell .oneid-app-tabs>li>a span,.oneid-app-tab-shell .oneid-app-tabs>li>a small{display:none}.oneid-app-tab-content{padding:12px}.oneid-app-tab-content>.tab-pane{min-height:0}.oneid-tab-grid--details,.oneid-tab-grid--access,#modal_add_new_app .oneid-environment-fields{grid-template-columns:1fr}#modal_edit_app .oneid-tab-grid--details .oneid-app-card--identity,#modal_edit_app .oneid-tab-grid--details .oneid-app-card--branding{grid-column:1;grid-row:auto}}

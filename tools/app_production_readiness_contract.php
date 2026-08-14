@@ -17,6 +17,7 @@ $checks = [
     'service requires HTTPS production URL before ready' => str_contains($service, 'WA2_PRODUCTION_URL_REQUIRED') && str_contains($service, 'WA2_PRODUCTION_URL_NOT_ALLOWED'),
     'admin can explicitly manage readiness and URL' => substr_count($admin, 'production_ready') >= 4 && substr_count($admin, 'production_url') >= 4,
     'release controls use structured professional card layout' => str_contains($admin, 'oneid-app-card--environment') && str_contains($admin, 'oneid-release-control__switch') && str_contains($admin, 'edit_app_release_badge'),
+    'add and edit workflows use three focused tabs' => substr_count($admin, 'oneid-app-tabs') >= 4 && str_contains($admin, 'add_app_environment_tab') && str_contains($admin, 'edit_app_environment_tab') && str_contains($admin, 'Access &amp; Integration'),
 ];
 
 $passed = 0;
