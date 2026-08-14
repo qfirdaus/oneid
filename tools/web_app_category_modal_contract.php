@@ -18,7 +18,7 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
 };
 
 $report(
-    str_contains($page, 'oneid-web-app-modal.css?v=20260814-6'),
+    str_contains($page, 'oneid-web-app-modal.css?v=20260814-7'),
     'Administrator dashboard loads the refreshed category modal stylesheet'
 );
 $report(
@@ -47,17 +47,18 @@ $report(
     'category dialogs use rounded cards and a correctly sized action grid'
 );
 $report(
-    str_contains($css, '#modal_add_new_webapp_category .oneid-category-header,#modal_manage_webapp_categories .oneid-category-header,#modal_edit_webapp_category .oneid-category-header')
-        && str_contains($css, 'background:linear-gradient(135deg,#f7fbfd 0%,#eef7fb 100%)!important')
-        && str_contains($css, '.oneid-category-header h5{color:#173848!important')
-        && str_contains($css, '.oneid-category-header p{color:#637986!important'),
-    'category headers override legacy modal colours with the Add Application appearance'
-);
-$report(
     str_contains($css, '@media(max-width:640px)')
         && str_contains($css, 'grid-template-columns:36px minmax(0,1fr) auto')
         && str_contains($css, '.oneid-category-footer{display:grid;grid-template-columns:1fr 1fr'),
     'category dialogs retain a compact responsive layout'
+);
+$report(
+    str_contains($css, '#modal_add_new_app .oneid-app-info-dialog,#modal_add_new_webapp_category .oneid-category-dialog,#modal_manage_webapp_categories .oneid-category-dialog')
+        && str_contains($css, 'max-width:880px;width:min(880px,calc(100vw - 30px))')
+        && str_contains($css, 'background:linear-gradient(135deg,#087eaf 0%,#1398d0 100%)!important')
+        && str_contains($css, 'border-radius:12px 12px 0 0!important')
+        && str_contains($css, 'color:rgba(255,255,255,.84)!important'),
+    'manage category add category and add application share the Metadata Translation modal shell'
 );
 $report(
     str_contains($page, "assignedCount === 0")
