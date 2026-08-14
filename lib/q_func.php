@@ -2292,9 +2292,13 @@ function string_sanitize($s) {
      }
 
 
-    if(isset( $_POST['action_forgot_password'])){
+    if(isset($_POST['action_forgot_password'])||isset($_POST['action_mydigitalid_password_recovery_request'])){
       $correlation = bin2hex(random_bytes(8));
-      $identifier = trim((string) ($_POST['forgot_password_id'] ?? ''));
+      $authenticatedMyDigitalIdRecovery=isset($_POST['action_mydigitalid_password_recovery_request']);
+      if($authenticatedMyDigitalIdRecovery&&((string)($_SESSION['auth_method']??'')!=='mydigitalid'||trim((string)($_SESSION['login_user']??''))==='')){oneid_json_deny(403,'MyDigital ID authentication required','UC7_MYDID_RECOVERY_AUTH_REQUIRED');}
+      $identifier = $authenticatedMyDigitalIdRecovery
+        ? trim((string)$_SESSION['login_user'])
+        : trim((string) ($_POST['forgot_password_id'] ?? ''));
       $uid_result = $identifier !== '' ? $operation->func_search_uid($identifier) : false;
       if (!$uid_result && $identifier !== '') {
         $uid_result = $operation->func_search_uid_pelajar($identifier);
@@ -2362,8 +2366,9 @@ function string_sanitize($s) {
       return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     }
 
-    if(isset( $_POST['action_submit_OTP'])){
+    if(isset($_POST['action_submit_OTP'])||isset($_POST['action_mydigitalid_password_recovery_verify'])){
       $resetUser = (string) ($_SESSION['password_reset_user'] ?? '');
+      if(isset($_POST['action_mydigitalid_password_recovery_verify'])&&((string)($_SESSION['auth_method']??'')!=='mydigitalid'||!hash_equals((string)($_SESSION['login_user']??''),$resetUser))){oneid_json_deny(403,'MyDigital ID recovery context invalid','UC7_MYDID_RECOVERY_CONTEXT_INVALID');}
       $submittedOtp = preg_replace('/\D/', '', (string) ($_POST['otp_id'] ?? ''));
       $otp_search_result = $resetUser !== '' ? $operation->otp_check($resetUser) : false;
 
@@ -2389,8 +2394,10 @@ function string_sanitize($s) {
       }
     }
 
-    if(isset( $_POST['action_reset_password'])){
+    if(isset($_POST['action_reset_password'])||isset($_POST['action_mydigitalid_password_recovery_reset'])){
       $resetUser = (string) ($_SESSION['password_reset_user'] ?? '');
+      $authenticatedMyDigitalIdReset=isset($_POST['action_mydigitalid_password_recovery_reset']);
+      if($authenticatedMyDigitalIdReset&&((string)($_SESSION['auth_method']??'')!=='mydigitalid'||!hash_equals((string)($_SESSION['login_user']??''),$resetUser))){oneid_json_deny(403,'MyDigital ID recovery context invalid','UC7_MYDID_RECOVERY_CONTEXT_INVALID');}
       $verifiedAt = (int) ($_SESSION['password_reset_verified_at'] ?? 0);
       if ($resetUser === '' || $verifiedAt === 0 || (time() - $verifiedAt) > 600) {
         oneid_json_deny(403, oneid_translate('password.authorization_expired'));
@@ -2398,6 +2405,7 @@ function string_sanitize($s) {
 
       $newPassword = (string) ($_POST['reset_password_new'] ?? '');
       $confirmation = (string) ($_POST['reset_password_confirm'] ?? '');
+      if($authenticatedMyDigitalIdReset){$newPassword=(string)($_POST['change_password_new']??'');$confirmation=(string)($_POST['change_password_new_reconfirm']??'');}
       if (!hash_equals($newPassword, $confirmation)) {
         echo json_encode([
           'result'=>'false',
@@ -2421,6 +2429,28 @@ function string_sanitize($s) {
           'msg'=>oneid_translate($passwordTranslationKey)
         ]);
         return;
+      }
+
+      if($authenticatedMyDigitalIdReset){
+        $started=false;
+        try{
+          $operation->beginTransaction();$started=true;
+          $user=$operation->get_user_password_change_for_update($resetUser);
+          if(!is_array($user)||(int)($user['avail_status']??0)!==1)throw new \RuntimeException('UC2_USER_NOT_ACTIVE');
+          $stored=(string)($user['u_password']??'');
+          if($stored!==''&&oneid_password_verify($newPassword,$stored))throw new \RuntimeException('UC2_PASSWORD_REUSE_CURRENT');
+          foreach($operation->get_password_history_hashes($resetUser,oneid_password_history_limit()) as $historyHash){if(oneid_password_verify($newPassword,(string)$historyHash))throw new \RuntimeException('UC5_PASSWORD_HISTORY_REUSED');}
+          if($stored!==''&&$operation->record_password_history($resetUser,$stored)!==1)throw new \RuntimeException('UC5_PASSWORD_HISTORY_WRITE_FAILED');
+          if($operation->set_user_password($resetUser,$newPassword,0)!==1)throw new \RuntimeException('UC2_PASSWORD_NOT_CHANGED');
+          $operation->prune_password_history($resetUser,oneid_password_history_limit());
+          $operation->update_whole_token_status($resetUser,0,'PASSWORD_RESET');
+          $operation->otp_invalidate_active($resetUser);
+          if($operation->syslog_record(21,'user='.$resetUser.' action=mydigitalid_email_otp_password_reset correlation='.bin2hex(random_bytes(8)),getUserIP())!==1)throw new \RuntimeException('UC2_AUDIT_FAILED');
+          $operation->commit();$started=false;
+          unset($_SESSION['password_reset_user'],$_SESSION['password_reset_verified_at']);
+          oneid_clear_sso_cookie();
+          echo json_encode(['result'=>'true','code'=>'UC7_MYDID_PASSWORD_RESET_REAUTH_REQUIRED','translation_key'=>'password.updated','msg'=>oneid_translate('password.updated'),'redirect_uri'=>APP_URL.'/']);return;
+        }catch(\Throwable $exception){if($started){try{$operation->rollback();}catch(\Throwable){}}$reason=$exception instanceof \RuntimeException?$exception->getMessage():'UC2_OPERATION_FAILED';echo json_encode(['result'=>'false','code'=>$reason,'translation_key'=>'dashboard.password.operation_failed','msg'=>oneid_translate('dashboard.password.operation_failed')]);return;}
       }
 
       $operation->set_user_password($resetUser, $newPassword, 0);

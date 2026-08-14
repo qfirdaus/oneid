@@ -204,6 +204,15 @@
                                                 <div class="form-group" id="current_password_group">
                                                    <label class="control-label mb-10" for="change_password_current"><span id="default_pwd_text"><?=htmlspecialchars(oneid_translate('dashboard.password.current'), ENT_QUOTES, 'UTF-8')?></span></label>
                                                    <input type="password" class="form-control" id="change_password_current" name="change_password_current" autocomplete="current-password" required>
+                                                   <?php if (($_SESSION['auth_method'] ?? '') === 'mydigitalid'): ?>
+                                                   <button type="button" class="btn btn-link pl-0 mt-10" id="btn_mydid_password_recovery"><i class="fa fa-envelope-o" aria-hidden="true"></i> <?=htmlspecialchars(oneid_translate('dashboard.password.forgot_mydid'),ENT_QUOTES,'UTF-8')?></button>
+                                                   <?php endif; ?>
+                                                </div>
+                                                <div class="alert alert-info" id="mydid_password_recovery_notice" style="display:none;"><?=htmlspecialchars(oneid_translate('dashboard.password.recovery_notice'),ENT_QUOTES,'UTF-8')?></div>
+                                                <div class="form-group" id="mydid_password_otp_group" style="display:none;">
+                                                   <label for="mydid_password_otp"><?=htmlspecialchars(oneid_translate('dashboard.password.otp_label'),ENT_QUOTES,'UTF-8')?></label>
+                                                   <input type="text" class="form-control" id="mydid_password_otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}">
+                                                   <small class="help-block"><?=htmlspecialchars(oneid_translate('dashboard.password.otp_help'),ENT_QUOTES,'UTF-8')?></small>
                                                 </div>
                                                 <hr/>
                                                 <div class="form-group">
@@ -553,6 +562,12 @@
             'passwordCopied' => oneid_translate('dashboard.password.copied'),
             'passwordChange' => oneid_translate('dashboard.password.change'),
             'passwordChanging' => oneid_translate('dashboard.password.changing'),
+            'passwordForgotMyDigitalId' => oneid_translate('dashboard.password.forgot_mydid'),
+            'passwordOtpSent' => oneid_translate('dashboard.password.otp_sent'),
+            'passwordOtpVerify' => oneid_translate('dashboard.password.otp_verify'),
+            'passwordOtpInvalid' => oneid_translate('dashboard.password.otp_invalid'),
+            'passwordReset' => oneid_translate('dashboard.password.reset'),
+            'passwordRecoveryFailed' => oneid_translate('dashboard.password.recovery_failed'),
             'passwordWeak' => oneid_translate('dashboard.password.weak'),
             'passwordStrong' => oneid_translate('dashboard.password.strong'),
             'passwordMismatch' => oneid_translate('dashboard.password.mismatch'),
@@ -976,6 +991,7 @@
          }
          
          var initialPasswordSetup = false;
+         var myDigitalIdRecoveryStage = 'none';
          function open_change_password(type){   
 		 
 		 if(type==0){
@@ -996,6 +1012,9 @@
          $('#current_password_group').toggle(!initialPasswordSetup);
          $('#change_password_current').prop('required',!initialPasswordSetup);
          $('#initial_password_setup_notice').toggle(initialPasswordSetup);
+         myDigitalIdRecoveryStage='none';
+         $('#mydid_password_recovery_notice,#mydid_password_otp_group').hide();
+         $('#btn_mydid_password_recovery').toggle(!initialPasswordSetup);
          $('#aria_modal_change_password').text(initialPasswordSetup?dashboardI18n.passwordInitialTitle:dashboardI18n.passwordTitle);
          $('#change_password_current').val('');
          $('#change_password_new').val('');
@@ -1060,9 +1079,26 @@
          }
 
          var form_change_password = $('#form_change_password');
+         $('#btn_mydid_password_recovery').on('click',function(){
+            if(passwordChangeSubmitting){return;}
+            $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',data:{action_mydigitalid_password_recovery_request:''},beforeSend:function(){setPasswordChangeSubmitting(true);},success:function(response){
+               myDigitalIdRecoveryStage='otp';
+               $('#current_password_group,#change_password_new,#change_password_new_reconfirm,#password-requirements').hide();
+               $('#change_password_new,#change_password_new_reconfirm').closest('.form-group').hide();
+               $('#mydid_password_recovery_notice').text(dashboardI18n.passwordOtpSent).show();
+               $('#mydid_password_otp_group').show();$('#mydid_password_otp').val('').focus();
+               $('#change_password_submit_label').text(dashboardI18n.passwordOtpVerify);
+            },error:function(){showPasswordChangeFeedback(dashboardI18n.passwordRecoveryFailed,'error');},complete:function(){setPasswordChangeSubmitting(false);if(myDigitalIdRecoveryStage==='otp')$('#change_password_submit_label').text(dashboardI18n.passwordOtpVerify);}});
+         });
          form_change_password.on('submit', function(ev){
              ev.preventDefault();
              if(passwordChangeSubmitting){return;}
+
+             if(myDigitalIdRecoveryStage==='otp'){
+                var otp=$('#mydid_password_otp').val().replace(/\D/g,'');
+                if(otp.length!==6){showPasswordChangeFeedback(dashboardI18n.passwordOtpInvalid,'error');return;}
+                $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',data:{action_mydigitalid_password_recovery_verify:'',otp_id:otp},beforeSend:function(){setPasswordChangeSubmitting(true);},success:function(response){if(response.result==='true'&&response.reset_required){myDigitalIdRecoveryStage='reset';$('#mydid_password_otp_group').hide();$('#mydid_password_recovery_notice').text(response.msg).show();$('#change_password_new,#change_password_new_reconfirm').closest('.form-group').show();$('#change_password_new,#change_password_new_reconfirm,#password-requirements').show();$('#change_password_submit_label').text(dashboardI18n.passwordReset);$('#change_password_new').focus();}else{showPasswordChangeFeedback(response.msg||dashboardI18n.passwordOtpInvalid,'error');}},error:function(){showPasswordChangeFeedback(dashboardI18n.passwordRecoveryFailed,'error');},complete:function(){setPasswordChangeSubmitting(false);if(myDigitalIdRecoveryStage==='otp')$('#change_password_submit_label').text(dashboardI18n.passwordOtpVerify);else if(myDigitalIdRecoveryStage==='reset')$('#change_password_submit_label').text(dashboardI18n.passwordReset);}});return;
+             }
 
               var password = $('#change_password_new').val();
               var password2 = $('#change_password_new_reconfirm').val();
@@ -1078,7 +1114,7 @@
 
 
              var data = $('#form_change_password').serializeArray();
-             data.push({name: initialPasswordSetup?'action_set_initial_password':'action_change_password', value: ''});
+             data.push({name: myDigitalIdRecoveryStage==='reset'?'action_mydigitalid_password_recovery_reset':(initialPasswordSetup?'action_set_initial_password':'action_change_password'), value: ''});
                  $.ajax({
                          type: 'POST',
                          url: '../lib/q_func',
@@ -1088,11 +1124,11 @@
                            setPasswordChangeSubmitting(true);
                          },
                          success: function (response) {
-                             if (response['status'] == 1){  
+                             if (response['status'] == 1 || response['result'] === 'true'){
                                 if(response.csrf_token){$.ajaxSetup({headers:{'X-CSRF-Token':response.csrf_token}});}
 								showPasswordChangeFeedback(passwordChangeFeedback(response,true),'success');
 								$('#change_password_current, #change_password_new, #change_password_new_reconfirm').val('');
-								if(response.reauthentication_required&&response.redirect_uri){showPasswordChangeFeedback(passwordChangeFeedback(response,true)+'\n'+dashboardI18n.passwordReauth,'success');setTimeout(function(){window.location.href=response.redirect_uri;},3500);}
+									if((response.reauthentication_required||myDigitalIdRecoveryStage==='reset')&&response.redirect_uri){showPasswordChangeFeedback(passwordChangeFeedback(response,true)+'\n'+dashboardI18n.passwordReauth,'success');setTimeout(function(){window.location.href=response.redirect_uri;},2500);}
 								                             }else{
 								showPasswordChangeFeedback(passwordChangeFeedback(response,false),'error');
                              }

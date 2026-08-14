@@ -37,7 +37,7 @@ final class InitialPasswordSetupService
             if (oneid_password_verify($new, $stored)) {
                 throw new UserPasswordChangeException('UC2_PASSWORD_REUSE_CURRENT', $correlation);
             }
-            foreach ($this->operation->get_password_history_hashes($userId, 5) as $historyHash) {
+            foreach ($this->operation->get_password_history_hashes($userId, oneid_password_history_limit()) as $historyHash) {
                 if (oneid_password_verify($new, (string) $historyHash)) {
                     throw new UserPasswordChangeException('UC5_PASSWORD_HISTORY_REUSED', $correlation);
                 }
@@ -48,7 +48,7 @@ final class InitialPasswordSetupService
             if ($this->operation->set_user_password($userId, $new, 0) !== 1) {
                 throw new UserPasswordChangeException('UC2_PASSWORD_NOT_CHANGED', $correlation);
             }
-            $this->operation->prune_password_history($userId, 5);
+            $this->operation->prune_password_history($userId, oneid_password_history_limit());
             $revoked = (int) $this->operation->update_whole_token_status($userId, 0, 'PASSWORD_RESET');
             $invalidated = (int) $this->operation->otp_invalidate_active($userId);
             $detail = sprintf(

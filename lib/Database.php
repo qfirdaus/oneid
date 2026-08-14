@@ -114,13 +114,13 @@ class Database {
         $R=$this->pdo->prepare("SELECT COUNT(*) FROM syslog WHERE log_type=20 AND ip_addr=:ip AND datetime>=:since AND log_detail LIKE :pattern");$R->execute([':ip'=>$ipAddress,':since'=>$since,':pattern'=>$pattern]);return(int)$R->fetchColumn();
     }
 
-    public function get_password_history_hashes($userId,$limit=5){
+    public function get_password_history_hashes($userId,$limit=2){
         $limit=max(1,min(10,(int)$limit));$R=$this->pdo->prepare("SELECT password_hash FROM user_password_history WHERE user_id=:user_id ORDER BY id DESC LIMIT {$limit}");$R->execute([':user_id'=>$userId]);return $R->fetchAll(PDO::FETCH_COLUMN,0);
     }
     public function record_password_history($userId,$hash){
         $R=$this->pdo->prepare("INSERT INTO user_password_history(user_id,password_hash,changed_at) VALUES(:user_id,:hash,NOW())");$R->execute([':user_id'=>$userId,':hash'=>$hash]);return $R->rowCount();
     }
-    public function prune_password_history($userId,$keep=5){
+    public function prune_password_history($userId,$keep=2){
         $keep=max(1,min(10,(int)$keep));$Q="DELETE FROM user_password_history WHERE user_id=:user_id AND id NOT IN (SELECT id FROM (SELECT id FROM user_password_history WHERE user_id=:inner_user ORDER BY id DESC LIMIT {$keep}) retained)";$R=$this->pdo->prepare($Q);$R->execute([':user_id'=>$userId,':inner_user'=>$userId]);return $R->rowCount();
     }
 

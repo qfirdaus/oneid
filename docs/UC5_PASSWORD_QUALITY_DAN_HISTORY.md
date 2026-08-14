@@ -3,8 +3,10 @@
 **Status:** IMPLEMENTED — EXPANDING MIGRATION APPLIED; CONTRACT PASS
 
 Polisi 12 aksara/composition dikekalkan dan ditambah local predictable-password
-denylist serta larangan memasukkan user ID. Password semasa dan lima hash
-terdahulu tidak boleh digunakan semula. History hanya menyimpan hash, tidak
+denylist serta larangan memasukkan user ID. Tiga password terkini termasuk
+password semasa tidak boleh digunakan semula; oleh itu dua hash terdahulu
+disimpan dan diperiksa. Password pertama boleh digunakan semula apabila user
+memilih password kali keempat. History hanya menyimpan hash, tidak
 password asal, dan bermula selepas UC5; tiada historical password direka semula.
 
 Table `user_password_history` ialah expanding schema dengan index user/id.

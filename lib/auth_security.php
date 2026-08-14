@@ -1,5 +1,16 @@
 <?php
 
+function oneid_password_reuse_window(): int
+{
+    return 3;
+}
+
+function oneid_password_history_limit(): int
+{
+    // The current password is checked separately, leaving two historical hashes.
+    return oneid_password_reuse_window() - 1;
+}
+
 function oneid_password_hash(string $password): string
 {
     return password_hash($password, PASSWORD_DEFAULT);
