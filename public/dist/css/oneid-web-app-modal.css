@@ -58,6 +58,7 @@
 /* Tabbed application workflow shared by Add and Edit modals. */
 #modal_add_new_app .oneid-app-info-body,#modal_edit_app .oneid-app-info-body{padding:0}
 .oneid-app-tab-shell .oneid-app-tabs{background:#fff;border:0;border-bottom:1px solid #dbe7ec;display:grid;grid-template-columns:repeat(3,1fr);margin:0;padding:0 22px}
+.oneid-app-tab-shell .oneid-app-tabs:before,.oneid-app-tab-shell .oneid-app-tabs:after{content:none;display:none}
 .oneid-app-tab-shell .oneid-app-tabs>li{margin:0;padding:0}
 .oneid-app-tab-shell .oneid-app-tabs>li>a{align-items:center;background:transparent;border:0;border-bottom:3px solid transparent;border-radius:0;color:#6b808b;display:grid;gap:1px 10px;grid-template-columns:34px 1fr;margin:0;padding:14px 12px 12px;transition:all .16s ease}
 .oneid-app-tab-shell .oneid-app-tabs>li>a i{align-items:center;background:#edf5f8;border-radius:8px;color:#6a818c;display:flex;font-size:14px;grid-row:1/span 2;height:34px;justify-content:center;width:34px}
