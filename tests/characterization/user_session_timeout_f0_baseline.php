@@ -118,6 +118,12 @@ $report(
         && str_contains($ssoInclude, 'COOKIE_SETTER'),
     'valid SSO flow can establish an authenticated OneID session from a token'
 );
+$establishOffset = strpos($session, 'function oneid_establish_authenticated_session');
+$establishBlock = $establishOffset === false ? '' : substr($session, $establishOffset, 1800);
+$report(
+    str_contains($establishBlock, "unset(\$_SESSION['oneid_portal_session_expired_at']);"),
+    'successful reauthentication clears the previous portal-expiry marker'
+);
 $report(
     str_contains($authSecurity, "'expires' => time() + \$lifetimeSeconds")
         && str_contains($session, 'oneid_set_configured_sso_cookie'),

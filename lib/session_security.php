@@ -209,6 +209,9 @@ function oneid_establish_authenticated_session(array $user): void
     $_SESSION['login_status'] = 'true';
     $_SESSION['login_user_type'] = $user['u_type'];
     $_SESSION['password_change_required'] = (int) ($user['password_change_required'] ?? 0);
+    // Expiry is a guard for the unauthenticated session that just ended. It
+    // must never survive a successful authentication into the new session.
+    unset($_SESSION['oneid_portal_session_expired_at']);
     if (!$sameAuthenticatedUser) {
         $_SESSION['oneid_session_created_at'] = time();
     }

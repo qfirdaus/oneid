@@ -119,6 +119,21 @@ $report(
         && (int) ($_SESSION['oneid_session_created_at'] ?? 0) >= $now,
     'request one second beyond configured one-hour idle boundary clears authenticated session'
 );
+oneid_establish_authenticated_session([
+    'u_id' => 'USER1',
+    'data1' => 'Test User',
+    'data3' => '',
+    'data4' => '',
+    'u_type' => '2',
+    'password_change_required' => 0,
+]);
+$report(
+    ($_SESSION['login_status'] ?? '') === 'true'
+        && ($_SESSION['login_user'] ?? '') === 'USER1'
+        && !isset($_SESSION['oneid_portal_session_expired_at'])
+        && (int) ($_SESSION['oneid_session_last_activity'] ?? 0) >= $now,
+    'successful login after idle expiry establishes a clean active session'
+);
 session_destroy();
 foreach (glob($sessionPath . '/sess_*') ?: [] as $sessionFile) {
     unlink($sessionFile);

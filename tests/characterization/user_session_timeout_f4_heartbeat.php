@@ -29,6 +29,7 @@ $report(!str_contains($controller,'setInterval(synchronize')&&str_contains($sess
 $report(str_contains($dashboard,'oneid-user-session.js?v=20260812-1')&&str_contains($security,'oneid-user-session.js?v=20260812-1'),'both authenticated user pages load the corrected cache-busted controller');
 $report(str_contains($controller,'terminalRedirectStarted = true')&&str_contains($controller,"channel.close()"),'terminal redirect is single-flight and stops cross-tab session delivery');
 $report(str_contains($controller,"confirmButton.addEventListener('click', redirectToLanding)")&&str_contains($controller,"'session=expired'"),'expired-session OK button has a direct cache-safe landing redirect');
+$report(str_contains($session,"unset(\$_SESSION['oneid_portal_session_expired_at']);"),'new authenticated session cannot inherit the previous expiry marker');
 $report(!str_contains($api,'OneIdUserSession')&&!str_contains($api,'user-activity-committed'),'service-provider API remains outside presentation error handling');
 
 echo"RESULT checks={$checks} failed={$failed}".PHP_EOL;exit($failed===0?0:1);
