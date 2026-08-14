@@ -16,6 +16,7 @@ $checks = [
     'production requests receive production URL' => substr_count($database, "THEN B.production_domain ELSE B.sp_domain") >= 2 && str_contains($database, "THEN S.production_domain ELSE S.sp_domain"),
     'service requires HTTPS production URL before ready' => str_contains($service, 'WA2_PRODUCTION_URL_REQUIRED') && str_contains($service, 'WA2_PRODUCTION_URL_NOT_ALLOWED'),
     'admin can explicitly manage readiness and URL' => substr_count($admin, 'production_ready') >= 4 && substr_count($admin, 'production_url') >= 4,
+    'release controls use structured professional card layout' => str_contains($admin, 'oneid-app-card--environment') && str_contains($admin, 'oneid-release-control__switch') && str_contains($admin, 'edit_app_release_badge'),
 ];
 
 $passed = 0;
