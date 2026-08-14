@@ -19,6 +19,7 @@ $checks = [
     'release controls use structured professional card layout' => str_contains($admin, 'oneid-app-card--environment') && str_contains($admin, 'oneid-release-control__switch') && str_contains($admin, 'edit_app_release_badge'),
     'add and edit workflows use three focused tabs' => substr_count($admin, 'oneid-app-tabs') >= 4 && str_contains($admin, 'add_app_environment_tab') && str_contains($admin, 'edit_app_environment_tab') && str_contains($admin, 'Access &amp; Integration'),
     'Bootstrap nav clearfix cannot consume tab grid columns' => str_contains((string) file_get_contents($root . '/public/dist/css/oneid-web-app-modal.css'), '.oneid-app-tabs:before,.oneid-app-tab-shell .oneid-app-tabs:after{content:none;display:none}'),
+    'access and integration settings stack at full width' => str_contains((string) file_get_contents($root . '/public/dist/css/oneid-web-app-modal.css'), '.oneid-tab-grid--access{grid-template-columns:minmax(0,1fr)}') && str_contains((string) file_get_contents($root . '/public/dist/css/oneid-web-app-modal.css'), '.oneid-tab-grid--access>.oneid-app-card{grid-column:1;width:100%}'),
 ];
 
 $passed = 0;

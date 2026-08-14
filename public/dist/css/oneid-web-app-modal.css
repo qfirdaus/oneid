@@ -71,7 +71,8 @@
 .oneid-app-tab-content>.tab-pane{min-height:330px}
 .oneid-tab-grid{display:grid;gap:14px}
 .oneid-tab-grid--details{grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr)}
-.oneid-tab-grid--access{grid-template-columns:1fr 1fr}
+.oneid-tab-grid--access{grid-template-columns:minmax(0,1fr)}
+.oneid-tab-grid--access>.oneid-app-card{grid-column:1;width:100%}
 #modal_edit_app .oneid-tab-grid .oneid-app-card,#modal_edit_app .oneid-app-tab-content>.tab-pane>.oneid-app-card{grid-column:auto;grid-row:auto}
 #modal_edit_app .oneid-tab-grid--details .oneid-app-card--identity{grid-column:1;grid-row:1}
 #modal_edit_app .oneid-tab-grid--details .oneid-app-card--branding{grid-column:2;grid-row:1}
