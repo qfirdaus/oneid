@@ -65,6 +65,7 @@
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-sidebar-menu.css?v=20260814-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-faq.css?v=20260814-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260805-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
@@ -152,23 +153,20 @@
                               </div>
 
          <!-- Modal: FAQ OneID@UPNM -->
-<div id="modal_faq" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="faqModalLabel">
+<div id="modal_faq" class="modal fade oneid-faq-modal" tabindex="-1" role="dialog" aria-labelledby="faqModalLabel" aria-describedby="faqModalIntro">
   <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="<?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?>">×</button>
-        <h5 class="modal-title" id="faqModalLabel"><?=htmlspecialchars(oneid_translate('faq.title'), ENT_QUOTES, 'UTF-8')?> — OneID@UPNM</h5>
+    <div class="modal-content oneid-faq-dialog">
+      <div class="modal-header oneid-faq-header">
+        <button type="button" class="close oneid-faq-close" data-dismiss="modal" aria-label="<?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?>">×</button>
+        <span class="oneid-faq-header-icon"><i class="fa fa-question-circle" aria-hidden="true"></i></span>
+        <div><span class="oneid-faq-eyebrow"><?=htmlspecialchars(oneid_translate('faq.eyebrow'), ENT_QUOTES, 'UTF-8')?></span><h5 class="modal-title" id="faqModalLabel"><?=htmlspecialchars(oneid_translate('faq.title'), ENT_QUOTES, 'UTF-8')?></h5><p id="faqModalIntro"><?=htmlspecialchars(oneid_translate('faq.intro'), ENT_QUOTES, 'UTF-8')?></p></div>
       </div>
-
-      <div class="modal-body modal-body-scroll">
+      <div class="modal-body modal-body-scroll oneid-faq-body">
         <?=oneid_render_dashboard_faq()?>
       </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-info" data-dismiss="modal"><?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?></button>
+      <div class="modal-footer oneid-faq-footer">
+        <button type="button" class="oneid-faq-dismiss" data-dismiss="modal"><i class="fa fa-check" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?></button>
       </div>
-
     </div>
   </div>
 </div>
@@ -299,14 +297,14 @@
                                           </a>
                                         </li>
                                        <?php } ?>
-                                        <li class="active" role="presentation">
-                                          <a aria-expanded="true" data-toggle="tab" role="tab" id="follo_tab_8" href="#follo_8">
-                                            <i class="fa fa-th-large oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('dashboard.menu.applications'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block" id="follo_data_list_count_text"></span></span>
-                                          </a>
-                                        </li>
                                         <li role="presentation" class="oneid-sidebar-email">
                                           <a href="https://outlook.cloud.microsoft/mail/" target="_blank" rel="noopener noreferrer">
                                             <i class="fa fa-envelope oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('dashboard.menu.email'), ENT_QUOTES, 'UTF-8')?></span><i class="fa fa-external-link oneid-sidebar-trailing" aria-hidden="true"></i>
+                                          </a>
+                                        </li>
+                                        <li class="active" role="presentation">
+                                          <a aria-expanded="true" data-toggle="tab" role="tab" id="follo_tab_8" href="#follo_8">
+                                            <i class="fa fa-th-large oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('dashboard.menu.applications'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block" id="follo_data_list_count_text"></span></span>
                                           </a>
                                         </li>
                                         <li role="presentation">

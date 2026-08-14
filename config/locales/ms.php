@@ -1059,6 +1059,8 @@ return [
     'admin.releases.fallback_notice' => 'Kandungan English tidak dapat disahkan. Kandungan Bahasa Melayu rasmi dipaparkan.',
     'faq.link' => 'Soalan Lazim',
     'faq.title' => 'Soalan Lazim (FAQ)',
+    'faq.eyebrow' => 'PUSAT BANTUAN ONEID',
+    'faq.intro' => 'Jawapan ringkas untuk soalan umum berkaitan akaun, akses aplikasi dan keselamatan OneID.',
     'user_session.eyebrow' => 'Keselamatan Sesi OneID',
     'user_session.warning_title' => 'Sesi OneID akan tamat',
     'user_session.warning_body' => 'Sesi portal OneID anda akan tamat kerana tiada aktiviti.',

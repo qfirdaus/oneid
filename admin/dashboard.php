@@ -1185,7 +1185,6 @@
 										  
                                           <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_acl_menu" href="#tab_settings"><i class="fa fa-sliders oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.configuration'), ENT_QUOTES, 'UTF-8')?></span></a></li>
                                           <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_ver" href="#tab_versioning"><i class="fa fa-tag oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.releases'), ENT_QUOTES, 'UTF-8')?></span></a></li>
-                                          <li role="presentation" class="oneid-sidebar-email"><a href="https://outlook.cloud.microsoft/mail/" target="_blank" rel="noopener noreferrer"><i class="fa fa-envelope oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.email'), ENT_QUOTES, 'UTF-8')?></span><i class="fa fa-external-link oneid-sidebar-trailing" aria-hidden="true"></i></a></li>
                                           <?php if($_SESSION['login_user_type'] == 1){ ?>   
                                              <li role="presentation" class="pill-yellow" style="cursor: pointer !important;" >
                                                 <a id="tab_faq" href="../page/dashboard">

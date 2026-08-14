@@ -51,19 +51,19 @@ function oneid_render_dashboard_faq(): string
         <div class="alert alert-warning" role="status"><?=htmlspecialchars((string) $faq['fallback_notice'], ENT_QUOTES, 'UTF-8')?></div>
       <?php endif; ?>
       <?php foreach ($faq['entries'] as $index => $entry): $number = $index + 1; ?>
-        <div class="panel panel-default" data-faq-id="<?=htmlspecialchars($entry['id'], ENT_QUOTES, 'UTF-8')?>">
+        <div class="panel panel-default oneid-faq-item" data-faq-id="<?=htmlspecialchars($entry['id'], ENT_QUOTES, 'UTF-8')?>">
           <div class="panel-heading" role="tab" id="faq-dashboard-heading-<?=$number?>">
             <h6 class="panel-title">
               <a class="<?=$index === 0 ? '' : 'collapsed'?>" role="button" data-toggle="collapse"
                 data-parent="#faqAccordion" href="#faq-dashboard-collapse-<?=$number?>"
                 aria-expanded="<?=$index === 0 ? 'true' : 'false'?>" aria-controls="faq-dashboard-collapse-<?=$number?>">
-                <?=htmlspecialchars($entry['question'], ENT_QUOTES, 'UTF-8')?>
+                <span class="oneid-faq-number"><?=str_pad((string) $number, 2, '0', STR_PAD_LEFT)?></span><span class="oneid-faq-question"><?=htmlspecialchars($entry['question'], ENT_QUOTES, 'UTF-8')?></span><i class="fa fa-chevron-down oneid-faq-chevron" aria-hidden="true"></i>
               </a>
             </h6>
           </div>
           <div id="faq-dashboard-collapse-<?=$number?>" class="panel-collapse collapse<?=$index === 0 ? ' in' : ''?>"
             role="tabpanel" aria-labelledby="faq-dashboard-heading-<?=$number?>">
-            <div class="panel-body"><?=htmlspecialchars($entry['answer'], ENT_QUOTES, 'UTF-8')?></div>
+            <div class="panel-body"><span class="oneid-faq-answer-icon"><i class="fa fa-info-circle" aria-hidden="true"></i></span><p><?=htmlspecialchars($entry['answer'], ENT_QUOTES, 'UTF-8')?></p></div>
           </div>
         </div>
       <?php endforeach; ?>
