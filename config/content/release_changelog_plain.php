@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.10.0' =>
+  array (
+    'version' => '2.10.0',
+    'date' => '2026-08-14',
+    'bm' =>
+    array (
+      0 => 'Kesiapsiagaan aplikasi production kini dikawal secara eksplisit melalui status Ready for Production dan Production URL HTTPS, supaya aplikasi ujian daripada database staging tidak dipaparkan atau digunakan dalam production sebelum diluluskan.',
+      1 => 'Modal Add App dan Application Details kini menggunakan tiga tab tersusun untuk Details, Environment & Release serta Access & Integration, dengan susun atur profesional, responsif dan tindakan yang konsisten.',
+      2 => 'Pengguna yang masuk melalui MyDigital ID boleh menetapkan atau memulihkan kata laluan manual melalui OTP e-mel tanpa mengetahui kata laluan lama, manakala polisi history kini menyimpan tiga kata laluan terdahulu.',
+      3 => 'Penanda sesi tamat dibersihkan selepas pengguna log masuk semula supaya dialog OneID session ended tidak muncul atau berulang tanpa henti dalam sesi baharu.',
+      4 => 'Tetapan bahasa Administrator menyediakan pilihan sebab perubahan lazim dan sebab Other tersuai dalam susun atur full-width yang kemas serta tidak terkeluar daripada skrin.',
+      5 => 'Side menu pengguna dan Administrator menggunakan ikon yang konsisten, manakala pautan My Email membuka Outlook dalam tab baharu untuk pengguna dan tidak dipaparkan kepada Administrator.',
+      6 => 'FAQ pengguna direka semula sebagai dialog accordion yang profesional, responsif, boleh diakses dan menggunakan sumber kandungan BM/English yang dikongsi.',
+      7 => 'Modal Tukar Kata Laluan direka semula dengan card berstruktur, penjuru melengkung, tindakan di sebelah kanan dan checklist enam item termasuk status padanan kata laluan secara realtime.',
+      8 => 'Semakan padanan kata laluan berlaku pada UI dan server; percanggahan disekat sebelum transaksi database, sementara flow OTP MyDigital ID dan polisi kekuatan kata laluan kekal berfungsi.',
+      9 => 'Kemasan spacing profil Administrator, cache versioning aset dan contract regression memastikan semua perubahan paparan serta keselamatan boleh disahkan secara konsisten di staging dan production.',
+    ),
+    'en' =>
+    array (
+      0 => 'Production application readiness is now controlled explicitly through Ready for Production status and an HTTPS Production URL, preventing test applications copied from staging from appearing or being used in production before approval.',
+      1 => 'Add App and Application Details now use three structured tabs for Details, Environment & Release, and Access & Integration, with professional responsive layouts and consistent actions.',
+      2 => 'Users signed in through MyDigital ID can set or recover a manual password through an e-mail OTP without knowing the previous password, while password history now retains three previous passwords.',
+      3 => 'The expired-session marker is cleared after a user signs in again, preventing the OneID session ended dialog from appearing or looping continuously in the new session.',
+      4 => 'Administrator language settings provide common change-reason choices and a custom Other reason in a clean full-width layout that remains within the screen.',
+      5 => 'User and Administrator side menus use consistent icons, while My Email opens Outlook in a new tab for users and is not displayed to Administrators.',
+      6 => 'The user FAQ has been redesigned as a professional, responsive and accessible accordion dialog backed by the shared BM and English content source.',
+      7 => 'The Change Password modal now uses structured cards, rounded corners, right-aligned actions and a six-item checklist including real-time password-match status.',
+      8 => 'Password matching is enforced in both the UI and server; mismatches are rejected before a database transaction while the MyDigital ID OTP flow and password-strength policy remain intact.',
+      9 => 'Administrator profile spacing, asset cache versioning and regression contracts ensure the presentation and security changes can be verified consistently in staging and production.',
+    ),
+  ),
   'release-2.9.4' =>
   array (
     'version' => '2.9.4',

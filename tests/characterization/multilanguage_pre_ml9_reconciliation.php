@@ -49,7 +49,7 @@ $assert(
 $assert(
     $inventory['status'] === 1
     && $inventory['blocking_codes'] === []
-    && $inventory['manifest']['total_items'] === 150
+    && $inventory['manifest']['total_items'] === 218
     && $inventory['manifest']['duplicate_identity_count'] === 0
     && $inventory['manifest']['missing_target_count'] === 0,
     'current document inventory is deterministic and unblocked'

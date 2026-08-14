@@ -17,7 +17,7 @@ $report = static function (bool $ok, string $label) use (&$checks, &$failed): vo
 };
 $report($status === 0 && $result['blocking_codes'] === [], 'English draft Preview is unblocked');
 $report(
-    $result['release_count'] === 48 && $result['item_count'] === 328,
+    $result['release_count'] === 55 && $result['item_count'] === 398,
     'all releases have concise BM and English changelog entries'
 );
 $report(
