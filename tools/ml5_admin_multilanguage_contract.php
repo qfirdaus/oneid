@@ -14,6 +14,8 @@ $externalStart=strpos($admin,'id="modal_add_new_user_option"');$externalEnd=strp
 $report(!str_contains($external,"oneid_translate('admin."),'External Sync modal remains outside ML5 translation');
 $report(str_contains($request,"'admin_update_default_locale'")&&str_contains($request,"'SECURITY_CONFIGURATION_CHANGE'"),'default locale update requires security configuration step-up');
 $report(str_contains($admin,'id="system_default_locale_reason_preset"')&&str_contains($admin,'value="OTHER"')&&str_contains($admin,"preset==='OTHER'")&&str_contains($admin,'system_default_locale_reason_other'),'default locale offers preset reasons and reveals custom input only for Other');
+$localeCss=file_get_contents($root.'/public/dist/css/oneid-locale-admin.css')?:'';
+$report(str_contains($admin,'locale-config-card--reason')&&str_contains($admin,'oneid-locale-admin.css?v=20260814-1')&&str_contains($localeCss,'.locale-config-grid{display:grid')&&str_contains($localeCss,'grid-template-columns:1fr')&&str_contains($localeCss,'.locale-config-card__control{min-width:0;width:100%}'),'default locale settings use stacked full-width responsive cards');
 $report(str_contains($locale,'oneid_system_default_locale()')&&str_contains($locale,'SELECT default_locale FROM sys_config'),'resolver consumes guarded database default with fallback');
 $report(str_contains($up,"CHECK (default_locale IN ('ms','en'))")&&str_contains($down,'DROP COLUMN default_locale'),'default locale migration is constrained and reversible');
 passthru('php '.escapeshellarg($root.'/tests/characterization/ml5_admin_locale.php'),$status);$report($status===0,'ML5 characterization passes');

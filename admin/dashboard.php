@@ -86,6 +86,7 @@
       <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-web-app-modal.css?v=20260814-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-maintenance-admin.css?v=20260812-3" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-locale-admin.css?v=20260814-1" rel="stylesheet" type="text/css">
    </head>
    <body class="<?=trim(oneid_environment_body_class())?>">
       <?php oneid_render_environment_banner(); ?>
@@ -1893,14 +1894,15 @@
                                                                      <span><?=htmlspecialchars(oneid_translate('admin.configuration.locale_save'), ENT_QUOTES, 'UTF-8')?></span>
                                                                   </button>
                                                                </div>
-                                                               <div class="sso-config-body">
-                                                                  <div class="sso-config-row">
-                                                                     <div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="system_default_locale"><?=htmlspecialchars(oneid_translate('admin.configuration.locale'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.locale_help'), ENT_QUOTES, 'UTF-8')?></p></div></div>
-                                                                     <div class="sso-config-control"><select class="form-control" id="system_default_locale" disabled><option value="ms">Bahasa Melayu</option><option value="en">English</option></select></div>
-                                                                  </div>
-                                                                  <div class="sso-config-row">
-                                                                     <div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="system_default_locale_reason_preset"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_help'), ENT_QUOTES, 'UTF-8')?></p></div></div>
-                                                                     <div class="sso-config-control">
+                                                               <div class="sso-config-body locale-config-body">
+                                                                  <div class="locale-config-grid">
+                                                                     <section class="locale-config-card" aria-labelledby="locale-config-language-label">
+                                                                        <div class="locale-config-card__heading"><span>01</span><div><label id="locale-config-language-label" for="system_default_locale"><?=htmlspecialchars(oneid_translate('admin.configuration.locale'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.locale_help'), ENT_QUOTES, 'UTF-8')?></p></div></div>
+                                                                        <div class="locale-config-card__control"><select class="form-control" id="system_default_locale" disabled><option value="ms">Bahasa Melayu</option><option value="en">English</option></select></div>
+                                                                     </section>
+                                                                     <section class="locale-config-card locale-config-card--reason" aria-labelledby="locale-config-reason-label">
+                                                                        <div class="locale-config-card__heading"><span>02</span><div><label id="locale-config-reason-label" for="system_default_locale_reason_preset"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_help'), ENT_QUOTES, 'UTF-8')?></p></div></div>
+                                                                        <div class="locale-config-card__control">
                                                                         <select class="form-control" id="system_default_locale_reason_preset" disabled>
                                                                            <option value=""><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason'), ENT_QUOTES, 'UTF-8')?>…</option>
                                                                            <option value="Operational requirement and language standardization"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_operations'), ENT_QUOTES, 'UTF-8')?></option>
@@ -1910,11 +1912,12 @@
                                                                            <option value="Controlled testing or UAT"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_testing'), ENT_QUOTES, 'UTF-8')?></option>
                                                                            <option value="OTHER"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_other'), ENT_QUOTES, 'UTF-8')?></option>
                                                                         </select>
-                                                                        <div id="system_default_locale_reason_other" class="mt-10" hidden>
+                                                                        <div id="system_default_locale_reason_other" class="locale-config-other" hidden>
                                                                            <label for="system_default_locale_reason"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_custom'), ENT_QUOTES, 'UTF-8')?></label>
                                                                            <textarea class="form-control" id="system_default_locale_reason" minlength="10" maxlength="500" rows="3" placeholder="<?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_placeholder'), ENT_QUOTES, 'UTF-8')?>" disabled></textarea>
                                                                         </div>
-                                                                     </div>
+                                                                        </div>
+                                                                     </section>
                                                                   </div>
                                                                   <div class="sso-config-note"><i class="fa fa-info-circle"></i><p id="system_default_locale_status" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.common.loading'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                                </div>
