@@ -15,8 +15,14 @@ $schema=(int)$pdo->query("SELECT COUNT(*) FROM information_schema.TABLES WHERE T
 $report($schema===1,'credential table is installed');
 $retrievalColumns=(int)$pdo->query("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='sp_api_credential' AND COLUMN_NAME IN ('code_ciphertext','code_nonce','key_version')")->fetchColumn();
 $report($retrievalColumns===3,'encrypted credential retrieval columns are installed');
-$apps=$pdo->query("SELECT sp_id FROM sp_list WHERE avail_status=1 AND sp_id<>'IDP' ORDER BY sp_id LIMIT 2")->fetchAll(PDO::FETCH_COLUMN);
-$report(count($apps)===2,'two active apps are available for an isolated rotation test');
+$environment=strtolower(trim((string)oneid_config('ONEID_ENVIRONMENT','')));
+$productionEligibility=$environment==='production'
+    ? " AND production_ready=1 AND COALESCE(TRIM(production_domain),'')<>''"
+    : '';
+$rotatedApp=$pdo->query("SELECT sp_id FROM sp_list WHERE avail_status=1 AND sp_id<>'IDP'{$productionEligibility} ORDER BY sp_id LIMIT 1")->fetchColumn();
+$legacyApp=$pdo->query("SELECT S.sp_id FROM sp_list S WHERE S.avail_status=1 AND S.sp_id<>'IDP'{$productionEligibility} AND NOT EXISTS (SELECT 1 FROM sp_api_credential C WHERE C.sp_id=S.sp_id)".($rotatedApp!==false?" AND S.sp_id<>".$pdo->quote((string)$rotatedApp):'')." ORDER BY S.sp_id LIMIT 1")->fetchColumn();
+$apps=$rotatedApp!==false&&$legacyApp!==false?[(string)$rotatedApp,(string)$legacyApp]:[];
+$report(count($apps)===2,'two resolver-eligible apps are available for an isolated rotation test');
 
 if(count($apps)===2){
     [$rotatedApp,$legacyApp]=$apps;
