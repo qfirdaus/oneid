@@ -64,6 +64,7 @@
       <!-- Custom CSS -->
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-sidebar-menu.css?v=20260814-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260805-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
@@ -290,27 +291,32 @@
 
                                     <div class="pills-struct vertical-pills mt-40">
                                       <!-- Vertical nav -->
-                                      <ul role="tablist" class="nav nav-pills ver-nav-pills" id="myTabs_8">
+                                      <ul role="tablist" class="nav nav-pills ver-nav-pills oneid-sidebar-nav" id="myTabs_8">
                                         <?php if($_SESSION['login_user_type'] == 1){ ?>
                                           <li role="presentation" class="pill-yellow" style="cursor: pointer !important;" >
                                           <a id="administrator_entry" href="admin-step-up?purpose=ADMIN_ACCESS">
-                                            <span>Administrator<span class="inline-block"></span></span>
+                                            <i class="fa fa-shield oneid-sidebar-icon" aria-hidden="true"></i><span>Administrator</span><i class="fa fa-chevron-right oneid-sidebar-trailing" aria-hidden="true"></i>
                                           </a>
                                         </li>
                                        <?php } ?>
                                         <li class="active" role="presentation">
                                           <a aria-expanded="true" data-toggle="tab" role="tab" id="follo_tab_8" href="#follo_8">
-                                            <span><?=htmlspecialchars(oneid_translate('dashboard.menu.applications'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block" id="follo_data_list_count_text"></span></span>
+                                            <i class="fa fa-th-large oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('dashboard.menu.applications'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block" id="follo_data_list_count_text"></span></span>
                                           </a>
                                         </li>
-                                        <li role="presentation" style="cursor: pointer !important;" onclick="window.open('https://directory.upnm.edu.my/', '_blank'); return false;">
-                                          <a id="tab_faq" >
-                                            <span><?=htmlspecialchars(oneid_translate('dashboard.menu.staff_directory'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block"></span></span>
+                                        <li role="presentation" class="oneid-sidebar-email">
+                                          <a href="https://outlook.cloud.microsoft/mail/" target="_blank" rel="noopener noreferrer">
+                                            <i class="fa fa-envelope oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('dashboard.menu.email'), ENT_QUOTES, 'UTF-8')?></span><i class="fa fa-external-link oneid-sidebar-trailing" aria-hidden="true"></i>
+                                          </a>
+                                        </li>
+                                        <li role="presentation">
+                                          <a href="https://directory.upnm.edu.my/" target="_blank" rel="noopener noreferrer">
+                                            <i class="fa fa-address-book oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('dashboard.menu.staff_directory'), ENT_QUOTES, 'UTF-8')?></span><i class="fa fa-external-link oneid-sidebar-trailing" aria-hidden="true"></i>
                                           </a>
                                         </li>
                                         <li role="presentation" style="cursor: pointer !important;" onclick="open_faq();">
                                           <a id="tab_faq" >
-                                            <span><?=htmlspecialchars(oneid_translate('dashboard.menu.faq'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block"></span></span>
+                                            <i class="fa fa-question-circle oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('dashboard.menu.faq'), ENT_QUOTES, 'UTF-8')?></span>
                                           </a>
                                         </li>
                                         <!--<li role="presentation">
@@ -320,19 +326,19 @@
                                         </li>-->
                                        <li role="presentation" style="cursor: pointer !important;" onclick="open_change_password(0);">
                                           <a id="tab_chang_pwd" >
-                                            <span><?=htmlspecialchars(oneid_translate('dashboard.menu.change_password'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block"></span></span>
+                                            <i class="fa fa-key oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('dashboard.menu.change_password'), ENT_QUOTES, 'UTF-8')?></span>
                                           </a>
                                         </li>
                                        <?php if ($userMfaEnrollmentAvailable): ?>
                                         <li role="presentation">
                                           <a id="tab_user_mfa_security" href="user-mfa-security">
-                                            <span><?=htmlspecialchars(oneid_translate('user_mfa.security.title'), ENT_QUOTES, 'UTF-8')?></span>
+                                            <i class="fa fa-lock oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('user_mfa.security.title'), ENT_QUOTES, 'UTF-8')?></span>
                                           </a>
                                         </li>
                                        <?php endif; ?>
                                         <li role="presentation" style="cursor: pointer !important;" >
                                           <a id="tab_faq" href="logout">
-                                            <span><?=htmlspecialchars(oneid_translate('dashboard.menu.logout'), ENT_QUOTES, 'UTF-8')?><span class="inline-block"></span></span>
+                                            <i class="fa fa-sign-out oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('dashboard.menu.logout'), ENT_QUOTES, 'UTF-8')?></span>
                                           </a>
                                         </li>
                                       </ul>

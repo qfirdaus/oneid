@@ -78,6 +78,7 @@
       <!-- Custom CSS -->
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-sidebar-menu.css?v=20260814-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-login-banner-admin.css?v=20260801-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-configuration-navigation.css?v=20260801-1" rel="stylesheet" type="text/css">
@@ -1175,25 +1176,26 @@
 
 
                                     <div  class="pills-struct vertical-pills mt-40">
-                                       <ul role="tablist" class="nav nav-pills ver-nav-pills" id="myTabs_8">
-                                          <li  role="presentation" class="active"><a aria-expanded="true"  data-toggle="tab" role="tab" id="follo_tab_8" href="#follo_8"><span><?=htmlspecialchars(oneid_translate('admin.menu.web_apps'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block" id='follo_data_list_count_text'></span></span></a></li>
-                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_user_menu" href="#tab_user"><span><?=htmlspecialchars(oneid_translate('admin.menu.users'), ENT_QUOTES, 'UTF-8')?></span></a></li>
-                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_user_active_sessions" href="#tab_active_sessions"><span><?=htmlspecialchars(oneid_translate('admin.menu.sessions'), ENT_QUOTES, 'UTF-8')?></span></a></li>
-                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_audit_log" href="#tab_auditlog"><span><?=htmlspecialchars(oneid_translate('admin.menu.audit'), ENT_QUOTES, 'UTF-8')?></span></a></li>
-                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_sync_log" href="#tab_synclog"><span>Sync Log</span></a></li>
+                                       <ul role="tablist" class="nav nav-pills ver-nav-pills oneid-sidebar-nav" id="myTabs_8">
+                                          <li role="presentation" class="active"><a aria-expanded="true" data-toggle="tab" role="tab" id="follo_tab_8" href="#follo_8"><i class="fa fa-th-large oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.web_apps'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block" id='follo_data_list_count_text'></span></span></a></li>
+                                          <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_user_menu" href="#tab_user"><i class="fa fa-users oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.users'), ENT_QUOTES, 'UTF-8')?></span></a></li>
+                                          <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_user_active_sessions" href="#tab_active_sessions"><i class="fa fa-desktop oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.sessions'), ENT_QUOTES, 'UTF-8')?></span></a></li>
+                                          <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_audit_log" href="#tab_auditlog"><i class="fa fa-history oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.audit'), ENT_QUOTES, 'UTF-8')?></span></a></li>
+                                          <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_sync_log" href="#tab_synclog"><i class="fa fa-refresh oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.sync'), ENT_QUOTES, 'UTF-8')?></span></a></li>
 										  
-                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_acl_menu" href="#tab_settings"><span><?=htmlspecialchars(oneid_translate('admin.menu.configuration'), ENT_QUOTES, 'UTF-8')?></span></a></li>
-                                          <li  role="presentation" class="next"><a aria-expanded="true"  data-toggle="tab" role="tab" id="tab_ver" href="#tab_versioning"><span><?=htmlspecialchars(oneid_translate('admin.menu.releases'), ENT_QUOTES, 'UTF-8')?></span></a></li>
+                                          <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_acl_menu" href="#tab_settings"><i class="fa fa-sliders oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.configuration'), ENT_QUOTES, 'UTF-8')?></span></a></li>
+                                          <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_ver" href="#tab_versioning"><i class="fa fa-tag oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.releases'), ENT_QUOTES, 'UTF-8')?></span></a></li>
+                                          <li role="presentation" class="oneid-sidebar-email"><a href="https://outlook.cloud.microsoft/mail/" target="_blank" rel="noopener noreferrer"><i class="fa fa-envelope oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.email'), ENT_QUOTES, 'UTF-8')?></span><i class="fa fa-external-link oneid-sidebar-trailing" aria-hidden="true"></i></a></li>
                                           <?php if($_SESSION['login_user_type'] == 1){ ?>   
                                              <li role="presentation" class="pill-yellow" style="cursor: pointer !important;" >
                                                 <a id="tab_faq" href="../page/dashboard">
-                                                  <span><?=htmlspecialchars(oneid_translate('admin.menu.back'), ENT_QUOTES, 'UTF-8')?><span class="inline-block"></span></span>
+                                                  <i class="fa fa-arrow-left oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.back'), ENT_QUOTES, 'UTF-8')?></span>
                                                 </a>
                                              </li>
                                           <?php } ?>
                                            <li role="presentation" style="cursor: pointer !important;" >
                                              <a id="tab_faq" href="logout">
-                                               <span><?=htmlspecialchars(oneid_translate('admin.menu.logout'), ENT_QUOTES, 'UTF-8')?><span class="inline-block"></span></span>
+                                               <i class="fa fa-sign-out oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.logout'), ENT_QUOTES, 'UTF-8')?></span>
                                              </a>
                                            </li>
                                            
