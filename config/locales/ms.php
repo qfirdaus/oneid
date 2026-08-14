@@ -265,6 +265,7 @@ return [
     'dashboard.password.weak' => 'Kata laluan lemah: mesti mengandungi huruf besar, huruf kecil, nombor, simbol dan sekurang-kurangnya 12 aksara.',
     'dashboard.password.strong' => 'Kata laluan kukuh',
     'dashboard.password.mismatch' => 'Kata laluan baharu dan pengesahan tidak sepadan.',
+    'dashboard.password.match' => 'Kata laluan sepadan.',
     'dashboard.password.success' => 'Kata laluan berjaya ditukar.',
     'dashboard.password.failed' => 'Kata laluan tidak ditukar.',
     'dashboard.password.reauth' => 'Anda akan dibawa ke halaman log masuk semula.',

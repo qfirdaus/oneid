@@ -265,6 +265,7 @@ return [
     'dashboard.password.weak' => 'Weak password: include uppercase, lowercase, a number, a symbol and at least 12 characters.',
     'dashboard.password.strong' => 'Strong password',
     'dashboard.password.mismatch' => 'The new password and confirmation do not match.',
+    'dashboard.password.match' => 'Passwords match.',
     'dashboard.password.success' => 'Password successfully changed.',
     'dashboard.password.failed' => 'Password was not changed.',
     'dashboard.password.reauth' => 'You will be redirected to sign in again.',

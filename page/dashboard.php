@@ -66,7 +66,7 @@
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-sidebar-menu.css?v=20260814-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-faq.css?v=20260814-2" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-password-modal.css?v=20260814-2" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-password-modal.css?v=20260814-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260805-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
@@ -200,7 +200,7 @@
                         </section>
                         <section class="oneid-password-card oneid-password-card--confirm">
                            <div class="oneid-password-card-heading"><span>03</span><div><label for="change_password_new_reconfirm"><?=htmlspecialchars(oneid_translate('dashboard.password.confirm'), ENT_QUOTES, 'UTF-8')?></label></div></div>
-                           <div class="form-group"><div class="oneid-password-input"><i class="fa fa-check-circle" aria-hidden="true"></i><input type="password" class="form-control" id="change_password_new_reconfirm" name="change_password_new_reconfirm" autocomplete="new-password" minlength="12" required></div></div>
+                           <div class="form-group"><div class="oneid-password-input"><i class="fa fa-check-circle" aria-hidden="true"></i><input type="password" class="form-control" id="change_password_new_reconfirm" name="change_password_new_reconfirm" autocomplete="new-password" minlength="12" aria-describedby="password_confirmation_status" required></div><p class="oneid-password-match" id="password_confirmation_status" role="status" aria-live="polite" hidden></p></div>
                         </section>
                         <section class="oneid-password-requirements"><h6><i class="fa fa-shield" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('dashboard.password.requirements_title'), ENT_QUOTES, 'UTF-8')?></h6><ul id="password-requirements"><li id="p_length">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.length'), ENT_QUOTES, 'UTF-8')?></li><li id="p_lowercase">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.lowercase'), ENT_QUOTES, 'UTF-8')?></li><li id="p_uppercase">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.uppercase'), ENT_QUOTES, 'UTF-8')?></li><li id="p_number">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.number'), ENT_QUOTES, 'UTF-8')?></li><li id="p_special">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.special'), ENT_QUOTES, 'UTF-8')?></li></ul></section>
                         <div id="password_change_feedback" class="alert oneid-password-feedback" role="alert" aria-live="assertive" style="display:none;user-select:text;-webkit-user-select:text;"><p id="password_change_feedback_text" style="white-space:pre-wrap;margin-bottom:8px;"></p><button type="button" class="btn btn-xs btn-default" id="password_change_copy_button" onclick="copyPasswordChangeFeedback();"><i class="fa fa-copy" aria-hidden="true"></i> <?=htmlspecialchars(oneid_translate('dashboard.password.copy'), ENT_QUOTES, 'UTF-8')?></button></div>
@@ -533,6 +533,7 @@
             'passwordWeak' => oneid_translate('dashboard.password.weak'),
             'passwordStrong' => oneid_translate('dashboard.password.strong'),
             'passwordMismatch' => oneid_translate('dashboard.password.mismatch'),
+            'passwordMatch' => oneid_translate('dashboard.password.match'),
             'passwordSuccess' => oneid_translate('dashboard.password.success'),
             'passwordFailed' => oneid_translate('dashboard.password.failed'),
             'passwordReauth' => oneid_translate('dashboard.password.reauth'),
@@ -985,6 +986,7 @@
          $('#password_change_feedback').hide().removeClass('alert-success alert-danger alert-info');
          $('#password_change_feedback_text').text('');
          resetPasswordChecks();
+         updatePasswordConfirmationState();
          $('#modal_change_password').modal('show');
          }
          
@@ -997,7 +999,10 @@
 		    $('#p_uppercase').text((/[A-Z]/.test(password) ? '✅ ' : '❌ ') + dashboardI18n.passwordUppercase);
 		    $('#p_number').text((/\d/.test(password) ? '✅ ' : '❌ ') + dashboardI18n.passwordNumber);
 		    $('#p_special').text((/[\W_]/.test(password) ? '✅ ' : '❌ ') + dashboardI18n.passwordSpecial);
+		    updatePasswordConfirmationState();
 		});
+
+         $('#change_password_new_reconfirm').on('input', updatePasswordConfirmationState);
 
          function checkPasswordStrength(password) {
 		    var strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{12,}$/;
@@ -1019,12 +1024,30 @@
 		    $('#p_special').text('❌ ' + dashboardI18n.passwordSpecial);
 		}
 
+         function updatePasswordConfirmationState(){
+            var password=$('#change_password_new').val();
+            var confirmation=$('#change_password_new_reconfirm').val();
+            var status=$('#password_confirmation_status');
+            var input=$('#change_password_new_reconfirm');
+            var passwordStage=myDigitalIdRecoveryStage!=='otp'&&$('.oneid-password-card--confirm').css('display')!=='none';
+            var matches=password!==''&&confirmation!==''&&password===confirmation;
+            status.removeClass('is-match is-mismatch').prop('hidden',true).text('');
+            input.removeClass('is-match is-mismatch').removeAttr('aria-invalid');
+            if(passwordStage&&confirmation!==''){
+               status.prop('hidden',false).addClass(matches?'is-match':'is-mismatch').text((matches?'✓ ':'✕ ')+(matches?dashboardI18n.passwordMatch:dashboardI18n.passwordMismatch));
+               input.addClass(matches?'is-match':'is-mismatch').attr('aria-invalid',matches?'false':'true');
+            }
+            var strong=checkPasswordStrength(password).status===1;
+            $('#btn_change_password_submit').prop('disabled',passwordChangeSubmitting||(passwordStage&&(!strong||!matches)));
+         }
+
          var passwordChangeSubmitting = false;
          function setPasswordChangeSubmitting(submitting){
             passwordChangeSubmitting = submitting;
-            $('#btn_change_password_submit').prop('disabled', submitting).attr('aria-busy', submitting ? 'true' : 'false');
+            $('#btn_change_password_submit').attr('aria-busy', submitting ? 'true' : 'false');
             $('#change_password_submit_label').text(submitting ? dashboardI18n.passwordChanging : dashboardI18n.passwordChange);
             $('#change_password_current, #change_password_new, #change_password_new_reconfirm').prop('disabled', submitting);
+            updatePasswordConfirmationState();
          }
          function passwordChangeFeedback(response, success){
             var code=response&&response.code?response.code:'UC1_RESPONSE_INVALID';
