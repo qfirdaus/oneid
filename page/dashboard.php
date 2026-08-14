@@ -65,8 +65,8 @@
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-sidebar-menu.css?v=20260814-1" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-user-faq.css?v=20260814-1" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-password-modal.css?v=20260814-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-faq.css?v=20260814-2" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-password-modal.css?v=20260814-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260805-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
