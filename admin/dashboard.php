@@ -638,38 +638,37 @@
             <!-- /.modal-dialog -->
          </div>
          <div id="modal_add_new_category" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_add_new_category" aria-hidden="true">
-            <div class="modal-dialog">
-               <div class="modal-content">
-                  <div class="modal-header">
-                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_add_new_category">New User Category</h5>
-                  </div>
-                  <form id="form_add_new_category">
-                     <div class="modal-body">
-                        <div class="row">
-                           <div class="col-lg-12">
-                              <div class="">
-                                 <div class="panel-wrapper collapse in">
-                                    <div class="panel-body pa-0">
-                                       <div class="col-sm-12 col-xs-12">
-                                          <div class="form-wrap">
-                                             <div class="form-body overflow-hide">
-                                                <div class="form-group">
-                                                   <label class="control-label mb-10" for="add_new_category_name">Category title</label>
-                                                   <input type="text" class="form-control" id="add_new_category_name" name="add_new_category_name" placeholder="Name of the category" required="">
-                                                </div>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
+            <div class="modal-dialog oneid-user-category-dialog">
+               <div class="modal-content oneid-sync-child-modal oneid-user-category-modal">
+                  <div class="modal-header oneid-sync-child-header oneid-user-category-header">
+                     <div class="oneid-sync-child-heading">
+                        <span class="oneid-sync-child-heading-icon" aria-hidden="true"><i class="fa fa-folder-o"></i></span>
+                        <div>
+                           <h5 class="modal-title" id="aria_modal_add_new_category">Kategori Pengguna Baharu</h5>
+                           <p>Cipta kumpulan akses untuk menyusun pengguna dan aplikasi yang dibenarkan.</p>
                         </div>
                      </div>
-                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary waves-effect">Add</button>
+                     <button type="button" class="close oneid-sync-child-close" data-dismiss="modal" aria-label="Tutup">×</button>
+                  </div>
+                  <form id="form_add_new_category">
+                     <div class="modal-body oneid-sync-child-body oneid-user-category-body">
+                        <section class="oneid-user-category-card">
+                           <div class="oneid-user-category-card__heading">
+                              <span aria-hidden="true"><i class="fa fa-tag"></i></span>
+                              <div><h6>Maklumat Kategori</h6><p>Gunakan nama ringkas yang mudah dikenal pasti oleh pentadbir.</p></div>
+                           </div>
+                           <div class="oneid-user-category-card__content">
+                              <div class="form-group">
+                                 <label for="add_new_category_name">Nama kategori</label>
+                                 <input type="text" class="form-control" id="add_new_category_name" name="add_new_category_name" maxlength="100" autocomplete="off" placeholder="Contoh: Staf Pentadbiran" required>
+                                 <small><i class="fa fa-info-circle"></i> Nama kategori hendaklah jelas dan tidak melebihi 100 aksara.</small>
+                              </div>
+                           </div>
+                        </section>
+                     </div>
+                     <div class="modal-footer oneid-sync-child-footer oneid-user-category-footer">
+                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-primary waves-effect" id="btn_add_user_category"><i class="fa fa-plus"></i> Tambah Kategori</button>
                      </div>
                   </form>
                </div>
@@ -7643,6 +7642,106 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       .oneid-sync-child-body {
          padding: 22px;
          background: #f6f8fb;
+      }
+
+      #modal_add_new_category .oneid-user-category-dialog {
+         width: min(680px, calc(100vw - 30px));
+         max-width: 680px;
+      }
+
+      #modal_add_new_category .oneid-user-category-modal {
+         overflow-wrap: anywhere;
+      }
+
+      #modal_add_new_category .oneid-user-category-card {
+         overflow: hidden;
+         border: 1px solid #e0e7ee;
+         border-radius: 9px;
+         background: #fff;
+         box-shadow: 0 2px 8px rgba(45, 64, 82, .05);
+      }
+
+      #modal_add_new_category .oneid-user-category-card__heading {
+         display: flex;
+         align-items: center;
+         gap: 12px;
+         padding: 15px 18px;
+         border-bottom: 1px solid #e5ebf0;
+         background: #fbfcfd;
+      }
+
+      #modal_add_new_category .oneid-user-category-card__heading > span {
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         flex: 0 0 38px;
+         width: 38px;
+         height: 38px;
+         border-radius: 9px;
+         background: #e4f4fa;
+         color: #087fae;
+      }
+
+      #modal_add_new_category .oneid-user-category-card__heading h6 {
+         margin: 0;
+         color: #304457;
+         font-size: 12px;
+         font-weight: 700;
+         letter-spacing: .03em;
+         text-transform: uppercase;
+      }
+
+      #modal_add_new_category .oneid-user-category-card__heading p {
+         margin: 3px 0 0;
+         color: #748496;
+         font-size: 11px;
+      }
+
+      #modal_add_new_category .oneid-user-category-card__content {
+         padding: 20px;
+      }
+
+      #modal_add_new_category .oneid-user-category-card__content .form-group {
+         margin: 0;
+      }
+
+      #modal_add_new_category .oneid-user-category-card__content label {
+         margin-bottom: 8px;
+         color: #445366;
+         font-size: 12px;
+         font-weight: 600;
+      }
+
+      #modal_add_new_category .oneid-user-category-card__content .form-control {
+         min-height: 44px;
+         border-color: #d8e1e9;
+         border-radius: 6px;
+         box-shadow: none;
+      }
+
+      #modal_add_new_category .oneid-user-category-card__content .form-control:focus {
+         border-color: #1594cc;
+         box-shadow: 0 0 0 3px rgba(21, 148, 204, .10);
+      }
+
+      #modal_add_new_category .oneid-user-category-card__content small {
+         display: flex;
+         align-items: center;
+         margin-top: 9px;
+         color: #718293;
+         font-size: 10px;
+         line-height: 1.45;
+      }
+
+      #modal_add_new_category .oneid-user-category-card__content small i {
+         margin-right: 6px;
+         color: #128bb8;
+      }
+
+      #modal_add_new_category .oneid-user-category-footer .btn {
+         min-width: 132px;
+         margin: 0;
+         border-radius: 6px;
       }
 
       #modal_add_new_single_user .oneid-sync-child-body > .row,
