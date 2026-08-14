@@ -50,7 +50,7 @@
   position: relative;
   display: block;
   min-width: 0;
-  padding: 0 24px 23px;
+  padding: 0 24px 12px;
   margin: 0;
   text-align: center;
 }
@@ -134,7 +134,7 @@
 }
 
 .oneid-admin-profile-card + .oneid-admin-sidebar-menu {
-  margin-top: 16px;
+  margin-top: 0;
 }
 
 @media (max-width: 767px) {
