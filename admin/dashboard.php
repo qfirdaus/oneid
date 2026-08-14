@@ -1899,8 +1899,22 @@
                                                                      <div class="sso-config-control"><select class="form-control" id="system_default_locale" disabled><option value="ms">Bahasa Melayu</option><option value="en">English</option></select></div>
                                                                   </div>
                                                                   <div class="sso-config-row">
-                                                                     <div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="system_default_locale_reason"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason'), ENT_QUOTES, 'UTF-8')?></label></div></div>
-                                                                     <div class="sso-config-control"><textarea class="form-control" id="system_default_locale_reason" maxlength="500" rows="3" placeholder="<?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_placeholder'), ENT_QUOTES, 'UTF-8')?>" disabled></textarea></div>
+                                                                     <div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="system_default_locale_reason_preset"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_help'), ENT_QUOTES, 'UTF-8')?></p></div></div>
+                                                                     <div class="sso-config-control">
+                                                                        <select class="form-control" id="system_default_locale_reason_preset" disabled>
+                                                                           <option value=""><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason'), ENT_QUOTES, 'UTF-8')?>…</option>
+                                                                           <option value="Operational requirement and language standardization"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_operations'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                           <option value="User or stakeholder feedback"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_feedback'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                           <option value="Language configuration correction"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_correction'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                           <option value="Release or content publication preparation"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_release'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                           <option value="Controlled testing or UAT"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_testing'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                           <option value="OTHER"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_other'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                        </select>
+                                                                        <div id="system_default_locale_reason_other" class="mt-10" hidden>
+                                                                           <label for="system_default_locale_reason"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_custom'), ENT_QUOTES, 'UTF-8')?></label>
+                                                                           <textarea class="form-control" id="system_default_locale_reason" minlength="10" maxlength="500" rows="3" placeholder="<?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_placeholder'), ENT_QUOTES, 'UTF-8')?>" disabled></textarea>
+                                                                        </div>
+                                                                     </div>
                                                                   </div>
                                                                   <div class="sso-config-note"><i class="fa fa-info-circle"></i><p id="system_default_locale_status" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.common.loading'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                                </div>
@@ -2333,7 +2347,7 @@
          var systemDefaultLocaleVersion = 0;
          function loadSystemDefaultLocale(){
             $('#system_default_locale_status').text(adminI18n.loading);
-            $('#system_default_locale, #system_default_locale_reason, #default_locale_save_button').prop('disabled',true);
+            $('#system_default_locale, #system_default_locale_reason_preset, #system_default_locale_reason, #default_locale_save_button').prop('disabled',true);
             $.post('../lib/q_func',{admin_get_default_locale:''},function(response){
                if(!response||Number(response.status)!==1){
                   $('#system_default_locale_status').text(adminI18n.localeFailed+' '+(response&&response.code?'Code: '+response.code:''));
@@ -2341,7 +2355,7 @@
                }
                systemDefaultLocaleVersion=Number(response.configuration_version||0);
                $('#system_default_locale').val(response.default_locale).prop('disabled',false);
-               $('#system_default_locale_reason, #default_locale_save_button').prop('disabled',false);
+               $('#system_default_locale_reason_preset, #default_locale_save_button').prop('disabled',false);
                $('#system_default_locale_status').text(response.default_locale==='ms'?'Bahasa Melayu':'English');
             },'json').fail(function(xhr){
                var response=xhr.responseJSON||{};
@@ -2351,13 +2365,16 @@
 
 	         function saveSystemDefaultLocale(){
             var locale=String($('#system_default_locale').val()||'');
-            var reason=String($('#system_default_locale_reason').val()||'').trim();
+            var preset=String($('#system_default_locale_reason_preset').val()||'');
+            var reason=preset==='OTHER'?String($('#system_default_locale_reason').val()||'').trim():preset;
             if(reason.length<10){$('#system_default_locale_status').text(adminI18n.localeFailed);return;}
             $('#default_locale_save_button').prop('disabled',true);
             $.post('../lib/q_func',{admin_update_default_locale:'',default_locale:locale,configuration_version:systemDefaultLocaleVersion,change_reason:reason},function(response){
                if(response&&Number(response.status)===1){
                   systemDefaultLocaleVersion=Number(response.configuration_version||systemDefaultLocaleVersion);
-                  $('#system_default_locale_reason').val('');
+                  $('#system_default_locale_reason_preset').val('');
+                  $('#system_default_locale_reason').val('').prop('disabled',true);
+                  $('#system_default_locale_reason_other').prop('hidden',true);
                   $('#system_default_locale_status').text(localizedResponseMessage(response,adminI18n.localeSaved));
                }else{
                   $('#system_default_locale_status').text(localizedResponseMessage(response,adminI18n.localeFailed));
@@ -2374,6 +2391,13 @@
 	            }).always(function(){$('#default_locale_save_button').prop('disabled',false);});
 	         }
 	         $('#default_locale_save_button').on('click',saveSystemDefaultLocale);
+	         $('#system_default_locale_reason_preset').on('change',function(){
+	            var other=String($(this).val()||'')==='OTHER';
+	            $('#system_default_locale_reason_other').prop('hidden',!other);
+	            $('#system_default_locale_reason').prop('disabled',!other);
+	            if(!other){$('#system_default_locale_reason').val('');}
+	            else{setTimeout(function(){$('#system_default_locale_reason').focus();},0);}
+	         });
 
              function configurationGroupForTarget(target){
                 if(target==='#configuration_locale'||target==='#configuration_login_banner'||target==='#configuration_maintenance'){return 'general';}
@@ -2450,7 +2474,10 @@
                 }
                 if(context==='configuration_locale'){
                    $('#system_default_locale').val(sessionStorage.getItem('oneid_ml5_default_locale')||'ms');
-                   $('#system_default_locale_reason').val(sessionStorage.getItem('oneid_ml5_default_locale_reason')||'');
+                   var restoredReason=sessionStorage.getItem('oneid_ml5_default_locale_reason')||'';
+                   var presetMatch=$('#system_default_locale_reason_preset option').filter(function(){return this.value===restoredReason&&this.value!=='OTHER';}).length>0;
+                   $('#system_default_locale_reason_preset').val(presetMatch?restoredReason:'OTHER').trigger('change');
+                   $('#system_default_locale_reason').val(presetMatch?'':restoredReason);
                    sessionStorage.removeItem('oneid_ml5_default_locale');sessionStorage.removeItem('oneid_ml5_default_locale_reason');
                 }
                 var ready=function(){window.oneidStepUpContextReady=context;document.dispatchEvent(new CustomEvent('oneid:step-up-context-ready',{detail:{context:context}}));if(window.history&&window.history.replaceState)window.history.replaceState({},document.title,window.location.pathname);};
