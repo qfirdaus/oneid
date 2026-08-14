@@ -82,7 +82,7 @@
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-login-banner-admin.css?v=20260801-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-configuration-navigation.css?v=20260801-1" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-admin-profile.css?v=20260805-3" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-admin-profile.css?v=20260814-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-web-app-modal.css?v=20260814-4" rel="stylesheet" type="text/css">
@@ -1175,7 +1175,7 @@
                                     </div>
 
 
-                                    <div  class="pills-struct vertical-pills mt-40">
+                                    <div class="pills-struct vertical-pills oneid-admin-sidebar-menu">
                                        <ul role="tablist" class="nav nav-pills ver-nav-pills oneid-sidebar-nav" id="myTabs_8">
                                           <li role="presentation" class="active"><a aria-expanded="true" data-toggle="tab" role="tab" id="follo_tab_8" href="#follo_8"><i class="fa fa-th-large oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.web_apps'), ENT_QUOTES, 'UTF-8')?> <span class="inline-block" id='follo_data_list_count_text'></span></span></a></li>
                                           <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_user_menu" href="#tab_user"><i class="fa fa-users oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.users'), ENT_QUOTES, 'UTF-8')?></span></a></li>

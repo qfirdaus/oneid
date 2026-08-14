@@ -133,6 +133,10 @@
   margin: 17px auto 0;
 }
 
+.oneid-admin-profile-card + .oneid-admin-sidebar-menu {
+  margin-top: 16px;
+}
+
 @media (max-width: 767px) {
   .oneid-admin-profile-cover {
     min-height: 175px;

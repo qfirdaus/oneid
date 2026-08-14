@@ -1,0 +1,10 @@
+<?php
+declare(strict_types=1);if(PHP_SAPI!=='cli'){exit(2);}$root=dirname(__DIR__);$page=file_get_contents($root.'/page/dashboard.php')?:'';$css=file_get_contents($root.'/public/dist/css/oneid-password-modal.css')?:'';$checks=0;$failed=0;$report=static function(bool $ok,string $label)use(&$checks,&$failed):void{$checks++;$failed+=$ok?0:1;echo($ok?'PASS ':'FAIL ').$label.PHP_EOL;};
+$report(str_contains($page,'oneid-password-dialog')&&str_contains($page,'oneid-password-modal.css?v=20260814-1'),'user dashboard loads the dedicated password dialog design');
+$report(str_contains($page,'aria-describedby="oneidPasswordIntro"')&&str_contains($page,"oneid_translate('dashboard.password.intro')"),'password dialog has a localized accessible introduction');
+$report(str_contains($page,'oneid-password-card--current')&&str_contains($page,'oneid-password-card--new')&&str_contains($page,'oneid-password-card--confirm'),'current, new and confirmation fields use structured cards');
+$report(str_contains($page,'id="password-requirements"')&&str_contains($page,'id="p_length"')&&str_contains($page,'id="p_special"'),'existing live password requirements remain wired');
+$report(str_contains($page,'btn_mydid_password_recovery')&&str_contains($page,'mydid_password_otp_group')&&str_contains($page,'password_change_feedback'),'MyDigital ID recovery and correlated feedback remain available');
+$report(str_contains($page,"closest('.oneid-password-card').hide()")&&str_contains($page,"closest('.oneid-password-card').show()")&&str_contains($page,"$('.oneid-password-card--new,.oneid-password-card--confirm,#password-requirements').show()"),'MyDigital ID stages hide, restore and reset complete password cards');
+$report(str_contains($css,'.oneid-password-requirements ul{display:grid')&&str_contains($css,'.oneid-password-footer')&&str_contains($css,'@media(max-width:600px)'),'password dialog has professional requirements, footer and mobile styling');
+echo"RESULT checks={$checks} failed={$failed}".PHP_EOL;exit($failed===0?0:1);

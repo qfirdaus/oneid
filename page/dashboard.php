@@ -66,6 +66,7 @@
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-sidebar-menu.css?v=20260814-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-faq.css?v=20260814-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-password-modal.css?v=20260814-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260801-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260805-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
@@ -172,88 +173,45 @@
 </div>
 
 
-         <div id="modal_change_password"
-     class="modal"
-     tabindex="-1"
-     role="dialog"
-     aria-labelledby="aria_modal_change_password"
-     aria-hidden="true"
-     data-backdrop="static"
-     data-keyboard="false">
-            <div class="modal-dialog">
-               <div class="modal-content">
-                  <div class="modal-header">
-                    <!-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> -->
-                     <h5 class="modal-title" id="aria_modal_change_password"><?=htmlspecialchars(oneid_translate('dashboard.password.title'), ENT_QUOTES, 'UTF-8')?></h5>
+         <div id="modal_change_password" class="modal oneid-password-modal" tabindex="-1" role="dialog" aria-labelledby="aria_modal_change_password" aria-describedby="oneidPasswordIntro" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog" role="document">
+               <div class="modal-content oneid-password-dialog">
+                  <div class="modal-header oneid-password-header">
+                     <span class="oneid-password-header-icon"><i class="fa fa-key" aria-hidden="true"></i></span>
+                     <div><span class="oneid-password-eyebrow"><?=htmlspecialchars(oneid_translate('dashboard.password.eyebrow'), ENT_QUOTES, 'UTF-8')?></span><h5 class="modal-title" id="aria_modal_change_password"><?=htmlspecialchars(oneid_translate('dashboard.password.title'), ENT_QUOTES, 'UTF-8')?></h5><p id="oneidPasswordIntro"><?=htmlspecialchars(oneid_translate('dashboard.password.intro'), ENT_QUOTES, 'UTF-8')?></p></div>
                   </div>
                   <form id="form_change_password">
-                     <div class="modal-body">
-                        <input type="text" name="username" value="<?php echo htmlspecialchars((string) $_SESSION['login_user'], ENT_QUOTES, 'UTF-8'); ?>" autocomplete="username" hidden>
-                        <div class="row">
-                           <div class="col-lg-12">
-                              <div class="">
-                                 <div class="panel-wrapper collapse in">
-                                    <div class="panel-body pa-0">
-                                       <div class="col-sm-12 col-xs-12">
-                                          <div class="form-wrap">
-                                             <div class="form-body overflow-hide">
-                                                <div class="alert alert-info" id="initial_password_setup_notice" style="display:none;">
-                                                   <?=htmlspecialchars(oneid_translate('dashboard.password.initial_notice'), ENT_QUOTES, 'UTF-8')?>
-                                                </div>
-                                                <div class="form-group" id="current_password_group">
-                                                   <label class="control-label mb-10" for="change_password_current"><span id="default_pwd_text"><?=htmlspecialchars(oneid_translate('dashboard.password.current'), ENT_QUOTES, 'UTF-8')?></span></label>
-                                                   <input type="password" class="form-control" id="change_password_current" name="change_password_current" autocomplete="current-password" required>
-                                                   <?php if (($_SESSION['auth_method'] ?? '') === 'mydigitalid'): ?>
-                                                   <button type="button" class="btn btn-link pl-0 mt-10" id="btn_mydid_password_recovery"><i class="fa fa-envelope-o" aria-hidden="true"></i> <?=htmlspecialchars(oneid_translate('dashboard.password.forgot_mydid'),ENT_QUOTES,'UTF-8')?></button>
-                                                   <?php endif; ?>
-                                                </div>
-                                                <div class="alert alert-info" id="mydid_password_recovery_notice" style="display:none;"><?=htmlspecialchars(oneid_translate('dashboard.password.recovery_notice'),ENT_QUOTES,'UTF-8')?></div>
-                                                <div class="form-group" id="mydid_password_otp_group" style="display:none;">
-                                                   <label for="mydid_password_otp"><?=htmlspecialchars(oneid_translate('dashboard.password.otp_label'),ENT_QUOTES,'UTF-8')?></label>
-                                                   <input type="text" class="form-control" id="mydid_password_otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}">
-                                                   <small class="help-block"><?=htmlspecialchars(oneid_translate('dashboard.password.otp_help'),ENT_QUOTES,'UTF-8')?></small>
-                                                </div>
-                                                <hr/>
-                                                <div class="form-group">
-                                                   <label class="control-label mb-10" for="change_password_new"><?=htmlspecialchars(oneid_translate('dashboard.password.new'), ENT_QUOTES, 'UTF-8')?></label>
-                                                   <input type="password" class="form-control" id="change_password_new" name="change_password_new" autocomplete="new-password" minlength="12" required>
-                                                </div>
-                                                <div class="form-group">
-                                                   <label class="control-label mb-10" for="change_password_new_reconfirm"><?=htmlspecialchars(oneid_translate('dashboard.password.confirm'), ENT_QUOTES, 'UTF-8')?></label>
-                                                   <input type="password" class="form-control" id="change_password_new_reconfirm" name="change_password_new_reconfirm" autocomplete="new-password" minlength="12" required>
-                                                </div>
-                                                <ul id="password-requirements" style="list-style: none; padding-left: 0; margin-top: 10px;">
-														  <li id="p_length">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.length'), ENT_QUOTES, 'UTF-8')?></li>
-																<li id="p_lowercase">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.lowercase'), ENT_QUOTES, 'UTF-8')?></li>
-																<li id="p_uppercase">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.uppercase'), ENT_QUOTES, 'UTF-8')?></li>
-																<li id="p_number">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.number'), ENT_QUOTES, 'UTF-8')?></li>
-																<li id="p_special">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.special'), ENT_QUOTES, 'UTF-8')?></li>
-            												</ul>
-                                             </div>
-                                             <div id="password_change_feedback" class="alert" role="alert" aria-live="assertive" style="display:none;user-select:text;-webkit-user-select:text;">
-                                                <p id="password_change_feedback_text" style="white-space:pre-wrap;margin-bottom:8px;"></p>
-                                                <button type="button" class="btn btn-xs btn-default" id="password_change_copy_button" onclick="copyPasswordChangeFeedback();"><i class="fa fa-copy" aria-hidden="true"></i> <?=htmlspecialchars(oneid_translate('dashboard.password.copy'), ENT_QUOTES, 'UTF-8')?></button>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
+                     <div class="modal-body oneid-password-body">
+                        <input type="text" name="username" value="<?=htmlspecialchars((string) $_SESSION['login_user'], ENT_QUOTES, 'UTF-8')?>" autocomplete="username" hidden>
+                        <div class="oneid-password-notice" id="initial_password_setup_notice" style="display:none;"><i class="fa fa-info-circle" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('dashboard.password.initial_notice'), ENT_QUOTES, 'UTF-8')?></span></div>
+                        <section class="oneid-password-card oneid-password-card--current" id="current_password_group">
+                           <div class="oneid-password-card-heading"><span>01</span><div><label for="change_password_current" id="default_pwd_text"><?=htmlspecialchars(oneid_translate('dashboard.password.current'), ENT_QUOTES, 'UTF-8')?></label></div></div>
+                           <div class="form-group"><div class="oneid-password-input"><i class="fa fa-lock" aria-hidden="true"></i><input type="password" class="form-control" id="change_password_current" name="change_password_current" autocomplete="current-password" required></div></div>
+                           <?php if (($_SESSION['auth_method'] ?? '') === 'mydigitalid'): ?><button type="button" class="oneid-password-recovery" id="btn_mydid_password_recovery"><i class="fa fa-envelope-o" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('dashboard.password.forgot_mydid'),ENT_QUOTES,'UTF-8')?></button><?php endif; ?>
+                        </section>
+                        <div class="oneid-password-notice" id="mydid_password_recovery_notice" style="display:none;"><i class="fa fa-shield" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('dashboard.password.recovery_notice'),ENT_QUOTES,'UTF-8')?></span></div>
+                        <section class="oneid-password-card" id="mydid_password_otp_group" style="display:none;">
+                           <div class="oneid-password-card-heading"><span><i class="fa fa-envelope-o"></i></span><div><label for="mydid_password_otp"><?=htmlspecialchars(oneid_translate('dashboard.password.otp_label'),ENT_QUOTES,'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('dashboard.password.otp_help'),ENT_QUOTES,'UTF-8')?></p></div></div>
+                           <div class="form-group"><input type="text" class="form-control oneid-password-otp" id="mydid_password_otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}"></div>
+                        </section>
+                        <section class="oneid-password-card oneid-password-card--new">
+                           <div class="oneid-password-card-heading"><span>02</span><div><label for="change_password_new"><?=htmlspecialchars(oneid_translate('dashboard.password.new'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('dashboard.password.security_note'), ENT_QUOTES, 'UTF-8')?></p></div></div>
+                           <div class="form-group"><div class="oneid-password-input"><i class="fa fa-lock" aria-hidden="true"></i><input type="password" class="form-control" id="change_password_new" name="change_password_new" autocomplete="new-password" minlength="12" required></div></div>
+                        </section>
+                        <section class="oneid-password-card oneid-password-card--confirm">
+                           <div class="oneid-password-card-heading"><span>03</span><div><label for="change_password_new_reconfirm"><?=htmlspecialchars(oneid_translate('dashboard.password.confirm'), ENT_QUOTES, 'UTF-8')?></label></div></div>
+                           <div class="form-group"><div class="oneid-password-input"><i class="fa fa-check-circle" aria-hidden="true"></i><input type="password" class="form-control" id="change_password_new_reconfirm" name="change_password_new_reconfirm" autocomplete="new-password" minlength="12" required></div></div>
+                        </section>
+                        <section class="oneid-password-requirements"><h6><i class="fa fa-shield" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('dashboard.password.requirements_title'), ENT_QUOTES, 'UTF-8')?></h6><ul id="password-requirements"><li id="p_length">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.length'), ENT_QUOTES, 'UTF-8')?></li><li id="p_lowercase">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.lowercase'), ENT_QUOTES, 'UTF-8')?></li><li id="p_uppercase">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.uppercase'), ENT_QUOTES, 'UTF-8')?></li><li id="p_number">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.number'), ENT_QUOTES, 'UTF-8')?></li><li id="p_special">❌ <?=htmlspecialchars(oneid_translate('dashboard.password.special'), ENT_QUOTES, 'UTF-8')?></li></ul></section>
+                        <div id="password_change_feedback" class="alert oneid-password-feedback" role="alert" aria-live="assertive" style="display:none;user-select:text;-webkit-user-select:text;"><p id="password_change_feedback_text" style="white-space:pre-wrap;margin-bottom:8px;"></p><button type="button" class="btn btn-xs btn-default" id="password_change_copy_button" onclick="copyPasswordChangeFeedback();"><i class="fa fa-copy" aria-hidden="true"></i> <?=htmlspecialchars(oneid_translate('dashboard.password.copy'), ENT_QUOTES, 'UTF-8')?></button></div>
                      </div>
-                     <div class="modal-footer">
-                        <!--<button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>-->
-						
-                        <button type="button" class="btn btn-danger waves-effect" id="chge_pwd_logout" onclick="logout();"><?=htmlspecialchars(oneid_translate('dashboard.menu.logout'), ENT_QUOTES, 'UTF-8')?></button>
-                        <button type="submit" class="btn btn-primary waves-effect" id="btn_change_password_submit"><span id="change_password_submit_label"><?=htmlspecialchars(oneid_translate('dashboard.password.change'), ENT_QUOTES, 'UTF-8')?></span></button>
-                        <button id="btn_close_changePW" type="button" class="btn btn-secondary text-primary" data-dismiss="modal"><?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?></button>
+                     <div class="modal-footer oneid-password-footer">
+                        <button type="button" class="oneid-password-logout" id="chge_pwd_logout" onclick="logout();"><i class="fa fa-sign-out" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('dashboard.menu.logout'), ENT_QUOTES, 'UTF-8')?></button>
+                        <div><button id="btn_close_changePW" type="button" class="oneid-password-close" data-dismiss="modal"><?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?></button><button type="submit" class="oneid-password-submit" id="btn_change_password_submit"><i class="fa fa-check" aria-hidden="true"></i><span id="change_password_submit_label"><?=htmlspecialchars(oneid_translate('dashboard.password.change'), ENT_QUOTES, 'UTF-8')?></span></button></div>
                      </div>
                   </form>
                </div>
-               <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
          </div>
          <!-- Main Content -->
          <div class="page-wrapper">
@@ -1018,6 +976,7 @@
          $('#initial_password_setup_notice').toggle(initialPasswordSetup);
          myDigitalIdRecoveryStage='none';
          $('#mydid_password_recovery_notice,#mydid_password_otp_group').hide();
+         $('.oneid-password-card--new,.oneid-password-card--confirm,#password-requirements').show();
          $('#btn_mydid_password_recovery').toggle(!initialPasswordSetup);
          $('#aria_modal_change_password').text(initialPasswordSetup?dashboardI18n.passwordInitialTitle:dashboardI18n.passwordTitle);
          $('#change_password_current').val('');
@@ -1087,8 +1046,8 @@
             if(passwordChangeSubmitting){return;}
             $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',data:{action_mydigitalid_password_recovery_request:''},beforeSend:function(){setPasswordChangeSubmitting(true);},success:function(response){
                myDigitalIdRecoveryStage='otp';
-               $('#current_password_group,#change_password_new,#change_password_new_reconfirm,#password-requirements').hide();
-               $('#change_password_new,#change_password_new_reconfirm').closest('.form-group').hide();
+               $('#current_password_group,#password-requirements').hide();
+               $('#change_password_new,#change_password_new_reconfirm').closest('.oneid-password-card').hide();
                $('#mydid_password_recovery_notice').text(dashboardI18n.passwordOtpSent).show();
                $('#mydid_password_otp_group').show();$('#mydid_password_otp').val('').focus();
                $('#change_password_submit_label').text(dashboardI18n.passwordOtpVerify);
@@ -1101,7 +1060,7 @@
              if(myDigitalIdRecoveryStage==='otp'){
                 var otp=$('#mydid_password_otp').val().replace(/\D/g,'');
                 if(otp.length!==6){showPasswordChangeFeedback(dashboardI18n.passwordOtpInvalid,'error');return;}
-                $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',data:{action_mydigitalid_password_recovery_verify:'',otp_id:otp},beforeSend:function(){setPasswordChangeSubmitting(true);},success:function(response){if(response.result==='true'&&response.reset_required){myDigitalIdRecoveryStage='reset';$('#mydid_password_otp_group').hide();$('#mydid_password_recovery_notice').text(response.msg).show();$('#change_password_new,#change_password_new_reconfirm').closest('.form-group').show();$('#change_password_new,#change_password_new_reconfirm,#password-requirements').show();$('#change_password_submit_label').text(dashboardI18n.passwordReset);$('#change_password_new').focus();}else{showPasswordChangeFeedback(response.msg||dashboardI18n.passwordOtpInvalid,'error');}},error:function(){showPasswordChangeFeedback(dashboardI18n.passwordRecoveryFailed,'error');},complete:function(){setPasswordChangeSubmitting(false);if(myDigitalIdRecoveryStage==='otp')$('#change_password_submit_label').text(dashboardI18n.passwordOtpVerify);else if(myDigitalIdRecoveryStage==='reset')$('#change_password_submit_label').text(dashboardI18n.passwordReset);}});return;
+                $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',data:{action_mydigitalid_password_recovery_verify:'',otp_id:otp},beforeSend:function(){setPasswordChangeSubmitting(true);},success:function(response){if(response.result==='true'&&response.reset_required){myDigitalIdRecoveryStage='reset';$('#mydid_password_otp_group').hide();$('#mydid_password_recovery_notice').text(response.msg).show();$('#change_password_new,#change_password_new_reconfirm').closest('.oneid-password-card').show();$('#password-requirements').show();$('#change_password_submit_label').text(dashboardI18n.passwordReset);$('#change_password_new').focus();}else{showPasswordChangeFeedback(response.msg||dashboardI18n.passwordOtpInvalid,'error');}},error:function(){showPasswordChangeFeedback(dashboardI18n.passwordRecoveryFailed,'error');},complete:function(){setPasswordChangeSubmitting(false);if(myDigitalIdRecoveryStage==='otp')$('#change_password_submit_label').text(dashboardI18n.passwordOtpVerify);else if(myDigitalIdRecoveryStage==='reset')$('#change_password_submit_label').text(dashboardI18n.passwordReset);}});return;
              }
 
               var password = $('#change_password_new').val();
