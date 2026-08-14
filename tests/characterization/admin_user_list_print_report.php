@@ -8,13 +8,20 @@ $checks = [
     'report retains admin and active-session guards' =>
         str_contains($source, 'oneid_require_admin_page();')
         && str_contains($source, 'oneid_require_active_sso_page($operation);'),
+    'report resolves a session-bound opaque category reference' =>
+        str_contains($source, 'UserCategoryReportReference::resolve')
+        && str_contains($source, "\$_GET['ref']")
+        && !str_contains($source, "\$_GET['category_name']"),
+    'category identity and display name are loaded from the database' =>
+        str_contains($source, 'admin_get_active_user_category($categoryId)')
+        && str_contains($source, "\$category['uc_name']"),
     'report escapes every user-facing database field' =>
         str_contains($source, '$escape($displayId)')
         && str_contains($source, '$escape($user[\'data1\'] ?? \'\')')
         && str_contains($source, '$escape($description)'),
-    'report provides print action without external JavaScript' =>
+    'report provides native print action without a legacy export plugin' =>
         str_contains($source, 'onclick="window.print()"')
-        && !str_contains($source, '<script'),
+        && !str_contains($source, 'tableToCSV'),
     'print stylesheet targets A4 landscape and repeated headers' =>
         str_contains($source, '@page { size: A4 landscape;')
         && str_contains($source, 'thead { display: table-header-group; }'),

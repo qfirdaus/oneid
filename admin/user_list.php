@@ -5,13 +5,33 @@ require_once __DIR__ . '/../lib/config.php';
 require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
 require_once __DIR__ . '/../lib/request_security.php';
 require_once __DIR__ . '/../lib/environment_banner.php';
+require_once __DIR__ . '/../app/Admin/UserCategoryReportReference.php';
 oneid_require_admin_page();
 oneid_require_active_sso_page($operation);
 oneid_require_admin_step_up($operation, 'ADMIN_ACCESS', false);
 
-$categoryId = filter_input(INPUT_GET, 'category_id', FILTER_VALIDATE_INT);
-if ($categoryId === false || $categoryId === null) {
+$reportReferenceToken = trim((string) ($_GET['ref'] ?? ''));
+if (preg_match('/\A[a-f0-9]{64}\z/', $reportReferenceToken) !== 1) {
     http_response_code(400);
+    exit(oneid_translate('admin.user_list.invalid_category'));
+}
+try {
+    $categoryId = \OneId\App\Admin\UserCategoryReportReference::resolve(
+        $_SESSION,
+        $reportReferenceToken,
+        (string) $_SESSION['login_user']
+    );
+} catch (InvalidArgumentException) {
+    http_response_code(400);
+    exit(oneid_translate('admin.user_list.invalid_category'));
+} catch (RuntimeException $exception) {
+    http_response_code($exception->getMessage() === 'USER_CATEGORY_REPORT_REFERENCE_FORBIDDEN' ? 403 : 410);
+    exit(oneid_translate('admin.user_list.invalid_category'));
+}
+
+$category = $operation->admin_get_active_user_category($categoryId);
+if (!is_array($category)) {
+    http_response_code(404);
     exit(oneid_translate('admin.user_list.invalid_category'));
 }
 
@@ -20,7 +40,7 @@ $escape = static fn(mixed $value): string => htmlspecialchars(
     ENT_QUOTES | ENT_SUBSTITUTE,
     'UTF-8'
 );
-$categoryName = $escape($_GET['category_name'] ?? '');
+$categoryName = $escape($category['uc_name'] ?? '');
 $userlist = $operation->admin_get_specific_category_user_listing($categoryId);
 $generatedAt = new DateTimeImmutable('now');
 $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('Ymd-His'));

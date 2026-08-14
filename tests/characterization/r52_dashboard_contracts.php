@@ -37,7 +37,7 @@ return [
             "oneid_translate('admin.sync.staff_title')",
             'admin_get_sync_sessions',
             'admin_get_sync_log_detail',
-            'window.open("./user_list.php?category_id=',
+            'window.open("./user_list.php?ref=',
         ],
     ],
     [
@@ -50,8 +50,8 @@ return [
         'fragments' => [
             'oneid_require_admin_page();',
             "require_once __DIR__ . '/../lib/request_security.php'",
-            'category_id',
-            'category_name',
+            'UserCategoryReportReference::resolve',
+            "\$_GET['ref']",
         ],
     ],
 ];

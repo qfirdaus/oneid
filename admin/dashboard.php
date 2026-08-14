@@ -2741,13 +2741,14 @@
 						$.each(response, function(i, value) {
 							var categoryId = categoryText(value['uc_id']);
 							var categoryName = categoryText(value['uc_name']);
+							var reportRef = categoryText(value['report_ref']);
 							var userTotal = categoryText(value['total']);
 							var siteTotal = categoryText(value['site_count']);
 							tr += '<div class="user-category-row">';
 							tr += '<div class="user-category-identity"><span class="user-category-avatar"><i class="fa fa-users" aria-hidden="true"></i></span><div><strong title="'+categoryName+'">'+categoryName+'</strong><small>Access group</small></div></div>';
 							tr += '<div class="user-category-metrics"><span><strong>'+userTotal+'</strong><small>Users</small></span><span><strong>'+siteTotal+'</strong><small>Apps</small></span></div>';
 							tr += '<div class="user-category-row-actions">';
-							tr += '<button type="button" class="user-category-row-button" data-category-id="'+categoryId+'" data-category-name="'+categoryName+'" onclick="view_category_user_list(this.dataset.categoryId, this.dataset.categoryName);" title="View users"><i class="fa fa-users" aria-hidden="true"></i><span>Users</span></button>';
+							tr += '<button type="button" class="user-category-row-button" data-report-ref="'+reportRef+'" onclick="view_category_user_list(this.dataset.reportRef);" title="View users"><i class="fa fa-users" aria-hidden="true"></i><span>Users</span></button>';
 							tr += '<button type="button" class="user-category-row-button" data-category-id="'+categoryId+'" data-category-name="'+categoryName+'" onclick="open_category_listing(this.dataset.categoryId, this.dataset.categoryName);" title="View application access"><i class="fa fa-th-large" aria-hidden="true"></i><span>Apps</span></button>';
 							tr += '</div>';
 							tr += '</div>';
@@ -5673,8 +5674,12 @@
          });
          }
          
-         function view_category_user_list(cat_id,cat_name){
-         window.open("./user_list.php?category_id="+cat_id+"&category_name="+encodeURIComponent(cat_name), '_blank');
+         function view_category_user_list(reportRef){
+         if (!/^[a-f0-9]{64}$/.test(String(reportRef || ''))) {
+            $.toast({heading:'',text:'Unable to open the user report. Refresh the category list and try again.',position:'bottom-center',loaderBg:'#fec107',icon:'warning',hideAfter:3500,stack:6});
+            return;
+         }
+         window.open("./user_list.php?ref="+encodeURIComponent(reportRef), '_blank', 'noopener,noreferrer');
          }
          
          function modal_user_profile_resync(){

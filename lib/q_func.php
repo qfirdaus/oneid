@@ -46,6 +46,7 @@ require_once dirname(__DIR__) . '/app/Admin/ActiveSessionRevocationException.php
 require_once dirname(__DIR__) . '/app/Admin/ActiveSessionRevocationConfig.php';
 require_once dirname(__DIR__) . '/app/Admin/Adapters/SessionRevocationPreviewStore.php';
 require_once dirname(__DIR__) . '/app/Admin/ActiveSessionRevocationService.php';
+require_once dirname(__DIR__) . '/app/Admin/UserCategoryReportReference.php';
 require_once dirname(__DIR__) . '/app/Auth/SsoTokenLifetimePolicy.php';
 require_once dirname(__DIR__) . '/app/Auth/UserPortalSessionService.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpException.php';
@@ -1815,6 +1816,11 @@ function string_sanitize($s) {
         foreach ($results as $i => $ii) {
           $sites = $operation->admin_get_category_site_listing($results[$i]['uc_id']);
           $results[$i]['site_count'] = count($sites);
+          $results[$i]['report_ref'] = \OneId\App\Admin\UserCategoryReportReference::issue(
+            $_SESSION,
+            (string) $_SESSION['login_user'],
+            (int) $results[$i]['uc_id']
+          );
         }
         echo json_encode($results);
       }

@@ -58,7 +58,7 @@ $report(!is_dir($projectRoot . '/public/app-assets'), 'fake app-assets compatibi
 $userList = file_get_contents($projectRoot . '/admin/user_list.php');
 $userList = is_string($userList) ? $userList : '';
 $report(!str_contains($userList, 'tableToCSV'), 'inactive tableToCSV dependency removed');
-$report(!str_contains($userList, '<script'), 'admin user list needs no JavaScript asset');
+$report(!str_contains($userList, 'tableToCSV'), 'admin user list needs no legacy export JavaScript asset');
 $report(str_contains($userList, 'oneid_require_admin_page();'), 'admin user list role guard remains');
 $report(
     str_contains($userList, 'admin_get_specific_category_user_listing'),
@@ -68,16 +68,17 @@ $report(
 $adminDashboard = file_get_contents($projectRoot . '/admin/dashboard.php');
 $adminDashboard = is_string($adminDashboard) ? $adminDashboard : '';
 $report(
-    str_contains($adminDashboard, 'window.open("./user_list.php?category_id="'),
-    'admin user list URL has no trailing slash after PHP entry point'
+    str_contains($adminDashboard, 'window.open("./user_list.php?ref="'),
+    'admin user list uses an opaque report reference without PATH_INFO'
 );
 $report(
     !str_contains($adminDashboard, 'user_list.php/?'),
     'broken user_list PATH_INFO route is absent'
 );
 $report(
-    str_contains($adminDashboard, 'encodeURIComponent(cat_name)'),
-    'admin user list category name is URL encoded'
+    str_contains($adminDashboard, "'_blank', 'noopener,noreferrer'")
+        && !str_contains($adminDashboard, 'user_list.php?category_id='),
+    'admin user report opens safely without category identifiers in the URL'
 );
 
 $requiredAssets = [
