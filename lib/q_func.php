@@ -222,12 +222,22 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
         return['status'=>1,'login_status'=>1,'code'=>'USER_MFA_LOGIN_COMPLETE','redirect_uri'=>$redirect];
       };
       if($oneidGuardedAction==='user_mfa_totp_verify_login'){
-        $sessions=new \OneId\App\Auth\UserMfa\LegacyUserMfaSessionRevoker($operation);
-        $totpPersistence=new \OneId\App\Auth\UserMfa\PdoUserMfaTotpPersistence($pdo,$audit,$sessions);
+        $maintenanceAdmin=(bool)($_SESSION['user_mfa_pending_admin_maintenance']??false);
         $keyring=\OneId\App\Auth\TotpKeyring::fromFile((string)oneid_config('ONEID_TOTP_KEYRING_PATH',''));
-        $primitive=new \OneId\App\Auth\UserMfa\UserMfaTotpPrimitive(new \OneId\App\Auth\TotpSecretCipher($keyring));
-      $totpService=new \OneId\App\Auth\UserMfa\UserMfaTotpService($totpPersistence,$primitive,'OneID@UPNM');
-        $totpService->verify($pendingUser,(string)($_POST['code']??''));
+        if($maintenanceAdmin){
+          // Maintenance access is an administrator security boundary. Verify
+          // the Admin Authenticator factor, not the separate User MFA factor.
+          $adminTotp=new \OneId\App\Auth\AdminStepUpTotpService(
+            $operation,new \OneId\App\Auth\TotpSecretCipher($keyring)
+          );
+          $adminTotp->verify($pendingUser,'ADMIN_ACCESS',(string)($_POST['code']??''),$session,$ua,$ip);
+        }else{
+          $sessions=new \OneId\App\Auth\UserMfa\LegacyUserMfaSessionRevoker($operation);
+          $totpPersistence=new \OneId\App\Auth\UserMfa\PdoUserMfaTotpPersistence($pdo,$audit,$sessions);
+          $primitive=new \OneId\App\Auth\UserMfa\UserMfaTotpPrimitive(new \OneId\App\Auth\TotpSecretCipher($keyring));
+          $totpService=new \OneId\App\Auth\UserMfa\UserMfaTotpService($totpPersistence,$primitive,'OneID@UPNM');
+          $totpService->verify($pendingUser,(string)($_POST['code']??''));
+        }
         (new \OneId\App\Auth\UserMfa\UserMfaPendingLoginCoordinator(
           new \OneId\App\Auth\UserMfa\PdoUserMfaPendingLoginPersistence($pdo,$audit)
         ))->markVerified($pendingTransaction,'TOTP',$session,$ua,$ip);
@@ -606,10 +616,8 @@ function string_sanitize($s) {
                 $policy=$userMfaPolicies->policy();
                 $adminFactor=$operation->admin_step_up_factor_status((string)$results['u_id']);
                 $email=trim((string)($adminFactor['email']??''));
-                $userTotp=$userMfaPdo->prepare("SELECT COUNT(*) FROM user_mfa_factors WHERE u_id=:admin AND factor_type='TOTP' AND factor_status='ACTIVE'");
-                $userTotp->execute([':admin'=>(string)$results['u_id']]);
                 if(!$policy->enforced()||(int)($adminFactor['admin_2fa_enabled']??0)!==1
-                  ||(filter_var($email,FILTER_VALIDATE_EMAIL)===false&&(int)$userTotp->fetchColumn()!==1)){
+                  ||(filter_var($email,FILTER_VALIDATE_EMAIL)===false&&(int)($adminFactor['totp_available']??0)!==1)){
                   throw new RuntimeException('MAINTENANCE_MFA_UNAVAILABLE');
                 }
                 $operation->admin_step_up_revoke_all_active_access_grants((string)$results['u_id']);

@@ -8,10 +8,15 @@ $transaction=(string)($_SESSION['user_mfa_pending_transaction']??'');
 $user=(string)($_SESSION['user_mfa_pending_user']??'');
 if($transaction===''||$user===''||oneid_is_authenticated()){header('Location: '.APP_URL.'/',true,303);exit;}
 $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
+$maintenanceAdmin=(bool)($_SESSION['user_mfa_pending_admin_maintenance']??false);
+$factorTable=$maintenanceAdmin?'admin_mfa_factors':'user_mfa_factors';
+$factorUserColumn=$maintenanceAdmin?'admin_user_id':'u_id';
+$preferenceTable=$maintenanceAdmin?'admin_mfa_preferences':'user_mfa_preferences';
+$preferenceUserColumn=$maintenanceAdmin?'admin_user_id':'u_id';
 $statement=$pdo->prepare(
   "SELECT t.transaction_status,t.expires_at,p.email_enabled,p.totp_enabled,
-          EXISTS(SELECT 1 FROM user_mfa_factors f WHERE f.u_id=t.u_id AND f.factor_type='TOTP' AND f.factor_status='ACTIVE') active_totp,
-          COALESCE((SELECT preferred_factor FROM user_mfa_preferences x WHERE x.u_id=t.u_id),'EMAIL_OTP') preferred_factor,
+          EXISTS(SELECT 1 FROM {$factorTable} f WHERE f.{$factorUserColumn}=t.u_id AND f.factor_type='TOTP' AND f.factor_status='ACTIVE') active_totp,
+          COALESCE((SELECT preferred_factor FROM {$preferenceTable} x WHERE x.{$preferenceUserColumn}=t.u_id),'EMAIL_OTP') preferred_factor,
           u.data5 email
      FROM user_login_mfa_transactions t
      JOIN user_login_mfa_policy p ON p.singleton_key=1
@@ -22,7 +27,7 @@ $statement->execute([':transaction'=>$transaction,':user'=>$user]);$state=$state
 if(!is_array($state)||$state['transaction_status']!=='PENDING'||strtotime((string)$state['expires_at'])<time()){unset($_SESSION['user_mfa_pending_transaction'],$_SESSION['user_mfa_pending_user']);header('Location: '.APP_URL.'/',true,303);exit;}
 $email=(string)$state['email'];$at=strpos($email,'@');$masked=$at===false?'':substr($email,0,1).'***'.substr($email,max(1,$at-1));
 $activeTotp=(int)$state['active_totp']===1;
-$totp=(int)$state['totp_enabled']===1&&$activeTotp;
+$totp=$maintenanceAdmin?$activeTotp:((int)$state['totp_enabled']===1&&$activeTotp);
 $preferredTotp=$totp&&(string)$state['preferred_factor']==='TOTP';
 $totpUnavailableKey=$activeTotp?'stepup.unavailable':'stepup.not_registered';
 $h=static fn(string$key):string=>htmlspecialchars(oneid_translate($key),ENT_QUOTES,'UTF-8');

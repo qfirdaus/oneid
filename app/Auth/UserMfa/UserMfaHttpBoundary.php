@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OneId\App\Auth\UserMfa;
 
+use OneId\App\Auth\AdminStepUpException;
 use RuntimeException;
 use Throwable;
 
@@ -67,7 +68,8 @@ final class UserMfaHttpBoundary
      */
     public function safeError(Throwable $exception, array $payload = []): array
     {
-        $correlationId = $exception instanceof UserMfaEmailOtpException
+        $correlationId = $exception instanceof AdminStepUpException
+            || $exception instanceof UserMfaEmailOtpException
             || $exception instanceof UserMfaTotpException
             || $exception instanceof UserMfaPendingLoginException
             ? $exception->correlationId
@@ -80,7 +82,8 @@ final class UserMfaHttpBoundary
             $payload['email'],
             $payload['session_id']
         );
-        $reason = $exception instanceof UserMfaEmailOtpException
+        $reason = $exception instanceof AdminStepUpException
+            || $exception instanceof UserMfaEmailOtpException
             || $exception instanceof UserMfaTotpException
             || $exception instanceof UserMfaPendingLoginException
             ? $exception->getMessage()
@@ -99,16 +102,19 @@ final class UserMfaHttpBoundary
             'USER_MFA_TOTP_UNAVAILABLE_USE_EMAIL',
             'USER_MFA_TOTP_REPLAYED',
             'USER_MFA_TOTP_VERIFY_FAILED',
+            'STEP_UP_VERIFICATION_FAILED',
+            'STEP_UP_REPLAYED',
             'USER_MFA_RECOVERY_UNAVAILABLE',
             'USER_MFA_RECOVERY_PASSWORD_INVALID',
             'USER_MFA_RECOVERY_CHALLENGE_INVALID',
             'USER_MFA_RECOVERY_FACTOR_UNAVAILABLE',
         ];
+        $safeCode = in_array($reason, ['STEP_UP_VERIFICATION_FAILED','STEP_UP_REPLAYED'], true)
+            ? 'USER_MFA_VERIFICATION_FAILED'
+            : (in_array($reason, $safeReasons, true) ? $reason : 'USER_MFA_REQUEST_REJECTED');
         return [
             'status' => 0,
-            'code' => in_array($reason, $safeReasons, true)
-                ? $reason
-                : 'USER_MFA_REQUEST_REJECTED',
+            'code' => $safeCode,
             'message_key' => 'user_mfa.state.error',
             'correlation_id' => $correlationId,
         ];
