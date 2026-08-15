@@ -22,8 +22,8 @@ final class AdminReportCatalogue
             ]],
             'applications' => ['label'=>'Applications & Production Readiness','icon'=>'fa-th-large','reports'=>[
                 ['key'=>'application_readiness','name'=>'Application Production Readiness','description'=>'Status URL, SSO dan kelulusan production bagi setiap aplikasi.','status'=>'ready'],
-                ['key'=>'application_acl_coverage','name'=>'Application ACL Coverage','description'=>'Aplikasi tanpa kategori akses atau liputan pengguna.','status'=>'planned'],
-                ['key'=>'credential_rotation','name'=>'Site API Credential Rotation','description'=>'Versi dan umur credential tanpa mendedahkan secret.','status'=>'planned'],
+                ['key'=>'application_acl_coverage','name'=>'Application ACL Coverage','description'=>'Aplikasi tanpa kategori akses atau liputan pengguna.','status'=>'ready'],
+                ['key'=>'credential_rotation','name'=>'Site API Credential Rotation','description'=>'Versi dan umur credential tanpa mendedahkan secret.','status'=>'ready'],
             ]],
             'sessions' => ['label'=>'Sessions & Security','icon'=>'fa-shield','reports'=>[
                 ['key'=>'session_activity','name'=>'Session Activity Summary','description'=>'Sesi aktif, tamat dan sebab penamatan mengikut tempoh.','status'=>'planned'],

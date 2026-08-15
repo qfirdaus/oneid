@@ -1638,6 +1638,41 @@ class Database {
         return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function admin_report_application_acl_coverage(): array{
+        $Q="SELECT S.sp_id,S.sp_name,S.avail_status AS application_status,
+              COALESCE(G.category_count,0) AS category_count,
+              COALESCE(D.direct_user_count,0) AS direct_user_count,
+              COALESCE(B.blacklist_count,0) AS blacklist_count,
+              COALESCE(E.covered_users,0) AS covered_users
+            FROM sp_list S
+            LEFT JOIN (SELECT sp_id,COUNT(DISTINCT uc_id) AS category_count FROM acl_group GROUP BY sp_id) G ON G.sp_id=S.sp_id
+            LEFT JOIN (SELECT sp_id,COUNT(DISTINCT u_id) AS direct_user_count FROM acl_single GROUP BY sp_id) D ON D.sp_id=S.sp_id
+            LEFT JOIN (SELECT sp_id,COUNT(DISTINCT u_id) AS blacklist_count FROM acl_blacklist GROUP BY sp_id) B ON B.sp_id=S.sp_id
+            LEFT JOIN (
+              SELECT A.sp_id,COUNT(DISTINCT A.u_id) AS covered_users
+              FROM (
+                SELECT AG.sp_id,U.u_id FROM acl_group AG INNER JOIN user_tbl U ON U.u_category=AG.uc_id AND U.avail_status=1
+                UNION
+                SELECT DS.sp_id,U.u_id FROM acl_single DS INNER JOIN user_tbl U ON U.u_id=DS.u_id AND U.avail_status=1
+              ) A
+              LEFT JOIN acl_blacklist AB ON AB.sp_id=A.sp_id AND AB.u_id=A.u_id
+              WHERE AB.u_id IS NULL
+              GROUP BY A.sp_id
+            ) E ON E.sp_id=S.sp_id
+            ORDER BY S.avail_status DESC,S.sp_name";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_site_api_credential_rotation(): array{
+        $Q="SELECT S.sp_id,S.sp_name,S.avail_status AS application_status,
+              C.credential_version,C.rotated_at,C.rotated_by,
+              CASE WHEN C.rotated_at IS NULL THEN NULL ELSE TIMESTAMPDIFF(DAY,C.rotated_at,NOW()) END AS credential_age_days
+            FROM sp_list S
+            LEFT JOIN sp_api_credential C ON C.sp_id=S.sp_id
+            ORDER BY S.avail_status DESC,C.rotated_at IS NULL DESC,C.rotated_at,S.sp_name";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 
 
    public function admin_set_deny_access_record($sp_id,$user_id){
