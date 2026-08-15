@@ -180,29 +180,39 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
         );
         $handle=$final['completion_handle'];$userInfo=$operation->get_specific_user_info((string)$final['user_id']);
         if(!is_array($userInfo)){throw new RuntimeException('USER_MFA_USER_SESSION_UNAVAILABLE');}
-        oneid_set_configured_sso_cookie($operation,(string)$handle['token']);
-        oneid_establish_authenticated_session($userInfo);
-        unset($_SESSION['user_mfa_pending_user'],$_SESSION['user_mfa_pending_transaction']);
         $maintenanceAdmin=(bool)($_SESSION['user_mfa_pending_admin_maintenance']??false);unset($_SESSION['user_mfa_pending_admin_maintenance']);
         $maintenanceFactor=(string)($_SESSION['user_mfa_pending_maintenance_factor']??'');unset($_SESSION['user_mfa_pending_maintenance_factor']);
-        if($maintenanceAdmin){
-          if((string)($userInfo['u_type']??'')!=='1'||!in_array($maintenanceFactor,['EMAIL_OTP','TOTP'],true)){
-            throw new RuntimeException('MAINTENANCE_MFA_FINALIZATION_INVALID');
+        try{
+          oneid_set_configured_sso_cookie($operation,(string)$handle['token']);
+          oneid_establish_authenticated_session($userInfo);
+          if($maintenanceAdmin){
+            if((string)($userInfo['u_type']??'')!=='1'||!in_array($maintenanceFactor,['EMAIL_OTP','TOTP'],true)){
+              throw new RuntimeException('MAINTENANCE_MFA_FINALIZATION_INVALID');
+            }
+            // admin_step_up_grants.correlation_id is CHAR(16), while User MFA
+            // uses a 32-character correlation identifier.
+            $grantCorrelation=substr((string)$final['correlation_id'],0,16);
+            $operation->admin_step_up_revoke_all_active_access_grants((string)$final['user_id']);
+            if($operation->admin_step_up_create_grant([
+              'grant_id'=>bin2hex(random_bytes(32)),
+              'admin_user_id'=>(string)$final['user_id'],
+              'session_binding_hash'=>hash('sha256',session_id()),
+              'browser_digest'=>hash('sha256',substr($ua,0,1000)),
+              'purpose'=>'ADMIN_ACCESS','verified_factor'=>$maintenanceFactor,
+              'lifetime_minutes'=>5,'correlation_id'=>$grantCorrelation,
+            ])!==1){throw new RuntimeException('MAINTENANCE_GRANT_CREATE_FAILED');}
+            if($operation->syslog_record(39,'admin='.(string)$final['user_id'].' action=maintenance_login purpose=ADMIN_ACCESS outcome=verified correlation='.$grantCorrelation,$ip)!==1){
+              throw new RuntimeException('MAINTENANCE_LOGIN_AUDIT_FAILED');
+            }
+            $_SESSION['oneid_maintenance_admin_verified_until']=time()+300;
           }
-          $operation->admin_step_up_revoke_all_active_access_grants((string)$final['user_id']);
-          if($operation->admin_step_up_create_grant([
-            'grant_id'=>bin2hex(random_bytes(32)),
-            'admin_user_id'=>(string)$final['user_id'],
-            'session_binding_hash'=>hash('sha256',session_id()),
-            'browser_digest'=>hash('sha256',substr($ua,0,1000)),
-            'purpose'=>'ADMIN_ACCESS','verified_factor'=>$maintenanceFactor,
-            'lifetime_minutes'=>5,'correlation_id'=>(string)$final['correlation_id'],
-          ])!==1){throw new RuntimeException('MAINTENANCE_GRANT_CREATE_FAILED');}
-          if($operation->syslog_record(39,'admin='.(string)$final['user_id'].' action=maintenance_login purpose=ADMIN_ACCESS outcome=verified correlation='.(string)$final['correlation_id'],$ip)!==1){
-            throw new RuntimeException('MAINTENANCE_LOGIN_AUDIT_FAILED');
-          }
-          $_SESSION['oneid_maintenance_admin_verified_until']=time()+300;
+        }catch(\Throwable $finalizationFailure){
+          $operation->update_specific_token_status((string)$final['user_id'],(string)$handle['token'],0);
+          if($maintenanceAdmin){$operation->admin_step_up_revoke_all_active_access_grants((string)$final['user_id']);}
+          oneid_clear_local_authenticated_session();
+          throw $finalizationFailure;
         }
+        unset($_SESSION['user_mfa_pending_user'],$_SESSION['user_mfa_pending_transaction']);
         $site=(string)($_SESSION['user_mfa_pending_site_id']??'');unset($_SESSION['user_mfa_pending_site_id']);
         $redirect=$maintenanceAdmin?APP_URL.'/admin/dashboard':APP_URL.'/page/dashboard';
         if($site!==''){
