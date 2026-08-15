@@ -114,6 +114,16 @@ class Database {
         $R=$this->pdo->prepare("SELECT COUNT(*) FROM syslog WHERE log_type=20 AND ip_addr=:ip AND datetime>=:since AND log_detail LIKE :pattern");$R->execute([':ip'=>$ipAddress,':since'=>$since,':pattern'=>$pattern]);return(int)$R->fetchColumn();
     }
 
+    public function count_recent_login_failures($credentialFingerprint,$ipAddress,$minutes=15){
+        $since=date('Y-m-d H:i:s',time()-(max(1,(int)$minutes)*60));
+        $fingerprintPattern='%credential_fingerprint='.$credentialFingerprint.'%';
+        $byCredential=$this->pdo->prepare("SELECT COUNT(*) FROM syslog WHERE log_type=3 AND ip_addr=:ip AND datetime>=:since AND log_detail LIKE :pattern");
+        $byCredential->execute([':ip'=>$ipAddress,':since'=>$since,':pattern'=>$fingerprintPattern]);
+        $byIp=$this->pdo->prepare("SELECT COUNT(*) FROM syslog WHERE log_type=3 AND ip_addr=:ip AND datetime>=:since");
+        $byIp->execute([':ip'=>$ipAddress,':since'=>$since]);
+        return ['credential_ip'=>(int)$byCredential->fetchColumn(),'ip'=>(int)$byIp->fetchColumn()];
+    }
+
     public function get_password_history_hashes($userId,$limit=2){
         $limit=max(1,min(10,(int)$limit));$R=$this->pdo->prepare("SELECT password_hash FROM user_password_history WHERE user_id=:user_id ORDER BY id DESC LIMIT {$limit}");$R->execute([':user_id'=>$userId]);return $R->fetchAll(PDO::FETCH_COLUMN,0);
     }
@@ -2356,6 +2366,19 @@ class Database {
               AND revoked_at IS NULL AND expires_at>NOW()";
         $R=$this->pdo->prepare($Q);$R->execute([':admin_id'=>$adminId,':session_hash'=>$sessionHash,':browser'=>$browserDigest]);
         return $R->rowCount();
+    }
+
+    public function admin_step_up_revoke_all_active_access_grants($adminId){
+        $Q="UPDATE admin_step_up_grants SET revoked_at=NOW()
+            WHERE admin_user_id=:admin_id AND purpose='ADMIN_ACCESS'
+              AND revoked_at IS NULL AND expires_at>NOW()";
+        $R=$this->pdo->prepare($Q);$R->execute([':admin_id'=>$adminId]);return $R->rowCount();
+    }
+
+    public function admin_step_up_revoke_all_access_grants_for_maintenance(){
+        $Q="UPDATE admin_step_up_grants SET revoked_at=NOW()
+            WHERE purpose='ADMIN_ACCESS' AND revoked_at IS NULL AND expires_at>NOW()";
+        return $this->pdo->exec($Q);
     }
 
     public function admin_mfa_enrollment_context_for_update($adminId){

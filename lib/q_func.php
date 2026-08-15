@@ -184,6 +184,25 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
         oneid_establish_authenticated_session($userInfo);
         unset($_SESSION['user_mfa_pending_user'],$_SESSION['user_mfa_pending_transaction']);
         $maintenanceAdmin=(bool)($_SESSION['user_mfa_pending_admin_maintenance']??false);unset($_SESSION['user_mfa_pending_admin_maintenance']);
+        $maintenanceFactor=(string)($_SESSION['user_mfa_pending_maintenance_factor']??'');unset($_SESSION['user_mfa_pending_maintenance_factor']);
+        if($maintenanceAdmin){
+          if((string)($userInfo['u_type']??'')!=='1'||!in_array($maintenanceFactor,['EMAIL_OTP','TOTP'],true)){
+            throw new RuntimeException('MAINTENANCE_MFA_FINALIZATION_INVALID');
+          }
+          $operation->admin_step_up_revoke_all_active_access_grants((string)$final['user_id']);
+          if($operation->admin_step_up_create_grant([
+            'grant_id'=>bin2hex(random_bytes(32)),
+            'admin_user_id'=>(string)$final['user_id'],
+            'session_binding_hash'=>hash('sha256',session_id()),
+            'browser_digest'=>hash('sha256',substr($ua,0,1000)),
+            'purpose'=>'ADMIN_ACCESS','verified_factor'=>$maintenanceFactor,
+            'lifetime_minutes'=>5,'correlation_id'=>(string)$final['correlation_id'],
+          ])!==1){throw new RuntimeException('MAINTENANCE_GRANT_CREATE_FAILED');}
+          if($operation->syslog_record(39,'admin='.(string)$final['user_id'].' action=maintenance_login purpose=ADMIN_ACCESS outcome=verified correlation='.(string)$final['correlation_id'],$ip)!==1){
+            throw new RuntimeException('MAINTENANCE_LOGIN_AUDIT_FAILED');
+          }
+          $_SESSION['oneid_maintenance_admin_verified_until']=time()+300;
+        }
         $site=(string)($_SESSION['user_mfa_pending_site_id']??'');unset($_SESSION['user_mfa_pending_site_id']);
         $redirect=$maintenanceAdmin?APP_URL.'/admin/dashboard':APP_URL.'/page/dashboard';
         if($site!==''){
@@ -202,6 +221,7 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
         (new \OneId\App\Auth\UserMfa\UserMfaPendingLoginCoordinator(
           new \OneId\App\Auth\UserMfa\PdoUserMfaPendingLoginPersistence($pdo,$audit)
         ))->markVerified($pendingTransaction,'TOTP',$session,$ua,$ip);
+        if((bool)($_SESSION['user_mfa_pending_admin_maintenance']??false)){$_SESSION['user_mfa_pending_maintenance_factor']='TOTP';}
         $results=$finalizeUserMfaLogin();
         header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
       }
@@ -213,6 +233,7 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
         $results=$emailService->request($pendingTransaction,$pendingUser,$session,$ua,$ip,(string)($_SESSION['oneid_locale']??'ms'));
       }else{
         $verified=$emailService->verify($pendingTransaction,(string)($_POST['challenge_id']??''),(string)($_POST['code']??''),$session,$ua,$ip);
+        if((bool)($_SESSION['user_mfa_pending_admin_maintenance']??false)){$_SESSION['user_mfa_pending_maintenance_factor']='EMAIL_OTP';}
         $results=$finalizeUserMfaLogin();
       }
       header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
@@ -459,6 +480,28 @@ function string_sanitize($s) {
      if(isset( $_POST['auth'])){
         $results = array();
         $submittedUsername = trim((string) ($_POST['username'] ?? ''));
+        $maintenanceAdminLogin=(string)($_POST['maintenance_admin_login']??'')==='1';
+        // Rate limiting must use the network peer. Untrusted forwarded headers
+        // would otherwise let a client rotate its apparent source address.
+        $loginIp=(string)($_SERVER['REMOTE_ADDR']??'');
+        if(filter_var($loginIp,FILTER_VALIDATE_IP)===false){$loginIp='0.0.0.0';}
+        $credentialFingerprint=hash('sha256',mb_strtolower($submittedUsername,'UTF-8'));
+        if($maintenanceAdminLogin){
+          $maintenanceConfig=$operation->get_maintenance_config();
+          $maintenanceActive=is_array($maintenanceConfig)
+            && (bool)(\OneId\App\Maintenance\MaintenancePolicy::evaluate($maintenanceConfig)['active']??false);
+          if(!$maintenanceActive){
+            http_response_code(409);
+            echo json_encode(['login_status'=>0,'code'=>'MAINTENANCE_NOT_ACTIVE','login_response_msg'=>'Maintenance administrator login is not active.']);
+            return;
+          }
+          // A previous administrator session must not satisfy a new
+          // maintenance entry. Keep this request, but start MFA from a fresh
+          // unauthenticated PHP session after CSRF has already been checked.
+          if(oneid_is_authenticated()){
+            oneid_clear_local_authenticated_session();
+          }
+        }
         if($submittedUsername === ''){
           echo json_encode([
             'login_status' => 0,
@@ -476,14 +519,17 @@ function string_sanitize($s) {
           ]);
           return;
         }else{
+          $failureState=$operation->count_recent_login_failures($credentialFingerprint,$loginIp,15);
+          if((int)($failureState['credential_ip']??0)>=5||(int)($failureState['ip']??0)>=20){
+            $correlation=bin2hex(random_bytes(8));
+            $operation->syslog_record(3,"action=login outcome=rejected reason=AUTH_RATE_LIMITED credential_fingerprint=$credentialFingerprint correlation=$correlation",$loginIp);
+            http_response_code(429);
+            echo json_encode(['login_status'=>0,'code'=>'AUTH_RATE_LIMITED','login_response_msg'=>'Too many login attempts. Please wait 15 minutes and try again.','correlation_id'=>$correlation]);
+            return;
+          }
           //check_uid
         $results = $operation->func_authenticate($_POST['username'], $_POST['password']);
-        if ($results != false){
-           if ((string)($_POST['maintenance_admin_login'] ?? '') === '1' && (string)($results['u_type'] ?? '') !== '1') {
-              echo json_encode(['login_status'=>0,'code'=>'MAINTENANCE_ADMIN_REQUIRED','login_response_msg'=>'Only authorized administrators may sign in during maintenance.']);
-              return;
-           }
-        }else{
+        if ($results == false){
           //check data2
           $results = $operation->func_authenticate2($_POST['username'], $_POST['password']);
           if ($results != false){
@@ -500,6 +546,12 @@ function string_sanitize($s) {
             }
           }
         }
+        }
+
+        if($results!==false&&$maintenanceAdminLogin&&(string)($results['u_type']??'')!=='1'){
+          $operation->syslog_record(3,"action=maintenance_login outcome=rejected reason=MAINTENANCE_ADMIN_REQUIRED credential_fingerprint=$credentialFingerprint",$loginIp);
+          echo json_encode(['login_status'=>0,'code'=>'MAINTENANCE_ADMIN_REQUIRED','login_response_msg'=>'Only authorized administrators may sign in during maintenance.']);
+          return;
         }
 
         // echo var_dump($results);)
@@ -535,19 +587,27 @@ function string_sanitize($s) {
             try{
               $userMfaPdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
               $userMfaAudit=new \OneId\App\Auth\UserMfa\LegacyUserMfaAuditWriter($operation);
-              $userMfaDecision=new \OneId\App\Auth\UserMfa\UserMfaPrimaryAuthDecision(
-                new \OneId\App\Auth\UserMfa\PdoUserMfaPolicyReader($userMfaPdo),
-                new \OneId\App\Auth\UserMfa\UserMfaPendingLoginCoordinator(
-                  new \OneId\App\Auth\UserMfa\PdoUserMfaPendingLoginPersistence($userMfaPdo,$userMfaAudit)
-                )
+              $userMfaPolicies=new \OneId\App\Auth\UserMfa\PdoUserMfaPolicyReader($userMfaPdo);
+              $pendingCoordinator=new \OneId\App\Auth\UserMfa\UserMfaPendingLoginCoordinator(
+                new \OneId\App\Auth\UserMfa\PdoUserMfaPendingLoginPersistence($userMfaPdo,$userMfaAudit)
               );
-              $userMfaResult=$userMfaDecision->afterPasswordAccepted(
-                (string)$results['u_id'],
-                session_id(),
-                (string)($_SERVER['HTTP_USER_AGENT']??''),
-                (string)getUserIP(),
-                $userMfaMode
-              );
+              if($maintenanceAdminLogin){
+                $userMfaPolicies->assertRuntimeParity($userMfaMode);
+                $policy=$userMfaPolicies->policy();
+                $adminFactor=$operation->admin_step_up_factor_status((string)$results['u_id']);
+                $email=trim((string)($adminFactor['email']??''));
+                $userTotp=$userMfaPdo->prepare("SELECT COUNT(*) FROM user_mfa_factors WHERE u_id=:admin AND factor_type='TOTP' AND factor_status='ACTIVE'");
+                $userTotp->execute([':admin'=>(string)$results['u_id']]);
+                if(!$policy->enforced()||(int)($adminFactor['admin_2fa_enabled']??0)!==1
+                  ||(filter_var($email,FILTER_VALIDATE_EMAIL)===false&&(int)$userTotp->fetchColumn()!==1)){
+                  throw new RuntimeException('MAINTENANCE_MFA_UNAVAILABLE');
+                }
+                $operation->admin_step_up_revoke_all_active_access_grants((string)$results['u_id']);
+                $userMfaResult=$pendingCoordinator->begin((string)$results['u_id'],'PASSWORD',session_id(),(string)($_SERVER['HTTP_USER_AGENT']??''),(string)getUserIP(),$policy,true,true);
+              }else{
+                $userMfaDecision=new \OneId\App\Auth\UserMfa\UserMfaPrimaryAuthDecision($userMfaPolicies,$pendingCoordinator);
+                $userMfaResult=$userMfaDecision->afterPasswordAccepted((string)$results['u_id'],session_id(),(string)($_SERVER['HTTP_USER_AGENT']??''),(string)getUserIP(),$userMfaMode);
+              }
               if(($userMfaResult['code']??'')==='USER_MFA_REQUIRED'){
                 $_SESSION['user_mfa_pending_user']=(string)$results['u_id'];
                 $_SESSION['user_mfa_pending_transaction']=(string)$userMfaResult['transaction_id'];
@@ -622,7 +682,7 @@ function string_sanitize($s) {
             $array['code'] = 'AUTH_CREDENTIALS_INVALID';
             $array['translation_key'] = 'login.invalid';
             $array['login_response_msg'] = oneid_translate('login.invalid');
-            $operation->syslog_record(3,"User: ".$_POST['username']." -> AUTH_CREDENTIALS_INVALID",getUserIP());
+            $operation->syslog_record(3,"action=login outcome=rejected reason=AUTH_CREDENTIALS_INVALID credential_fingerprint=$credentialFingerprint",$loginIp);
             echo json_encode($array);
         }
      }

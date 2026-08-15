@@ -274,7 +274,17 @@ function oneid_admin_step_up_decision(object $operation, string $purpose): array
         return ['allowed'=>false,'reason'=>'STEP_UP_STATE_UNAVAILABLE','feature_enabled'=>null];
     }
     $enabled=(int)($state['admin_2fa_enabled']??1)===1;
-    if (!$enabled) {return ['allowed'=>true,'reason'=>'STEP_UP_DISABLED','feature_enabled'=>false];}
+    if (!$enabled) {
+        $maintenanceActive=false;
+        if(method_exists($operation,'get_maintenance_config')){
+            $maintenance=$operation->get_maintenance_config();
+            if(is_array($maintenance)&&class_exists(\OneId\App\Maintenance\MaintenancePolicy::class)){
+                $maintenanceActive=(bool)(\OneId\App\Maintenance\MaintenancePolicy::evaluate($maintenance)['active']??false);
+            }
+        }
+        if($maintenanceActive){return ['allowed'=>false,'reason'=>'MAINTENANCE_MFA_REQUIRED','feature_enabled'=>false];}
+        return ['allowed'=>true,'reason'=>'STEP_UP_DISABLED','feature_enabled'=>false];
+    }
     if ((int)($state['exact_valid']??0)>0) {return ['allowed'=>true,'reason'=>'STEP_UP_GRANTED','feature_enabled'=>true,'remaining_seconds'=>max(0,(int)($state['exact_remaining_seconds']??0))];}
     if ((int)($state['exact_expired']??0)>0) {return ['allowed'=>false,'reason'=>'STEP_UP_EXPIRED','feature_enabled'=>true];}
     if ((int)($state['other_valid']??0)>0) {return ['allowed'=>false,'reason'=>'STEP_UP_PURPOSE_MISMATCH','feature_enabled'=>true];}

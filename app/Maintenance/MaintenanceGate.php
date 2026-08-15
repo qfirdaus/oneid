@@ -16,10 +16,16 @@ final class MaintenanceGate
         if (!$policy['active']) return;
         $path=(string)(parse_url((string)($_SERVER['REQUEST_URI']??''),PHP_URL_PATH)??'');
         if ($path==='/api.php'||$path==='/api') return;
-        $isAdmin = ($_SESSION['login_status'] ?? '') === 'true' && (string)($_SESSION['login_user_type'] ?? '') === '1';
+        $isAdmin = ($_SESSION['login_status'] ?? '') === 'true'
+            && (string)($_SESSION['login_user_type'] ?? '') === '1'
+            && (int)($_SESSION['oneid_maintenance_admin_verified_until'] ?? 0) >= time();
         $pendingAdminMfa = ($_SESSION['user_mfa_pending_admin_maintenance'] ?? false) === true;
         if ($isAdmin || $pendingAdminMfa || defined('ONEID_ADMIN_MAINTENANCE_LOGIN')) return;
-        if (($_POST['maintenance_admin_login'] ?? '') === '1') return;
+        $maintenanceLoginPost = ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST'
+            && (string) ($_POST['maintenance_admin_login'] ?? '') === '1'
+            && array_key_exists('auth', $_POST)
+            && (str_ends_with($path, '/lib/q_func') || str_ends_with($path, '/lib/q_func.php'));
+        if ($maintenanceLoginPost) return;
         self::respond($policy);
     }
 
