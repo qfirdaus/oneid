@@ -1204,7 +1204,7 @@ return [
     'admin.reports.preview.staging_url' => 'Staging URL',
     'admin.reports.preview.production_url' => 'Production URL',
     'admin.reports.preview.status' => 'Status',
-    'admin.reports.preview.ready' => 'Ready',
+    'admin.reports.preview.ready' => 'Production Ready',
     'admin.reports.preview.staging_only' => 'Staging only',
     'admin.reports.preview.active_users' => 'Active Users',
     'admin.reports.preview.assignments' => 'Assignments',

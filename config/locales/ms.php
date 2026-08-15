@@ -1204,7 +1204,7 @@ return [
     'admin.reports.preview.staging_url' => 'URL Staging',
     'admin.reports.preview.production_url' => 'URL Production',
     'admin.reports.preview.status' => 'Status',
-    'admin.reports.preview.ready' => 'Sedia',
+    'admin.reports.preview.ready' => 'Sedia Production',
     'admin.reports.preview.staging_only' => 'Staging sahaja',
     'admin.reports.preview.active_users' => 'Pengguna Aktif',
     'admin.reports.preview.assignments' => 'Assignment',
