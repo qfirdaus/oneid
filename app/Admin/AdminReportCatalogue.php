@@ -26,7 +26,7 @@ final class AdminReportCatalogue
                 ['key'=>'credential_rotation','name'=>'Site API Credential Rotation','description'=>'Versi dan umur credential tanpa mendedahkan secret.','status'=>'ready'],
             ]],
             'sessions' => ['label'=>'Sessions & Security','icon'=>'fa-shield','reports'=>[
-                ['key'=>'session_activity','name'=>'Session Activity Summary','description'=>'Sesi aktif, tamat dan sebab penamatan mengikut tempoh.','status'=>'planned'],
+                ['key'=>'session_activity','name'=>'Session Activity Summary','description'=>'Sesi aktif, tamat dan sebab penamatan mengikut tempoh.','status'=>'ready'],
                 ['key'=>'device_summary','name'=>'Device & Browser Summary','description'=>'Pecahan sesi mengikut maklumat peranti yang direkod.','status'=>'planned'],
                 ['key'=>'mfa_adoption','name'=>'MFA Adoption & Outcomes','description'=>'Liputan MFA dan hasil transaksi keselamatan.','status'=>'planned'],
             ]],

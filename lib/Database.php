@@ -1674,6 +1674,18 @@ class Database {
         return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function admin_report_session_activity(): array{
+        $Q="SELECT DATE(CASE WHEN A.status=1 THEN A.token_datetime ELSE A.ended_at END) AS activity_date,
+              CASE WHEN A.status=1 THEN 'ACTIVE' ELSE COALESCE(A.end_reason,'UNKNOWN') END AS session_outcome,
+              COUNT(*) AS session_count,COUNT(DISTINCT A.user_id) AS unique_users,
+              ROUND(AVG(GREATEST(0,TIMESTAMPDIFF(MINUTE,A.token_issued_at,COALESCE(A.ended_at,A.token_datetime,NOW()))))) AS average_duration_minutes
+            FROM token_tbl A
+            WHERE A.status=1 OR (A.status=0 AND A.ended_at>=DATE_SUB(NOW(),INTERVAL 30 DAY))
+            GROUP BY activity_date,session_outcome
+            ORDER BY activity_date DESC,session_outcome";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 
 
    public function admin_set_deny_access_record($sp_id,$user_id){
