@@ -5900,15 +5900,16 @@
 
 						rows += '<tr>';
 						var photoUrl = '../page/profile-photo.php?user_id=' + encodeURIComponent(session.user_id == null ? '' : String(session.user_id));
-						rows += '<td data-label="'+adminText('admin.sessions.user')+'"><span class="active-session-user-card" title="'+sessionAttribute(userName+' ('+publicUserIdLabel+' '+publicUserId+')')+'"><span class="active-session-avatar"><img src="'+sessionAttribute(photoUrl)+'" alt="" width="30" height="30" loading="lazy" decoding="async"></span><span class="active-session-user-copy"><strong>'+userName+'</strong><small><span>'+publicUserIdLabel+'</span>'+publicUserId+'</small></span></span></td>';
-						rows += '<td data-label="'+adminText('admin.sessions.activity')+'"><span class="active-session-timeline"><span><small>'+adminText('admin.sessions.issued')+'</small><time title="'+sessionAttribute(issuedAt)+'">'+issuedAt+'</time></span><span><small>'+adminText('admin.sessions.heartbeat')+'</small><time title="'+sessionAttribute(lastActivity)+'">'+lastActivity+'</time></span></span></td>';
-						rows += '<td data-label="'+adminText('admin.sessions.device')+'"><span class="active-session-cell active-session-device" title="'+sessionAttribute(deviceInfo)+'"><i class="fa fa-desktop" aria-hidden="true"></i><span>'+deviceInfo+'</span></span></td>';
-						rows += '<td data-label="'+adminText('admin.sessions.status')+'"><span class="active-session-status is-'+session.status+'" title="'+sessionAttribute(statusTitle)+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+'</span></span>'+(session.revocation_target_id?'<button type="button" class="active-session-revoke" data-revocation-target="'+sessionAttribute(session.revocation_target_id)+'" title="'+sessionAttribute(adminText('admin.sessions.revoke'))+'" aria-label="'+sessionAttribute(adminText('admin.sessions.revoke'))+'"><i class="fa fa-ban" aria-hidden="true"></i></button>':'')+'</td>';
+						rows += '<td data-label="'+adminText('admin.sessions.user')+'"><span class="active-session-user-card" data-session-tooltip title="'+sessionAttribute(userName+' · '+publicUserIdLabel+' '+publicUserId)+'"><span class="active-session-avatar"><img src="'+sessionAttribute(photoUrl)+'" alt="" width="30" height="30" loading="lazy" decoding="async"></span><span class="active-session-user-copy"><strong>'+userName+'</strong><small><span>'+publicUserIdLabel+'</span>'+publicUserId+'</small></span></span></td>';
+						rows += '<td data-label="'+adminText('admin.sessions.activity')+'"><span class="active-session-timeline" data-session-tooltip title="'+sessionAttribute(adminText('admin.sessions.issued')+': '+issuedAt+' · '+adminText('admin.sessions.heartbeat')+': '+lastActivity)+'"><span><small>'+adminText('admin.sessions.issued')+'</small><time>'+issuedAt+'</time></span><span><small>'+adminText('admin.sessions.heartbeat')+'</small><time>'+lastActivity+'</time></span></span></td>';
+						rows += '<td data-label="'+adminText('admin.sessions.device')+'"><span class="active-session-cell active-session-device" data-session-tooltip title="'+sessionAttribute(deviceInfo)+'"><i class="fa fa-desktop" aria-hidden="true"></i><span>'+deviceInfo+'</span></span></td>';
+						rows += '<td data-label="'+adminText('admin.sessions.status')+'"><span class="active-session-status-actions"><span class="active-session-status is-'+session.status+'" data-session-tooltip title="'+sessionAttribute(statusTitle)+'"><i class="fa '+status.icon+'" aria-hidden="true"></i><span>'+status.label+'</span></span>'+(session.revocation_target_id?'<button type="button" class="active-session-revoke" data-revocation-target="'+sessionAttribute(session.revocation_target_id)+'" title="'+sessionAttribute(adminText('admin.sessions.revoke'))+'" aria-label="'+sessionAttribute(adminText('admin.sessions.revoke'))+'"><i class="fa fa-ban" aria-hidden="true"></i></button>':'')+'</span></td>';
 						rows += '</tr>';
 					});
 
 					$('#active_session_count').text(response.meta.total);
 					$tbody.html(rows);
+					initializeSessionTableTooltips('#security_tab_session');
 				}
 				render_active_session_pagination(response.meta);
                if(typeof onLoaded==='function')onLoaded();
@@ -5988,10 +5989,11 @@
          function sessionHistoryToday(){var now=new Date(),month=String(now.getMonth()+1).padStart(2,'0'),day=String(now.getDate()).padStart(2,'0');return now.getFullYear()+'-'+month+'-'+day;}
          function initializeSessionHistoryDates(){var today=sessionHistoryToday();if(!$('#session_history_from').val())$('#session_history_from').val(today);if(!$('#session_history_to').val())$('#session_history_to').val(today);}
          function sessionEndLabel(reason){var key='admin.sessions.end_'+String(reason||'UNKNOWN');var value=adminText(key);return value===key?adminText('admin.sessions.end_UNKNOWN'):value;}
-         function initializeSessionHistoryTooltips(){
+         function initializeSessionTableTooltips(scope){
             if(typeof $.fn.tooltip!=='function')return;
-            $('#session_history_rows [data-session-tooltip]').tooltip({container:'body',placement:'top',template:'<div class="tooltip oneid-session-history-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'});
+            $(scope+' [data-session-tooltip]').tooltip({container:'body',placement:'top',template:'<div class="tooltip oneid-session-history-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'});
          }
+         function initializeSessionHistoryTooltips(){initializeSessionTableTooltips('#session_history_rows');}
          function load_session_history(page){
             initializeSessionHistoryDates();sessionHistoryPage=Number(page||sessionHistoryPage||1);
             $('#session_history_rows').html('<tr class="active-session-state-row is-loading"><td colspan="4"><span class="active-session-state-icon"><i class="fa fa-circle-o-notch fa-spin"></i></span><strong>'+adminText('admin.sessions.loading_history')+'</strong></td></tr>');
@@ -9199,8 +9201,8 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_active_sessions .active-col-user { width: 27%; }
-      #tab_active_sessions .active-col-activity { width: 34%; }
-      #tab_active_sessions .active-col-device { width: 21%; }
+      #tab_active_sessions .active-col-activity { width: 28%; }
+      #tab_active_sessions .active-col-device { width: 27%; }
       #tab_active_sessions .active-col-status { width: 18%; }
 
       #tab_active_sessions .active-session-table thead th {
@@ -9361,6 +9363,14 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         white-space: nowrap;
       }
       #tab_active_sessions .active-session-device > span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+      #tab_active_sessions #app_security_session_list .active-session-timeline{gap:2px;grid-template-columns:1fr}
+      #tab_active_sessions #app_security_session_list .active-session-timeline>span{align-items:center;display:grid;gap:5px;grid-template-columns:64px minmax(0,1fr);padding-left:6px}
+      #tab_active_sessions #app_security_session_list .active-session-timeline small{margin:0}
+      #tab_active_sessions #app_security_session_list [data-session-tooltip]{cursor:help;max-width:100%}
+      #tab_active_sessions .active-session-status-actions{align-items:center;display:flex;gap:6px;max-width:100%;min-width:0;white-space:nowrap}
+      #tab_active_sessions .active-session-status-actions .active-session-status{flex:0 1 auto;min-width:0}
+      #tab_active_sessions .active-session-status-actions .active-session-revoke{flex:0 0 28px;margin:0}
 
       #tab_active_sessions .active-session-status {
         display: inline-flex;
