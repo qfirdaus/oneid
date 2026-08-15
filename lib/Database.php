@@ -1698,6 +1698,66 @@ class Database {
         return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function admin_report_mfa_adoption(): array{
+        $Q="SELECT C.uc_name,COUNT(U.u_id) AS active_users,
+              COUNT(F.u_id) AS active_totp_users,
+              SUM(CASE WHEN P.preferred_factor='TOTP' THEN 1 ELSE 0 END) AS preferred_totp,
+              SUM(CASE WHEN P.preferred_factor='EMAIL_OTP' OR P.preferred_factor IS NULL THEN 1 ELSE 0 END) AS preferred_email,
+              COALESCE(SUM(T.successful_30d),0) AS successful_30d,
+              COALESCE(SUM(T.unsuccessful_30d),0) AS unsuccessful_30d
+            FROM user_category C
+            LEFT JOIN user_tbl U ON U.avail_status=1 AND (CASE WHEN C.uc_name='Admin SSO' THEN U.u_type=1 ELSE U.u_category=C.uc_id END)
+            LEFT JOIN (SELECT DISTINCT u_id FROM user_mfa_factors WHERE factor_type='TOTP' AND factor_status='ACTIVE') F ON F.u_id=U.u_id
+            LEFT JOIN user_mfa_preferences P ON P.u_id=U.u_id
+            LEFT JOIN (
+              SELECT u_id,
+                SUM(transaction_status IN ('VERIFIED','CONSUMED')) AS successful_30d,
+                SUM(transaction_status IN ('EXPIRED','REVOKED')) AS unsuccessful_30d
+              FROM user_login_mfa_transactions
+              WHERE created_at>=DATE_SUB(NOW(),INTERVAL 30 DAY)
+              GROUP BY u_id
+            ) T ON T.u_id=U.u_id
+            GROUP BY C.uc_id,C.uc_name
+            ORDER BY C.uc_name";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_sync_runs(): array{
+        $sourceColumn=$this->sync_header_source_code_available()?"COALESCE(NULLIF(TRIM(H.source_code),''),H.ext_head_type)":"H.ext_head_type";
+        $Q="SELECT H.ext_head_id,{$sourceColumn} AS source_code,H.ext_head_dt_start,H.ext_head_dt_end,H.ext_head_status,
+              COALESCE(H.total_new,0) AS total_new,COALESCE(H.total_updated,0) AS total_updated,
+              COALESCE(H.total_deactivated,0) AS total_deactivated,COALESCE(H.total_reactivated,0) AS total_reactivated,
+              NULLIF(TRIM(U.data3),'') AS triggered_by_staff_no
+            FROM ext_data_temp_header H
+            LEFT JOIN user_tbl U ON U.u_id=H.triggered_by
+            ORDER BY H.ext_head_id DESC LIMIT 100";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_sync_changes(): array{
+        $sourceColumn=$this->sync_header_source_code_available()?"COALESCE(NULLIF(TRIM(H.source_code),''),H.ext_head_type)":"H.ext_head_type";
+        $sourceGroup=$this->sync_header_source_code_available()?"H.source_code,H.ext_head_type":"H.ext_head_type";
+        $Q="SELECT DATE(L.logged_at) AS activity_date,{$sourceColumn} AS source_code,UPPER(L.action) AS change_action,
+              COUNT(*) AS change_count,COUNT(DISTINCT L.u_id) AS affected_users
+            FROM sync_change_log L
+            INNER JOIN ext_data_temp_header H ON H.ext_head_id=L.ext_head_id
+            WHERE L.logged_at>=DATE_SUB(NOW(),INTERVAL 90 DAY)
+            GROUP BY DATE(L.logged_at),{$sourceGroup},L.action
+            ORDER BY activity_date DESC,source_code,change_action";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_sync_exceptions(): array{
+        $Q="SELECT C.uc_name AS category_name,U.account_source,
+              SUM(U.avail_status=1) AS active_users,SUM(U.avail_status<>1) AS inactive_users,COUNT(*) AS total_users
+            FROM user_tbl U
+            LEFT JOIN user_category C ON C.uc_id=U.u_category
+            WHERE U.sync_protected=1 OR U.account_source='manual'
+            GROUP BY C.uc_id,C.uc_name,U.account_source
+            ORDER BY total_users DESC,category_name,account_source";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 
 
    public function admin_set_deny_access_record($sp_id,$user_id){

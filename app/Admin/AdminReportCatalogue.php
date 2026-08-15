@@ -28,12 +28,12 @@ final class AdminReportCatalogue
             'sessions' => ['label'=>'Sessions & Security','icon'=>'fa-shield','reports'=>[
                 ['key'=>'session_activity','name'=>'Session Activity Summary','description'=>'Sesi aktif, tamat dan sebab penamatan mengikut tempoh.','status'=>'ready'],
                 ['key'=>'device_summary','name'=>'Device & Browser Summary','description'=>'Pecahan sesi mengikut maklumat peranti yang direkod.','status'=>'ready'],
-                ['key'=>'mfa_adoption','name'=>'MFA Adoption & Outcomes','description'=>'Liputan MFA dan hasil transaksi keselamatan.','status'=>'planned'],
+                ['key'=>'mfa_adoption','name'=>'MFA Adoption & Outcomes','description'=>'Liputan MFA dan hasil transaksi keselamatan.','status'=>'ready'],
             ]],
             'synchronisation' => ['label'=>'Synchronisation','icon'=>'fa-refresh','reports'=>[
-                ['key'=>'sync_runs','name'=>'Synchronisation Run Summary','description'=>'Rekod sync, sumber, tempoh dan jumlah perubahan.','status'=>'planned'],
-                ['key'=>'sync_changes','name'=>'Synchronisation Change Detail','description'=>'Akaun baharu, dikemas kini, dinyahaktif dan diaktifkan semula.','status'=>'planned'],
-                ['key'=>'sync_exceptions','name'=>'Synchronisation Exceptions','description'=>'Akaun terlindung dan perubahan yang memerlukan perhatian.','status'=>'planned'],
+                ['key'=>'sync_runs','name'=>'Synchronisation Run Summary','description'=>'Rekod sync, sumber, tempoh dan jumlah perubahan.','status'=>'ready'],
+                ['key'=>'sync_changes','name'=>'Synchronisation Change Detail','description'=>'Akaun baharu, dikemas kini, dinyahaktif dan diaktifkan semula.','status'=>'ready'],
+                ['key'=>'sync_exceptions','name'=>'Synchronisation Exceptions','description'=>'Akaun terlindung dan perubahan yang memerlukan perhatian.','status'=>'ready'],
             ]],
             'audit' => ['label'=>'Audit & Configuration','icon'=>'fa-history','reports'=>[
                 ['key'=>'audit_activity','name'=>'System Audit Activity','description'=>'Aktiviti sistem mengikut event, pelaku dan masa.','status'=>'planned'],
