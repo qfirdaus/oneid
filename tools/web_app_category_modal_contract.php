@@ -18,7 +18,7 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
 };
 
 $report(
-    str_contains($page, 'oneid-web-app-modal.css?v=20260814-7'),
+    str_contains($page, 'oneid-web-app-modal.css?v=20260815-1'),
     'Administrator dashboard loads the refreshed category modal stylesheet'
 );
 $report(

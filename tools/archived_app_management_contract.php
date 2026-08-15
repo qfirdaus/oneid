@@ -13,5 +13,6 @@ $checks=[
  'archive endpoints are protected admin actions'=>str_contains($security,"'admin_get_archived_apps'")&&str_contains($security,"'admin_restore_archived_app'")&&str_contains($security,"'admin_purge_archived_app'")&&str_contains($q,"isset(\$_POST['admin_get_archived_apps'])"),
  'archive interface displays dependencies and selective actions'=>str_contains($dashboard,'archived-app-dependencies')&&str_contains($dashboard,'archived-app-restore')&&str_contains($dashboard,'archived-app-purge'),
  'archive interface is complete in English and Malay'=>array_diff(array_filter(array_keys($en),static fn(string$key):bool=>str_starts_with($key,'admin.archive.')),array_keys($ms))===[]&&str_contains($dashboard,"admin.archive.purge_title"),
+ 'archive header reuses the complete manage-category modal shell'=>str_contains((string)file_get_contents($root.'/public/dist/css/oneid-web-app-modal.css'),'#modal_archived_webapps .oneid-category-header')&&str_contains($dashboard,'oneid-web-app-modal.css?v=20260815-1'),
 ];
 $failed=0;foreach($checks as$label=>$pass){if(!$pass)$failed++;echo($pass?'PASS ':'FAIL ').$label.PHP_EOL;}printf("RESULT checks=%d failed=%d\n",count($checks),$failed);exit($failed?1:0);
