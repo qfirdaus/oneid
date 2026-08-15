@@ -180,10 +180,11 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
             </div>
           </div>
         <?php else: ?>
-          <div class="mydigitalid-preview" aria-label="<?=htmlspecialchars(oneid_translate('login.future_option'), ENT_QUOTES, 'UTF-8')?>">
-            <span class="mydigitalid-preview-label"><?=htmlspecialchars(oneid_translate('login.future_option'), ENT_QUOTES, 'UTF-8')?></span>
+          <?php $myDigitalIdPreviewTitle=defined('ONEID_ADMIN_MAINTENANCE_LOGIN')?'login.maintenance_mydigitalid_title':'login.future_option';$myDigitalIdPreviewMessage=defined('ONEID_ADMIN_MAINTENANCE_LOGIN')?'login.maintenance_mydigitalid_message':'login.integration_disabled'; ?>
+          <div class="mydigitalid-preview" aria-label="<?=htmlspecialchars(oneid_translate($myDigitalIdPreviewTitle), ENT_QUOTES, 'UTF-8')?>">
+            <span class="mydigitalid-preview-label"><?=htmlspecialchars(oneid_translate($myDigitalIdPreviewTitle), ENT_QUOTES, 'UTF-8')?></span>
             <img src="img/mydigitalid_logo_colored.svg" alt="MyDigital ID" width="158" height="42" loading="lazy" />
-            <small><?=htmlspecialchars(oneid_translate('login.integration_disabled'), ENT_QUOTES, 'UTF-8')?></small>
+            <small><?=htmlspecialchars(oneid_translate($myDigitalIdPreviewMessage), ENT_QUOTES, 'UTF-8')?></small>
           </div>
         <?php endif; ?>
 

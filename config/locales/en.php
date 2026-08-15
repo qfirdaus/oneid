@@ -73,6 +73,8 @@ return [
     'login.forgot_password' => 'Forgot Password?',
     'login.submit' => 'Sign In',
     'login.maintenance_admin_access' => 'Administrator maintenance access',
+    'login.maintenance_mydigitalid_title' => 'MyDigital ID unavailable during maintenance',
+    'login.maintenance_mydigitalid_message' => 'Use your administrator User ID and password to continue.',
     'login.required_user' => 'Enter your User ID.',
     'login.required_password' => 'Enter your password.',
     'login.processing' => 'Signing in. Please wait.',

@@ -73,6 +73,8 @@ return [
     'login.forgot_password' => 'Lupa Kata Laluan?',
     'login.submit' => 'Log Masuk',
     'login.maintenance_admin_access' => 'Akses khas pentadbir semasa penyelenggaraan',
+    'login.maintenance_mydigitalid_title' => 'MyDigital ID tidak tersedia semasa penyelenggaraan',
+    'login.maintenance_mydigitalid_message' => 'Gunakan ID Pengguna dan kata laluan pentadbir untuk meneruskan.',
     'login.required_user' => 'Sila masukkan ID Pengguna.',
     'login.required_password' => 'Sila masukkan Kata Laluan.',
     'login.processing' => 'Log masuk sedang diproses. Sila tunggu sebentar.',
