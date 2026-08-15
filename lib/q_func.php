@@ -1942,6 +1942,16 @@ function string_sanitize($s) {
         }
       }
 
+      if(isset($_POST['admin_get_archived_apps'])||isset($_POST['admin_restore_archived_app'])||isset($_POST['admin_purge_archived_app'])){
+        try{
+          $service=new \OneId\App\Admin\WebAppService($operation);
+          if(isset($_POST['admin_get_archived_apps']))$result=$service->archived();
+          elseif(isset($_POST['admin_restore_archived_app']))$result=$service->restore((string)($_POST['app_id']??''),(string)($_POST['category_id']??''),(string)$_SESSION['login_user'],getUserIP());
+          else $result=$service->purgeArchived((string)($_POST['app_id']??''),(string)($_POST['confirmation']??''),(string)($_POST['reason']??''),(string)$_SESSION['login_user'],getUserIP());
+          echo json_encode($result);
+        }catch(\OneId\App\Admin\WebAppManagementException $exception){echo json_encode(['status'=>0,'code'=>$exception->reason,'correlation_id'=>$exception->correlationId,'context'=>$exception->context]);}
+      }
+
       if(isset( $_POST['admin_get_all_blacklist_record'])){
         $results = $operation->admin_get_all_blacklist_record();
         echo json_encode($results);

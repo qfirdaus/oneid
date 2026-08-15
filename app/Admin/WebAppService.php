@@ -347,6 +347,46 @@ final class WebAppService
         }
     }
 
+    public function archived(): array
+    {
+        return ['status'=>1,'apps'=>$this->operation->admin_get_archived_service_providers()];
+    }
+
+    public function restore(string $appId,string $categoryId,string $adminId,string $ipAddress): array
+    {
+        $correlationId=bin2hex(random_bytes(8));$appId=trim($appId);$categoryId=trim($categoryId);$this->validateArchiveActorAndApp($appId,$adminId,$ipAddress,$correlationId);
+        if(preg_match('/^[1-9][0-9]{0,19}$/',$categoryId)!==1)throw new WebAppManagementException('WA7_RESTORE_CATEGORY_INVALID',$correlationId);
+        $started=false;try{$this->operation->beginTransaction();$started=true;$app=$this->operation->admin_get_service_provider_for_update($appId);
+            if(!is_array($app)||(int)$app['avail_status']!==0||(int)$app['sp_group_id']!==0)throw new WebAppManagementException('WA7_APP_NOT_ARCHIVED',$correlationId);
+            if($this->operation->admin_restore_archived_service_provider($appId,(int)$categoryId)!==1)throw new WebAppManagementException('WA7_APP_NOT_RESTORED',$correlationId);
+            if($this->operation->syslog_record(15,sprintf('admin=%s action=restore_archived_app app=%s category=%s production_ready=0 correlation=%s',trim($adminId),$appId,$categoryId,$correlationId),trim($ipAddress))!==1)throw new WebAppManagementException('WA7_AUDIT_NOT_WRITTEN',$correlationId);
+            $this->operation->commit();return ['status'=>1,'code'=>'WA7_APP_RESTORED','correlation_id'=>$correlationId];
+        }catch(Throwable $exception){if($started){try{$this->operation->rollback();}catch(Throwable){}}if($exception instanceof WebAppManagementException)throw$exception;throw new WebAppManagementException('WA7_RESTORE_FAILED',$correlationId);}
+    }
+
+    public function purgeArchived(string $appId,string $confirmation,string $reason,string $adminId,string $ipAddress): array
+    {
+        $correlationId=bin2hex(random_bytes(8));$appId=trim($appId);$reason=preg_replace('/\s+/u',' ',trim($reason))??'';$this->validateArchiveActorAndApp($appId,$adminId,$ipAddress,$correlationId);
+        if(mb_strlen($reason)<10||mb_strlen($reason)>500)throw new WebAppManagementException('WA7_PURGE_REASON_INVALID',$correlationId);
+        $started=false;try{$this->operation->beginTransaction();$started=true;$app=$this->operation->admin_get_service_provider_for_update($appId);
+            if(!is_array($app)||(int)$app['avail_status']!==0||(int)$app['sp_group_id']!==0)throw new WebAppManagementException('WA7_APP_NOT_ARCHIVED',$correlationId);
+            if(!hash_equals(trim((string)$app['sp_name']),trim($confirmation)))throw new WebAppManagementException('WA7_PURGE_CONFIRMATION_MISMATCH',$correlationId);
+            $rows=$this->operation->admin_get_archived_service_providers();$dependency=null;foreach($rows as$row){if(hash_equals((string)$row['sp_id'],$appId)){$dependency=$row;break;}}
+            if(!is_array($dependency))throw new WebAppManagementException('WA7_APP_NOT_ARCHIVED',$correlationId);
+            foreach(['acl_group_count','acl_single_count','blacklist_count','favourite_count','credential_count']as$key){if((int)$dependency[$key]>0)throw new WebAppManagementException('WA7_PURGE_DEPENDENCY_BLOCKED',$correlationId,['dependency'=>$key,'count'=>(int)$dependency[$key]]);}
+            $detail=sprintf('admin=%s action=purge_archived_app app=%s name_sha256=%s reason_sha256=%s assets=%d translations=%d correlation=%s',trim($adminId),$appId,hash('sha256',(string)$app['sp_name']),hash('sha256',$reason),(int)$dependency['asset_count'],(int)$dependency['translation_count'],$correlationId);
+            if($this->operation->syslog_record(15,$detail,trim($ipAddress))!==1)throw new WebAppManagementException('WA7_AUDIT_NOT_WRITTEN',$correlationId);
+            if($this->operation->admin_purge_archived_service_provider($appId)!==1)throw new WebAppManagementException('WA7_APP_NOT_PURGED',$correlationId);
+            $this->operation->commit();return ['status'=>1,'code'=>'WA7_APP_PURGED','correlation_id'=>$correlationId,'purged'=>['assets'=>(int)$dependency['asset_count'],'translations'=>(int)$dependency['translation_count']]];
+        }catch(Throwable $exception){if($started){try{$this->operation->rollback();}catch(Throwable){}}if($exception instanceof WebAppManagementException)throw$exception;throw new WebAppManagementException('WA7_PURGE_FAILED',$correlationId);}
+    }
+
+    private function validateArchiveActorAndApp(string $appId,string $adminId,string $ipAddress,string $correlationId): void
+    {
+        if($appId===''||strlen($appId)>20||preg_match('/^[A-Za-z0-9_-]+$/',$appId)!==1)throw new WebAppManagementException('WA7_APP_ID_INVALID',$correlationId);
+        $this->validateActor($adminId,$ipAddress,$correlationId);
+    }
+
     public function rotateSiteApiCode(string $appId,string $reason,string $adminId,string $ipAddress): array
     {
         $correlationId=bin2hex(random_bytes(8));

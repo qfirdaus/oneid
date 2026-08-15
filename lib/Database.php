@@ -1353,6 +1353,36 @@ class Database {
         return $R->rowCount();
     }
 
+    public function admin_get_archived_service_providers(): array{
+        $Q="SELECT S.sp_id,S.sp_name,S.sp_description,S.sp_domain,S.production_domain,S.sp_image,
+                  (SELECT COUNT(*) FROM acl_group A WHERE A.sp_id=S.sp_id) acl_group_count,
+                  (SELECT COUNT(*) FROM acl_single A WHERE A.sp_id=S.sp_id) acl_single_count,
+                  (SELECT COUNT(*) FROM acl_blacklist A WHERE A.sp_id=S.sp_id) blacklist_count,
+                  (SELECT COUNT(*) FROM user_app_favourite A WHERE A.sp_id=S.sp_id) favourite_count,
+                  (SELECT COUNT(*) FROM sp_api_credential A WHERE A.sp_id=S.sp_id) credential_count,
+                  (SELECT COUNT(*) FROM sp_app_asset A WHERE A.sp_id=S.sp_id) asset_count,
+                  (SELECT COUNT(*) FROM sp_app_translation A WHERE A.sp_id=S.sp_id) translation_count
+            FROM sp_list S WHERE S.avail_status=0 AND S.sp_group_id=0 ORDER BY S.sp_name,S.sp_id";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_restore_archived_service_provider(string $appId,int $categoryId): int{
+        $Q="UPDATE sp_list SET avail_status=1,sp_group_id=:category_id,production_ready=0
+            WHERE sp_id=:app_id AND avail_status=0 AND sp_group_id=0
+              AND EXISTS(SELECT 1 FROM sp_group WHERE sp_group_id=:category_id_check AND sp_group_id<>0)";
+        $R=$this->pdo->prepare($Q);$R->execute([':app_id'=>$appId,':category_id'=>$categoryId,':category_id_check'=>$categoryId]);return $R->rowCount();
+    }
+
+    public function admin_purge_archived_service_provider(string $appId): int{
+        $Q="DELETE FROM sp_list WHERE sp_id=:app_id AND avail_status=0 AND sp_group_id=0
+            AND NOT EXISTS(SELECT 1 FROM acl_group A WHERE A.sp_id=sp_list.sp_id)
+            AND NOT EXISTS(SELECT 1 FROM acl_single A WHERE A.sp_id=sp_list.sp_id)
+            AND NOT EXISTS(SELECT 1 FROM acl_blacklist A WHERE A.sp_id=sp_list.sp_id)
+            AND NOT EXISTS(SELECT 1 FROM user_app_favourite A WHERE A.sp_id=sp_list.sp_id)
+            AND NOT EXISTS(SELECT 1 FROM sp_api_credential A WHERE A.sp_id=sp_list.sp_id)";
+        $R=$this->pdo->prepare($Q);$R->execute([':app_id'=>$appId]);return $R->rowCount();
+    }
+
     public function admin_delete_app_access_references(string $table, string $appId): int{
         $allowed = ['acl_group','acl_single','acl_blacklist','user_app_favourite'];
         if (!in_array($table, $allowed, true)) {

@@ -24,8 +24,8 @@ $report(
 $report(
     str_contains($page, 'oneid-category-dialog--manage')
         && str_contains($page, 'oneid-category-dialog--form')
-        && substr_count($page, 'oneid-category-modal') === 3,
-    'manage add and edit category dialogs share one professional modal system'
+        && substr_count($page, 'oneid-category-modal') === 4,
+    'manage add edit and archive dialogs share one professional modal system'
 );
 $report(
     str_contains($page, 'Safe category management')

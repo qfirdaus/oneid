@@ -51,6 +51,7 @@
          || str_starts_with($locale_key, 'admin.configuration.')
          || str_starts_with($locale_key, 'admin.banner.')
          || str_starts_with($locale_key, 'admin.maintenance.')
+         || str_starts_with($locale_key, 'admin.archive.')
       ) {
          $admin_completeness_text[$locale_key] = oneid_translate($locale_key);
       }
@@ -311,6 +312,23 @@
                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                      <button type="button" class="btn btn-primary" onclick="open_add_new_webapp_category_from_manager();"><i class="fa fa-plus"></i> Add Category</button>
                   </div>
+               </div>
+            </div>
+         </div>
+
+         <div id="modal_archived_webapps" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_archived_webapps" aria-hidden="true">
+            <div class="modal-dialog modal-lg oneid-category-dialog oneid-category-dialog--manage">
+               <div class="modal-content oneid-sync-child-modal oneid-category-modal">
+                  <div class="modal-header oneid-sync-child-header oneid-category-header">
+                     <div class="oneid-sync-child-heading"><span class="oneid-sync-child-heading-icon"><i class="fa fa-archive"></i></span><div><h5 id="aria_modal_archived_webapps"><?=htmlspecialchars(oneid_translate('admin.archive.title'),ENT_QUOTES,'UTF-8')?></h5><p><?=htmlspecialchars(oneid_translate('admin.archive.intro'),ENT_QUOTES,'UTF-8')?></p></div></div>
+                     <button type="button" class="close oneid-sync-child-close" data-dismiss="modal" aria-label="Close">×</button>
+                  </div>
+                  <div class="modal-body oneid-sync-child-body oneid-category-body oneid-category-manage-body">
+                     <div class="category-manage-intro"><span><i class="fa fa-shield"></i></span><div><strong><?=htmlspecialchars(oneid_translate('admin.archive.protected'),ENT_QUOTES,'UTF-8')?></strong><p><?=htmlspecialchars(oneid_translate('admin.archive.protected_intro'),ENT_QUOTES,'UTF-8')?></p></div></div>
+                     <div id="archived_app_loading" class="category-manage-state"><i class="fa fa-circle-o-notch fa-spin"></i><span><?=htmlspecialchars(oneid_translate('admin.archive.loading'),ENT_QUOTES,'UTF-8')?></span></div>
+                     <div id="archived_app_list" class="archived-app-list" aria-live="polite"></div>
+                  </div>
+                  <div class="modal-footer oneid-sync-child-footer oneid-category-footer"><button type="button" class="btn btn-default" data-dismiss="modal"><?=htmlspecialchars(oneid_translate('admin.common.close'),ENT_QUOTES,'UTF-8')?></button></div>
                </div>
             </div>
          </div>
@@ -3583,7 +3601,7 @@
                      rows += '<div class="category-manage-row">';
                      rows += '<span class="category-manage-icon" aria-hidden="true"><i class="fa '+(isSystem ? 'fa-lock' : 'fa-folder-o')+'"></i></span>';
                      rows += '<div class="category-manage-name"><strong title="'+categoryName+'">'+categoryName+'</strong><small>'+webAppManagementText(reason)+'</small></div>';
-                     rows += '<div class="category-manage-counts"><span><strong>'+activeCount+'</strong><small>Active</small></span><span><strong>'+inactiveCount+'</strong><small>Inactive</small></span></div>';
+                     rows += '<div class="category-manage-counts"><span><strong>'+activeCount+'</strong><small>Active</small></span>'+(isSystem?'<button type="button" class="category-archive-open" title="'+webAppManagementAttribute(adminText('admin.archive.open'))+'"><strong>'+inactiveCount+'</strong><small>Inactive</small></button>':'<span><strong>'+inactiveCount+'</strong><small>Inactive</small></span>')+'</div>';
                      rows += '<div class="category-manage-actions">';
                      rows += '<button type="button" class="category-manage-edit" data-category-id="'+categoryId+'" data-category-name="'+categoryNameAttribute+'" '+(isSystem ? 'disabled' : '')+' title="'+(isSystem ? 'System category — protected' : 'Edit category name')+'" aria-label="'+(isSystem ? 'System category — protected' : 'Edit '+categoryNameAttribute)+'"><i class="fa fa-pencil" aria-hidden="true"></i></button>';
                      rows += '<button type="button" class="category-manage-remove" data-category-id="'+categoryId+'" data-category-name="'+categoryNameAttribute+'" '+(canRemove ? '' : 'disabled')+' title="'+(canRemove ? 'Remove empty category' : webAppManagementAttribute(reason))+'" aria-label="'+(canRemove ? 'Remove '+categoryNameAttribute : webAppManagementAttribute(reason))+'"><i class="fa fa-trash" aria-hidden="true"></i></button>';
@@ -3598,6 +3616,22 @@
                }
             });
            }
+
+           function open_archived_webapps(){
+            $('#modal_manage_webapp_categories').modal('hide');$('#modal_archived_webapps').modal('show');$('#archived_app_loading').show();$('#archived_app_list').hide().empty();
+            $.when($.post('../lib/q_func',{admin_get_archived_apps:''},null,'json'),$.post('../lib/q_func',{admin_get_app_all_group:''},null,'json')).done(function(appResult,categoryResult){
+               var response=appResult[0]||{},categories=Array.isArray(categoryResult[0])?categoryResult[0]:[];$('#archived_app_loading').hide();
+               if(Number(response.status)!==1||!Array.isArray(response.apps)){oneidToast(adminText('admin.archive.title'),adminText('admin.archive.unavailable'),'error');return;}
+               var options='<option value="">'+webAppManagementText(adminText('admin.archive.select_category'))+'</option>';$.each(categories,function(_,category){if(String(category.sp_group_id)!=='0')options+='<option value="'+webAppManagementAttribute(category.sp_group_id)+'">'+webAppManagementText(category.sp_group_name)+'</option>';});
+               var rows='';$.each(response.apps,function(_,app){var id=webAppManagementAttribute(app.sp_id),name=webAppManagementText(app.sp_name),nameAttr=webAppManagementAttribute(app.sp_name);var blocked=Number(app.acl_group_count)+Number(app.acl_single_count)+Number(app.blacklist_count)+Number(app.favourite_count)+Number(app.credential_count)>0;
+                  rows+='<article class="archived-app-row" data-app-id="'+id+'"><div class="archived-app-main"><span><i class="fa fa-archive"></i></span><div><strong title="'+nameAttr+'">'+name+'</strong><small>'+webAppManagementText(adminText('admin.archive.reference'))+' '+id+'</small></div></div><div class="archived-app-dependencies"><span>ACL '+(Number(app.acl_group_count)+Number(app.acl_single_count)+Number(app.blacklist_count))+'</span><span>'+webAppManagementText(adminText('admin.archive.favourite'))+' '+Number(app.favourite_count)+'</span><span>'+webAppManagementText(adminText('admin.archive.credential'))+' '+Number(app.credential_count)+'</span><span>'+webAppManagementText(adminText('admin.archive.asset'))+' '+Number(app.asset_count)+'</span></div><div class="archived-app-actions"><select class="archived-restore-category" aria-label="'+webAppManagementAttribute(adminText('admin.archive.select_category'))+'">'+options+'</select><button type="button" class="archived-app-restore" data-app-id="'+id+'"><i class="fa fa-undo"></i> '+webAppManagementText(adminText('admin.archive.restore'))+'</button><button type="button" class="archived-app-purge" data-app-id="'+id+'" data-app-name="'+nameAttr+'" '+(blocked?'disabled title="Dependencies must be cleared first"':'')+'><i class="fa fa-trash"></i> '+webAppManagementText(adminText('admin.archive.purge'))+'</button></div></article>';
+               });$('#archived_app_list').html(rows||'<div class="category-manage-state"><i class="fa fa-check-circle"></i><span>'+webAppManagementText(adminText('admin.archive.empty'))+'</span></div>').show();
+            }).fail(function(){$('#archived_app_loading').hide();oneidToast(adminText('admin.archive.title'),adminText('admin.archive.unavailable'),'error');});
+           }
+           $(document).on('click','.category-archive-open',open_archived_webapps);
+           $('#modal_archived_webapps').on('hidden.bs.modal',function(){if(!$('.sweet-alert:visible').length)open_manage_webapp_categories();});
+           $(document).on('click','.archived-app-restore',function(){var $row=$(this).closest('.archived-app-row'),appId=String($(this).data('app-id')||''),categoryId=String($row.find('.archived-restore-category').val()||'');if(!categoryId){oneidToast(adminText('admin.archive.select_category'),adminText('admin.archive.select_category_help'),'warning');return;}oneidConfirm(adminText('admin.archive.restore_title'),adminText('admin.archive.restore_help'),adminText('admin.archive.restore'),function(){$.post('../lib/q_func',{admin_restore_archived_app:'',app_id:appId,category_id:categoryId},function(response){if(Number(response.status)===1){oneidToast(adminText('admin.archive.restored'),adminText('admin.archive.reference')+': '+response.correlation_id,'success');open_archived_webapps();get_service_provider_list();}else oneidToast(adminText('admin.archive.restore_failed'),'Code: '+(response.code||'WA7_RESTORE_FAILED')+'. '+adminText('admin.archive.reference')+': '+(response.correlation_id||'Unavailable'),'error');},'json');});});
+           $(document).on('click','.archived-app-purge:not(:disabled)',function(){var appId=String($(this).data('app-id')||''),appName=String($(this).data('app-name')||'');swal({title:adminText('admin.archive.purge_title'),text:'<p>'+webAppManagementText(adminText('admin.archive.purge_help'))+'</p><input id="archive_purge_confirmation" class="form-control" autocomplete="off" placeholder="'+webAppManagementAttribute(appName)+'"><textarea id="archive_purge_reason" class="form-control" rows="3" maxlength="500" placeholder="'+webAppManagementAttribute(adminText('admin.archive.reason'))+'"></textarea>',html:true,type:'warning',showCancelButton:true,confirmButtonColor:'#d9534f',confirmButtonText:adminText('admin.archive.purge_confirm'),closeOnConfirm:false},function(){var confirmation=$('#archive_purge_confirmation').val()||'',reason=$('#archive_purge_reason').val()||'';if(confirmation!==appName||String(reason).trim().length<10){swal.showInputError(adminText('admin.archive.validation'));return false;}$.post('../lib/q_func',{admin_purge_archived_app:'',app_id:appId,confirmation:confirmation,reason:reason},function(response){if(Number(response.status)===1){swal(adminText('admin.archive.purged'),adminText('admin.archive.reference')+': '+response.correlation_id,'success');open_archived_webapps();}else swal(adminText('admin.archive.purge_blocked'),'Code: '+(response.code||'WA7_PURGE_FAILED')+'\n'+adminText('admin.archive.reference')+': '+(response.correlation_id||'Unavailable'),'error');},'json');return false;});});
 
            $(document).on('click', '.category-manage-edit:not(:disabled)', function(){
             $('#edit_webapp_category_id').val(String($(this).data('category-id') || ''));
@@ -9666,6 +9700,8 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #tab_reports .admin-report-tabs > li.active > a:focus,
       #tab_reports .admin-report-tabs > li.active > a:hover{background:#eef8fc;border:0;border-bottom:3px solid #079bd0;color:#087ca8}
       @media(max-width:991px){#tab_reports .admin-report-tabs{overflow-x:auto;grid-template-columns:repeat(6,minmax(145px,1fr))}}
+
+      .category-archive-open{background:#eef8fc;border:1px solid #bfe1ee;border-radius:8px;color:#176985;min-width:64px;padding:7px 9px}.category-archive-open strong,.category-archive-open small{display:block}.category-archive-open:hover{background:#dff3fa;border-color:#69bddb}.archived-app-list{display:grid;gap:10px}.archived-app-row{background:#fff;border:1px solid #dce7ec;border-radius:10px;display:grid;gap:12px;grid-template-columns:minmax(190px,1.2fr) minmax(220px,1fr) minmax(330px,1.5fr);padding:13px}.archived-app-main{align-items:center;display:flex;gap:10px;min-width:0}.archived-app-main>span{align-items:center;background:#e9f6fb;border-radius:8px;color:#118ab4;display:flex;flex:0 0 36px;height:36px;justify-content:center}.archived-app-main strong,.archived-app-main small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.archived-app-main strong{color:#29424f;font-size:12px}.archived-app-main small{color:#7d909b;font-size:9px;margin-top:3px}.archived-app-dependencies{align-items:center;display:flex;flex-wrap:wrap;gap:5px}.archived-app-dependencies span{background:#f2f6f8;border-radius:14px;color:#607785;font-size:9px;padding:5px 7px;white-space:nowrap}.archived-app-actions{align-items:center;display:grid;gap:6px;grid-template-columns:minmax(120px,1fr) auto auto}.archived-app-actions select,.archived-app-actions button{border:1px solid #cbdbe3;border-radius:7px;height:36px;font-size:10px}.archived-app-actions select{background:#fff;padding:0 7px}.archived-app-actions button{background:#eef8fc;color:#087ca8;font-weight:700;padding:0 10px}.archived-app-actions .archived-app-purge{background:#fff4f3;border-color:#efb8b3;color:#bd4238}.archived-app-actions button:disabled{background:#f2f4f5;border-color:#dce3e7;color:#a3b0b8}.sweet-alert #archive_purge_confirmation,.sweet-alert #archive_purge_reason{margin-top:10px;width:100%}.sweet-alert #archive_purge_reason{height:78px;padding:10px;resize:vertical}@media(max-width:900px){.archived-app-row{grid-template-columns:1fr}.archived-app-actions{grid-template-columns:1fr auto auto}}
 
       #tab_auditlog .audit-log-panel {
         min-height: 560px;
