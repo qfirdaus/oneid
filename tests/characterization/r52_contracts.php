@@ -9,6 +9,7 @@ return [
         ['public' => 'public/admin/dashboard.php', 'target' => 'admin/dashboard.php', 'fragment' => "'/admin/dashboard.php'"],
         ['public' => 'public/admin/logout.php', 'target' => 'app/Auth/LogoutEndpoint.php', 'fragment' => "'/app/Auth/LogoutEndpoint.php'"],
         ['public' => 'public/admin/user_list.php', 'target' => 'admin/user_list.php', 'fragment' => "'/admin/user_list.php'"],
+        ['public' => 'public/admin/report_preview.php', 'target' => 'admin/report_preview.php', 'fragment' => "'/admin/report_preview.php'"],
         ['public' => 'public/page/dashboard.php', 'target' => 'page/dashboard.php', 'fragment' => "'/page/dashboard.php'"],
         ['public' => 'public/page/logout.php', 'target' => 'app/Auth/LogoutEndpoint.php', 'fragment' => "'/app/Auth/LogoutEndpoint.php'"],
         ['public' => 'public/lib/q_func.php', 'target' => 'lib/q_func.php', 'fragment' => "'/lib/q_func.php'"],

@@ -186,6 +186,7 @@ function oneid_q_func_action_map(): array
             'admin_uplift_blacklist_record',
             'admin_get_all_token_for_all_active_user',
             'admin_get_session_history',
+            'admin_issue_report_preview',
             'get_specific_user_sp_access_list',
             'get_add_new_specific_apps_to_accissible_list',
             'admin_get_audit_range',

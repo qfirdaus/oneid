@@ -47,6 +47,8 @@ require_once dirname(__DIR__) . '/app/Admin/ActiveSessionRevocationConfig.php';
 require_once dirname(__DIR__) . '/app/Admin/Adapters/SessionRevocationPreviewStore.php';
 require_once dirname(__DIR__) . '/app/Admin/ActiveSessionRevocationService.php';
 require_once dirname(__DIR__) . '/app/Admin/UserCategoryReportReference.php';
+require_once dirname(__DIR__) . '/app/Admin/AdminReportCatalogue.php';
+require_once dirname(__DIR__) . '/app/Admin/AdminReportReference.php';
 require_once dirname(__DIR__) . '/app/Auth/SsoTokenLifetimePolicy.php';
 require_once dirname(__DIR__) . '/app/Auth/UserPortalSessionService.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpException.php';
@@ -1823,6 +1825,16 @@ function string_sanitize($s) {
           );
         }
         echo json_encode($results);
+      }
+
+      if(isset($_POST['admin_issue_report_preview'])){
+        try{
+          $reportKey=trim((string)($_POST['report_key']??''));
+          $reference=\OneId\App\Admin\AdminReportReference::issue($_SESSION,(string)$_SESSION['login_user'],$reportKey);
+          echo json_encode(['status'=>1,'code'=>'REPORT_REFERENCE_ISSUED','ref'=>$reference,'url'=>'./report_preview.php?ref='.rawurlencode($reference)]);
+        }catch(\InvalidArgumentException $exception){
+          echo json_encode(['status'=>0,'code'=>$exception->getMessage(),'message'=>'Report is not available.']);
+        }
       }
 
       if(isset( $_POST['admin_get_specific_category_user_listing'])){

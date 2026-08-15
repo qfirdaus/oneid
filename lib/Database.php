@@ -1542,6 +1542,42 @@ class Database {
         return $result;
     }
 
+    public function admin_report_executive_summary(): array{
+        $Q="SELECT
+              (SELECT COUNT(*) FROM user_tbl) AS users_total,
+              (SELECT COUNT(*) FROM user_tbl WHERE avail_status=1) AS users_active,
+              (SELECT COUNT(*) FROM user_tbl WHERE avail_status<>1) AS users_inactive,
+              (SELECT COUNT(*) FROM user_tbl WHERE avail_status=1 AND u_type=1) AS administrators,
+              (SELECT COUNT(*) FROM user_category WHERE avail_status=1) AS user_categories,
+              (SELECT COUNT(*) FROM sp_list) AS applications_total,
+              (SELECT COUNT(*) FROM sp_list WHERE avail_status=1) AS applications_active,
+              (SELECT COUNT(*) FROM sp_list WHERE avail_status=1 AND production_ready=1) AS applications_ready,
+              (SELECT COUNT(*) FROM sp_list WHERE avail_status=1 AND sp_sso_support=0) AS applications_sso,
+              (SELECT COUNT(*) FROM token_tbl WHERE status=1) AS sessions_active,
+              (SELECT COUNT(*) FROM token_tbl WHERE status=0 AND ended_at>=CURRENT_DATE()) AS sessions_ended_today";
+        $R=$this->pdo->query($Q);return (array)$R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_users_by_category(): array{
+        $Q="SELECT C.uc_id,C.uc_name,
+              SUM(CASE WHEN U.avail_status=1 THEN 1 ELSE 0 END) AS active_users,
+              SUM(CASE WHEN U.avail_status<>1 THEN 1 ELSE 0 END) AS inactive_users,
+              COUNT(U.u_id) AS total_users
+            FROM user_category C
+            LEFT JOIN user_tbl U ON CASE WHEN C.uc_name='Admin SSO' THEN U.u_type=1 ELSE U.u_category=C.uc_id END
+            WHERE C.avail_status=1
+            GROUP BY C.uc_id,C.uc_name ORDER BY C.uc_name";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_application_readiness(): array{
+        $Q="SELECT S.sp_id,S.sp_name,COALESCE(G.sp_group_name,'Uncategorised') AS category_name,
+              S.sp_domain,S.production_domain,S.production_ready,S.avail_status,S.sp_sso_support
+            FROM sp_list S LEFT JOIN sp_group G ON G.sp_group_id=S.sp_group_id
+            ORDER BY S.avail_status DESC,G.sp_group_seq,S.sp_name";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 
 
    public function admin_set_deny_access_record($sp_id,$user_id){

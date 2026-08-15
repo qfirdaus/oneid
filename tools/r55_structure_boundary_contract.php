@@ -52,6 +52,7 @@ $wrappers = [
     'public/admin/dashboard.php',
     'public/admin/logout.php',
     'public/admin/user_list.php',
+    'public/admin/report_preview.php',
     'public/page/dashboard.php',
     'public/page/logout.php',
     'public/lib/q_func.php',

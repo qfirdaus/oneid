@@ -8,6 +8,7 @@
    require_once __DIR__ . '/../lib/environment_banner.php';
    require_once __DIR__ . '/../app/Documentation/ApprovedReleaseCatalogue.php';
    require_once __DIR__ . '/../app/Auth/AdminStepUpReturnContext.php';
+   require_once __DIR__ . '/../app/Admin/AdminReportCatalogue.php';
    oneid_require_admin_page();
    oneid_require_active_sso_page($operation);
    oneid_require_admin_step_up($operation, 'ADMIN_ACCESS', false);
@@ -30,6 +31,7 @@
    }
    
    $widget_data = $operation->admin_widget_count();
+   $admin_report_groups = \OneId\App\Admin\AdminReportCatalogue::groups();
    $sys_config = $operation->get_system_config();
    $approved_release_notes = null;
    $release_catalogue_fallback_notice = null;
@@ -1170,6 +1172,7 @@
                                           <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_user_active_sessions" href="#tab_active_sessions"><i class="fa fa-desktop oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.sessions'), ENT_QUOTES, 'UTF-8')?></span></a></li>
                                           <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_audit_log" href="#tab_auditlog"><i class="fa fa-history oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.audit'), ENT_QUOTES, 'UTF-8')?></span></a></li>
                                           <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_sync_log" href="#tab_synclog"><i class="fa fa-refresh oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.sync'), ENT_QUOTES, 'UTF-8')?></span></a></li>
+										  <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_reports_menu" href="#tab_reports"><i class="fa fa-file-text-o oneid-sidebar-icon" aria-hidden="true"></i><span>Laporan</span></a></li>
 										  
                                           <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_acl_menu" href="#tab_settings"><i class="fa fa-sliders oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.configuration'), ENT_QUOTES, 'UTF-8')?></span></a></li>
                                           <li role="presentation" class="next"><a aria-expanded="true" data-toggle="tab" role="tab" id="tab_ver" href="#tab_versioning"><i class="fa fa-tag oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.menu.releases'), ENT_QUOTES, 'UTF-8')?></span></a></li>
@@ -1637,6 +1640,28 @@
                                                 </div>
                                              </div>
                                           </div>
+										  <div id="tab_reports" class="tab-pane fade in" role="tabpanel">
+                                             <div class="admin-report-panel">
+                                                <header class="admin-report-header"><div><span>REPORTING CENTRE</span><h4>Laporan OneID</h4><p>Pilih laporan yang diluluskan untuk preview read-only dan cetakan selamat.</p></div><em><?=count($admin_report_groups)?> kumpulan</em></header>
+                                                <ul class="nav admin-report-tabs" role="tablist">
+                                                   <?php $report_group_index=0;foreach($admin_report_groups as$report_group_key=>$report_group):?>
+                                                   <li class="<?=$report_group_index===0?'active':''?>" role="presentation"><a href="#report_group_<?=htmlspecialchars($report_group_key,ENT_QUOTES,'UTF-8')?>" data-toggle="tab" role="tab"><i class="fa <?=htmlspecialchars($report_group['icon'],ENT_QUOTES,'UTF-8')?>"></i><span><?=htmlspecialchars($report_group['label'],ENT_QUOTES,'UTF-8')?></span></a></li>
+                                                   <?php $report_group_index++;endforeach;?>
+                                                </ul>
+                                                <div class="tab-content admin-report-content">
+                                                   <?php $report_group_index=0;foreach($admin_report_groups as$report_group_key=>$report_group):?>
+                                                   <section id="report_group_<?=htmlspecialchars($report_group_key,ENT_QUOTES,'UTF-8')?>" class="tab-pane fade <?=$report_group_index===0?'active in':''?>" role="tabpanel">
+                                                      <div class="admin-report-group-heading"><div><i class="fa <?=htmlspecialchars($report_group['icon'],ENT_QUOTES,'UTF-8')?>"></i></div><span><strong><?=htmlspecialchars($report_group['label'],ENT_QUOTES,'UTF-8')?></strong><small>Senarai laporan yang tersedia dalam kumpulan ini.</small></span></div>
+                                                      <div class="admin-report-table-wrap"><table class="admin-report-table"><thead><tr><th>No.</th><th>Nama laporan</th><th>Tindakan</th></tr></thead><tbody>
+                                                      <?php foreach($report_group['reports'] as$report_index=>$catalogue_report):$report_ready=$catalogue_report['status']==='ready';?>
+                                                         <tr><td><?=($report_index+1)?></td><td><strong><?=htmlspecialchars($catalogue_report['name'],ENT_QUOTES,'UTF-8')?></strong><small><?=htmlspecialchars($catalogue_report['description'],ENT_QUOTES,'UTF-8')?></small></td><td><?php if($report_ready):?><button type="button" class="admin-report-view" data-report-key="<?=htmlspecialchars($catalogue_report['key'],ENT_QUOTES,'UTF-8')?>"><i class="fa fa-eye"></i> View</button><?php else:?><span class="admin-report-planned"><i class="fa fa-clock-o"></i> Planned</span><?php endif;?></td></tr>
+                                                      <?php endforeach;?></tbody></table></div>
+                                                   </section>
+                                                   <?php $report_group_index++;endforeach;?>
+                                                </div>
+                                             </div>
+                                          </div>
+
 										  <div  id="tab_versioning" class="tab-pane fade in" role="tabpanel">
                                              <div class="admin-section-inner">
                                                 <div class="row">
@@ -6019,6 +6044,16 @@
          $(document).on('click','#session_view_active',function(){$('.session-view-tabs button').removeClass('is-active').attr('aria-selected','false');$(this).addClass('is-active').attr('aria-selected','true');$('#session_history_list').prop('hidden',true);$('#app_security_session_list').show();});
          $(document).on('click','#session_view_history',function(){$('.session-view-tabs button').removeClass('is-active').attr('aria-selected','false');$(this).addClass('is-active').attr('aria-selected','true');$('#app_security_session_list').hide();$('#session_history_list').prop('hidden',false);initializeSessionHistoryDates();if(!sessionHistoryLoaded)load_session_history(1);});
          $(document).on('click','#session_history_search',function(){load_session_history(1);});$(document).on('change','#session_history_reason,#session_history_page_size',function(){load_session_history(1);});$(document).on('keydown','#session_history_query',function(e){if(e.key==='Enter'){e.preventDefault();load_session_history(1);}});$(document).on('click','#session_history_pagination button[data-history-page]',function(){if(!this.disabled)load_session_history($(this).data('history-page'));});
+
+         $(document).on('click','.admin-report-view',function(){
+            var reportKey=String($(this).data('report-key')||''),$button=$(this),preview=window.open('about:blank','_blank');
+            if(!preview){$.toast({heading:'',text:'Benarkan pop-up untuk membuka preview laporan.',position:'bottom-center',icon:'warning'});return;}
+            preview.opener=null;$button.prop('disabled',true);
+            $.post('../lib/q_func',{admin_issue_report_preview:'',report_key:reportKey},function(response){
+               if(response&&Number(response.status)===1&&response.url){preview.location.replace(String(response.url));}
+               else{preview.close();$.toast({heading:'',text:'Laporan belum tersedia. Code: '+String(response&&response.code?response.code:'REPORT_PREVIEW_FAILED'),position:'bottom-center',icon:'warning'});}
+            },'json').fail(function(){preview.close();$.toast({heading:'',text:'Preview laporan tidak dapat dibuka.',position:'bottom-center',icon:'error'});}).always(function(){$button.prop('disabled',false);});
+         });
          
          
 
@@ -9620,6 +9655,13 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
           gap: 7px;
         }
       }
+
+      #tab_reports .admin-report-panel{min-height:590px;padding:28px;background:#f6f9fb}#tab_reports .admin-report-header{align-items:flex-start;border-bottom:1px solid #dfe7ed;display:flex;justify-content:space-between;margin-bottom:16px;padding-bottom:20px}#tab_reports .admin-report-header span{color:#0789ba;font-size:10px;font-weight:800;letter-spacing:.12em}#tab_reports .admin-report-header h4{color:#172b45;font-size:24px;margin:5px 0 6px}#tab_reports .admin-report-header p{color:#68798a;margin:0}#tab_reports .admin-report-header em{background:#e9f6fb;border:1px solid #cde8f2;border-radius:20px;color:#28728d;font-size:10px;font-style:normal;font-weight:700;padding:7px 11px;text-transform:uppercase}#tab_reports .admin-report-tabs{background:#fff;border:1px solid #dce6ed;border-radius:10px;display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:14px;overflow:hidden}#tab_reports .admin-report-tabs a{align-items:center;border-bottom:3px solid transparent;color:#607483;display:flex;font-size:11px;font-weight:700;gap:8px;min-height:48px;padding:10px 12px;text-decoration:none}#tab_reports .admin-report-tabs a:hover{background:#f5fafc;color:#087ca8}#tab_reports .admin-report-tabs a.active{background:#eef8fc;border-bottom-color:#079bd0;color:#087ca8}#tab_reports .admin-report-tabs i{align-items:center;background:#eaf3f7;border-radius:7px;display:flex;height:30px;justify-content:center;width:30px}#tab_reports .admin-report-content{background:#fff;border:1px solid #dce6ed;border-radius:10px;box-shadow:0 3px 12px rgba(30,60,78,.05);overflow:hidden}#tab_reports .admin-report-group-heading{align-items:center;background:#fbfdfe;border-bottom:1px solid #e5edf2;display:flex;gap:11px;padding:14px 18px}#tab_reports .admin-report-group-heading>div{align-items:center;background:#e4f4fa;border-radius:8px;color:#0788b6;display:flex;height:36px;justify-content:center;width:36px}#tab_reports .admin-report-group-heading span,#tab_reports .admin-report-group-heading strong,#tab_reports .admin-report-group-heading small{display:block}#tab_reports .admin-report-group-heading strong{color:#294154;font-size:13px}#tab_reports .admin-report-group-heading small{color:#768796;font-size:10px;margin-top:2px}#tab_reports .admin-report-table-wrap{overflow-x:auto}#tab_reports .admin-report-table{border-collapse:collapse;min-width:620px;width:100%}#tab_reports .admin-report-table th{background:#f6f9fb;border-bottom:1px solid #e4ebf0;color:#6b7d8c;font-size:9px;letter-spacing:.06em;padding:9px 13px;text-align:left;text-transform:uppercase}#tab_reports .admin-report-table th:first-child,#tab_reports .admin-report-table td:first-child{width:58px;text-align:center}#tab_reports .admin-report-table th:last-child,#tab_reports .admin-report-table td:last-child{width:140px;text-align:right}#tab_reports .admin-report-table td{border-bottom:1px solid #ebf0f3;padding:12px 13px;vertical-align:middle}#tab_reports .admin-report-table tr:last-child td{border-bottom:0}#tab_reports .admin-report-table tbody tr:hover{background:#fbfdfe}#tab_reports .admin-report-table td strong,#tab_reports .admin-report-table td small{display:block}#tab_reports .admin-report-table td strong{color:#294154;font-size:12px}#tab_reports .admin-report-table td small{color:#748695;font-size:10px;margin-top:3px}#tab_reports .admin-report-view{background:#079bd0;border:1px solid #078dbd;border-radius:7px;color:#fff;font-size:11px;font-weight:700;padding:8px 13px}#tab_reports .admin-report-view i{margin-right:5px}#tab_reports .admin-report-view:hover{background:#087fac}#tab_reports .admin-report-view:disabled{opacity:.55}#tab_reports .admin-report-planned{background:#f0f3f5;border-radius:20px;color:#7b8993;display:inline-block;font-size:9px;font-weight:700;padding:6px 9px;text-transform:uppercase}#tab_reports .admin-report-planned i{margin-right:4px}@media(max-width:767px){#tab_reports .admin-report-panel{padding:20px 14px}#tab_reports .admin-report-header{display:block}#tab_reports .admin-report-header em{display:inline-block;margin-top:12px}#tab_reports .admin-report-tabs{grid-template-columns:1fr 1fr}#tab_reports .admin-report-tabs a{font-size:10px;padding:8px}#tab_reports .admin-report-tabs i{display:none}}
+      #tab_reports .admin-report-tabs > li{float:none;margin:0}
+      #tab_reports .admin-report-tabs > li > a{border:0;border-bottom:3px solid transparent;border-radius:0;margin:0}
+      #tab_reports .admin-report-tabs > li.active > a,
+      #tab_reports .admin-report-tabs > li.active > a:focus,
+      #tab_reports .admin-report-tabs > li.active > a:hover{background:#eef8fc;border:0;border-bottom:3px solid #079bd0;color:#087ca8}
 
       #tab_auditlog .audit-log-panel {
         min-height: 560px;

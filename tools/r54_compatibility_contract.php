@@ -55,6 +55,7 @@ $remainingWrappers = [
     'public/skp_api.php' => "'/skp_api.php'",
     'public/admin/dashboard.php' => "'/admin/dashboard.php'",
     'public/admin/user_list.php' => "'/admin/user_list.php'",
+    'public/admin/report_preview.php' => "'/admin/report_preview.php'",
     'public/page/dashboard.php' => "'/page/dashboard.php'",
     'public/lib/q_func.php' => "'/lib/q_func.php'",
     'public/lib/sso_IDP_index.php' => "'/lib/sso_IDP_index.php'",
