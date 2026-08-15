@@ -1727,7 +1727,13 @@ class Database {
         $Q="SELECT H.ext_head_id,{$sourceColumn} AS source_code,H.ext_head_dt_start,H.ext_head_dt_end,H.ext_head_status,
               COALESCE(H.total_new,0) AS total_new,COALESCE(H.total_updated,0) AS total_updated,
               COALESCE(H.total_deactivated,0) AS total_deactivated,COALESCE(H.total_reactivated,0) AS total_reactivated,
-              NULLIF(TRIM(U.data3),'') AS triggered_by_staff_no
+              NULLIF(TRIM(U.data3),'') AS triggered_by_staff_no,
+              CASE
+                WHEN NULLIF(TRIM(U.data3),'') IS NOT NULL THEN 'USER'
+                WHEN UPPER(COALESCE(H.triggered_by,'')) LIKE '%CRON%' THEN 'CRON'
+                WHEN NULLIF(TRIM(H.triggered_by),'') IS NULL THEN 'SCHEDULER'
+                ELSE 'SYSTEM'
+              END AS triggered_by_kind
             FROM ext_data_temp_header H
             LEFT JOIN user_tbl U ON U.u_id=H.triggered_by
             ORDER BY H.ext_head_id DESC LIMIT 100";
