@@ -1758,6 +1758,79 @@ class Database {
         return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function admin_report_security_summary(): array{
+        $Q="SELECT D.activity_date,
+              COALESCE(S.ended_sessions,0) AS ended_sessions,COALESCE(S.unique_users,0) AS unique_users,
+              COALESCE(M.successful_mfa,0) AS successful_mfa,COALESCE(M.unsuccessful_mfa,0) AS unsuccessful_mfa
+            FROM (
+              SELECT DATE(ended_at) AS activity_date FROM token_tbl WHERE status=0 AND ended_at>=DATE_SUB(CURRENT_DATE(),INTERVAL 29 DAY)
+              UNION
+              SELECT DATE(created_at) FROM user_login_mfa_transactions WHERE created_at>=DATE_SUB(CURRENT_DATE(),INTERVAL 29 DAY)
+            ) D
+            LEFT JOIN (
+              SELECT DATE(ended_at) AS activity_date,COUNT(*) AS ended_sessions,COUNT(DISTINCT user_id) AS unique_users
+              FROM token_tbl WHERE status=0 AND ended_at>=DATE_SUB(CURRENT_DATE(),INTERVAL 29 DAY) GROUP BY DATE(ended_at)
+            ) S ON S.activity_date=D.activity_date
+            LEFT JOIN (
+              SELECT DATE(created_at) AS activity_date,
+                SUM(transaction_status IN ('VERIFIED','CONSUMED')) AS successful_mfa,
+                SUM(transaction_status IN ('EXPIRED','REVOKED')) AS unsuccessful_mfa
+              FROM user_login_mfa_transactions WHERE created_at>=DATE_SUB(CURRENT_DATE(),INTERVAL 29 DAY) GROUP BY DATE(created_at)
+            ) M ON M.activity_date=D.activity_date
+            ORDER BY D.activity_date DESC";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_sync_summary(): array{
+        $sourceColumn=$this->sync_header_source_code_available()?"COALESCE(NULLIF(TRIM(H.source_code),''),H.ext_head_type)":"H.ext_head_type";
+        $sourceGroup=$this->sync_header_source_code_available()?"H.source_code,H.ext_head_type":"H.ext_head_type";
+        $Q="SELECT {$sourceColumn} AS source_code,COUNT(*) AS run_count,
+              SUM(H.ext_head_status IN (2,4)) AS completed_runs,SUM(H.ext_head_status NOT IN (2,4)) AS incomplete_runs,
+              COALESCE(SUM(H.total_new),0) AS total_new,COALESCE(SUM(H.total_updated),0) AS total_updated,
+              COALESCE(SUM(H.total_deactivated),0) AS total_deactivated,COALESCE(SUM(H.total_reactivated),0) AS total_reactivated,
+              MAX(H.ext_head_dt_end) AS last_run_at
+            FROM ext_data_temp_header H
+            WHERE H.ext_head_dt_start>=DATE_SUB(NOW(),INTERVAL 90 DAY)
+            GROUP BY {$sourceGroup}
+            ORDER BY source_code";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_audit_activity(): array{
+        $Q="SELECT A.id AS audit_id,A.datetime,E.syslog_event_name AS event_name,A.log_detail
+            FROM syslog A LEFT JOIN syslog_event_conf E ON E.syslog_event_id=A.log_type
+            WHERE A.datetime>=DATE_SUB(NOW(),INTERVAL 30 DAY)
+            ORDER BY A.datetime DESC,A.id DESC LIMIT 200";
+        $rows=$this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+        foreach($rows as &$row){$row['log_detail']=$this->auditIdentity()->sanitizeDetail((string)$row['log_detail']);}unset($row);
+        return $rows;
+    }
+
+    public function admin_report_configuration_changes(): array{
+        $Q="SELECT H.created_at,H.action_name,H.outcome,H.reason_code,H.change_reason,H.correlation_id,
+              H.configuration_version_before,H.configuration_version_after,NULLIF(TRIM(U.data3),'') AS actor_staff_no
+            FROM configuration_change_history H
+            LEFT JOIN user_tbl U ON U.u_id=H.actor_id
+            ORDER BY H.created_at DESC,H.history_id DESC LIMIT 200";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_content_changes(): array{
+        $Q="SELECT X.created_at,X.content_type,X.entity_reference,X.locale,X.action_name,X.outcome,X.change_reason,X.correlation_id,
+              NULLIF(TRIM(U.data3),'') AS actor_staff_no
+            FROM (
+              SELECT created_at,'METADATA' AS content_type,CONCAT(entity_type,':',entity_id) AS entity_reference,
+                locale,'TRANSLATION_UPDATE' AS action_name,'SUCCESS' AS outcome,change_reason,correlation_id,actor_id
+              FROM metadata_translation_history
+              UNION ALL
+              SELECT H.created_at,'LOGIN_BANNER',COALESCE(B.banner_key,'ARCHIVED'),NULL,H.action_name,H.outcome,H.change_reason,H.correlation_id,H.actor_id
+              FROM login_banner_history H LEFT JOIN login_banner B ON B.banner_id=H.banner_id
+            ) X
+            LEFT JOIN user_tbl U ON U.u_id=X.actor_id
+            ORDER BY X.created_at DESC LIMIT 200";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 
 
    public function admin_set_deny_access_record($sp_id,$user_id){

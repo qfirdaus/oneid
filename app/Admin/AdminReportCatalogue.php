@@ -12,8 +12,8 @@ final class AdminReportCatalogue
         return [
             'executive' => ['label'=>'Executive Overview','icon'=>'fa-dashboard','reports'=>[
                 ['key'=>'executive_summary','name'=>'OneID Executive Summary','description'=>'Ringkasan pengguna, aplikasi, akses dan sesi semasa.','status'=>'ready'],
-                ['key'=>'security_summary','name'=>'Security & Session Summary','description'=>'Trend keselamatan, sesi dan tindakan pentadbir.','status'=>'planned'],
-                ['key'=>'sync_summary','name'=>'Synchronisation Summary','description'=>'Ringkasan perubahan daripada semua sumber data.','status'=>'planned'],
+                ['key'=>'security_summary','name'=>'Security & Session Summary','description'=>'Trend keselamatan, sesi dan tindakan pentadbir.','status'=>'ready'],
+                ['key'=>'sync_summary','name'=>'Synchronisation Summary','description'=>'Ringkasan perubahan daripada semua sumber data.','status'=>'ready'],
             ]],
             'users' => ['label'=>'Users & Access','icon'=>'fa-users','reports'=>[
                 ['key'=>'users_by_category','name'=>'Users by Category','description'=>'Pecahan akaun aktif dan tidak aktif bagi setiap kategori.','status'=>'ready'],
@@ -36,9 +36,9 @@ final class AdminReportCatalogue
                 ['key'=>'sync_exceptions','name'=>'Synchronisation Exceptions','description'=>'Akaun terlindung dan perubahan yang memerlukan perhatian.','status'=>'ready'],
             ]],
             'audit' => ['label'=>'Audit & Configuration','icon'=>'fa-history','reports'=>[
-                ['key'=>'audit_activity','name'=>'System Audit Activity','description'=>'Aktiviti sistem mengikut event, pelaku dan masa.','status'=>'planned'],
-                ['key'=>'configuration_changes','name'=>'Configuration Change History','description'=>'Perubahan konfigurasi dengan sebab dan correlation ID.','status'=>'planned'],
-                ['key'=>'content_changes','name'=>'Metadata & Banner Change History','description'=>'Sejarah terjemahan metadata dan login banner.','status'=>'planned'],
+                ['key'=>'audit_activity','name'=>'System Audit Activity','description'=>'Aktiviti sistem mengikut event, pelaku dan masa.','status'=>'ready'],
+                ['key'=>'configuration_changes','name'=>'Configuration Change History','description'=>'Perubahan konfigurasi dengan sebab dan correlation ID.','status'=>'ready'],
+                ['key'=>'content_changes','name'=>'Metadata & Banner Change History','description'=>'Sejarah terjemahan metadata dan login banner.','status'=>'ready'],
             ]],
         ];
     }
