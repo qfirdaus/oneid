@@ -683,6 +683,7 @@ function string_sanitize($s) {
             'sp_domain' => $row['sp_domain'],
             'sp_image' => $row['sp_image'],
             'sp_sso_support' => $row['sp_sso_support'],
+            'production_ready' => (int) $row['production_ready'],
             'sp_group_id' => $row['sp_group_id'],
           ];
         }

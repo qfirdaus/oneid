@@ -2144,6 +2144,10 @@
             'metadataCategories' => oneid_translate('admin.metadata.categories'),
             'metadataTranslated' => oneid_translate('admin.metadata.status_translated'),
             'metadataFallback' => oneid_translate('admin.metadata.status_fallback'),
+            'appAccessSso' => oneid_translate('admin.apps.access_sso'),
+            'appAccessDirect' => oneid_translate('admin.apps.access_direct'),
+            'appProductionReady' => oneid_translate('admin.apps.production_ready'),
+            'appStagingOnly' => oneid_translate('admin.apps.staging_only'),
          ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
          function localizedResponseMessage(response,fallback){
             if(response&&typeof response.localized_msg==='string'&&response.localized_msg.trim()!==''){
@@ -2637,11 +2641,14 @@
                  var appDomain = adminWebAppText(application.sp_domain);
                  var appImage = adminWebAppText(application.sp_image);
                  var imageSource = appImage === '' ? '../img/thumb-1.jpg' : '../public_img/' + appImage;
-                 var ssoUnsupported = application.sp_sso_support !== '0';
+                 var ssoUnsupported = String(application.sp_sso_support) !== '0';
+                 var productionReady = Number(application.production_ready) === 1;
+                 var accessBadge = '<span class="web-app-sso-badge '+(ssoUnsupported ? '' : 'is-enabled')+'">'+adminWebAppText(ssoUnsupported ? adminI18n.appAccessDirect : adminI18n.appAccessSso)+'</span>';
+                 var readinessBadge = '<span class="web-app-readiness-badge '+(productionReady ? 'is-ready' : 'is-staging')+'"><i class="fa '+(productionReady ? 'fa-check-circle' : 'fa-clock-o')+'" aria-hidden="true"></i>'+adminWebAppText(productionReady ? adminI18n.appProductionReady : adminI18n.appStagingOnly)+'</span>';
                  panes += '<article class="web-app-card">';
                  panes += '<div class="web-app-card-index">'+(k + 1)+'</div>';
                  panes += '<div class="web-app-card-image"><img src="'+imageSource+'" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'../img/thumb-1.jpg\';"></div>';
-                 panes += '<div class="web-app-card-content"><div class="web-app-card-name"><strong title="'+appName+'">'+appName+'</strong>'+(ssoUnsupported ? '<span class="web-app-sso-badge">Direct link</span>' : '<span class="web-app-sso-badge is-enabled">SSO</span>')+'</div>';
+                 panes += '<div class="web-app-card-content"><div class="web-app-card-name"><strong title="'+appName+'">'+appName+'</strong><span class="web-app-statuses">'+accessBadge+readinessBadge+'</span></div>';
                  panes += '<p title="'+appDescription+'">'+appDescription+'</p><span class="web-app-domain" title="'+appDomain+'"><i class="fa fa-link" aria-hidden="true"></i>'+appDomain+'</span></div>';
                  panes += '<button type="button" class="web-app-view" data-app-id="'+appId+'" onclick="open_edit_webapp(this.dataset.appId);" title="View application" aria-label="View application"><i class="fa fa-eye" aria-hidden="true"></i></button></article>';
                });
@@ -7235,6 +7242,37 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         color: #22844f;
       }
 
+      #follo_8 .web-app-statuses {
+        align-items: center;
+        display: inline-flex;
+        flex: 0 0 auto;
+        gap: 5px;
+      }
+
+      #follo_8 .web-app-readiness-badge {
+        align-items: center;
+        border-radius: 20px;
+        display: inline-flex;
+        flex: 0 0 auto;
+        font-size: 8px;
+        font-weight: 700;
+        gap: 4px;
+        letter-spacing: .035em;
+        line-height: 1.35;
+        padding: 3px 7px;
+        text-transform: uppercase;
+      }
+
+      #follo_8 .web-app-readiness-badge.is-ready {
+        background: #e7f7ee;
+        color: #22844f;
+      }
+
+      #follo_8 .web-app-readiness-badge.is-staging {
+        background: #eef3f6;
+        color: #687b88;
+      }
+
       #follo_8 .web-app-card-content p,
       #follo_8 .web-app-domain {
         display: block;
@@ -8431,6 +8469,10 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
           align-items: flex-start;
           flex-direction: column;
           gap: 4px;
+        }
+
+        #follo_8 .web-app-statuses {
+          flex-wrap: wrap;
         }
 
         #follo_8 .web-app-card-index {
