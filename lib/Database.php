@@ -1665,10 +1665,11 @@ class Database {
 
     public function admin_report_site_api_credential_rotation(): array{
         $Q="SELECT S.sp_id,S.sp_name,S.avail_status AS application_status,
-              C.credential_version,C.rotated_at,C.rotated_by,
+              C.credential_version,C.rotated_at,NULLIF(TRIM(U.data3),'') AS rotated_by_staff_no,
               CASE WHEN C.rotated_at IS NULL THEN NULL ELSE TIMESTAMPDIFF(DAY,C.rotated_at,NOW()) END AS credential_age_days
             FROM sp_list S
             LEFT JOIN sp_api_credential C ON C.sp_id=S.sp_id
+            LEFT JOIN user_tbl U ON U.u_id=C.rotated_by
             ORDER BY S.avail_status DESC,C.rotated_at IS NULL DESC,C.rotated_at,S.sp_name";
         return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
     }
