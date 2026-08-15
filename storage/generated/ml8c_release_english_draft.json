@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2100-CHANGELOG-20260814-01",
+    "authorization": "ONEID-V2101-CHANGELOG-20260815-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.10.1",
+            "version": "2.10.1",
+            "date": "2026-08-15",
+            "items": [
+                {
+                    "identity": "release:2.10.1:item:001",
+                    "bm": "Pusat Laporan Administrator baharu menghimpunkan laporan Executive Overview, Users & Access, Applications & Production Readiness, Sessions & Security, Synchronisation serta Audit & Configuration dalam preview read-only yang selamat dan boleh dicetak.",
+                    "en_draft": "The new Administrator Reporting Centre consolidates Executive Overview, Users & Access, Applications & Production Readiness, Sessions & Security, Synchronisation, and Audit & Configuration reports into secure printable read-only previews.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.1:item:002",
+                    "bm": "Semua laporan pentadbiran menggunakan reference opaque, saiz kandungan seragam, nombor baris, column left/top aligned, tooltip dinamik serta pembahagian lebar yang memaksimumkan maklumat penting tanpa mendedahkan ID dalaman.",
+                    "en_draft": "All administrative reports use opaque references, consistent content widths, row numbering, left/top-aligned columns, dynamic tooltips and balanced proportions that maximise important information without exposing internal IDs.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.1:item:003",
+                    "bm": "Pengurusan kategori aplikasi, tambah kategori, tambah aplikasi dan kategori pengguna kini menggunakan shell modal profesional yang konsisten dengan Metadata Translation dan Sync User.",
+                    "en_draft": "Application category management, add category, add application and user category workflows now use professional modal shells consistent with Metadata Translation and Sync User.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.1:item:004",
+                    "bm": "Archived Applications menyediakan workflow restore dan purge terpilih yang dilindungi semakan dependency, pengesahan nama tepat, pilihan sebab audit dan larangan bulk delete.",
+                    "en_draft": "Archived Applications provides selective restore and purge workflows protected by dependency checks, exact-name confirmation, auditable reason choices and a prohibition on bulk deletion.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.1:item:005",
+                    "bm": "Active Sessions dan Session History telah dipadatkan dengan column seimbang, data aktiviti yang lebih jelas, tooltip sebaris dan tindakan revoke yang kekal tersusun selepas status.",
+                    "en_draft": "Active Sessions and Session History use compact balanced columns, clearer activity data, single-line tooltips and a revoke action that remains aligned after status.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.1:item:006",
+                    "bm": "Halaman Maintenance Mode kini menyediakan paparan dwibahasa yang compact, maklumat bantuan rasmi OneID@UPNM, nombor telefon, e-mel, alamat PTMK serta footer version aplikasi.",
+                    "en_draft": "Maintenance Mode now provides a compact bilingual presentation, official OneID@UPNM support details, telephone, e-mail, PTMK address and the shared application-version footer.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.1:item:007",
+                    "bm": "Maintenance administrator login kini memerlukan kata laluan dan MFA baharu sebelum token SSO diwujudkan, menggunakan Admin Authenticator sebenar serta grant akses lima minit yang terikat kepada sesi dan browser.",
+                    "en_draft": "Maintenance administrator login now requires a password and fresh MFA before an SSO token is created, using the actual Admin Authenticator and a five-minute session-and-browser-bound access grant.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.1:item:008",
+                    "bm": "Keselamatan maintenance diperkukuh dengan penolakan akaun bukan admin bagi semua identifier, rate limit backend, revocation grant lama, route bypass yang khusus dan compensation automatik apabila finalisasi MFA gagal.",
+                    "en_draft": "Maintenance security now rejects non-admin accounts across every identifier, applies server-side rate limiting, revokes old grants, restricts route bypasses and automatically compensates any failed MFA finalisation.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.1:item:009",
+                    "bm": "Paparan Web Apps Administrator kini membezakan OneID SSO atau Direct Link serta status Production Ready, manakala pengguna hanya melihat jenis akses yang berkaitan tanpa status dalaman production.",
+                    "en_draft": "Administrator Web Apps now distinguishes OneID SSO or Direct Link and displays Production Ready status, while users see only the relevant access type without internal production status.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.1:item:010",
+                    "bm": "Laporan audit, konfigurasi, MFA, credential rotation dan synchronisation kini memaparkan identiti staf atau pencetus cron yang sesuai, status penuh dan ruang detail yang lebih luas untuk semakan operasi.",
+                    "en_draft": "Audit, configuration, MFA, credential rotation and synchronisation reports now show appropriate staff or cron actors, complete statuses and wider detail fields for operational review.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.10.0",
             "version": "2.10.0",
@@ -2780,5 +2847,5 @@
             ]
         }
     ],
-    "manifest_digest": "cf69acf092e8ae214eebd007a44433bda46f276bd4eaeaa0385bb7fbfaa0e2f2"
+    "manifest_digest": "ba587bc62bbaab0522ca97adc9b820a7a60cb9e7077a8d5d54ce376921d90a73"
 }

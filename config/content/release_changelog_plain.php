@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.10.1' =>
+  array (
+    'version' => '2.10.1',
+    'date' => '2026-08-15',
+    'bm' =>
+    array (
+      0 => 'Pusat Laporan Administrator baharu menghimpunkan laporan Executive Overview, Users & Access, Applications & Production Readiness, Sessions & Security, Synchronisation serta Audit & Configuration dalam preview read-only yang selamat dan boleh dicetak.',
+      1 => 'Semua laporan pentadbiran menggunakan reference opaque, saiz kandungan seragam, nombor baris, column left/top aligned, tooltip dinamik serta pembahagian lebar yang memaksimumkan maklumat penting tanpa mendedahkan ID dalaman.',
+      2 => 'Pengurusan kategori aplikasi, tambah kategori, tambah aplikasi dan kategori pengguna kini menggunakan shell modal profesional yang konsisten dengan Metadata Translation dan Sync User.',
+      3 => 'Archived Applications menyediakan workflow restore dan purge terpilih yang dilindungi semakan dependency, pengesahan nama tepat, pilihan sebab audit dan larangan bulk delete.',
+      4 => 'Active Sessions dan Session History telah dipadatkan dengan column seimbang, data aktiviti yang lebih jelas, tooltip sebaris dan tindakan revoke yang kekal tersusun selepas status.',
+      5 => 'Halaman Maintenance Mode kini menyediakan paparan dwibahasa yang compact, maklumat bantuan rasmi OneID@UPNM, nombor telefon, e-mel, alamat PTMK serta footer version aplikasi.',
+      6 => 'Maintenance administrator login kini memerlukan kata laluan dan MFA baharu sebelum token SSO diwujudkan, menggunakan Admin Authenticator sebenar serta grant akses lima minit yang terikat kepada sesi dan browser.',
+      7 => 'Keselamatan maintenance diperkukuh dengan penolakan akaun bukan admin bagi semua identifier, rate limit backend, revocation grant lama, route bypass yang khusus dan compensation automatik apabila finalisasi MFA gagal.',
+      8 => 'Paparan Web Apps Administrator kini membezakan OneID SSO atau Direct Link serta status Production Ready, manakala pengguna hanya melihat jenis akses yang berkaitan tanpa status dalaman production.',
+      9 => 'Laporan audit, konfigurasi, MFA, credential rotation dan synchronisation kini memaparkan identiti staf atau pencetus cron yang sesuai, status penuh dan ruang detail yang lebih luas untuk semakan operasi.',
+    ),
+    'en' =>
+    array (
+      0 => 'The new Administrator Reporting Centre consolidates Executive Overview, Users & Access, Applications & Production Readiness, Sessions & Security, Synchronisation, and Audit & Configuration reports into secure printable read-only previews.',
+      1 => 'All administrative reports use opaque references, consistent content widths, row numbering, left/top-aligned columns, dynamic tooltips and balanced proportions that maximise important information without exposing internal IDs.',
+      2 => 'Application category management, add category, add application and user category workflows now use professional modal shells consistent with Metadata Translation and Sync User.',
+      3 => 'Archived Applications provides selective restore and purge workflows protected by dependency checks, exact-name confirmation, auditable reason choices and a prohibition on bulk deletion.',
+      4 => 'Active Sessions and Session History use compact balanced columns, clearer activity data, single-line tooltips and a revoke action that remains aligned after status.',
+      5 => 'Maintenance Mode now provides a compact bilingual presentation, official OneID@UPNM support details, telephone, e-mail, PTMK address and the shared application-version footer.',
+      6 => 'Maintenance administrator login now requires a password and fresh MFA before an SSO token is created, using the actual Admin Authenticator and a five-minute session-and-browser-bound access grant.',
+      7 => 'Maintenance security now rejects non-admin accounts across every identifier, applies server-side rate limiting, revokes old grants, restricts route bypasses and automatically compensates any failed MFA finalisation.',
+      8 => 'Administrator Web Apps now distinguishes OneID SSO or Direct Link and displays Production Ready status, while users see only the relevant access type without internal production status.',
+      9 => 'Audit, configuration, MFA, credential rotation and synchronisation reports now show appropriate staff or cron actors, complete statuses and wider detail fields for operational review.',
+    ),
+  ),
   'release-2.10.0' =>
   array (
     'version' => '2.10.0',

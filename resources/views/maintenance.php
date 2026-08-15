@@ -13,7 +13,7 @@ $supportDivision = $locale === 'en'
     : 'Pusat Teknologi Maklumat dan Komunikasi, Universiti Pertahanan Nasional Malaysia (UPNM)';
 $applicationFooter = function_exists('oneid_application_footer')
     ? oneid_application_footer()
-    : '2026 © PTMK | Aplikasi Digital. Version 2.10.0';
+    : '2026 © PTMK | Aplikasi Digital. Version 2.10.1';
 ?>
 <!doctype html>
 <html lang="<?=htmlspecialchars($locale, ENT_QUOTES, 'UTF-8')?>">
