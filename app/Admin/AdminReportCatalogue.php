@@ -17,8 +17,8 @@ final class AdminReportCatalogue
             ]],
             'users' => ['label'=>'Users & Access','icon'=>'fa-users','reports'=>[
                 ['key'=>'users_by_category','name'=>'Users by Category','description'=>'Pecahan akaun aktif dan tidak aktif bagi setiap kategori.','status'=>'ready'],
-                ['key'=>'access_matrix','name'=>'Category Application Access Matrix','description'=>'Matriks kategori pengguna dan aplikasi yang dibenarkan.','status'=>'planned'],
-                ['key'=>'access_exceptions','name'=>'Direct ACL & Blacklist Exceptions','description'=>'Akses terus dan sekatan yang berada di luar polisi kategori.','status'=>'planned'],
+                ['key'=>'access_matrix','name'=>'Category Application Access Matrix','description'=>'Matriks kategori pengguna dan aplikasi yang dibenarkan.','status'=>'ready'],
+                ['key'=>'access_exceptions','name'=>'Direct ACL & Blacklist Exceptions','description'=>'Akses terus dan sekatan yang berada di luar polisi kategori.','status'=>'ready'],
             ]],
             'applications' => ['label'=>'Applications & Production Readiness','icon'=>'fa-th-large','reports'=>[
                 ['key'=>'application_readiness','name'=>'Application Production Readiness','description'=>'Status URL, SSO dan kelulusan production bagi setiap aplikasi.','status'=>'ready'],

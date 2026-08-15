@@ -1600,6 +1600,36 @@ class Database {
         return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function admin_report_category_access_matrix(): array{
+        $Q="SELECT C.uc_id,C.uc_name,S.sp_id,S.sp_name,S.avail_status AS application_status,
+              (SELECT COUNT(*) FROM user_tbl U
+               WHERE U.avail_status=1 AND CASE
+                 WHEN C.uc_name='Admin SSO' THEN U.u_type=1
+                 ELSE U.u_category=C.uc_id
+               END) AS active_users
+            FROM acl_group A
+            INNER JOIN user_category C ON C.uc_id=A.uc_id AND C.avail_status=1
+            INNER JOIN sp_list S ON S.sp_id=A.sp_id
+            ORDER BY C.uc_name,S.avail_status DESC,S.sp_name";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_access_exceptions(): array{
+        $Q="SELECT X.exception_type,X.u_id,U.data1 AS user_name,
+              COALESCE(C.uc_name,'Uncategorised') AS category_name,
+              X.sp_id,S.sp_name,U.avail_status AS user_status,S.avail_status AS application_status
+            FROM (
+              SELECT 'DIRECT_ALLOW' AS exception_type,u_id,sp_id FROM acl_single
+              UNION ALL
+              SELECT 'BLACKLIST' AS exception_type,u_id,sp_id FROM acl_blacklist
+            ) X
+            LEFT JOIN user_tbl U ON U.u_id=X.u_id
+            LEFT JOIN user_category C ON C.uc_id=U.u_category
+            LEFT JOIN sp_list S ON S.sp_id=X.sp_id
+            ORDER BY X.exception_type,U.data1,X.u_id,S.sp_name,X.sp_id";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function admin_report_application_readiness(): array{
         $Q="SELECT S.sp_id,S.sp_name,COALESCE(G.sp_group_name,'Uncategorised') AS category_name,
               S.sp_domain,S.production_domain,S.production_ready,S.avail_status,S.sp_sso_support
