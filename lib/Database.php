@@ -1814,16 +1814,21 @@ class Database {
 
     public function admin_report_configuration_changes(): array{
         $Q="SELECT H.created_at,H.action_name,H.outcome,H.reason_code,H.change_reason,H.correlation_id,
-              H.configuration_version_before,H.configuration_version_after,NULLIF(TRIM(U.data3),'') AS actor_staff_no
+              H.configuration_version_before,H.configuration_version_after,H.actor_id
             FROM configuration_change_history H
-            LEFT JOIN user_tbl U ON U.u_id=H.actor_id
             ORDER BY H.created_at DESC,H.history_id DESC LIMIT 200";
-        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+        $rows=$this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+        foreach($rows as &$row){
+            $row['actor_staff_no']=$this->auditIdentity()->resolve((string)($row['actor_id']??''));
+            unset($row['actor_id']);
+        }
+        unset($row);
+        return $rows;
     }
 
     public function admin_report_content_changes(): array{
         $Q="SELECT X.created_at,X.content_type,X.entity_reference,X.locale,X.action_name,X.outcome,X.change_reason,X.correlation_id,
-              NULLIF(TRIM(U.data3),'') AS actor_staff_no
+              X.actor_id
             FROM (
               SELECT created_at,'METADATA' AS content_type,CONCAT(entity_type,':',entity_id) AS entity_reference,
                 locale,'TRANSLATION_UPDATE' AS action_name,'SUCCESS' AS outcome,change_reason,correlation_id,actor_id
@@ -1832,9 +1837,14 @@ class Database {
               SELECT H.created_at,'LOGIN_BANNER',COALESCE(B.banner_key,'ARCHIVED'),NULL,H.action_name,H.outcome,H.change_reason,H.correlation_id,H.actor_id
               FROM login_banner_history H LEFT JOIN login_banner B ON B.banner_id=H.banner_id
             ) X
-            LEFT JOIN user_tbl U ON U.u_id=X.actor_id
             ORDER BY X.created_at DESC LIMIT 200";
-        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+        $rows=$this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+        foreach($rows as &$row){
+            $row['actor_staff_no']=$this->auditIdentity()->resolve((string)($row['actor_id']??''));
+            unset($row['actor_id']);
+        }
+        unset($row);
+        return $rows;
     }
 
 
