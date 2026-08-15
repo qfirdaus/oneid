@@ -74,7 +74,7 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
             font-size: 14px;
             line-height: 1.45;
         }
-        .report-shell { max-width: 1180px; margin: 28px auto; padding: 0 20px; }
+        .report-shell { max-width: 1280px; margin: 24px auto; padding: 0 18px; width: 100%; }
         .screen-toolbar {
             display: flex; justify-content: space-between; align-items: center;
             gap: 16px; margin-bottom: 14px;
@@ -158,7 +158,7 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
             .screen-toolbar { display: none !important; }
             .report-shell { max-width: none; margin: 0; padding: 0; }
             .report-paper { overflow: visible; border: 0; border-radius: 0; box-shadow: none; }
-            .report-content { padding: 8mm 7mm 5mm; }
+            .report-content { padding: 5mm; }
             .brand-rule { height: 4px; }
             .report-header { gap: 16px; padding-bottom: 15px; }
             .brand-logos .upnm-logo { height: 44px; }
@@ -193,7 +193,7 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
     <div class="screen-toolbar" aria-label="Report actions">
         <p><?=$escape(oneid_translate('admin.user_list.preview_help'))?></p>
         <div class="toolbar-actions">
-            <a class="toolbar-button" href="./dashboard.php"><?=$escape(oneid_translate('admin.user_list.back'))?></a>
+            <button class="toolbar-button" type="button" onclick="window.close()"><?=$escape(oneid_translate('admin.user_list.close'))?></button>
             <button class="toolbar-button primary" type="button" onclick="window.print()"><?=$escape(oneid_translate('admin.user_list.print'))?></button>
         </div>
     </div>

@@ -61,6 +61,17 @@ $report(
         && str_contains($endpoint, "oneid_require_admin_step_up(\$operation, 'ADMIN_ACCESS', false)"),
     'existing admin authorization and step-up controls remain enforced'
 );
+$report(
+    str_contains($endpoint, 'onclick="window.close()"')
+        && str_contains($endpoint, "oneid_translate('admin.user_list.close')")
+        && !str_contains($endpoint, 'href="./dashboard.php"'),
+    'dedicated report tab closes without opening another User Accounts page'
+);
+$report(
+    str_contains($endpoint, '.report-shell { max-width: 1280px; margin: 24px auto; padding: 0 18px; width: 100%; }')
+        && str_contains($endpoint, '.report-content { padding: 5mm; }'),
+    'screen and print dimensions align with the shared administrative report format'
+);
 
 printf("RESULT checks=%d failed=%d\n", $checks, $failed);
 exit($failed === 0 ? 0 : 1);

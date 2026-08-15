@@ -971,7 +971,7 @@ return [
     'admin.user_list.reference' => 'Rujukan laporan',
     'admin.user_list.preview_help' => 'Pratonton laporan sedia cetak',
     'admin.user_list.print' => 'Cetak laporan',
-    'admin.user_list.back' => 'Kembali ke Akaun Pengguna',
+    'admin.user_list.close' => 'Tutup',
     'admin.user_list.official_note' => 'Dijana daripada rekod semasa OneID',
     'admin.metadata.manage' => 'Terjemahan metadata',
     'admin.metadata.title' => 'Metadata Aplikasi dan Kategori',

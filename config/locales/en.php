@@ -971,7 +971,7 @@ return [
     'admin.user_list.reference' => 'Report reference',
     'admin.user_list.preview_help' => 'Print-ready report preview',
     'admin.user_list.print' => 'Print report',
-    'admin.user_list.back' => 'Back to User Accounts',
+    'admin.user_list.close' => 'Close',
     'admin.user_list.official_note' => 'Generated from the current OneID record',
     'admin.metadata.manage' => 'Metadata translations',
     'admin.metadata.title' => 'Application and Category Metadata',
