@@ -1686,6 +1686,18 @@ class Database {
         return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function admin_report_device_summary(): array{
+        $Q="SELECT COALESCE(NULLIF(TRIM(A.device_info),''),'UNKNOWN') AS device_label,
+              COUNT(*) AS session_count,COUNT(DISTINCT A.user_id) AS unique_users,
+              SUM(A.status=1) AS active_sessions,SUM(A.status=0) AS ended_sessions,
+              MAX(COALESCE(A.ended_at,A.token_datetime)) AS last_seen_at
+            FROM token_tbl A
+            WHERE A.status=1 OR (A.status=0 AND A.ended_at>=DATE_SUB(NOW(),INTERVAL 30 DAY))
+            GROUP BY device_label
+            ORDER BY session_count DESC,device_label";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 
 
    public function admin_set_deny_access_record($sp_id,$user_id){

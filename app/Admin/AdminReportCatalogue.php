@@ -27,7 +27,7 @@ final class AdminReportCatalogue
             ]],
             'sessions' => ['label'=>'Sessions & Security','icon'=>'fa-shield','reports'=>[
                 ['key'=>'session_activity','name'=>'Session Activity Summary','description'=>'Sesi aktif, tamat dan sebab penamatan mengikut tempoh.','status'=>'ready'],
-                ['key'=>'device_summary','name'=>'Device & Browser Summary','description'=>'Pecahan sesi mengikut maklumat peranti yang direkod.','status'=>'planned'],
+                ['key'=>'device_summary','name'=>'Device & Browser Summary','description'=>'Pecahan sesi mengikut maklumat peranti yang direkod.','status'=>'ready'],
                 ['key'=>'mfa_adoption','name'=>'MFA Adoption & Outcomes','description'=>'Liputan MFA dan hasil transaksi keselamatan.','status'=>'planned'],
             ]],
             'synchronisation' => ['label'=>'Synchronisation','icon'=>'fa-refresh','reports'=>[
