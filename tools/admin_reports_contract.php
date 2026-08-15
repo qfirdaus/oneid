@@ -32,7 +32,9 @@ $checks['database provides the three read-only report queries']=str_contains($da
 $checks['public report preview wrapper is installed']=is_file($root.'/public/admin/report_preview.php')&&str_contains((string)file_get_contents($root.'/public/admin/report_preview.php'),"'/admin/report_preview.php'");
 $checks['report preview supports print without exposing credentials']=str_contains($preview,'window.print()')&&!str_contains($preview,'site_api_code_hash')&&!str_contains($preview,'credential_ciphertext');
 $checks['report navigation remains one row at desktop width']=str_contains($dashboard,'grid-template-columns:repeat(6,minmax(0,1fr))');
+$checks['Bootstrap clearfix cannot consume report tab grid columns']=str_contains($dashboard,'.admin-report-tabs:before')&&str_contains($dashboard,'.admin-report-tabs:after')&&str_contains($dashboard,'content:none');
 $checks['report preview loads the shared environment banner stylesheet']=str_contains($preview,'oneid-environment-banner.css');
+$checks['application readiness preview uses full-width fixed columns and single-line cells']=str_contains($preview,'max-width:1600px')&&str_contains($preview,'.application-readiness{table-layout:fixed')&&str_contains($preview,'text-overflow:ellipsis;white-space:nowrap')&&str_contains($preview,'title="<?=$escape($cell)?>"');
 $checks['report footer identifies the responsible centre without an administrator ID']=str_contains($preview,"admin.reports.preview.owner")&&!str_contains($preview,"\$_SESSION['login_user']??''");
 $reportLocaleKeys=array_values(array_filter(array_keys($english),static fn(string $key):bool=>str_starts_with($key,'admin.reports.')||$key==='admin.menu.reports'));
 $checks['English and Malay report translations are complete']=$reportLocaleKeys!==[]&&array_diff($reportLocaleKeys,array_keys($malay))===[];
