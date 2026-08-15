@@ -6,6 +6,11 @@ $end = $policy['ends_at'] ? date('j M Y, g:i A', strtotime($policy['ends_at'] . 
 $assetBase = rtrim(APP_URL, '/');
 $supportHeading = $locale === 'en' ? 'Need assistance?' : 'Perlukan bantuan?';
 $supportIntro = $locale === 'en' ? 'Contact the official OneID support service.' : 'Hubungi perkhidmatan sokongan rasmi OneID.';
+$serviceEyebrow = $locale === 'en' ? 'OneID Service Status' : 'Status Perkhidmatan OneID';
+$supportService = $locale === 'en' ? 'OneID@UPNM Support Service' : 'Perkhidmatan Sokongan OneID@UPNM';
+$supportDivision = $locale === 'en'
+    ? 'Information and Communication Technology Division, National Defence University of Malaysia (UPNM)'
+    : 'Pusat Teknologi Maklumat dan Komunikasi, Universiti Pertahanan Nasional Malaysia (UPNM)';
 $applicationFooter = function_exists('oneid_application_footer')
     ? oneid_application_footer()
     : '2026 © PTMK | Aplikasi Digital. Version 2.10.0';
@@ -27,6 +32,9 @@ $applicationFooter = function_exists('oneid_application_footer')
         .maintenance-brands__oneid{max-width:176px;width:31%}
         .maintenance-brands__office{max-width:187px;width:33%}
         .maintenance-eyebrow{color:#0877a8;font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+        .maintenance-locale{align-items:center;background:#f2f7fa;border:1px solid #d9e7ee;border-radius:999px;display:inline-flex;gap:2px;margin:0 auto 10px;padding:3px}
+        .maintenance-locale a{border-radius:999px;color:#607487;font-size:11px;font-weight:800;line-height:1;padding:7px 10px;text-decoration:none}
+        .maintenance-locale a.is-active{background:#079bd3;box-shadow:0 3px 9px rgba(7,155,211,.2);color:#fff}
         .maintenance-icon{align-items:center;background:#fff7e8;border-radius:50%;color:#d98a00;display:flex;height:58px;justify-content:center;margin:10px auto 14px;width:58px}
         .maintenance-icon svg{height:25px;width:25px}
         h1{color:#12334a;font-size:29px;line-height:1.25;margin:0 auto 9px;max-width:680px}
@@ -64,7 +72,11 @@ $applicationFooter = function_exists('oneid_application_footer')
             <img class="maintenance-brands__oneid" src="<?=htmlspecialchars($assetBase . '/img/logo_oneid.png', ENT_QUOTES, 'UTF-8')?>" alt="OneID">
             <img class="maintenance-brands__office" src="<?=htmlspecialchars($assetBase . '/img/logo_upnm_30.png', ENT_QUOTES, 'UTF-8')?>" alt="Universiti Pertahanan Nasional Malaysia">
         </div>
-        <div class="maintenance-eyebrow">OneID Service Status</div>
+        <nav class="maintenance-locale" aria-label="Pilihan bahasa / Language selection">
+            <a class="<?=$locale === 'ms' ? 'is-active' : ''?>" href="<?=htmlspecialchars(APP_URL . '/?locale=ms', ENT_QUOTES, 'UTF-8')?>" lang="ms" hreflang="ms" aria-current="<?=$locale === 'ms' ? 'true' : 'false'?>">BM</a>
+            <a class="<?=$locale === 'en' ? 'is-active' : ''?>" href="<?=htmlspecialchars(APP_URL . '/?locale=en', ENT_QUOTES, 'UTF-8')?>" lang="en" hreflang="en" aria-current="<?=$locale === 'en' ? 'true' : 'false'?>">EN</a>
+        </nav>
+        <div class="maintenance-eyebrow"><?=htmlspecialchars($serviceEyebrow, ENT_QUOTES, 'UTF-8')?></div>
         <div class="maintenance-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/><circle cx="12" cy="12" r="5"/></svg>
         </div>
@@ -85,8 +97,8 @@ $applicationFooter = function_exists('oneid_application_footer')
             </div>
             <div class="maintenance-support__body">
                 <div class="maintenance-support__identity">
-                    <strong>OneID@UPNM Support Service</strong>
-                    <p>Information and Communication Technology Division, National Defence University of Malaysia (UPNM)</p>
+                    <strong><?=htmlspecialchars($supportService, ENT_QUOTES, 'UTF-8')?></strong>
+                    <p><?=htmlspecialchars($supportDivision, ENT_QUOTES, 'UTF-8')?></p>
                     <p>Kem Perdana Sungai Besi, 57000 Kuala Lumpur</p>
                 </div>
                 <div class="maintenance-support__contacts">

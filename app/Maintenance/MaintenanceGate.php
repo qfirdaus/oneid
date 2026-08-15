@@ -9,6 +9,7 @@ final class MaintenanceGate
     public static function enforce(object $operation): void
     {
         if (PHP_SAPI === 'cli' || defined('ONEID_MAINTENANCE_BYPASS')) return;
+        self::applyRequestedLocale();
         $stored = method_exists($operation, 'get_maintenance_config') ? $operation->get_maintenance_config() : null;
         if (!is_array($stored)) return;
         $policy = MaintenancePolicy::evaluate($stored);
@@ -37,5 +38,16 @@ final class MaintenanceGate
         }
         require dirname(__DIR__,2).'/resources/views/maintenance.php';
         exit;
+    }
+
+    private static function applyRequestedLocale(): void
+    {
+        if (!isset($_GET['locale']) || !is_scalar($_GET['locale'])) return;
+        $requested=(string)$_GET['locale'];
+        if (function_exists('oneid_set_session_locale') && oneid_set_session_locale($requested)) {
+            if (function_exists('oneid_set_guest_locale_cookie')) {
+                oneid_set_guest_locale_cookie($requested);
+            }
+        }
     }
 }
