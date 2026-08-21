@@ -325,13 +325,17 @@
     return block;
   }
 
-  function collapsibleReason(value) {
-    var block = detail(text.reasonControl, value);
-    block.classList.add('user-2fa-exemption-reason');
-    var content = block.querySelector('span');
+  function collapsibleInformation(reason, reference, approver) {
+    var block = document.createElement('div');
+    block.className = 'user-2fa-exemption-information';
+    var content = document.createElement('div');
+    content.className = 'user-2fa-exemption-information-content';
+    content.appendChild(detail(text.reasonControl, reason));
+    content.appendChild(detail(text.reference, reference));
+    content.appendChild(detail(text.approvedBy, approver));
     var toggle = document.createElement('button');
     toggle.type = 'button';
-    toggle.className = 'user-2fa-exemption-reason-toggle';
+    toggle.className = 'user-2fa-exemption-information-toggle';
     toggle.textContent = text.showMore;
     toggle.setAttribute('aria-expanded', 'false');
     toggle.addEventListener('click', function () {
@@ -339,6 +343,7 @@
       toggle.textContent = expanded ? text.showLess : text.showMore;
       toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
     });
+    block.appendChild(content);
     block.appendChild(toggle);
     window.requestAnimationFrame(function () {
       if (content.scrollHeight <= content.clientHeight + 1) toggle.hidden = true;
@@ -373,10 +378,11 @@
       status.textContent = String(item.exemption_status) + (item.expires_soon ? ' · ' + text.expiring : '');
       meta.appendChild(status);
       meta.appendChild(detail(text.expiry, item.expires_at));
-      var information = document.createElement('div');
-      information.appendChild(collapsibleReason(String(item.change_reason || '') + ' · ' + String(item.compensating_control || '') + (item.revoke_reason ? ' · Revoke: ' + String(item.revoke_reason) : '')));
-      information.appendChild(detail(text.reference, item.change_reference));
-      information.appendChild(detail(text.approvedBy, item.approved_by));
+      var information = collapsibleInformation(
+        String(item.change_reason || '') + ' · ' + String(item.compensating_control || '') + (item.revoke_reason ? ' · Revoke: ' + String(item.revoke_reason) : ''),
+        item.change_reference,
+        item.approved_by
+      );
       var action = document.createElement('div');
       action.className = 'user-2fa-exemption-action';
       if (item.exemption_status === 'ACTIVE') {
