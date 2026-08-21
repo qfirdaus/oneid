@@ -8,6 +8,7 @@
   var locale = document.documentElement.lang === 'ms' ? 'ms' : 'en';
   var candidateSearchTimer = null;
   var candidateSearchSequence = 0;
+  var selectedCandidateName = '';
   var text = locale === 'ms' ? {
     invalid: 'Pilih pengguna, tempoh dan sebab pengecualian.',
     otherInvalid: 'Nyatakan sebab lain sekurang-kurangnya 10 aksara.',
@@ -23,7 +24,7 @@
     searchEmpty: 'Tiada pengguna ditemui.',
     selected: 'Pengguna dipilih',
     notEligible: 'Rekod ini tidak layak',
-    reviewReady: 'Pilih pengguna, tempoh dan sebab. Butiran lengkap akan dipaparkan sebelum dihantar.',
+    reviewReady: 'Semak maklumat pengecualian di bawah sebelum membuat pengesahan.',
     reviewUser: 'Pengguna',
     reviewDuration: 'Tempoh',
     reviewReason: 'Sebab',
@@ -49,7 +50,7 @@
     searchEmpty: 'No users found.',
     selected: 'Selected user',
     notEligible: 'This record is not eligible',
-    reviewReady: 'Select a user, duration and reason. Complete details will be shown before submission.',
+    reviewReady: 'Review the exemption details below before confirming.',
     reviewUser: 'User',
     reviewDuration: 'Duration',
     reviewReason: 'Reason',
@@ -136,6 +137,7 @@
 
   function clearSelectedUser() {
     element('user_2fa_exemption_user').value = '';
+    selectedCandidateName = '';
     element('user_2fa_exemption_selected_status').textContent = '';
     setConfigurationEnabled(false);
     updateReview();
@@ -144,6 +146,7 @@
   function selectCandidate(candidate) {
     if (!candidate.eligible) return;
     element('user_2fa_exemption_user').value = String(candidate.u_id);
+    selectedCandidateName = String(candidate.display_name || '').trim();
     element('user_2fa_exemption_user_search').value =
       String(candidate.u_id) + (candidate.display_name ? ' — ' + String(candidate.display_name) : '');
     element('user_2fa_exemption_candidate_results').textContent = '';
@@ -270,10 +273,11 @@
       swal(text.failed, text.invalid, 'warning');
       return;
     }
+    var userDisplay = selectedCandidateName ? selectedCandidateName + ' (' + payload.user_id + ')' : payload.user_id;
     var reviewHtml = '<div class="rotation-reason-dialog">' +
-      '<p class="rotation-reason-dialog__intro">' + escapeHtml(text.reviewReady) + '</p>' +
+      '<div class="site-api-code-result__feedback"><i class="fa fa-info-circle"></i> ' + escapeHtml(text.reviewReady) + '</div>' +
       '<div class="rotation-reason-dialog__choices">' +
-      '<div class="rotation-reason-dialog__choice is-selected"><i class="fa fa-user"></i><span><b>' + escapeHtml(text.reviewUser) + '</b><br>' + escapeHtml(payload.user_id) + '</span></div>' +
+      '<div class="rotation-reason-dialog__choice is-selected"><i class="fa fa-user"></i><span><b>' + escapeHtml(text.reviewUser) + '</b><br>' + escapeHtml(userDisplay) + '</span></div>' +
       '<div class="rotation-reason-dialog__choice is-selected"><i class="fa fa-clock-o"></i><span><b>' + escapeHtml(text.reviewDuration) + '</b><br>' + escapeHtml(payload.duration_hours + ' ' + text.hours) + '</span></div>' +
       '<div class="rotation-reason-dialog__choice rotation-reason-dialog__choice--wide is-selected"><i class="fa fa-comment-o"></i><span><b>' + escapeHtml(text.reviewReason) + '</b><br>' + escapeHtml(payload.change_reason) + '</span></div>' +
       '</div>' +

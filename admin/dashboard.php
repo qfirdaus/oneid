@@ -6811,7 +6811,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"
          data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=configuration_user_mfa_category"></script>
       <script
-         src="../assetsM/js/user-2fa-temporary-exemption.js?v=20260821-1"
+         src="../assetsM/js/user-2fa-temporary-exemption.js?v=20260821-2"
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"
          data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=configuration_user_mfa_exemption"></script>

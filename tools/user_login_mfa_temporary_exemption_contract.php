@@ -70,7 +70,9 @@ $checks['simplified_form_multilingual'] = str_contains($files['locale_en'], "'ad
 $checks['professional_confirmation_modal'] = str_contains($files['js'], 'rotation-reason-dialog__choices')
     && str_contains($files['js'], 'apply_site_api_alert_layout')
     && str_contains($files['js'], 'allowOutsideClick: false')
-    && str_contains($files['js'], 'escapeHtml(payload.change_reason)');
+    && str_contains($files['js'], 'escapeHtml(payload.change_reason)')
+    && str_contains($files['js'], 'selectedCandidateName + \' (\' + payload.user_id + \')\'')
+    && str_contains($files['js'], 'site-api-code-result__feedback');
 $checks['configuration_audit_aggregates_settings'] = str_contains($files['database'], 'function configuration_audit_list')
     && str_contains($files['database'], 'FROM login_banner_history')
     && str_contains($files['database'], 'A.log_type IN (33,44,45,48,49,50,54,64)')
