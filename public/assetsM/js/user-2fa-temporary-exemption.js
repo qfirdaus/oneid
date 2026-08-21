@@ -16,6 +16,10 @@
     revoked: 'Pengecualian berjaya ditarik balik.',
     failed: 'Operasi pengecualian gagal.',
     revokeReason: 'Masukkan sebab revoke (minimum 10 aksara):',
+    revokeTitle: 'Tarik balik pengecualian User 2FA?',
+    revokeHelp: 'Nyatakan sebab pengecualian ini perlu ditarik balik.',
+    revokeWarning: 'Pengguna akan kembali tertakluk kepada polisi User 2FA yang sedang berkuat kuasa.',
+    revokeAction: 'Tarik balik pengecualian',
     expiring: 'AKAN LUPUT',
     revoke: 'Revoke',
     empty: 'Tiada rekod ditemui.',
@@ -48,6 +52,10 @@
     revoked: 'The exemption was revoked.',
     failed: 'The exemption operation failed.',
     revokeReason: 'Enter a revoke reason (minimum 10 characters):',
+    revokeTitle: 'Revoke User 2FA exemption?',
+    revokeHelp: 'State why this exemption must be revoked.',
+    revokeWarning: 'The user will return to the currently enforced User 2FA policy.',
+    revokeAction: 'Revoke exemption',
     expiring: 'EXPIRING',
     revoke: 'Revoke',
     empty: 'No records found.',
@@ -414,18 +422,34 @@
   };
 
   function revoke(item) {
+    var userDisplay = item.display_name ? String(item.display_name) + ' (' + String(item.u_id) + ')' : String(item.u_id);
+    var revokeHtml = '<div class="rotation-reason-dialog">' +
+      '<div class="site-api-code-result__feedback"><i class="fa fa-user"></i> ' + escapeHtml(userDisplay) + '</div>' +
+      '<p class="rotation-reason-dialog__intro">' + escapeHtml(text.revokeHelp) + '</p>' +
+      '<div class="rotation-reason-dialog__other-wrap" style="display:block">' +
+      '<label class="rotation-reason-dialog__label" for="user_2fa_exemption_revoke_reason">' + escapeHtml(text.revokeReason) + '</label>' +
+      '<textarea class="rotation-reason-dialog__other" id="user_2fa_exemption_revoke_reason" maxlength="500" placeholder="' + escapeHtml(text.revokeReason) + '"></textarea>' +
+      '</div>' +
+      '<div class="rotation-reason-dialog__notice"><i class="fa fa-exclamation-triangle"></i><span>' + escapeHtml(text.revokeWarning) + '</span></div>' +
+      '</div>';
     swal({
-      title: text.revoke + ' #' + String(item.exemption_id),
-      text: text.revokeReason,
-      type: 'input',
+      title: text.revokeTitle,
+      text: revokeHtml,
+      html: true,
+      type: 'warning',
       showCancelButton: true,
-      inputPlaceholder: text.revokeReason,
-      closeOnConfirm: false
-    }, function (reason) {
-      if (reason === false) return;
-      reason = String(reason || '').trim();
+      confirmButtonColor: '#b4233b',
+      confirmButtonText: text.revokeAction,
+      cancelButtonText: text.cancel,
+      closeOnConfirm: false,
+      allowEscapeKey: false,
+      allowOutsideClick: false
+    }, function (confirmed) {
+      if (!confirmed) return;
+      var reason = String(element('user_2fa_exemption_revoke_reason').value || '').trim();
       if (reason.length < 10) {
         swal.showInputError(text.revokeReason);
+        element('user_2fa_exemption_revoke_reason').focus();
         return false;
       }
       var payload = {
@@ -442,6 +466,13 @@
         swal(text.failed, 'Code: ' + String((error.payload || {}).code || error.message), 'error');
       });
     });
+    if (typeof window.apply_site_api_alert_layout === 'function') {
+      window.apply_site_api_alert_layout('rotation', locale === 'ms' ? 'Keselamatan Pengguna' : 'User Security');
+    }
+    window.setTimeout(function () {
+      var input = element('user_2fa_exemption_revoke_reason');
+      if (input) input.focus();
+    }, 0);
   }
 
   function resume() {

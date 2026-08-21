@@ -95,6 +95,12 @@ $checks['reason_control_three_line_toggle'] = str_contains($files['ui'], '.user-
     && str_contains($files['js'], 'function collapsibleInformation(reason, reference, approver)')
     && str_contains($files['js'], "toggle.textContent = expanded ? text.showLess : text.showMore")
     && !str_contains($files['js'], 'content.scrollHeight <= content.clientHeight + 1');
+$checks['professional_revoke_modal'] = str_contains($files['js'], 'id="user_2fa_exemption_revoke_reason"')
+    && str_contains($files['js'], 'text.revokeTitle')
+    && str_contains($files['js'], 'text.revokeWarning')
+    && str_contains($files['js'], "apply_site_api_alert_layout('rotation'")
+    && str_contains($files['js'], 'allowOutsideClick: false')
+    && !str_contains($files['js'], "type: 'input'");
 
 $failed = array_keys(array_filter($checks, static fn(bool $passed): bool => !$passed));
 printf(
