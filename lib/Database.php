@@ -229,6 +229,28 @@ class Database {
         $rows=$this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);foreach($rows as &$row){$row['actor_id']=$this->audit_identifier((string)$row['actor_id']);}unset($row);return ['rows'=>$rows,'total'=>$total];
     }
 
+    public function configuration_audit_list($page,$pageSize){
+        $page=max(1,(int)$page);$pageSize=in_array((int)$pageSize,[10,25,50],true)?(int)$pageSize:10;$offset=($page-1)*$pageSize;
+        $union="SELECT CONCAT('configuration:',history_id) audit_id,configuration_version_before,configuration_version_after,actor_id,action_name,outcome,reason_code,change_reason,before_json,after_json,correlation_id,created_at FROM configuration_change_history
+                UNION ALL
+                SELECT CONCAT('banner:',history_id),configuration_version_before,configuration_version_after,actor_id,CONCAT('LOGIN_BANNER_',action_name),outcome,reason_code,change_reason,before_json,after_json,correlation_id,created_at FROM login_banner_history
+                UNION ALL
+                SELECT CONCAT('syslog:',A.id),NULL,NULL,'System audit',COALESCE(E.syslog_event_name,CONCAT('CONFIGURATION_EVENT_',A.log_type)),'SUCCESS',CONCAT('SYSLOG_',A.log_type),A.log_detail,NULL,NULL,'',A.datetime FROM syslog A LEFT JOIN syslog_event_conf E ON E.syslog_event_id=A.log_type WHERE A.log_type IN (33,44,45,48,49,50,54,64)";
+        $total=(int)$this->pdo->query("SELECT COUNT(*) FROM ({$union}) configuration_audit")->fetchColumn();
+        $Q="SELECT * FROM ({$union}) configuration_audit ORDER BY created_at DESC,audit_id DESC LIMIT {$pageSize} OFFSET {$offset}";
+        $rows=$this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+        foreach($rows as &$row){
+            $detail=$this->auditIdentity()->sanitizeDetail((string)($row['change_reason']??''));
+            if(str_starts_with((string)$row['audit_id'],'syslog:')){
+                if(preg_match('/(?:^|\s)admin=([^\s]+)/',$detail,$match)===1){$row['actor_id']=(string)$match[1];}
+                if(preg_match('/(?:^|\s)action=([^\s]+)/',$detail,$match)===1){$row['action_name']=strtoupper((string)$match[1]);}
+                if(preg_match('/(?:^|\s)correlation=([a-f0-9]{16,32})/i',$detail,$match)===1){$row['correlation_id']=(string)$match[1];}
+            }elseif((string)$row['actor_id']!=='System audit'){$row['actor_id']=$this->audit_identifier((string)$row['actor_id']);}
+            $row['change_reason']=$detail;
+        }unset($row);
+        return ['rows'=>$rows,'total'=>$total];
+    }
+
     public function update_password_recovery_by_id($configId,$enabled){
         $Q = "UPDATE sys_config SET password_reset_email_enabled=:enabled WHERE id=:config_id AND singleton_key=1";
         $R=$this->pdo->prepare($Q);$R->execute([':config_id'=>$configId,':enabled'=>$enabled]);

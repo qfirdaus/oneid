@@ -14,6 +14,8 @@ $files = [
     'js' => (string) file_get_contents($root . '/public/assetsM/js/user-2fa-temporary-exemption.js'),
     'locale_en' => (string) file_get_contents($root . '/config/locales/en.php'),
     'locale_ms' => (string) file_get_contents($root . '/config/locales/ms.php'),
+    'database' => (string) file_get_contents($root . '/lib/Database.php'),
+    'configuration_service' => (string) file_get_contents($root . '/app/Admin/SsoConfigurationService.php'),
 ];
 
 $checks = [];
@@ -65,6 +67,14 @@ $checks['simplified_form_multilingual'] = str_contains($files['locale_en'], "'ad
     && str_contains($files['locale_ms'], "'admin.configuration.user_2fa_exemption_reason_lost'")
     && str_contains($files['locale_en'], "'admin.configuration.user_2fa_exemption_review'")
     && str_contains($files['locale_ms'], "'admin.configuration.user_2fa_exemption_review'");
+$checks['professional_confirmation_modal'] = str_contains($files['js'], 'rotation-reason-dialog__choices')
+    && str_contains($files['js'], 'apply_site_api_alert_layout')
+    && str_contains($files['js'], 'allowOutsideClick: false')
+    && str_contains($files['js'], 'escapeHtml(payload.change_reason)');
+$checks['configuration_audit_aggregates_settings'] = str_contains($files['database'], 'function configuration_audit_list')
+    && str_contains($files['database'], 'FROM login_banner_history')
+    && str_contains($files['database'], 'A.log_type IN (33,44,45,48,49,50,54,64)')
+    && str_contains($files['configuration_service'], "method_exists(\$this->operation,'configuration_audit_list')");
 
 $failed = array_keys(array_filter($checks, static fn(bool $passed): bool => !$passed));
 printf(

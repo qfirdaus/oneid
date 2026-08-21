@@ -63,6 +63,11 @@
   };
 
   function element(id) { return document.getElementById(id); }
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character];
+    });
+  }
 
   function request(action, data) {
     var body = new URLSearchParams(Object.assign({_csrf_token: csrf}, data || {}));
@@ -265,20 +270,31 @@
       swal(text.failed, text.invalid, 'warning');
       return;
     }
+    var reviewHtml = '<div class="rotation-reason-dialog">' +
+      '<p class="rotation-reason-dialog__intro">' + escapeHtml(text.reviewReady) + '</p>' +
+      '<div class="rotation-reason-dialog__choices">' +
+      '<div class="rotation-reason-dialog__choice is-selected"><i class="fa fa-user"></i><span><b>' + escapeHtml(text.reviewUser) + '</b><br>' + escapeHtml(payload.user_id) + '</span></div>' +
+      '<div class="rotation-reason-dialog__choice is-selected"><i class="fa fa-clock-o"></i><span><b>' + escapeHtml(text.reviewDuration) + '</b><br>' + escapeHtml(payload.duration_hours + ' ' + text.hours) + '</span></div>' +
+      '<div class="rotation-reason-dialog__choice rotation-reason-dialog__choice--wide is-selected"><i class="fa fa-comment-o"></i><span><b>' + escapeHtml(text.reviewReason) + '</b><br>' + escapeHtml(payload.change_reason) + '</span></div>' +
+      '</div>' +
+      '<div class="rotation-reason-dialog__notice"><i class="fa fa-shield"></i><span><b>' + escapeHtml(text.reviewControl) + '</b><br>' + escapeHtml(payload.compensating_control) + '<br><small>' + escapeHtml(text.reviewReference + ': ' + payload.change_reference) + '</small></span></div>' +
+      '</div>';
     swal({
       title: text.confirmTitle,
-      text: text.reviewUser + ': ' + payload.user_id + '\n' +
-        text.reviewDuration + ': ' + payload.duration_hours + ' ' + text.hours + '\n' +
-        text.reviewReason + ': ' + payload.change_reason + '\n' +
-        text.reviewReference + ': ' + payload.change_reference + '\n' +
-        text.reviewControl + ': ' + payload.compensating_control,
+      text: reviewHtml,
+      html: true,
       type: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#b4233b',
       confirmButtonText: text.confirmAction,
       cancelButtonText: text.cancel,
-      closeOnConfirm: false
+      closeOnConfirm: false,
+      allowEscapeKey: false,
+      allowOutsideClick: false
     }, function () { create(payload); });
+    if (typeof window.apply_site_api_alert_layout === 'function') {
+      window.apply_site_api_alert_layout('rotation', locale === 'ms' ? 'Keselamatan Pengguna' : 'User Security');
+    }
   };
 
   function appendCell(row, value) {

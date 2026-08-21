@@ -3052,10 +3052,9 @@
                   var outcomeClass=outcome==='SUCCESS'?'is-success':'is-rejected';
                   var revision=item.version_before===null?'-':item.version_before+' → '+item.version_after;
                   var reason=item.change_reason||'No change reason recorded.';
-                  var changes='<span class="configuration-history-empty">No policy mutation</span>';
+                  var changes='<span class="configuration-history-empty">'+sessionTextValue(item.action||'Configuration event')+'</span>';
                   if(item.before&&item.after){
-                     changes='<span class="configuration-history-change"><b>Token</b> '+sessionTextValue(item.before.token_timeout)+' → '+sessionTextValue(item.after.token_timeout)+'</span>'+
-                        '<span class="configuration-history-change"><b>Multiple</b> '+(Number(item.before.multi_session)===1?'Allowed':'Not allowed')+' → '+(Number(item.after.multi_session)===1?'Allowed':'Not allowed')+'</span>';
+                     changes=renderConfigurationChanges(item.before,item.after);
                   }
                   rows+='<tr>'+
                      '<td data-label="Event"><span class="configuration-history-primary">'+sessionTextValue(item.created_at)+'</span><span class="configuration-history-secondary"><i class="fa fa-user-o" aria-hidden="true"></i>'+sessionTextValue(item.actor)+'</span></td>'+
@@ -3067,6 +3066,23 @@
                if(rows){$('#sso_config_history_body').html(rows);}else{renderSsoConfigHistoryState('No configuration history recorded.');}
                var meta=response.meta||{};var p=Number(meta.page||1),pages=Number(meta.total_pages||1);$('#sso_config_history_pagination').html('<button type="button" '+(p<=1?'disabled':'')+' onclick="loadSsoConfigHistory('+(p-1)+')"><i class="fa fa-chevron-left"></i></button><span>'+adminText('admin.configuration.page_of',{page:p,pages:pages})+'</span><button type="button" '+(p>=pages?'disabled':'')+' onclick="loadSsoConfigHistory('+(p+1)+')"><i class="fa fa-chevron-right"></i></button>');
             },'json').fail(function(){renderSsoConfigHistoryState(adminText('admin.configuration.history_unavailable'));});
+         }
+         function configurationDisplayValue(value){
+            if(value===null||typeof value==='undefined'){return '—';}
+            if(typeof value==='boolean'){return value?'Enabled':'Disabled';}
+            if(typeof value==='object'){try{return JSON.stringify(value);}catch(ignore){return '[details]';}}
+            return String(value);
+         }
+         function renderConfigurationChanges(before,after){
+            var keys={},html='';
+            Object.keys(before||{}).concat(Object.keys(after||{})).forEach(function(key){keys[key]=true;});
+            Object.keys(keys).slice(0,6).forEach(function(key){
+               var previous=configurationDisplayValue((before||{})[key]);
+               var next=configurationDisplayValue((after||{})[key]);
+               if(previous===next){return;}
+               html+='<span class="configuration-history-change"><b>'+sessionTextValue(String(key).replace(/_/g,' '))+'</b> '+sessionTextValue(previous)+' → '+sessionTextValue(next)+'</span>';
+            });
+            return html||'<span class="configuration-history-empty">No value changed</span>';
          }
          function renderSsoConfigHistoryState(message){$('#sso_config_history_body').html('<tr class="configuration-history-state-row"><td colspan="4">'+sessionTextValue(message)+'</td></tr>');}
          function sessionTextValue(value){return $('<div>').text(value==null?'':value).html();}
