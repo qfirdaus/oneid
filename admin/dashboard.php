@@ -6821,7 +6821,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"
          data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=configuration_user_mfa_category"></script>
       <script
-         src="../assetsM/js/user-2fa-temporary-exemption.js?v=20260821-3"
+         src="../assetsM/js/user-2fa-temporary-exemption.js?v=20260821-4"
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"
          data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=configuration_user_mfa_exemption"></script>
@@ -11264,6 +11264,39 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #tab_settings .user-2fa-exemption-detail span {
         display: block;
         margin-top: 2px;
+      }
+
+      #tab_settings .user-2fa-exemption-reason span {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+      }
+
+      #tab_settings .user-2fa-exemption-reason.is-expanded span {
+        display: block;
+        overflow: visible;
+        -webkit-line-clamp: unset;
+        line-clamp: unset;
+      }
+
+      #tab_settings .user-2fa-exemption-reason-toggle {
+        margin-top: 5px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: #128dbd;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.3;
+      }
+
+      #tab_settings .user-2fa-exemption-reason-toggle:hover,
+      #tab_settings .user-2fa-exemption-reason-toggle:focus {
+        color: #096f98;
+        text-decoration: underline;
+        outline: none;
       }
 
       #tab_settings .user-2fa-exemption-action {

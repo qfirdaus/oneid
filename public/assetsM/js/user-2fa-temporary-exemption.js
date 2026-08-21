@@ -38,6 +38,8 @@
     reference: 'Rujukan',
     approvedBy: 'Diluluskan oleh',
     reasonControl: 'Sebab dan kawalan',
+    showMore: 'Tunjuk lagi',
+    showLess: 'Sembunyi',
     control: 'Identiti staf telah disahkan oleh Administrator; akses dipantau dan pengecualian luput secara automatik.'
   } : {
     invalid: 'Select a user, duration and exemption reason.',
@@ -68,6 +70,8 @@
     reference: 'Reference',
     approvedBy: 'Approved by',
     reasonControl: 'Reason and control',
+    showMore: 'Show more',
+    showLess: 'Hide',
     control: 'Staff identity was verified by an Administrator; access is monitored and the exemption expires automatically.'
   };
 
@@ -321,6 +325,27 @@
     return block;
   }
 
+  function collapsibleReason(value) {
+    var block = detail(text.reasonControl, value);
+    block.classList.add('user-2fa-exemption-reason');
+    var content = block.querySelector('span');
+    var toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'user-2fa-exemption-reason-toggle';
+    toggle.textContent = text.showMore;
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.addEventListener('click', function () {
+      var expanded = block.classList.toggle('is-expanded');
+      toggle.textContent = expanded ? text.showLess : text.showMore;
+      toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    });
+    block.appendChild(toggle);
+    window.requestAnimationFrame(function () {
+      if (content.scrollHeight <= content.clientHeight + 1) toggle.hidden = true;
+    });
+    return block;
+  }
+
   function render(rows) {
     var body = element('user_2fa_exemption_rows');
     body.textContent = '';
@@ -349,7 +374,7 @@
       meta.appendChild(status);
       meta.appendChild(detail(text.expiry, item.expires_at));
       var information = document.createElement('div');
-      information.appendChild(detail(text.reasonControl, String(item.change_reason || '') + ' · ' + String(item.compensating_control || '') + (item.revoke_reason ? ' · Revoke: ' + String(item.revoke_reason) : '')));
+      information.appendChild(collapsibleReason(String(item.change_reason || '') + ' · ' + String(item.compensating_control || '') + (item.revoke_reason ? ' · Revoke: ' + String(item.revoke_reason) : '')));
       information.appendChild(detail(text.reference, item.change_reference));
       information.appendChild(detail(text.approvedBy, item.approved_by));
       var action = document.createElement('div');
