@@ -689,6 +689,8 @@ return [
     'admin.configuration.changes' => 'Changes',
     'admin.configuration.reason_reference' => 'Reason and Reference',
     'admin.configuration.loading_history' => 'Loading history...',
+    'admin.configuration.show_more' => 'Show more',
+    'admin.configuration.show_less' => 'Hide',
     'admin.common.loading' => 'Loading...',
     'admin.common.refresh' => 'Refresh',
     'admin.common.close' => 'Close',

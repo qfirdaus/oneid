@@ -689,6 +689,8 @@ return [
     'admin.configuration.changes' => 'Perubahan',
     'admin.configuration.reason_reference' => 'Sebab dan Rujukan',
     'admin.configuration.loading_history' => 'Memuatkan sejarah...',
+    'admin.configuration.show_more' => 'Tunjuk lagi',
+    'admin.configuration.show_less' => 'Sembunyi',
     'admin.common.loading' => 'Memuatkan...',
     'admin.common.refresh' => 'Muat semula',
     'admin.common.close' => 'Tutup',

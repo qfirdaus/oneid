@@ -3074,15 +3074,25 @@
             return String(value);
          }
          function renderConfigurationChanges(before,after){
-            var keys={},html='';
+            var keys={},items=[];
             Object.keys(before||{}).concat(Object.keys(after||{})).forEach(function(key){keys[key]=true;});
-            Object.keys(keys).slice(0,6).forEach(function(key){
+            Object.keys(keys).forEach(function(key){
                var previous=configurationDisplayValue((before||{})[key]);
                var next=configurationDisplayValue((after||{})[key]);
                if(previous===next){return;}
-               html+='<span class="configuration-history-change"><b>'+sessionTextValue(String(key).replace(/_/g,' '))+'</b> '+sessionTextValue(previous)+' → '+sessionTextValue(next)+'</span>';
+               items.push('<span class="configuration-history-change"><b>'+sessionTextValue(String(key).replace(/_/g,' '))+'</b> '+sessionTextValue(previous)+' → '+sessionTextValue(next)+'</span>');
             });
-            return html||'<span class="configuration-history-empty">No value changed</span>';
+            if(!items.length){return '<span class="configuration-history-empty">No value changed</span>';}
+            var toggle=items.length>2?'<button type="button" class="configuration-history-toggle" aria-expanded="false" onclick="toggleConfigurationChanges(this)"><i class="fa fa-chevron-down" aria-hidden="true"></i><span>'+sessionTextValue(adminText('admin.configuration.show_more'))+'</span></button>':'';
+            return '<div class="configuration-history-changes'+(items.length>2?' is-collapsed':'')+'">'+items.join('')+toggle+'</div>';
+         }
+         function toggleConfigurationChanges(button){
+            var container=$(button).closest('.configuration-history-changes');
+            var expanded=container.hasClass('is-collapsed');
+            container.toggleClass('is-collapsed',!expanded);
+            $(button).attr('aria-expanded',expanded?'true':'false');
+            $(button).find('span').text(adminText(expanded?'admin.configuration.show_less':'admin.configuration.show_more'));
+            $(button).find('i').toggleClass('fa-chevron-down',!expanded).toggleClass('fa-chevron-up',expanded);
          }
          function renderSsoConfigHistoryState(message){$('#sso_config_history_body').html('<tr class="configuration-history-state-row"><td colspan="4">'+sessionTextValue(message)+'</td></tr>');}
          function sessionTextValue(value){return $('<div>').text(value==null?'':value).html();}
@@ -11178,7 +11188,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         display: grid;
         grid-template-columns: minmax(190px, 1.15fr) minmax(155px, .85fr) minmax(220px, 1.35fr) auto;
         gap: 16px;
-        align-items: center;
+        align-items: start;
         padding: 16px;
         border: 1px solid #e2e8ef;
         border-left: 4px solid #13a6d9;
@@ -11259,6 +11269,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #tab_settings .user-2fa-exemption-action {
         min-width: 86px;
         text-align: right;
+        align-self: start;
       }
 
       #tab_settings .user-2fa-exemption-action .btn {
@@ -11399,6 +11410,11 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         vertical-align: top;
       }
 
+      #tab_settings .configuration-history-table tbody tr,
+      #tab_settings .configuration-history-table tbody td > * {
+        vertical-align: top;
+      }
+
       #tab_settings .configuration-history-table tbody tr:last-child td {
         border-bottom: 0;
       }
@@ -11438,6 +11454,31 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
       #tab_settings .configuration-history-change + .configuration-history-change {
         margin-top: 4px;
+      }
+
+      #tab_settings .configuration-history-changes.is-collapsed .configuration-history-change:nth-child(n+3) {
+        display: none;
+      }
+
+      #tab_settings .configuration-history-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 7px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: #128dbd;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.3;
+      }
+
+      #tab_settings .configuration-history-toggle:hover,
+      #tab_settings .configuration-history-toggle:focus {
+        color: #096f98;
+        text-decoration: underline;
+        outline: none;
       }
 
       #tab_settings .configuration-history-change b {

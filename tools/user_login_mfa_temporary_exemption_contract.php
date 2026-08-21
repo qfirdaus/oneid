@@ -82,6 +82,13 @@ $checks['compact_responsive_history'] = str_contains($files['ui'], 'class="user-
     && str_contains($files['js'], "card.className = 'user-2fa-exemption-card'")
     && str_contains($files['ui'], '.user-2fa-exemption-card {')
     && str_contains($files['ui'], 'grid-template-columns: 1fr;');
+$checks['top_aligned_and_collapsible_audit'] = str_contains($files['ui'], '.user-2fa-exemption-card {')
+    && str_contains($files['ui'], 'align-items: start;')
+    && str_contains($files['ui'], '.configuration-history-table tbody td > *')
+    && str_contains($files['ui'], "items.length>2?' is-collapsed'")
+    && str_contains($files['ui'], 'toggleConfigurationChanges(button)')
+    && str_contains($files['locale_en'], "'admin.configuration.show_more'")
+    && str_contains($files['locale_ms'], "'admin.configuration.show_more'");
 
 $failed = array_keys(array_filter($checks, static fn(bool $passed): bool => !$passed));
 printf(
