@@ -73,7 +73,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title><?=$h('user_mfa.security.title')?> | OneID@UPNM</title>
   <link rel="stylesheet" href="../assetsM/css/sweetalert.css">
-  <link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260730-5">
+  <link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260821-1">
   <link rel="stylesheet" href="../dist/css/user-mfa-security.css?v=20260731-1">
   <link rel="stylesheet" href="../dist/css/oneid-user-session.css?v=20260808-2">
   <link rel="stylesheet" href="../dist/css/oneid-environment-banner.css?v=20260810-1">
@@ -166,7 +166,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
           <div class="account-method-title"><span class="account-method-icon">&#9993;</span><div><h4><?=$h('user_mfa.security.revoke_with_email')?></h4><small><?=htmlspecialchars($maskedEmail, ENT_QUOTES, 'UTF-8')?></small></div></div>
           <p class="mfa-intro"><?=$h('user_mfa.security.recovery_intro')?></p>
           <div class="mfa-field"><label for="recoveryPassword"><?=$h('user_mfa.security.current_password')?></label><input id="recoveryPassword" class="mfa-control" type="password" maxlength="200" autocomplete="current-password"></div>
-          <button id="requestRecoveryOtp" class="mfa-button" type="button"><?=$h('user_mfa.security.send_recovery_otp')?></button>
+          <button id="requestRecoveryOtp" class="mfa-button mfa-send-email" type="button"><span aria-hidden="true">&#9993;</span> <?=$h('user_mfa.security.send_recovery_otp')?> <span aria-hidden="true">&#8594;</span></button>
           <div id="recoveryOtpPanel" class="mfa-hidden account-recovery-otp">
             <div class="mfa-field"><label for="recoveryOtp"><?=$h('user_mfa.security.recovery_otp')?></label><input id="recoveryOtp" class="mfa-control mfa-otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000"></div>
             <button id="verifyRecoveryOtp" class="mfa-button mfa-danger" type="button"><?=$h('user_mfa.security.verify_recovery_otp')?></button>
