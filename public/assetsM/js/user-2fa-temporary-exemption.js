@@ -84,6 +84,15 @@
   };
 
   function element(id) { return document.getElementById(id); }
+  function formatDateTime(value) {
+    var match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::\d{2})?/);
+    if (!match) return String(value || '').replace(/\.\d+$/, '');
+    var date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), Number(match[4]), Number(match[5]));
+    if (Number.isNaN(date.getTime())) return String(value || '').replace(/\.\d+$/, '');
+    return new Intl.DateTimeFormat(locale === 'ms' ? 'ms-MY' : 'en-MY', {
+      day: 'numeric', month: 'short', year: 'numeric', hour: 'numeric', minute: '2-digit'
+    }).format(date);
+  }
   function escapeHtml(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) {
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character];
@@ -382,7 +391,7 @@
       status.className = 'user-2fa-exemption-status' + (item.expires_soon ? ' is-expiring' : '');
       status.textContent = String(item.exemption_status) + (item.expires_soon ? ' · ' + text.expiring : '');
       meta.appendChild(status);
-      meta.appendChild(detail(text.expiry, item.expires_at));
+      meta.appendChild(detail(text.expiry, formatDateTime(item.expires_at)));
       var information = collapsibleInformation(
         String(item.change_reason || '') + ' · ' + String(item.compensating_control || '') + (item.revoke_reason ? ' · Revoke: ' + String(item.revoke_reason) : ''),
         item.change_reference,

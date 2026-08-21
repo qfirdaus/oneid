@@ -101,6 +101,10 @@ $checks['professional_revoke_modal'] = str_contains($files['js'], 'id="user_2fa_
     && str_contains($files['js'], "apply_site_api_alert_layout('rotation'")
     && str_contains($files['js'], 'allowOutsideClick: false')
     && !str_contains($files['js'], "type: 'input'");
+$checks['human_readable_expiry'] = str_contains($files['js'], 'function formatDateTime(value)')
+    && str_contains($files['js'], "locale === 'ms' ? 'ms-MY' : 'en-MY'")
+    && str_contains($files['js'], 'formatDateTime(item.expires_at)')
+    && str_contains($files['js'], "replace(/\\.\\d+$/, '')");
 
 $failed = array_keys(array_filter($checks, static fn(bool $passed): bool => !$passed));
 printf(
