@@ -9,7 +9,8 @@
   var candidateSearchTimer = null;
   var candidateSearchSequence = 0;
   var text = locale === 'ms' ? {
-    invalid: 'Lengkapkan ID pengguna, sebab dan kawalan minimum 10 aksara, rujukan sah serta pengesahan tepat.',
+    invalid: 'Pilih pengguna, tempoh dan sebab pengecualian.',
+    otherInvalid: 'Nyatakan sebab lain sekurang-kurangnya 10 aksara.',
     created: 'Pengecualian sementara berjaya dicipta.',
     revoked: 'Pengecualian berjaya ditarik balik.',
     failed: 'Operasi pengecualian gagal.',
@@ -21,9 +22,21 @@
     searchMin: 'Masukkan sekurang-kurangnya 2 aksara.',
     searchEmpty: 'Tiada pengguna ditemui.',
     selected: 'Pengguna dipilih',
-    notEligible: 'Rekod ini tidak layak'
+    notEligible: 'Rekod ini tidak layak',
+    reviewReady: 'Pilih pengguna, tempoh dan sebab. Butiran lengkap akan dipaparkan sebelum dihantar.',
+    reviewUser: 'Pengguna',
+    reviewDuration: 'Tempoh',
+    reviewReason: 'Sebab',
+    reviewReference: 'Rujukan audit',
+    reviewControl: 'Kawalan sementara',
+    confirmTitle: 'Sahkan pengecualian User 2FA?',
+    confirmAction: 'Cipta pengecualian',
+    cancel: 'Batal',
+    hours: 'jam',
+    control: 'Identiti staf telah disahkan oleh Administrator; akses dipantau dan pengecualian luput secara automatik.'
   } : {
-    invalid: 'Complete the user ID, reason and control (minimum 10 characters), valid reference and exact confirmation.',
+    invalid: 'Select a user, duration and exemption reason.',
+    otherInvalid: 'Enter another reason of at least 10 characters.',
     created: 'The temporary exemption was created.',
     revoked: 'The exemption was revoked.',
     failed: 'The exemption operation failed.',
@@ -35,7 +48,18 @@
     searchMin: 'Enter at least 2 characters.',
     searchEmpty: 'No users found.',
     selected: 'Selected user',
-    notEligible: 'This record is not eligible'
+    notEligible: 'This record is not eligible',
+    reviewReady: 'Select a user, duration and reason. Complete details will be shown before submission.',
+    reviewUser: 'User',
+    reviewDuration: 'Duration',
+    reviewReason: 'Reason',
+    reviewReference: 'Audit reference',
+    reviewControl: 'Temporary control',
+    confirmTitle: 'Confirm User 2FA exemption?',
+    confirmAction: 'Create exemption',
+    cancel: 'Cancel',
+    hours: 'hour(s)',
+    control: 'Staff identity was verified by an Administrator; access is monitored and the exemption expires automatically.'
   };
 
   function element(id) { return document.getElementById(id); }
@@ -65,16 +89,43 @@
     return 'ADD USER 2FA EXEMPTION ' + String(element('user_2fa_exemption_user').value || '').trim();
   }
 
-  function updatePhrase() {
-    if (element('user_2fa_exemption_confirmation_phrase')) {
-      element('user_2fa_exemption_confirmation_phrase').textContent = phrase();
-    }
+  function selectedReason() {
+    var select = element('user_2fa_exemption_reason');
+    if (!select || !select.value) return '';
+    if (select.value === 'OTHER') return String(element('user_2fa_exemption_other').value || '').trim();
+    return String(select.options[select.selectedIndex].text || '').trim();
+  }
+
+  function generatedReference() {
+    var now = new Date();
+    var date = String(now.getFullYear()) + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
+    var bytes = new Uint8Array(3);
+    if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(bytes);
+    else bytes = [Math.random() * 256, Math.random() * 256, Math.random() * 256];
+    var suffix = Array.prototype.map.call(bytes, function (value) {
+      return Math.floor(value).toString(16).padStart(2, '0');
+    }).join('').toUpperCase();
+    return 'MFA-EXM-' + date + '-' + suffix;
+  }
+
+  function updateReview() {
+    var review = element('user_2fa_exemption_review');
+    if (!review) return;
+    var user = String(element('user_2fa_exemption_user').value || '').trim();
+    var reason = selectedReason();
+    var duration = String(element('user_2fa_exemption_duration').value || '');
+    review.textContent = user && reason ?
+      text.reviewUser + ': ' + user + ' · ' + text.reviewDuration + ': ' + duration + ' ' + text.hours + ' · ' + text.reviewReason + ': ' + reason :
+      text.reviewReady;
   }
 
   function setConfigurationEnabled(enabled) {
     document.querySelectorAll('.user-2fa-exemption-setting').forEach(function (control) {
       control.disabled = !enabled;
     });
+    if (enabled && element('user_2fa_exemption_reason').value !== 'OTHER') {
+      element('user_2fa_exemption_other').disabled = true;
+    }
     element('user_2fa_exemption_create_button').disabled = !enabled;
   }
 
@@ -82,7 +133,7 @@
     element('user_2fa_exemption_user').value = '';
     element('user_2fa_exemption_selected_status').textContent = '';
     setConfigurationEnabled(false);
-    updatePhrase();
+    updateReview();
   }
 
   function selectCandidate(candidate) {
@@ -95,7 +146,7 @@
       text.selected + ': ' + String(candidate.u_id) +
       (candidate.display_name ? ' — ' + String(candidate.display_name) : '');
     setConfigurationEnabled(true);
-    updatePhrase();
+    updateReview();
   }
 
   window.searchUser2faExemptionCandidates = function () {
@@ -154,10 +205,6 @@
     }, 300);
   }
 
-  window.fillUser2faExemptionConfirmation = function () {
-    element('user_2fa_exemption_confirmation').value = phrase();
-  };
-
   function needsStepUp(error) {
     var code = String((error.payload || {}).code || error.message || '');
     return error.status === 403 &&
@@ -182,6 +229,9 @@
       sessionStorage.removeItem('oneid_user_2fa_exemption_pending');
       swal(text.created, 'Reference: ' + String(response.correlation_id || ''), 'success');
       element('user_2fa_exemption_user_search').value = '';
+      element('user_2fa_exemption_reason').value = '';
+      element('user_2fa_exemption_other').value = '';
+      element('user_2fa_exemption_other_wrap').classList.add('hidden');
       clearSelectedUser();
       window.loadUser2faExemptions();
     }).catch(function (error) {
@@ -192,28 +242,41 @@
   }
 
   window.createUser2faExemption = function () {
+    var reasonCode = String(element('user_2fa_exemption_reason').value || '');
+    var reason = selectedReason();
+    var otherError = element('user_2fa_exemption_other_error');
+    otherError.textContent = '';
     var payload = {
       user_id: String(element('user_2fa_exemption_user').value || '').trim(),
       duration_hours: String(element('user_2fa_exemption_duration').value || ''),
-      change_reason: String(element('user_2fa_exemption_reason').value || '').trim(),
-      change_reference: String(element('user_2fa_exemption_reference').value || '').trim(),
-      compensating_control: String(element('user_2fa_exemption_control').value || '').trim(),
-      typed_confirmation: String(element('user_2fa_exemption_confirmation').value || '').trim()
+      change_reason: reason,
+      change_reference: generatedReference(),
+      compensating_control: text.control,
+      typed_confirmation: phrase()
     };
+    if (reasonCode === 'OTHER' && reason.length < 10) {
+      otherError.textContent = text.otherInvalid;
+      element('user_2fa_exemption_other').focus();
+      return;
+    }
     if (!/^[A-Za-z0-9_.@-]{1,20}$/.test(payload.user_id) ||
         [1, 4, 8, 24, 72].indexOf(Number(payload.duration_hours)) === -1 ||
-        payload.change_reason.length < 10 || payload.compensating_control.length < 10 ||
-        !/^[A-Za-z0-9._-]{8,100}$/.test(payload.change_reference) ||
-        payload.typed_confirmation !== phrase()) {
+        !reasonCode || payload.change_reason.length < 10) {
       swal(text.failed, text.invalid, 'warning');
       return;
     }
     swal({
-      title: phrase() + '?',
-      text: payload.duration_hours + ' hour(s). Pending MFA challenges will be revoked.',
+      title: text.confirmTitle,
+      text: text.reviewUser + ': ' + payload.user_id + '\n' +
+        text.reviewDuration + ': ' + payload.duration_hours + ' ' + text.hours + '\n' +
+        text.reviewReason + ': ' + payload.change_reason + '\n' +
+        text.reviewReference + ': ' + payload.change_reference + '\n' +
+        text.reviewControl + ': ' + payload.compensating_control,
       type: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#b4233b',
+      confirmButtonText: text.confirmAction,
+      cancelButtonText: text.cancel,
       closeOnConfirm: false
     }, function () { create(payload); });
   };
@@ -337,7 +400,18 @@
     element('user_2fa_exemption_search').addEventListener('keydown', function (event) {
       if (event.key === 'Enter') window.loadUser2faExemptions();
     });
-    updatePhrase();
+    element('user_2fa_exemption_duration').addEventListener('change', updateReview);
+    element('user_2fa_exemption_reason').addEventListener('change', function () {
+      var other = element('user_2fa_exemption_other_wrap');
+      var showOther = this.value === 'OTHER';
+      other.classList.toggle('hidden', !showOther);
+      element('user_2fa_exemption_other').disabled = !showOther;
+      element('user_2fa_exemption_other_error').textContent = '';
+      updateReview();
+      if (showOther) element('user_2fa_exemption_other').focus();
+    });
+    element('user_2fa_exemption_other').addEventListener('input', updateReview);
+    updateReview();
     window.loadUser2faExemptions();
     if (window.oneidStepUpContextReady === 'configuration_user_mfa_exemption') resume();
   }

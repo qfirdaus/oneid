@@ -12,6 +12,8 @@ $files = [
     'api' => (string) file_get_contents($root . '/lib/q_func.php'),
     'ui' => (string) file_get_contents($root . '/admin/dashboard.php'),
     'js' => (string) file_get_contents($root . '/public/assetsM/js/user-2fa-temporary-exemption.js'),
+    'locale_en' => (string) file_get_contents($root . '/config/locales/en.php'),
+    'locale_ms' => (string) file_get_contents($root . '/config/locales/ms.php'),
 ];
 
 $checks = [];
@@ -49,6 +51,20 @@ $checks['realtime_candidate_search'] = str_contains($files['service'], 'LIMIT 10
     && str_contains($files['js'], "addEventListener('input', scheduleCandidateSearch)")
     && str_contains($files['js'], 'candidateSearchSequence')
     && str_contains($files['ui'], 'max-height: 310px');
+$checks['simplified_reason_selection'] = str_contains($files['ui'], 'id="user_2fa_exemption_reason"')
+    && str_contains($files['ui'], 'value="PHONE_LOST"')
+    && str_contains($files['ui'], 'value="OTHER"')
+    && str_contains($files['ui'], 'id="user_2fa_exemption_other_wrap"')
+    && !str_contains($files['ui'], 'id="user_2fa_exemption_confirmation"');
+$checks['automatic_controlled_fields'] = str_contains($files['js'], 'generatedReference()')
+    && str_contains($files['js'], 'compensating_control: text.control')
+    && str_contains($files['js'], 'typed_confirmation: phrase()')
+    && str_contains($files['js'], 'text.confirmTitle')
+    && str_contains($files['js'], "reasonCode === 'OTHER'");
+$checks['simplified_form_multilingual'] = str_contains($files['locale_en'], "'admin.configuration.user_2fa_exemption_reason_lost'")
+    && str_contains($files['locale_ms'], "'admin.configuration.user_2fa_exemption_reason_lost'")
+    && str_contains($files['locale_en'], "'admin.configuration.user_2fa_exemption_review'")
+    && str_contains($files['locale_ms'], "'admin.configuration.user_2fa_exemption_review'");
 
 $failed = array_keys(array_filter($checks, static fn(bool $passed): bool => !$passed));
 printf(
