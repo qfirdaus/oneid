@@ -94,7 +94,7 @@ $checks['reason_control_three_line_toggle'] = str_contains($files['ui'], '.user-
     && str_contains($files['ui'], '.user-2fa-exemption-information.is-expanded')
     && str_contains($files['js'], 'function collapsibleInformation(reason, reference, approver)')
     && str_contains($files['js'], "toggle.textContent = expanded ? text.showLess : text.showMore")
-    && str_contains($files['js'], 'content.scrollHeight <= content.clientHeight + 1');
+    && !str_contains($files['js'], 'content.scrollHeight <= content.clientHeight + 1');
 
 $failed = array_keys(array_filter($checks, static fn(bool $passed): bool => !$passed));
 printf(

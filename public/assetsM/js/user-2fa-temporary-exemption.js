@@ -345,9 +345,6 @@
     });
     block.appendChild(content);
     block.appendChild(toggle);
-    window.requestAnimationFrame(function () {
-      if (content.scrollHeight <= content.clientHeight + 1) toggle.hidden = true;
-    });
     return block;
   }
 
