@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2101-CHANGELOG-20260815-01",
+    "authorization": "ONEID-V2102-CHANGELOG-20260821-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.10.2",
+            "version": "2.10.2",
+            "date": "2026-08-21",
+            "items": [
+                {
+                    "identity": "release:2.10.2:item:001",
+                    "bm": "Tindakan menghantar OTP e-mel kini menggunakan panel arahan dan butang berkontras tinggi yang lebih jelas pada login pengguna, Admin Step-Up dan recovery keselamatan akaun.",
+                    "en_draft": "E-mail OTP actions now use clearer instruction panels and high-contrast buttons across user login, Admin Step-Up and account-security recovery.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.2:item:002",
+                    "bm": "Borang Temporary User 2FA Exemption diringkaskan kepada pemilihan pengguna, tempoh dan sebab lazim, dengan pilihan Lain-lain apabila sebab khusus diperlukan.",
+                    "en_draft": "The Temporary User 2FA Exemption form is simplified to user, duration and common-reason selection, with an Other option when a specific reason is required.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.2:item:003",
+                    "bm": "Rujukan audit, kawalan pampasan dan exact confirmation exemption dijana secara terkawal sementara Admin Step-Up, had 72 jam, auto-expiry dan audit backend kekal diwajibkan.",
+                    "en_draft": "Audit references, compensating controls and exact exemption confirmations are generated in a controlled manner while Admin Step-Up, the 72-hour limit, automatic expiry and backend auditing remain mandatory.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.2:item:004",
+                    "bm": "Modal create dan revoke exemption menggunakan susun atur profesional dwibahasa yang memaparkan nama serta nombor staf tanpa mendedahkan nombor kad pengenalan.",
+                    "en_draft": "Create and revoke exemption dialogs use a professional bilingual layout showing the staff name and number without exposing identity-card numbers.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.2:item:005",
+                    "bm": "Sejarah exemption menggunakan kad responsif yang compact, top-aligned dan tidak memerlukan horizontal scrollbar pada desktop, tablet atau telefon.",
+                    "en_draft": "Exemption history uses compact top-aligned responsive cards without horizontal scrolling on desktop, tablet or mobile displays.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.2:item:006",
+                    "bm": "Kolum butiran exemption menyediakan Show more dan Hide untuk kandungan melebihi tiga baris, manakala tarikh luput menggunakan format tempatan yang mudah dibaca tanpa microseconds database.",
+                    "en_draft": "The exemption detail column provides Show more and Hide controls for content beyond three lines, while expiry dates use readable local formatting without database microseconds.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.2:item:007",
+                    "bm": "Tab Configuration Audit kini menyatukan SSO policy, Account Recovery, Admin 2FA, User 2FA, locale, maintenance dan Login Banner dalam satu timeline read-only.",
+                    "en_draft": "The Configuration Audit tab now consolidates SSO policy, Account Recovery, Admin 2FA, User 2FA, locale, maintenance and Login Banner events into one read-only timeline.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.2:item:008",
+                    "bm": "Kolum Changes dalam Audit memaparkan dua perubahan terlebih dahulu dan menyediakan kawalan Tunjuk lagi atau Sembunyi tanpa membuang butiran tambahan.",
+                    "en_draft": "The Audit Changes column shows the first two changes and provides Show more or Hide controls without discarding additional details.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.2:item:009",
+                    "bm": "Semua medan exemption dan Audit disusun dari bahagian atas dengan wrapping serta spacing yang konsisten untuk meningkatkan kebolehbacaan operasi.",
+                    "en_draft": "All exemption and Audit fields are top-aligned with consistent wrapping and spacing for improved operational readability.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.2:item:010",
+                    "bm": "Contract regression mengesahkan flow OTP, exemption, Admin Step-Up, audit, multilingual dan perlindungan fail-closed kekal berfungsi selepas penambahbaikan paparan.",
+                    "en_draft": "Regression contracts verify that OTP, exemption, Admin Step-Up, audit, multilingual and fail-closed protections continue to operate after the presentation improvements.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.10.1",
             "version": "2.10.1",
@@ -2847,5 +2914,5 @@
             ]
         }
     ],
-    "manifest_digest": "ba587bc62bbaab0522ca97adc9b820a7a60cb9e7077a8d5d54ce376921d90a73"
+    "manifest_digest": "0b4152b0d4dc1fb0da4934a07ad888660385876bd211031045f44a11bc7ee9df"
 }

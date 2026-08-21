@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.10.2' =>
+  array (
+    'version' => '2.10.2',
+    'date' => '2026-08-21',
+    'bm' =>
+    array (
+      0 => 'Tindakan menghantar OTP e-mel kini menggunakan panel arahan dan butang berkontras tinggi yang lebih jelas pada login pengguna, Admin Step-Up dan recovery keselamatan akaun.',
+      1 => 'Borang Temporary User 2FA Exemption diringkaskan kepada pemilihan pengguna, tempoh dan sebab lazim, dengan pilihan Lain-lain apabila sebab khusus diperlukan.',
+      2 => 'Rujukan audit, kawalan pampasan dan exact confirmation exemption dijana secara terkawal sementara Admin Step-Up, had 72 jam, auto-expiry dan audit backend kekal diwajibkan.',
+      3 => 'Modal create dan revoke exemption menggunakan susun atur profesional dwibahasa yang memaparkan nama serta nombor staf tanpa mendedahkan nombor kad pengenalan.',
+      4 => 'Sejarah exemption menggunakan kad responsif yang compact, top-aligned dan tidak memerlukan horizontal scrollbar pada desktop, tablet atau telefon.',
+      5 => 'Kolum butiran exemption menyediakan Show more dan Hide untuk kandungan melebihi tiga baris, manakala tarikh luput menggunakan format tempatan yang mudah dibaca tanpa microseconds database.',
+      6 => 'Tab Configuration Audit kini menyatukan SSO policy, Account Recovery, Admin 2FA, User 2FA, locale, maintenance dan Login Banner dalam satu timeline read-only.',
+      7 => 'Kolum Changes dalam Audit memaparkan dua perubahan terlebih dahulu dan menyediakan kawalan Tunjuk lagi atau Sembunyi tanpa membuang butiran tambahan.',
+      8 => 'Semua medan exemption dan Audit disusun dari bahagian atas dengan wrapping serta spacing yang konsisten untuk meningkatkan kebolehbacaan operasi.',
+      9 => 'Contract regression mengesahkan flow OTP, exemption, Admin Step-Up, audit, multilingual dan perlindungan fail-closed kekal berfungsi selepas penambahbaikan paparan.',
+    ),
+    'en' =>
+    array (
+      0 => 'E-mail OTP actions now use clearer instruction panels and high-contrast buttons across user login, Admin Step-Up and account-security recovery.',
+      1 => 'The Temporary User 2FA Exemption form is simplified to user, duration and common-reason selection, with an Other option when a specific reason is required.',
+      2 => 'Audit references, compensating controls and exact exemption confirmations are generated in a controlled manner while Admin Step-Up, the 72-hour limit, automatic expiry and backend auditing remain mandatory.',
+      3 => 'Create and revoke exemption dialogs use a professional bilingual layout showing the staff name and number without exposing identity-card numbers.',
+      4 => 'Exemption history uses compact top-aligned responsive cards without horizontal scrolling on desktop, tablet or mobile displays.',
+      5 => 'The exemption detail column provides Show more and Hide controls for content beyond three lines, while expiry dates use readable local formatting without database microseconds.',
+      6 => 'The Configuration Audit tab now consolidates SSO policy, Account Recovery, Admin 2FA, User 2FA, locale, maintenance and Login Banner events into one read-only timeline.',
+      7 => 'The Audit Changes column shows the first two changes and provides Show more or Hide controls without discarding additional details.',
+      8 => 'All exemption and Audit fields are top-aligned with consistent wrapping and spacing for improved operational readability.',
+      9 => 'Regression contracts verify that OTP, exemption, Admin Step-Up, audit, multilingual and fail-closed protections continue to operate after the presentation improvements.',
+    ),
+  ),
   'release-2.10.1' =>
   array (
     'version' => '2.10.1',

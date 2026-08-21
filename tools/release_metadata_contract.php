@@ -16,17 +16,17 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $label);
 };
 
-$report(ONEID_APP_VERSION === '2.10.1', 'central application version is 2.10.1');
+$report(ONEID_APP_VERSION === '2.10.2', 'central application version is 2.10.2');
 $report(
-    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.10.1',
+    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.10.2',
     'central copyright and footer text match the approved release'
 );
 $approvedCatalogue = new \OneId\App\Documentation\ApprovedReleaseCatalogue($projectRoot);
 $approvedEnglish = $approvedCatalogue->forLocale('en')['releases'];
 $report(
-    ($approvedEnglish[0]['version'] ?? null) === '2.10.1'
-        && str_starts_with((string)($approvedEnglish[0]['changes'][0] ?? ''), 'The new Administrator Reporting Centre'),
-    'approved English release catalogue is bound to v2.10.1 content'
+    ($approvedEnglish[0]['version'] ?? null) === '2.10.2'
+        && str_starts_with((string)($approvedEnglish[0]['changes'][0] ?? ''), 'E-mail OTP actions'),
+    'approved English release catalogue is bound to v2.10.2 content'
 );
 
 foreach (['index.php', 'page/dashboard.php', 'admin/dashboard.php'] as $page) {
@@ -42,7 +42,7 @@ $report(
     ($latestPlainRelease['version'] ?? null) === ONEID_APP_VERSION
         && count($latestPlainRelease['bm'] ?? []) === 10
         && count($latestPlainRelease['en'] ?? []) === 10,
-    'latest admin release card reads shared v2.10.1 bilingual metadata'
+    'latest admin release card reads shared v2.10.2 bilingual metadata'
 );
 $expectedHistory = [
     '2.8.1','2.8.0','2.7.4','2.7.3','2.7.2','2.7.1','2.7.0','2.6.4','2.6.3','2.6.2','2.6.1','2.6.0',
@@ -65,15 +65,15 @@ foreach ($expectedHistory as $version) {
 }
 $report(
     $historyValid
-        && count($plainCatalogue) === 56,
-    'release history preserves all 56 releases in order'
+        && count($plainCatalogue) === 57,
+    'release history preserves all 57 releases in order'
 );
 $policy = (string) file_get_contents($projectRoot . '/docs/VERSION_NUMBERING_POLICY.md');
 $package = json_decode((string) file_get_contents($projectRoot . '/package.json'), true);
 $report(($package['version'] ?? '') === ONEID_APP_VERSION, 'package metadata matches the central application version');
 $report(
-    array_column(array_slice($plainCatalogue, 0, 5), 'version') === ['2.10.1', '2.10.0', '2.9.4', '2.9.3', '2.9.2'],
-    'v2.10.1 follows v2.10.0 according to the patch-cap policy'
+    array_column(array_slice($plainCatalogue, 0, 5), 'version') === ['2.10.2', '2.10.1', '2.10.0', '2.9.4', '2.9.3'],
+    'v2.10.2 follows v2.10.1 according to the patch-cap policy'
 );
 $report(
     preg_match('/^\d+\.\d+\.[0-4]$/', ONEID_APP_VERSION) === 1
