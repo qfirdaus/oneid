@@ -1882,7 +1882,7 @@
                                                                         <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">04</span><div><label><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_review'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_review_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><div class="alert alert-info" id="user_2fa_exemption_review" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_review_ready'), ENT_QUOTES, 'UTF-8')?></div></div></div>
                                                                         <div class="sso-config-note sso-config-note-warning"><i class="fa fa-exclamation-triangle"></i><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_warning'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                                         <div class="sso-config-row"><div class="sso-config-copy"><div><label for="user_2fa_exemption_search"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_history'), ENT_QUOTES, 'UTF-8')?></label></div></div><div class="sso-config-control"><div class="input-group"><input class="form-control" id="user_2fa_exemption_search" maxlength="100"><span class="input-group-btn"><button class="btn btn-default" type="button" onclick="loadUser2faExemptions();"><i class="fa fa-search"></i></button></span></div></div></div>
-                                                                        <div class="table-responsive"><table class="table table-striped"><thead><tr><th>User</th><th>Status</th><th>Expiry</th><th>Reference</th><th>Reason / control</th><th>Approver</th><th>Action</th></tr></thead><tbody id="user_2fa_exemption_rows"><tr><td colspan="7"><?=htmlspecialchars(oneid_translate('admin.common.loading'), ENT_QUOTES, 'UTF-8')?></td></tr></tbody></table></div>
+                                                                        <div id="user_2fa_exemption_rows" class="user-2fa-exemption-list" aria-live="polite"><div class="user-2fa-exemption-empty"><?=htmlspecialchars(oneid_translate('admin.common.loading'), ENT_QUOTES, 'UTF-8')?></div></div>
                                                                      </div>
                                                                   </div>
                                                                </div>
@@ -6811,7 +6811,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"
          data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=configuration_user_mfa_category"></script>
       <script
-         src="../assetsM/js/user-2fa-temporary-exemption.js?v=20260821-2"
+         src="../assetsM/js/user-2fa-temporary-exemption.js?v=20260821-3"
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"
          data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=configuration_user_mfa_exemption"></script>
@@ -11164,6 +11164,132 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
 
       #tab_settings .user-2fa-exemption-live-search > .form-control {
         padding-left: 38px;
+      }
+
+      #tab_settings .user-2fa-exemption-list {
+        display: grid;
+        gap: 12px;
+        width: 100%;
+        padding: 16px 18px 20px;
+        overflow: visible;
+      }
+
+      #tab_settings .user-2fa-exemption-card {
+        display: grid;
+        grid-template-columns: minmax(190px, 1.15fr) minmax(155px, .85fr) minmax(220px, 1.35fr) auto;
+        gap: 16px;
+        align-items: center;
+        padding: 16px;
+        border: 1px solid #e2e8ef;
+        border-left: 4px solid #13a6d9;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 5px 16px rgba(28, 45, 68, .06);
+      }
+
+      #tab_settings .user-2fa-exemption-card:hover {
+        border-color: #cbd9e5;
+        border-left-color: #098abb;
+        box-shadow: 0 8px 20px rgba(28, 45, 68, .09);
+      }
+
+      #tab_settings .user-2fa-exemption-user {
+        min-width: 0;
+      }
+
+      #tab_settings .user-2fa-exemption-user strong {
+        display: block;
+        overflow-wrap: anywhere;
+        color: #17283e;
+        font-size: 14px;
+      }
+
+      #tab_settings .user-2fa-exemption-user span,
+      #tab_settings .user-2fa-exemption-detail small {
+        display: block;
+        margin-top: 3px;
+        color: #7a8797;
+        font-size: 11px;
+      }
+
+      #tab_settings .user-2fa-exemption-meta {
+        display: grid;
+        gap: 8px;
+      }
+
+      #tab_settings .user-2fa-exemption-status {
+        display: inline-flex;
+        width: max-content;
+        padding: 4px 9px;
+        border-radius: 999px;
+        background: #eaf8f2;
+        color: #157052;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .35px;
+      }
+
+      #tab_settings .user-2fa-exemption-status.is-expiring {
+        background: #fff3df;
+        color: #9b6100;
+      }
+
+      #tab_settings .user-2fa-exemption-detail {
+        min-width: 0;
+        color: #445268;
+        font-size: 12px;
+        line-height: 1.45;
+        overflow-wrap: anywhere;
+      }
+
+      #tab_settings .user-2fa-exemption-detail + .user-2fa-exemption-detail {
+        margin-top: 7px;
+      }
+
+      #tab_settings .user-2fa-exemption-detail b {
+        color: #26364c;
+        font-size: 11px;
+      }
+
+      #tab_settings .user-2fa-exemption-detail span {
+        display: block;
+        margin-top: 2px;
+      }
+
+      #tab_settings .user-2fa-exemption-action {
+        min-width: 86px;
+        text-align: right;
+      }
+
+      #tab_settings .user-2fa-exemption-action .btn {
+        border-radius: 8px;
+        padding: 7px 12px;
+      }
+
+      #tab_settings .user-2fa-exemption-empty {
+        padding: 22px;
+        border: 1px dashed #d8e0e8;
+        border-radius: 10px;
+        background: #fafcfd;
+        color: #7b8796;
+        text-align: center;
+        font-size: 12px;
+      }
+
+      @media (max-width: 1050px) {
+        #tab_settings .user-2fa-exemption-card {
+          grid-template-columns: minmax(180px, 1fr) minmax(145px, .8fr) minmax(200px, 1.2fr);
+        }
+        #tab_settings .user-2fa-exemption-action {
+          grid-column: 1 / -1;
+          text-align: left;
+        }
+      }
+
+      @media (max-width: 720px) {
+        #tab_settings .user-2fa-exemption-list { padding: 12px; }
+        #tab_settings .user-2fa-exemption-card { grid-template-columns: 1fr; gap: 11px; }
+        #tab_settings .user-2fa-exemption-action { grid-column: auto; }
       }
 
       #tab_settings .sso-config-select-wrap {

@@ -77,6 +77,11 @@ $checks['configuration_audit_aggregates_settings'] = str_contains($files['databa
     && str_contains($files['database'], 'FROM login_banner_history')
     && str_contains($files['database'], 'A.log_type IN (33,44,45,48,49,50,54,64)')
     && str_contains($files['configuration_service'], "method_exists(\$this->operation,'configuration_audit_list')");
+$checks['compact_responsive_history'] = str_contains($files['ui'], 'class="user-2fa-exemption-list"')
+    && !str_contains($files['ui'], '<tbody id="user_2fa_exemption_rows"')
+    && str_contains($files['js'], "card.className = 'user-2fa-exemption-card'")
+    && str_contains($files['ui'], '.user-2fa-exemption-card {')
+    && str_contains($files['ui'], 'grid-template-columns: 1fr;');
 
 $failed = array_keys(array_filter($checks, static fn(bool $passed): bool => !$passed));
 printf(

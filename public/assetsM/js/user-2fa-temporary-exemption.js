@@ -34,6 +34,10 @@
     confirmAction: 'Cipta pengecualian',
     cancel: 'Batal',
     hours: 'jam',
+    expiry: 'Luput',
+    reference: 'Rujukan',
+    approvedBy: 'Diluluskan oleh',
+    reasonControl: 'Sebab dan kawalan',
     control: 'Identiti staf telah disahkan oleh Administrator; akses dipantau dan pengecualian luput secara automatik.'
   } : {
     invalid: 'Select a user, duration and exemption reason.',
@@ -60,6 +64,10 @@
     confirmAction: 'Create exemption',
     cancel: 'Cancel',
     hours: 'hour(s)',
+    expiry: 'Expiry',
+    reference: 'Reference',
+    approvedBy: 'Approved by',
+    reasonControl: 'Reason and control',
     control: 'Staff identity was verified by an Administrator; access is monitored and the exemption expires automatically.'
   };
 
@@ -301,33 +309,51 @@
     }
   };
 
-  function appendCell(row, value) {
-    var cell = document.createElement('td');
-    cell.textContent = value == null ? '' : String(value);
-    row.appendChild(cell);
-    return cell;
+  function detail(label, value) {
+    var block = document.createElement('div');
+    block.className = 'user-2fa-exemption-detail';
+    var heading = document.createElement('b');
+    heading.textContent = label;
+    var content = document.createElement('span');
+    content.textContent = value == null ? '' : String(value);
+    block.appendChild(heading);
+    block.appendChild(content);
+    return block;
   }
 
   function render(rows) {
     var body = element('user_2fa_exemption_rows');
     body.textContent = '';
     if (!rows.length) {
-      var empty = document.createElement('tr');
-      var cell = appendCell(empty, text.empty);
-      cell.colSpan = 7;
+      var empty = document.createElement('div');
+      empty.className = 'user-2fa-exemption-empty';
+      empty.textContent = text.empty;
       body.appendChild(empty);
       return;
     }
     rows.forEach(function (item) {
-      var row = document.createElement('tr');
-      appendCell(row, String(item.u_id) + (item.display_name ? ' — ' + String(item.display_name) : ''));
-      appendCell(row, String(item.exemption_status) + (item.expires_soon ? ' / ' + text.expiring : ''));
-      appendCell(row, item.expires_at);
-      appendCell(row, item.change_reference);
-      appendCell(row, String(item.change_reason || '') + ' / ' + String(item.compensating_control || '') +
-        (item.revoke_reason ? ' / Revoke: ' + String(item.revoke_reason) : ''));
-      appendCell(row, item.approved_by);
-      var action = appendCell(row, '');
+      var card = document.createElement('article');
+      card.className = 'user-2fa-exemption-card';
+      var user = document.createElement('div');
+      user.className = 'user-2fa-exemption-user';
+      var name = document.createElement('strong');
+      name.textContent = String(item.display_name || item.u_id);
+      var number = document.createElement('span');
+      number.textContent = item.display_name ? String(item.u_id) : '';
+      user.appendChild(name); user.appendChild(number);
+      var meta = document.createElement('div');
+      meta.className = 'user-2fa-exemption-meta';
+      var status = document.createElement('span');
+      status.className = 'user-2fa-exemption-status' + (item.expires_soon ? ' is-expiring' : '');
+      status.textContent = String(item.exemption_status) + (item.expires_soon ? ' · ' + text.expiring : '');
+      meta.appendChild(status);
+      meta.appendChild(detail(text.expiry, item.expires_at));
+      var information = document.createElement('div');
+      information.appendChild(detail(text.reasonControl, String(item.change_reason || '') + ' · ' + String(item.compensating_control || '') + (item.revoke_reason ? ' · Revoke: ' + String(item.revoke_reason) : '')));
+      information.appendChild(detail(text.reference, item.change_reference));
+      information.appendChild(detail(text.approvedBy, item.approved_by));
+      var action = document.createElement('div');
+      action.className = 'user-2fa-exemption-action';
       if (item.exemption_status === 'ACTIVE') {
         var button = document.createElement('button');
         button.type = 'button';
@@ -336,7 +362,11 @@
         button.addEventListener('click', function () { revoke(item); });
         action.appendChild(button);
       }
-      body.appendChild(row);
+      card.appendChild(user);
+      card.appendChild(meta);
+      card.appendChild(information);
+      card.appendChild(action);
+      body.appendChild(card);
     });
   }
 
