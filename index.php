@@ -88,7 +88,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
   <link rel="stylesheet" href="assetsM/css/custom.css" />
   <link rel="stylesheet" href="vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" />
   <link rel="stylesheet" href="assetsM/css/sweetalert.css" />
-  <link rel="stylesheet" href="dist/css/oneid-user-faq.css?v=20260823-4" />
+  <link rel="stylesheet" href="dist/css/oneid-user-faq.css?v=20260823-5" />
   <link rel="stylesheet" href="dist/css/oneid-environment-banner.css?v=20260810-1" />
   <link href="https://fonts.googleapis.com/css2?family=Moon+Dance&display=swap" rel="stylesheet" />
 

@@ -11,6 +11,20 @@ function oneid_shared_faq(?string $locale = null): array
     return (new SharedFaqContent())->resolve($locale ?? oneid_current_locale());
 }
 
+function oneid_render_faq_answer(string $answer): string
+{
+    $paragraphs = preg_split('/\R{2,}/', trim($answer)) ?: [];
+    ob_start();
+    ?>
+    <div class="oneid-faq-answer-copy">
+      <?php foreach ($paragraphs as $paragraph): ?>
+        <p><?=htmlspecialchars(trim($paragraph), ENT_QUOTES, 'UTF-8')?></p>
+      <?php endforeach; ?>
+    </div>
+    <?php
+    return (string) ob_get_clean();
+}
+
 function oneid_render_login_faq(): string
 {
     $faq = oneid_shared_faq();
@@ -31,7 +45,7 @@ function oneid_render_login_faq(): string
           </h2>
           <div id="faq-login-collapse-<?=$number?>" class="accordion-collapse collapse<?=$index === 0 ? ' show' : ''?>"
             data-bs-parent="#faqAccordion" aria-labelledby="faq-login-heading-<?=$number?>">
-            <div class="accordion-body"><span class="oneid-faq-answer-icon"><i class="fas fa-info-circle" aria-hidden="true"></i></span><p><?=htmlspecialchars($entry['answer'], ENT_QUOTES, 'UTF-8')?></p></div>
+            <div class="accordion-body"><span class="oneid-faq-answer-icon"><i class="fas fa-info-circle" aria-hidden="true"></i></span><?=oneid_render_faq_answer($entry['answer'])?></div>
           </div>
         </div>
       <?php endforeach; ?>
@@ -63,7 +77,7 @@ function oneid_render_dashboard_faq(): string
           </div>
           <div id="faq-dashboard-collapse-<?=$number?>" class="panel-collapse collapse<?=$index === 0 ? ' in' : ''?>"
             role="tabpanel" aria-labelledby="faq-dashboard-heading-<?=$number?>">
-            <div class="panel-body"><span class="oneid-faq-answer-icon"><i class="fa fa-info-circle" aria-hidden="true"></i></span><p><?=htmlspecialchars($entry['answer'], ENT_QUOTES, 'UTF-8')?></p></div>
+            <div class="panel-body"><span class="oneid-faq-answer-icon"><i class="fa fa-info-circle" aria-hidden="true"></i></span><?=oneid_render_faq_answer($entry['answer'])?></div>
           </div>
         </div>
       <?php endforeach; ?>
