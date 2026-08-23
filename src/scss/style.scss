@@ -2291,7 +2291,15 @@ a#toggle_mobile_nav {
 				overflow:hidden;
 				.logo-wrap {
 					width:250px;
-					padding-top: 26.5px;
+					display:flex;
+					align-items:center;
+					height:100%;
+					padding-top:0;
+					> a {
+						display:flex;
+						align-items:center;
+						height:100%;
+					}
 					.brand-img {
 						margin-right: 4px;
 						position: relative;
@@ -2300,6 +2308,7 @@ a#toggle_mobile_nav {
 					}
 					.brand-text {
 						display:inline-block;
+						line-height:0;
 						color:$black;
 						font-weight:700;
 						font-size: 24px;

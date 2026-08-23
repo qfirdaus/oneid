@@ -3,6 +3,28 @@
   isolation: isolate;
 }
 
+/* Keep the shared header logo vertically centred at every navbar height. */
+.oneid-header-lightline .nav-header .logo-wrap {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-top: 0;
+}
+
+.oneid-header-lightline .nav-header .logo-wrap > a {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.oneid-header-lightline .nav-header .logo-wrap .brand-text {
+  line-height: 0;
+}
+
+.oneid-header-lightline .nav-header .logo-wrap .brand-text img {
+  display: block;
+}
+
 .oneid-header-lightline::after {
   display: block;
   position: absolute;
