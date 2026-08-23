@@ -1223,7 +1223,7 @@
                         <div class="col-sm-12">
                            <div class="panel panel-default card-view pa-0">
                               <div class="panel-wrapper collapse in">
-                                 <div  class="panel-body pb-0">
+                                 <div class="panel-body pa-0">
 
 
                                     <div class="tab-content" id="myTabContent_8">
