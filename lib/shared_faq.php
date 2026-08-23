@@ -16,22 +16,22 @@ function oneid_render_login_faq(): string
     $faq = oneid_shared_faq();
     ob_start();
     ?>
-    <div class="accordion" id="faqAccordion" lang="<?=htmlspecialchars($faq['effective_locale'], ENT_QUOTES, 'UTF-8')?>">
+    <div class="accordion oneid-faq-accordion" id="faqAccordion" lang="<?=htmlspecialchars($faq['effective_locale'], ENT_QUOTES, 'UTF-8')?>">
       <?php if ($faq['fallback_used']): ?>
         <div class="alert alert-warning" role="status"><?=htmlspecialchars((string) $faq['fallback_notice'], ENT_QUOTES, 'UTF-8')?></div>
       <?php endif; ?>
       <?php foreach ($faq['entries'] as $index => $entry): $number = $index + 1; ?>
-        <div class="accordion-item" data-faq-id="<?=htmlspecialchars($entry['id'], ENT_QUOTES, 'UTF-8')?>">
+        <div class="accordion-item oneid-faq-item" data-faq-id="<?=htmlspecialchars($entry['id'], ENT_QUOTES, 'UTF-8')?>">
           <h2 class="accordion-header" id="faq-login-heading-<?=$number?>">
-            <button class="accordion-button<?=$index === 0 ? '' : ' collapsed'?>" type="button"
+            <button class="accordion-button oneid-faq-toggle<?=$index === 0 ? '' : ' collapsed'?>" type="button"
               data-bs-toggle="collapse" data-bs-target="#faq-login-collapse-<?=$number?>"
               aria-expanded="<?=$index === 0 ? 'true' : 'false'?>" aria-controls="faq-login-collapse-<?=$number?>">
-              <?=htmlspecialchars($entry['question'], ENT_QUOTES, 'UTF-8')?>
+              <span class="oneid-faq-number"><?=str_pad((string) $number, 2, '0', STR_PAD_LEFT)?></span><span class="oneid-faq-question"><?=htmlspecialchars($entry['question'], ENT_QUOTES, 'UTF-8')?></span><i class="fas fa-chevron-down oneid-faq-chevron" aria-hidden="true"></i>
             </button>
           </h2>
           <div id="faq-login-collapse-<?=$number?>" class="accordion-collapse collapse<?=$index === 0 ? ' show' : ''?>"
             data-bs-parent="#faqAccordion" aria-labelledby="faq-login-heading-<?=$number?>">
-            <div class="accordion-body"><?=htmlspecialchars($entry['answer'], ENT_QUOTES, 'UTF-8')?></div>
+            <div class="accordion-body"><span class="oneid-faq-answer-icon"><i class="fas fa-info-circle" aria-hidden="true"></i></span><p><?=htmlspecialchars($entry['answer'], ENT_QUOTES, 'UTF-8')?></p></div>
           </div>
         </div>
       <?php endforeach; ?>
