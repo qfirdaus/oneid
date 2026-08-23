@@ -88,7 +88,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
   <link rel="stylesheet" href="assetsM/css/custom.css" />
   <link rel="stylesheet" href="vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" />
   <link rel="stylesheet" href="assetsM/css/sweetalert.css" />
-  <link rel="stylesheet" href="dist/css/oneid-user-faq.css?v=20260823-3" />
+  <link rel="stylesheet" href="dist/css/oneid-user-faq.css?v=20260823-4" />
   <link rel="stylesheet" href="dist/css/oneid-environment-banner.css?v=20260810-1" />
   <link href="https://fonts.googleapis.com/css2?family=Moon+Dance&display=swap" rel="stylesheet" />
 
@@ -458,10 +458,10 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
 </div>
 
                         <div class="modal fade oneid-faq-modal oneid-faq-login" id="faqModal" tabindex="-1" aria-labelledby="faqModalLabel" aria-describedby="faqModalIntro" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content oneid-faq-dialog">
       <div class="modal-header oneid-faq-header">
-        <button type="button" class="btn-close oneid-faq-close" data-bs-dismiss="modal" aria-label="<?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?>"></button>
+        <button type="button" class="btn-close oneid-faq-close" data-bs-dismiss="modal" aria-label="<?=htmlspecialchars(oneid_translate('common.close'), ENT_QUOTES, 'UTF-8')?>"><span aria-hidden="true">×</span></button>
         <span class="oneid-faq-header-icon"><i class="fas fa-question-circle" aria-hidden="true"></i></span>
         <div><span class="oneid-faq-eyebrow"><?=htmlspecialchars(oneid_translate('faq.eyebrow'), ENT_QUOTES, 'UTF-8')?></span><h5 class="modal-title" id="faqModalLabel"><?=htmlspecialchars(oneid_translate('faq.title'), ENT_QUOTES, 'UTF-8')?></h5><p id="faqModalIntro"><?=htmlspecialchars(oneid_translate('faq.intro'), ENT_QUOTES, 'UTF-8')?></p></div>
       </div>
