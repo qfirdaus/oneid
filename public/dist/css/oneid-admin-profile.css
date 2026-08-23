@@ -8,7 +8,7 @@
   position: relative;
   min-height: 196px;
   overflow: hidden;
-  background: #d7e8ef url("../../img/gallery/mock-admin.png") center center / cover no-repeat;
+  background: #d7e8ef url("../../img/gallery/mock-admin.png?v=20260823-2") center center / cover no-repeat;
 }
 
 .oneid-admin-profile-cover::after {
