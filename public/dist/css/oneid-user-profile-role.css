@@ -1,3 +1,8 @@
+.profile-box .profile-cover-pic {
+  background-image: url("../../img/gallery/mock-user.png");
+  background-position: center center;
+}
+
 .profile-box .profile-cover-pic .oneid-user-role-badge {
   position: absolute;
   z-index: 2;
