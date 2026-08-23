@@ -81,7 +81,7 @@
       <!-- Custom CSS -->
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-sidebar-menu.css?v=20260814-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-sidebar-menu.css?v=20260823-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260823-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-login-banner-admin.css?v=20260801-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-configuration-navigation.css?v=20260801-1" rel="stylesheet" type="text/css">
