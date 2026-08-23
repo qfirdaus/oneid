@@ -72,27 +72,34 @@
 
 @keyframes oneid-header-light-pass {
   0% {
-    color: rgb(7, 91, 154);
+    color: #075b9a;
     opacity: 0;
     transform: translate3d(0, 0, 0);
   }
   8% {
     opacity: 0.82;
   }
-  28% {
-    color: rgb(8, 127, 189);
+  16% {
+    color: #0798ca;
   }
-  52% {
-    color: rgb(9, 163, 198);
+  32% {
+    color: #11a8df;
   }
-  76% {
-    color: rgb(8, 203, 196);
+  48% {
+    color: #22af47;
+  }
+  64% {
+    color: #e8ad25;
+  }
+  80% {
+    color: #ff6028;
   }
   92% {
+    color: #7f5aa3;
     opacity: 0.82;
   }
   100% {
-    color: rgb(93, 75, 183);
+    color: #5d4bb7;
     opacity: 0;
     transform: translate3d(calc(100vw + 480px), 0, 0);
   }
