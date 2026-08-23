@@ -5,20 +5,23 @@
 
 /* Keep the shared header logo vertically centred at every navbar height. */
 .oneid-header-lightline .nav-header .logo-wrap {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  padding-top: 0;
+  position: relative;
+  height: 100% !important;
+  padding-top: 0 !important;
 }
 
 .oneid-header-lightline .nav-header .logo-wrap > a {
-  display: flex;
-  align-items: center;
+  display: block;
   height: 100%;
 }
 
+.oneid-header-lightline .nav-header .logo-wrap .brand-img,
 .oneid-header-lightline .nav-header .logo-wrap .brand-text {
+  position: absolute;
+  top: 50%;
+  left: 0;
   line-height: 0;
+  transform: translateY(-50%);
 }
 
 .oneid-header-lightline .nav-header .logo-wrap .brand-text img {

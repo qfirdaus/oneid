@@ -2291,23 +2291,27 @@ a#toggle_mobile_nav {
 				overflow:hidden;
 				.logo-wrap {
 					width:250px;
-					display:flex;
-					align-items:center;
+					position:relative;
 					height:100%;
 					padding-top:0;
 					> a {
-						display:flex;
-						align-items:center;
+						display:block;
 						height:100%;
 					}
 					.brand-img {
 						margin-right: 4px;
-						position: relative;
-						top: 0;
+						position:absolute;
+						top:50%;
+						left:0;
+						transform:translateY(-50%);
 						display:none;
 					}
 					.brand-text {
 						display:inline-block;
+						position:absolute;
+						top:50%;
+						left:0;
+						transform:translateY(-50%);
 						line-height:0;
 						color:$black;
 						font-weight:700;
