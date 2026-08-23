@@ -231,7 +231,8 @@
                                           </div>
                                        <div class="profile-info text-center mb-15">
                                           <div class="profile-img-wrap">
-                                             <img id="user_photos" class="inline-block mb-10" src="profile-photo.php" alt="<?=htmlspecialchars(oneid_translate('dashboard.profile_photo'), ENT_QUOTES, 'UTF-8')?>"/>
+                                             <img id="user_photos" class="inline-block" src="profile-photo.php" alt="<?=htmlspecialchars(oneid_translate('dashboard.profile_photo'), ENT_QUOTES, 'UTF-8')?>"/>
+                                             <span class="oneid-user-profile-online" aria-hidden="true"></span>
                                              </div>	
                                           <h6 class="block mt-10 weight-500 capitalize-font txt-dark"><?php echo $_SESSION['user']; ?> (<?= (trim($user_info['data3']) == "") ? $user_info['data4'] : $user_info['data3']; ?>)</h6>
                                           <span class="block capitalize-font"><?php echo $user_info['data6']; ?></span>
@@ -1912,30 +1913,47 @@
 }
 
 #user_photos {
-  width: 120px;              /* adjust as needed */
-  height: 120px;
-  border-radius: 50%;        /* makes it round */
-  object-fit: cover;         /* crop nicely inside circle */
-  border: 4px solid #ff6028; /* ring color and thickness */
-  box-shadow: 0 0 8px rgba(0,0,0,0.2); /* optional glow */
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 50%;
+  box-shadow: none;
+  object-fit: cover;
 }
-.profile-img-wrap {
-  width: 130px; 
-  height: 130px; 
-  border-radius: 50%;      // make wrapper round
-  overflow: hidden;        // hide white square corners
-  border: 4px solid #ff6028; // ringcolor
-  display: inline-flex;
+.profile-box .profile-info .profile-img-wrap {
+  position: relative;
+  display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent !important;
+  width: 108px;
+  height: 108px;
+  padding: 4px;
+  margin: -54px auto 0;
+  overflow: visible;
+  border: 4px solid #ff6028;
+  border-radius: 50%;
+  background: #fff !important;
+  box-shadow: 0 8px 22px rgba(28, 55, 76, .22);
 }
 
 .profile-img-wrap img {
-  width: 100%; 
-  height: 100%; 
-  border-radius: 50%; 
-  object-fit: cover; /* Prevent image distortion. */
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.oneid-user-profile-online {
+  position: absolute;
+  right: 2px;
+  bottom: 7px;
+  width: 14px;
+  height: 14px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #1dbf73;
+  box-shadow: 0 2px 6px rgba(29, 191, 115, .35);
 }
 
 
