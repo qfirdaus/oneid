@@ -68,7 +68,7 @@
       <link href="../dist/css/oneid-user-faq.css?v=20260823-5" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-password-modal.css?v=20260814-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-user-profile-role.css?v=20260823-2" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-profile-role.css?v=20260824-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
 
@@ -226,6 +226,25 @@
                                  <div class="panel-body  pa-0">
 									<div class="profile-box">
                                        <div class="profile-cover-pic">
+                                          <svg class="oneid-user-cover-fx" viewBox="0 0 500 250" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+                                             <defs>
+                                                <linearGradient id="oneid-user-trace-gradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e8ad25"/><stop offset=".5" stop-color="#fff4cd"/><stop offset="1" stop-color="#7f5aa3"/></linearGradient>
+                                                <filter id="oneid-user-key-glow" x="-250%" y="-250%" width="500%" height="500%"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                                             </defs>
+                                             <g>
+                                                <path class="oneid-circuit-trace" d="M500 18H448L425 41V83L402 106V154"/>
+                                                <path class="oneid-circuit-trace is-reverse" d="M500 70H466L446 90V133L423 156H366L345 177V250"/>
+                                                <path class="oneid-circuit-trace" d="M500 184H452L431 205H386L365 226V250"/>
+                                                <path class="oneid-circuit-trace is-reverse" d="M0 54H73L95 76H158L181 99"/>
+                                                <path class="oneid-circuit-trace" d="M0 210H70L92 188H157L181 164"/>
+                                             </g>
+                                             <line class="oneid-key-track" x1="276" y1="63" x2="276" y2="213"/>
+                                             <g transform="translate(276 63)" filter="url(#oneid-user-key-glow)">
+                                                <circle r="10" fill="#7f5aa3" opacity=".2"/>
+                                                <circle r="4" fill="#fff4cd" stroke="#7f5aa3" stroke-width="1.5"/>
+                                                <animateTransform attributeName="transform" type="translate" values="276 63;276 213;276 63" keyTimes="0;.5;1" dur="6.8s" repeatCount="indefinite" calcMode="spline" keySplines=".42 0 .58 1;.42 0 .58 1"/>
+                                             </g>
+                                          </svg>
                                           <span class="oneid-user-role-badge"><i class="fa fa-user" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('dashboard.role'), ENT_QUOTES, 'UTF-8')?></span>
                                           <!-- <div class="profile-image-overlay"></div> -->
                                           </div>

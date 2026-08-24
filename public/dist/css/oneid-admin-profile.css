@@ -6,6 +6,7 @@
 
 .oneid-admin-profile-cover {
   position: relative;
+  isolation: isolate;
   min-height: 196px;
   overflow: hidden;
   background: #d7e8ef url("../../img/gallery/mock-admin.png?v=20260823-2") center center / cover no-repeat;
@@ -14,14 +15,51 @@
 .oneid-admin-profile-cover::after {
   position: absolute;
   inset: 0;
+  z-index: 0;
   background: linear-gradient(180deg, rgba(12, 46, 71, .08), transparent 48%);
   content: "";
   pointer-events: none;
 }
 
+.oneid-admin-cover-fx {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.oneid-admin-cover-fx .oneid-circuit-trace {
+  fill: none;
+  stroke: url(#oneid-admin-trace-gradient);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 20 105;
+  opacity: .62;
+  animation: oneid-admin-trace-flow 7s linear infinite;
+}
+
+.oneid-admin-cover-fx .oneid-circuit-trace.is-reverse {
+  animation-direction: reverse;
+  animation-duration: 8.5s;
+}
+
+.oneid-admin-cover-fx .oneid-key-track {
+  stroke: rgba(112, 216, 255, .2);
+  stroke-width: 1.2;
+}
+
+@keyframes oneid-admin-trace-flow {
+  to { stroke-dashoffset: -125; }
+}
+
 .oneid-admin-role-badge {
   position: absolute;
-  z-index: 1;
+  z-index: 2;
   top: 16px;
   right: 16px;
   display: inline-flex;
@@ -146,4 +184,8 @@
     top: 12px;
     right: 12px;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oneid-admin-cover-fx { display: none; }
 }

@@ -1,6 +1,43 @@
 .profile-box .profile-cover-pic {
+  isolation: isolate;
   background-image: url("../../img/gallery/mock-user.png?v=20260823-2");
   background-position: center center;
+}
+
+.oneid-user-cover-fx {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.oneid-user-cover-fx .oneid-circuit-trace {
+  fill: none;
+  stroke: url(#oneid-user-trace-gradient);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 20 105;
+  opacity: .58;
+  animation: oneid-user-trace-flow 7.5s linear infinite;
+}
+
+.oneid-user-cover-fx .oneid-circuit-trace.is-reverse {
+  animation-direction: reverse;
+  animation-duration: 9s;
+}
+
+.oneid-user-cover-fx .oneid-key-track {
+  stroke: rgba(255, 244, 205, .2);
+  stroke-width: 1.2;
+}
+
+@keyframes oneid-user-trace-flow {
+  to { stroke-dashoffset: -125; }
 }
 
 .profile-box .profile-cover-pic .oneid-user-role-badge {
@@ -23,6 +60,10 @@
   letter-spacing: .075em;
   line-height: 1;
   text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oneid-user-cover-fx { display: none; }
 }
 
 .profile-box .profile-cover-pic .oneid-user-role-badge i {
