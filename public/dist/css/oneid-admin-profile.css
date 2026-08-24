@@ -38,14 +38,14 @@
   stroke-width: 1;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-dasharray: 20 105;
-  opacity: .62;
-  animation: oneid-admin-trace-flow 7s linear infinite;
+  stroke-dasharray: 16 118;
+  opacity: .58;
+  animation: oneid-admin-trace-flow 12s linear infinite;
 }
 
 .oneid-admin-cover-fx .oneid-circuit-trace.is-reverse {
   animation-direction: reverse;
-  animation-duration: 8.5s;
+  animation-duration: 15s;
 }
 
 .oneid-admin-cover-fx .oneid-key-track {
@@ -125,6 +125,12 @@
   border-radius: 50%;
   background: #1dbf73;
   box-shadow: 0 2px 6px rgba(29, 191, 115, .35);
+  animation: oneid-admin-online-pulse 4.8s ease-in-out infinite;
+}
+
+@keyframes oneid-admin-online-pulse {
+  0%, 100% { box-shadow: 0 2px 6px rgba(29, 191, 115, .3), 0 0 0 0 rgba(29, 191, 115, .28); transform: scale(1); }
+  50% { box-shadow: 0 2px 7px rgba(29, 191, 115, .38), 0 0 0 7px rgba(29, 191, 115, 0); transform: scale(1.06); }
 }
 
 .oneid-admin-profile-details {
@@ -188,4 +194,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .oneid-admin-cover-fx { display: none; }
+  .oneid-admin-profile-online { animation: none; }
 }

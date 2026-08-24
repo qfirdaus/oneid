@@ -21,14 +21,14 @@
   stroke-width: 1;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-dasharray: 20 105;
-  opacity: .58;
-  animation: oneid-user-trace-flow 7.5s linear infinite;
+  stroke-dasharray: 16 118;
+  opacity: .55;
+  animation: oneid-user-trace-flow 12.5s linear infinite;
 }
 
 .oneid-user-cover-fx .oneid-circuit-trace.is-reverse {
   animation-direction: reverse;
-  animation-duration: 9s;
+  animation-duration: 15.5s;
 }
 
 .oneid-user-cover-fx .oneid-key-track {
@@ -64,6 +64,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .oneid-user-cover-fx { display: none; }
+  .oneid-user-profile-online { animation: none; }
 }
 
 .profile-box .profile-cover-pic .oneid-user-role-badge i {

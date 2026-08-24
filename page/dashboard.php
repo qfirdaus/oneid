@@ -68,7 +68,7 @@
       <link href="../dist/css/oneid-user-faq.css?v=20260823-5" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-password-modal.css?v=20260814-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-user-profile-role.css?v=20260824-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-profile-role.css?v=20260824-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
 
@@ -232,17 +232,28 @@
                                                 <filter id="oneid-user-key-glow" x="-250%" y="-250%" width="500%" height="500%"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
                                              </defs>
                                              <g>
-                                                <path class="oneid-circuit-trace" d="M500 18H448L425 41V83L402 106V154"/>
-                                                <path class="oneid-circuit-trace is-reverse" d="M500 70H466L446 90V133L423 156H366L345 177V250"/>
-                                                <path class="oneid-circuit-trace" d="M500 184H452L431 205H386L365 226V250"/>
-                                                <path class="oneid-circuit-trace is-reverse" d="M0 54H73L95 76H158L181 99"/>
-                                                <path class="oneid-circuit-trace" d="M0 210H70L92 188H157L181 164"/>
+                                                <path class="oneid-circuit-trace" d="M337 0V42L354 59V103L372 121V164"/>
+                                                <path class="oneid-circuit-trace is-reverse" d="M350 0V38L367 55V96L386 115V159"/>
+                                                <path class="oneid-circuit-trace" d="M366 0V32L383 49V91L402 110V153"/>
+                                                <path class="oneid-circuit-trace is-reverse" d="M386 0V37L403 54V94L423 114V158"/>
+                                                <path class="oneid-circuit-trace" d="M410 0V48L429 67V109L448 128V173"/>
+                                                <path class="oneid-circuit-trace is-reverse" d="M438 0V57L457 76V119L477 139V182"/>
+                                                <path class="oneid-circuit-trace" d="M277 177L296 196V250"/>
+                                                <path class="oneid-circuit-trace is-reverse" d="M284 177L305 198V250"/>
+                                                <path class="oneid-circuit-trace" d="M292 180L314 202V250"/>
+                                                <path class="oneid-circuit-trace is-reverse" d="M300 184L321 205H376L395 186H500"/>
+                                                <path class="oneid-circuit-trace" d="M307 190L329 212H397L419 190H500"/>
+                                                <path class="oneid-circuit-trace is-reverse" d="M315 199L337 221H417L440 198H500"/>
+                                                <path class="oneid-circuit-trace" d="M0 48H61L82 69H148L169 90"/>
+                                                <path class="oneid-circuit-trace is-reverse" d="M0 64H52L75 87H138L160 109"/>
+                                                <path class="oneid-circuit-trace" d="M0 204H64L87 181H157L178 160"/>
+                                                <path class="oneid-circuit-trace is-reverse" d="M0 220H74L96 198H169L190 177"/>
                                              </g>
                                              <line class="oneid-key-track" x1="276" y1="63" x2="276" y2="213"/>
                                              <g transform="translate(276 63)" filter="url(#oneid-user-key-glow)">
-                                                <circle r="10" fill="#7f5aa3" opacity=".2"/>
-                                                <circle r="4" fill="#fff4cd" stroke="#7f5aa3" stroke-width="1.5"/>
-                                                <animateTransform attributeName="transform" type="translate" values="276 63;276 213;276 63" keyTimes="0;.5;1" dur="6.8s" repeatCount="indefinite" calcMode="spline" keySplines=".42 0 .58 1;.42 0 .58 1"/>
+                                                <circle r="8" fill="#7f5aa3" opacity=".15"><animate attributeName="r" values="8;15;8;7;7;8" keyTimes="0;.15;.42;.5;.77;1" dur="12.5s" repeatCount="indefinite"/><animate attributeName="opacity" values=".12;.65;.22;.28;.16;0" keyTimes="0;.15;.42;.5;.77;1" dur="12.5s" repeatCount="indefinite"/></circle>
+                                                <circle r="4" fill="#fff4cd" stroke="#7f5aa3" stroke-width="1.5"><animate attributeName="opacity" values=".25;1;1;1;.8;0" keyTimes="0;.15;.42;.5;.77;1" dur="12.5s" repeatCount="indefinite"/></circle>
+                                                <animateTransform attributeName="transform" type="translate" values="276 63;276 63;276 213;276 213;276 63;276 63" keyTimes="0;.15;.42;.5;.77;1" dur="12.5s" repeatCount="indefinite" calcMode="linear"/>
                                              </g>
                                           </svg>
                                           <span class="oneid-user-role-badge"><i class="fa fa-user" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('dashboard.role'), ENT_QUOTES, 'UTF-8')?></span>
@@ -1973,6 +1984,16 @@
   border-radius: 50%;
   background: #1dbf73;
   box-shadow: 0 2px 6px rgba(29, 191, 115, .35);
+  animation: oneid-user-online-pulse 4.8s ease-in-out infinite;
+}
+
+@keyframes oneid-user-online-pulse {
+  0%, 100% { box-shadow: 0 2px 6px rgba(29, 191, 115, .3), 0 0 0 0 rgba(29, 191, 115, .28); transform: scale(1); }
+  50% { box-shadow: 0 2px 7px rgba(29, 191, 115, .38), 0 0 0 7px rgba(29, 191, 115, 0); transform: scale(1.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oneid-user-profile-online { animation: none; }
 }
 
 
