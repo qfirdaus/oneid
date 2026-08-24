@@ -20,6 +20,9 @@
       exit;
    }
    $user_info = $operation->admin_search_user_account($_SESSION['login_user']);
+   $userRoleTranslationKey = in_array((int) ($user_info['u_category'] ?? 0), [2, 3], true)
+      ? 'dashboard.role.staff'
+      : 'dashboard.role.student';
    $userMfaEnrollmentAvailable = false;
    try {
       if (in_array(
@@ -264,7 +267,7 @@
                                                 <animateTransform attributeName="transform" type="translate" values="276 63;276 63;276 213;276 213;276 63;276 63" keyTimes="0;.12;.35;.68;.88;1" dur="16s" repeatCount="indefinite" calcMode="linear"/>
                                              </g>
                                           </svg>
-                                          <span class="oneid-user-role-badge"><i class="fa fa-user" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('dashboard.role'), ENT_QUOTES, 'UTF-8')?></span>
+                                          <span class="oneid-user-role-badge"><i class="fa fa-user" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate($userRoleTranslationKey), ENT_QUOTES, 'UTF-8')?></span>
                                           <!-- <div class="profile-image-overlay"></div> -->
                                           </div>
                                        <div class="profile-info text-center mb-15">

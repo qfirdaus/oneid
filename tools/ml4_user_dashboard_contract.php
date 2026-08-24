@@ -55,11 +55,15 @@ $report(
     'Login-style locale selector is centered below User and Administrator profile details'
 );
 $report(
-    str_contains($dashboard, "oneid_translate('dashboard.role')")
+    str_contains($dashboard, "'dashboard.role.staff'")
+    && str_contains($dashboard, "'dashboard.role.student'")
+    && str_contains($dashboard, 'oneid_translate($userRoleTranslationKey)')
     && str_contains($dashboard, 'oneid-user-role-badge')
-    && str_contains($ms, "'dashboard.role' => 'PENGGUNA'")
-    && str_contains($en, "'dashboard.role' => 'USER'"),
-    'User profile cover exposes a bilingual role badge'
+    && str_contains($ms, "'dashboard.role.staff' => 'STAF'")
+    && str_contains($ms, "'dashboard.role.student' => 'PELAJAR'")
+    && str_contains($en, "'dashboard.role.staff' => 'STAFF'")
+    && str_contains($en, "'dashboard.role.student' => 'STUDENT'"),
+    'User profile cover exposes the bilingual Staff or Student account category'
 );
 $report(
     str_contains($dashboard, 'userAppText(application.sp_name)')
