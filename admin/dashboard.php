@@ -85,7 +85,7 @@
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-login-banner-admin.css?v=20260801-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-configuration-navigation.css?v=20260801-1" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-admin-profile.css?v=20260824-2" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-admin-profile.css?v=20260824-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-web-app-modal.css?v=20260815-1" rel="stylesheet" type="text/css">

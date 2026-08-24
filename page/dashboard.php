@@ -68,7 +68,7 @@
       <link href="../dist/css/oneid-user-faq.css?v=20260823-5" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-password-modal.css?v=20260814-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-user-profile-role.css?v=20260824-2" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-profile-role.css?v=20260824-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
 
@@ -1965,6 +1965,14 @@
   border-radius: 50%;
   background: #fff !important;
   box-shadow: 0 8px 22px rgba(28, 55, 76, .22);
+  animation: oneid-user-avatar-connected 12.5s linear infinite;
+}
+
+@keyframes oneid-user-avatar-connected {
+  0%, 36%, 58%, 100% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 0 rgba(127, 90, 163, 0); transform: scale(1); }
+  44% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 4px rgba(127, 90, 163, .12), 0 0 20px rgba(255, 244, 205, .24); transform: scale(1.012); }
+  49% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 7px rgba(127, 90, 163, .08), 0 0 28px rgba(255, 244, 205, .32); transform: scale(1.018); }
+  54% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 3px rgba(127, 90, 163, .09), 0 0 16px rgba(255, 244, 205, .18); transform: scale(1.008); }
 }
 
 .profile-img-wrap img {
@@ -1984,15 +1992,16 @@
   border-radius: 50%;
   background: #1dbf73;
   box-shadow: 0 2px 6px rgba(29, 191, 115, .35);
-  animation: oneid-user-online-pulse 4.8s ease-in-out infinite;
+  animation: oneid-user-online-pulse 3.8s ease-in-out infinite;
 }
 
 @keyframes oneid-user-online-pulse {
-  0%, 100% { box-shadow: 0 2px 6px rgba(29, 191, 115, .3), 0 0 0 0 rgba(29, 191, 115, .28); transform: scale(1); }
-  50% { box-shadow: 0 2px 7px rgba(29, 191, 115, .38), 0 0 0 7px rgba(29, 191, 115, 0); transform: scale(1.06); }
+  0%, 100% { background:#1dbf73; box-shadow: 0 2px 6px rgba(29, 191, 115, .34), 0 0 0 0 rgba(29, 191, 115, .46); transform: scale(1); }
+  50% { background:#28d985; box-shadow: 0 2px 8px rgba(29, 191, 115, .46), 0 0 0 10px rgba(29, 191, 115, 0); transform: scale(1.12); }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .profile-box .profile-info .profile-img-wrap,
   .oneid-user-profile-online { animation: none; }
 }
 
