@@ -2641,6 +2641,22 @@
                .indexOf(term) !== -1;
            }
 
+           function adminWebAppGroupIsNonSso(group){
+             var applications = Array.isArray(group.data) ? group.data : [];
+             return applications.length > 0 && applications.every(function(application){
+               return String(application.sp_sso_support) !== '0';
+             });
+           }
+
+           function adminWebAppGroupsWithNonSsoLast(groups){
+             var ssoGroups = [];
+             var nonSsoGroups = [];
+             $.each(Array.isArray(groups) ? groups : [], function(_, group){
+               (adminWebAppGroupIsNonSso(group) ? nonSsoGroups : ssoGroups).push(group);
+             });
+             return ssoGroups.concat(nonSsoGroups);
+           }
+
            function renderAdminWebAppDirectory(){
              var term = adminWebAppSearchTerm.trim().toLocaleLowerCase();
              var tabs = '';
@@ -2650,7 +2666,7 @@
              var matchingTabs = [];
              var uniqueApplications = {};
 
-             $.each(adminWebAppGroups, function(i, group){
+             $.each(adminWebAppGroupsWithNonSsoLast(adminWebAppGroups), function(i, group){
                var tabName = adminWebAppText(group.tabname);
                var groupName = adminWebAppText(group.sp_group_name);
                var allApplications = Array.isArray(group.data) ? group.data : [];

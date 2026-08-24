@@ -80,6 +80,14 @@ $report(
     'Application launch reserves a user-initiated tab with a same-tab Safari fallback'
 );
 $report(
+    str_contains($dashboard, 'function userAppGroupIsNonSso(group)')
+    && str_contains($dashboard, 'userAppGroupsWithNonSsoLast(userAppDirectoryGroups)')
+    && str_contains($dashboard, 'return ssoGroups.concat(nonSsoGroups)')
+    && str_contains($adminDashboard, 'function adminWebAppGroupIsNonSso(group)')
+    && str_contains($adminDashboard, 'adminWebAppGroupsWithNonSsoLast(adminWebAppGroups)'),
+    'User and Administrator directories always render Non SSO category tabs last'
+);
+$report(
     !str_contains($dashboard, 'APPLY SYNC')
     && !str_contains($dashboard, 'ONEID_ODL_')
     && !str_contains($dashboard, 'source_code'),

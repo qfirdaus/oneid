@@ -668,6 +668,22 @@
             return applications;
          }
 
+         function userAppGroupIsNonSso(group){
+            var applications = Array.isArray(group.data) ? group.data : [];
+            return applications.length > 0 && applications.every(function(application){
+               return String(application.sp_sso_support) !== '0';
+            });
+         }
+
+         function userAppGroupsWithNonSsoLast(groups){
+            var ssoGroups = [];
+            var nonSsoGroups = [];
+            $.each(Array.isArray(groups) ? groups : [], function(_, group){
+               (userAppGroupIsNonSso(group) ? nonSsoGroups : ssoGroups).push(group);
+            });
+            return ssoGroups.concat(nonSsoGroups);
+         }
+
          function userAppCard(application, index){
             var appId = userAppText(application.sp_id);
             var appName = userAppText(application.sp_name);
@@ -727,12 +743,12 @@
             }
             panes += '</div></div>';
 
-            $.each(userAppDirectoryGroups, function(index, group){
+            $.each(userAppGroupsWithNonSsoLast(userAppDirectoryGroups), function(index, group){
                var groupId = String(group.sp_group_id || index);
                var paneId = 'user_app_group_' + groupId.replace(/[^A-Za-z0-9_-]/g, '');
                var groupNameRaw = String(group.sp_group_name || 'Uncategorized');
                var groupName = userAppText(groupNameRaw);
-               var isNonSso = groupNameRaw.replace(/\s+/g, ' ').trim().toUpperCase() === 'NON SSO';
+               var isNonSso = userAppGroupIsNonSso(group);
                var applications = (Array.isArray(group.data) ? group.data : []).filter(function(application){
                   return userAppMatches(application, term);
                });
