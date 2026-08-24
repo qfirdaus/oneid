@@ -2669,6 +2669,7 @@
              $.each(adminWebAppGroupsWithNonSsoLast(adminWebAppGroups), function(i, group){
                var tabName = adminWebAppText(group.tabname);
                var groupName = adminWebAppText(group.sp_group_name);
+               var isNonSso = adminWebAppGroupIsNonSso(group);
                var allApplications = Array.isArray(group.data) ? group.data : [];
                var applications = allApplications.filter(function(application){
                  return adminWebAppMatches(application, term);
@@ -2681,7 +2682,7 @@
                matchingCount += applications.length;
                if (applications.length > 0) matchingTabs.push('#' + tabName);
 
-               tabs += '<li role="presentation"><a aria-expanded="false" data-toggle="tab" role="tab" href="#'+tabName+'"><span>'+groupName+'</span><strong>'+applications.length+'</strong></a></li>';
+               tabs += '<li class="'+(isNonSso ? 'is-non-sso-tab' : '')+'" role="presentation"><a aria-expanded="false" data-toggle="tab" role="tab" href="#'+tabName+'"><span>'+groupName+'</span><strong>'+applications.length+'</strong></a></li>';
                panes += '<div id="'+tabName+'" class="tab-pane fade" role="tabpanel"><div class="web-app-card-list">';
                if (applications.length === 0) {
                  panes += '<div class="web-app-category-empty"><i class="fa fa-inbox" aria-hidden="true"></i><span>'+(term === '' ? 'No applications in this category.' : 'Tiada aplikasi sepadan dengan carian dalam kategori ini.')+'</span></div>';
@@ -7217,6 +7218,30 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #follo_8 #WebAppsTabsHeader > li.active > a strong {
+        background: rgba(255, 255, 255, .22);
+        color: #fff;
+      }
+
+      #follo_8 #WebAppsTabsHeader > li.is-non-sso-tab > a {
+        border-color: #e3d8f2;
+        background: #f8f4fc;
+        color: #72538f;
+      }
+
+      #follo_8 #WebAppsTabsHeader > li.is-non-sso-tab > a strong {
+        background: #eee5f6;
+        color: #72538f;
+      }
+
+      #follo_8 #WebAppsTabsHeader > li.is-non-sso-tab.active > a,
+      #follo_8 #WebAppsTabsHeader > li.is-non-sso-tab.active > a:hover,
+      #follo_8 #WebAppsTabsHeader > li.is-non-sso-tab.active > a:focus {
+        border-color: #7f5aa3;
+        background: #7f5aa3;
+        color: #fff;
+      }
+
+      #follo_8 #WebAppsTabsHeader > li.is-non-sso-tab.active > a strong {
         background: rgba(255, 255, 255, .22);
         color: #fff;
       }

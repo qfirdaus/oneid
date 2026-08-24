@@ -84,8 +84,12 @@ $report(
     && str_contains($dashboard, 'userAppGroupsWithNonSsoLast(userAppDirectoryGroups)')
     && str_contains($dashboard, 'return ssoGroups.concat(nonSsoGroups)')
     && str_contains($adminDashboard, 'function adminWebAppGroupIsNonSso(group)')
-    && str_contains($adminDashboard, 'adminWebAppGroupsWithNonSsoLast(adminWebAppGroups)'),
-    'User and Administrator directories always render Non SSO category tabs last'
+    && str_contains($adminDashboard, 'adminWebAppGroupsWithNonSsoLast(adminWebAppGroups)')
+    && str_contains($adminDashboard, "isNonSso ? 'is-non-sso-tab' : ''")
+    && str_contains($adminDashboard, '#follo_8 #WebAppsTabsHeader > li.is-non-sso-tab > a')
+    && str_contains($adminDashboard, 'background: #f8f4fc;')
+    && str_contains($adminDashboard, 'background: #7f5aa3;'),
+    'User and Administrator directories render Non SSO last with matching visual treatment'
 );
 $report(
     !str_contains($dashboard, 'APPLY SYNC')
