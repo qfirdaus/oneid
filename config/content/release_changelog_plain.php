@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.10.3' =>
+  array (
+    'version' => '2.10.3',
+    'date' => '2026-08-24',
+    'bm' =>
+    array (
+      0 => 'Logo rasmi UPNM pada header pengguna dan Administrator kini berada tepat di tengah secara menegak dengan ruang atas serta bawah yang seimbang.',
+      1 => 'Panel aplikasi pengguna dan Administrator telah dibersihkan daripada jalur latar yang tidak sekata, manakala menu sisi dipadatkan supaya ikon serta teks kekal selesa tanpa ketinggian berlebihan.',
+      2 => 'FAQ awam sebelum login kini menggunakan susun atur, kawalan tutup dan scrollbar halus yang sama seperti FAQ selepas login, dengan kandungan BM/English dikemas kini mengikut aliran OneID semasa.',
+      3 => 'Garis aksen header kini menukar warna identiti OneID secara lancar sambil mengekalkan pergerakan dan susun atur asal.',
+      4 => 'Imej profil pengguna dan Administrator diperbaharui dengan cover khusus, avatar yang lebih seimbang serta penunjuk online pada kedua-dua jenis akaun.',
+      5 => 'Animasi identiti profil kini menghubungkan denyutan kunci, aliran litar, highlight avatar dan bacaan ONE ID dalam urutan lembut yang berterusan tanpa restart visual yang ketara.',
+      6 => 'Badge profil pengguna kini memaparkan kategori sebenar STAF atau PELAJAR dan bertukar kepada STAFF atau STUDENT apabila bahasa English dipilih.',
+      7 => 'Pelancaran aplikasi daripada dashboard pengguna kini serasi dengan Safari melalui tab yang dibuka terus daripada klik, dengan fallback tab semasa serta mesej kegagalan yang jelas apabila diperlukan.',
+      8 => 'Tab Non SSO pada dashboard pengguna dan Administrator kini sentiasa berada paling kanan berdasarkan jenis akses aplikasi, tanpa bergantung pada nama, bahasa, carian atau urutan database.',
+      9 => 'Warna tab Non SSO Administrator diseragamkan dengan pengguna, dan contract regression mengesahkan susunan kategori, multilingual, Safari launch serta metadata release kekal konsisten.',
+    ),
+    'en' =>
+    array (
+      0 => 'The official UPNM logo in the User and Administrator headers is now vertically centred with balanced spacing above and below.',
+      1 => 'User and Administrator application panels no longer show uneven background strips, while side menus are more compact without crowding their icons or text.',
+      2 => 'The public FAQ before login now uses the same layout, close control and fine scrollbar as the authenticated FAQ, with BM and English content updated for current OneID workflows.',
+      3 => 'The header accent line now transitions smoothly through OneID identity colours while retaining its existing movement and layout.',
+      4 => 'User and Administrator profiles now use dedicated cover artwork, better-balanced avatars and an online indicator for both account views.',
+      5 => 'Profile identity animation now connects the key pulse, circuit flow, avatar highlight and ONE ID reading sequence in a continuous soft motion without a noticeable visual restart.',
+      6 => 'The user profile badge now displays the actual STAFF or STUDENT category and switches to STAF or PELAJAR when Bahasa Melayu is selected.',
+      7 => 'Application launch from the user dashboard is now Safari-compatible through a tab opened directly from the click, with a same-tab fallback and clear failure feedback when required.',
+      8 => 'The Non SSO tab on User and Administrator dashboards now always appears at the far right based on application access type, independent of its name, language, search state or database order.',
+      9 => 'Administrator Non SSO tab colours now match the User view, while regression contracts verify category ordering, multilingual content, Safari launch and release metadata consistency.',
+    ),
+  ),
   'release-2.10.2' =>
   array (
     'version' => '2.10.2',
