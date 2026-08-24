@@ -72,6 +72,14 @@ $report(
     'database metadata is rendered safely without translation'
 );
 $report(
+    str_contains($dashboard, "window.open('about:blank', '_blank')")
+    && str_contains($dashboard, 'go_to_service_provider(String($(this).data(\'app-id\') || \'\'), applicationWindow)')
+    && str_contains($dashboard, 'applicationWindow.location.replace(destination)')
+    && str_contains($dashboard, 'window.location.assign(destination)')
+    && substr_count($dashboard, 'applicationWindow.close()') >= 2,
+    'Application launch reserves a user-initiated tab with a same-tab Safari fallback'
+);
+$report(
     !str_contains($dashboard, 'APPLY SYNC')
     && !str_contains($dashboard, 'ONEID_ODL_')
     && !str_contains($dashboard, 'source_code'),

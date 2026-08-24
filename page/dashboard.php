@@ -830,7 +830,11 @@
          });
 
          $(document).on('click', '.user-app-open', function(){
-            go_to_service_provider(String($(this).data('app-id') || ''));
+            var applicationWindow = window.open('about:blank', '_blank');
+            if (applicationWindow) {
+               applicationWindow.opener = null;
+            }
+            go_to_service_provider(String($(this).data('app-id') || ''), applicationWindow);
          });
 
          $(document).on('click', '.user-app-favourite', function(){
@@ -924,36 +928,54 @@
          }
          
          
-         function go_to_service_provider(sp_id){
-         $.ajax({
-                 type: 'POST',
-                 url: '../lib/q_func',
-                 dataType: "json",
-                 data: {go_to_service_provider:"",sp_id:sp_id},
-                 beforeSend: function(){
-                   // $('#login_status').html('<div class="alert alert-info alert-dismissable alert-style-1"><i class="zmdi zmdi-info-outline"></i>Signing on. Checking info. Wait a moment.</div>');
-                 },
-                 success: function (response) {
-                 	if(response['status']==1){ 
-                 		window.open(response['domain'], '_blank'); 
-                 	}else{
-                 		get_specific_user_app_list();
-         $.toast().reset('all');            
-         $.toast({
-         	heading: '',
-            text: dashboardI18n.accessDenied,
-         	position: 'bottom-center',
-         	loaderBg:'#fec107',
-         	icon: 'danger',
-         	hideAfter: 3500, 
-         	stack: 6
-         });  
-                 	}
-         
-             },
-             error: function (xhr, error, thrown) {
-             }
-         });
+         function go_to_service_provider(sp_id, applicationWindow){
+            $.ajax({
+               type: 'POST',
+               url: '../lib/q_func',
+               dataType: 'json',
+               data: {go_to_service_provider: '', sp_id: sp_id},
+               success: function(response){
+                  if (Number(response.status) === 1 && String(response.domain || '').trim() !== '') {
+                     var destination = String(response.domain).trim();
+                     if (applicationWindow && !applicationWindow.closed) {
+                        applicationWindow.location.replace(destination);
+                     } else {
+                        window.location.assign(destination);
+                     }
+                     return;
+                  }
+
+                  if (applicationWindow && !applicationWindow.closed) {
+                     applicationWindow.close();
+                  }
+                  get_specific_user_app_list();
+                  $.toast().reset('all');
+                  $.toast({
+                     heading: '',
+                     text: dashboardI18n.accessDenied,
+                     position: 'bottom-center',
+                     loaderBg: '#fec107',
+                     icon: 'danger',
+                     hideAfter: 3500,
+                     stack: 6
+                  });
+               },
+               error: function(){
+                if (applicationWindow && !applicationWindow.closed) {
+                   applicationWindow.close();
+                }
+                $.toast().reset('all');
+                $.toast({
+                   heading: dashboardI18n.loadFailed,
+                   text: dashboardI18n.loadFailedHelp,
+                   position: 'bottom-center',
+                   loaderBg: '#fec107',
+                   icon: 'danger',
+                   hideAfter: 3500,
+                   stack: 6
+                });
+               }
+            });
          }
          
          
