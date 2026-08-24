@@ -1977,10 +1977,11 @@
 }
 
 @keyframes oneid-user-avatar-connected {
-  0%, 32%, 46%, 100% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 0 rgba(127, 90, 163, 0); }
-  36% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 3px rgba(127, 90, 163, .09), 0 0 16px rgba(255, 244, 205, .18); }
-  39% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 7px rgba(127, 90, 163, .08), 0 0 28px rgba(255, 244, 205, .31); }
-  43% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 3px rgba(127, 90, 163, .08), 0 0 15px rgba(255, 244, 205, .15); }
+  0%, 31%, 48%, 100% { border-color: #ff6028; box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 0 rgba(127, 90, 163, 0); }
+  35% { border-color: #ef8a53; box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 4px rgba(127, 90, 163, .13), 0 0 20px rgba(255, 244, 205, .25); }
+  39% { border-color: #d9b9f2; box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 9px rgba(127, 90, 163, .12), 0 0 38px rgba(255, 244, 205, .44); }
+  43% { border-color: #e4caf7; box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 7px rgba(127, 90, 163, .1), 0 0 31px rgba(255, 244, 205, .36); }
+  46% { border-color: #ef8a53; box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 3px rgba(127, 90, 163, .07), 0 0 17px rgba(255, 244, 205, .17); }
 }
 
 .profile-img-wrap img {

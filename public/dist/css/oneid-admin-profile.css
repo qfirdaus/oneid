@@ -108,10 +108,11 @@
 }
 
 @keyframes oneid-admin-avatar-connected {
-  0%, 32%, 46%, 100% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 0 rgba(17, 168, 223, 0); }
-  36% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 3px rgba(17, 168, 223, .1), 0 0 16px rgba(112, 216, 255, .18); }
-  39% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 7px rgba(17, 168, 223, .08), 0 0 28px rgba(112, 216, 255, .3); }
-  43% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 3px rgba(17, 168, 223, .08), 0 0 15px rgba(112, 216, 255, .14); }
+  0%, 31%, 48%, 100% { border-color: #ff6028; box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 0 rgba(17, 168, 223, 0); }
+  35% { border-color: #ef8a53; box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 4px rgba(17, 168, 223, .14), 0 0 20px rgba(112, 216, 255, .24); }
+  39% { border-color: #65d8ff; box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 9px rgba(17, 168, 223, .12), 0 0 38px rgba(112, 216, 255, .42); }
+  43% { border-color: #86dffb; box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 7px rgba(17, 168, 223, .1), 0 0 31px rgba(112, 216, 255, .34); }
+  46% { border-color: #ef8a53; box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 3px rgba(17, 168, 223, .07), 0 0 17px rgba(112, 216, 255, .16); }
 }
 
 .oneid-admin-profile-photo {
