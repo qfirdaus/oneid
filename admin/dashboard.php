@@ -85,7 +85,7 @@
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-login-banner-admin.css?v=20260801-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-configuration-navigation.css?v=20260801-1" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-admin-profile.css?v=20260824-3" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-admin-profile.css?v=20260824-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-web-app-modal.css?v=20260815-1" rel="stylesheet" type="text/css">
@@ -1166,6 +1166,7 @@
                                              <defs>
                                                 <linearGradient id="oneid-admin-trace-gradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0798ca"/><stop offset=".5" stop-color="#70d8ff"/><stop offset="1" stop-color="#7f5aa3"/></linearGradient>
                                                 <filter id="oneid-admin-key-glow" x="-250%" y="-250%" width="500%" height="500%"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                                                <filter id="oneid-admin-letter-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="8"/></filter>
                                              </defs>
                                              <g>
                                                 <path class="oneid-circuit-trace" d="M337 0V42L354 59V103L372 121V164"/>
@@ -1185,11 +1186,18 @@
                                                 <path class="oneid-circuit-trace" d="M0 204H64L87 181H157L178 160"/>
                                                 <path class="oneid-circuit-trace is-reverse" d="M0 220H74L96 198H169L190 177"/>
                                              </g>
+                                             <g filter="url(#oneid-admin-letter-glow)" fill="#70d8ff">
+                                                <ellipse cx="68" cy="126" rx="32" ry="29" opacity="0"><animate attributeName="opacity" values="0;0;.34;0;0" keyTimes="0;.42;.445;.47;1" dur="16s" repeatCount="indefinite"/></ellipse>
+                                                <ellipse cx="126" cy="126" rx="32" ry="29" opacity="0"><animate attributeName="opacity" values="0;0;.34;0;0" keyTimes="0;.45;.475;.5;1" dur="16s" repeatCount="indefinite"/></ellipse>
+                                                <ellipse cx="188" cy="126" rx="32" ry="29" opacity="0"><animate attributeName="opacity" values="0;0;.34;0;0" keyTimes="0;.48;.505;.53;1" dur="16s" repeatCount="indefinite"/></ellipse>
+                                                <ellipse cx="276" cy="126" rx="20" ry="35" opacity="0"><animate attributeName="opacity" values="0;0;.32;0;0" keyTimes="0;.51;.535;.56;1" dur="16s" repeatCount="indefinite"/></ellipse>
+                                                <ellipse cx="340" cy="126" rx="42" ry="31" opacity="0"><animate attributeName="opacity" values="0;0;.34;0;0" keyTimes="0;.54;.565;.59;1" dur="16s" repeatCount="indefinite"/></ellipse>
+                                             </g>
                                              <line class="oneid-key-track" x1="276" y1="63" x2="276" y2="213"/>
                                              <g transform="translate(276 63)" filter="url(#oneid-admin-key-glow)">
-                                                <circle r="8" fill="#11a8df" opacity=".15"><animate attributeName="r" values="8;15;8;7;7;8" keyTimes="0;.15;.42;.5;.77;1" dur="12s" repeatCount="indefinite"/><animate attributeName="opacity" values=".12;.65;.22;.28;.16;0" keyTimes="0;.15;.42;.5;.77;1" dur="12s" repeatCount="indefinite"/></circle>
-                                                <circle r="4" fill="#d9f7ff" stroke="#0798ca" stroke-width="1.5"><animate attributeName="opacity" values=".25;1;1;1;.8;0" keyTimes="0;.15;.42;.5;.77;1" dur="12s" repeatCount="indefinite"/></circle>
-                                                <animateTransform attributeName="transform" type="translate" values="276 63;276 63;276 213;276 213;276 63;276 63" keyTimes="0;.15;.42;.5;.77;1" dur="12s" repeatCount="indefinite" calcMode="linear"/>
+                                                <circle r="8" fill="#11a8df" opacity=".15"><animate attributeName="r" values="8;15;8;7;7;8" keyTimes="0;.12;.35;.68;.88;1" dur="16s" repeatCount="indefinite"/><animate attributeName="opacity" values=".12;.65;.22;.18;.2;0" keyTimes="0;.12;.35;.68;.88;1" dur="16s" repeatCount="indefinite"/></circle>
+                                                <circle r="4" fill="#d9f7ff" stroke="#0798ca" stroke-width="1.5"><animate attributeName="opacity" values=".25;1;1;.75;.8;0" keyTimes="0;.12;.35;.68;.88;1" dur="16s" repeatCount="indefinite"/></circle>
+                                                <animateTransform attributeName="transform" type="translate" values="276 63;276 63;276 213;276 213;276 63;276 63" keyTimes="0;.12;.35;.68;.88;1" dur="16s" repeatCount="indefinite" calcMode="linear"/>
                                              </g>
                                           </svg>
                                           <span class="oneid-admin-role-badge"><i class="fa fa-shield" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('admin.role'), ENT_QUOTES, 'UTF-8')?></span>

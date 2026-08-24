@@ -104,14 +104,14 @@
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 8px 22px rgba(28, 55, 76, .22);
-  animation: oneid-admin-avatar-connected 12s linear infinite;
+  animation: oneid-admin-avatar-connected 16s cubic-bezier(.4, 0, .2, 1) infinite;
 }
 
 @keyframes oneid-admin-avatar-connected {
-  0%, 36%, 58%, 100% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 0 rgba(17, 168, 223, 0); transform: scale(1); }
-  44% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 4px rgba(17, 168, 223, .13), 0 0 20px rgba(112, 216, 255, .22); transform: scale(1.012); }
-  49% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 7px rgba(17, 168, 223, .08), 0 0 28px rgba(112, 216, 255, .3); transform: scale(1.018); }
-  54% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 3px rgba(17, 168, 223, .1), 0 0 16px rgba(112, 216, 255, .16); transform: scale(1.008); }
+  0%, 32%, 46%, 100% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 0 rgba(17, 168, 223, 0); }
+  36% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 3px rgba(17, 168, 223, .1), 0 0 16px rgba(112, 216, 255, .18); }
+  39% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 7px rgba(17, 168, 223, .08), 0 0 28px rgba(112, 216, 255, .3); }
+  43% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 3px rgba(17, 168, 223, .08), 0 0 15px rgba(112, 216, 255, .14); }
 }
 
 .oneid-admin-profile-photo {

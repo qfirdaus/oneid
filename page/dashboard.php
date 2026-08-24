@@ -68,7 +68,7 @@
       <link href="../dist/css/oneid-user-faq.css?v=20260823-5" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-password-modal.css?v=20260814-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-user-profile-role.css?v=20260824-3" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-profile-role.css?v=20260824-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
 
@@ -230,6 +230,7 @@
                                              <defs>
                                                 <linearGradient id="oneid-user-trace-gradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e8ad25"/><stop offset=".5" stop-color="#fff4cd"/><stop offset="1" stop-color="#7f5aa3"/></linearGradient>
                                                 <filter id="oneid-user-key-glow" x="-250%" y="-250%" width="500%" height="500%"><feGaussianBlur stdDeviation="3.2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                                                <filter id="oneid-user-letter-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="8"/></filter>
                                              </defs>
                                              <g>
                                                 <path class="oneid-circuit-trace" d="M337 0V42L354 59V103L372 121V164"/>
@@ -249,11 +250,18 @@
                                                 <path class="oneid-circuit-trace" d="M0 204H64L87 181H157L178 160"/>
                                                 <path class="oneid-circuit-trace is-reverse" d="M0 220H74L96 198H169L190 177"/>
                                              </g>
+                                             <g filter="url(#oneid-user-letter-glow)" fill="#fff4cd">
+                                                <ellipse cx="68" cy="126" rx="32" ry="29" opacity="0"><animate attributeName="opacity" values="0;0;.32;0;0" keyTimes="0;.42;.445;.47;1" dur="16s" repeatCount="indefinite"/></ellipse>
+                                                <ellipse cx="126" cy="126" rx="32" ry="29" opacity="0"><animate attributeName="opacity" values="0;0;.32;0;0" keyTimes="0;.45;.475;.5;1" dur="16s" repeatCount="indefinite"/></ellipse>
+                                                <ellipse cx="188" cy="126" rx="32" ry="29" opacity="0"><animate attributeName="opacity" values="0;0;.32;0;0" keyTimes="0;.48;.505;.53;1" dur="16s" repeatCount="indefinite"/></ellipse>
+                                                <ellipse cx="276" cy="126" rx="20" ry="35" opacity="0"><animate attributeName="opacity" values="0;0;.3;0;0" keyTimes="0;.51;.535;.56;1" dur="16s" repeatCount="indefinite"/></ellipse>
+                                                <ellipse cx="340" cy="126" rx="42" ry="31" opacity="0"><animate attributeName="opacity" values="0;0;.32;0;0" keyTimes="0;.54;.565;.59;1" dur="16s" repeatCount="indefinite"/></ellipse>
+                                             </g>
                                              <line class="oneid-key-track" x1="276" y1="63" x2="276" y2="213"/>
                                              <g transform="translate(276 63)" filter="url(#oneid-user-key-glow)">
-                                                <circle r="8" fill="#7f5aa3" opacity=".15"><animate attributeName="r" values="8;15;8;7;7;8" keyTimes="0;.15;.42;.5;.77;1" dur="12.5s" repeatCount="indefinite"/><animate attributeName="opacity" values=".12;.65;.22;.28;.16;0" keyTimes="0;.15;.42;.5;.77;1" dur="12.5s" repeatCount="indefinite"/></circle>
-                                                <circle r="4" fill="#fff4cd" stroke="#7f5aa3" stroke-width="1.5"><animate attributeName="opacity" values=".25;1;1;1;.8;0" keyTimes="0;.15;.42;.5;.77;1" dur="12.5s" repeatCount="indefinite"/></circle>
-                                                <animateTransform attributeName="transform" type="translate" values="276 63;276 63;276 213;276 213;276 63;276 63" keyTimes="0;.15;.42;.5;.77;1" dur="12.5s" repeatCount="indefinite" calcMode="linear"/>
+                                                <circle r="8" fill="#7f5aa3" opacity=".15"><animate attributeName="r" values="8;15;8;7;7;8" keyTimes="0;.12;.35;.68;.88;1" dur="16s" repeatCount="indefinite"/><animate attributeName="opacity" values=".12;.65;.22;.18;.2;0" keyTimes="0;.12;.35;.68;.88;1" dur="16s" repeatCount="indefinite"/></circle>
+                                                <circle r="4" fill="#fff4cd" stroke="#7f5aa3" stroke-width="1.5"><animate attributeName="opacity" values=".25;1;1;.75;.8;0" keyTimes="0;.12;.35;.68;.88;1" dur="16s" repeatCount="indefinite"/></circle>
+                                                <animateTransform attributeName="transform" type="translate" values="276 63;276 63;276 213;276 213;276 63;276 63" keyTimes="0;.12;.35;.68;.88;1" dur="16s" repeatCount="indefinite" calcMode="linear"/>
                                              </g>
                                           </svg>
                                           <span class="oneid-user-role-badge"><i class="fa fa-user" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('dashboard.role'), ENT_QUOTES, 'UTF-8')?></span>
@@ -1965,14 +1973,14 @@
   border-radius: 50%;
   background: #fff !important;
   box-shadow: 0 8px 22px rgba(28, 55, 76, .22);
-  animation: oneid-user-avatar-connected 12.5s linear infinite;
+  animation: oneid-user-avatar-connected 16s cubic-bezier(.4, 0, .2, 1) infinite;
 }
 
 @keyframes oneid-user-avatar-connected {
-  0%, 36%, 58%, 100% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 0 rgba(127, 90, 163, 0); transform: scale(1); }
-  44% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 4px rgba(127, 90, 163, .12), 0 0 20px rgba(255, 244, 205, .24); transform: scale(1.012); }
-  49% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 7px rgba(127, 90, 163, .08), 0 0 28px rgba(255, 244, 205, .32); transform: scale(1.018); }
-  54% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 3px rgba(127, 90, 163, .09), 0 0 16px rgba(255, 244, 205, .18); transform: scale(1.008); }
+  0%, 32%, 46%, 100% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 0 rgba(127, 90, 163, 0); }
+  36% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 3px rgba(127, 90, 163, .09), 0 0 16px rgba(255, 244, 205, .18); }
+  39% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 7px rgba(127, 90, 163, .08), 0 0 28px rgba(255, 244, 205, .31); }
+  43% { box-shadow: 0 8px 22px rgba(28, 55, 76, .22), 0 0 0 3px rgba(127, 90, 163, .08), 0 0 15px rgba(255, 244, 205, .15); }
 }
 
 .profile-img-wrap img {
