@@ -19,14 +19,52 @@ final class MaintenanceGate
         $isAdmin = ($_SESSION['login_status'] ?? '') === 'true'
             && (string)($_SESSION['login_user_type'] ?? '') === '1'
             && (int)($_SESSION['oneid_maintenance_admin_verified_until'] ?? 0) >= time();
-        $pendingAdminMfa = ($_SESSION['user_mfa_pending_admin_maintenance'] ?? false) === true;
-        if ($isAdmin || $pendingAdminMfa || defined('ONEID_ADMIN_MAINTENANCE_LOGIN')) return;
+        $pendingAdminMfa = ($_SESSION['user_mfa_pending_admin_maintenance'] ?? false) === true
+            && trim((string)($_SESSION['user_mfa_pending_user'] ?? '')) !== ''
+            && preg_match('/\A[a-f0-9]{64}\z/', (string)($_SESSION['user_mfa_pending_transaction'] ?? '')) === 1;
+        if ($isAdmin || defined('ONEID_ADMIN_MAINTENANCE_LOGIN')) return;
+        if ($pendingAdminMfa && self::isPendingAdminMfaRoute($path, (string)($_SERVER['REQUEST_METHOD'] ?? 'GET'), $_POST)) return;
         $maintenanceLoginPost = ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST'
             && (string) ($_POST['maintenance_admin_login'] ?? '') === '1'
             && array_key_exists('auth', $_POST)
             && (str_ends_with($path, '/lib/q_func') || str_ends_with($path, '/lib/q_func.php'));
         if ($maintenanceLoginPost) return;
         self::respond($policy);
+    }
+
+    /** @param array<string, mixed> $post */
+    public static function isPendingAdminMfaRoute(string $path, string $method, array $post): bool
+    {
+        $path = '/' . ltrim($path, '/');
+        $method = strtoupper($method);
+        $challengePaths = [
+            '/page/user_mfa_challenge.php',
+            '/page/user-mfa-challenge',
+            '/public/page/user_mfa_challenge.php',
+            '/public/page/user-mfa-challenge',
+        ];
+        foreach ($challengePaths as $challengePath) {
+            if ($method === 'GET' && str_ends_with($path, $challengePath)) return true;
+        }
+
+        if ($method !== 'POST'
+            || !(str_ends_with($path, '/lib/q_func') || str_ends_with($path, '/lib/q_func.php'))
+        ) {
+            return false;
+        }
+
+        $allowedActions = [
+            'user_mfa_email_request',
+            'user_mfa_email_resend',
+            'user_mfa_email_verify',
+            'user_mfa_totp_verify_login',
+            'user_mfa_cancel_login',
+        ];
+        $requested = array_values(array_filter(
+            $allowedActions,
+            static fn(string $action): bool => array_key_exists($action, $post)
+        ));
+        return count($requested) === 1 && !array_key_exists('auth', $post);
     }
 
     public static function respond(array $policy): never

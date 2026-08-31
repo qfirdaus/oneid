@@ -160,6 +160,50 @@ final class UserMfaPendingLoginCoordinator
         }
     }
 
+    public function cancel(
+        string $transactionId,
+        string $sessionId,
+        string $userAgent,
+        string $ipAddress
+    ): void {
+        $correlationId = bin2hex(random_bytes(16));
+        $binding = UserMfaRequestBinding::fromRequest($sessionId, $userAgent, $ipAddress);
+        $started = false;
+        try {
+            $this->persistence->beginTransaction();
+            $started = true;
+            $pending = $this->lockedPending($transactionId, $binding, $correlationId);
+            if (!in_array((string)($pending['transaction_status'] ?? ''), ['PENDING', 'VERIFIED'], true)) {
+                throw new UserMfaPendingLoginException('USER_MFA_PENDING_REPLAYED', $correlationId);
+            }
+            if ($this->persistence->revokePendingLogin($transactionId, 'CANCELLED') !== 1) {
+                throw new UserMfaPendingLoginException('USER_MFA_CANCEL_NOT_APPLIED', $correlationId);
+            }
+            $this->audit(
+                'USER_MFA_PRIMARY_AUTH_PENDING',
+                (string)$pending['u_id'],
+                'revoked',
+                'USER_CANCELLED',
+                $correlationId,
+                $ipAddress
+            );
+            $this->persistence->commit();
+            $started = false;
+        } catch (Throwable $exception) {
+            if ($started) {
+                if ($exception instanceof UserMfaPendingLoginException
+                    && $exception->reason === 'USER_MFA_PENDING_EXPIRED'
+                ) {
+                    $this->persistence->commit();
+                } else {
+                    $this->persistence->rollback();
+                }
+            }
+            if ($exception instanceof UserMfaPendingLoginException) throw $exception;
+            throw new UserMfaPendingLoginException('USER_MFA_CANCEL_FAILED', $correlationId);
+        }
+    }
+
     /** @return array<string, mixed> */
     public function finalize(
         string $transactionId,

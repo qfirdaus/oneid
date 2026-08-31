@@ -315,11 +315,32 @@ $report(
     'expired pending login is durably closed without finalization'
 );
 
+$cancelPersistence = new U3Persistence();
+$cancelCoordinator = new UserMfaPendingLoginCoordinator(
+    $cancelPersistence,
+    static fn(): int => $clock
+);
+$cancelled = $cancelCoordinator->begin(
+    'ADMIN1', 'PASSWORD', 'maintenance-cancel', 'Browser/6', '127.0.0.6', $enforced
+);
+$cancelCoordinator->cancel(
+    $cancelled['transaction_id'],
+    'maintenance-cancel',
+    'Browser/6',
+    '127.0.0.6'
+);
+$report(
+    $cancelPersistence->rows[$cancelled['transaction_id']]['transaction_status'] === 'REVOKED'
+    && $cancelPersistence->audits[array_key_last($cancelPersistence->audits)]['reason'] === 'USER_CANCELLED',
+    'cancelled pending login is revoked and audited before returning to maintenance'
+);
+
 $auditJson = json_encode([
     $offPersistence->audits,
     $pilotPersistence->audits,
     $failurePersistence->audits,
     $expiryPersistence->audits,
+    $cancelPersistence->audits,
 ]);
 $report(
     is_string($auditJson)

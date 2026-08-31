@@ -258,6 +258,27 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
       }
       header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
     }
+    if($oneidGuardedAction==='user_mfa_cancel_login'){
+      $pendingUser=(string)($_SESSION['user_mfa_pending_user']??'');
+      $pendingTransaction=(string)($_SESSION['user_mfa_pending_transaction']??'');
+      if($pendingUser===''||$pendingTransaction===''||!hash_equals($pendingTransaction,(string)($_POST['transaction_id']??''))){
+        throw new RuntimeException('USER_MFA_PENDING_SESSION_INVALID');
+      }
+      $audit=new \OneId\App\Auth\UserMfa\LegacyUserMfaAuditWriter($operation);
+      (new \OneId\App\Auth\UserMfa\UserMfaPendingLoginCoordinator(
+        new \OneId\App\Auth\UserMfa\PdoUserMfaPendingLoginPersistence($pdo,$audit)
+      ))->cancel($pendingTransaction,session_id(),(string)($_SERVER['HTTP_USER_AGENT']??''),(string)getUserIP());
+      unset(
+        $_SESSION['user_mfa_pending_user'],
+        $_SESSION['user_mfa_pending_transaction'],
+        $_SESSION['user_mfa_pending_site_id'],
+        $_SESSION['user_mfa_pending_admin_maintenance'],
+        $_SESSION['user_mfa_pending_maintenance_factor']
+      );
+      session_regenerate_id(true);
+      header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');
+      echo json_encode(['status'=>1,'code'=>'USER_MFA_LOGIN_CANCELLED','redirect_uri'=>APP_URL.'/']);return;
+    }
     if(in_array($oneidGuardedAction,['user_mfa_totp_recovery_email_request','user_mfa_totp_recovery_email_verify'],true)){
       if(!oneid_is_authenticated()){throw new RuntimeException('USER_MFA_AUTHENTICATION_REQUIRED');}
       $recovery=new \OneId\App\Auth\UserMfa\UserMfaTotpEmailRecoveryService(
@@ -612,6 +633,21 @@ function string_sanitize($s) {
                 new \OneId\App\Auth\UserMfa\PdoUserMfaPendingLoginPersistence($userMfaPdo,$userMfaAudit)
               );
               if($maintenanceAdminLogin){
+                $previousPending=(string)($_SESSION['user_mfa_pending_transaction']??'');
+                if(preg_match('/\A[a-f0-9]{64}\z/',$previousPending)===1){
+                  try{
+                    $pendingCoordinator->cancel($previousPending,session_id(),(string)($_SERVER['HTTP_USER_AGENT']??''),(string)getUserIP());
+                  }catch(\Throwable $ignoredPendingCancellation){
+                    error_log('Previous maintenance MFA transaction cleanup was not applied: '.get_class($ignoredPendingCancellation));
+                  }
+                }
+                unset(
+                  $_SESSION['user_mfa_pending_user'],
+                  $_SESSION['user_mfa_pending_transaction'],
+                  $_SESSION['user_mfa_pending_site_id'],
+                  $_SESSION['user_mfa_pending_admin_maintenance'],
+                  $_SESSION['user_mfa_pending_maintenance_factor']
+                );
                 $userMfaPolicies->assertRuntimeParity($userMfaMode);
                 $policy=$userMfaPolicies->policy();
                 $adminFactor=$operation->admin_step_up_factor_status((string)$results['u_id']);
