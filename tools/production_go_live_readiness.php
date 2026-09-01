@@ -61,6 +61,28 @@ $report(
     $enabledMutationFlags === [] ? '' : 'enabled=' . implode(',', $enabledMutationFlags)
 );
 
+if ($bool('ONEID_SYNC_CRON_ENABLED')) {
+    exec('systemctl is-enabled cron 2>/dev/null', $cronEnabledOutput, $cronEnabledCode);
+    exec('systemctl is-active cron 2>/dev/null', $cronActiveOutput, $cronActiveCode);
+    exec('crontab -l 2>/dev/null', $crontabOutput, $crontabCode);
+    $crontab = implode("\n", $crontabOutput);
+    $scheduleReady = $crontabCode === 0
+        && preg_match(
+            '#^10 \* \* \* \* .*/var/www/oneid/cron/run_conditional_external_sync\.php.*external-sync-cron\.log 2>&1$#m',
+            $crontab
+        ) === 1;
+    $logrotatePath = '/etc/logrotate.d/oneid-external-sync';
+    $logrotate = is_readable($logrotatePath) ? (string) file_get_contents($logrotatePath) : '';
+    $report(
+        $cronEnabledCode === 0 && $cronActiveCode === 0 && $scheduleReady,
+        'production dry-run cron is installed and the cron service is active'
+    );
+    $report(
+        str_contains($logrotate, '/var/www/oneid/storage/logs/external-sync-cron.log'),
+        'production external-sync cron logrotate is installed'
+    );
+}
+
 $clientId = $value('ONEID_API_INTERNAL_CLIENT_ID');
 $clientSecret = $value('ONEID_API_INTERNAL_CLIENT_SECRET');
 $clients = json_decode($value('ONEID_API_CLIENTS_JSON', '{}'), true);

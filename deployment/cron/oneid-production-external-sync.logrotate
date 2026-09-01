@@ -1,0 +1,9 @@
+/var/www/oneid/storage/logs/external-sync-cron.log {
+    weekly
+    rotate 52
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 iqs www-data
+}
