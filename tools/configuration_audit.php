@@ -27,7 +27,7 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
 $requiredPrivateKeys = [
     'ONEID_APP_URL', 'ONEID_ENVIRONMENT', 'ONEID_APP_DEBUG', 'ONEID_TIMEZONE',
     'ONEID_DB_CHARSET', 'ONEID_LEGACY_MD5_DEADLINE', 'ONEID_SSO_IDP_URL',
-    'ONEID_SSO_DASHBOARD_URL', 'ONEID_SAMPLE_DATA_URL', 'ONEID_API_AUTH_MODE',
+    'ONEID_SSO_DASHBOARD_URL', 'ONEID_API_AUTH_MODE',
     'ONEID_API_RATE_LIMIT_PER_MINUTE', 'ONEID_API_CLIENTS_JSON', 'ONEID_DB_DSN',
     'ONEID_DB_USERNAME', 'ONEID_DB_PASSWORD', 'ONEID_SMTP_HOST', 'ONEID_SMTP_PORT',
     'ONEID_SMTP_ENCRYPTION', 'ONEID_SMTP_FROM_NAME', 'ONEID_SMTP_USERNAME',
@@ -89,7 +89,7 @@ $report(in_array($config['ONEID_APP_DEBUG'] ?? null, [false, true, 'false', 'tru
 $report(in_array($value('ONEID_TIMEZONE'), timezone_identifiers_list(), true), 'timezone identifier is valid');
 $report(in_array(strtolower($value('ONEID_DB_CHARSET')), ['latin1', 'utf8', 'utf8mb4'], true), 'database charset is allowlisted');
 
-$urlKeys = ['ONEID_APP_URL', 'ONEID_SSO_IDP_URL', 'ONEID_SSO_DASHBOARD_URL', 'ONEID_SAMPLE_DATA_URL'];
+$urlKeys = ['ONEID_APP_URL', 'ONEID_SSO_IDP_URL', 'ONEID_SSO_DASHBOARD_URL'];
 $urlsValid = true;
 foreach ($urlKeys as $key) {
     $urlsValid = $urlsValid && filter_var($value($key), FILTER_VALIDATE_URL) !== false;

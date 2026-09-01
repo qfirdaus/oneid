@@ -10,10 +10,9 @@ return [
     'ONEID_DB_CHARSET' => 'latin1',
     'ONEID_LEGACY_MD5_DEADLINE' => '2026-10-13 23:59:59 Asia/Kuala_Lumpur',
 
-    // SSO and sample data
+    // SSO
     'ONEID_SSO_IDP_URL' => 'https://oneid.local/',
     'ONEID_SSO_DASHBOARD_URL' => 'https://oneid.local/page/dashboard',
-    'ONEID_SAMPLE_DATA_URL' => 'http://localhost/SSO_IDP/sample_data.php',
 
     // MyDigital ID (disabled until the controlled activation phase)
     'ONEID_MYDID_ENABLED' => 'false',

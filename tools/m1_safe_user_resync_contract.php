@@ -57,7 +57,7 @@ $report(str_contains($qFunc, 'admin_apply_specific_user_resync') && str_contains
 $report(str_contains($qFunc, 'UserResyncException') && str_contains($qFunc, "'correlation_id'"), 'endpoint emits safe correlated failures');
 
 $specificStart = strpos($external, 'function EXTERNAL_DATA_SOURCE_GET_SPECIFIC_USER');
-$specificEnd = strpos($external, 'function SAMPLE_DATA_SOURCE_GET_ALL_USER', $specificStart ?: 0);
+$specificEnd = strpos($external, '?>', $specificStart ?: 0);
 $specific = $specificStart !== false && $specificEnd !== false
     ? substr($external, $specificStart, $specificEnd - $specificStart)
     : '';

@@ -47,8 +47,7 @@ $sections = [
     'SSO dan Integration API' => [
         'comment' => 'Endpoint IDP/dashboard, compatibility sample dan kawalan authentication/rate limit API.',
         'match' => static fn(string $key): bool => str_starts_with($key, 'ONEID_SSO_')
-            || str_starts_with($key, 'ONEID_API_')
-            || $key === 'ONEID_SAMPLE_DATA_URL',
+            || str_starts_with($key, 'ONEID_API_'),
     ],
     'Session dan Keselamatan Legacy' => [
         'comment' => 'Feature flag popup session user dan tarikh akhir compatibility password legacy.',

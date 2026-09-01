@@ -28,7 +28,6 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_DB_CHARSET' => 'latin1',
         'ONEID_SSO_IDP_URL' => 'https://oneid.local/',
         'ONEID_SSO_DASHBOARD_URL' => 'https://oneid.local/page/dashboard',
-        'ONEID_SAMPLE_DATA_URL' => 'http://localhost/SSO_IDP/sample_data.php',
         // Internal API identity is provisioned independently per environment.
         'ONEID_API_INTERNAL_CLIENT_ID' => '',
         // MyDigital ID F1 foundation is dormant. Secret remains private and
