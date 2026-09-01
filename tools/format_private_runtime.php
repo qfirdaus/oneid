@@ -21,8 +21,10 @@ if ($realPath === false || !is_file($realPath) || !is_readable($realPath)) {
 }
 
 $originalPermissions = fileperms($realPath);
-if ($originalPermissions === false) {
-    throw new RuntimeException('Unable to read private runtime permissions.');
+$originalOwner = fileowner($realPath);
+$originalGroup = filegroup($realPath);
+if ($originalPermissions === false || $originalOwner === false || $originalGroup === false) {
+    throw new RuntimeException('Unable to read private runtime ownership or permissions.');
 }
 $originalMode = $originalPermissions & 0777;
 
@@ -183,16 +185,22 @@ if ($mode === '--check') {
 
 $backup = $realPath . '.backup-before-format-' . date('Ymd-His');
 if (!copy($realPath, $backup)) { throw new RuntimeException('Unable to create runtime backup.'); }
-if (!chmod($backup, $originalMode)) {
-    throw new RuntimeException('Unable to preserve runtime backup permissions.');
+if ((fileowner($backup) !== $originalOwner && !chown($backup, $originalOwner))
+    || (filegroup($backup) !== $originalGroup && !chgrp($backup, $originalGroup))
+    || !chmod($backup, $originalMode)
+) {
+    throw new RuntimeException('Unable to preserve runtime backup ownership or permissions.');
 }
 $temporary = $realPath . '.formatting-' . bin2hex(random_bytes(6));
 if (file_put_contents($temporary, $rendered, LOCK_EX) === false) {
     throw new RuntimeException('Unable to write formatted runtime.');
 }
-if (!chmod($temporary, $originalMode)) {
+if ((fileowner($temporary) !== $originalOwner && !chown($temporary, $originalOwner))
+    || (filegroup($temporary) !== $originalGroup && !chgrp($temporary, $originalGroup))
+    || !chmod($temporary, $originalMode)
+) {
     @unlink($temporary);
-    throw new RuntimeException('Unable to preserve private runtime permissions.');
+    throw new RuntimeException('Unable to preserve private runtime ownership or permissions.');
 }
 if (!rename($temporary, $realPath)) {
     @unlink($temporary);
