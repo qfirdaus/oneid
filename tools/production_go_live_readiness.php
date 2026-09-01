@@ -78,7 +78,8 @@ if ($bool('ONEID_SYNC_CRON_ENABLED')) {
         'production dry-run cron is installed and the cron service is active'
     );
     $report(
-        str_contains($logrotate, '/var/www/oneid/storage/logs/external-sync-cron.log'),
+        str_contains($logrotate, '/var/www/oneid/storage/logs/external-sync-cron.log')
+            && preg_match('/^\s*su\s+iqs\s+www-data\s*$/m', $logrotate) === 1,
         'production external-sync cron logrotate is installed'
     );
 }

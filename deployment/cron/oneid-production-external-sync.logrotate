@@ -1,4 +1,5 @@
 /var/www/oneid/storage/logs/external-sync-cron.log {
+    su iqs www-data
     weekly
     rotate 52
     compress
