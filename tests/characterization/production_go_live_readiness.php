@@ -10,6 +10,8 @@ $checks = [
     'tool rejects the known staging server UUID' => str_contains($source, '683e6fb3-fbc1-11ef-9f5c-fefcfeb48ebf'),
     'tool checks DML-only grants' => str_contains($source, "'GRANT OPTION'") && str_contains($source, "'ALL PRIVILEGES'"),
     'tool checks every active application readiness' => str_contains($source, 'every active application has an approved production URL'),
+    'tool permits enabled cron only in dry-run mode' => str_contains($source, '$cronNonMutating')
+        && str_contains($source, "ONEID_SYNC_CRON_DRY_RUN', true"),
     'tool checks production application TLS' => str_contains($source, 'all production-ready application URLs pass TLS verification'),
     'tool checks MyDigital ID collisions without raw identities' => str_contains($source, 'active MyDigital ID identity population has no collision'),
     'tool checks HSTS' => str_contains($source, 'strict-transport-security'),

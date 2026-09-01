@@ -49,15 +49,15 @@ $report(
 $mutationFlags = [
     'ONEID_SYNC_APPLY_ENABLED',
     'ONEID_SYNC_OPERATIONAL_ENABLED',
-    'ONEID_SYNC_CRON_ENABLED',
     'ONEID_SYNC_CRON_ALLOW_ALL_SAFE_CHANGES',
     'ONEID_ODL_OPERATIONAL_APPLY_ENABLED',
     'ONEID_ODL_OPERATIONAL_ON_DEMAND_ENABLED',
 ];
 $enabledMutationFlags = array_values(array_filter($mutationFlags, static fn(string $key): bool => $bool($key)));
+$cronNonMutating = !$bool('ONEID_SYNC_CRON_ENABLED') || $bool('ONEID_SYNC_CRON_DRY_RUN', true);
 $report(
-    $enabledMutationFlags === [] && $value('ONEID_SYNC_ENGINE') === 'disabled',
-    'sync, cron and ODL mutation gates are disabled',
+    $enabledMutationFlags === [] && $value('ONEID_SYNC_ENGINE') === 'disabled' && $cronNonMutating,
+    'sync and ODL mutation gates are disabled and cron is non-mutating',
     $enabledMutationFlags === [] ? '' : 'enabled=' . implode(',', $enabledMutationFlags)
 );
 
