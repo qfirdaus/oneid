@@ -2,6 +2,7 @@
 require_once __DIR__ . '/session_security.php';
 oneid_start_secure_session();
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/integration_security.php';
 //---------- SSO Checker
 //---Configure this for IDP
 $site_id="IDP";
@@ -177,8 +178,7 @@ function API_REQUEST($API_DATA,$SSO_IDP_DOMAIN){
     curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
     curl_setopt($ch, CURLOPT_TIMEOUT, 12);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'Content-Type: text/plain'));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, oneid_internal_integration_headers());
     curl_setopt($ch, CURLOPT_POSTFIELDS, ($API_DATA));
 
     $result = curl_exec($ch);

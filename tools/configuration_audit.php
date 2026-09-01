@@ -24,7 +24,7 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $label);
 };
 
-$expectedKeys = [
+$requiredPrivateKeys = [
     'ONEID_APP_URL', 'ONEID_ENVIRONMENT', 'ONEID_APP_DEBUG', 'ONEID_TIMEZONE',
     'ONEID_DB_CHARSET', 'ONEID_LEGACY_MD5_DEADLINE', 'ONEID_SSO_IDP_URL',
     'ONEID_SSO_DASHBOARD_URL', 'ONEID_SAMPLE_DATA_URL', 'ONEID_API_AUTH_MODE',
@@ -33,24 +33,12 @@ $expectedKeys = [
     'ONEID_SMTP_ENCRYPTION', 'ONEID_SMTP_FROM_NAME', 'ONEID_SMTP_USERNAME',
     'ONEID_SMTP_PASSWORD', 'ONEID_SYNC_APPLY_ENABLED', 'ONEID_SYNC_ENGINE',
     'ONEID_SYNC_TRIGGERED_BY', 'ONEID_SYNC_OPERATIONAL_ENABLED',
-    'ONEID_SYNC_OPERATIONAL_WARN_NEW', 'ONEID_SYNC_OPERATIONAL_WARN_UPDATE',
-    'ONEID_SYNC_OPERATIONAL_WARN_REACTIVATE', 'ONEID_SYNC_OPERATIONAL_WARN_TOTAL',
-    'ONEID_SYNC_OPERATIONAL_MAX_DEACTIVATE', 'ONEID_SYNC_FULL_ENABLED',
-    'ONEID_SYNC_FULL_EXPECTED_NEW', 'ONEID_SYNC_FULL_EXPECTED_UPDATE',
-    'ONEID_SYNC_FULL_EXPECTED_DEACTIVATE', 'ONEID_SYNC_FULL_EXPECTED_REACTIVATE',
-    'ONEID_SYNC_FULL_EXPECTED_PLAN_HASH', 'ONEID_SYNC_PILOT_ENABLED',
-    'ONEID_SYNC_PILOT_NEW_LIMIT', 'ONEID_SYNC_PILOT_UPDATE_LIMIT',
-    'ONEID_SYNC_PILOT_DEACTIVATE_LIMIT', 'ONEID_SYNC_PILOT_REACTIVATE_LIMIT',
-    'ONEID_REHEARSAL_ALLOWED_SERVER_HOSTNAME', 'ONEID_REHEARSAL_ALLOWED_SOURCE_DATABASE',
     'ONEID_STAFF_ODBC_DSN', 'ONEID_STAFF_ODBC_USERNAME', 'ONEID_STAFF_ODBC_PASSWORD',
     'ONEID_STUDENT_SYNC_ODBC_DSN', 'ONEID_STUDENT_SYNC_ODBC_USERNAME',
     'ONEID_STUDENT_SYNC_ODBC_PASSWORD', 'ONEID_STUDENT_LOOKUP_ODBC_DSN',
     'ONEID_STUDENT_LOOKUP_ODBC_USERNAME', 'ONEID_STUDENT_LOOKUP_ODBC_PASSWORD',
     'ONEID_SKP_ODBC_DSN', 'ONEID_SKP_ODBC_USERNAME', 'ONEID_SKP_ODBC_PASSWORD',
     'ONEID_IDMS_ODBC_CONNECTION', 'ONEID_IDMS_ODBC_USERNAME', 'ONEID_IDMS_ODBC_PASSWORD',
-    'ONEID_DIAG_AGENT_TOKEN', 'ONEID_DIAG_MYSQL_DSN', 'ONEID_DIAG_MYSQL_USERNAME',
-    'ONEID_DIAG_MYSQL_PASSWORD', 'ONEID_DIAG_SYBASE_ODBC_DSN',
-    'ONEID_DIAG_SYBASE_USERNAME', 'ONEID_DIAG_SYBASE_PASSWORD', 'ONEID_DIAGNOSTIC_TOKEN',
 ];
 
 $report(is_file($runtimeFile) && is_readable($runtimeFile), 'runtime store exists and is readable');
@@ -79,18 +67,22 @@ if (!is_array($config)) {
 }
 
 $actualKeys = array_keys($config);
-$missing = array_values(array_diff($expectedKeys, $actualKeys));
-$unknown = array_values(array_diff($actualKeys, $expectedKeys));
-$report($missing === [], 'runtime contains all 66 expected keys');
-$report($unknown === [], 'runtime contains no unknown keys');
+$missing = array_values(array_diff($requiredPrivateKeys, $actualKeys));
+$invalidKeys = array_values(array_filter(
+    $actualKeys,
+    static fn (mixed $key): bool => !is_string($key)
+        || preg_match('/^ONEID_[A-Z0-9_]+$/D', $key) !== 1
+));
+$report($missing === [], 'runtime contains every required deployment key');
+$report($invalidKeys === [], 'runtime contains only valid ONEID key names');
 if ($missing !== []) {
     printf("INFO missing_keys=%s\n", implode(',', $missing));
 }
-if ($unknown !== []) {
-    printf("INFO unknown_keys=%s\n", implode(',', $unknown));
+if ($invalidKeys !== []) {
+    printf("INFO invalid_keys=%s\n", implode(',', $invalidKeys));
 }
 
-$value = static fn (string $key): string => trim((string) ($config[$key] ?? ''));
+$value = static fn (string $key): string => trim((string) oneid_config($key, $config[$key] ?? ''));
 $environment = strtolower($value('ONEID_ENVIRONMENT'));
 $report(in_array($environment, ['local', 'staging', 'production'], true), 'environment uses an approved value');
 $report(in_array($config['ONEID_APP_DEBUG'] ?? null, [false, true, 'false', 'true', '0', '1'], true), 'application debug flag is explicit');

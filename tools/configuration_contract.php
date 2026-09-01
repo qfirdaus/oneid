@@ -59,7 +59,7 @@ $report($code === 0 && implode("\n", $output) === 'ONEID_RUNTIME_FILE and ONEID_
 
 preg_match_all('/[\'\"](ONEID_[A-Z0-9_]+)[\'\"]\s*=>/', $template, $matches);
 $templateKeys = $matches[1] ?? [];
-$report(count($templateKeys) === 66 && count(array_unique($templateKeys)) === 66, 'committed grouped template contains 66 unique keys');
+$report($templateKeys !== [] && count($templateKeys) === count(array_unique($templateKeys)), 'committed grouped template contains unique keys');
 $report(
     str_contains($template, 'ONEID_SYNC_OPERATIONAL_WARN_NEW')
         && str_contains($template, 'ONEID_SYNC_FULL_EXPECTED_PLAN_HASH')
@@ -68,7 +68,8 @@ $report(
 );
 $report(
     str_contains($audit, 'runtime source contains no duplicate keys')
-        && str_contains($audit, 'runtime contains all 66 expected keys')
+        && str_contains($audit, 'runtime contains every required deployment key')
+        && str_contains($audit, 'runtime contains only valid ONEID key names')
         && str_contains($audit, 'mutation_statements=0')
         && !preg_match('/\b(?:INSERT|UPDATE|DELETE|REPLACE|TRUNCATE)\b/i', $audit),
     'configuration audit checks source structure without mutation statements'

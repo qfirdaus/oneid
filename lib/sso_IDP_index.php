@@ -2,6 +2,7 @@
 require_once __DIR__ . '/session_security.php';
 oneid_start_secure_session();
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/integration_security.php';
 //---------- SSO Checker
 $site_id="IDP";
 $SP_current_page = GET_CURRENT_PAGE_URI();
@@ -20,8 +21,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 			case "1": //normal
 				switch($API_REQUEST_RESULT['respond']){
 					case "0": //Invalid
-						echo "a1";
-							echo $_COOKIE['sso_cre'];
+							http_response_code(401);
 							// echo json_encode($API_REQUEST_RESULT);
 			  			// header('Location: '.SSO_IDP_DOMAIN.'?site_id='.$site_id); 
 					break;
@@ -147,11 +147,10 @@ function API_REQUEST($API_DATA,$SSO_IDP_DOMAIN){
     curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
     curl_setopt($ch,CURLOPT_HEADER, false);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
     curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'Content-Type: text/plain'));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, oneid_internal_integration_headers());
     curl_setopt($ch, CURLOPT_POSTFIELDS, ($API_DATA));
 
     $result = curl_exec($ch);

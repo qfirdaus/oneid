@@ -58,6 +58,21 @@ function oneid_integration_bearer_token()
     return '';
 }
 
+/** Build headers for OneID's server-side call back to its own integration API. */
+function oneid_internal_integration_headers(string $contentType = 'text/plain'): array
+{
+    $headers = ['Content-Type: ' . $contentType];
+    $clientId = trim(oneid_secret('ONEID_API_INTERNAL_CLIENT_ID', false));
+    $secret = trim(oneid_secret('ONEID_API_INTERNAL_CLIENT_SECRET', false));
+
+    if ($clientId !== '' && $secret !== '') {
+        $headers[] = 'X-OneID-Client-ID: ' . $clientId;
+        $headers[] = 'Authorization: Bearer ' . $secret;
+    }
+
+    return $headers;
+}
+
 function oneid_integration_client_ip()
 {
     // REMOTE_ADDR is intentionally used. Forwarded headers are only safe when

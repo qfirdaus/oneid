@@ -47,8 +47,6 @@ foreach ($boundaryPairs as [$privatePath, $publicPath]) {
 $wrappers = [
     'public/index.php',
     'public/api.php',
-    'public/idms.php',
-    'public/skp_api.php',
     'public/admin/dashboard.php',
     'public/admin/logout.php',
     'public/admin/user_list.php',
@@ -64,13 +62,21 @@ foreach ($wrappers as $wrapper) {
     $check(is_file($root . '/' . $wrapper) && !is_link($root . '/' . $wrapper), 'public wrapper is a physical file: ' . $wrapper);
 }
 
+foreach (['idms.php', 'skp_api.php', 'public/idms.php', 'public/skp_api.php'] as $quarantinedEndpoint) {
+    $check(
+        !is_file($root . '/' . $quarantinedEndpoint),
+        'quarantined external endpoint remains absent: ' . $quarantinedEndpoint
+    );
+}
+
 foreach (['app', 'bootstrap', 'config', 'docs', 'resources', 'storage', 'tests', 'tools'] as $privateDirectory) {
     $check(!file_exists($root . '/public/' . $privateDirectory), 'private directory is absent below public: ' . $privateDirectory);
 }
 
 $iterator = new RecursiveIteratorIterator(
     new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS),
-    RecursiveIteratorIterator::SELF_FIRST
+    RecursiveIteratorIterator::SELF_FIRST,
+    RecursiveIteratorIterator::CATCH_GET_CHILD
 );
 $activeSymlinks = [];
 $worldWritable = [];

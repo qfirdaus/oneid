@@ -51,8 +51,6 @@ foreach (['admin/logout.php', 'page/logout.php'] as $retiredImplementation) {
 $remainingWrappers = [
     'public/index.php' => "'/index.php'",
     'public/api.php' => "'/api.php'",
-    'public/idms.php' => "'/idms.php'",
-    'public/skp_api.php' => "'/skp_api.php'",
     'public/admin/dashboard.php' => "'/admin/dashboard.php'",
     'public/admin/user_list.php' => "'/admin/user_list.php'",
     'public/admin/report_preview.php' => "'/admin/report_preview.php'",
@@ -68,6 +66,13 @@ foreach ($remainingWrappers as $wrapper => $targetFragment) {
     $report(
         str_contains($contents, $targetFragment),
         'non-logout compatibility wrapper unchanged: ' . $wrapper
+    );
+}
+
+foreach (['idms.php', 'skp_api.php', 'public/idms.php', 'public/skp_api.php'] as $quarantinedEndpoint) {
+    $report(
+        !is_file($projectRoot . '/' . $quarantinedEndpoint),
+        'quarantined external endpoint remains absent: ' . $quarantinedEndpoint
     );
 }
 
