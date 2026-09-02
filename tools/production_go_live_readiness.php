@@ -62,6 +62,18 @@ $report(
     $bool('ONEID_USER_SESSION_WARNING_ENABLED'),
     'user session warning and renewal presentation is enabled'
 );
+$revocationStates = array_values(array_filter(array_map(
+    'trim',
+    explode(',', $value('ONEID_ACTIVE_SESSION_REVOCATION_PILOT_STATES'))
+)));
+sort($revocationStates);
+$report(
+    $bool('ONEID_ACTIVE_SESSION_REVOCATION_ENABLED')
+        && $revocationStates === ['due', 'expired']
+        && !$bool('ONEID_ACTIVE_SESSION_REVOCATION_ALLOW_ADMIN_TARGET')
+        && !$bool('ONEID_ACTIVE_SESSION_REVOCATION_ALLOW_REVOKE_ALL'),
+    'active-session revocation is enabled with controlled production guards'
+);
 
 $unsafeMutationFlags = [
     'ONEID_SYNC_OPERATIONAL_ENABLED',

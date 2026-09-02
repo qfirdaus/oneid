@@ -10,6 +10,9 @@ $checks = [
     'tool checks FPM session retention and warning activation' => str_contains($source, 'PHP-FPM retains session files')
         && str_contains($source, '$fpmSessionLifetime >= 28800')
         && str_contains($source, 'ONEID_USER_SESSION_WARNING_ENABLED'),
+    'tool checks controlled active-session revocation guards' => str_contains($source, 'ONEID_ACTIVE_SESSION_REVOCATION_ENABLED')
+        && str_contains($source, 'ONEID_ACTIVE_SESSION_REVOCATION_ALLOW_ADMIN_TARGET')
+        && str_contains($source, 'ONEID_ACTIVE_SESSION_REVOCATION_ALLOW_REVOKE_ALL'),
     'tool rejects the known staging server UUID' => str_contains($source, '683e6fb3-fbc1-11ef-9f5c-fefcfeb48ebf'),
     'tool checks DML-only grants' => str_contains($source, "'GRANT OPTION'") && str_contains($source, "'ALL PRIVILEGES'"),
     'tool checks every active application readiness' => str_contains($source, 'every active application has an approved production URL'),
