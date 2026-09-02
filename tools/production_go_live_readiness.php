@@ -48,7 +48,6 @@ $report(
 
 $unsafeMutationFlags = [
     'ONEID_SYNC_OPERATIONAL_ENABLED',
-    'ONEID_SYNC_CRON_ALLOW_ALL_SAFE_CHANGES',
     'ONEID_ODL_OPERATIONAL_APPLY_ENABLED',
     'ONEID_ODL_OPERATIONAL_ON_DEMAND_ENABLED',
 ];
@@ -57,6 +56,7 @@ $cronEnabled = $bool('ONEID_SYNC_CRON_ENABLED');
 $cronDryRun = $bool('ONEID_SYNC_CRON_DRY_RUN', true);
 $syncApply = $bool('ONEID_SYNC_APPLY_ENABLED');
 $syncEngine = $value('ONEID_SYNC_ENGINE');
+$cronAllowAll = $bool('ONEID_SYNC_CRON_ALLOW_ALL_SAFE_CHANGES');
 $cronMaxDeactivate = filter_var(
     $value('ONEID_SYNC_CRON_MAX_DEACTIVATE', '0'),
     FILTER_VALIDATE_INT,
@@ -65,14 +65,29 @@ $cronMaxDeactivate = filter_var(
 $dormantSync = !$syncApply && $syncEngine === 'disabled' && (!$cronEnabled || $cronDryRun);
 $controlledCronApply = $cronEnabled && !$cronDryRun
     && $syncApply && $syncEngine === 'safe'
+    && !$cronAllowAll
     && !$bool('ONEID_SYNC_PILOT_ENABLED')
     && !$bool('ONEID_SYNC_FULL_ENABLED')
     && $cronMaxDeactivate !== false;
+$unrestrictedCronApply = $cronEnabled && !$cronDryRun
+    && $syncApply && $syncEngine === 'safe'
+    && $cronAllowAll
+    && !$bool('ONEID_SYNC_PILOT_ENABLED')
+    && !$bool('ONEID_SYNC_FULL_ENABLED');
+$syncPosture = $unrestrictedCronApply
+    ? 'unrestricted-cron-apply'
+    : ($controlledCronApply ? 'controlled-cron-apply' : 'dormant');
 $report(
-    $enabledUnsafeFlags === [] && ($dormantSync || $controlledCronApply),
-    'sync mutation posture is dormant or controlled cron apply',
-    sprintf('mode=%s', $controlledCronApply ? 'controlled-cron-apply' : 'dormant')
+    $enabledUnsafeFlags === [] && ($dormantSync || $controlledCronApply || $unrestrictedCronApply),
+    'sync mutation posture is explicitly configured',
+    'mode=' . $syncPosture
 );
+if ($unrestrictedCronApply) {
+    $report(
+        'OBSERVE',
+        'cron volume thresholds and warnings are bypassed by deployment configuration'
+    );
+}
 
 if ($bool('ONEID_SYNC_CRON_ENABLED')) {
     exec('systemctl is-enabled cron 2>/dev/null', $cronEnabledOutput, $cronEnabledCode);

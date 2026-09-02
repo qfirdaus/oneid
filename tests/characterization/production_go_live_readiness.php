@@ -10,9 +10,12 @@ $checks = [
     'tool rejects the known staging server UUID' => str_contains($source, '683e6fb3-fbc1-11ef-9f5c-fefcfeb48ebf'),
     'tool checks DML-only grants' => str_contains($source, "'GRANT OPTION'") && str_contains($source, "'ALL PRIVILEGES'"),
     'tool checks every active application readiness' => str_contains($source, 'every active application has an approved production URL'),
-    'tool permits only dormant sync or controlled cron apply' => str_contains($source, '$dormantSync')
+    'tool classifies every approved sync posture explicitly' => str_contains($source, '$dormantSync')
         && str_contains($source, '$controlledCronApply')
+        && str_contains($source, '$unrestrictedCronApply')
         && str_contains($source, "ONEID_SYNC_CRON_MAX_DEACTIVATE', '0'"),
+    'tool exposes unrestricted cron apply as an observation' => str_contains($source, 'unrestricted-cron-apply')
+        && str_contains($source, 'cron volume thresholds and warnings are bypassed'),
     'tool checks production cron installation and log rotation' => str_contains($source, 'systemctl is-active cron')
         && str_contains($source, '/etc/logrotate.d/oneid-external-sync')
         && str_contains($source, "su\\s+iqs\\s+www-data"),
