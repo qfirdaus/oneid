@@ -74,12 +74,24 @@ $report(
         && !preg_match('/\b(?:INSERT|UPDATE|DELETE|REPLACE|TRUNCATE)\b/i', $audit),
     'configuration audit checks source structure without mutation statements'
 );
+$retiredIntegrationKeys = [
+    'ONEID_STUDENT_LOOKUP_ODBC_DSN', 'ONEID_STUDENT_LOOKUP_ODBC_USERNAME', 'ONEID_STUDENT_LOOKUP_ODBC_PASSWORD',
+    'ONEID_SKP_ODBC_DSN', 'ONEID_SKP_ODBC_USERNAME', 'ONEID_SKP_ODBC_PASSWORD',
+    'ONEID_IDMS_ODBC_CONNECTION', 'ONEID_IDMS_ODBC_USERNAME', 'ONEID_IDMS_ODBC_PASSWORD',
+];
+$retiredKeysAreOptional = array_reduce(
+    $retiredIntegrationKeys,
+    static fn (bool $optional, string $key): bool => $optional && !str_contains($audit, "'{$key}'"),
+    true
+);
+$report($retiredKeysAreOptional, 'quarantined integration credentials are not required deployment keys or secrets');
 $report(
     str_contains((string) file_get_contents($root . '/deployment/nginx/oneid-staging.conf'), 'root /var/www/oneid-uat/public;')
         && str_contains((string) file_get_contents($root . '/deployment/php-fpm/oneid-uat.pool.conf'), '/var/www/oneid-uat/.private/runtime.php'),
     'committed staging templates match the active project path'
 );
 
+// The contract adds one check above; the configuration audit itself remains at 17.
 exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($root . '/tools/configuration_audit.php'), $output, $code);
 $report($code === 0 && in_array('RESULT checks=17 failed=0 mutation_statements=0', $output, true), 'local configuration audit passes read-only');
 
