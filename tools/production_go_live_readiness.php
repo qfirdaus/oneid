@@ -88,7 +88,7 @@ if ($bool('ONEID_SYNC_CRON_ENABLED')) {
     $logrotate = is_readable($logrotatePath) ? (string) file_get_contents($logrotatePath) : '';
     $report(
         $cronEnabledCode === 0 && $cronActiveCode === 0 && $scheduleReady,
-        'production dry-run cron is installed and the cron service is active'
+        'production sync cron is installed and the cron service is active'
     );
     $report(
         str_contains($logrotate, '/var/www/oneid/storage/logs/external-sync-cron.log')
