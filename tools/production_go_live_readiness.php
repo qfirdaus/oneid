@@ -46,19 +46,27 @@ $report(
     'production identity, canonical URL and debug mode are correct'
 );
 
-$mutationFlags = [
-    'ONEID_SYNC_APPLY_ENABLED',
+$unsafeMutationFlags = [
     'ONEID_SYNC_OPERATIONAL_ENABLED',
     'ONEID_SYNC_CRON_ALLOW_ALL_SAFE_CHANGES',
     'ONEID_ODL_OPERATIONAL_APPLY_ENABLED',
     'ONEID_ODL_OPERATIONAL_ON_DEMAND_ENABLED',
 ];
-$enabledMutationFlags = array_values(array_filter($mutationFlags, static fn(string $key): bool => $bool($key)));
-$cronNonMutating = !$bool('ONEID_SYNC_CRON_ENABLED') || $bool('ONEID_SYNC_CRON_DRY_RUN', true);
+$enabledUnsafeFlags = array_values(array_filter($unsafeMutationFlags, static fn(string $key): bool => $bool($key)));
+$cronEnabled = $bool('ONEID_SYNC_CRON_ENABLED');
+$cronDryRun = $bool('ONEID_SYNC_CRON_DRY_RUN', true);
+$syncApply = $bool('ONEID_SYNC_APPLY_ENABLED');
+$syncEngine = $value('ONEID_SYNC_ENGINE');
+$dormantSync = !$syncApply && $syncEngine === 'disabled' && (!$cronEnabled || $cronDryRun);
+$controlledCronApply = $cronEnabled && !$cronDryRun
+    && $syncApply && $syncEngine === 'safe'
+    && !$bool('ONEID_SYNC_PILOT_ENABLED')
+    && !$bool('ONEID_SYNC_FULL_ENABLED')
+    && $value('ONEID_SYNC_CRON_MAX_DEACTIVATE', '0') === '0';
 $report(
-    $enabledMutationFlags === [] && $value('ONEID_SYNC_ENGINE') === 'disabled' && $cronNonMutating,
-    'sync and ODL mutation gates are disabled and cron is non-mutating',
-    $enabledMutationFlags === [] ? '' : 'enabled=' . implode(',', $enabledMutationFlags)
+    $enabledUnsafeFlags === [] && ($dormantSync || $controlledCronApply),
+    'sync mutation posture is dormant or controlled cron apply',
+    sprintf('mode=%s', $controlledCronApply ? 'controlled-cron-apply' : 'dormant')
 );
 
 if ($bool('ONEID_SYNC_CRON_ENABLED')) {

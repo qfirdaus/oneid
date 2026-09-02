@@ -9,6 +9,7 @@ require_once $root . '/bootstrap/app.php';
 require_once $root . '/bootstrap/sync_runtime.php';
 
 use OneId\App\Sync\SyncFullConfig;
+use OneId\App\Sync\SyncCronConfig;
 use OneId\App\Sync\SyncOperationalConfig;
 use OneId\App\Sync\SyncPilotConfig;
 use OneId\App\Sync\SyncRuntimeConfig;
@@ -145,8 +146,12 @@ try {
         $value('ONEID_SYNC_OPERATIONAL_WARN_UPDATE'), $value('ONEID_SYNC_OPERATIONAL_WARN_REACTIVATE'),
         $value('ONEID_SYNC_OPERATIONAL_WARN_TOTAL'), $value('ONEID_SYNC_OPERATIONAL_MAX_DEACTIVATE')
     );
+    $cron = SyncCronConfig::fromEnvironment();
     $modeCount = (int) $pilot->enabled + (int) $full->enabled + (int) $operational->enabled;
-    $syncValid = $modeCount <= 1 && (!$runtime->canApply() || $modeCount === 1);
+    $cronCanApply = $cron->enabled && !$cron->dryRun;
+    $syncValid = $modeCount <= 1
+        && (!$runtime->canApply() || $modeCount === 1 || $cronCanApply)
+        && (!$cronCanApply || $runtime->canApply());
 } catch (Throwable) {
     $syncValid = false;
 }
