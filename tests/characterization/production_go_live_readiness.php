@@ -7,6 +7,9 @@ $checks = [
     'tool is CLI-only' => str_contains($source, "PHP_SAPI !== 'cli'"),
     'tool skips application mutation bootstrap' => str_contains($source, "define('ONEID_CONFIG_SKIP_DATABASE', true)"),
     'tool checks dedicated production database' => str_contains($source, "'oneiddb_v2'"),
+    'tool checks FPM session retention and warning activation' => str_contains($source, 'PHP-FPM retains session files')
+        && str_contains($source, '$fpmSessionLifetime >= 28800')
+        && str_contains($source, 'ONEID_USER_SESSION_WARNING_ENABLED'),
     'tool rejects the known staging server UUID' => str_contains($source, '683e6fb3-fbc1-11ef-9f5c-fefcfeb48ebf'),
     'tool checks DML-only grants' => str_contains($source, "'GRANT OPTION'") && str_contains($source, "'ALL PRIVILEGES'"),
     'tool checks every active application readiness' => str_contains($source, 'every active application has an approved production URL'),

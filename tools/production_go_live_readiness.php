@@ -46,6 +46,23 @@ $report(
     'production identity, canonical URL and debug mode are correct'
 );
 
+exec('php-fpm8.3 -i 2>/dev/null', $fpmInfoOutput, $fpmInfoCode);
+$fpmInfo = implode("\n", $fpmInfoOutput);
+$fpmSessionLifetime = preg_match(
+    '/^session\.gc_maxlifetime\s*=>\s*([0-9]+)\s*=>/m',
+    $fpmInfo,
+    $fpmSessionMatch
+) === 1 ? (int) $fpmSessionMatch[1] : 0;
+$report(
+    $fpmInfoCode === 0 && $fpmSessionLifetime >= 28800,
+    'PHP-FPM retains session files for the eight-hour application boundary',
+    'seconds=' . $fpmSessionLifetime
+);
+$report(
+    $bool('ONEID_USER_SESSION_WARNING_ENABLED'),
+    'user session warning and renewal presentation is enabled'
+);
+
 $unsafeMutationFlags = [
     'ONEID_SYNC_OPERATIONAL_ENABLED',
     'ONEID_ODL_OPERATIONAL_APPLY_ENABLED',
