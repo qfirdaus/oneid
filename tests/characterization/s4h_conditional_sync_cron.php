@@ -29,10 +29,10 @@ $checks['threshold_boundary_allowed'] = $config->blockingCode(
     UgStudentSource::SOURCE_CODE,
     ['New'=>50,'Update'=>250,'Deactivate'=>0,'Reactivate'=>0]
 ) === null;
-$checks['deactivation_blocked'] = $config->blockingCode(
+$checks['deactivation_blocked_by_zero_limit'] = $config->blockingCode(
     UgStudentSource::SOURCE_CODE,
     ['New'=>0,'Update'=>0,'Deactivate'=>1,'Reactivate'=>0]
-) === 'SYNC_CRON_DEACTIVATION_NOT_ALLOWED';
+) === 'SYNC_CRON_DEACTIVATION_LIMIT_EXCEEDED';
 $checks['over_limit_blocked'] = $config->blockingCode(
     OdlStudentSource::SOURCE_CODE,
     ['New'=>21,'Update'=>0,'Deactivate'=>0,'Reactivate'=>0]
@@ -53,8 +53,19 @@ $invalid = static function (callable $call, string $code): bool {
     }
     return false;
 };
-$checks['nonzero_deactivate_config_rejected'] = $invalid(
-    fn() => SyncCronConfig::fromValues('true','true','STUDENT_UG','1',$limits),
+$deactivationEnabled = SyncCronConfig::fromValues(
+    'true','false','STUDENT_UG','20',$limits
+);
+$checks['deactivation_at_explicit_limit_allowed'] = $deactivationEnabled->blockingCode(
+    UgStudentSource::SOURCE_CODE,
+    ['New'=>0,'Update'=>0,'Deactivate'=>20,'Reactivate'=>0]
+) === null;
+$checks['deactivation_over_explicit_limit_blocked'] = $deactivationEnabled->blockingCode(
+    UgStudentSource::SOURCE_CODE,
+    ['New'=>0,'Update'=>0,'Deactivate'=>21,'Reactivate'=>0]
+) === 'SYNC_CRON_DEACTIVATION_LIMIT_EXCEEDED';
+$checks['invalid_deactivate_config_rejected'] = $invalid(
+    fn() => SyncCronConfig::fromValues('true','true','STUDENT_UG','100000',$limits),
     'SYNC_CRON_DEACTIVATE_LIMIT_INVALID'
 );
 $checks['duplicate_source_rejected'] = $invalid(

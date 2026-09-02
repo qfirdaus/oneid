@@ -57,12 +57,17 @@ $cronEnabled = $bool('ONEID_SYNC_CRON_ENABLED');
 $cronDryRun = $bool('ONEID_SYNC_CRON_DRY_RUN', true);
 $syncApply = $bool('ONEID_SYNC_APPLY_ENABLED');
 $syncEngine = $value('ONEID_SYNC_ENGINE');
+$cronMaxDeactivate = filter_var(
+    $value('ONEID_SYNC_CRON_MAX_DEACTIVATE', '0'),
+    FILTER_VALIDATE_INT,
+    ['options' => ['min_range' => 0, 'max_range' => 50]]
+);
 $dormantSync = !$syncApply && $syncEngine === 'disabled' && (!$cronEnabled || $cronDryRun);
 $controlledCronApply = $cronEnabled && !$cronDryRun
     && $syncApply && $syncEngine === 'safe'
     && !$bool('ONEID_SYNC_PILOT_ENABLED')
     && !$bool('ONEID_SYNC_FULL_ENABLED')
-    && $value('ONEID_SYNC_CRON_MAX_DEACTIVATE', '0') === '0';
+    && $cronMaxDeactivate !== false;
 $report(
     $enabledUnsafeFlags === [] && ($dormantSync || $controlledCronApply),
     'sync mutation posture is dormant or controlled cron apply',

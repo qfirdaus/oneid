@@ -23,6 +23,7 @@ final class SyncCronConfig
         public readonly bool $dryRun,
         public readonly array $sources,
         private readonly array $limits,
+        private readonly int $maxDeactivate,
         public readonly string $serviceIdentity,
         public readonly bool $allowAllSafeChanges
     ) {}
@@ -75,7 +76,7 @@ final class SyncCronConfig
                 throw new RuntimeException('SYNC_CRON_FLAG_INVALID');
             }
         }
-        if ($maxDeactivate !== '0') {
+        if (preg_match('/^(?:0|[1-9][0-9]{0,4})$/', $maxDeactivate) !== 1) {
             throw new RuntimeException('SYNC_CRON_DEACTIVATE_LIMIT_INVALID');
         }
         if ($sourceList === '' || preg_match('/^[A-Z0-9_]+(?:,[A-Z0-9_]+)*$/', $sourceList) !== 1) {
@@ -116,6 +117,7 @@ final class SyncCronConfig
             $dryRun === 'true',
             $sources,
             $normalized,
+            (int) $maxDeactivate,
             $identity,
             $allowAllSafeChanges === 'true'
         );
@@ -133,7 +135,9 @@ final class SyncCronConfig
             }
         }
         if ($this->allowAllSafeChanges) return null;
-        if ($counts['Deactivate'] > 0) return 'SYNC_CRON_DEACTIVATION_NOT_ALLOWED';
+        if ($counts['Deactivate'] > $this->maxDeactivate) {
+            return 'SYNC_CRON_DEACTIVATION_LIMIT_EXCEEDED';
+        }
         foreach (['New', 'Update', 'Reactivate'] as $action) {
             if ($counts[$action] > $this->limits[$source][$action]) {
                 return 'SYNC_CRON_' . strtoupper($action) . '_LIMIT_EXCEEDED';
