@@ -10,8 +10,9 @@ require_once $root . '/app/Admin/SessionHousekeepingPolicy.php';
 
 $apply = in_array('--apply', $argv, true);
 $check = in_array('--check', $argv, true);
-if ($apply === $check) {
-    fwrite(STDERR, "Usage: php tools/as1_session_housekeeping.php --check | --apply --change-id=ID\n");
+$scheduled = in_array('--scheduled', $argv, true);
+if ((int) $apply + (int) $check + (int) $scheduled !== 1) {
+    fwrite(STDERR, "Usage: php tools/as1_session_housekeeping.php --check | --apply --change-id=ID | --scheduled\n");
     exit(2);
 }
 
@@ -21,7 +22,10 @@ foreach ($argv as $argument) {
         $changeId = substr($argument, strlen('--change-id='));
     }
 }
-if ($apply && !preg_match('/\A[A-Za-z0-9._-]{6,64}\z/', $changeId)) {
+if ($scheduled) {
+    $changeId = 'ONEID-SESSION-HOUSEKEEPING-SCHEDULED';
+}
+if (($apply || $scheduled) && !preg_match('/\A[A-Za-z0-9._-]{6,64}\z/', $changeId)) {
     fwrite(STDERR, "FAIL change_id_invalid\n");
     exit(1);
 }
@@ -77,7 +81,11 @@ if ($check) {
     exit(0);
 }
 
-if (getenv('ONEID_SESSION_HOUSEKEEPING_APPLY_ENABLED') !== 'true') {
+if ($scheduled && (string) oneid_config('ONEID_SESSION_HOUSEKEEPING_SCHEDULED_ENABLED', 'false') !== 'true') {
+    echo "RESULT housekeeping=blocked code=AS1_SCHEDULED_DISABLED mutation_statements=0\n";
+    exit(1);
+}
+if ($apply && getenv('ONEID_SESSION_HOUSEKEEPING_APPLY_ENABLED') !== 'true') {
     echo "RESULT housekeeping=blocked code=AS1_APPLY_DISABLED mutation_statements=0\n";
     exit(1);
 }
@@ -86,12 +94,14 @@ if ($candidateCount === 0) {
     exit(0);
 }
 
-$phrase = SessionHousekeepingPolicy::confirmationPhrase($candidateCount);
-printf("Type %s to continue: ", $phrase);
-$provided = trim((string) fgets(STDIN));
-if (!hash_equals($phrase, $provided)) {
-    echo "RESULT housekeeping=blocked code=AS1_CONFIRMATION_MISMATCH mutation_statements=0\n";
-    exit(1);
+if ($apply) {
+    $phrase = SessionHousekeepingPolicy::confirmationPhrase($candidateCount);
+    printf("Type %s to continue: ", $phrase);
+    $provided = trim((string) fgets(STDIN));
+    if (!hash_equals($phrase, $provided)) {
+        echo "RESULT housekeeping=blocked code=AS1_CONFIRMATION_MISMATCH mutation_statements=0\n";
+        exit(1);
+    }
 }
 
 $lockName = 'oneid_session_housekeeping';
@@ -113,14 +123,21 @@ try {
     $tokenIds = array_column($select->fetchAll(PDO::FETCH_ASSOC), 'token_id');
     if ($tokenIds !== []) {
         $placeholders = implode(',', array_fill(0, count($tokenIds), '?'));
-        $update = $pdo->prepare("UPDATE token_tbl SET status=0 WHERE status=1 AND token_id IN ({$placeholders})");
-        $update->execute($tokenIds);
+        $update = $pdo->prepare(
+            "UPDATE token_tbl SET status=0,ended_at=COALESCE(ended_at,NOW()),"
+            . "end_reason=COALESCE(end_reason,CASE "
+            . "WHEN token_issued_at>? THEN 'INVALID_FUTURE' "
+            . "WHEN policy_revoke_at IS NOT NULL AND policy_revoke_at<=? THEN 'POLICY_REVOKED' "
+            . "ELSE 'NATURAL_EXPIRED' END) "
+            . "WHERE status=1 AND token_id IN ({$placeholders})"
+        );
+        $update->execute(array_merge([$now, $now], $tokenIds));
         $updated = $update->rowCount();
         if ($updated !== count($tokenIds)) {
             throw new RuntimeException('AS1_RECONCILIATION_FAILED');
         }
     }
-    $detail = sprintf('action=session_housekeeping change_id=%s candidates=%d selected=%d updated=%d', $changeId, $candidateCount, count($tokenIds), $updated);
+    $detail = sprintf('action=session_housekeeping mode=%s change_id=%s candidates=%d selected=%d updated=%d', $scheduled ? 'scheduled' : 'manual', $changeId, $candidateCount, count($tokenIds), $updated);
     if ($operation->syslog_record(7, $detail, 'CLI') !== 1) {
         throw new RuntimeException('AS1_AUDIT_FAILED');
     }

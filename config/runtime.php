@@ -68,6 +68,8 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_ACTIVE_SESSION_REVOCATION_ALLOW_REVOKE_ALL' => 'false',
         // User idle-warning presentation is activated per environment after F3 UAT approval.
         'ONEID_USER_SESSION_WARNING_ENABLED' => 'false',
+        // Scheduled DB-token lifecycle cleanup remains deployment opt-in.
+        'ONEID_SESSION_HOUSEKEEPING_SCHEDULED_ENABLED' => 'false',
         // User Login MFA U1 remains dormant. Schema apply and every later
         // activation require separate approval; committed mode stays OFF.
         'ONEID_USER_MFA_MODE' => 'OFF',

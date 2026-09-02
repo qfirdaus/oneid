@@ -32,6 +32,9 @@ $checks = [
     'tool checks production cron installation and log rotation' => str_contains($source, 'systemctl is-active cron')
         && str_contains($source, '/etc/logrotate.d/oneid-external-sync')
         && str_contains($source, "su\\s+iqs\\s+www-data"),
+    'tool checks scheduled session housekeeping and log rotation' => str_contains($source, 'ONEID_SESSION_HOUSEKEEPING_SCHEDULED_ENABLED')
+        && str_contains($source, '/etc/logrotate.d/oneid-session-housekeeping')
+        && str_contains($source, 'session-housekeeping-cron.log'),
     'tool checks production application TLS' => str_contains($source, 'all production-ready application URLs pass TLS verification'),
     'tool checks MyDigital ID collisions without raw identities' => str_contains($source, 'active MyDigital ID identity population has no collision'),
     'tool checks HSTS' => str_contains($source, 'strict-transport-security'),

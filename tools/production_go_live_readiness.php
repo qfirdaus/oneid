@@ -160,6 +160,28 @@ if ($bool('ONEID_SYNC_CRON_ENABLED')) {
     );
 }
 
+exec('systemctl is-active cron 2>/dev/null', $housekeepingCronOutput, $housekeepingCronCode);
+exec('crontab -l 2>/dev/null', $housekeepingCrontabOutput, $housekeepingCrontabCode);
+$housekeepingCrontab = implode("\n", $housekeepingCrontabOutput);
+$housekeepingScheduleReady = $housekeepingCrontabCode === 0
+    && preg_match(
+        '#^\*/10 \* \* \* \* .*/var/www/oneid/\.private/locks/session-housekeeping\.lock.*/var/www/oneid/tools/as1_session_housekeeping\.php --scheduled.*session-housekeeping-cron\.log 2>&1$#m',
+        $housekeepingCrontab
+    ) === 1;
+$housekeepingLogrotatePath = '/etc/logrotate.d/oneid-session-housekeeping';
+$housekeepingLogrotate = is_readable($housekeepingLogrotatePath)
+    ? (string) file_get_contents($housekeepingLogrotatePath)
+    : '';
+$report(
+    $bool('ONEID_SESSION_HOUSEKEEPING_SCHEDULED_ENABLED')
+        && $housekeepingCronCode === 0
+        && $housekeepingScheduleReady
+        && str_contains($housekeepingLogrotate, '/var/www/oneid/storage/logs/session-housekeeping-cron.log')
+        && preg_match('/^\s*create\s+0640\s+iqs\s+www-data\s*$/m', $housekeepingLogrotate) === 1
+        && preg_match('/^\s*su\s+iqs\s+www-data\s*$/m', $housekeepingLogrotate) === 1,
+    'production scheduled session housekeeping is installed'
+);
+
 $clientId = $value('ONEID_API_INTERNAL_CLIENT_ID');
 $clientSecret = $value('ONEID_API_INTERNAL_CLIENT_SECRET');
 $clients = json_decode($value('ONEID_API_CLIENTS_JSON', '{}'), true);
