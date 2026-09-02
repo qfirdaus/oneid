@@ -76,7 +76,6 @@ $report(
 );
 
 $unsafeMutationFlags = [
-    'ONEID_SYNC_OPERATIONAL_ENABLED',
     'ONEID_ODL_OPERATIONAL_APPLY_ENABLED',
     'ONEID_ODL_OPERATIONAL_ON_DEMAND_ENABLED',
 ];
@@ -103,11 +102,20 @@ $unrestrictedCronApply = $cronEnabled && !$cronDryRun
     && $cronAllowAll
     && !$bool('ONEID_SYNC_PILOT_ENABLED')
     && !$bool('ONEID_SYNC_FULL_ENABLED');
+$manualOperationalApply = $bool('ONEID_SYNC_OPERATIONAL_ENABLED')
+    && $syncApply && $syncEngine === 'safe'
+    && !$bool('ONEID_SYNC_PILOT_ENABLED')
+    && !$bool('ONEID_SYNC_FULL_ENABLED');
 $syncPosture = $unrestrictedCronApply
     ? 'unrestricted-cron-apply'
     : ($controlledCronApply ? 'controlled-cron-apply' : 'dormant');
+if ($manualOperationalApply) {
+    $syncPosture .= '+manual-operational-apply';
+}
 $report(
-    $enabledUnsafeFlags === [] && ($dormantSync || $controlledCronApply || $unrestrictedCronApply),
+    $enabledUnsafeFlags === []
+        && ($dormantSync || $controlledCronApply || $unrestrictedCronApply)
+        && (!$bool('ONEID_SYNC_OPERATIONAL_ENABLED') || $manualOperationalApply),
     'sync mutation posture is explicitly configured',
     'mode=' . $syncPosture
 );

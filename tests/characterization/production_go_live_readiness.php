@@ -19,7 +19,12 @@ $checks = [
     'tool classifies every approved sync posture explicitly' => str_contains($source, '$dormantSync')
         && str_contains($source, '$controlledCronApply')
         && str_contains($source, '$unrestrictedCronApply')
+        && str_contains($source, '$manualOperationalApply')
         && str_contains($source, "ONEID_SYNC_CRON_MAX_DEACTIVATE', '0'"),
+    'tool permits safe manual operational apply but keeps production ODL gates closed' => str_contains($source, 'manual-operational-apply')
+        && !preg_match('/\$unsafeMutationFlags\s*=\s*\[[^\]]*ONEID_SYNC_OPERATIONAL_ENABLED/s', $source)
+        && preg_match('/\$unsafeMutationFlags\s*=\s*\[[^\]]*ONEID_ODL_OPERATIONAL_APPLY_ENABLED/s', $source) === 1
+        && preg_match('/\$unsafeMutationFlags\s*=\s*\[[^\]]*ONEID_ODL_OPERATIONAL_ON_DEMAND_ENABLED/s', $source) === 1,
     'tool exposes unrestricted cron apply as an observation' => str_contains($source, 'unrestricted-cron-apply')
         && str_contains($source, 'cron volume thresholds and warnings are bypassed'),
     'tool checks production cron installation and log rotation' => str_contains($source, 'systemctl is-active cron')
