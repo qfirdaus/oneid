@@ -40,6 +40,23 @@ $blocked=false;try{OdlOperationalConfig::fromValues(
  $blocked=$e->getMessage()==='ODL_OPERATIONAL_ON_DEMAND_ENVIRONMENT_INVALID';
 }
 $r($blocked,'production cannot enable ODL on-demand mode');
+$manual=OdlOperationalConfig::fromValues(
+ 'true','false','0','0','0','0','0','','','','','','false','production','true'
+);
+$manual->assertApplyEnabled();
+$manual->assertWithinChangeWindow(new DateTimeImmutable('2030-01-01T00:00:00+08:00'));
+$manual->assertApprovedPlan(
+ 182,['New'=>1,'Update'=>2,'Deactivate'=>3,'Reactivate'=>4],str_repeat('c',64)
+);
+$r($manual->canApply()&&$manual->manualOperationalEnabled,
+ 'production manual ODL accepts the shared fresh one-time Operational approval');
+$blocked=false;try{OdlOperationalConfig::fromValues(
+ 'true','true','1','1','0','0','0',str_repeat('a',64),
+ 'ONEID-ODL-F9-20260724-02','ONEID-UAT-BACKUP-20260724-02',
+ '2026-07-24T15:10:00+08:00','2026-07-24T15:40:00+08:00',
+ 'false','production','true'
+);}catch(RuntimeException$e){$blocked=$e->getMessage()==='ODL_OPERATIONAL_FLAG_COMBINATION_INVALID';}
+$r($blocked,'production manual ODL cannot combine with legacy static authorization');
 $blocked=false;try{OdlOperationalConfig::fromValues(
  'false','false','0','0','0','0','0','','','','','','true','uat'
 );}catch(RuntimeException$e){

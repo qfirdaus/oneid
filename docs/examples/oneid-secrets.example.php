@@ -64,6 +64,7 @@ return [
     'ONEID_SYNC_OPERATIONAL_WARN_REACTIVATE' => '100',
     'ONEID_SYNC_OPERATIONAL_WARN_TOTAL' => '1500',
     'ONEID_SYNC_OPERATIONAL_MAX_DEACTIVATE' => '50',
+    'ONEID_ODL_MANUAL_OPERATIONAL_ENABLED' => 'false',
 
     // External Sync: Controlled Full mode
     'ONEID_SYNC_FULL_ENABLED' => 'false',

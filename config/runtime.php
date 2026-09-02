@@ -142,6 +142,8 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_ODL_OPERATIONAL_APPLY_ENABLED' => 'false',
         // Staging/UAT only: fresh one-time Preview approval replaces static plan/window authorization.
         'ONEID_ODL_OPERATIONAL_ON_DEMAND_ENABLED' => 'false',
+        // Routine manual Apply uses the shared fresh, one-time Operational approval.
+        'ONEID_ODL_MANUAL_OPERATIONAL_ENABLED' => 'false',
         'ONEID_ODL_OPERATIONAL_EXPECTED_SOURCE_ROWS' => '0',
         'ONEID_ODL_OPERATIONAL_EXPECTED_NEW' => '0',
         'ONEID_ODL_OPERATIONAL_EXPECTED_UPDATE' => '0',

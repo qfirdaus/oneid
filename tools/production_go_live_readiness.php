@@ -106,18 +106,29 @@ $manualOperationalApply = $bool('ONEID_SYNC_OPERATIONAL_ENABLED')
     && $syncApply && $syncEngine === 'safe'
     && !$bool('ONEID_SYNC_PILOT_ENABLED')
     && !$bool('ONEID_SYNC_FULL_ENABLED');
+$odlManualOperationalApply = $bool('ONEID_ODL_MANUAL_OPERATIONAL_ENABLED')
+    && $bool('ONEID_ODL_OPERATIONAL_PREVIEW_ENABLED')
+    && $manualOperationalApply;
 $syncPosture = $unrestrictedCronApply
     ? 'unrestricted-cron-apply'
     : ($controlledCronApply ? 'controlled-cron-apply' : 'dormant');
 if ($manualOperationalApply) {
     $syncPosture .= '+manual-operational-apply';
 }
+if ($odlManualOperationalApply) {
+    $syncPosture .= '+odl';
+}
 $report(
     $enabledUnsafeFlags === []
         && ($dormantSync || $controlledCronApply || $unrestrictedCronApply)
-        && (!$bool('ONEID_SYNC_OPERATIONAL_ENABLED') || $manualOperationalApply),
+        && (!$bool('ONEID_SYNC_OPERATIONAL_ENABLED') || $manualOperationalApply)
+        && (!$bool('ONEID_ODL_MANUAL_OPERATIONAL_ENABLED') || $odlManualOperationalApply),
     'sync mutation posture is explicitly configured',
     'mode=' . $syncPosture
+);
+$report(
+    !$bool('ONEID_ODL_MANUAL_OPERATIONAL_ENABLED') || $odlManualOperationalApply,
+    'ODL manual sync uses the shared safe Operational approval'
 );
 if ($unrestrictedCronApply) {
     $report(

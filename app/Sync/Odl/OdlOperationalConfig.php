@@ -16,7 +16,8 @@ final class OdlOperationalConfig
         public readonly string $windowStart,
         public readonly string $windowEnd,
         public readonly bool $onDemandEnabled,
-        public readonly string $environment
+        public readonly string $environment,
+        public readonly bool $manualOperationalEnabled
     ) {}
 
     public static function fromPrivateRuntime(): self
@@ -35,7 +36,8 @@ final class OdlOperationalConfig
             (string) \oneid_config('ONEID_ODL_OPERATIONAL_WINDOW_START', ''),
             (string) \oneid_config('ONEID_ODL_OPERATIONAL_WINDOW_END', ''),
             (string) \oneid_config('ONEID_ODL_OPERATIONAL_ON_DEMAND_ENABLED', 'false'),
-            (string) \oneid_config('ONEID_ENVIRONMENT', '')
+            (string) \oneid_config('ONEID_ENVIRONMENT', ''),
+            (string) \oneid_config('ONEID_ODL_MANUAL_OPERATIONAL_ENABLED', 'false')
         );
     }
 
@@ -44,14 +46,21 @@ final class OdlOperationalConfig
         string $update='0',string $deactivate='0',string $reactivate='0',
         string $planHash='',string $changeReference='',string $backupReference='',
         string $windowStart='',string $windowEnd='',string $onDemand='false',
-        string $environment=''
+        string $environment='',string $manualOperational='false'
     ): self {
-        foreach ([$preview, $apply, $onDemand] as $flag) {
+        foreach ([$preview, $apply, $onDemand, $manualOperational] as $flag) {
             if (!in_array($flag, ['true', 'false'], true)) {
                 throw new \RuntimeException('ODL_OPERATIONAL_FLAG_INVALID');
             }
         }
-        if (($apply === 'true' || $onDemand === 'true') && $preview !== 'true') {
+        if (($apply === 'true' || $onDemand === 'true' || $manualOperational === 'true')
+            && $preview !== 'true') {
+            throw new \RuntimeException('ODL_OPERATIONAL_FLAG_COMBINATION_INVALID');
+        }
+        if (count(array_filter(
+            [$apply, $onDemand, $manualOperational],
+            static fn (string $flag): bool => $flag === 'true'
+        )) > 1) {
             throw new \RuntimeException('ODL_OPERATIONAL_FLAG_COMBINATION_INVALID');
         }
         $normalizedEnvironment = strtolower(trim($environment));
@@ -59,6 +68,11 @@ final class OdlOperationalConfig
             && !in_array($normalizedEnvironment, ['staging', 'uat'], true)
         ) {
             throw new \RuntimeException('ODL_OPERATIONAL_ON_DEMAND_ENVIRONMENT_INVALID');
+        }
+        if ($manualOperational === 'true'
+            && !in_array($normalizedEnvironment, ['staging', 'uat', 'production'], true)
+        ) {
+            throw new \RuntimeException('ODL_MANUAL_OPERATIONAL_ENVIRONMENT_INVALID');
         }
         foreach([$sourceRows,$new,$update,$deactivate,$reactivate]as$value){
             if(preg_match('/^(?:0|[1-9][0-9]*)$/',$value)!==1){
@@ -91,7 +105,7 @@ final class OdlOperationalConfig
             ['New'=>(int)$new,'Update'=>(int)$update,
              'Deactivate'=>(int)$deactivate,'Reactivate'=>(int)$reactivate],
             $planHash,$changeReference,$backupReference,$windowStart,$windowEnd,
-            $onDemand==='true',$normalizedEnvironment
+            $onDemand==='true',$normalizedEnvironment,$manualOperational==='true'
         );
     }
 
@@ -111,14 +125,14 @@ final class OdlOperationalConfig
 
     public function canApply(): bool
     {
-        return $this->applyEnabled || $this->onDemandEnabled;
+        return $this->applyEnabled || $this->onDemandEnabled || $this->manualOperationalEnabled;
     }
 
     /** @param array{New:int,Update:int,Deactivate:int,Reactivate:int} $counts */
     public function assertApprovedPlan(int $sourceRows,array $counts,string $planHash):void
     {
         $this->assertApplyEnabled();
-        if ($this->onDemandEnabled) {
+        if ($this->onDemandEnabled || $this->manualOperationalEnabled) {
             return;
         }
         if($sourceRows!==$this->expectedSourceRows
@@ -131,7 +145,7 @@ final class OdlOperationalConfig
     public function assertWithinChangeWindow(?\DateTimeImmutable $now=null):void
     {
         $this->assertApplyEnabled();
-        if ($this->onDemandEnabled) {
+        if ($this->onDemandEnabled || $this->manualOperationalEnabled) {
             return;
         }
         $now??=new \DateTimeImmutable('now',new \DateTimeZone('Asia/Kuala_Lumpur'));
