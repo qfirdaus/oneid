@@ -58,7 +58,7 @@ return [
     'common.cancel' => 'Batal',
     'common.request_failed' => 'Permintaan tidak berjaya.',
     'dashboard.asnb_reminder.title' => 'Maklumat ASNB Belum Dikemas Kini',
-    'dashboard.asnb_reminder.message' => 'Sila buka sistem Celik Madani untuk melengkapkan maklumat akaun ASNB anda. Peringatan ini akan dipaparkan pada setiap log masuk sehingga maklumat tersebut lengkap.',
+    'dashboard.asnb_reminder.message' => 'Sukacita dimaklumkan bahawa UPNM bersama Universiti Awam lain telah terlibat dalam <strong>Program Celik Madani ASNB</strong> bagi meningkatkan literasi kewangan dan pelaburan dalam kalangan pelajar IPT.<br><br>Pada tahun 2025, <strong>UPNM berjaya menduduki tempat ke-5</strong> dengan pencapaian 61% pelajar mempunyai akaun ASNB. Pelajar yang mendaftar dan mengemas kini maklumat akaun ASNB akan menerima <strong>RM50 dalam bentuk unit amanah ASNB</strong>.<br><br>Bagi memastikan pencapaian dan <strong>kedudukan UPNM terus dipertingkatkan</strong>, semua pelajar dikehendaki mengambil tindakan segera. <strong>Sila klik butang di bawah untuk mengemas kini maklumat ASNB anda.</strong>',
     'dashboard.asnb_reminder.open' => 'Buka Celik Madani',
     'dashboard.asnb_reminder.later' => 'Kemudian',
     'auth.session_expired' => 'Sesi telah tamat.',

@@ -1,9 +1,11 @@
 .sweet-alert.oneid-asnb-reminder {
-  width: 520px;
+  width: 680px;
   max-width: calc(100vw - 32px);
-  margin-left: -260px;
-  padding: 0 32px 30px;
-  overflow: hidden;
+  max-height: calc(100vh - 32px);
+  margin-left: -340px;
+  padding: 0 42px 34px;
+  overflow-x: hidden;
+  overflow-y: auto;
   border: 1px solid #dce8ee;
   border-radius: 18px;
   box-shadow: 0 24px 70px rgba(15, 48, 68, .24);
@@ -12,9 +14,9 @@
 
 .sweet-alert.oneid-asnb-reminder::before {
   display: block;
-  width: calc(100% + 64px);
+  width: calc(100% + 84px);
   height: 7px;
-  margin: 0 -32px 24px;
+  margin: 0 -42px 24px;
   content: "";
   background: linear-gradient(90deg, #08799a, #1f8050);
 }
@@ -46,11 +48,17 @@
 }
 
 .sweet-alert.oneid-asnb-reminder p {
-  max-width: 430px;
+  max-width: 590px;
   margin: 0 auto;
   color: #607481;
-  font-size: 14px;
-  line-height: 1.65;
+  font-size: 15px;
+  line-height: 1.7;
+  text-align: left;
+}
+
+.sweet-alert.oneid-asnb-reminder p strong {
+  color: #173f54;
+  font-weight: 700;
 }
 
 .sweet-alert.oneid-asnb-reminder .sa-button-container {
