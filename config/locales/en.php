@@ -58,7 +58,7 @@ return [
     'common.cancel' => 'Cancel',
     'common.request_failed' => 'The request was not successful.',
     'dashboard.asnb_reminder.title' => 'ASNB Information Not Yet Updated',
-    'dashboard.asnb_reminder.message' => 'Please open Celik Madani to complete your ASNB account information. This reminder will appear after every login until the information is complete.',
+    'dashboard.asnb_reminder.message' => 'We are pleased to inform you that UPNM, together with other Public Universities, is participating in the <strong>ASNB Celik Madani Programme</strong> to improve financial and investment literacy among higher education students.<br><br>In 2025, <strong>UPNM successfully ranked 5th</strong>, with 61% of students having an ASNB account. Students who register and update their ASNB account information will receive <strong>RM50 in the form of ASNB unit trust units</strong>.<br><br>To ensure that UPNM continues to improve its achievement and <strong>ranking</strong>, all students are required to take immediate action. <strong>Please click the button below to update your ASNB information.</strong>',
     'dashboard.asnb_reminder.open' => 'Open Celik Madani',
     'dashboard.asnb_reminder.later' => 'Later',
     'auth.session_expired' => 'The session has expired.',
