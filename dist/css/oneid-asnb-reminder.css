@@ -1,0 +1,114 @@
+.sweet-alert.oneid-asnb-reminder {
+  width: 520px;
+  max-width: calc(100vw - 32px);
+  margin-left: -260px;
+  padding: 0 32px 30px;
+  overflow: hidden;
+  border: 1px solid #dce8ee;
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(15, 48, 68, .24);
+  font-family: "Open Sans", Arial, sans-serif;
+}
+
+.sweet-alert.oneid-asnb-reminder::before {
+  display: block;
+  width: calc(100% + 64px);
+  height: 7px;
+  margin: 0 -32px 24px;
+  content: "";
+  background: linear-gradient(90deg, #08799a, #1f8050);
+}
+
+.sweet-alert.oneid-asnb-reminder .sa-icon.sa-warning {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  border-color: #efbd55;
+}
+
+.sweet-alert.oneid-asnb-reminder .sa-icon.sa-warning .sa-body {
+  height: 28px;
+  top: 11px;
+  background-color: #d99a20;
+}
+
+.sweet-alert.oneid-asnb-reminder .sa-icon.sa-warning .sa-dot {
+  bottom: 9px;
+  background-color: #d99a20;
+}
+
+.sweet-alert.oneid-asnb-reminder h2 {
+  margin: 0 0 12px;
+  color: #15394d;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.28;
+}
+
+.sweet-alert.oneid-asnb-reminder p {
+  max-width: 430px;
+  margin: 0 auto;
+  color: #607481;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.sweet-alert.oneid-asnb-reminder .sa-button-container {
+  margin-top: 23px;
+}
+
+.sweet-alert.oneid-asnb-reminder button {
+  min-width: 145px;
+  margin: 0 5px;
+  padding: 11px 20px;
+  border-radius: 9px;
+  box-shadow: none !important;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sweet-alert.oneid-asnb-reminder button.confirm {
+  background: #08799a !important;
+}
+
+.sweet-alert.oneid-asnb-reminder button.confirm:hover,
+.sweet-alert.oneid-asnb-reminder button.confirm:focus {
+  background: #066985 !important;
+}
+
+.sweet-alert.oneid-asnb-reminder button.cancel {
+  color: #415966;
+  background: #edf3f6;
+}
+
+.sweet-alert.oneid-asnb-reminder button.cancel:hover,
+.sweet-alert.oneid-asnb-reminder button.cancel:focus {
+  background: #dfe9ee;
+}
+
+@media (max-width: 600px) {
+  .sweet-alert.oneid-asnb-reminder {
+    left: 16px;
+    right: 16px;
+    width: auto;
+    max-width: none;
+    margin-left: 0;
+    padding: 0 22px 24px;
+  }
+
+  .sweet-alert.oneid-asnb-reminder::before {
+    width: calc(100% + 44px);
+    margin-right: -22px;
+    margin-left: -22px;
+  }
+
+  .sweet-alert.oneid-asnb-reminder h2 {
+    font-size: 21px;
+  }
+
+  .sweet-alert.oneid-asnb-reminder button {
+    display: block;
+    width: 100%;
+    margin: 8px 0 0;
+  }
+}

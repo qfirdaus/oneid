@@ -96,6 +96,7 @@
       <link href="../dist/css/oneid-sidebar-menu.css?v=20260823-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-faq.css?v=20260823-5" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-password-modal.css?v=20260814-6" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-asnb-reminder.css?v=20260903-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260824-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
@@ -639,6 +640,7 @@
          function showEmadaniAsnbReminder(){
              <?php if ($showEmadaniAsnbReminder): ?>
              swal({
+                customClass: 'oneid-asnb-reminder',
                 title: dashboardI18n.asnbReminderTitle,
                 text: dashboardI18n.asnbReminderMessage,
                 type: 'warning',
