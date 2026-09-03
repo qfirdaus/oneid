@@ -9,6 +9,7 @@
    require_once __DIR__ . '/../lib/environment_banner.php';
    require_once __DIR__ . '/../app/Auth/UserMfa/UserLoginMfaPolicy.php';
    require_once __DIR__ . '/../app/Auth/UserMfa/PdoUserMfaPolicyReader.php';
+   require_once __DIR__ . '/../app/Integration/EmadaniAsnbStatusClient.php';
    oneid_require_authenticated_page();
    oneid_require_active_sso_page($operation);
    if (isset($_GET['locale'])) {
@@ -20,6 +21,31 @@
       exit;
    }
    $user_info = $operation->admin_search_user_account($_SESSION['login_user']);
+   $showEmadaniAsnbReminder = false;
+   if (!isset($_SESSION['emadani_asnb_checked'])
+       && (int)($user_info['u_category'] ?? 0) === 10
+       && filter_var(oneid_config('ONEID_EMADANI_ASNB_API_ENABLED', 'false'), FILTER_VALIDATE_BOOLEAN)
+   ) {
+      $_SESSION['emadani_asnb_checked'] = true;
+      $matrik = strtoupper(trim((string)($user_info['data4'] ?? $_SESSION['login_user'] ?? '')));
+      try {
+         $emadaniClient = new \OneId\App\Integration\EmadaniAsnbStatusClient(
+            trim((string)oneid_config('ONEID_EMADANI_ASNB_API_URL', '')),
+            trim((string)oneid_config('ONEID_EMADANI_ASNB_API_CLIENT_ID', 'oneid')),
+            oneid_secret('ONEID_EMADANI_ASNB_API_SECRET', false),
+            max(1, min(10, (int)oneid_config('ONEID_EMADANI_ASNB_API_TIMEOUT_SECONDS', '5')))
+         );
+         $emadaniStatus = $emadaniClient->check($matrik);
+         $showEmadaniAsnbReminder = is_array($emadaniStatus)
+            && $emadaniStatus['applicable'] === true
+            && $emadaniStatus['asnb_complete'] === false;
+         if ($emadaniStatus === null) {
+            error_log('e-Madani ASNB status unavailable user_hash=' . hash('sha256', (string)$_SESSION['login_user']));
+         }
+      } catch (Throwable) {
+         error_log('e-Madani ASNB reminder failed user_hash=' . hash('sha256', (string)$_SESSION['login_user']));
+      }
+   }
    $userRoleTranslationKey = in_array((int) ($user_info['u_category'] ?? 0), [2, 3], true)
       ? 'dashboard.role.staff'
       : 'dashboard.role.student';
@@ -583,6 +609,10 @@
             'feedbackCode' => oneid_translate('dashboard.feedback.code'),
             'feedbackReference' => oneid_translate('dashboard.feedback.reference'),
             'sessionStatusUnavailable' => oneid_translate('user_session.request_failed'),
+            'asnbReminderTitle' => oneid_translate('dashboard.asnb_reminder.title'),
+            'asnbReminderMessage' => oneid_translate('dashboard.asnb_reminder.message'),
+            'asnbReminderOpen' => oneid_translate('dashboard.asnb_reminder.open'),
+            'asnbReminderLater' => oneid_translate('dashboard.asnb_reminder.later'),
          ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
          $.ajaxSetup({
             headers: {'X-CSRF-Token': <?php echo json_encode(oneid_csrf_token()); ?>}
@@ -606,6 +636,23 @@
              startTokenRefresh();
          });
 
+         function showEmadaniAsnbReminder(){
+             <?php if ($showEmadaniAsnbReminder): ?>
+             swal({
+                title: dashboardI18n.asnbReminderTitle,
+                text: dashboardI18n.asnbReminderMessage,
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#1f6f43',
+                confirmButtonText: dashboardI18n.asnbReminderOpen,
+                cancelButtonText: dashboardI18n.asnbReminderLater,
+                closeOnConfirm: true
+             }, function(confirmed) {
+                if (confirmed) go_to_service_provider('8R8QLPLTDN');
+             });
+             <?php endif; ?>
+         }
+
         function check_default_password(sp_id){
          $.ajax({
                  type: 'POST',
@@ -626,6 +673,7 @@
                      window.location.href=response.redirect_uri||'../';
                   }else{
                      $('#btn_close_changePW').show();
+                     showEmadaniAsnbReminder();
                               }
          
              },

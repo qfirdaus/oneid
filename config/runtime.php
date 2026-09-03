@@ -30,6 +30,11 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_SSO_DASHBOARD_URL' => 'https://oneid.local/page/dashboard',
         // Internal API identity is provisioned independently per environment.
         'ONEID_API_INTERNAL_CLIENT_ID' => '',
+        // e-Madani reminder integration is opt-in and fails open on provider errors.
+        'ONEID_EMADANI_ASNB_API_ENABLED' => 'false',
+        'ONEID_EMADANI_ASNB_API_URL' => '',
+        'ONEID_EMADANI_ASNB_API_CLIENT_ID' => 'oneid',
+        'ONEID_EMADANI_ASNB_API_TIMEOUT_SECONDS' => '5',
         // MyDigital ID F1 foundation is dormant. Secret remains private and
         // activation is not permitted until later phase gates pass.
         'ONEID_MYDID_ENABLED' => 'false',
