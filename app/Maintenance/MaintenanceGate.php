@@ -12,23 +12,48 @@ final class MaintenanceGate
         self::applyRequestedLocale();
         $stored = method_exists($operation, 'get_maintenance_config') ? $operation->get_maintenance_config() : null;
         if (!is_array($stored)) return;
+        $session = isset($_SESSION) && is_array($_SESSION) ? $_SESSION : [];
         $policy = MaintenancePolicy::evaluate($stored);
-        if (!$policy['active']) return;
+        if (!$policy['active']) {
+            if (isset($_SESSION) && is_array($_SESSION)) {
+                unset(
+                    $_SESSION['oneid_maintenance_developer_grant_id'],
+                    $_SESSION['oneid_maintenance_developer_grant_version']
+                );
+            }
+            return;
+        }
         $path=(string)(parse_url((string)($_SERVER['REQUEST_URI']??''),PHP_URL_PATH)??'');
+        $hasDeveloperSessionMarker = array_key_exists('oneid_maintenance_developer_grant_id', $session)
+            || array_key_exists('oneid_maintenance_developer_grant_version', $session);
+        if ($hasDeveloperSessionMarker) {
+            self::enforceDeveloperSession($operation, $policy);
+            return;
+        }
         if ($path==='/api.php'||$path==='/api') return;
-        $isAdmin = ($_SESSION['login_status'] ?? '') === 'true'
-            && (string)($_SESSION['login_user_type'] ?? '') === '1'
-            && (int)($_SESSION['oneid_maintenance_admin_verified_until'] ?? 0) >= time();
-        $pendingAdminMfa = ($_SESSION['user_mfa_pending_admin_maintenance'] ?? false) === true
-            && trim((string)($_SESSION['user_mfa_pending_user'] ?? '')) !== ''
-            && preg_match('/\A[a-f0-9]{64}\z/', (string)($_SESSION['user_mfa_pending_transaction'] ?? '')) === 1;
-        if ($isAdmin || defined('ONEID_ADMIN_MAINTENANCE_LOGIN')) return;
-        if ($pendingAdminMfa && self::isPendingAdminMfaRoute($path, (string)($_SERVER['REQUEST_METHOD'] ?? 'GET'), $_POST)) return;
+        $isAdmin = ($session['login_status'] ?? '') === 'true'
+            && (string)($session['login_user_type'] ?? '') === '1'
+            && (int)($session['oneid_maintenance_admin_verified_until'] ?? 0) >= time();
+        $pendingAdminMfa = ($session['user_mfa_pending_admin_maintenance'] ?? false) === true
+            && trim((string)($session['user_mfa_pending_user'] ?? '')) !== ''
+            && preg_match('/\A[a-f0-9]{64}\z/', (string)($session['user_mfa_pending_transaction'] ?? '')) === 1;
+        $pendingDeveloperMfa = ($session['user_mfa_pending_developer_maintenance'] ?? false) === true
+            && trim((string)($session['user_mfa_pending_user'] ?? '')) !== ''
+            && (int)($session['user_mfa_pending_developer_grant_id'] ?? 0) > 0
+            && (int)($session['user_mfa_pending_developer_grant_version'] ?? 0) > 0
+            && preg_match('/\A[a-f0-9]{64}\z/', (string)($session['user_mfa_pending_transaction'] ?? '')) === 1;
+        if ($isAdmin || defined('ONEID_ADMIN_MAINTENANCE_LOGIN') || defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')) return;
+        if (($pendingAdminMfa || $pendingDeveloperMfa) && self::isPendingAdminMfaRoute($path, (string)($_SERVER['REQUEST_METHOD'] ?? 'GET'), $_POST)) return;
         $maintenanceLoginPost = ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST'
             && (string) ($_POST['maintenance_admin_login'] ?? '') === '1'
             && array_key_exists('auth', $_POST)
             && (str_ends_with($path, '/lib/q_func') || str_ends_with($path, '/lib/q_func.php'));
         if ($maintenanceLoginPost) return;
+        $maintenanceDeveloperLoginPost = ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST'
+            && (string) ($_POST['maintenance_developer_login'] ?? '') === '1'
+            && array_key_exists('auth', $_POST)
+            && (str_ends_with($path, '/lib/q_func') || str_ends_with($path, '/lib/q_func.php'));
+        if ($maintenanceDeveloperLoginPost) return;
         self::respond($policy);
     }
 
@@ -93,5 +118,56 @@ final class MaintenanceGate
                 oneid_set_guest_locale_cookie($requested);
             }
         }
+    }
+
+    private static function enforceDeveloperSession(object $operation, array $maintenancePolicy): void
+    {
+        $user = trim((string) ($_SESSION['login_user'] ?? ''));
+        $token = function_exists('oneid_sso_cookie_token') ? oneid_sso_cookie_token() : '';
+        $tokenActive = $user !== '' && $token !== ''
+            && method_exists($operation, 'is_specific_token_active')
+            && $operation->is_specific_token_active($user, $token) === true;
+        try {
+            $service = new MaintenanceDeveloperAccessService(
+                new PdoMaintenanceDeveloperAccessRepository(new \PDO(
+                    \DB_DSN,
+                    \DB_USERNAME,
+                    \DB_PASSWORD,
+                    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
+                ))
+            );
+            $serverDecision = $service->revalidate($user);
+        } catch (\Throwable) {
+            $serverDecision = ['allowed' => false, 'code' => 'MAINTENANCE_ACCESS_REVALIDATION_FAILED'];
+        }
+        $decision = MaintenanceDeveloperSessionPolicy::decide($_SESSION, $serverDecision, $tokenActive);
+        if ($decision['allowed']) return;
+
+        if ($user !== '' && $token !== '' && method_exists($operation, 'update_specific_token_status')) {
+            try {
+                $operation->update_specific_token_status($user, $token, 0, $decision['code']);
+            } catch (\Throwable) {
+                // Session clearing remains mandatory even if token compensation fails.
+            }
+        }
+        $ip = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) $ip = '0.0.0.0';
+        if (method_exists($operation, 'syslog_record')) {
+            try {
+                $operation->syslog_record(
+                    71,
+                    'user=' . $user . ' action=maintenance_developer_session outcome=terminated reason=' . $decision['code'],
+                    $ip
+                );
+            } catch (\Throwable) {
+                // Never retain an unauthorized session because audit is unavailable.
+            }
+        }
+        if (function_exists('oneid_clear_local_authenticated_session')) {
+            oneid_clear_local_authenticated_session();
+        } else {
+            $_SESSION = [];
+        }
+        self::respond($maintenancePolicy);
     }
 }

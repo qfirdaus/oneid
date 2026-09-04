@@ -3,6 +3,12 @@ require_once dirname(__DIR__) . '/bootstrap/app.php';
 require_once __DIR__ . '/secrets.php';
 require_once __DIR__ . '/auth_security.php';
 require_once dirname(__DIR__) . '/app/Maintenance/MaintenancePolicy.php';
+require_once dirname(__DIR__) . '/app/Maintenance/MaintenanceDeveloperAccessException.php';
+require_once dirname(__DIR__) . '/app/Maintenance/MaintenanceDeveloperAccessPolicy.php';
+require_once dirname(__DIR__) . '/app/Maintenance/MaintenanceDeveloperAccessRepositoryInterface.php';
+require_once dirname(__DIR__) . '/app/Maintenance/PdoMaintenanceDeveloperAccessRepository.php';
+require_once dirname(__DIR__) . '/app/Maintenance/MaintenanceDeveloperAccessService.php';
+require_once dirname(__DIR__) . '/app/Maintenance/MaintenanceDeveloperSessionPolicy.php';
 require_once dirname(__DIR__) . '/app/Maintenance/MaintenanceGate.php';
 
 date_default_timezone_set((string) oneid_config('ONEID_TIMEZONE'));

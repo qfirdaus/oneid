@@ -107,6 +107,12 @@ require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerImagePipeline.php';
 require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerDomainException.php';
 require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerService.php';
 require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerAdminEndpoint.php';
+require_once dirname(__DIR__) . '/app/Maintenance/MaintenanceDeveloperAccessException.php';
+require_once dirname(__DIR__) . '/app/Maintenance/MaintenanceDeveloperAccessPolicy.php';
+require_once dirname(__DIR__) . '/app/Maintenance/MaintenanceDeveloperAccessRepositoryInterface.php';
+require_once dirname(__DIR__) . '/app/Maintenance/PdoMaintenanceDeveloperAccessRepository.php';
+require_once dirname(__DIR__) . '/app/Maintenance/MaintenanceDeveloperAccessService.php';
+require_once dirname(__DIR__) . '/app/Maintenance/MaintenanceDeveloperAccessAdminEndpoint.php';
 require_once dirname(__DIR__) . '/app/Metadata/BilingualMetadataRepository.php';
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
@@ -172,6 +178,27 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
       $audit=new \OneId\App\Auth\UserMfa\LegacyUserMfaAuditWriter($operation);
       $session=session_id();$ua=(string)($_SERVER['HTTP_USER_AGENT']??'');$ip=(string)getUserIP();
       $finalizeUserMfaLogin=static function()use($pdo,$audit,$pendingTransaction,$session,$ua,$ip,$operation,$detectedDeviceInfo):array{
+        $maintenanceDeveloper=(bool)($_SESSION['user_mfa_pending_developer_maintenance']??false);
+        $maintenanceDeveloperGrantId=(int)($_SESSION['user_mfa_pending_developer_grant_id']??0);
+        $maintenanceDeveloperGrantVersion=(int)($_SESSION['user_mfa_pending_developer_grant_version']??0);
+        $verifyMaintenanceDeveloper=static function()use($pdo,$operation,$maintenanceDeveloper,$maintenanceDeveloperGrantId,$maintenanceDeveloperGrantVersion):array{
+          if(!$maintenanceDeveloper){return['allowed'=>false];}
+          $maintenance=$operation->get_maintenance_config();
+          if(!is_array($maintenance)||!(bool)(\OneId\App\Maintenance\MaintenancePolicy::evaluate($maintenance)['active']??false)){
+            throw new RuntimeException('MAINTENANCE_NOT_ACTIVE');
+          }
+          $service=new \OneId\App\Maintenance\MaintenanceDeveloperAccessService(
+            new \OneId\App\Maintenance\PdoMaintenanceDeveloperAccessRepository($pdo)
+          );
+          $decision=$service->revalidate((string)($_SESSION['user_mfa_pending_user']??''));
+          if(!($decision['allowed']??false)
+            ||(int)($decision['grant_id']??0)!==$maintenanceDeveloperGrantId
+            ||(int)($decision['configuration_version']??0)!==$maintenanceDeveloperGrantVersion){
+            throw new RuntimeException('MAINTENANCE_ACCESS_REVALIDATION_FAILED');
+          }
+          return$decision;
+        };
+        if($maintenanceDeveloper){$verifyMaintenanceDeveloper();}
         $pendingPersistence=new \OneId\App\Auth\UserMfa\PdoUserMfaPendingLoginPersistence($pdo,$audit);
         $coordinator=new \OneId\App\Auth\UserMfa\UserMfaPendingLoginCoordinator($pendingPersistence);
         $final=$coordinator->finalize(
@@ -205,6 +232,16 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
               throw new RuntimeException('MAINTENANCE_LOGIN_AUDIT_FAILED');
             }
             $_SESSION['oneid_maintenance_admin_verified_until']=time()+300;
+          }elseif($maintenanceDeveloper){
+            if((string)($userInfo['u_type']??'')!=='0'){
+              throw new RuntimeException('MAINTENANCE_DEVELOPER_FINALIZATION_INVALID');
+            }
+            $decision=$verifyMaintenanceDeveloper();
+            $_SESSION['oneid_maintenance_developer_grant_id']=(int)$decision['grant_id'];
+            $_SESSION['oneid_maintenance_developer_grant_version']=(int)$decision['configuration_version'];
+            if($operation->syslog_record(70,'user='.(string)$final['user_id'].' action=maintenance_developer_login outcome=verified grant_id='.(int)$decision['grant_id'].' correlation='.(string)$final['correlation_id'],$ip)!==1){
+              throw new RuntimeException('MAINTENANCE_DEVELOPER_LOGIN_AUDIT_FAILED');
+            }
           }
         }catch(\Throwable $finalizationFailure){
           $operation->update_specific_token_status((string)$final['user_id'],(string)$handle['token'],0);
@@ -212,8 +249,14 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
           oneid_clear_local_authenticated_session();
           throw $finalizationFailure;
         }
-        unset($_SESSION['user_mfa_pending_user'],$_SESSION['user_mfa_pending_transaction']);
+        unset(
+          $_SESSION['user_mfa_pending_user'],$_SESSION['user_mfa_pending_transaction'],
+          $_SESSION['user_mfa_pending_developer_maintenance'],
+          $_SESSION['user_mfa_pending_developer_grant_id'],
+          $_SESSION['user_mfa_pending_developer_grant_version']
+        );
         $site=(string)($_SESSION['user_mfa_pending_site_id']??'');unset($_SESSION['user_mfa_pending_site_id']);
+        if($maintenanceDeveloper){$site='';}
         $redirect=$maintenanceAdmin?APP_URL.'/admin/dashboard':APP_URL.'/page/dashboard';
         if($site!==''){
           $_POST['site_id']=$site;$allowed=check_specific_sp_allowed($operation,$site);
@@ -273,7 +316,10 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
         $_SESSION['user_mfa_pending_transaction'],
         $_SESSION['user_mfa_pending_site_id'],
         $_SESSION['user_mfa_pending_admin_maintenance'],
-        $_SESSION['user_mfa_pending_maintenance_factor']
+        $_SESSION['user_mfa_pending_maintenance_factor'],
+        $_SESSION['user_mfa_pending_developer_maintenance'],
+        $_SESSION['user_mfa_pending_developer_grant_id'],
+        $_SESSION['user_mfa_pending_developer_grant_version']
       );
       session_regenerate_id(true);
       header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');
@@ -522,18 +568,25 @@ function string_sanitize($s) {
         $results = array();
         $submittedUsername = trim((string) ($_POST['username'] ?? ''));
         $maintenanceAdminLogin=(string)($_POST['maintenance_admin_login']??'')==='1';
+        $maintenanceDeveloperLogin=(string)($_POST['maintenance_developer_login']??'')==='1';
+        $maintenanceDeveloperDecision=null;
         // Rate limiting must use the network peer. Untrusted forwarded headers
         // would otherwise let a client rotate its apparent source address.
         $loginIp=(string)($_SERVER['REMOTE_ADDR']??'');
         if(filter_var($loginIp,FILTER_VALIDATE_IP)===false){$loginIp='0.0.0.0';}
         $credentialFingerprint=hash('sha256',mb_strtolower($submittedUsername,'UTF-8'));
-        if($maintenanceAdminLogin){
+        if($maintenanceAdminLogin||$maintenanceDeveloperLogin){
           $maintenanceConfig=$operation->get_maintenance_config();
           $maintenanceActive=is_array($maintenanceConfig)
             && (bool)(\OneId\App\Maintenance\MaintenancePolicy::evaluate($maintenanceConfig)['active']??false);
           if(!$maintenanceActive){
             http_response_code(409);
-            echo json_encode(['login_status'=>0,'code'=>'MAINTENANCE_NOT_ACTIVE','login_response_msg'=>'Maintenance administrator login is not active.']);
+            echo json_encode(['login_status'=>0,'code'=>'MAINTENANCE_NOT_ACTIVE','login_response_msg'=>'Maintenance login is not active.']);
+            return;
+          }
+          if($maintenanceDeveloperLogin&&!oneid_maintenance_developer_access_enabled()){
+            http_response_code(404);
+            echo json_encode(['login_status'=>0,'code'=>'MAINTENANCE_DEVELOPER_FEATURE_DISABLED','login_response_msg'=>'Maintenance login is not available.']);
             return;
           }
           // A previous administrator session must not satisfy a new
@@ -593,6 +646,21 @@ function string_sanitize($s) {
           $operation->syslog_record(3,"action=maintenance_login outcome=rejected reason=MAINTENANCE_ADMIN_REQUIRED credential_fingerprint=$credentialFingerprint",$loginIp);
           echo json_encode(['login_status'=>0,'code'=>'MAINTENANCE_ADMIN_REQUIRED','login_response_msg'=>'Only authorized administrators may sign in during maintenance.']);
           return;
+        }
+        if($results!==false&&$maintenanceDeveloperLogin){
+          try{
+            $maintenanceDeveloperService=new \OneId\App\Maintenance\MaintenanceDeveloperAccessService(
+              new \OneId\App\Maintenance\PdoMaintenanceDeveloperAccessRepository(
+                new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION])
+              )
+            );
+            $maintenanceDeveloperDecision=$maintenanceDeveloperService->revalidate((string)$results['u_id']);
+          }catch(\Throwable){$maintenanceDeveloperDecision=['allowed'=>false];}
+          if((string)($results['u_type']??'')!=='0'||!($maintenanceDeveloperDecision['allowed']??false)){
+            $operation->syslog_record(3,"action=maintenance_developer_login outcome=rejected reason=MAINTENANCE_ACCESS_DENIED credential_fingerprint=$credentialFingerprint",$loginIp);
+            echo json_encode(['login_status'=>0,'code'=>'MAINTENANCE_ACCESS_DENIED','login_response_msg'=>'The credentials or maintenance access are invalid.']);
+            return;
+          }
         }
 
         // echo var_dump($results);)
@@ -658,6 +726,31 @@ function string_sanitize($s) {
                 }
                 $operation->admin_step_up_revoke_all_active_access_grants((string)$results['u_id']);
                 $userMfaResult=$pendingCoordinator->begin((string)$results['u_id'],'PASSWORD',session_id(),(string)($_SERVER['HTTP_USER_AGENT']??''),(string)getUserIP(),$policy,true,true);
+              }elseif($maintenanceDeveloperLogin){
+                $previousPending=(string)($_SESSION['user_mfa_pending_transaction']??'');
+                if(preg_match('/\A[a-f0-9]{64}\z/',$previousPending)===1){
+                  try{$pendingCoordinator->cancel($previousPending,session_id(),(string)($_SERVER['HTTP_USER_AGENT']??''),(string)getUserIP());}
+                  catch(\Throwable $ignoredPendingCancellation){error_log('Previous developer maintenance MFA transaction cleanup was not applied: '.get_class($ignoredPendingCancellation));}
+                }
+                unset(
+                  $_SESSION['user_mfa_pending_user'],$_SESSION['user_mfa_pending_transaction'],
+                  $_SESSION['user_mfa_pending_site_id'],$_SESSION['user_mfa_pending_admin_maintenance'],
+                  $_SESSION['user_mfa_pending_maintenance_factor'],
+                  $_SESSION['user_mfa_pending_developer_maintenance'],
+                  $_SESSION['user_mfa_pending_developer_grant_id'],
+                  $_SESSION['user_mfa_pending_developer_grant_version']
+                );
+                $userMfaPolicies->assertRuntimeParity($userMfaMode);
+                $policy=$userMfaPolicies->policy();
+                if($policy->mode==='OFF'||!$policy->emailEnabled){
+                  throw new RuntimeException('MAINTENANCE_DEVELOPER_MFA_UNAVAILABLE');
+                }
+                $forcedPolicy=new \OneId\App\Auth\UserMfa\UserLoginMfaPolicy(
+                  'ENFORCED',$policy->scope,$policy->emailEnabled,$policy->totpEnabled,
+                  $policy->pendingTtlSeconds,$policy->otpTtlSeconds,$policy->maxAttempts,
+                  $policy->resendCooldownSeconds,$policy->hourlySendLimit
+                );
+                $userMfaResult=$pendingCoordinator->begin((string)$results['u_id'],'PASSWORD',session_id(),(string)($_SERVER['HTTP_USER_AGENT']??''),(string)getUserIP(),$forcedPolicy,true,true);
               }else{
                 $userMfaDecision=new \OneId\App\Auth\UserMfa\UserMfaPrimaryAuthDecision($userMfaPolicies,$pendingCoordinator);
                 $userMfaResult=$userMfaDecision->afterPasswordAccepted((string)$results['u_id'],session_id(),(string)($_SERVER['HTTP_USER_AGENT']??''),(string)getUserIP(),$userMfaMode);
@@ -667,6 +760,11 @@ function string_sanitize($s) {
                 $_SESSION['user_mfa_pending_transaction']=(string)$userMfaResult['transaction_id'];
                 $_SESSION['user_mfa_pending_site_id']=isset($_POST['site_id'])?(string)$_POST['site_id']:'';
                 $_SESSION['user_mfa_pending_admin_maintenance']=(string)($_POST['maintenance_admin_login']??'')==='1';
+                $_SESSION['user_mfa_pending_developer_maintenance']=$maintenanceDeveloperLogin;
+                if($maintenanceDeveloperLogin){
+                  $_SESSION['user_mfa_pending_developer_grant_id']=(int)$maintenanceDeveloperDecision['grant_id'];
+                  $_SESSION['user_mfa_pending_developer_grant_version']=(int)$maintenanceDeveloperDecision['configuration_version'];
+                }
                 echo json_encode([
                   'login_status'=>2,
                   'code'=>'USER_MFA_REQUIRED',
@@ -677,6 +775,13 @@ function string_sanitize($s) {
                 return;
               }
             }catch(\Throwable $userMfaException){
+              if($maintenanceDeveloperLogin){
+                unset(
+                  $_SESSION['user_mfa_pending_developer_maintenance'],
+                  $_SESSION['user_mfa_pending_developer_grant_id'],
+                  $_SESSION['user_mfa_pending_developer_grant_version']
+                );
+              }
               $userMfaCorrelation=bin2hex(random_bytes(8));
               error_log(sprintf(
                 'User MFA primary-auth boundary failed code=%s correlation=%s',
@@ -710,8 +815,10 @@ function string_sanitize($s) {
 
             oneid_establish_authenticated_session($results);
 
-            if((string)($_POST['maintenance_admin_login']??'')==='1'){
+            if($maintenanceAdminLogin){
                 $array['redirect_uri'] = 'admin/dashboard';
+            }elseif($maintenanceDeveloperLogin){
+                $array['redirect_uri'] = 'page/dashboard';
             }elseif(isset($_POST['site_id'])){
                 $resolvedSite = $operation->resolve_site_api_code((string)$_POST['site_id']);
                 $check_result = is_array($resolvedSite)
@@ -1092,6 +1199,39 @@ function string_sanitize($s) {
       if(isset($_POST['admin_get_maintenance_configuration'])||isset($_POST['admin_update_maintenance_configuration'])){
         try{$service=new \OneId\App\Admin\MaintenanceConfigurationService($operation);$result=isset($_POST['admin_get_maintenance_configuration'])?$service->read():$service->update($_POST,(string)$_SESSION['login_user'],(string)getUserIP());echo json_encode($result);}
         catch(\OneId\App\Admin\SsoConfigurationException $exception){echo json_encode(['status'=>0,'code'=>$exception->reason,'message'=>'Maintenance configuration was not completed.','correlation_id'=>$exception->correlationId]);}
+      }
+      if(in_array($oneidGuardedAction,[
+        'admin_search_maintenance_developer_candidates',
+        'admin_list_maintenance_developer_access',
+        'admin_grant_maintenance_developer_access',
+        'admin_revoke_maintenance_developer_access',
+      ],true)){
+        try{
+          $maintenanceDeveloperPdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+          $maintenanceDeveloperEndpoint=new \OneId\App\Maintenance\MaintenanceDeveloperAccessAdminEndpoint(
+            new \OneId\App\Maintenance\MaintenanceDeveloperAccessService(
+              new \OneId\App\Maintenance\PdoMaintenanceDeveloperAccessRepository($maintenanceDeveloperPdo)
+            ),
+            (string)oneid_config('ONEID_TIMEZONE','Asia/Kuala_Lumpur')
+          );
+          $result=$maintenanceDeveloperEndpoint->handle(
+            $oneidGuardedAction,$_POST,(string)$_SESSION['login_user'],(string)($_SERVER['REMOTE_ADDR']??'')
+          );
+          header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($result);return;
+        }catch(\OneId\App\Maintenance\MaintenanceDeveloperAccessException $exception){
+          $code=$exception->reason;
+          $status=match($code){
+            'MAINTENANCE_ACCESS_SEARCH_INVALID','MAINTENANCE_ACCESS_CONFIRMATION_INVALID','MAINTENANCE_ACCESS_TIME_INVALID','MAINTENANCE_ACCESS_WINDOW_INVALID','MAINTENANCE_ACCESS_REASON_INVALID','MAINTENANCE_ACCESS_REFERENCE_INVALID','MAINTENANCE_ACCESS_USER_INVALID','MAINTENANCE_ACCESS_VERSION_INVALID'=>422,
+            'MAINTENANCE_ACCESS_ALREADY_ACTIVE','MAINTENANCE_ACCESS_CONFIGURATION_STALE','MAINTENANCE_ACCESS_NOT_ACTIVE'=>409,
+            'MAINTENANCE_ACCESS_ADMIN_STEP_UP_REQUIRED','MAINTENANCE_ACCESS_ADMIN_FORBIDDEN','MAINTENANCE_ACCESS_USER_TYPE_FORBIDDEN','MAINTENANCE_ACCESS_ACCOUNT_INACTIVE'=>403,
+            default=>503,
+          };
+          http_response_code($status);header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');
+          echo json_encode(['status'=>0,'code'=>$code,'message'=>'Maintenance developer access request was not completed.','correlation_id'=>$exception->correlationId]);return;
+        }catch(\Throwable){
+          http_response_code(503);header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');
+          echo json_encode(['status'=>0,'code'=>'MAINTENANCE_ACCESS_UNAVAILABLE','message'=>'Maintenance developer access request was not completed.']);return;
+        }
       }
 
       if(isset( $_POST['action_add_new_app'])){

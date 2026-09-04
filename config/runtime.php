@@ -93,6 +93,20 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_USER_MFA_SCHEMA_WINDOW_START' => '',
         'ONEID_USER_MFA_SCHEMA_WINDOW_END' => '',
         'ONEID_USER_MFA_RETENTION_REFERENCE' => '',
+        // Maintenance developer access foundation remains dormant. Schema
+        // application and feature activation require separate approvals.
+        'ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED' => 'false',
+        'ONEID_MAINTENANCE_DEVELOPER_SCHEMA_APPLY_ENABLED' => 'false',
+        'ONEID_MAINTENANCE_DEVELOPER_SCHEMA_CHANGE_REFERENCE' => '',
+        'ONEID_MAINTENANCE_DEVELOPER_SCHEMA_BACKUP_REFERENCE' => '',
+        'ONEID_MAINTENANCE_DEVELOPER_SCHEMA_WINDOW_START' => '',
+        'ONEID_MAINTENANCE_DEVELOPER_SCHEMA_WINDOW_END' => '',
+        // Controlled UAT pilot activation is separately approved after MD9.
+        'ONEID_MAINTENANCE_DEVELOPER_PILOT_APPROVED' => 'false',
+        'ONEID_MAINTENANCE_DEVELOPER_PILOT_CHANGE_REFERENCE' => '',
+        'ONEID_MAINTENANCE_DEVELOPER_PILOT_USER_ID' => '',
+        'ONEID_MAINTENANCE_DEVELOPER_PILOT_WINDOW_START' => '',
+        'ONEID_MAINTENANCE_DEVELOPER_PILOT_WINDOW_END' => '',
         'ONEID_LEGACY_MD5_DEADLINE' => '2026-10-13 23:59:59 Asia/Kuala_Lumpur',
         'ONEID_SYNC_APPLY_ENABLED' => 'false',
         'ONEID_SYNC_ENGINE' => 'disabled',
@@ -184,4 +198,31 @@ function oneid_config(string $key, mixed $fallback = null): mixed
     }
 
     return $local[$key] ?? $defaults[$key] ?? $fallback;
+}
+
+/**
+ * Runtime capability gate. During an approved staging pilot the feature also
+ * fails closed outside its exact time window, even if the raw flag is left on.
+ */
+function oneid_maintenance_developer_access_enabled(?DateTimeImmutable $now = null): bool
+{
+    if (!filter_var(oneid_config('ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED', 'false'), FILTER_VALIDATE_BOOLEAN)) {
+        return false;
+    }
+    if (!filter_var(oneid_config('ONEID_MAINTENANCE_DEVELOPER_PILOT_APPROVED', 'false'), FILTER_VALIDATE_BOOLEAN)) {
+        return true;
+    }
+    if ((string) oneid_config('ONEID_ENVIRONMENT', '') !== 'staging') {
+        return false;
+    }
+    $startRaw = trim((string) oneid_config('ONEID_MAINTENANCE_DEVELOPER_PILOT_WINDOW_START', ''));
+    $endRaw = trim((string) oneid_config('ONEID_MAINTENANCE_DEVELOPER_PILOT_WINDOW_END', ''));
+    $start = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $startRaw);
+    $end = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $endRaw);
+    $now ??= new DateTimeImmutable('now', new DateTimeZone('Asia/Kuala_Lumpur'));
+    return $start instanceof DateTimeImmutable && $end instanceof DateTimeImmutable
+        && $start->format(DateTimeInterface::ATOM) === $startRaw
+        && $end->format(DateTimeInterface::ATOM) === $endRaw
+        && $end > $start && ($end->getTimestamp() - $start->getTimestamp()) <= 7200
+        && $now >= $start && $now <= $end;
 }

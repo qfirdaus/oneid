@@ -24,7 +24,7 @@ $statement=$pdo->prepare(
     WHERE t.transaction_id=:transaction AND t.u_id=:user"
 );
 $statement->execute([':transaction'=>$transaction,':user'=>$user]);$state=$statement->fetch();
-if(!is_array($state)||$state['transaction_status']!=='PENDING'||strtotime((string)$state['expires_at'])<time()){unset($_SESSION['user_mfa_pending_transaction'],$_SESSION['user_mfa_pending_user'],$_SESSION['user_mfa_pending_site_id'],$_SESSION['user_mfa_pending_admin_maintenance'],$_SESSION['user_mfa_pending_maintenance_factor']);header('Location: '.APP_URL.'/',true,303);exit;}
+if(!is_array($state)||$state['transaction_status']!=='PENDING'||strtotime((string)$state['expires_at'])<time()){unset($_SESSION['user_mfa_pending_transaction'],$_SESSION['user_mfa_pending_user'],$_SESSION['user_mfa_pending_site_id'],$_SESSION['user_mfa_pending_admin_maintenance'],$_SESSION['user_mfa_pending_maintenance_factor'],$_SESSION['user_mfa_pending_developer_maintenance'],$_SESSION['user_mfa_pending_developer_grant_id'],$_SESSION['user_mfa_pending_developer_grant_version']);header('Location: '.APP_URL.'/',true,303);exit;}
 $email=(string)$state['email'];$at=strpos($email,'@');$masked=$at===false?'':substr($email,0,1).'***'.substr($email,max(1,$at-1));
 $activeTotp=(int)$state['active_totp']===1;
 $totp=$maintenanceAdmin?$activeTotp:((int)$state['totp_enabled']===1&&$activeTotp);

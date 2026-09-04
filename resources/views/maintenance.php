@@ -119,6 +119,9 @@ $applicationFooter = function_exists('oneid_application_footer')
         </section>
         <div class="maintenance-actions">
             <a class="maintenance-retry" href="<?=htmlspecialchars(APP_URL . '/', ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars($locale === 'en' ? 'Try Again' : 'Cuba Lagi', ENT_QUOTES, 'UTF-8')?></a>
+            <?php if (oneid_maintenance_developer_access_enabled()): ?>
+            <a class="maintenance-admin" href="<?=htmlspecialchars(APP_URL . '/maintenance/developer-login.php', ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars($locale === 'en' ? 'Developer Login' : 'Log Masuk Developer', ENT_QUOTES, 'UTF-8')?></a>
+            <?php endif; ?>
             <a class="maintenance-admin" href="<?=htmlspecialchars(APP_URL . '/admin/login.php', ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars($locale === 'en' ? 'Administrator Login' : 'Log Masuk Pentadbir', ENT_QUOTES, 'UTF-8')?></a>
         </div>
         <footer class="maintenance-footer"><?=htmlspecialchars($applicationFooter, ENT_QUOTES, 'UTF-8')?></footer>

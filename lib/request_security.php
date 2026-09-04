@@ -145,6 +145,10 @@ function oneid_q_func_action_map(): array
             'admin_update_default_locale',
             'admin_get_maintenance_configuration',
             'admin_update_maintenance_configuration',
+            'admin_search_maintenance_developer_candidates',
+            'admin_list_maintenance_developer_access',
+            'admin_grant_maintenance_developer_access',
+            'admin_revoke_maintenance_developer_access',
             'admin_metadata_translation_preview',
             'admin_get_metadata_translation',
             'admin_save_metadata_translation',
@@ -248,6 +252,8 @@ function oneid_admin_action_purpose(string $action): string
         'admin_login_banner_reorder',
         'admin_login_banner_rollback',
         'admin_update_maintenance_configuration',
+        'admin_grant_maintenance_developer_access',
+        'admin_revoke_maintenance_developer_access',
     ];
     return in_array($action, $securityConfiguration, true)
         ? 'SECURITY_CONFIGURATION_CHANGE'

@@ -14,6 +14,7 @@ final class AdminStepUpReturnContext
             'configuration_locale' => ['mode'=>'configuration','primary'=>'#tab_settings','secondary'=>'#configuration_locale'],
             'configuration_login_banner' => ['mode'=>'configuration','primary'=>'#tab_settings','secondary'=>'#configuration_login_banner'],
             'configuration_maintenance' => ['mode'=>'configuration','primary'=>'#tab_settings','secondary'=>'#configuration_maintenance'],
+            'configuration_maintenance_developer' => ['mode'=>'configuration','primary'=>'#tab_settings','secondary'=>'#configuration_maintenance_developer'],
             'configuration_user_mfa_security' => ['mode'=>'user_mfa','primary'=>'#tab_settings','secondary'=>'#configuration_user_mfa','tertiary'=>'#user_2fa_security_panel'],
             'configuration_user_mfa_category' => ['mode'=>'user_mfa','primary'=>'#tab_settings','secondary'=>'#configuration_user_mfa','tertiary'=>'#user_2fa_category_panel'],
             'configuration_user_mfa_exemption' => ['mode'=>'user_mfa','primary'=>'#tab_settings','secondary'=>'#configuration_user_mfa','tertiary'=>'#user_2fa_exemption_panel'],

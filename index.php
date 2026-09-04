@@ -3,7 +3,7 @@ require_once __DIR__ . '/app/Auth/MyDigitalId/MyDigitalIdRejectedLogoutState.php
 require_once __DIR__ . '/lib/session_security.php';
 oneid_start_secure_session();
 require_once __DIR__ . '/lib/request_security.php';
-if (defined('ONEID_ADMIN_MAINTENANCE_LOGIN')) {
+if (defined('ONEID_ADMIN_MAINTENANCE_LOGIN') || defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')) {
   // The legacy SSO bootstrap redirects non-root login URLs back to APP_URL.
   // The dedicated maintenance login must render locally before credentials exist.
   require_once __DIR__ . '/lib/config.php';
@@ -106,6 +106,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
 
       <form id="loginform">
         <?php if (defined('ONEID_ADMIN_MAINTENANCE_LOGIN')): ?><input type="hidden" name="maintenance_admin_login" value="1"><?php endif; ?>
+        <?php if (defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')): ?><input type="hidden" name="maintenance_developer_login" value="1"><?php endif; ?>
         <div style="text-align: center; margin-bottom: 12px;">          
           <img src="img/logo_oneid.png" alt="UPNM Logo" style="width: 80%; height: auto !important;" />
           <img src="img/logo_upnm_30.png" alt="UPNM 30 Tahun Logo" style="width: 40%; height: auto !important;" />
@@ -133,10 +134,10 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
           </div>
         <?php endif; ?></div>
 
-        <?php if (defined('ONEID_ADMIN_MAINTENANCE_LOGIN')): ?>
+        <?php if (defined('ONEID_ADMIN_MAINTENANCE_LOGIN') || defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')): ?>
           <div class="maintenance-admin-login-label" role="note">
             <i class="fas fa-shield-alt" aria-hidden="true"></i>
-            <span><?=htmlspecialchars(oneid_translate('login.maintenance_admin_access'), ENT_QUOTES, 'UTF-8')?></span>
+            <span><?=htmlspecialchars(defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN') ? oneid_translate('login.maintenance_developer_access') : oneid_translate('login.maintenance_admin_access'), ENT_QUOTES, 'UTF-8')?></span>
           </div>
         <?php endif; ?>
 
@@ -152,13 +153,13 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-3" >
-          <?php if (!defined('ONEID_ADMIN_MAINTENANCE_LOGIN')): ?><a style="cursor: pointer;" class="text-primary" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></a><?php else: ?><span aria-hidden="true"></span><?php endif; ?>
+          <?php if (!defined('ONEID_ADMIN_MAINTENANCE_LOGIN') && !defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')): ?><a style="cursor: pointer;" class="text-primary" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></a><?php else: ?><span aria-hidden="true"></span><?php endif; ?>
           <button type="submit" class="btn btn-warning px-4">
             <i class="icon-login me-1 animate__animated animate__swing animate__infinite infinite"></i> <?=htmlspecialchars(oneid_translate('login.submit'), ENT_QUOTES, 'UTF-8')?>
           </button>
         </div>
 
-        <?php if ($myDigitalIdEnabled && !defined('ONEID_ADMIN_MAINTENANCE_LOGIN')): ?>
+        <?php if ($myDigitalIdEnabled && !defined('ONEID_ADMIN_MAINTENANCE_LOGIN') && !defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')): ?>
           <div class="mydigitalid-login-option" role="region" aria-labelledby="mydigitalid-divider">
             <div class="mydigitalid-divider">
               <span id="mydigitalid-divider"><?=htmlspecialchars(oneid_translate('login.mydigitalid.divider'), ENT_QUOTES, 'UTF-8')?></span>
@@ -640,7 +641,7 @@ $loginform.on('submit', function(ev){
     data.push({name: "site_id", value: fallback_sp_id});
         $.ajax({
                 type: 'POST',
-                url: './lib/q_func',
+                url: <?=json_encode(APP_URL . '/lib/q_func.php')?>,
                 dataType: "json",
                 timeout: 15000,
                 data: data,
@@ -656,7 +657,7 @@ $loginform.on('submit', function(ev){
 
                     }else if(response['login_status']==2&&response['code']==='USER_MFA_REQUIRED'){
                         $('#password').val('');
-                        window.location.href='page/user-mfa-challenge';
+                        window.location.href=<?=json_encode(APP_URL . '/page/user-mfa-challenge')?>;
                     }else{
                         // === NEW: clear counter on success ===
                         LoginLimiter.onSuccess(username);
