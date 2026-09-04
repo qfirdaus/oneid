@@ -60,8 +60,14 @@ $applicationFooter = function_exists('oneid_application_footer')
         .maintenance-actions a:hover{transform:translateY(-1px)}
         .maintenance-retry{background:#079bd3;box-shadow:0 8px 18px rgba(7,155,211,.2);color:#fff}
         .maintenance-admin{border:1px solid #cbd8df;color:#405673}
+        .maintenance-icon-action{align-items:center;display:inline-flex;height:42px;justify-content:center;padding:0!important;width:42px}
+        .maintenance-icon-action svg{height:20px;width:20px}
+        .maintenance-icon-action--developer{background:#eef9fd;border-color:#9ed9ed;color:#087da8}
+        .maintenance-icon-action--administrator{background:#f4f6fb;border-color:#c9d2e1;color:#344e72}
+        .maintenance-icon-action:focus{box-shadow:0 0 0 3px rgba(7,155,211,.18);outline:0}
+        .maintenance-sr-only{height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;clip:rect(0,0,0,0);white-space:nowrap}
         .maintenance-footer{color:#9aa9b2;font-size:11px;line-height:1.4;margin-top:13px}
-        @media(max-width:650px){body{padding:14px}.maintenance-content{padding:24px 20px 23px}.maintenance-brands{gap:18px;margin-bottom:18px;padding-bottom:14px}.maintenance-brands__oneid{width:40%}.maintenance-brands__office{width:44%}h1{font-size:25px}.maintenance-message{font-size:15px}.maintenance-support__body{grid-template-columns:1fr}.maintenance-actions{flex-direction:column}.maintenance-actions a{width:100%}}
+        @media(max-width:650px){body{padding:14px}.maintenance-content{padding:24px 20px 23px}.maintenance-brands{gap:18px;margin-bottom:18px;padding-bottom:14px}.maintenance-brands__oneid{width:40%}.maintenance-brands__office{width:44%}h1{font-size:25px}.maintenance-message{font-size:15px}.maintenance-support__body{grid-template-columns:1fr}.maintenance-actions{flex-wrap:wrap}.maintenance-retry{flex:1 0 100%}.maintenance-actions a.maintenance-icon-action{width:42px}}
     </style>
 </head>
 <body>
@@ -120,9 +126,15 @@ $applicationFooter = function_exists('oneid_application_footer')
         <div class="maintenance-actions">
             <a class="maintenance-retry" href="<?=htmlspecialchars(APP_URL . '/', ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars($locale === 'en' ? 'Try Again' : 'Cuba Lagi', ENT_QUOTES, 'UTF-8')?></a>
             <?php if (oneid_maintenance_developer_access_enabled()): ?>
-            <a class="maintenance-admin" href="<?=htmlspecialchars(APP_URL . '/maintenance/developer-login.php', ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars($locale === 'en' ? 'Developer Login' : 'Log Masuk Developer', ENT_QUOTES, 'UTF-8')?></a>
+            <a class="maintenance-admin maintenance-icon-action maintenance-icon-action--developer" href="<?=htmlspecialchars(APP_URL . '/maintenance/developer-login.php', ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars($locale === 'en' ? 'Developer Login' : 'Log Masuk Developer', ENT_QUOTES, 'UTF-8')?>" title="<?=htmlspecialchars($locale === 'en' ? 'Developer Login' : 'Log Masuk Developer', ENT_QUOTES, 'UTF-8')?>">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 9-4 3 4 3"/><path d="m16 9 4 3-4 3"/><path d="m14 5-4 14"/></svg>
+                <span class="maintenance-sr-only"><?=htmlspecialchars($locale === 'en' ? 'Developer Login' : 'Log Masuk Developer', ENT_QUOTES, 'UTF-8')?></span>
+            </a>
             <?php endif; ?>
-            <a class="maintenance-admin" href="<?=htmlspecialchars(APP_URL . '/admin/login.php', ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars($locale === 'en' ? 'Administrator Login' : 'Log Masuk Pentadbir', ENT_QUOTES, 'UTF-8')?></a>
+            <a class="maintenance-admin maintenance-icon-action maintenance-icon-action--administrator" href="<?=htmlspecialchars(APP_URL . '/admin/login.php', ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars($locale === 'en' ? 'Administrator Login' : 'Log Masuk Pentadbir', ENT_QUOTES, 'UTF-8')?>" title="<?=htmlspecialchars($locale === 'en' ? 'Administrator Login' : 'Log Masuk Pentadbir', ENT_QUOTES, 'UTF-8')?>">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><circle cx="12" cy="10" r="2"/><path d="M8.5 16a4 4 0 0 1 7 0"/></svg>
+                <span class="maintenance-sr-only"><?=htmlspecialchars($locale === 'en' ? 'Administrator Login' : 'Log Masuk Pentadbir', ENT_QUOTES, 'UTF-8')?></span>
+            </a>
         </div>
         <footer class="maintenance-footer"><?=htmlspecialchars($applicationFooter, ENT_QUOTES, 'UTF-8')?></footer>
     </div>
