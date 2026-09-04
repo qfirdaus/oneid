@@ -117,6 +117,11 @@ final class MaintenanceGate
             if (function_exists('oneid_set_guest_locale_cookie')) {
                 oneid_set_guest_locale_cookie($requested);
             }
+            if (($_SESSION['login_status'] ?? '') === 'true'
+                && function_exists('oneid_promote_authenticated_locale')
+            ) {
+                oneid_promote_authenticated_locale((string) ($_SESSION['login_user'] ?? ''));
+            }
         }
     }
 
