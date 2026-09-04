@@ -201,7 +201,7 @@ function oneid_config(string $key, mixed $fallback = null): mixed
 }
 
 /**
- * Runtime capability gate. During an approved staging pilot the feature also
+ * Runtime capability gate. During an approved controlled pilot the feature
  * fails closed outside its exact time window, even if the raw flag is left on.
  */
 function oneid_maintenance_developer_access_enabled(?DateTimeImmutable $now = null): bool
@@ -212,7 +212,7 @@ function oneid_maintenance_developer_access_enabled(?DateTimeImmutable $now = nu
     if (!filter_var(oneid_config('ONEID_MAINTENANCE_DEVELOPER_PILOT_APPROVED', 'false'), FILTER_VALIDATE_BOOLEAN)) {
         return true;
     }
-    if ((string) oneid_config('ONEID_ENVIRONMENT', '') !== 'staging') {
+    if (!in_array((string) oneid_config('ONEID_ENVIRONMENT', ''), ['staging', 'production'], true)) {
         return false;
     }
     $startRaw = trim((string) oneid_config('ONEID_MAINTENANCE_DEVELOPER_PILOT_WINDOW_START', ''));
