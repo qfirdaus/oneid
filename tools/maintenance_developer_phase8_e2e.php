@@ -5,6 +5,7 @@ declare(strict_types=1);
 if (PHP_SAPI !== 'cli') { exit(2); }
 
 putenv('ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED=true');
+putenv('ONEID_MAINTENANCE_DEVELOPER_STAGING_APPROVED=true');
 define('ONEID_MAINTENANCE_BYPASS', true);
 require_once dirname(__DIR__) . '/lib/config.php';
 require_once dirname(__DIR__) . '/vendor/autoload.php';
@@ -71,6 +72,7 @@ try {
 } finally {
     if ($created) { $pdo->exec('USE information_schema'); $pdo->exec("DROP DATABASE {$quoted}"); }
     putenv('ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED');
+    putenv('ONEID_MAINTENANCE_DEVELOPER_STAGING_APPROVED');
 }
 $leftovers = (int) $pdo->query("SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE SCHEMA_NAME LIKE 'oneid_md8_%'")->fetchColumn();
 $report($leftovers === 0, 'isolated end-to-end database is removed');

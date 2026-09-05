@@ -38,15 +38,13 @@ $set([
 $check(!oneid_maintenance_developer_access_enabled($at), 'unknown environment remains fail closed', $failed);
 $set([
     'ONEID_ENVIRONMENT' => 'staging',
-    'ONEID_MAINTENANCE_DEVELOPER_PILOT_APPROVED' => 'false',
+    'ONEID_MAINTENANCE_DEVELOPER_STAGING_APPROVED' => 'false',
 ]);
-$check(oneid_maintenance_developer_access_enabled($at), 'staging existing non-pilot behavior remains unchanged', $failed);
+$check(!oneid_maintenance_developer_access_enabled($at), 'staging rejects raw flag without deployment approval', $failed);
 $set([
-    'ONEID_MAINTENANCE_DEVELOPER_PILOT_APPROVED' => 'true',
-    'ONEID_MAINTENANCE_DEVELOPER_PILOT_WINDOW_START' => '2026-09-05T12:00:00+08:00',
-    'ONEID_MAINTENANCE_DEVELOPER_PILOT_WINDOW_END' => '2026-09-05T13:00:00+08:00',
+    'ONEID_MAINTENANCE_DEVELOPER_STAGING_APPROVED' => 'true',
 ]);
-$check(oneid_maintenance_developer_access_enabled($at), 'staging existing pilot window remains supported', $failed);
+$check(oneid_maintenance_developer_access_enabled($at), 'staging accepts one-time deployment approval', $failed);
 
 printf("RESULT checks=6 failed=%d\n", $failed);
 exit($failed === 0 ? 0 : 1);

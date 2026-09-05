@@ -7,6 +7,7 @@ if (PHP_SAPI !== 'cli') {
 }
 
 putenv('ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED=true');
+putenv('ONEID_MAINTENANCE_DEVELOPER_STAGING_APPROVED=true');
 define('ONEID_MAINTENANCE_BYPASS', true);
 require_once dirname(__DIR__) . '/lib/config.php';
 require_once dirname(__DIR__) . '/vendor/autoload.php';
@@ -167,6 +168,7 @@ try {
         $pdo->exec("DROP DATABASE {$quoted}");
     }
     putenv('ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED');
+    putenv('ONEID_MAINTENANCE_DEVELOPER_STAGING_APPROVED');
 }
 
 $leftovers = (int) $pdo->query(

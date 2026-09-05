@@ -78,6 +78,7 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         // Developer maintenance access is dormant by default. Production
         // deployment approval is one-time; each operation is controlled in UI.
         'ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED' => 'false',
+        'ONEID_MAINTENANCE_DEVELOPER_STAGING_APPROVED' => 'false',
         'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_APPROVED' => 'false',
         // User Login MFA U1 remains dormant. Schema apply and every later
         // activation require separate approval; committed mode stays OFF.
@@ -213,37 +214,11 @@ function oneid_maintenance_developer_access_enabled(?DateTimeImmutable $now = nu
     if (!filter_var(oneid_config('ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED', 'false'), FILTER_VALIDATE_BOOLEAN)) {
         return false;
     }
-    $environment = (string) oneid_config('ONEID_ENVIRONMENT', '');
-    if ($environment === 'staging') {
-        if (!filter_var(oneid_config('ONEID_MAINTENANCE_DEVELOPER_PILOT_APPROVED', 'false'), FILTER_VALIDATE_BOOLEAN)) {
-            return true;
-        }
-        return oneid_maintenance_developer_window_is_active(
-            'ONEID_MAINTENANCE_DEVELOPER_PILOT_WINDOW_START',
-            'ONEID_MAINTENANCE_DEVELOPER_PILOT_WINDOW_END',
-            $now
-        );
-    }
-    return $environment === 'production'
-        && filter_var(
-            oneid_config('ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_APPROVED', 'false'),
-            FILTER_VALIDATE_BOOLEAN
-        );
-}
-
-function oneid_maintenance_developer_window_is_active(
-    string $startKey,
-    string $endKey,
-    ?DateTimeImmutable $now = null
-): bool {
-    $startRaw = trim((string) oneid_config($startKey, ''));
-    $endRaw = trim((string) oneid_config($endKey, ''));
-    $start = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $startRaw);
-    $end = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $endRaw);
-    $now ??= new DateTimeImmutable('now', new DateTimeZone('Asia/Kuala_Lumpur'));
-    return $start instanceof DateTimeImmutable && $end instanceof DateTimeImmutable
-        && $start->format(DateTimeInterface::ATOM) === $startRaw
-        && $end->format(DateTimeInterface::ATOM) === $endRaw
-        && $end > $start && ($end->getTimestamp() - $start->getTimestamp()) <= 7200
-        && $now >= $start && $now <= $end;
+    $approvalKey = match ((string) oneid_config('ONEID_ENVIRONMENT', '')) {
+        'staging' => 'ONEID_MAINTENANCE_DEVELOPER_STAGING_APPROVED',
+        'production' => 'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_APPROVED',
+        default => null,
+    };
+    return $approvalKey !== null
+        && filter_var(oneid_config($approvalKey, 'false'), FILTER_VALIDATE_BOOLEAN);
 }
