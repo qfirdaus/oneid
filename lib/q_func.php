@@ -97,6 +97,7 @@ require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaEmailOtpService.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaTotpPrimitive.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaTotpService.php';
 require_once dirname(__DIR__) . '/app/Mail/OneIdEmailTemplate.php';
+require_once dirname(__DIR__) . '/app/Mail/OneIdInformationalEmailRouter.php';
 require_once dirname(__DIR__) . '/app/Notification/AdminEmailNotificationException.php';
 require_once dirname(__DIR__) . '/app/Notification/AdminEmailNotificationRepository.php';
 require_once dirname(__DIR__) . '/app/Notification/AdminEmailNotificationDispatcher.php';
@@ -2938,6 +2939,7 @@ function string_sanitize($s) {
 
     function OTP_EMAIL_Sender($otp_code,$email,$user_name,$isTest=false,&$messageId=null){
       $locale=oneid_current_locale();
+      if($isTest){$r=\OneId\App\Mail\OneIdInformationalEmailRouter::route((string)$email,(string)$user_name);$email=$r['email'];$user_name=$r['name'];}
       $email_body=$isTest
         ?\OneId\App\Mail\OneIdEmailTemplate::deliveryTest($user_name,$locale)
         :\OneId\App\Mail\OneIdEmailTemplate::otp(
@@ -2969,6 +2971,7 @@ function string_sanitize($s) {
             $mail->Subject = $isTest
               ?oneid_translate('email.test.subject',[],$locale)
               :oneid_translate('email.recovery.subject',[],$locale);
+            if($isTest&&($r['pilot']??false))$mail->Subject=oneid_admin_email_notification_pilot_prefix().$mail->Subject;
             $mail->addEmbeddedImage(
               dirname(__DIR__) . '/public/img/logo_upnm_30.png',
               'oneid-upnm-logo',

@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace OneId\App\Auth\UserMfa;
 
 use OneId\App\Mail\OneIdEmailTemplate;
+use OneId\App\Mail\OneIdInformationalEmailRouter;
 use PHPMailer\PHPMailer\PHPMailer;
 use Throwable;
+
+require_once dirname(__DIR__, 2) . '/Mail/OneIdInformationalEmailRouter.php';
 
 final class UserMfaRecoveryEmailSender
 {
@@ -37,7 +40,8 @@ final class UserMfaRecoveryEmailSender
                 oneid_translate('email.user_mfa_recovery.headline', [], $locale),
                 $otp,
                 $locale
-            )
+            ),
+            true
         );
     }
 
@@ -62,7 +66,8 @@ final class UserMfaRecoveryEmailSender
                 $locale
             ),
             $headline . '. ' . $intro . ' '
-                . oneid_translate('email.user_mfa_revoked.notice', [], $locale)
+                . oneid_translate('email.user_mfa_revoked.notice', [], $locale),
+            false
         );
     }
 
@@ -71,12 +76,19 @@ final class UserMfaRecoveryEmailSender
         string $displayName,
         string $subject,
         string $html,
-        string $plain
+        string $plain,
+        bool $requiresVerification
     ): bool {
         if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             return false;
         }
         try {
+            if (!$requiresVerification) {
+                $recipient = OneIdInformationalEmailRouter::route($email, $displayName);
+                $email = $recipient['email'];
+                $displayName = $recipient['name'];
+                if ($recipient['pilot']) $subject = \oneid_admin_email_notification_pilot_prefix() . $subject;
+            }
             $mail = new PHPMailer(true);
             $mail->CharSet = 'UTF-8';
             $mail->Encoding = 'base64';
