@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2110-CHANGELOG-20260905-01",
+    "authorization": "ONEID-V2111-CHANGELOG-20260905-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.11.1",
+            "version": "2.11.1",
+            "date": "2026-09-05",
+            "items": [
+                {
+                    "identity": "release:2.11.1:item:001",
+                    "bm": "Semua e-mel OneID kini menggunakan template bersama selebar 760px dengan tema biru OneID, kandungan mesra pengguna dan rujukan teknikal yang diasingkan untuk sokongan.",
+                    "en_draft": "All OneID e-mails now use a shared 760px template with the OneID blue theme, user-friendly content and technical references separated for support.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.1:item:002",
+                    "bm": "Logo rasmi UPNM disertakan sebagai imej CID 140px pada header supaya dipaparkan konsisten tanpa bergantung pada URL luaran.",
+                    "en_draft": "The official UPNM logo is embedded as a 140px CID image in the header for consistent display without relying on an external URL.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.1:item:003",
+                    "bm": "OTP pemulihan kata laluan, MFA pengguna dan Administrator Step-Up, notis pemulihan serta semua notifikasi pentadbiran menggunakan identiti visual yang sama.",
+                    "en_draft": "Password-recovery, user MFA and Administrator Step-Up OTPs, recovery notices and all administrative notifications use the same visual identity.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.1:item:004",
+                    "bm": "Notifikasi baharu meliputi akaun manual, perubahan profil, perubahan atau penetapan awal kata laluan dan penyelesaian pemulihan kata laluan.",
+                    "en_draft": "New notifications cover manual account creation, profile changes, password changes or initial setup, and completion of password recovery.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.1:item:005",
+                    "bm": "Pendaftaran, pertukaran pilihan dan pembatalan TOTP kini menghasilkan notifikasi keselamatan yang mudah difahami oleh pengguna.",
+                    "en_draft": "TOTP enrolment, preference changes and revocation now generate security notifications that users can understand.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.1:item:006",
+                    "bm": "Pautan MyDigital ID pertama dan percubaan login berulang pada akaun aktif menghasilkan amaran fail-closed tanpa membuka ruang account enumeration.",
+                    "en_draft": "First-time MyDigital ID linking and repeated sign-in attempts against an active account generate fail-closed warnings without enabling account enumeration.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.1:item:007",
+                    "bm": "Production telah melalui PILOT terkawal sebelum routing LIVE kepada penerima sebenar diluluskan, dengan verification tanpa perubahan akaun.",
+                    "en_draft": "Production completed a controlled PILOT before LIVE routing to real recipients was approved, including verification without account mutation.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.1:item:008",
+                    "bm": "Staging dan WSL/local kekal dalam PILOT: OTP atau kod pengesahan dihantar kepada pengguna yang memerlukannya, manakala e-mel makluman dialihkan kepada akaun pilot.",
+                    "en_draft": "Staging and WSL/local remain in PILOT: OTPs or verification codes go to the user who needs them while informational e-mails are redirected to the pilot account.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.1:item:009",
+                    "bm": "Outbox serta delivery history ujian production dibersihkan secara recoverable selepas LIVE, sementara rekod rasmi baharu dilindungi daripada cleanup.",
+                    "en_draft": "Production test outbox and delivery history were cleaned recoverably after LIVE while newly created official records were protected from cleanup.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.1:item:010",
+                    "bm": "Contract baharu mengesahkan liputan flow pengguna, routing penerima, kandungan dwibahasa, aset e-mel dan pemisahan polisi production dengan staging/local.",
+                    "en_draft": "New contracts verify user-flow coverage, recipient routing, bilingual content, e-mail assets and separation of production from staging/local policy.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.11.0",
             "version": "2.11.0",
@@ -3115,5 +3182,5 @@
             ]
         }
     ],
-    "manifest_digest": "f877b92dd0ff9447cb492c1b6eedefd3946254c88544286127f0c6aa892b0e37"
+    "manifest_digest": "66a0aad70111e40ba3f143456acb78b76fd727c1c464d675313860e64335b3ee"
 }

@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.11.1' =>
+  array (
+    'version' => '2.11.1',
+    'date' => '2026-09-05',
+    'bm' =>
+    array (
+      0 => 'Semua e-mel OneID kini menggunakan template bersama selebar 760px dengan tema biru OneID, kandungan mesra pengguna dan rujukan teknikal yang diasingkan untuk sokongan.',
+      1 => 'Logo rasmi UPNM disertakan sebagai imej CID 140px pada header supaya dipaparkan konsisten tanpa bergantung pada URL luaran.',
+      2 => 'OTP pemulihan kata laluan, MFA pengguna dan Administrator Step-Up, notis pemulihan serta semua notifikasi pentadbiran menggunakan identiti visual yang sama.',
+      3 => 'Notifikasi baharu meliputi akaun manual, perubahan profil, perubahan atau penetapan awal kata laluan dan penyelesaian pemulihan kata laluan.',
+      4 => 'Pendaftaran, pertukaran pilihan dan pembatalan TOTP kini menghasilkan notifikasi keselamatan yang mudah difahami oleh pengguna.',
+      5 => 'Pautan MyDigital ID pertama dan percubaan login berulang pada akaun aktif menghasilkan amaran fail-closed tanpa membuka ruang account enumeration.',
+      6 => 'Production telah melalui PILOT terkawal sebelum routing LIVE kepada penerima sebenar diluluskan, dengan verification tanpa perubahan akaun.',
+      7 => 'Staging dan WSL/local kekal dalam PILOT: OTP atau kod pengesahan dihantar kepada pengguna yang memerlukannya, manakala e-mel makluman dialihkan kepada akaun pilot.',
+      8 => 'Outbox serta delivery history ujian production dibersihkan secara recoverable selepas LIVE, sementara rekod rasmi baharu dilindungi daripada cleanup.',
+      9 => 'Contract baharu mengesahkan liputan flow pengguna, routing penerima, kandungan dwibahasa, aset e-mel dan pemisahan polisi production dengan staging/local.',
+    ),
+    'en' =>
+    array (
+      0 => 'All OneID e-mails now use a shared 760px template with the OneID blue theme, user-friendly content and technical references separated for support.',
+      1 => 'The official UPNM logo is embedded as a 140px CID image in the header for consistent display without relying on an external URL.',
+      2 => 'Password-recovery, user MFA and Administrator Step-Up OTPs, recovery notices and all administrative notifications use the same visual identity.',
+      3 => 'New notifications cover manual account creation, profile changes, password changes or initial setup, and completion of password recovery.',
+      4 => 'TOTP enrolment, preference changes and revocation now generate security notifications that users can understand.',
+      5 => 'First-time MyDigital ID linking and repeated sign-in attempts against an active account generate fail-closed warnings without enabling account enumeration.',
+      6 => 'Production completed a controlled PILOT before LIVE routing to real recipients was approved, including verification without account mutation.',
+      7 => 'Staging and WSL/local remain in PILOT: OTPs or verification codes go to the user who needs them while informational e-mails are redirected to the pilot account.',
+      8 => 'Production test outbox and delivery history were cleaned recoverably after LIVE while newly created official records were protected from cleanup.',
+      9 => 'New contracts verify user-flow coverage, recipient routing, bilingual content, e-mail assets and separation of production from staging/local policy.',
+    ),
+  ),
   'release-2.11.0' =>
   array (
     'version' => '2.11.0',
