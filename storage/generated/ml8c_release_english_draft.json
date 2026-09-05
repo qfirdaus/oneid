@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2103-CHANGELOG-20260824-01",
+    "authorization": "ONEID-V2104-CHANGELOG-20260905-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.10.4",
+            "version": "2.10.4",
+            "date": "2026-09-05",
+            "items": [
+                {
+                    "identity": "release:2.10.4:item:001",
+                    "bm": "Developer Maintenance Access membolehkan akaun pengguna developer yang dipilih menguji portal semasa Maintenance Mode tanpa menerima role atau keistimewaan Administrator.",
+                    "en_draft": "Developer Maintenance Access allows selected developer user accounts to test the portal during Maintenance Mode without receiving an Administrator role or privileges.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.4:item:002",
+                    "bm": "Administrator boleh mencari developer menggunakan nama atau nombor staf, memilih tempoh akses, sebab lazim dan change reference melalui susun atur full-width yang kemas dan responsif.",
+                    "en_draft": "Administrators can find developers by name or staff number and select an access period, common reason and change reference through a clean responsive full-width layout.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.4:item:003",
+                    "bm": "Pemberian serta pembatalan grant dilindungi Admin Step-Up, confirmation terikat kepada rekod, optimistic versioning dan audit lifecycle GRANTED atau REVOKED dengan correlation ID.",
+                    "en_draft": "Grant and revoke operations are protected by Admin Step-Up, record-bound confirmation, optimistic versioning and GRANTED or REVOKED lifecycle audit events with correlation IDs.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.4:item:004",
+                    "bm": "Login developer semasa maintenance mewajibkan kata laluan dan MFA baharu sebelum dashboard pengguna biasa dibuka, tanpa mencipta entitlement aplikasi atau laluan Administrator.",
+                    "en_draft": "Developer login during maintenance requires a fresh password authentication and MFA before opening the ordinary user dashboard, without creating application entitlements or Administrator access.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.4:item:005",
+                    "bm": "Grant, token dan versi capability disahkan semula pada server bagi setiap request maintenance supaya revoke, token tidak aktif atau pertukaran versi menamatkan akses dengan segera.",
+                    "en_draft": "The grant, token and capability version are revalidated on the server for every maintenance request so revocation, an inactive token or a version change terminates access immediately.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.4:item:006",
+                    "bm": "Apabila Maintenance Mode tamat atau ditutup, capability developer dibuang dan sesi yang masih sah kembali beroperasi sebagai pengguna biasa; grant tamat pula ditolak secara automatik.",
+                    "en_draft": "When Maintenance Mode ends or is closed, the developer capability is removed and a still-valid session resumes as an ordinary user; an expired grant is also rejected automatically.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.4:item:007",
+                    "bm": "Staging dan production kini menggunakan one-time deployment approval, emergency kill switch dan operasi maintenance sepenuhnya melalui UI tanpa perubahan runtime bagi setiap window.",
+                    "en_draft": "Staging and production now use one-time deployment approval, an emergency kill switch and fully UI-operated maintenance without runtime changes for each window.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.4:item:008",
+                    "bm": "Halaman maintenance menyediakan pertukaran BM dan English yang konsisten untuk tetamu serta sesi authenticated, bersama ikon khusus bagi login Developer dan Administrator.",
+                    "en_draft": "The maintenance page provides consistent BM and English switching for guests and authenticated sessions, together with dedicated Developer and Administrator login icons.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.4:item:009",
+                    "bm": "Notis ASNB dan Celik Madani pelajar di production diperkemas melalui integrasi API e-Madani, modal responsif serta terjemahan English yang lengkap.",
+                    "en_draft": "Production student ASNB and Celik Madani notices are refined through the e-Madani API integration, a responsive modal and complete English translations.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.10.4:item:010",
+                    "bm": "Session lifecycle housekeeping berjadual, backup dan rollback production, schema additive serta sebelas security regression suite mengukuhkan operasi yang boleh diaudit dan fail-closed.",
+                    "en_draft": "Scheduled session lifecycle housekeeping, production backup and rollback, additive schema changes and eleven security regression suites strengthen auditable fail-closed operations.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.10.3",
             "version": "2.10.3",
@@ -2981,5 +3048,5 @@
             ]
         }
     ],
-    "manifest_digest": "ef44bd9d5b68bfe6dbfa775bb040640429ee0954abfc028833ecef15b4dd397d"
+    "manifest_digest": "3f1408e5bb9d6b94e46a87cd08ef2028115bdb8c64425252a7901cf12b35ba1c"
 }

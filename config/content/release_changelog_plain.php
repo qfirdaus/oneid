@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.10.4' =>
+  array (
+    'version' => '2.10.4',
+    'date' => '2026-09-05',
+    'bm' =>
+    array (
+      0 => 'Developer Maintenance Access membolehkan akaun pengguna developer yang dipilih menguji portal semasa Maintenance Mode tanpa menerima role atau keistimewaan Administrator.',
+      1 => 'Administrator boleh mencari developer menggunakan nama atau nombor staf, memilih tempoh akses, sebab lazim dan change reference melalui susun atur full-width yang kemas dan responsif.',
+      2 => 'Pemberian serta pembatalan grant dilindungi Admin Step-Up, confirmation terikat kepada rekod, optimistic versioning dan audit lifecycle GRANTED atau REVOKED dengan correlation ID.',
+      3 => 'Login developer semasa maintenance mewajibkan kata laluan dan MFA baharu sebelum dashboard pengguna biasa dibuka, tanpa mencipta entitlement aplikasi atau laluan Administrator.',
+      4 => 'Grant, token dan versi capability disahkan semula pada server bagi setiap request maintenance supaya revoke, token tidak aktif atau pertukaran versi menamatkan akses dengan segera.',
+      5 => 'Apabila Maintenance Mode tamat atau ditutup, capability developer dibuang dan sesi yang masih sah kembali beroperasi sebagai pengguna biasa; grant tamat pula ditolak secara automatik.',
+      6 => 'Staging dan production kini menggunakan one-time deployment approval, emergency kill switch dan operasi maintenance sepenuhnya melalui UI tanpa perubahan runtime bagi setiap window.',
+      7 => 'Halaman maintenance menyediakan pertukaran BM dan English yang konsisten untuk tetamu serta sesi authenticated, bersama ikon khusus bagi login Developer dan Administrator.',
+      8 => 'Notis ASNB dan Celik Madani pelajar di production diperkemas melalui integrasi API e-Madani, modal responsif serta terjemahan English yang lengkap.',
+      9 => 'Session lifecycle housekeeping berjadual, backup dan rollback production, schema additive serta sebelas security regression suite mengukuhkan operasi yang boleh diaudit dan fail-closed.',
+    ),
+    'en' =>
+    array (
+      0 => 'Developer Maintenance Access allows selected developer user accounts to test the portal during Maintenance Mode without receiving an Administrator role or privileges.',
+      1 => 'Administrators can find developers by name or staff number and select an access period, common reason and change reference through a clean responsive full-width layout.',
+      2 => 'Grant and revoke operations are protected by Admin Step-Up, record-bound confirmation, optimistic versioning and GRANTED or REVOKED lifecycle audit events with correlation IDs.',
+      3 => 'Developer login during maintenance requires a fresh password authentication and MFA before opening the ordinary user dashboard, without creating application entitlements or Administrator access.',
+      4 => 'The grant, token and capability version are revalidated on the server for every maintenance request so revocation, an inactive token or a version change terminates access immediately.',
+      5 => 'When Maintenance Mode ends or is closed, the developer capability is removed and a still-valid session resumes as an ordinary user; an expired grant is also rejected automatically.',
+      6 => 'Staging and production now use one-time deployment approval, an emergency kill switch and fully UI-operated maintenance without runtime changes for each window.',
+      7 => 'The maintenance page provides consistent BM and English switching for guests and authenticated sessions, together with dedicated Developer and Administrator login icons.',
+      8 => 'Production student ASNB and Celik Madani notices are refined through the e-Madani API integration, a responsive modal and complete English translations.',
+      9 => 'Scheduled session lifecycle housekeeping, production backup and rollback, additive schema changes and eleven security regression suites strengthen auditable fail-closed operations.',
+    ),
+  ),
   'release-2.10.3' =>
   array (
     'version' => '2.10.3',
