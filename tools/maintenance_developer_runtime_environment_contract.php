@@ -45,6 +45,15 @@ $set([
     'ONEID_MAINTENANCE_DEVELOPER_STAGING_APPROVED' => 'true',
 ]);
 $check(oneid_maintenance_developer_access_enabled($at), 'staging accepts one-time deployment approval', $failed);
+$set([
+    'ONEID_ENVIRONMENT' => 'local',
+    'ONEID_MAINTENANCE_DEVELOPER_LOCAL_APPROVED' => 'false',
+]);
+$check(!oneid_maintenance_developer_access_enabled($at), 'local rejects raw flag without development approval', $failed);
+$set([
+    'ONEID_MAINTENANCE_DEVELOPER_LOCAL_APPROVED' => 'true',
+]);
+$check(oneid_maintenance_developer_access_enabled($at), 'local accepts one-time development approval', $failed);
 
-printf("RESULT checks=6 failed=%d\n", $failed);
+printf("RESULT checks=8 failed=%d\n", $failed);
 exit($failed === 0 ? 0 : 1);

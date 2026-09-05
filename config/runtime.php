@@ -75,9 +75,10 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_USER_SESSION_WARNING_ENABLED' => 'false',
         // Scheduled DB-token lifecycle cleanup remains deployment opt-in.
         'ONEID_SESSION_HOUSEKEEPING_SCHEDULED_ENABLED' => 'false',
-        // Developer maintenance access is dormant by default. Production
-        // deployment approval is one-time; each operation is controlled in UI.
+        // Developer maintenance access is dormant by default. Environment
+        // approval is one-time; each operation is controlled in the Admin UI.
         'ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED' => 'false',
+        'ONEID_MAINTENANCE_DEVELOPER_LOCAL_APPROVED' => 'false',
         'ONEID_MAINTENANCE_DEVELOPER_STAGING_APPROVED' => 'false',
         'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_APPROVED' => 'false',
         // User Login MFA U1 remains dormant. Schema apply and every later
@@ -215,6 +216,7 @@ function oneid_maintenance_developer_access_enabled(?DateTimeImmutable $now = nu
         return false;
     }
     $approvalKey = match ((string) oneid_config('ONEID_ENVIRONMENT', '')) {
+        'local' => 'ONEID_MAINTENANCE_DEVELOPER_LOCAL_APPROVED',
         'staging' => 'ONEID_MAINTENANCE_DEVELOPER_STAGING_APPROVED',
         'production' => 'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_APPROVED',
         default => null,
