@@ -39,7 +39,8 @@ final class MyDigitalIdCallbackEndpoint
                 new MyDigitalIdAccountLinkingService(
                     new PdoMyDigitalIdIdentityRepository($pdo),
                     new PdoMyDigitalIdAccountMatcher($pdo),
-                    $protector
+                    $protector,
+                    static fn(string $event,string $user,string $correlation,string $seed,array $details): ?int => \OneId\App\Notification\AdminEmailNotificationPdoComposer::queue($pdo,$event,$user,$correlation,$seed,$details)
                 ),
                 new MyDigitalIdLocalLoginFinalizer($operation)
             );

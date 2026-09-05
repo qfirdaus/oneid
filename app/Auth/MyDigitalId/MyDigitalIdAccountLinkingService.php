@@ -13,7 +13,8 @@ final class MyDigitalIdAccountLinkingService implements MyDigitalIdAccountAuthor
     public function __construct(
         private readonly PdoMyDigitalIdIdentityRepository $identities,
         private readonly PdoMyDigitalIdAccountMatcher $accounts,
-        private readonly MyDigitalIdIdentityProtector $protector
+        private readonly MyDigitalIdIdentityProtector $protector,
+        private readonly ?\Closure $notification = null
     ) {
     }
 
@@ -116,6 +117,9 @@ final class MyDigitalIdAccountLinkingService implements MyDigitalIdAccountAuthor
                 $this->protector->keyId,
                 $occurredAt
             );
+            if ($this->notification !== null) {
+                ($this->notification)('MYDIGITALID_LINKED',$userId,(string)$eventContext['correlation_id'],'link-'.$identityId,['Action time'=>$occurredAt->format('d/m/Y h:i A'),'Reference'=>(string)$eventContext['correlation_id']]);
+            }
             return $this->succeed(
                 $identityId,
                 $match,

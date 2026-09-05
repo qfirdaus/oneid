@@ -29,6 +29,7 @@ final class AdminEmailNotificationPdoComposer
     private static function copy(string $event,string $locale): array
     {
         $bm=[
+            'MYDIGITALID_LINKED'=>['MyDigital ID dipautkan ke OneID','MyDigital ID dipautkan','Identiti MyDigital ID telah dipautkan ke akaun OneID anda.','Hubungi sokongan segera jika anda tidak melakukan tindakan ini.'],
             'MFA_EXEMPTION_GRANTED'=>['Pengecualian MFA OneID diberikan','Pengecualian MFA diberikan','Administrator telah memberikan pengecualian MFA sementara.','Gunakan tempoh ini hanya untuk tujuan yang diluluskan.'],
             'MFA_EXEMPTION_REVOKED'=>['Pengecualian MFA OneID ditamatkan','Pengecualian MFA ditamatkan','Administrator telah menamatkan pengecualian MFA anda.','Pengesahan MFA biasa kini terpakai semula.'],
             'MFA_EXEMPTION_EXPIRED'=>['Pengecualian MFA OneID tamat','Pengecualian MFA tamat','Tempoh pengecualian MFA anda telah tamat.','Pengesahan MFA biasa kini terpakai semula.'],
@@ -38,6 +39,7 @@ final class AdminEmailNotificationPdoComposer
             'SECURITY_POLICY_CHANGED'=>['Polisi keselamatan OneID berubah','Polisi keselamatan dikemas kini','Satu polisi keselamatan OneID telah diubah oleh administrator.','Semak butiran dan audit trail perubahan dalam portal pentadbiran.'],
         ];
         $en=[
+            'MYDIGITALID_LINKED'=>['MyDigital ID linked to OneID','MyDigital ID linked','A MyDigital ID identity was linked to your OneID account.','Contact support immediately if you did not perform this action.'],
             'MFA_EXEMPTION_GRANTED'=>['OneID MFA exemption granted','MFA exemption granted','An administrator granted a temporary MFA exemption.','Use this period only for the approved purpose.'],
             'MFA_EXEMPTION_REVOKED'=>['OneID MFA exemption ended','MFA exemption ended','An administrator ended your MFA exemption.','Normal MFA verification now applies again.'],
             'MFA_EXEMPTION_EXPIRED'=>['OneID MFA exemption expired','MFA exemption expired','Your temporary MFA exemption has expired.','Normal MFA verification now applies again.'],

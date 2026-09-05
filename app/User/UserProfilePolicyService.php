@@ -2,6 +2,9 @@
 
 namespace OneId\App\User;
 
+require_once dirname(__DIR__) . '/Notification/AdminEmailNotificationComposer.php';
+require_once dirname(__DIR__) . '/Notification/AdminEmailNotificationException.php';
+
 use Throwable;
 
 final class UserProfilePolicyService
@@ -79,6 +82,7 @@ final class UserProfilePolicyService
             if ($this->operation->syslog_record(18, $detail, $ipAddress) !== 1) {
                 throw new UserManagementException('M3_AUDIT_NOT_WRITTEN', $correlationId);
             }
+            \OneId\App\Notification\AdminEmailNotificationComposer::queueUserEvent($this->operation,'ACCOUNT_PROFILE_CHANGED',$userId,$correlationId,$correlationId,['Changed'=>implode(', ',$changed),'Action time'=>date('d/m/Y h:i A'),'Reference'=>$correlationId]);
             $this->operation->commit();
             return [
                 'status' => 1,

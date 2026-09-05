@@ -2,6 +2,9 @@
 
 namespace OneId\App\User;
 
+require_once dirname(__DIR__) . '/Notification/AdminEmailNotificationComposer.php';
+require_once dirname(__DIR__) . '/Notification/AdminEmailNotificationException.php';
+
 use PDOException;
 use Throwable;
 
@@ -63,6 +66,7 @@ final class ManualUserCreator
                 1
             );
             $this->operation->syslog_record(23, $actor . ' -> ' . $input->userId, $ipAddress);
+            \OneId\App\Notification\AdminEmailNotificationComposer::queueUserEvent($this->operation,'ACCOUNT_CREATED',$input->userId,$correlationId,$correlationId,['User ID'=>$input->userId,'Action time'=>date('d/m/Y h:i A'),'Reference'=>$correlationId]);
             $this->operation->commit();
 
             return $this->result(1, 'User berjaya ditambah. Pengguna perlu menetapkan password melalui OTP.', 'CREATED', $correlationId);

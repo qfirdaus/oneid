@@ -366,13 +366,16 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
         $results=$service->beginEnrollment($user,oneid_totp_account_label('USER',is_array($account)?$account:null),$session,$ua,(string)($_POST['device_label']??'Microsoft Authenticator'));
       }elseif($oneidGuardedAction==='user_mfa_totp_confirm'){
         $service->confirmEnrollment($user,(string)($_POST['factor_id']??''),(string)($_POST['code']??''),$session,$ua);
+        $cid=bin2hex(random_bytes(8));oneid_queue_admin_activity_notification($operation,'USER_MFA_TOTP_ENABLED',$user,$cid,$cid,['Action time'=>date('d/m/Y h:i A'),'Reference'=>$cid]);
         $results=['status'=>1,'code'=>'USER_MFA_TOTP_CONFIRMED'];
       }elseif($oneidGuardedAction==='user_mfa_totp_preference'){
-        $service->setPreference($user,(string)($_POST['factor']??''));
+        $factor=(string)($_POST['factor']??'');$service->setPreference($user,$factor);
+        $cid=bin2hex(random_bytes(8));oneid_queue_admin_activity_notification($operation,'USER_MFA_PREFERENCE_CHANGED',$user,$cid,$cid,['New'=>$factor,'Action time'=>date('d/m/Y h:i A'),'Reference'=>$cid]);
         $results=['status'=>1,'code'=>'USER_MFA_PREFERENCE_UPDATED'];
       }else{
         $service->verify($user,(string)($_POST['code']??''));
         $service->selfRevoke($user,true,(string)($_POST['reason']??'SELF_SERVICE'));
+        $cid=bin2hex(random_bytes(8));oneid_queue_admin_activity_notification($operation,'USER_MFA_TOTP_REVOKED',$user,$cid,$cid,['Action time'=>date('d/m/Y h:i A'),'Reference'=>$cid]);
         oneid_clear_local_authenticated_session();
         $results=['status'=>1,'code'=>'USER_MFA_TOTP_REVOKED','reauthentication_required'=>true,'redirect_uri'=>APP_URL.'/'];
       }
@@ -688,6 +691,8 @@ function string_sanitize($s) {
           if((int)($failureState['credential_ip']??0)>=5||(int)($failureState['ip']??0)>=20){
             $correlation=bin2hex(random_bytes(8));
             $operation->syslog_record(3,"action=login outcome=rejected reason=AUTH_RATE_LIMITED credential_fingerprint=$credentialFingerprint correlation=$correlation",$loginIp);
+            $warningRecipient=$operation->func_search_uid($submittedUsername);
+            if(is_array($warningRecipient)&&(int)($warningRecipient['avail_status']??0)===1){oneid_queue_admin_activity_notification($operation,'LOGIN_SECURITY_WARNING',(string)$warningRecipient['u_id'],$correlation,'rate-limit-'.$correlation,['Action time'=>date('d/m/Y h:i A'),'Reference'=>$correlation]);}
             http_response_code(429);
             echo json_encode(['login_status'=>0,'code'=>'AUTH_RATE_LIMITED','login_response_msg'=>'Too many login attempts. Please wait 15 minutes and try again.','correlation_id'=>$correlation]);
             return;
@@ -2906,7 +2911,8 @@ function string_sanitize($s) {
           $operation->prune_password_history($resetUser,oneid_password_history_limit());
           $operation->update_whole_token_status($resetUser,0,'PASSWORD_RESET');
           $operation->otp_invalidate_active($resetUser);
-          if($operation->syslog_record(21,'user='.$resetUser.' action=mydigitalid_email_otp_password_reset correlation='.bin2hex(random_bytes(8)),getUserIP())!==1)throw new \RuntimeException('UC2_AUDIT_FAILED');
+          $resetCorrelation=bin2hex(random_bytes(8));if($operation->syslog_record(21,'user='.$resetUser.' action=mydigitalid_email_otp_password_reset correlation='.$resetCorrelation,getUserIP())!==1)throw new \RuntimeException('UC2_AUDIT_FAILED');
+          oneid_queue_admin_activity_notification($operation,'PASSWORD_RESET_COMPLETED',$resetUser,$resetCorrelation,$resetCorrelation,['Action time'=>date('d/m/Y h:i A'),'Reference'=>$resetCorrelation]);
           $operation->commit();$started=false;
           unset($_SESSION['password_reset_user'],$_SESSION['password_reset_verified_at']);
           oneid_clear_sso_cookie();
@@ -2917,6 +2923,7 @@ function string_sanitize($s) {
       $operation->set_user_password($resetUser, $newPassword, 0);
       $operation->update_whole_token_status($resetUser, 0, 'PASSWORD_RESET');
       $operation->syslog_record(21, 'Password reset completed for user ID: '.$resetUser, getUserIP());
+      $resetCorrelation=bin2hex(random_bytes(8));oneid_queue_admin_activity_notification($operation,'PASSWORD_RESET_COMPLETED',$resetUser,$resetCorrelation,$resetCorrelation,['Action time'=>date('d/m/Y h:i A'),'Reference'=>$resetCorrelation]);
       unset($_SESSION['password_reset_user'], $_SESSION['password_reset_verified_at']);
       echo json_encode([
         'result'=>'true',

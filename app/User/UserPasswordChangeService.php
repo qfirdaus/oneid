@@ -1,6 +1,8 @@
 <?php
 namespace OneId\App\User;
 use Throwable;
+require_once dirname(__DIR__) . '/Notification/AdminEmailNotificationComposer.php';
+require_once dirname(__DIR__) . '/Notification/AdminEmailNotificationException.php';
 final class UserPasswordChangeService
 {
     public function __construct(private readonly object $operation){}
@@ -23,6 +25,7 @@ final class UserPasswordChangeService
             $token=null;if($keepCurrentSession){$token=oneid_generate_sso_token();if($this->operation->add_new_token($token,$userId,$device)!==1)throw new UserPasswordChangeException('UC2_REPLACEMENT_TOKEN_FAILED',$correlation);}
             $detail=sprintf('user=%s action=change_password tokens_revoked=%d otp_invalidated=%d correlation=%s',$userId,$revoked,$invalidated,$correlation);
             if($this->operation->syslog_record(21,$detail,$ip)!==1)throw new UserPasswordChangeException('UC2_AUDIT_FAILED',$correlation);
+            \OneId\App\Notification\AdminEmailNotificationComposer::queueUserEvent($this->operation,'USER_PASSWORD_CHANGED',$userId,$correlation,$correlation,['Device'=>$device,'Action time'=>date('d/m/Y h:i A'),'Reference'=>$correlation]);
             $this->operation->commit();$started=false;
             return ['status'=>1,'code'=>$keepCurrentSession?'UC4_PASSWORD_CHANGED_SESSION_ROTATED':'UC4_PASSWORD_CHANGED_REAUTH_REQUIRED','msg'=>'Password successfully changed','correlation_id'=>$correlation,'replacement_token'=>$token,'password_change_required'=>0,'reauthentication_required'=>!$keepCurrentSession];
         }catch(Throwable $e){if($started){try{$this->operation->rollback();}catch(Throwable $ignored){error_log('UC2 rollback failed correlation='.$correlation);}}

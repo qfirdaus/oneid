@@ -3,6 +3,8 @@
 namespace OneId\App\User;
 
 use Throwable;
+require_once dirname(__DIR__) . '/Notification/AdminEmailNotificationComposer.php';
+require_once dirname(__DIR__) . '/Notification/AdminEmailNotificationException.php';
 
 final class InitialPasswordSetupService
 {
@@ -61,6 +63,7 @@ final class InitialPasswordSetupService
             if ($this->operation->syslog_record(21, $detail, $ip) !== 1) {
                 throw new UserPasswordChangeException('UC2_AUDIT_FAILED', $correlation);
             }
+            \OneId\App\Notification\AdminEmailNotificationComposer::queueUserEvent($this->operation,'INITIAL_PASSWORD_SET',$userId,$correlation,$correlation,['Action time'=>date('d/m/Y h:i A'),'Reference'=>$correlation]);
             $this->operation->commit();
             $started = false;
             return [

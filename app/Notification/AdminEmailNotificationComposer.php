@@ -54,6 +54,16 @@ final class AdminEmailNotificationComposer
     private static function copy(string $event,string $locale): array
     {
         $bm=[
+            'ACCOUNT_CREATED'=>['Akaun OneID anda telah diwujudkan','Akaun diwujudkan','Administrator telah mewujudkan akaun OneID anda.','Gunakan proses pemulihan kata laluan yang diluluskan untuk menetapkan kata laluan pertama.'],
+            'ACCOUNT_PROFILE_CHANGED'=>['Profil OneID anda berubah','Profil dikemas kini','Administrator telah mengubah nama atau kategori akaun anda.','Hubungi sokongan jika perubahan ini tidak dijangka.'],
+            'USER_PASSWORD_CHANGED'=>['Kata laluan OneID anda berubah','Kata laluan berjaya diubah','Kata laluan akaun anda telah diubah melalui portal OneID.','Hubungi sokongan segera jika anda tidak melakukan tindakan ini.'],
+            'INITIAL_PASSWORD_SET'=>['Kata laluan pertama OneID telah ditetapkan','Kata laluan pertama ditetapkan','Kata laluan pertama akaun anda berjaya ditetapkan.','Log masuk semula menggunakan kata laluan baharu anda.'],
+            'PASSWORD_RESET_COMPLETED'=>['Pemulihan kata laluan OneID selesai','Kata laluan baharu ditetapkan','Proses pemulihan kata laluan anda telah selesai.','Hubungi sokongan segera jika anda tidak melakukan tindakan ini.'],
+            'USER_MFA_TOTP_ENABLED'=>['Authenticator OneID diaktifkan','Authenticator diaktifkan','TOTP authenticator telah ditambah pada akaun anda.','Buang faktor ini segera jika anda tidak melakukan tindakan ini.'],
+            'USER_MFA_PREFERENCE_CHANGED'=>['Kaedah MFA OneID berubah','Pilihan MFA dikemas kini','Kaedah pengesahan pilihan akaun anda telah berubah.','Semak tetapan keselamatan jika perubahan ini tidak dijangka.'],
+            'USER_MFA_TOTP_REVOKED'=>['Authenticator OneID dibuang','Authenticator dibuang','Faktor TOTP telah dibuang dan sesi berkaitan ditamatkan.','Hubungi sokongan jika anda tidak melakukan tindakan ini.'],
+            'MYDIGITALID_LINKED'=>['MyDigital ID dipautkan ke OneID','MyDigital ID dipautkan','Identiti MyDigital ID telah dipautkan ke akaun OneID anda.','Hubungi sokongan segera jika anda tidak melakukan tindakan ini.'],
+            'LOGIN_SECURITY_WARNING'=>['Amaran keselamatan login OneID','Percubaan login berulang','Beberapa percubaan login gagal telah dikesan pada akaun anda.','Tukar kata laluan dan hubungi sokongan jika aktiviti ini bukan milik anda.'],
             'PASSWORD_RESET_BY_ADMIN'=>['Kata laluan OneID anda telah ditetapkan semula','Kata laluan ditetapkan semula','Administrator telah menetapkan semula kata laluan akaun anda.','Sila gunakan proses penetapan kata laluan melalui OTP sebelum log masuk semula.'],
             'ACCOUNT_DEACTIVATED'=>['Akaun OneID anda dinyahaktifkan','Akaun dinyahaktifkan','Administrator telah menyahaktifkan akaun OneID anda.','Hubungi perkhidmatan sokongan OneID jika tindakan ini tidak dijangka.'],
             'ACCOUNT_REACTIVATED'=>['Akaun OneID anda diaktifkan semula','Akaun diaktifkan semula','Administrator telah mengaktifkan semula akaun OneID anda.','Anda boleh menggunakan semula akaun berdasarkan polisi akses semasa.'],
@@ -71,6 +81,16 @@ final class AdminEmailNotificationComposer
             'METADATA_CHANGED'=>['Metadata dwibahasa OneID berubah','Metadata dikemas kini','Terjemahan metadata aplikasi atau kategori telah diubah oleh administrator.','Semak kandungan dwibahasa dan audit trail dalam portal pentadbiran.'],
         ];
         $en=[
+            'ACCOUNT_CREATED'=>['Your OneID account was created','Account created','An administrator created your OneID account.','Use the approved password recovery process to set your first password.'],
+            'ACCOUNT_PROFILE_CHANGED'=>['Your OneID profile changed','Profile updated','An administrator changed your account name or category.','Contact support if you did not expect this change.'],
+            'USER_PASSWORD_CHANGED'=>['Your OneID password changed','Password changed','Your account password was changed through the OneID portal.','Contact support immediately if you did not perform this action.'],
+            'INITIAL_PASSWORD_SET'=>['Your initial OneID password was set','Initial password set','Your initial account password was set successfully.','Sign in again using your new password.'],
+            'PASSWORD_RESET_COMPLETED'=>['OneID password recovery completed','New password set','Your password recovery process was completed.','Contact support immediately if you did not perform this action.'],
+            'USER_MFA_TOTP_ENABLED'=>['OneID authenticator enabled','Authenticator enabled','A TOTP authenticator was added to your account.','Remove this factor immediately if you did not perform this action.'],
+            'USER_MFA_PREFERENCE_CHANGED'=>['Your OneID MFA method changed','MFA preference updated','Your preferred verification method was changed.','Review your security settings if this was unexpected.'],
+            'USER_MFA_TOTP_REVOKED'=>['OneID authenticator removed','Authenticator removed','Your TOTP factor was removed and related sessions ended.','Contact support if you did not perform this action.'],
+            'MYDIGITALID_LINKED'=>['MyDigital ID linked to OneID','MyDigital ID linked','A MyDigital ID identity was linked to your OneID account.','Contact support immediately if you did not perform this action.'],
+            'LOGIN_SECURITY_WARNING'=>['OneID sign-in security warning','Repeated sign-in attempts','Several failed sign-in attempts were detected for your account.','Change your password and contact support if this activity was not yours.'],
             'PASSWORD_RESET_BY_ADMIN'=>['Your OneID password was reset','Password reset','An administrator reset the password for your account.','Complete the OTP password setup process before signing in again.'],
             'ACCOUNT_DEACTIVATED'=>['Your OneID account was deactivated','Account deactivated','An administrator deactivated your OneID account.','Contact OneID support if you did not expect this action.'],
             'ACCOUNT_REACTIVATED'=>['Your OneID account was reactivated','Account reactivated','An administrator reactivated your OneID account.','You may use the account again subject to the current access policy.'],
