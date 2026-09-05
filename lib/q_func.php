@@ -2962,6 +2962,13 @@ function string_sanitize($s) {
             $mail->Subject = $isTest
               ?oneid_translate('email.test.subject',[],$locale)
               :oneid_translate('email.recovery.subject',[],$locale);
+            $mail->addEmbeddedImage(
+              dirname(__DIR__) . '/public/img/logo_upnm_30.png',
+              'oneid-upnm-logo',
+              'logo_upnm_30.png',
+              'base64',
+              'image/png'
+            );
             $mail->msgHTML($email_body);
             $mail->AltBody = $isTest
               ?\OneId\App\Mail\OneIdEmailTemplate::deliveryTestPlainText($locale)

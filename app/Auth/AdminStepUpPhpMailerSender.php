@@ -56,6 +56,13 @@ final class AdminStepUpPhpMailerSender implements AdminStepUpEmailSenderInterfac
             );
             $mail->addAddress($email, $displayName);
             $mail->Subject = \oneid_translate('email.admin.subject');
+            $mail->addEmbeddedImage(
+                dirname(__DIR__, 2) . '/public/img/logo_upnm_30.png',
+                'oneid-upnm-logo',
+                'logo_upnm_30.png',
+                'base64',
+                'image/png'
+            );
             $mail->msgHTML($body);
             $mail->AltBody = \OneId\App\Mail\OneIdEmailTemplate::otpPlainText(
                 \oneid_translate('email.admin.headline'),

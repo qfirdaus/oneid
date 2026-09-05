@@ -55,6 +55,13 @@ final class UserMfaPhpMailerSender implements UserMfaEmailSenderInterface
             );
             $mail->addAddress($email, $displayName);
             $mail->Subject = \oneid_translate('email.user_mfa.subject', [], $locale);
+            $mail->addEmbeddedImage(
+                dirname(__DIR__, 3) . '/public/img/logo_upnm_30.png',
+                'oneid-upnm-logo',
+                'logo_upnm_30.png',
+                'base64',
+                'image/png'
+            );
             $mail->msgHTML($body);
             $mail->AltBody = OneIdEmailTemplate::otpPlainText(
                 \oneid_translate('email.user_mfa.headline', [], $locale),

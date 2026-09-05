@@ -95,6 +95,13 @@ final class UserMfaRecoveryEmailSender
             );
             $mail->addAddress($email, $displayName);
             $mail->Subject = $subject;
+            $mail->addEmbeddedImage(
+                dirname(__DIR__, 3) . '/public/img/logo_upnm_30.png',
+                'oneid-upnm-logo',
+                'logo_upnm_30.png',
+                'base64',
+                'image/png'
+            );
             $mail->msgHTML($html);
             $mail->AltBody = $plain;
             return (bool) $mail->send();

@@ -24,9 +24,12 @@ $test = OneIdEmailTemplate::deliveryTest('OneID Administrator');
 $notification = OneIdEmailTemplate::notification('Pilot User', 'Account security', 'Security notice', 'Session ended', 'A session was ended.', [], 'No action required.', 'en');
 $adminSender = (string) file_get_contents($root . '/app/Auth/AdminStepUpPhpMailerSender.php');
 $notificationMailer = (string) file_get_contents($root . '/app/Notification/AdminEmailNotificationMailer.php');
+$userMfaSender = (string) file_get_contents($root . '/app/Auth/UserMfa/UserMfaPhpMailerSender.php');
+$userMfaRecoverySender = (string) file_get_contents($root . '/app/Auth/UserMfa/UserMfaRecoveryEmailSender.php');
 $qFunc = (string) file_get_contents($root . '/lib/q_func.php');
 
 $checks['brand_shell'] = str_contains($otp, 'OneID<span style="color:#087ca8">@UPNM</span>')
+    && str_contains($otp, 'src="cid:oneid-upnm-logo"')
     && str_contains($otp, 'Pusat Teknologi Maklumat &amp; Komunikasi, UPNM')
     && str_contains($otp, 'role="presentation"');
 $checks['otp_content'] = str_contains($otp, '123456')
@@ -42,6 +45,11 @@ $checks['notification_width'] = str_contains((string) file_get_contents($root . 
 $checks['notification_embeds_upnm_logo'] = str_contains($notification, 'src="cid:oneid-upnm-logo"')
     && str_contains($notificationMailer, "'/public/img/logo_upnm_30.png'")
     && str_contains($notificationMailer, "addEmbeddedImage(\$logoPath,'oneid-upnm-logo'");
+$checks['all_active_senders_embed_upnm_logo'] = str_contains($adminSender, "'oneid-upnm-logo'")
+    && str_contains($userMfaSender, "'oneid-upnm-logo'")
+    && str_contains($userMfaRecoverySender, "'oneid-upnm-logo'")
+    && str_contains($qFunc, "'oneid-upnm-logo'")
+    && str_contains($notificationMailer, "'oneid-upnm-logo'");
 $checks['delivery_test_no_fake_otp'] = str_contains($test, 'Ujian penghantaran berjaya')
     && !str_contains($test, 'Kod pengesahan sekali guna')
     && !str_contains($test, '>TEST<');

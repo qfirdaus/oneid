@@ -121,7 +121,6 @@ final class OneIdEmailTemplate
             null,
             '<strong>' . self::escape($notice) . '</strong>',
             $locale,
-            true,
             true
         );
     }
@@ -151,8 +150,7 @@ final class OneIdEmailTemplate
         ?string $validity,
         string $noticeHtml,
         string $locale = 'ms',
-        bool $introductionContainsSafeHtml = false,
-        bool $showUpnmLogo = false
+        bool $introductionContainsSafeHtml = false
     ): string {
         $rawName = trim($displayName) !== ''
             ? trim($displayName)
@@ -169,9 +167,7 @@ final class OneIdEmailTemplate
             . '<div style="margin-top:9px;font-family:Consolas,Monaco,monospace;font-size:38px;line-height:46px;font-weight:700;letter-spacing:10px;color:#172033">' . $safeOtp . '</div>'
             . '<div style="margin-top:8px;font-size:13px;color:#087ca8;font-weight:700">' . $safeValidity . '</div></div></td></tr>';
 
-        $brandLogo = $showUpnmLogo
-            ? '<td width="140" style="width:140px;padding:0 18px 0 0;vertical-align:middle"><img src="cid:oneid-upnm-logo" width="140" alt="UPNM" style="display:block;width:140px;max-width:140px;height:auto;border:0"></td>'
-            : '';
+        $brandLogo = '<td width="140" style="width:140px;padding:0 18px 0 0;vertical-align:middle"><img src="cid:oneid-upnm-logo" width="140" alt="UPNM" style="display:block;width:140px;max-width:140px;height:auto;border:0"></td>';
 
         return '<!doctype html><html lang="' . self::escape($locale) . '"><head><meta charset="utf-8">'
             . '<meta name="viewport" content="width=device-width,initial-scale=1"><title>' . $safeHeadline . '</title></head>'
