@@ -251,3 +251,19 @@ function oneid_admin_email_notification_delivery_mode(): string
     }
     return 'OFF';
 }
+
+/** Environment-labelled subject prefix for controlled pilot delivery. */
+function oneid_admin_email_notification_pilot_prefix(): string
+{
+    $configured = getenv('ONEID_ENVIRONMENT');
+    if ($configured === false && function_exists('oneid_runtime_file_path')) {
+        $configured = oneid_config('ONEID_ENVIRONMENT', '');
+    }
+    $environment = strtolower(trim((string) ($configured === false ? '' : $configured)));
+    return match ($environment) {
+        'production' => '[PRODUCTION PILOT] ',
+        'staging', 'uat' => '[STAGING PILOT] ',
+        'local', 'development' => '[LOCAL PILOT] ',
+        default => '[PILOT] ',
+    };
+}

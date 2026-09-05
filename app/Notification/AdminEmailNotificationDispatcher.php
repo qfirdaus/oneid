@@ -35,7 +35,7 @@ final class AdminEmailNotificationDispatcher
             $recipientUserId=(string)$pilot['u_id'];$recipientEmail=(string)$pilot['data5'];
             $recipientName=trim((string)$pilot['data1'])!==''?(string)$pilot['data1']:(string)$pilot['u_id'];
             $locale=in_array($pilot['locale']??'',['ms','en'],true)?(string)$pilot['locale']:'ms';
-            $subject='[STAGING PILOT] '.$subject;
+            $subject=\oneid_admin_email_notification_pilot_prefix().$subject;
         }
         $eventName=strtoupper(trim($eventName));
         if(!in_array($eventName,self::EVENTS,true))throw new AdminEmailNotificationException('NOTIFICATION_EVENT_INVALID');

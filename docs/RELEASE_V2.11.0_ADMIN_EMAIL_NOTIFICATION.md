@@ -72,6 +72,7 @@ Confirm ordinary administrative actions remain available and no notification is 
 - Populate only the separately approved pilot user ID in private runtime.
 - Set delivery mode to `PILOT`, enable the notification master switch and keep `LIVE_APPROVED=false`.
 - Perform one approved low-risk action and run `php tools/admin_email_notification_worker.php 1` manually.
+- Confirm pilot subjects use `[PRODUCTION PILOT]` in production and `[STAGING PILOT]` in staging.
 - Verify exact pilot recipient, event, correlation ID, one SENT history row and zero delivery to other recipients.
 - Keep the scheduled worker disabled until pilot acceptance is recorded.
 

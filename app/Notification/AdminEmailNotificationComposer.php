@@ -27,7 +27,7 @@ final class AdminEmailNotificationComposer
         }
         $locale=in_array($recipient['notification_locale']??'',['ms','en'],true)?(string)$recipient['notification_locale']:'ms';
         $copy=self::copy($eventName,$locale);
-        if($mode==='PILOT')$copy['subject']='[STAGING PILOT] '.$copy['subject'];
+        if($mode==='PILOT')$copy['subject']=\oneid_admin_email_notification_pilot_prefix().$copy['subject'];
         if($locale==='ms'){
             $labels=['User ID'=>'ID Pengguna','Action time'=>'Masa tindakan','Reference'=>'Rujukan','Application'=>'Aplikasi','Device'=>'Peranti',
                 'Sync mode'=>'Mod sync','Source'=>'Sumber','Header ID'=>'ID header','New'=>'Baharu','Updated'=>'Dikemas kini',

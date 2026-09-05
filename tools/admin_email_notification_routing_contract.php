@@ -25,13 +25,22 @@ $set(['ONEID_ADMIN_EMAIL_NOTIFICATION_ENABLED'=>'true','ONEID_ADMIN_EMAIL_NOTIFI
 $checks['live with separate approval is accepted']=oneid_admin_email_notification_delivery_mode()==='LIVE';
 $set(['ONEID_ADMIN_EMAIL_NOTIFICATION_ENABLED'=>'true','ONEID_ADMIN_EMAIL_NOTIFICATION_DELIVERY_MODE'=>'UNKNOWN']);
 $checks['unknown mode fails closed']=oneid_admin_email_notification_delivery_mode()==='OFF';
+$originalEnvironment=getenv('ONEID_ENVIRONMENT');
+putenv('ONEID_ENVIRONMENT=production');
+$checks['production pilot subject is labelled production']=oneid_admin_email_notification_pilot_prefix()==='[PRODUCTION PILOT] ';
+putenv('ONEID_ENVIRONMENT=staging');
+$checks['staging pilot subject remains labelled staging']=oneid_admin_email_notification_pilot_prefix()==='[STAGING PILOT] ';
+putenv('ONEID_ENVIRONMENT=unknown');
+$checks['unknown environment uses neutral pilot label']=oneid_admin_email_notification_pilot_prefix()==='[PILOT] ';
+is_string($originalEnvironment)?putenv('ONEID_ENVIRONMENT='.$originalEnvironment):putenv('ONEID_ENVIRONMENT');
 foreach($keys as $key)putenv($key);
 $worker=(string)file_get_contents(dirname(__DIR__).'/tools/admin_email_notification_worker.php');
 $checks['worker suppresses mismatched pilot recipient']=str_contains($worker,'PILOT_RECIPIENT_MISMATCH')
     &&str_contains($worker,"'SUPPRESSED'")&&str_contains($worker,'hash_equals');
 $dispatcher=(string)file_get_contents(dirname(__DIR__).'/app/Notification/AdminEmailNotificationDispatcher.php');
 $checks['dispatcher overwrites supplied recipient in pilot mode']=str_contains($dispatcher,"\$mode==='PILOT'")
-    &&str_contains($dispatcher,'$recipientEmail=(string)$pilot[\'data5\']');
+    &&str_contains($dispatcher,'$recipientEmail=(string)$pilot[\'data5\']')
+    &&str_contains($dispatcher,'oneid_admin_email_notification_pilot_prefix()');
 
 $failed=0;foreach($checks as $label=>$ok){printf("%s %s\n",$ok?'PASS':'FAIL',$label);$failed+=$ok?0:1;}
 printf("RESULT checks=%d failed=%d\n",count($checks),$failed);exit($failed===0?0:1);
