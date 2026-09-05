@@ -35,6 +35,8 @@ $checks['escaped_user_content'] = !str_contains($otp, '<script>')
     && str_contains($otp, '&lt;script&gt;alert(1)&lt;/script&gt;');
 $checks['email_client_safe'] = !preg_match('/<(?:script|iframe|form|video)\b/i', $otp)
     && !preg_match('/(?:src|href)=["\']https?:\/\//i', $otp);
+$checks['notification_width'] = str_contains((string) file_get_contents($root . '/app/Mail/OneIdEmailTemplate.php'), 'max-width:760px')
+    && !str_contains((string) file_get_contents($root . '/app/Mail/OneIdEmailTemplate.php'), 'max-width:600px');
 $checks['delivery_test_no_fake_otp'] = str_contains($test, 'Ujian penghantaran berjaya')
     && !str_contains($test, 'Kod pengesahan sekali guna')
     && !str_contains($test, '>TEST<');
