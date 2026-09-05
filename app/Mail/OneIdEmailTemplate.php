@@ -85,28 +85,38 @@ final class OneIdEmailTemplate
         string $notice,
         string $locale = 'ms'
     ): string {
-        $rows = '';
+        $userRows = '';
+        $technicalRows = '';
         foreach ($details as $label => $value) {
             $label = trim((string) $label);
             $value = trim((string) $value);
             if ($label === '' || $value === '') {
                 continue;
             }
-            $rows .= '<tr><td style="padding:9px 12px;border-bottom:1px solid #edf0f4;'
+            $row = '<tr><td style="padding:9px 12px;border-bottom:1px solid #e5edf3;'
                 . 'font-size:12px;font-weight:700;color:#6b7280;vertical-align:top;width:34%">'
-                . self::escape($label) . '</td><td style="padding:9px 12px;border-bottom:1px solid #edf0f4;'
+                . self::escape($label) . '</td><td style="padding:9px 12px;border-bottom:1px solid #e5edf3;'
                 . 'font-size:13px;font-weight:600;color:#172033;vertical-align:top">'
                 . self::escape($value) . '</td></tr>';
+            $isTechnical = preg_match('/(?:correlation|korelasi|diagnostic|diagnostik|result code|kod keputusan|header id|id header|reference|rujukan)/i', $label) === 1;
+            $isTechnical ? $technicalRows .= $row : $userRows .= $row;
         }
-        $detailsHtml = $rows === '' ? ''
-            : '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
-                . 'style="margin-top:18px;border:1px solid #e3e8ef;border-radius:8px">' . $rows . '</table>';
+        $section = static function (string $title, string $rows, bool $technical = false): string {
+            if ($rows === '') return '';
+            $color = $technical ? '#64748b' : '#087ca8';
+            return '<div style="margin-top:18px;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:' . $color . '">' . self::escape($title) . '</div>'
+                . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:7px;border:1px solid #dce8ef;border-radius:8px">' . $rows . '</table>';
+        };
+        $detailsHtml = $section($locale === 'en' ? 'Information for you' : 'Maklumat untuk anda', $userRows)
+            . $section($locale === 'en' ? 'Technical reference for support' : 'Rujukan teknikal untuk sokongan', $technicalRows, true);
         return self::render(
             $displayName,
             $contextLabel,
             $badge,
             $headline,
-            self::escape($introduction) . $detailsHtml,
+            '<div style="padding:14px 16px;background:#eef8fc;border-left:4px solid #11a8d8;border-radius:7px;color:#294b5c"><strong>'
+                . self::escape($locale === 'en' ? 'What happened' : 'Apa yang berlaku') . '</strong><br>'
+                . self::escape($introduction) . '</div>' . $detailsHtml,
             null,
             null,
             '<strong>' . self::escape($notice) . '</strong>',
@@ -155,18 +165,18 @@ final class OneIdEmailTemplate
             : '<tr><td align="center" style="padding:12px 34px 22px"><div style="padding:22px 18px;border:1px solid #e3e8ef;border-radius:12px;background:#f7f9fc">'
             . '<div style="font-size:11px;font-weight:700;letter-spacing:1.4px;color:#7b8494;text-transform:uppercase">' . self::escape(\oneid_translate('email.otp.label', [], $locale)) . '</div>'
             . '<div style="margin-top:9px;font-family:Consolas,Monaco,monospace;font-size:38px;line-height:46px;font-weight:700;letter-spacing:10px;color:#172033">' . $safeOtp . '</div>'
-            . '<div style="margin-top:8px;font-size:13px;color:#a71930;font-weight:700">' . $safeValidity . '</div></div></td></tr>';
+            . '<div style="margin-top:8px;font-size:13px;color:#087ca8;font-weight:700">' . $safeValidity . '</div></div></td></tr>';
 
         return '<!doctype html><html lang="' . self::escape($locale) . '"><head><meta charset="utf-8">'
             . '<meta name="viewport" content="width=device-width,initial-scale=1"><title>' . $safeHeadline . '</title></head>'
             . '<body style="margin:0;padding:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;color:#172033">'
             . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef2f7"><tr><td align="center" style="padding:32px 12px">'
             . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border:1px solid #dfe6ef;border-radius:14px;overflow:hidden">'
-            . '<tr><td style="height:6px;background:#a71930;font-size:0">&nbsp;</td></tr>'
+            . '<tr><td style="height:6px;background:linear-gradient(90deg,#123f6d,#087ca8,#11a8d8);font-size:0">&nbsp;</td></tr>'
             . '<tr><td style="padding:28px 34px 22px;border-bottom:1px solid #edf0f4"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>'
-            . '<td><div style="font-size:25px;font-weight:800;letter-spacing:-.5px;color:#172033">OneID<span style="color:#a71930">@UPNM</span></div>'
+            . '<td><div style="font-size:25px;font-weight:800;letter-spacing:-.5px;color:#172033">OneID<span style="color:#087ca8">@UPNM</span></div>'
             . '<div style="margin-top:5px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#6b7280">' . $context . '</div></td>'
-            . '<td align="right"><div style="display:inline-block;padding:9px 12px;border-radius:20px;background:#fbecef;color:#8f1529;font-size:12px;font-weight:700">' . $safeBadge . '</div></td>'
+            . '<td align="right"><div style="display:inline-block;padding:9px 12px;border-radius:20px;background:#e8f6fb;color:#086b91;font-size:12px;font-weight:700">' . $safeBadge . '</div></td>'
             . '</tr></table></td></tr>'
             . '<tr><td style="padding:32px 34px 16px"><div style="font-size:22px;font-weight:700;color:#172033">' . $safeHeadline . '</div>'
             . '<p style="margin:14px 0 0;font-size:15px;line-height:24px;color:#4b5563">' . self::escape(\oneid_translate('email.greeting', ['name' => $rawName], $locale)) . '<br>' . $intro . '</p></td></tr>'
