@@ -75,6 +75,13 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_USER_SESSION_WARNING_ENABLED' => 'false',
         // Scheduled DB-token lifecycle cleanup remains deployment opt-in.
         'ONEID_SESSION_HOUSEKEEPING_SCHEDULED_ENABLED' => 'false',
+        // Developer maintenance access is dormant by default. Production also
+        // requires an approved, referenced and time-bounded operational window.
+        'ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED' => 'false',
+        'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_APPROVED' => 'false',
+        'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_CHANGE_REFERENCE' => '',
+        'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_WINDOW_START' => '',
+        'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_WINDOW_END' => '',
         // User Login MFA U1 remains dormant. Schema apply and every later
         // activation require separate approval; committed mode stays OFF.
         'ONEID_USER_MFA_MODE' => 'OFF',
@@ -209,14 +216,40 @@ function oneid_maintenance_developer_access_enabled(?DateTimeImmutable $now = nu
     if (!filter_var(oneid_config('ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED', 'false'), FILTER_VALIDATE_BOOLEAN)) {
         return false;
     }
-    if (!filter_var(oneid_config('ONEID_MAINTENANCE_DEVELOPER_PILOT_APPROVED', 'false'), FILTER_VALIDATE_BOOLEAN)) {
-        return true;
+    $environment = (string) oneid_config('ONEID_ENVIRONMENT', '');
+    if ($environment === 'staging') {
+        if (!filter_var(oneid_config('ONEID_MAINTENANCE_DEVELOPER_PILOT_APPROVED', 'false'), FILTER_VALIDATE_BOOLEAN)) {
+            return true;
+        }
+        return oneid_maintenance_developer_window_is_active(
+            'ONEID_MAINTENANCE_DEVELOPER_PILOT_WINDOW_START',
+            'ONEID_MAINTENANCE_DEVELOPER_PILOT_WINDOW_END',
+            $now
+        );
     }
-    if (!in_array((string) oneid_config('ONEID_ENVIRONMENT', ''), ['staging', 'production'], true)) {
+    if ($environment !== 'production'
+        || !filter_var(oneid_config('ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_APPROVED', 'false'), FILTER_VALIDATE_BOOLEAN)
+        || preg_match(
+            '/^[A-Z0-9][A-Z0-9._-]{7,127}$/D',
+            trim((string) oneid_config('ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_CHANGE_REFERENCE', ''))
+        ) !== 1
+    ) {
         return false;
     }
-    $startRaw = trim((string) oneid_config('ONEID_MAINTENANCE_DEVELOPER_PILOT_WINDOW_START', ''));
-    $endRaw = trim((string) oneid_config('ONEID_MAINTENANCE_DEVELOPER_PILOT_WINDOW_END', ''));
+    return oneid_maintenance_developer_window_is_active(
+        'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_WINDOW_START',
+        'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_WINDOW_END',
+        $now
+    );
+}
+
+function oneid_maintenance_developer_window_is_active(
+    string $startKey,
+    string $endKey,
+    ?DateTimeImmutable $now = null
+): bool {
+    $startRaw = trim((string) oneid_config($startKey, ''));
+    $endRaw = trim((string) oneid_config($endKey, ''));
     $start = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $startRaw);
     $end = DateTimeImmutable::createFromFormat(DateTimeInterface::ATOM, $endRaw);
     $now ??= new DateTimeImmutable('now', new DateTimeZone('Asia/Kuala_Lumpur'));

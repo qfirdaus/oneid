@@ -24,6 +24,7 @@ $scripts = [
     'phase4 admin contract' => 'tools/maintenance_developer_phase4_contract.php',
     'phase5 login and MFA contract' => 'tools/maintenance_developer_phase5_contract.php',
     'phase6 runtime gate contract' => 'tools/maintenance_developer_phase6_contract.php',
+    'runtime environment contract' => 'tools/maintenance_developer_runtime_environment_contract.php',
     'phase7 permission isolation' => 'tests/characterization/maintenance_developer_permission_isolation.php',
     'phase8 end-to-end rehearsal' => 'tools/maintenance_developer_phase8_e2e.php',
     'legacy maintenance regression' => 'tools/maintenance_mode_contract.php',
