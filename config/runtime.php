@@ -75,13 +75,10 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_USER_SESSION_WARNING_ENABLED' => 'false',
         // Scheduled DB-token lifecycle cleanup remains deployment opt-in.
         'ONEID_SESSION_HOUSEKEEPING_SCHEDULED_ENABLED' => 'false',
-        // Developer maintenance access is dormant by default. Production also
-        // requires an approved, referenced and time-bounded operational window.
+        // Developer maintenance access is dormant by default. Production
+        // deployment approval is one-time; each operation is controlled in UI.
         'ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED' => 'false',
         'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_APPROVED' => 'false',
-        'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_CHANGE_REFERENCE' => '',
-        'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_WINDOW_START' => '',
-        'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_WINDOW_END' => '',
         // User Login MFA U1 remains dormant. Schema apply and every later
         // activation require separate approval; committed mode stays OFF.
         'ONEID_USER_MFA_MODE' => 'OFF',
@@ -227,20 +224,11 @@ function oneid_maintenance_developer_access_enabled(?DateTimeImmutable $now = nu
             $now
         );
     }
-    if ($environment !== 'production'
-        || !filter_var(oneid_config('ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_APPROVED', 'false'), FILTER_VALIDATE_BOOLEAN)
-        || preg_match(
-            '/^[A-Z0-9][A-Z0-9._-]{7,127}$/D',
-            trim((string) oneid_config('ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_CHANGE_REFERENCE', ''))
-        ) !== 1
-    ) {
-        return false;
-    }
-    return oneid_maintenance_developer_window_is_active(
-        'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_WINDOW_START',
-        'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_WINDOW_END',
-        $now
-    );
+    return $environment === 'production'
+        && filter_var(
+            oneid_config('ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_APPROVED', 'false'),
+            FILTER_VALIDATE_BOOLEAN
+        );
 }
 
 function oneid_maintenance_developer_window_is_active(

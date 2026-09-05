@@ -23,25 +23,19 @@ $set([
     'ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED' => 'true',
     'ONEID_ENVIRONMENT' => 'production',
     'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_APPROVED' => 'false',
-    'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_CHANGE_REFERENCE' => '',
-    'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_WINDOW_START' => '',
-    'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_WINDOW_END' => '',
 ]);
-$check(!oneid_maintenance_developer_access_enabled($at), 'production rejects raw flag without approval', $failed);
+$check(!oneid_maintenance_developer_access_enabled($at), 'production rejects raw flag without deployment approval', $failed);
 $set([
     'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_APPROVED' => 'true',
-    'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_CHANGE_REFERENCE' => 'ONEID-MD-PROD-20260905-01',
-    'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_WINDOW_START' => '2026-09-05T12:00:00+08:00',
-    'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_WINDOW_END' => '2026-09-05T13:00:00+08:00',
 ]);
-$check(oneid_maintenance_developer_access_enabled($at), 'production accepts approved referenced active window', $failed);
-$set(['ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_CHANGE_REFERENCE' => 'invalid reference']);
-$check(!oneid_maintenance_developer_access_enabled($at), 'production rejects invalid change reference', $failed);
+$check(oneid_maintenance_developer_access_enabled($at), 'production accepts one-time deployment approval', $failed);
+$set(['ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED' => 'false']);
+$check(!oneid_maintenance_developer_access_enabled($at), 'production emergency kill switch always wins', $failed);
 $set([
-    'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_CHANGE_REFERENCE' => 'ONEID-MD-PROD-20260905-01',
-    'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_WINDOW_END' => '2026-09-05T12:20:00+08:00',
+    'ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED' => 'true',
+    'ONEID_ENVIRONMENT' => 'unknown',
 ]);
-$check(!oneid_maintenance_developer_access_enabled($at), 'production rejects expired window', $failed);
+$check(!oneid_maintenance_developer_access_enabled($at), 'unknown environment remains fail closed', $failed);
 $set([
     'ONEID_ENVIRONMENT' => 'staging',
     'ONEID_MAINTENANCE_DEVELOPER_PILOT_APPROVED' => 'false',
