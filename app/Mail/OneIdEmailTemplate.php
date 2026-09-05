@@ -170,7 +170,7 @@ final class OneIdEmailTemplate
             . '<div style="margin-top:8px;font-size:13px;color:#087ca8;font-weight:700">' . $safeValidity . '</div></div></td></tr>';
 
         $brandLogo = $showUpnmLogo
-            ? '<td width="112" style="width:112px;padding:0 16px 0 0;vertical-align:middle"><img src="cid:oneid-upnm-logo" width="112" alt="UPNM" style="display:block;width:112px;max-width:112px;height:auto;border:0"></td>'
+            ? '<td width="140" style="width:140px;padding:0 18px 0 0;vertical-align:middle"><img src="cid:oneid-upnm-logo" width="140" alt="UPNM" style="display:block;width:140px;max-width:140px;height:auto;border:0"></td>'
             : '';
 
         return '<!doctype html><html lang="' . self::escape($locale) . '"><head><meta charset="utf-8">'
