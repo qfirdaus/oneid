@@ -121,6 +121,7 @@ final class OneIdEmailTemplate
             null,
             '<strong>' . self::escape($notice) . '</strong>',
             $locale,
+            true,
             true
         );
     }
@@ -150,7 +151,8 @@ final class OneIdEmailTemplate
         ?string $validity,
         string $noticeHtml,
         string $locale = 'ms',
-        bool $introductionContainsSafeHtml = false
+        bool $introductionContainsSafeHtml = false,
+        bool $showUpnmLogo = false
     ): string {
         $rawName = trim($displayName) !== ''
             ? trim($displayName)
@@ -167,6 +169,10 @@ final class OneIdEmailTemplate
             . '<div style="margin-top:9px;font-family:Consolas,Monaco,monospace;font-size:38px;line-height:46px;font-weight:700;letter-spacing:10px;color:#172033">' . $safeOtp . '</div>'
             . '<div style="margin-top:8px;font-size:13px;color:#087ca8;font-weight:700">' . $safeValidity . '</div></div></td></tr>';
 
+        $brandLogo = $showUpnmLogo
+            ? '<td width="58" style="width:58px;padding:0 14px 0 0;vertical-align:middle"><img src="cid:oneid-upnm-logo" width="58" alt="UPNM" style="display:block;width:58px;max-width:58px;height:auto;border:0"></td>'
+            : '';
+
         return '<!doctype html><html lang="' . self::escape($locale) . '"><head><meta charset="utf-8">'
             . '<meta name="viewport" content="width=device-width,initial-scale=1"><title>' . $safeHeadline . '</title></head>'
             . '<body style="margin:0;padding:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;color:#172033">'
@@ -174,8 +180,9 @@ final class OneIdEmailTemplate
             . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:760px;background:#fff;border:1px solid #dfe6ef;border-radius:14px;overflow:hidden">'
             . '<tr><td style="height:6px;background:linear-gradient(90deg,#123f6d,#087ca8,#11a8d8);font-size:0">&nbsp;</td></tr>'
             . '<tr><td style="padding:28px 34px 22px;border-bottom:1px solid #edf0f4"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>'
-            . '<td><div style="font-size:25px;font-weight:800;letter-spacing:-.5px;color:#172033">OneID<span style="color:#087ca8">@UPNM</span></div>'
-            . '<div style="margin-top:5px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#6b7280">' . $context . '</div></td>'
+            . '<td><table role="presentation" cellpadding="0" cellspacing="0"><tr>' . $brandLogo
+            . '<td style="vertical-align:middle"><div style="font-size:25px;font-weight:800;letter-spacing:-.5px;color:#172033">OneID<span style="color:#087ca8">@UPNM</span></div>'
+            . '<div style="margin-top:5px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#6b7280">' . $context . '</div></td></tr></table></td>'
             . '<td align="right"><div style="display:inline-block;padding:9px 12px;border-radius:20px;background:#e8f6fb;color:#086b91;font-size:12px;font-weight:700">' . $safeBadge . '</div></td>'
             . '</tr></table></td></tr>'
             . '<tr><td style="padding:32px 34px 16px"><div style="font-size:22px;font-weight:700;color:#172033">' . $safeHeadline . '</div>'

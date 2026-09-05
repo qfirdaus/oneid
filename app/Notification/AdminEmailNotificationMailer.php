@@ -26,6 +26,9 @@ final class AdminEmailNotificationMailer
             $mail->Username=\oneid_secret('ONEID_SMTP_USERNAME');$mail->Password=\oneid_secret('ONEID_SMTP_PASSWORD');
             $mail->setFrom(\oneid_secret('ONEID_SMTP_USERNAME'),(string)\oneid_config('ONEID_SMTP_FROM_NAME'));
             $mail->addAddress((string)$row['recipient_email'],(string)$row['recipient_name']);$mail->Subject=(string)$payload['subject'];
+            $logoPath=dirname(__DIR__,2).'/public/img/logo_upnm_30.png';
+            if(!is_file($logoPath)||!is_readable($logoPath))throw new AdminEmailNotificationException('NOTIFICATION_BRAND_ASSET_UNAVAILABLE');
+            $mail->addEmbeddedImage($logoPath,'oneid-upnm-logo','logo_upnm_30.png','base64','image/png');
             $mail->msgHTML($html);$mail->AltBody=(string)$payload['headline']."\n\n".(string)$payload['introduction']."\n\n".(string)$payload['notice'];
             $sent=(bool)$mail->send();return ['sent'=>$sent,'message_id'=>$sent?$mail->getLastMessageID():null,'error_code'=>$sent?null:'SMTP_REJECTED'];
         }catch(Throwable $e){error_log('Admin notification mail failed id='.(int)($row['notification_id']??0).' exception='.get_class($e));return ['sent'=>false,'message_id'=>null,'error_code'=>'SMTP_DELIVERY_FAILED'];}

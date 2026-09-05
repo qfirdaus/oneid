@@ -21,7 +21,9 @@ $otp = OneIdEmailTemplate::otp(
     '123456'
 );
 $test = OneIdEmailTemplate::deliveryTest('OneID Administrator');
+$notification = OneIdEmailTemplate::notification('Pilot User', 'Account security', 'Security notice', 'Session ended', 'A session was ended.', [], 'No action required.', 'en');
 $adminSender = (string) file_get_contents($root . '/app/Auth/AdminStepUpPhpMailerSender.php');
+$notificationMailer = (string) file_get_contents($root . '/app/Notification/AdminEmailNotificationMailer.php');
 $qFunc = (string) file_get_contents($root . '/lib/q_func.php');
 
 $checks['brand_shell'] = str_contains($otp, 'OneID<span style="color:#087ca8">@UPNM</span>')
@@ -37,6 +39,9 @@ $checks['email_client_safe'] = !preg_match('/<(?:script|iframe|form|video)\b/i',
     && !preg_match('/(?:src|href)=["\']https?:\/\//i', $otp);
 $checks['notification_width'] = str_contains((string) file_get_contents($root . '/app/Mail/OneIdEmailTemplate.php'), 'max-width:760px')
     && !str_contains((string) file_get_contents($root . '/app/Mail/OneIdEmailTemplate.php'), 'max-width:600px');
+$checks['notification_embeds_upnm_logo'] = str_contains($notification, 'src="cid:oneid-upnm-logo"')
+    && str_contains($notificationMailer, "'/public/img/logo_upnm_30.png'")
+    && str_contains($notificationMailer, "addEmbeddedImage(\$logoPath,'oneid-upnm-logo'");
 $checks['delivery_test_no_fake_otp'] = str_contains($test, 'Ujian penghantaran berjaya')
     && !str_contains($test, 'Kod pengesahan sekali guna')
     && !str_contains($test, '>TEST<');
