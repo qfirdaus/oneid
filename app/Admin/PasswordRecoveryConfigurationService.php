@@ -6,7 +6,8 @@ use Throwable;
 
 final class PasswordRecoveryConfigurationService
 {
-    public function __construct(private readonly object $operation) {}
+    private readonly ?\Closure $notification;
+    public function __construct(private readonly object $operation,?callable $notification=null) {$this->notification=$notification===null?null:\Closure::fromCallable($notification);}
 
     public function read(): array
     {
@@ -29,7 +30,8 @@ final class PasswordRecoveryConfigurationService
             if($this->operation->update_password_recovery_by_id((int)$stored['id'],$enabled)!==1)throw new SsoConfigurationException('SC6_UPDATE_NOT_APPLIED',$id);
             $detail=sprintf('admin=%s action=update_password_recovery_email before=%d after=%d manual_recovery_available=0 correlation=%s',$admin,$before,$enabled,$id);
             if($this->operation->syslog_record(33,$detail,$ip)!==1)throw new SsoConfigurationException('SC6_AUDIT_FAILED',$id);
-            $this->operation->commit();return ['status'=>1,'code'=>'SC6_RECOVERY_UPDATED','data'=>['password_reset_email_enabled'=>$enabled],'correlation_id'=>$id];
+            $notificationId=$this->notification===null?null:($this->notification)('SECURITY_POLICY_CHANGED',$admin,$id,$id,['Policy'=>'Password recovery','Before'=>$before?'Enabled':'Disabled','After'=>$enabled?'Enabled':'Disabled','Reference'=>$id]);
+            $this->operation->commit();return ['status'=>1,'code'=>'SC6_RECOVERY_UPDATED','data'=>['password_reset_email_enabled'=>$enabled],'notification_queued'=>$notificationId!==null,'correlation_id'=>$id];
         }catch(SsoConfigurationException $e){if($started)$this->operation->rollback();throw $e;}catch(Throwable $e){if($started)$this->operation->rollback();throw new SsoConfigurationException('SC6_UPDATE_FAILED',$id);}
     }
 

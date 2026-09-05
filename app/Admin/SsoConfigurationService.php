@@ -8,8 +8,10 @@ final class SsoConfigurationService
 {
     private const ALLOWED_TIMEOUTS = ['0.5', '1', '2', '12', '24', '48', '72', '168'];
 
-    public function __construct(private readonly object $operation)
+    private readonly ?\Closure $notification;
+    public function __construct(private readonly object $operation,?callable $notification=null)
     {
+        $this->notification=$notification===null?null:\Closure::fromCallable($notification);
     }
 
     public function read(): array
@@ -162,6 +164,10 @@ final class SsoConfigurationService
                 $scheduleDetail=sprintf('admin=%s action=schedule_sso_policy_revocation tokens=%d users=%d revoke_at=%s correlation=%s',$adminId,$scheduled,$liveImpact['affected_users'],$revokeAt,$correlationId);
                 if($this->operation->syslog_record(30,$scheduleDetail,$ipAddress)!==1)throw new SsoConfigurationException('SC5_SCHEDULE_AUDIT_FAILED',$correlationId);
             }
+            $notificationId=$this->notification===null?null:($this->notification)(
+                'SECURITY_POLICY_CHANGED',$adminId,$correlationId,$correlationId,
+                ['Policy'=>'Authentication and SSO','Before'=>'Token '.$before['token_timeout'].'h / multi-session '.$before['multi_session'],'After'=>'Token '.$after['token_timeout'].'h / multi-session '.$after['multi_session'],'Reference'=>$correlationId]
+            );
             $this->operation->commit();
             $started = false;
 
@@ -170,6 +176,7 @@ final class SsoConfigurationService
                 'code' => 'SC2_CONFIG_UPDATED',
                 'message' => 'Authentication and SSO token policy updated.',
                 'changed' => true,
+                'notification_queued'=>$notificationId!==null,
                 'data' => $after+['configuration_version'=>$newVersion],
                 'enforcement'=>['scheduled_tokens'=>$scheduled,'affected_users'=>$liveImpact['affected_users'],'revoke_at'=>$revokeAt,'grace_minutes'=>15],
                 'correlation_id' => $correlationId,

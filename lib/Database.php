@@ -697,6 +697,29 @@ class Database {
         return $this->pdo->rollBack();
     }
 
+    /** Resolve notification identity exclusively from trusted account data. */
+    public function admin_email_notification_recipient(string $userId): array|false{
+        $Q="SELECT U.u_id,U.data1,U.data5,
+              COALESCE((SELECT L.locale FROM user_locale_preference L WHERE L.u_id=U.u_id LIMIT 1),'ms') notification_locale
+            FROM user_tbl U WHERE U.u_id=:user_id LIMIT 1";
+        $R=$this->pdo->prepare($Q);$R->execute([':user_id'=>$userId]);return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /** Insert into the outbox on this connection, preserving caller transaction atomicity. */
+    public function admin_email_notification_enqueue(array $message): int{
+        $Q="INSERT INTO admin_email_notification_outbox(
+              event_name,recipient_user_id,recipient_email,recipient_name,locale,payload_json,
+              idempotency_key,correlation_id,available_at
+            ) VALUES(:event,:user_id,:email,:name,:locale,:payload,:idempotency,:correlation,UTC_TIMESTAMP(6))
+            ON DUPLICATE KEY UPDATE notification_id=LAST_INSERT_ID(notification_id)";
+        $R=$this->pdo->prepare($Q);$R->execute([
+            ':event'=>$message['event_name'],':user_id'=>$message['recipient_user_id'],
+            ':email'=>$message['recipient_email'],':name'=>$message['recipient_name'],
+            ':locale'=>$message['locale'],':payload'=>$message['payload_json'],
+            ':idempotency'=>$message['idempotency_key'],':correlation'=>$message['correlation_id'],
+        ]);return(int)$this->pdo->lastInsertId();
+    }
+
     /**
      * Acquire a connection-scoped MySQL advisory lock for a sync run.
      * Dormant until the S4 feature-flagged orchestrator wiring is enabled.

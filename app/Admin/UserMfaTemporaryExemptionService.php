@@ -11,9 +11,11 @@ use Throwable;
 final class UserMfaTemporaryExemptionService
 {
     private const DURATIONS = [1, 4, 8, 24, 72];
+    private readonly ?\Closure $notification;
 
-    public function __construct(private readonly PDO $pdo)
+    public function __construct(private readonly PDO $pdo, ?callable $notification = null)
     {
+        $this->notification=$notification===null?null:\Closure::fromCallable($notification);
     }
 
     public function searchCandidates(string $query): array
@@ -183,10 +185,17 @@ final class UserMfaTemporaryExemptionService
                 $admin, $userId, 'create', $reference, $correlation, $ip,
                 $pendingTransactions->rowCount(), $pendingChallenges->rowCount()
             );
+            $period=$this->pdo->prepare('SELECT starts_at,expires_at FROM user_login_mfa_exemptions WHERE exemption_id=:id');
+            $period->execute([':id'=>$exemptionId]);$window=$period->fetch(PDO::FETCH_ASSOC);
+            $notificationId=$this->notification===null?null:($this->notification)(
+                'MFA_EXEMPTION_GRANTED',$userId,$correlation,$correlation,
+                ['Valid from'=>(string)($window['starts_at']??''),'Valid until'=>(string)($window['expires_at']??''),'Reference'=>trim($reference)]
+            );
             $this->pdo->commit();
             return [
                 'status' => 1, 'code' => 'USER_MFA_EXEMPTION_CREATED',
                 'exemption_id' => $exemptionId,
+                'notification_queued'=>$notificationId!==null,
                 'correlation_id' => $correlation,
             ];
         } catch (SsoConfigurationException $exception) {
@@ -247,9 +256,14 @@ final class UserMfaTemporaryExemptionService
             if ($update->rowCount() !== 1) {
                 throw $this->error('USER_MFA_EXEMPTION_REVOKE_FAILED', $correlation);
             }
+            $notificationId=$this->notification===null?null:($this->notification)(
+                'MFA_EXEMPTION_REVOKED',(string)$row['u_id'],$correlation,$correlation,
+                ['Action time'=>date('d/m/Y h:i A'),'Reference'=>(string)$row['change_reference']]
+            );
             $this->pdo->commit();
             return [
                 'status' => 1, 'code' => 'USER_MFA_EXEMPTION_REVOKED',
+                'notification_queued'=>$notificationId!==null,
                 'correlation_id' => $correlation,
             ];
         } catch (SsoConfigurationException $exception) {

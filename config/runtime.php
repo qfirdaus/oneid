@@ -75,6 +75,14 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_USER_SESSION_WARNING_ENABLED' => 'false',
         // Scheduled DB-token lifecycle cleanup remains deployment opt-in.
         'ONEID_SESSION_HOUSEKEEPING_SCHEDULED_ENABLED' => 'false',
+        // Administrative notification delivery is activated only after the
+        // outbox worker and recipient policy pass environment verification.
+        'ONEID_ADMIN_EMAIL_NOTIFICATION_ENABLED' => 'false',
+        'ONEID_ADMIN_EMAIL_NOTIFICATION_DELIVERY_MODE' => 'OFF',
+        'ONEID_ADMIN_EMAIL_NOTIFICATION_PILOT_USER_ID' => '',
+        'ONEID_ADMIN_EMAIL_NOTIFICATION_LIVE_APPROVED' => 'false',
+        'ONEID_ADMIN_EMAIL_NOTIFICATION_MAX_ATTEMPTS' => '5',
+        'ONEID_ADMIN_EMAIL_NOTIFICATION_RETRY_SECONDS' => '300',
         // Developer maintenance access is dormant by default. Environment
         // approval is one-time; each operation is controlled in the Admin UI.
         'ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED' => 'false',
@@ -223,4 +231,23 @@ function oneid_maintenance_developer_access_enabled(?DateTimeImmutable $now = nu
     };
     return $approvalKey !== null
         && filter_var(oneid_config($approvalKey, 'false'), FILTER_VALIDATE_BOOLEAN);
+}
+
+/** Fail-closed notification routing. LIVE requires a separate explicit approval. */
+function oneid_admin_email_notification_delivery_mode(): string
+{
+    if (!filter_var(oneid_config('ONEID_ADMIN_EMAIL_NOTIFICATION_ENABLED', 'false'), FILTER_VALIDATE_BOOLEAN)) {
+        return 'OFF';
+    }
+    $mode = strtoupper(trim((string) oneid_config('ONEID_ADMIN_EMAIL_NOTIFICATION_DELIVERY_MODE', 'OFF')));
+    if ($mode === 'PILOT') {
+        $pilot = trim((string) oneid_config('ONEID_ADMIN_EMAIL_NOTIFICATION_PILOT_USER_ID', ''));
+        return preg_match('/\A[A-Za-z0-9._@-]{1,20}\z/', $pilot) === 1 ? 'PILOT' : 'OFF';
+    }
+    if ($mode === 'LIVE'
+        && filter_var(oneid_config('ONEID_ADMIN_EMAIL_NOTIFICATION_LIVE_APPROVED', 'false'), FILTER_VALIDATE_BOOLEAN)
+    ) {
+        return 'LIVE';
+    }
+    return 'OFF';
 }

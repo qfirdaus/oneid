@@ -74,6 +74,47 @@ final class OneIdEmailTemplate
         );
     }
 
+    /** @param array<string, string> $details */
+    public static function notification(
+        string $displayName,
+        string $contextLabel,
+        string $badge,
+        string $headline,
+        string $introduction,
+        array $details,
+        string $notice,
+        string $locale = 'ms'
+    ): string {
+        $rows = '';
+        foreach ($details as $label => $value) {
+            $label = trim((string) $label);
+            $value = trim((string) $value);
+            if ($label === '' || $value === '') {
+                continue;
+            }
+            $rows .= '<tr><td style="padding:9px 12px;border-bottom:1px solid #edf0f4;'
+                . 'font-size:12px;font-weight:700;color:#6b7280;vertical-align:top;width:34%">'
+                . self::escape($label) . '</td><td style="padding:9px 12px;border-bottom:1px solid #edf0f4;'
+                . 'font-size:13px;font-weight:600;color:#172033;vertical-align:top">'
+                . self::escape($value) . '</td></tr>';
+        }
+        $detailsHtml = $rows === '' ? ''
+            : '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
+                . 'style="margin-top:18px;border:1px solid #e3e8ef;border-radius:8px">' . $rows . '</table>';
+        return self::render(
+            $displayName,
+            $contextLabel,
+            $badge,
+            $headline,
+            self::escape($introduction) . $detailsHtml,
+            null,
+            null,
+            '<strong>' . self::escape($notice) . '</strong>',
+            $locale,
+            true
+        );
+    }
+
     public static function otpPlainText(string $headline, string $otp, string $locale = 'ms'): string
     {
         if (preg_match('/\A[0-9]{6}\z/', $otp) !== 1) {
@@ -98,7 +139,8 @@ final class OneIdEmailTemplate
         ?string $otp,
         ?string $validity,
         string $noticeHtml,
-        string $locale = 'ms'
+        string $locale = 'ms',
+        bool $introductionContainsSafeHtml = false
     ): string {
         $rawName = trim($displayName) !== ''
             ? trim($displayName)
@@ -106,7 +148,7 @@ final class OneIdEmailTemplate
         $context = self::escape($contextLabel);
         $safeBadge = self::escape($badge);
         $safeHeadline = self::escape($headline);
-        $intro = self::escape($introduction);
+        $intro = $introductionContainsSafeHtml ? $introduction : self::escape($introduction);
         $safeOtp = $otp === null ? null : self::escape($otp);
         $safeValidity = $validity === null ? null : self::escape($validity);
         $codeBlock = $safeOtp === null ? ''

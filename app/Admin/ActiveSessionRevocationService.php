@@ -5,6 +5,9 @@ namespace OneId\App\Admin;
 use OneId\App\Admin\Adapters\SessionRevocationPreviewStore;
 use Throwable;
 
+require_once dirname(__DIR__) . '/Notification/AdminEmailNotificationException.php';
+require_once dirname(__DIR__) . '/Notification/AdminEmailNotificationComposer.php';
+
 final class ActiveSessionRevocationService
 {
     public function __construct(
@@ -50,8 +53,12 @@ final class ActiveSessionRevocationService
             if ($this->operation->admin_revoke_exact_session((string)$row['user_id'], (string)$row['token_id']) !== 1) throw new ActiveSessionRevocationException('AS3_REVOKE_RECONCILIATION_FAILED', $cid);
             $detail = sprintf('actor=%s action=ADMIN_ACTIVE_SESSION_REVOKE target_user=%s target_session_fingerprint=%s state_before=%s requested=1 matched=1 revoked=1 audited=1 reason_digest=%s reason_length=%d correlation=%s', $actor, (string)$row['user_id'], substr((string)$approval['fingerprint'],0,16), (string)$row['lifecycle_status'], substr(hash('sha256',$reason),0,16), strlen($reason), $cid);
             if ($this->operation->syslog_record(66, $detail, filter_var($ip,FILTER_VALIDATE_IP)?$ip:'0.0.0.0') !== 1) throw new ActiveSessionRevocationException('AS3_AUDIT_FAILED', $cid);
+            $notificationId=\OneId\App\Notification\AdminEmailNotificationComposer::queueUserEvent(
+                $this->operation,'SESSION_REVOKED',(string)$row['user_id'],$cid,$cid,
+                ['Device'=>(string)$row['device_info'],'Action time'=>date('d/m/Y h:i A'),'Reference'=>$cid]
+            );
             $this->operation->commit(); $started = false;
-            return ['status'=>1,'code'=>'AS3_SESSION_REVOKED','requested'=>1,'matched'=>1,'revoked'=>1,'audited'=>1,'correlation_id'=>$cid];
+            return ['status'=>1,'code'=>'AS3_SESSION_REVOKED','requested'=>1,'matched'=>1,'revoked'=>1,'audited'=>1,'notification_queued'=>$notificationId!==null,'correlation_id'=>$cid];
         } catch (Throwable $e) {
             if ($started) $this->operation->rollback();
             if ($e instanceof ActiveSessionRevocationException) throw $e;

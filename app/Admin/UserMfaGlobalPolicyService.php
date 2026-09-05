@@ -10,12 +10,15 @@ use Throwable;
 
 final class UserMfaGlobalPolicyService
 {
+    private readonly ?\Closure $notification;
     public function __construct(
         private readonly PDO $pdo,
         private readonly string $runtimeMode,
         private readonly bool $activationAuthorized,
-        private readonly bool $runtimeTotpEnabled
+        private readonly bool $runtimeTotpEnabled,
+        ?callable $notification=null
     ) {
+        $this->notification=$notification===null?null:\Closure::fromCallable($notification);
     }
 
     public function read(): array
@@ -166,12 +169,17 @@ final class UserMfaGlobalPolicyService
             if ($history->rowCount() !== 1 || $audit->rowCount() !== 1) {
                 throw new SsoConfigurationException('USER_MFA_GLOBAL_POLICY_AUDIT_FAILED', $correlation);
             }
+            $notificationId=$this->notification===null?null:($this->notification)(
+                'SECURITY_POLICY_CHANGED',$adminId,$correlation,$correlation,
+                ['Policy'=>'Global User MFA','Before'=>(string)$before['policy_mode'],'After'=>$target,'Reference'=>$reference]
+            );
             $this->pdo->commit();
             $started = false;
             return [
                 'status' => 1,
                 'code' => $enabled ? 'USER_MFA_GLOBAL_ENABLED' : 'USER_MFA_GLOBAL_DISABLED',
                 'changed' => true,
+                'notification_queued'=>$notificationId!==null,
                 'data' => [
                     'enabled' => $enabled,
                     'effective_mode' => $target,

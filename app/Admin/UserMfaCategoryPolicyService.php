@@ -11,9 +11,11 @@ use Throwable;
 final class UserMfaCategoryPolicyService
 {
     private const CATEGORIES = ['STAFF','STUDENT'];
+    private readonly ?\Closure $notification;
 
-    public function __construct(private readonly PDO $pdo)
+    public function __construct(private readonly PDO $pdo,?callable $notification=null)
     {
+        $this->notification=$notification===null?null:\Closure::fromCallable($notification);
     }
 
     public function read(): array
@@ -141,11 +143,16 @@ final class UserMfaCategoryPolicyService
             if ($update->rowCount() !== 1 || $history->rowCount() !== 1 || $audit->rowCount() !== 1) {
                 throw new SsoConfigurationException('USER_MFA_CATEGORY_POLICY_AUDIT_FAILED', $correlation);
             }
+            $notificationId=$this->notification===null?null:($this->notification)(
+                'SECURITY_POLICY_CHANGED',$admin,$correlation,$correlation,
+                ['Policy'=>'User MFA '.$category,'Before'=>(int)$before['enforcement_enabled']===1?'Enabled':'Disabled','After'=>$enabled?'Enabled':'Disabled','Reference'=>$reference]
+            );
             $this->pdo->commit();
             return [
                 'status' => 1,
                 'code' => 'USER_MFA_CATEGORY_POLICY_UPDATED',
                 'changed' => true,
+                'notification_queued'=>$notificationId!==null,
                 'data' => [
                     'category' => $category,
                     'enabled' => $enabled,

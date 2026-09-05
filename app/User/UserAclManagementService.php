@@ -4,6 +4,9 @@ namespace OneId\App\User;
 
 use Throwable;
 
+require_once dirname(__DIR__) . '/Notification/AdminEmailNotificationException.php';
+require_once dirname(__DIR__) . '/Notification/AdminEmailNotificationComposer.php';
+
 final class UserAclManagementService
 {
     public function __construct(private readonly object $operation)
@@ -53,6 +56,8 @@ final class UserAclManagementService
                     throw new UserManagementException('M3_DENY_RECORD_OWNER_MISMATCH', $correlationId);
                 }
                 $spId = (string) $record['sp_id'];
+                $app = $this->operation->admin_get_active_service_provider_for_acl($spId);
+                if (!is_array($app) || $app === []) throw new UserManagementException('M3_APP_NOT_ACTIVE', $correlationId);
                 if ($this->operation->admin_uplift_blacklist_record($blacklistId) !== 1) {
                     throw new UserManagementException('M3_ACL_NOT_CHANGED', $correlationId);
                 }
@@ -90,8 +95,13 @@ final class UserAclManagementService
             if ($this->operation->syslog_record($event, $detail, $ipAddress) !== 1) {
                 throw new UserManagementException('M3_AUDIT_NOT_WRITTEN', $correlationId);
             }
+            $notificationId=\OneId\App\Notification\AdminEmailNotificationComposer::queueUserEvent(
+                $this->operation,$action==='deny'?'ACCOUNT_ACCESS_REVOKED':'ACCOUNT_ACCESS_GRANTED',
+                $userId,$correlationId,$correlationId,
+                ['Application'=>(string)($app['sp_name']??$spId),'Action time'=>date('d/m/Y h:i A'),'Reference'=>$correlationId]
+            );
             $this->operation->commit();
-            return ['status' => 1, 'code' => $code, 'correlation_id' => $correlationId];
+            return ['status' => 1, 'code' => $code, 'notification_queued'=>$notificationId!==null,'correlation_id' => $correlationId];
         } catch (Throwable $exception) {
             if ($started) {
                 try { $this->operation->rollback(); } catch (Throwable $ignored) {

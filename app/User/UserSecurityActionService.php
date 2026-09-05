@@ -4,6 +4,9 @@ namespace OneId\App\User;
 
 use Throwable;
 
+require_once dirname(__DIR__) . '/Notification/AdminEmailNotificationException.php';
+require_once dirname(__DIR__) . '/Notification/AdminEmailNotificationComposer.php';
+
 final class UserSecurityActionService
 {
     public function __construct(private readonly object $operation)
@@ -93,6 +96,16 @@ final class UserSecurityActionService
                 throw new UserSecurityActionException('M2_AUDIT_NOT_WRITTEN', $correlationId);
             }
 
+            $notificationEvent = match ($action) {
+                'reset_password' => 'PASSWORD_RESET_BY_ADMIN',
+                'deactivate' => 'ACCOUNT_DEACTIVATED',
+                default => 'ACCOUNT_REACTIVATED',
+            };
+            $notificationId = \OneId\App\Notification\AdminEmailNotificationComposer::queueUserEvent(
+                $this->operation,$notificationEvent,$userId,$correlationId,$correlationId,
+                ['User ID'=>$userId,'Action time'=>date('d/m/Y h:i A'),'Reference'=>$correlationId]
+            );
+
             $this->operation->commit();
             return [
                 'status' => 1,
@@ -102,6 +115,7 @@ final class UserSecurityActionService
                     default => 'M2_USER_REACTIVATED',
                 },
                 'source_status' => 1,
+                'notification_queued' => $notificationId !== null,
                 'correlation_id' => $correlationId,
             ];
         } catch (Throwable $exception) {

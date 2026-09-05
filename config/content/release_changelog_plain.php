@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.11.0' =>
+  array (
+    'version' => '2.11.0',
+    'date' => '2026-09-05',
+    'bm' =>
+    array (
+      0 => 'Admin Email Notification menyediakan transactional outbox dan sejarah delivery immutable supaya tindakan pentadbiran tidak bergantung pada kejayaan SMTP secara langsung.',
+      1 => 'Routing e-mel menggunakan mod OFF, PILOT dan LIVE yang fail-closed; ujian staging dipaksa kepada akaun pilot manakala penghantaran pengguna sebenar memerlukan kelulusan LIVE berasingan.',
+      2 => 'Worker CLI berhad memproses penghantaran, retry dan terminal failure secara idempotent dengan correlation ID, attempt history serta perlindungan recipient mismatch.',
+      3 => 'Reset kata laluan, deactivate atau reactivate akaun, perubahan ACL dan session revoke kini menghasilkan notifikasi keselamatan tanpa mendedahkan kata laluan, token atau session identifier mentah.',
+      4 => 'Grant, revoke dan auto-expiry bagi pengecualian MFA serta Developer Maintenance Access disambungkan kepada outbox dengan event lifecycle yang berasingan.',
+      5 => 'Worker auto-expiry MFA memilih rekod aktif yang benar-benar tamat secara bounded dan row-locked, lalu merekod status, audit dan notifikasi dalam transaksi yang sama.',
+      6 => 'Perubahan Maintenance Mode, polisi SSO, password recovery, global MFA dan category MFA kini menghantar ringkasan konfigurasi yang selamat kepada penerima operasi.',
+      7 => 'External Sync pilot, full dan operational menghasilkan notifikasi completed, warning atau failed dengan jumlah agregat dan correlation ID tanpa membawa identiti atau row sumber.',
+      8 => 'Perubahan aplikasi, Login Banner, bahasa lalai dan metadata dwibahasa kini diliputi, sementara operasi baca serta keputusan tiada perubahan tidak menghasilkan e-mel.',
+      9 => 'Template BM dan English yang dikongsi, schema additive, regression contract serta controlled UAT dan cleanup staging mengesahkan penghantaran kemas hanya kepada pilot sebelum release production.',
+    ),
+    'en' =>
+    array (
+      0 => 'Admin Email Notification provides a transactional outbox and immutable delivery history so administrative actions do not depend directly on SMTP success.',
+      1 => 'E-mail routing uses fail-closed OFF, PILOT and LIVE modes; staging tests are forced to the pilot account while real-user delivery requires separate LIVE approval.',
+      2 => 'A bounded CLI worker handles delivery, retry and terminal failure idempotently with correlation IDs, attempt history and recipient-mismatch protection.',
+      3 => 'Password reset, account deactivate or reactivate, ACL changes and session revocation now generate security notifications without exposing passwords, tokens or raw session identifiers.',
+      4 => 'Grant, revoke and automatic expiry for MFA exemptions and Developer Maintenance Access are connected to the outbox using distinct lifecycle events.',
+      5 => 'The MFA auto-expiry worker selects only genuinely expired active records using bounded row locking, then records status, audit and notification in the same transaction.',
+      6 => 'Maintenance Mode, SSO policy, password recovery, global MFA and category MFA changes now send safe configuration summaries to operational recipients.',
+      7 => 'Pilot, full and operational External Sync paths generate completed, warning or failed notifications with aggregate counts and correlation IDs but no identities or source rows.',
+      8 => 'Application, Login Banner, default-language and bilingual-metadata changes are covered, while read operations and no-change outcomes generate no e-mail.',
+      9 => 'Shared BM and English templates, additive schema, regression contracts, and controlled staging UAT and cleanup verify clean pilot-only delivery before production release.',
+    ),
+  ),
   'release-2.10.4' =>
   array (
     'version' => '2.10.4',

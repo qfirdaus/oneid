@@ -97,6 +97,10 @@ require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaEmailOtpService.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaTotpPrimitive.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaTotpService.php';
 require_once dirname(__DIR__) . '/app/Mail/OneIdEmailTemplate.php';
+require_once dirname(__DIR__) . '/app/Notification/AdminEmailNotificationException.php';
+require_once dirname(__DIR__) . '/app/Notification/AdminEmailNotificationRepository.php';
+require_once dirname(__DIR__) . '/app/Notification/AdminEmailNotificationDispatcher.php';
+require_once dirname(__DIR__) . '/app/Notification/AdminEmailNotificationPdoComposer.php';
 require_once dirname(__DIR__) . '/app/Locale/ApiResponseLocalizer.php';
 require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerPersistenceException.php';
 require_once dirname(__DIR__) . '/app/LoginBanner/LoginBannerPersistenceInterface.php';
@@ -457,6 +461,15 @@ if(str_starts_with($oneidGuardedAction,'admin_login_banner_')){
       $operation->audit_identifier((string)$_SESSION['login_user']),(string)getUserIP()
     );
     $status=(int)($results['_http_status']??500);unset($results['_http_status']);
+    if((int)($results['status']??0)===1&&$oneidGuardedAction!=='admin_login_banner_list'){
+      $cid=(string)($results['correlation_id']??'');
+      if(preg_match('/^[a-f0-9]{16,32}$/D',$cid)!==1)$cid=bin2hex(random_bytes(8));
+      $results['notification_queued']=oneid_queue_admin_activity_notification(
+        $operation,'LOGIN_BANNER_CHANGED',(string)($_SESSION['login_user']??''),$cid,
+        'banner|'.$oneidGuardedAction.'|'.$cid,
+        ['Action'=>$oneidGuardedAction,'Banner ID'=>(string)($results['banner_id']??'Multiple'),'Environment'=>(string)oneid_config('ONEID_ENVIRONMENT',''),'Correlation ID'=>$cid]
+      );
+    }
   }catch(\Throwable $exception){
     $status=503;$correlation=bin2hex(random_bytes(8));
     error_log('LB4 boundary unavailable correlation='.$correlation.' exception='.get_class($exception));
@@ -478,6 +491,10 @@ if(isset($_POST['admin_get_default_locale'])||isset($_POST['admin_update_default
     $results=isset($_POST['admin_update_default_locale'])
       ?$service->update($_POST['default_locale']??null,$_POST['configuration_version']??null,(string)($_POST['change_reason']??''),(string)$_SESSION['login_user'],(string)getUserIP())
       :$service->status();
+    if(($results['code']??'')==='ML5_DEFAULT_LOCALE_UPDATED'){
+      $cid=(string)$results['correlation_id'];
+      $results['notification_queued']=oneid_queue_admin_activity_notification($operation,'SYSTEM_LOCALE_CHANGED',(string)$_SESSION['login_user'],$cid,'locale|'.(string)$results['configuration_version'],['Default locale'=>(string)$results['default_locale'],'Configuration version'=>(string)$results['configuration_version'],'Correlation ID'=>$cid]);
+    }
   }catch(\RuntimeException $exception){
     $known=['ML5_DEFAULT_LOCALE_SCHEMA_UNAVAILABLE','ML5_DEFAULT_LOCALE_INVALID','ML5_DEFAULT_LOCALE_APPROVAL_INVALID','ML5_DEFAULT_LOCALE_STALE'];
     $code=in_array($exception->getMessage(),$known,true)?$exception->getMessage():'ML5_DEFAULT_LOCALE_FAILED';
@@ -549,6 +566,60 @@ function oneid_metadata_repository(): \OneId\App\Metadata\BilingualMetadataRepos
     ));
   }
   return $repository;
+}
+
+function oneid_admin_email_notification_callback(PDO $pdo): Closure {
+  return static fn(string $event,string $user,string $correlation,string $seed,array $details=[]): ?int =>
+    \OneId\App\Notification\AdminEmailNotificationPdoComposer::queue(
+      $pdo,$event,$user,$correlation,$seed,$details
+    );
+}
+
+function oneid_admin_email_notification_operation_callback(object $operation): Closure {
+  return static fn(string $event,string $user,string $correlation,string $seed,array $details=[]): ?int =>
+    \OneId\App\Notification\AdminEmailNotificationComposer::queueUserEvent(
+      $operation,$event,$user,$correlation,$seed,$details
+    );
+}
+
+/** @param array<string,string> $details */
+function oneid_queue_sync_admin_notification(
+  object $operation,
+  string $event,
+  string $administratorId,
+  string $correlationId,
+  string $idempotencySeed,
+  array $details
+): bool {
+  if(trim($administratorId)==='')return false;
+  try {
+    return \OneId\App\Notification\AdminEmailNotificationComposer::queueUserEvent(
+      $operation,$event,$administratorId,$correlationId,$idempotencySeed,$details
+    )!==null;
+  } catch (\Throwable $notificationException) {
+    error_log(sprintf(
+      '[ONEID_SYNC_NOTIFICATION] correlation=%s event=%s exception=%s code=NOTIFICATION_QUEUE_FAILED',
+      $correlationId,$event,get_class($notificationException)
+    ));
+    return false;
+  }
+}
+
+/** @param array<string,string> $details */
+function oneid_queue_admin_activity_notification(object $operation,string $event,string $admin,string $correlation,string $seed,array $details): bool {
+  if(trim($admin)==='')return false;
+  try{return \OneId\App\Notification\AdminEmailNotificationComposer::queueUserEvent($operation,$event,$admin,$correlation,$seed,$details)!==null;}
+  catch(\Throwable $exception){error_log(sprintf('[ONEID_ADMIN_ACTIVITY_NOTIFICATION] correlation=%s event=%s exception=%s code=NOTIFICATION_QUEUE_FAILED',$correlation,$event,get_class($exception)));return false;}
+}
+
+/** @param array<string,mixed> $result @return array<string,mixed> */
+function oneid_notify_application_result(object $operation,array $result,string $action,string $admin): array {
+  if((int)($result['status']??0)!==1)return $result;
+  $cid=(string)($result['correlation_id']??'');
+  if(preg_match('/^[a-f0-9]{16,32}$/D',$cid)!==1)$cid=bin2hex(random_bytes(8));
+  $appId=(string)($result['app_id']??'');
+  $result['notification_queued']=oneid_queue_admin_activity_notification($operation,'APPLICATION_CHANGED',$admin,$cid,'application|'.$action.'|'.$appId.'|'.$cid,['Action'=>$action,'Application ID'=>$appId===''?'Not applicable':$appId,'Result code'=>(string)($result['code']??'SUCCESS'),'Correlation ID'=>$cid]);
+  return $result;
 }
 
 
@@ -948,6 +1019,10 @@ function string_sanitize($s) {
             :'admin.metadata.saved';
           $result['translation_key']=$translationKey;
           $result['msg']=oneid_translate($translationKey);
+          if(($result['code']??'')!=='ML7_METADATA_NO_CHANGES'){
+            $cid=(string)($result['correlation_id']??bin2hex(random_bytes(8)));
+            $result['notification_queued']=oneid_queue_admin_activity_notification($operation,'METADATA_CHANGED',(string)$_SESSION['login_user'],$cid,'metadata|'.(string)($_POST['entity_type']??'').'|'.(string)($_POST['entity_id']??'').'|'.(string)($_POST['locale']??'').'|'.(string)($result['translation_version']??''),['Entity type'=>(string)($_POST['entity_type']??''),'Entity ID'=>(string)($_POST['entity_id']??''),'Locale'=>(string)($_POST['locale']??''),'Translation version'=>(string)($result['translation_version']??''),'Correlation ID'=>$cid]);
+          }
           echo json_encode($result);
         }catch(\RuntimeException $exception){
           $code=$exception->getMessage();
@@ -983,7 +1058,8 @@ function string_sanitize($s) {
             $pdo,
             strtoupper((string)oneid_config('ONEID_USER_MFA_MODE','OFF')),
             filter_var(oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED',false),FILTER_VALIDATE_BOOLEAN),
-            filter_var(oneid_config('ONEID_USER_MFA_TOTP_ENABLED',false),FILTER_VALIDATE_BOOLEAN)
+            filter_var(oneid_config('ONEID_USER_MFA_TOTP_ENABLED',false),FILTER_VALIDATE_BOOLEAN),
+            oneid_admin_email_notification_callback($pdo)
           );
           echo json_encode($service->read());
         }catch(\OneId\App\Admin\SsoConfigurationException $e){
@@ -998,7 +1074,8 @@ function string_sanitize($s) {
             $pdo,
             strtoupper((string)oneid_config('ONEID_USER_MFA_MODE','OFF')),
             filter_var(oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED',false),FILTER_VALIDATE_BOOLEAN),
-            filter_var(oneid_config('ONEID_USER_MFA_TOTP_ENABLED',false),FILTER_VALIDATE_BOOLEAN)
+            filter_var(oneid_config('ONEID_USER_MFA_TOTP_ENABLED',false),FILTER_VALIDATE_BOOLEAN),
+            oneid_admin_email_notification_callback($pdo)
           );
           echo json_encode($service->update(
             $_POST['enabled']??null,
@@ -1028,7 +1105,7 @@ function string_sanitize($s) {
       if(isset($_POST['admin_update_user_mfa_category_policy'])){
         try{
           $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-          echo json_encode((new \OneId\App\Admin\UserMfaCategoryPolicyService($pdo))->update(
+          echo json_encode((new \OneId\App\Admin\UserMfaCategoryPolicyService($pdo,oneid_admin_email_notification_callback($pdo)))->update(
             (string)($_POST['category']??''),
             $_POST['enabled']??null,
             $_POST['configuration_version']??null,
@@ -1072,7 +1149,7 @@ function string_sanitize($s) {
       if(isset($_POST['admin_create_user_mfa_exemption'])){
         try{
           $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-          echo json_encode((new \OneId\App\Admin\UserMfaTemporaryExemptionService($pdo))->create(
+          echo json_encode((new \OneId\App\Admin\UserMfaTemporaryExemptionService($pdo,oneid_admin_email_notification_callback($pdo)))->create(
             (string)($_POST['user_id']??''),
             $_POST['duration_hours']??null,
             (string)($_POST['change_reason']??''),
@@ -1090,7 +1167,7 @@ function string_sanitize($s) {
       if(isset($_POST['admin_revoke_user_mfa_exemption'])){
         try{
           $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-          echo json_encode((new \OneId\App\Admin\UserMfaTemporaryExemptionService($pdo))->revoke(
+          echo json_encode((new \OneId\App\Admin\UserMfaTemporaryExemptionService($pdo,oneid_admin_email_notification_callback($pdo)))->revoke(
             $_POST['exemption_id']??null,
             (string)($_POST['revoke_reason']??''),
             (string)($_POST['typed_confirmation']??''),
@@ -1113,7 +1190,7 @@ function string_sanitize($s) {
       }
 
       if(isset($_POST['update_password_recovery'])){
-        try{$service=new \OneId\App\Admin\PasswordRecoveryConfigurationService($operation);echo json_encode($service->update($_POST['password_reset_email_enabled']??null,(string)$_SESSION['login_user'],getUserIP()));}
+        try{$service=new \OneId\App\Admin\PasswordRecoveryConfigurationService($operation,oneid_admin_email_notification_operation_callback($operation));echo json_encode($service->update($_POST['password_reset_email_enabled']??null,(string)$_SESSION['login_user'],getUserIP()));}
         catch(\OneId\App\Admin\SsoConfigurationException $e){echo json_encode(['status'=>0,'code'=>$e->reason,'message'=>'Password recovery policy was not updated.','correlation_id'=>$e->correlationId]);}
       }
 
@@ -1197,7 +1274,7 @@ function string_sanitize($s) {
 
 
       if(isset($_POST['admin_get_maintenance_configuration'])||isset($_POST['admin_update_maintenance_configuration'])){
-        try{$service=new \OneId\App\Admin\MaintenanceConfigurationService($operation);$result=isset($_POST['admin_get_maintenance_configuration'])?$service->read():$service->update($_POST,(string)$_SESSION['login_user'],(string)getUserIP());echo json_encode($result);}
+        try{$service=new \OneId\App\Admin\MaintenanceConfigurationService($operation,oneid_admin_email_notification_operation_callback($operation));$result=isset($_POST['admin_get_maintenance_configuration'])?$service->read():$service->update($_POST,(string)$_SESSION['login_user'],(string)getUserIP());echo json_encode($result);}
         catch(\OneId\App\Admin\SsoConfigurationException $exception){echo json_encode(['status'=>0,'code'=>$exception->reason,'message'=>'Maintenance configuration was not completed.','correlation_id'=>$exception->correlationId]);}
       }
       if(in_array($oneidGuardedAction,[
@@ -1210,7 +1287,9 @@ function string_sanitize($s) {
           $maintenanceDeveloperPdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
           $maintenanceDeveloperEndpoint=new \OneId\App\Maintenance\MaintenanceDeveloperAccessAdminEndpoint(
             new \OneId\App\Maintenance\MaintenanceDeveloperAccessService(
-              new \OneId\App\Maintenance\PdoMaintenanceDeveloperAccessRepository($maintenanceDeveloperPdo)
+              new \OneId\App\Maintenance\PdoMaintenanceDeveloperAccessRepository($maintenanceDeveloperPdo),
+              null,
+              oneid_admin_email_notification_callback($maintenanceDeveloperPdo)
             ),
             (string)oneid_config('ONEID_TIMEZONE','Asia/Kuala_Lumpur')
           );
@@ -1238,7 +1317,8 @@ function string_sanitize($s) {
         try {
           $cipher = new \OneId\App\Admin\SiteApiCodeCipher(\OneId\App\Auth\TotpKeyring::fromFile((string)oneid_config('ONEID_TOTP_KEYRING_PATH','')));
           $service = new \OneId\App\Admin\WebAppService($operation,$cipher);
-          echo json_encode($service->create($_POST,$_FILES['app_icon']??null,oneid_public_path('public_img'),(string)$_SESSION['login_user'],getUserIP()));
+          $result=$service->create($_POST,$_FILES['app_icon']??null,oneid_public_path('public_img'),(string)$_SESSION['login_user'],getUserIP());
+          echo json_encode(oneid_notify_application_result($operation,$result,'CREATE',(string)$_SESSION['login_user']));
         } catch (\OneId\App\Admin\WebAppManagementException $exception) {
           echo json_encode(['status'=>0,'code'=>$exception->reason,'msg'=>'Application was not created.','correlation_id'=>$exception->correlationId]);
         } catch (\Throwable $exception) {
@@ -1251,7 +1331,8 @@ function string_sanitize($s) {
       if(isset( $_POST['action_edit_app_info'])){
         try {
           $service = new \OneId\App\Admin\WebAppService($operation);
-          echo json_encode($service->update($_POST,$_FILES['app_icon']??null,oneid_public_path('public_img'),(string)$_SESSION['login_user'],getUserIP()));
+          $result=$service->update($_POST,$_FILES['app_icon']??null,oneid_public_path('public_img'),(string)$_SESSION['login_user'],getUserIP());
+          echo json_encode(oneid_notify_application_result($operation,$result,'UPDATE',(string)$_SESSION['login_user']));
         } catch (\OneId\App\Admin\WebAppManagementException $exception) {
           echo json_encode(['status'=>0,'code'=>$exception->reason,'msg'=>'Application was not updated.','correlation_id'=>$exception->correlationId]);
         }
@@ -1261,7 +1342,8 @@ function string_sanitize($s) {
         try{
           $cipher=new \OneId\App\Admin\SiteApiCodeCipher(\OneId\App\Auth\TotpKeyring::fromFile((string)oneid_config('ONEID_TOTP_KEYRING_PATH','')));
           $service=new \OneId\App\Admin\WebAppService($operation,$cipher);
-          echo json_encode($service->rotateSiteApiCode((string)($_POST['app_id']??''),(string)($_POST['change_reason']??''),(string)$_SESSION['login_user'],getUserIP()));
+          $result=$service->rotateSiteApiCode((string)($_POST['app_id']??''),(string)($_POST['change_reason']??''),(string)$_SESSION['login_user'],getUserIP());
+          echo json_encode(oneid_notify_application_result($operation,$result,'ROTATE_CREDENTIAL',(string)$_SESSION['login_user']));
         }catch(\OneId\App\Admin\WebAppManagementException $exception){
           echo json_encode(['status'=>0,'code'=>$exception->reason,'msg'=>'Site API Code was not regenerated.','correlation_id'=>$exception->correlationId]);
         }
@@ -1628,6 +1710,25 @@ function string_sanitize($s) {
                         get_class($auditException)
                     ));
                 }
+                $correlationId = bin2hex(random_bytes(8));
+                $notificationQueued = oneid_queue_sync_admin_notification(
+                    $operation,
+                    $auditMarkerRecorded ? 'SYNC_COMPLETED' : 'SYNC_WARNING',
+                    $triggeredBy,
+                    $correlationId,
+                    sprintf('operational|%s|%d', $syncSourceCode, $summary->headerId),
+                    [
+                        'Sync mode' => 'Operational',
+                        'Source' => $syncSourceCode,
+                        'Header ID' => (string) $summary->headerId,
+                        'New' => (string) $summary->new,
+                        'Updated' => (string) $summary->updated,
+                        'Deactivated' => (string) $summary->deactivated,
+                        'Reactivated' => (string) $summary->reactivated,
+                        'Audit marker' => $auditMarkerRecorded ? 'Recorded' : 'Warning: not recorded',
+                        'Correlation ID' => $correlationId,
+                    ]
+                );
                 echo json_encode([
                     'status' => 1,
                     'code' => $auditMarkerRecorded
@@ -1636,6 +1737,8 @@ function string_sanitize($s) {
                     'header_id' => $summary->headerId,
                     'source_code' => $syncSourceCode,
                     'audit_marker_recorded' => $auditMarkerRecorded,
+                    'notification_queued' => $notificationQueued,
+                    'correlation_id' => $correlationId,
                     'counts' => [
                         'New' => $summary->new,
                         'Update' => $summary->updated,
@@ -1690,11 +1793,22 @@ function string_sanitize($s) {
                     get_class($exception),
                     $diagnosticCode
                 ));
+                $notificationQueued = oneid_queue_sync_admin_notification(
+                    $operation,'SYNC_FAILED',(string) ($_SESSION['login_user'] ?? ''),
+                    $correlationId,'operational-failed|'.$correlationId,
+                    [
+                        'Sync mode' => 'Operational',
+                        'Source' => trim((string) ($_POST['sync_source_code'] ?? '')),
+                        'Diagnostic code' => $diagnosticCode,
+                        'Correlation ID' => $correlationId,
+                    ]
+                );
                 echo json_encode([
                     'status' => 0,
                     'code' => $diagnosticCode,
                     'msg' => 'Operational synchronization was not applied.',
                     'correlation_id' => $correlationId,
+                    'notification_queued' => $notificationQueued,
                 ]);
             }
       }
@@ -1756,6 +1870,25 @@ function string_sanitize($s) {
                         get_class($auditException)
                     ));
                 }
+                $correlationId = bin2hex(random_bytes(8));
+                $notificationQueued = oneid_queue_sync_admin_notification(
+                    $operation,
+                    $auditMarkerRecorded ? 'SYNC_COMPLETED' : 'SYNC_WARNING',
+                    $triggeredBy,
+                    $correlationId,
+                    sprintf('full|%s|%d', $syncSourceCode, $summary->headerId),
+                    [
+                        'Sync mode' => 'Full',
+                        'Source' => $syncSourceCode,
+                        'Header ID' => (string) $summary->headerId,
+                        'New' => (string) $summary->new,
+                        'Updated' => (string) $summary->updated,
+                        'Deactivated' => (string) $summary->deactivated,
+                        'Reactivated' => (string) $summary->reactivated,
+                        'Audit marker' => $auditMarkerRecorded ? 'Recorded' : 'Warning: not recorded',
+                        'Correlation ID' => $correlationId,
+                    ]
+                );
                 echo json_encode([
                     'status' => 1,
                     'code' => $auditMarkerRecorded
@@ -1764,6 +1897,8 @@ function string_sanitize($s) {
                     'header_id' => $summary->headerId,
                     'source_code' => $syncSourceCode,
                     'audit_marker_recorded' => $auditMarkerRecorded,
+                    'notification_queued' => $notificationQueued,
+                    'correlation_id' => $correlationId,
                     'counts' => [
                         'New' => $summary->new,
                         'Update' => $summary->updated,
@@ -1809,11 +1944,22 @@ function string_sanitize($s) {
                     get_class($exception),
                     $diagnosticCode
                 ));
+                $notificationQueued = oneid_queue_sync_admin_notification(
+                    $operation,'SYNC_FAILED',(string) ($_SESSION['login_user'] ?? ''),
+                    $correlationId,'full-failed|'.$correlationId,
+                    [
+                        'Sync mode' => 'Full',
+                        'Source' => trim((string) ($_POST['sync_source_code'] ?? '')),
+                        'Diagnostic code' => $diagnosticCode,
+                        'Correlation ID' => $correlationId,
+                    ]
+                );
                 echo json_encode([
                     'status' => 0,
                     'code' => $diagnosticCode,
                     'msg' => 'Full synchronization was not applied.',
                     'correlation_id' => $correlationId,
+                    'notification_queued' => $notificationQueued,
                 ]);
             }
       }
@@ -1855,11 +2001,28 @@ function string_sanitize($s) {
                     ),
                     getUserIP()
                 );
+                $correlationId = bin2hex(random_bytes(8));
+                $notificationQueued = oneid_queue_sync_admin_notification(
+                    $operation,'SYNC_COMPLETED',$triggeredBy,$correlationId,
+                    sprintf('pilot|%s|%d', $syncSourceCode, $summary->headerId),
+                    [
+                        'Sync mode' => 'Pilot',
+                        'Source' => $syncSourceCode,
+                        'Header ID' => (string) $summary->headerId,
+                        'New' => (string) $summary->new,
+                        'Updated' => (string) $summary->updated,
+                        'Deactivated' => (string) $summary->deactivated,
+                        'Reactivated' => (string) $summary->reactivated,
+                        'Correlation ID' => $correlationId,
+                    ]
+                );
                 echo json_encode([
                     'status' => 1,
                     'code' => 'SYNC_APPLY_COMPLETED',
                     'header_id' => $summary->headerId,
                     'source_code' => $syncSourceCode,
+                    'notification_queued' => $notificationQueued,
+                    'correlation_id' => $correlationId,
                     'counts' => [
                         'New' => $summary->new,
                         'Update' => $summary->updated,
@@ -1914,11 +2077,22 @@ function string_sanitize($s) {
                         $diagnosticCode
                     ));
                 }
+                $notificationQueued = oneid_queue_sync_admin_notification(
+                    $operation,'SYNC_FAILED',(string) ($_SESSION['login_user'] ?? ''),
+                    $correlationId,'pilot-failed|'.$correlationId,
+                    [
+                        'Sync mode' => 'Pilot',
+                        'Source' => trim((string) ($_POST['sync_source_code'] ?? '')),
+                        'Diagnostic code' => $diagnosticCode,
+                        'Correlation ID' => $correlationId,
+                    ]
+                );
                 echo json_encode([
                     'status' => 0,
                     'code' => $diagnosticCode,
                     'msg' => 'External sync was not applied.',
                     'correlation_id' => $correlationId,
+                    'notification_queued' => $notificationQueued,
                 ]);
             }
       }
@@ -2184,11 +2358,12 @@ function string_sanitize($s) {
       if(isset( $_POST['action_remove_app'])){
         try {
           $service = new \OneId\App\Admin\WebAppService($operation);
-          echo json_encode($service->archive(
+          $result=$service->archive(
             (string) ($_POST['app_id'] ?? ''),
             (string) $_SESSION['login_user'],
             getUserIP()
-          ));
+          );
+          echo json_encode(oneid_notify_application_result($operation,$result,'ARCHIVE',(string)$_SESSION['login_user']));
         } catch (\OneId\App\Admin\WebAppManagementException $exception) {
           echo json_encode([
             'status'=>0,
@@ -2205,6 +2380,7 @@ function string_sanitize($s) {
           if(isset($_POST['admin_get_archived_apps']))$result=$service->archived();
           elseif(isset($_POST['admin_restore_archived_app']))$result=$service->restore((string)($_POST['app_id']??''),(string)($_POST['category_id']??''),(string)$_SESSION['login_user'],getUserIP());
           else $result=$service->purgeArchived((string)($_POST['app_id']??''),(string)($_POST['confirmation']??''),(string)($_POST['reason']??''),(string)$_SESSION['login_user'],getUserIP());
+          if(!isset($_POST['admin_get_archived_apps']))$result=oneid_notify_application_result($operation,$result,isset($_POST['admin_restore_archived_app'])?'RESTORE':'PURGE',(string)$_SESSION['login_user']);
           echo json_encode($result);
         }catch(\OneId\App\Admin\WebAppManagementException $exception){echo json_encode(['status'=>0,'code'=>$exception->reason,'correlation_id'=>$exception->correlationId,'context'=>$exception->context]);}
       }
@@ -2241,7 +2417,7 @@ function string_sanitize($s) {
             return;
           }
           unset($_SESSION['sso_policy_preview']);
-          $service = new \OneId\App\Admin\SsoConfigurationService($operation);
+          $service = new \OneId\App\Admin\SsoConfigurationService($operation,oneid_admin_email_notification_operation_callback($operation));
           echo json_encode($service->update(
             $_POST,
             (string) $_SESSION['login_user'],

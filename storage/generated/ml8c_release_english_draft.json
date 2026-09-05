@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2104-CHANGELOG-20260905-01",
+    "authorization": "ONEID-V2110-CHANGELOG-20260905-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.11.0",
+            "version": "2.11.0",
+            "date": "2026-09-05",
+            "items": [
+                {
+                    "identity": "release:2.11.0:item:001",
+                    "bm": "Admin Email Notification menyediakan transactional outbox dan sejarah delivery immutable supaya tindakan pentadbiran tidak bergantung pada kejayaan SMTP secara langsung.",
+                    "en_draft": "Admin Email Notification provides a transactional outbox and immutable delivery history so administrative actions do not depend directly on SMTP success.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.0:item:002",
+                    "bm": "Routing e-mel menggunakan mod OFF, PILOT dan LIVE yang fail-closed; ujian staging dipaksa kepada akaun pilot manakala penghantaran pengguna sebenar memerlukan kelulusan LIVE berasingan.",
+                    "en_draft": "E-mail routing uses fail-closed OFF, PILOT and LIVE modes; staging tests are forced to the pilot account while real-user delivery requires separate LIVE approval.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.0:item:003",
+                    "bm": "Worker CLI berhad memproses penghantaran, retry dan terminal failure secara idempotent dengan correlation ID, attempt history serta perlindungan recipient mismatch.",
+                    "en_draft": "A bounded CLI worker handles delivery, retry and terminal failure idempotently with correlation IDs, attempt history and recipient-mismatch protection.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.0:item:004",
+                    "bm": "Reset kata laluan, deactivate atau reactivate akaun, perubahan ACL dan session revoke kini menghasilkan notifikasi keselamatan tanpa mendedahkan kata laluan, token atau session identifier mentah.",
+                    "en_draft": "Password reset, account deactivate or reactivate, ACL changes and session revocation now generate security notifications without exposing passwords, tokens or raw session identifiers.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.0:item:005",
+                    "bm": "Grant, revoke dan auto-expiry bagi pengecualian MFA serta Developer Maintenance Access disambungkan kepada outbox dengan event lifecycle yang berasingan.",
+                    "en_draft": "Grant, revoke and automatic expiry for MFA exemptions and Developer Maintenance Access are connected to the outbox using distinct lifecycle events.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.0:item:006",
+                    "bm": "Worker auto-expiry MFA memilih rekod aktif yang benar-benar tamat secara bounded dan row-locked, lalu merekod status, audit dan notifikasi dalam transaksi yang sama.",
+                    "en_draft": "The MFA auto-expiry worker selects only genuinely expired active records using bounded row locking, then records status, audit and notification in the same transaction.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.0:item:007",
+                    "bm": "Perubahan Maintenance Mode, polisi SSO, password recovery, global MFA dan category MFA kini menghantar ringkasan konfigurasi yang selamat kepada penerima operasi.",
+                    "en_draft": "Maintenance Mode, SSO policy, password recovery, global MFA and category MFA changes now send safe configuration summaries to operational recipients.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.0:item:008",
+                    "bm": "External Sync pilot, full dan operational menghasilkan notifikasi completed, warning atau failed dengan jumlah agregat dan correlation ID tanpa membawa identiti atau row sumber.",
+                    "en_draft": "Pilot, full and operational External Sync paths generate completed, warning or failed notifications with aggregate counts and correlation IDs but no identities or source rows.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.0:item:009",
+                    "bm": "Perubahan aplikasi, Login Banner, bahasa lalai dan metadata dwibahasa kini diliputi, sementara operasi baca serta keputusan tiada perubahan tidak menghasilkan e-mel.",
+                    "en_draft": "Application, Login Banner, default-language and bilingual-metadata changes are covered, while read operations and no-change outcomes generate no e-mail.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.11.0:item:010",
+                    "bm": "Template BM dan English yang dikongsi, schema additive, regression contract serta controlled UAT dan cleanup staging mengesahkan penghantaran kemas hanya kepada pilot sebelum release production.",
+                    "en_draft": "Shared BM and English templates, additive schema, regression contracts, and controlled staging UAT and cleanup verify clean pilot-only delivery before production release.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.10.4",
             "version": "2.10.4",
@@ -3048,5 +3115,5 @@
             ]
         }
     ],
-    "manifest_digest": "3f1408e5bb9d6b94e46a87cd08ef2028115bdb8c64425252a7901cf12b35ba1c"
+    "manifest_digest": "f877b92dd0ff9447cb492c1b6eedefd3946254c88544286127f0c6aa892b0e37"
 }

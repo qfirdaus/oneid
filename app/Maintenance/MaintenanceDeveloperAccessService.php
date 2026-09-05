@@ -12,14 +12,17 @@ use Throwable;
 final class MaintenanceDeveloperAccessService
 {
     private readonly \Closure $clock;
+    private readonly ?\Closure $notification;
 
     public function __construct(
         private readonly MaintenanceDeveloperAccessRepositoryInterface $repository,
-        ?callable $clock = null
+        ?callable $clock = null,
+        ?callable $notification = null
     ) {
         $this->clock = $clock === null
             ? static fn(): DateTimeImmutable => new DateTimeImmutable('now', new DateTimeZone('UTC'))
             : \Closure::fromCallable($clock);
+        $this->notification=$notification===null?null:\Closure::fromCallable($notification);
     }
 
     public function grant(
@@ -96,9 +99,14 @@ final class MaintenanceDeveloperAccessService
                 ]) !== 1) {
                     throw new MaintenanceDeveloperAccessException('MAINTENANCE_ACCESS_AUDIT_FAILED', $correlation);
                 }
+                $notificationId=$this->notification===null?null:($this->notification)(
+                    'MAINTENANCE_DEVELOPER_GRANTED',$userId,$correlation,$correlation,
+                    ['Valid from'=>$this->displayTime($from),'Valid until'=>$this->displayTime($until),'Reference'=>trim($reference)]
+                );
                 return [
                     'status' => 1, 'code' => 'MAINTENANCE_ACCESS_GRANTED',
                     'grant_id' => $grantId, 'configuration_version' => 1,
+                    'notification_queued'=>$notificationId!==null,
                     'correlation_id' => $correlation,
                 ];
             });
@@ -204,9 +212,14 @@ final class MaintenanceDeveloperAccessService
                 ]) !== 1) {
                     throw new MaintenanceDeveloperAccessException('MAINTENANCE_ACCESS_AUDIT_FAILED', $correlation);
                 }
+                $notificationId=$this->notification===null?null:($this->notification)(
+                    'MAINTENANCE_DEVELOPER_REVOKED',(string)$grant['u_id'],$correlation,$correlation,
+                    ['Action time'=>$this->displayTime($now),'Reference'=>trim($reference)]
+                );
                 return [
                     'status' => 1, 'code' => 'MAINTENANCE_ACCESS_REVOKED',
                     'grant_id' => $grantId, 'configuration_version' => $next,
+                    'notification_queued'=>$notificationId!==null,
                     'correlation_id' => $correlation,
                 ];
             });
@@ -250,6 +263,7 @@ final class MaintenanceDeveloperAccessService
     private function expireLocked(array $grant, DateTimeImmutable $now, string $reference, string $ip): void
     {
         $version = (int) $grant['configuration_version'];
+        $expiryCorrelation=bin2hex(random_bytes(16));
         if ($this->repository->expireGrantVersioned(
             (int) $grant['grant_id'], $version, $now->format('Y-m-d H:i:s.u')
         ) !== 1 || $this->repository->recordHistory([
@@ -258,11 +272,15 @@ final class MaintenanceDeveloperAccessService
             'configuration_version_before' => $version,
             'configuration_version_after' => $version + 1,
             'change_reason' => 'Grant expired automatically before replacement',
-            'change_reference' => $reference, 'correlation_id' => bin2hex(random_bytes(16)),
+            'change_reference' => $reference, 'correlation_id' => $expiryCorrelation,
             'source_ip' => $ip,
         ]) !== 1) {
             throw new MaintenanceDeveloperAccessException('MAINTENANCE_ACCESS_EXPIRY_FAILED');
         }
+        if($this->notification!==null)($this->notification)(
+            'MAINTENANCE_DEVELOPER_EXPIRED',(string)$grant['u_id'],$expiryCorrelation,$expiryCorrelation,
+            ['Valid until'=>$this->displayTime(new DateTimeImmutable((string)$grant['valid_until'],new DateTimeZone('UTC'))),'Reference'=>$reference]
+        );
     }
 
     private function assertSchemaAvailable(string $correlation): void
@@ -306,5 +324,11 @@ final class MaintenanceDeveloperAccessService
             throw new MaintenanceDeveloperAccessException('MAINTENANCE_ACCESS_TIME_INVALID', $correlation);
         }
         return $date;
+    }
+
+    private function displayTime(DateTimeImmutable $value): string
+    {
+        return $value->setTimezone(new DateTimeZone((string)\oneid_config('ONEID_TIMEZONE','Asia/Kuala_Lumpur')))
+            ->format('d M Y, h:i A T');
     }
 }
