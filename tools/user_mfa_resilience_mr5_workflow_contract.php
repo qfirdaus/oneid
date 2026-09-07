@@ -17,4 +17,5 @@ $checks=[
 'legacy_mutation_closed'=>!str_contains($security,"'admin_update_user_mfa_global_policy'")&&!str_contains($route,"isset(\$_POST['admin_update_user_mfa_global_policy'])"),
 'stepup_draft_resume'=>str_contains($js,'oneid_user_mfa_workflow')&&str_contains($js,"configuration_user_mfa_security")&&str_contains($js,'state.resume=true')&&str_contains($js,'!state.resumeScheduled')&&str_contains($js,'state.resumeScheduled=true;clear()'),
 'professional_review'=>str_contains($js,'oneid-policy-review')&&str_contains($js,'oneidApplyProfessionalAlertLayout'),
+'mode_selection_guidance'=>str_contains($ui,'user_mfa_mode_hint')&&str_contains($js,'modeHints')&&str_contains($js,'Penguatkuasaan penuh')&&str_contains($js,'User MFA dimatikan sepenuhnya')&&str_contains($js,'Maintenance MFA dan Admin Step-Up tidak dimatikan'),
 ];$failed=0;foreach($checks as$n=>$ok){echo($ok?'PASS ':'FAIL ').$n.PHP_EOL;if(!$ok)$failed++;}echo 'RESULT checks='.count($checks).' failed='.$failed.PHP_EOL;exit($failed?1:0);

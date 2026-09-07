@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2121-CHANGELOG-20260908-01",
+    "authorization": "ONEID-V2122-CHANGELOG-20260908-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.12.2",
+            "version": "2.12.2",
+            "date": "2026-09-08",
+            "items": [
+                {
+                    "identity": "release:2.12.2:item:001",
+                    "bm": "Pilihan Mode operasi User MFA kini memaparkan penerangan dinamik terus di bawah senarai pilihan.",
+                    "en_draft": "The User MFA operating-mode selector now displays dynamic guidance directly below the list.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.2:item:002",
+                    "bm": "Mode ENFORCED ditandakan sebagai penguatkuasaan penuh dan pilihan operasi normal yang disyorkan.",
+                    "en_draft": "ENFORCED is identified as full enforcement and the recommended normal operating mode.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.2:item:003",
+                    "bm": "Penerangan ENFORCED menjelaskan bahawa pengguna layak perlu melengkapkan OTP e-mel atau Microsoft Authenticator selepas kata laluan.",
+                    "en_draft": "The ENFORCED guidance explains that eligible users must complete e-mail OTP or Microsoft Authenticator after their password.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.2:item:004",
+                    "bm": "PILOT_ENFORCED menerangkan bahawa hanya akaun pilot menerima cabaran User MFA manakala pengguna lain menggunakan password-only.",
+                    "en_draft": "PILOT_ENFORCED explains that only pilot accounts receive a User MFA challenge while other users use password-only sign-in.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.2:item:005",
+                    "bm": "ENROLLMENT menjelaskan bahawa login ialah password-only tetapi User Security dan pengurusan Authenticator masih tersedia.",
+                    "en_draft": "ENROLLMENT explains that sign-in is password-only while User Security and Authenticator management remain available.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.2:item:006",
+                    "bm": "EMERGENCY_BYPASS menerangkan tempoh sementara, auto-restore serta keperluan Administrator kedua bagi empat atau lapan jam.",
+                    "en_draft": "EMERGENCY_BYPASS explains its temporary duration, automatic restoration and second-Administrator requirement for four or eight hours.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.2:item:007",
+                    "bm": "OFF menggunakan amaran kritikal yang menjelaskan login password-only dan User Security MFA tidak boleh digunakan.",
+                    "en_draft": "OFF uses a critical warning explaining password-only sign-in and that MFA User Security becomes unavailable.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.2:item:008",
+                    "bm": "Penerangan OFF turut menegaskan faktor sedia ada dipelihara serta Maintenance MFA dan Admin Step-Up kekal aktif.",
+                    "en_draft": "The OFF guidance also confirms that existing factors are preserved and Maintenance MFA plus Admin Step-Up remain active.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.2:item:009",
+                    "bm": "Warna hijau, biru, kuning dan merah membantu Administrator mengenal pasti tahap keselamatan mode sebelum menyimpan.",
+                    "en_draft": "Green, blue, yellow and red treatments help Administrators identify each mode security level before saving.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.2:item:010",
+                    "bm": "Hint mempunyai status aksesibel, paparan responsif serta kandungan Bahasa Melayu dan English berdasarkan bahasa UI.",
+                    "en_draft": "The hint provides an accessible status, responsive presentation and Malay or English content according to the UI language.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.12.1",
             "version": "2.12.1",
@@ -3316,5 +3383,5 @@
             ]
         }
     ],
-    "manifest_digest": "22c2e2b2740bffabfa5740481dcbf6ac3c86db159c98dbdad16c32b443038231"
+    "manifest_digest": "4f0a92246b055a4d09a9d4db2a979df9be7ea739d5c42475d4b0c5e496dc9822"
 }

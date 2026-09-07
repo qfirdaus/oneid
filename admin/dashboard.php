@@ -1899,7 +1899,7 @@
                                                                <div class="sso-config-body">
                                                                   <div class="sso-config-row">
                                                                      <div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="user_mfa_target_mode">Mode operasi User MFA</label><p>Pilih tahap penguatkuasaan. Runtime production kekal sebagai had keselamatan maksimum.</p></div></div>
-                                                                     <div class="sso-config-control"><select class="form-control" id="user_mfa_target_mode"><option value="ENFORCED">Enforced</option><option value="PILOT_ENFORCED">Pilot enforced</option><option value="ENROLLMENT">Enrollment only</option><option value="EMERGENCY_BYPASS">Emergency bypass</option><option value="OFF">Off</option></select></div>
+                                                                     <div class="sso-config-control"><select class="form-control" id="user_mfa_target_mode"><option value="ENFORCED">Enforced</option><option value="PILOT_ENFORCED">Pilot enforced</option><option value="ENROLLMENT">Enrollment only</option><option value="EMERGENCY_BYPASS">Emergency bypass</option><option value="OFF">Off</option></select><div id="user_mfa_mode_hint" class="user-mfa-mode-hint" role="status" aria-live="polite"></div></div>
                                                                   </div>
                                                                   <div class="sso-config-note"><i class="fa fa-info-circle"></i><p id="user_mfa_global_status" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_policy'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                                   <div id="user_mfa_weak_mode_banner" class="sso-config-note sso-config-note-warning" hidden></div>
@@ -6887,7 +6887,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
   renderReleaseNotes();
       </script>
       <script
-         src="../assetsM/js/user-mfa-admin-policy.js?v=20260908-8"
+         src="../assetsM/js/user-mfa-admin-policy.js?v=20260908-9"
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"></script>
       <script

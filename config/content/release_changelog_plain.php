@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.12.2' =>
+  array (
+    'version' => '2.12.2',
+    'date' => '2026-09-08',
+    'bm' =>
+    array (
+      0 => 'Pilihan Mode operasi User MFA kini memaparkan penerangan dinamik terus di bawah senarai pilihan.',
+      1 => 'Mode ENFORCED ditandakan sebagai penguatkuasaan penuh dan pilihan operasi normal yang disyorkan.',
+      2 => 'Penerangan ENFORCED menjelaskan bahawa pengguna layak perlu melengkapkan OTP e-mel atau Microsoft Authenticator selepas kata laluan.',
+      3 => 'PILOT_ENFORCED menerangkan bahawa hanya akaun pilot menerima cabaran User MFA manakala pengguna lain menggunakan password-only.',
+      4 => 'ENROLLMENT menjelaskan bahawa login ialah password-only tetapi User Security dan pengurusan Authenticator masih tersedia.',
+      5 => 'EMERGENCY_BYPASS menerangkan tempoh sementara, auto-restore serta keperluan Administrator kedua bagi empat atau lapan jam.',
+      6 => 'OFF menggunakan amaran kritikal yang menjelaskan login password-only dan User Security MFA tidak boleh digunakan.',
+      7 => 'Penerangan OFF turut menegaskan faktor sedia ada dipelihara serta Maintenance MFA dan Admin Step-Up kekal aktif.',
+      8 => 'Warna hijau, biru, kuning dan merah membantu Administrator mengenal pasti tahap keselamatan mode sebelum menyimpan.',
+      9 => 'Hint mempunyai status aksesibel, paparan responsif serta kandungan Bahasa Melayu dan English berdasarkan bahasa UI.',
+    ),
+    'en' =>
+    array (
+      0 => 'The User MFA operating-mode selector now displays dynamic guidance directly below the list.',
+      1 => 'ENFORCED is identified as full enforcement and the recommended normal operating mode.',
+      2 => 'The ENFORCED guidance explains that eligible users must complete e-mail OTP or Microsoft Authenticator after their password.',
+      3 => 'PILOT_ENFORCED explains that only pilot accounts receive a User MFA challenge while other users use password-only sign-in.',
+      4 => 'ENROLLMENT explains that sign-in is password-only while User Security and Authenticator management remain available.',
+      5 => 'EMERGENCY_BYPASS explains its temporary duration, automatic restoration and second-Administrator requirement for four or eight hours.',
+      6 => 'OFF uses a critical warning explaining password-only sign-in and that MFA User Security becomes unavailable.',
+      7 => 'The OFF guidance also confirms that existing factors are preserved and Maintenance MFA plus Admin Step-Up remain active.',
+      8 => 'Green, blue, yellow and red treatments help Administrators identify each mode security level before saving.',
+      9 => 'The hint provides an accessible status, responsive presentation and Malay or English content according to the UI language.',
+    ),
+  ),
   'release-2.12.1' =>
   array (
     'version' => '2.12.1',
