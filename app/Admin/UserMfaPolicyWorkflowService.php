@@ -95,7 +95,8 @@ final class UserMfaPolicyWorkflowService
             $grace = $strategy === 'GRACE' ? (string)$clock['grace_time_value'] : null;
             $expires = $target === 'EMERGENCY_BYPASS' ? (string)$clock['expiry_time_value'] : null;
             $restore = $target === 'EMERGENCY_BYPASS' ? (string) $before['policy_mode'] : null;
-            $status = $this->environment === 'production' ? 'PENDING_APPROVAL' : 'APPROVED';
+            $requiresApproval = $this->requiresSeparateApproval($target, (int) $duration);
+            $status = $requiresApproval ? 'PENDING_APPROVAL' : 'APPROVED';
             $insert = $this->pdo->prepare(
                 'INSERT INTO user_mfa_policy_change_requests(environment,previous_mode,requested_mode,restore_mode,
                     transition_strategy,grace_until,starts_at,expires_at,request_status,requested_by,
@@ -110,9 +111,11 @@ final class UserMfaPolicyWorkflowService
             $requestId = (int) $this->pdo->lastInsertId();
             $result = ['status'=>1,'code'=>'USER_MFA_CHANGE_PENDING_APPROVAL','request_id'=>$requestId,
                 'request_status'=>$status,'correlation_id'=>$correlation];
-            if ($this->environment !== 'production') {
-                $digest = $this->digest($requestId);
-                $this->recordApproval($requestId, 'APPROVED', $admin, 'Staging controlled approval', (int)$version, $digest, $ipAddress);
+            if (!$requiresApproval) {
+                if ($this->environment !== 'production') {
+                    $digest = $this->digest($requestId);
+                    $this->recordApproval($requestId, 'APPROVED', $admin, 'Staging controlled approval', (int)$version, $digest, $ipAddress);
+                }
                 $result = $this->activate($requestId, $admin, $ipAddress, $correlation);
             }
             $this->audit($admin, 'request', $target, $reference, $correlation, $ipAddress);
@@ -205,6 +208,7 @@ final class UserMfaPolicyWorkflowService
     }
 
     private function policy(bool $lock): array { $r=$this->pdo->query('SELECT * FROM user_login_mfa_policy WHERE singleton_key=1'.($lock?' FOR UPDATE':''))->fetch(PDO::FETCH_ASSOC);if(!is_array($r))throw new SsoConfigurationException('USER_MFA_POLICY_UNAVAILABLE',bin2hex(random_bytes(8)));return $r; }
+    private function requiresSeparateApproval(string $target,int $duration):bool{return $this->environment==='production'&&$target==='EMERGENCY_BYPASS'&&$duration>120;}
     private function requestRow(int $id,bool $lock): array{$s=$this->pdo->prepare('SELECT * FROM user_mfa_policy_change_requests WHERE request_id=:id'.($lock?' FOR UPDATE':''));$s->execute([':id'=>$id]);$r=$s->fetch(PDO::FETCH_ASSOC);if(!is_array($r))throw new SsoConfigurationException('USER_MFA_REQUEST_NOT_FOUND',bin2hex(random_bytes(8)));return $r;}
     private function impact(): array{return ['pending_transactions'=>(int)$this->pdo->query("SELECT COUNT(*) FROM user_login_mfa_transactions WHERE transaction_status IN ('PENDING','VERIFIED')")->fetchColumn(),'pending_challenges'=>(int)$this->pdo->query("SELECT COUNT(*) FROM user_login_mfa_challenges c JOIN user_login_mfa_transactions t ON t.transaction_id=c.transaction_id WHERE t.transaction_status IN ('PENDING','VERIFIED') AND c.consumed_at IS NULL AND c.revoked_at IS NULL")->fetchColumn()];}
     private function adminId(string $id): string{$s=$this->pdo->prepare('SELECT u_id FROM user_tbl WHERE u_type=1 AND avail_status=1 AND (u_id=:a OR data2=:b OR data3=:c OR data4=:d)');$s->execute([':a'=>$id,':b'=>$id,':c'=>$id,':d'=>$id]);$r=$s->fetchAll(PDO::FETCH_COLUMN);if(count($r)!==1)throw new SsoConfigurationException('USER_MFA_WORKFLOW_ADMIN_INVALID',bin2hex(random_bytes(8)));return(string)$r[0];}

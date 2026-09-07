@@ -6887,7 +6887,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
   renderReleaseNotes();
       </script>
       <script
-         src="../assetsM/js/user-mfa-admin-policy.js?v=20260908-7"
+         src="../assetsM/js/user-mfa-admin-policy.js?v=20260908-8"
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"></script>
       <script

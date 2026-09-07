@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.12.1' =>
+  array (
+    'version' => '2.12.1',
+    'date' => '2026-09-08',
+    'bm' =>
+    array (
+      0 => 'Pertukaran User MFA production kini boleh dilakukan oleh seorang Administrator selepas fresh Admin Step-Up bagi operasi harian yang telah diluluskan.',
+      1 => 'Mode OFF, ENROLLMENT, PILOT_ENFORCED dan pemulihan kepada ENFORCED berkuat kuasa terus tanpa menunggu Administrator kedua.',
+      2 => 'Emergency Bypass 30 minit, satu jam atau dua jam turut menggunakan single-admin controlled activation dengan reason, reference dan typed confirmation.',
+      3 => 'Emergency Bypass empat atau lapan jam kekal memerlukan maker-checker serta kelulusan Administrator kedua yang berbeza.',
+      4 => 'Self-approval untuk permintaan berisiko tinggi terus ditolak di server dan approval kekal terikat kepada payload digest serta policy version.',
+      5 => 'Modal review menunjukkan dengan jelas sama ada tindakan akan terus diaplikasikan atau dihantar untuk approval berdasarkan tempoh yang dipilih.',
+      6 => 'Admin Step-Up SECURITY_CONFIGURATION_CHANGE kekal wajib bagi semua mutation tanpa mengira sama ada maker-checker diperlukan.',
+      7 => 'Lifecycle worker production telah dipasang setiap minit menggunakan host lock dan disahkan berjalan secara idempotent tanpa kerja tertangguh.',
+      8 => 'User MFA dan Maintenance MFA production kekal ENFORCED semasa deployment; patch tidak mengubah mode operasi secara automatik.',
+      9 => 'Regression contract baharu mengesahkan sempadan dua jam, single-admin path dan perlindungan maker-checker empat serta lapan jam.',
+    ),
+    'en' =>
+    array (
+      0 => 'Production User MFA changes can now be performed by one Administrator after fresh Admin Step-Up for approved routine operations.',
+      1 => 'OFF, ENROLLMENT, PILOT_ENFORCED and restoration to ENFORCED take effect immediately without waiting for a second Administrator.',
+      2 => 'Emergency Bypass for 30 minutes, one hour or two hours also uses single-admin controlled activation with reason, reference and typed confirmation.',
+      3 => 'Emergency Bypass for four or eight hours continues to require maker-checker approval by a different second Administrator.',
+      4 => 'Self-approval for high-risk requests remains rejected by the server and approval stays bound to the payload digest and policy version.',
+      5 => 'The review modal clearly states whether the action will be applied immediately or submitted for approval based on the selected duration.',
+      6 => 'SECURITY_CONFIGURATION_CHANGE Admin Step-Up remains mandatory for every mutation regardless of whether maker-checker is required.',
+      7 => 'The production lifecycle worker is scheduled every minute with a host lock and verified to run idempotently with no pending work.',
+      8 => 'Production User MFA and Maintenance MFA remain ENFORCED during deployment; the patch does not change an operating mode automatically.',
+      9 => 'A new regression contract verifies the two-hour boundary, the single-admin path and maker-checker protection for four and eight hours.',
+    ),
+  ),
   'release-2.12.0' =>
   array (
     'version' => '2.12.0',

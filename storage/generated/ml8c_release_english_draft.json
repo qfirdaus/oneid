@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2120-CHANGELOG-20260908-01",
+    "authorization": "ONEID-V2121-CHANGELOG-20260908-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.12.1",
+            "version": "2.12.1",
+            "date": "2026-09-08",
+            "items": [
+                {
+                    "identity": "release:2.12.1:item:001",
+                    "bm": "Pertukaran User MFA production kini boleh dilakukan oleh seorang Administrator selepas fresh Admin Step-Up bagi operasi harian yang telah diluluskan.",
+                    "en_draft": "Production User MFA changes can now be performed by one Administrator after fresh Admin Step-Up for approved routine operations.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.1:item:002",
+                    "bm": "Mode OFF, ENROLLMENT, PILOT_ENFORCED dan pemulihan kepada ENFORCED berkuat kuasa terus tanpa menunggu Administrator kedua.",
+                    "en_draft": "OFF, ENROLLMENT, PILOT_ENFORCED and restoration to ENFORCED take effect immediately without waiting for a second Administrator.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.1:item:003",
+                    "bm": "Emergency Bypass 30 minit, satu jam atau dua jam turut menggunakan single-admin controlled activation dengan reason, reference dan typed confirmation.",
+                    "en_draft": "Emergency Bypass for 30 minutes, one hour or two hours also uses single-admin controlled activation with reason, reference and typed confirmation.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.1:item:004",
+                    "bm": "Emergency Bypass empat atau lapan jam kekal memerlukan maker-checker serta kelulusan Administrator kedua yang berbeza.",
+                    "en_draft": "Emergency Bypass for four or eight hours continues to require maker-checker approval by a different second Administrator.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.1:item:005",
+                    "bm": "Self-approval untuk permintaan berisiko tinggi terus ditolak di server dan approval kekal terikat kepada payload digest serta policy version.",
+                    "en_draft": "Self-approval for high-risk requests remains rejected by the server and approval stays bound to the payload digest and policy version.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.1:item:006",
+                    "bm": "Modal review menunjukkan dengan jelas sama ada tindakan akan terus diaplikasikan atau dihantar untuk approval berdasarkan tempoh yang dipilih.",
+                    "en_draft": "The review modal clearly states whether the action will be applied immediately or submitted for approval based on the selected duration.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.1:item:007",
+                    "bm": "Admin Step-Up SECURITY_CONFIGURATION_CHANGE kekal wajib bagi semua mutation tanpa mengira sama ada maker-checker diperlukan.",
+                    "en_draft": "SECURITY_CONFIGURATION_CHANGE Admin Step-Up remains mandatory for every mutation regardless of whether maker-checker is required.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.1:item:008",
+                    "bm": "Lifecycle worker production telah dipasang setiap minit menggunakan host lock dan disahkan berjalan secara idempotent tanpa kerja tertangguh.",
+                    "en_draft": "The production lifecycle worker is scheduled every minute with a host lock and verified to run idempotently with no pending work.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.1:item:009",
+                    "bm": "User MFA dan Maintenance MFA production kekal ENFORCED semasa deployment; patch tidak mengubah mode operasi secara automatik.",
+                    "en_draft": "Production User MFA and Maintenance MFA remain ENFORCED during deployment; the patch does not change an operating mode automatically.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.1:item:010",
+                    "bm": "Regression contract baharu mengesahkan sempadan dua jam, single-admin path dan perlindungan maker-checker empat serta lapan jam.",
+                    "en_draft": "A new regression contract verifies the two-hour boundary, the single-admin path and maker-checker protection for four and eight hours.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.12.0",
             "version": "2.12.0",
@@ -3249,5 +3316,5 @@
             ]
         }
     ],
-    "manifest_digest": "81e6a3323ebebe4706b4780010929cead17a74679120d685939d5ef5df7d26e5"
+    "manifest_digest": "22c2e2b2740bffabfa5740481dcbf6ac3c86db159c98dbdad16c32b443038231"
 }

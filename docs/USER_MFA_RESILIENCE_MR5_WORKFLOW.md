@@ -8,8 +8,10 @@ strategi grace lima minit atau immediate revoke, tempoh Emergency Bypass antara
 30 minit hingga lapan jam, typed confirmation, change reference dan approval.
 
 Staging memproses controlled approval dalam transaksi yang sama. Production
-mencipta `PENDING_APPROVAL`; requester tidak boleh menjadi approver. Approval
-terikat kepada digest payload dan expected configuration version.
+menggunakan fresh Admin Step-Up untuk pertukaran biasa dan Emergency Bypass
+sehingga dua jam. Hanya Emergency Bypass empat atau lapan jam mencipta
+`PENDING_APPROVAL`; requester tidak boleh menjadi approver. Approval terikat
+kepada digest payload dan expected configuration version.
 
 Immediate revoke menamatkan transaksi/challenge tertangguh dan membuang hash
 OTP e-mel. Grace mengekalkan challenge sedia ada maksimum lima minit. Faktor
