@@ -1806,14 +1806,14 @@
                                                                </div>
                                                                <div class="sso-config-control sso-config-select-wrap">
                                                                   <select class="form-control" id="sso_settings_token_session_timeout">
-                                                                     <option value="0.5">30 minit</option>
-                                                                     <option value="1">1 jam</option>
-                                                                     <option value="2">2 jam</option>
-                                                                     <option value="12">12 jam</option>
-                                                                     <option value="24">1 hari</option>
-                                                                     <option value="48">2 hari</option>
-                                                                     <option value="72">3 hari</option>
-                                                                     <option value="168">1 minggu</option>
+                                                                     <option value="0.5"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_30_minutes'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                     <option value="1"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_1_hour'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                     <option value="2"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_hours', ['hours'=>2]), ENT_QUOTES, 'UTF-8')?></option>
+                                                                     <option value="12"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_hours', ['hours'=>12]), ENT_QUOTES, 'UTF-8')?></option>
+                                                                     <option value="24"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_1_day'), ENT_QUOTES, 'UTF-8')?></option>
+                                                                     <option value="48"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_days', ['days'=>2]), ENT_QUOTES, 'UTF-8')?></option>
+                                                                     <option value="72"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_days', ['days'=>3]), ENT_QUOTES, 'UTF-8')?></option>
+                                                                     <option value="168"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_1_week'), ENT_QUOTES, 'UTF-8')?></option>
                                                                   </select>
                                                                </div>
                                                             </div>
@@ -1898,16 +1898,16 @@
                                                                </div>
                                                                <div class="sso-config-body">
                                                                   <div class="sso-config-row">
-                                                                     <div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="user_mfa_target_mode">Mode operasi User MFA</label><p>Pilih tahap penguatkuasaan. Runtime production kekal sebagai had keselamatan maksimum.</p></div></div>
-                                                                     <div class="sso-config-control"><select class="form-control" id="user_mfa_target_mode"><option value="ENFORCED">Enforced</option><option value="PILOT_ENFORCED">Pilot enforced</option><option value="ENROLLMENT">Enrollment only</option><option value="EMERGENCY_BYPASS">Emergency bypass</option><option value="OFF">Off</option></select></div>
+                                                                     <div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="user_mfa_target_mode"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_mode_label'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_mode_help'), ENT_QUOTES, 'UTF-8')?></p></div></div>
+                                                                     <div class="sso-config-control"><select class="form-control" id="user_mfa_target_mode"><option value="ENFORCED"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_mode_enforced'), ENT_QUOTES, 'UTF-8')?></option><option value="PILOT_ENFORCED"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_mode_pilot'), ENT_QUOTES, 'UTF-8')?></option><option value="ENROLLMENT"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_mode_enrollment'), ENT_QUOTES, 'UTF-8')?></option><option value="EMERGENCY_BYPASS"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_mode_bypass'), ENT_QUOTES, 'UTF-8')?></option><option value="OFF"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_mode_off'), ENT_QUOTES, 'UTF-8')?></option></select></div>
                                                                   </div>
                                                                   <div id="user_mfa_mode_hint" class="user-mfa-mode-hint user-mfa-mode-hint--full" role="status" aria-live="polite"></div>
                                                                   <div class="sso-config-note"><i class="fa fa-info-circle"></i><p id="user_mfa_global_status" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_policy'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                                   <div id="user_mfa_weak_mode_banner" class="sso-config-note sso-config-note-warning" hidden></div>
-                                                                  <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="user_mfa_transition_strategy">Pending challenge</label><p>Grace memberi maksimum 5 minit; Immediate membatalkan transaksi dan OTP tertangguh serta-merta.</p></div></div><div class="sso-config-control"><select class="form-control" id="user_mfa_transition_strategy"><option value="GRACE">Grace period — 5 minit</option><option value="IMMEDIATE">Immediate revoke</option></select><select class="form-control mt-10" id="user_mfa_bypass_duration" hidden><option value="30">30 minit</option><option value="60" selected>1 jam</option><option value="120">2 jam</option><option value="240">4 jam</option><option value="480">8 jam</option></select></div></div>
+                                                                  <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="user_mfa_transition_strategy"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_pending_label'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_pending_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><select class="form-control" id="user_mfa_transition_strategy"><option value="GRACE"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_grace'), ENT_QUOTES, 'UTF-8')?></option><option value="IMMEDIATE"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_immediate'), ENT_QUOTES, 'UTF-8')?></option></select><select class="form-control mt-10" id="user_mfa_bypass_duration" hidden><option value="30"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_30_minutes'), ENT_QUOTES, 'UTF-8')?></option><option value="60" selected><?=htmlspecialchars(oneid_translate('admin.configuration.duration_1_hour'), ENT_QUOTES, 'UTF-8')?></option><option value="120"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_hours', ['hours'=>2]), ENT_QUOTES, 'UTF-8')?></option><option value="240"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_hours', ['hours'=>4]), ENT_QUOTES, 'UTF-8')?></option><option value="480"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_hours', ['hours'=>8]), ENT_QUOTES, 'UTF-8')?></option></select></div></div>
                                                                   <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">03</span><div><label for="user_mfa_global_reason"><?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.reason_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><textarea class="form-control" id="user_mfa_global_reason" maxlength="500" rows="3" placeholder="<?=htmlspecialchars(oneid_translate('admin.configuration.locale_reason_placeholder'), ENT_QUOTES, 'UTF-8')?>"></textarea></div></div>
-                                                                  <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">04</span><div><label for="user_mfa_global_reference"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_reference'), ENT_QUOTES, 'UTF-8')?></label><p><strong id="user_mfa_reference_suggestion"></strong></p></div></div><div class="sso-config-control"><input class="form-control" id="user_mfa_global_reference" maxlength="100"><button class="btn btn-default btn-sm mt-10" type="button" onclick="fillUserMfaReference();"><i class="fa fa-copy"></i> Gunakan cadangan</button></div></div>
-                                                                  <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">05</span><div><label for="user_mfa_global_confirmation"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_confirmation'), ENT_QUOTES, 'UTF-8')?></label><p><strong id="user_mfa_confirmation_suggestion"></strong></p></div></div><div class="sso-config-control"><input class="form-control" id="user_mfa_global_confirmation" autocomplete="off"><button class="btn btn-default btn-sm mt-10" type="button" onclick="fillUserMfaConfirmation();"><i class="fa fa-copy"></i> Gunakan pengesahan</button></div></div>
+                                                                  <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">04</span><div><label for="user_mfa_global_reference"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_reference'), ENT_QUOTES, 'UTF-8')?></label><p><strong id="user_mfa_reference_suggestion"></strong></p></div></div><div class="sso-config-control"><input class="form-control" id="user_mfa_global_reference" maxlength="100"><button class="btn btn-default btn-sm mt-10" type="button" onclick="fillUserMfaReference();"><i class="fa fa-copy"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_use_suggestion'), ENT_QUOTES, 'UTF-8')?></button></div></div>
+                                                                  <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">05</span><div><label for="user_mfa_global_confirmation"><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_confirmation'), ENT_QUOTES, 'UTF-8')?></label><p><strong id="user_mfa_confirmation_suggestion"></strong></p></div></div><div class="sso-config-control"><input class="form-control" id="user_mfa_global_confirmation" autocomplete="off"><button class="btn btn-default btn-sm mt-10" type="button" onclick="fillUserMfaConfirmation();"><i class="fa fa-copy"></i> <?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_use_confirmation_short'), ENT_QUOTES, 'UTF-8')?></button></div></div>
                                                                   <div id="user_mfa_open_request" class="sso-config-note sso-config-note-warning" hidden></div>
                                                                   <div class="sso-config-note sso-config-note-warning"><i class="fa fa-exclamation-triangle"></i><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_mfa_warning'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                                </div>
@@ -1921,7 +1921,7 @@
                                                                      </div>
                                                                      <div class="sso-config-body">
                                                                         <div class="sso-config-row user-2fa-exemption-search-row"><div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="user_2fa_exemption_user_search"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_user'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_user_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control user-2fa-exemption-search-control"><div class="user-2fa-exemption-live-search"><i class="fa fa-search" aria-hidden="true"></i><input class="form-control" id="user_2fa_exemption_user_search" maxlength="100" autocomplete="off" placeholder="<?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_search_placeholder'), ENT_QUOTES, 'UTF-8')?>"></div><input type="hidden" id="user_2fa_exemption_user"><div id="user_2fa_exemption_candidate_results" class="list-group mt-10"></div><p id="user_2fa_exemption_selected_status" class="help-block" role="status" aria-live="polite"></p></div></div>
-                                                                        <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="user_2fa_exemption_duration"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_duration'), ENT_QUOTES, 'UTF-8')?></label></div></div><div class="sso-config-control"><select class="form-control user-2fa-exemption-setting" id="user_2fa_exemption_duration" disabled><option value="1">1 jam / hour</option><option value="4">4 jam / hours</option><option value="8">8 jam / hours</option><option value="24">24 jam / hours</option><option value="72">72 jam / hours (maximum)</option></select></div></div>
+                                                                        <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="user_2fa_exemption_duration"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_duration'), ENT_QUOTES, 'UTF-8')?></label></div></div><div class="sso-config-control"><select class="form-control user-2fa-exemption-setting" id="user_2fa_exemption_duration" disabled><option value="1"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_1_hour'), ENT_QUOTES, 'UTF-8')?></option><option value="4"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_hours', ['hours'=>4]), ENT_QUOTES, 'UTF-8')?></option><option value="8"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_hours', ['hours'=>8]), ENT_QUOTES, 'UTF-8')?></option><option value="24"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_hours', ['hours'=>24]), ENT_QUOTES, 'UTF-8')?></option><option value="72"><?=htmlspecialchars(oneid_translate('admin.configuration.duration_hours_maximum', ['hours'=>72]), ENT_QUOTES, 'UTF-8')?></option></select></div></div>
                                                                         <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">03</span><div><label for="user_2fa_exemption_reason"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_reason'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_reason_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><select class="form-control user-2fa-exemption-setting" id="user_2fa_exemption_reason" disabled><option value=""><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_reason_placeholder'), ENT_QUOTES, 'UTF-8')?></option><option value="PHONE_LOST"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_reason_lost'), ENT_QUOTES, 'UTF-8')?></option><option value="PHONE_DAMAGED"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_reason_damaged'), ENT_QUOTES, 'UTF-8')?></option><option value="PHONE_REPAIR"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_reason_repair'), ENT_QUOTES, 'UTF-8')?></option><option value="NEW_PHONE"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_reason_new_phone'), ENT_QUOTES, 'UTF-8')?></option><option value="AUTHENTICATOR_REENROLL"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_reason_reenroll'), ENT_QUOTES, 'UTF-8')?></option><option value="EMAIL_OTP"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_reason_email_otp'), ENT_QUOTES, 'UTF-8')?></option><option value="EMAIL_ACCESS"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_reason_email_access'), ENT_QUOTES, 'UTF-8')?></option><option value="OFFICIAL_ASSIGNMENT"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_reason_assignment'), ENT_QUOTES, 'UTF-8')?></option><option value="OPERATIONAL_EMERGENCY"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_reason_emergency'), ENT_QUOTES, 'UTF-8')?></option><option value="OTHER"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_reason_other'), ENT_QUOTES, 'UTF-8')?></option></select><div id="user_2fa_exemption_other_wrap" class="hidden mt-10"><label class="sr-only" for="user_2fa_exemption_other"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_other'), ENT_QUOTES, 'UTF-8')?></label><textarea class="form-control user-2fa-exemption-setting" id="user_2fa_exemption_other" maxlength="500" rows="2" placeholder="<?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_other'), ENT_QUOTES, 'UTF-8')?>" disabled></textarea><p id="user_2fa_exemption_other_error" class="help-block text-danger" role="alert"></p></div></div></div>
                                                                         <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">04</span><div><label><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_review'), ENT_QUOTES, 'UTF-8')?></label><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_review_help'), ENT_QUOTES, 'UTF-8')?></p></div></div><div class="sso-config-control"><div class="alert alert-info" id="user_2fa_exemption_review" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_review_ready'), ENT_QUOTES, 'UTF-8')?></div></div></div>
                                                                         <div class="sso-config-note sso-config-note-warning"><i class="fa fa-exclamation-triangle"></i><p><?=htmlspecialchars(oneid_translate('admin.configuration.user_2fa_exemption_warning'), ENT_QUOTES, 'UTF-8')?></p></div>
@@ -2906,6 +2906,25 @@
          
          var ssoConfigOriginal = null;
          var ssoConfigSaving = false;
+         var ssoConfigResumeAfterStepUp=<?=json_encode(($_GET['step_up_return'] ?? '') === 'configuration_authentication')?>;
+
+         function storeSsoConfigDraft(current,changeReason){
+            try{sessionStorage.setItem('oneid_sso_config_step_up_draft',JSON.stringify({token_timeout:current.token_timeout,multi_session:current.multi_session,change_reason:changeReason}));}catch(ignore){}
+         }
+
+         function clearSsoConfigDraft(){
+            try{sessionStorage.removeItem('oneid_sso_config_step_up_draft');}catch(ignore){}
+         }
+
+         function restoreSsoConfigDraftAfterStepUp(){
+            var draft=null;
+            try{draft=JSON.parse(sessionStorage.getItem('oneid_sso_config_step_up_draft')||'null');}catch(ignore){}
+            if(!draft||!draft.token_timeout)return;
+            $('#sso_settings_token_session_timeout').val(String(draft.token_timeout));
+            $('#sso_settings_multi_session').prop('checked',String(draft.multi_session)==='1');
+            $('#sso_config_change_reason').val(String(draft.change_reason||''));
+            setTimeout(update_configuration,120);
+         }
 
          function ssoConfigValues(){
             return {
@@ -2916,7 +2935,7 @@
 
          function ssoConfigTimeoutLabel(value){
             var option = $('#sso_settings_token_session_timeout option[value="' + value + '"]');
-            return option.length ? option.text() : value + ' jam';
+            return option.length ? option.text() : adminText('admin.configuration.duration_hours',{hours:value});
          }
 
          function ssoConfigChangeSummary(current){
@@ -2925,10 +2944,10 @@
                return changes;
             }
             if (current.token_timeout !== ssoConfigOriginal.token_timeout) {
-               changes.push('SSO token lifetime: ' + ssoConfigTimeoutLabel(ssoConfigOriginal.token_timeout) + ' -> ' + ssoConfigTimeoutLabel(current.token_timeout));
+               changes.push(adminText('admin.configuration.sso_timeout_change',{before:ssoConfigTimeoutLabel(ssoConfigOriginal.token_timeout),after:ssoConfigTimeoutLabel(current.token_timeout)}));
             }
             if (current.multi_session !== ssoConfigOriginal.multi_session) {
-               changes.push('Multiple active SSO tokens: ' + (ssoConfigOriginal.multi_session === '1' ? 'Allowed' : 'Not allowed') + ' -> ' + (current.multi_session === '1' ? 'Allowed' : 'Not allowed'));
+               changes.push(adminText('admin.configuration.sso_multi_change',{before:adminText(ssoConfigOriginal.multi_session === '1'?'admin.configuration.allowed':'admin.configuration.not_allowed'),after:adminText(current.multi_session === '1'?'admin.configuration.allowed':'admin.configuration.not_allowed')}));
             }
             return changes;
          }
@@ -2954,15 +2973,15 @@
                            ssoConfigOriginal = null;
                            $('#sso_config_save_button').prop('disabled', true).attr('aria-busy', 'false');
                            $('#sso_config_save_label').text(adminText('admin.configuration.unavailable'));
-                           var loadReference = response && response.correlation_id ? '\nReference: ' + response.correlation_id : '';
+                           var loadReference = response && response.correlation_id ? '\n' + adminText('admin.configuration.reference',{reference:response.correlation_id}) : '';
                            $('#sso_config_operational_status').text(adminText('admin.configuration.load_failed'));
-                           swal('Settings unavailable', 'The server rejected or could not complete the load request.' + loadReference, 'error');
+                           swal(adminText('admin.configuration.settings_unavailable_title'), adminText('admin.configuration.load_rejected') + loadReference, 'error');
                            return;
                         }
                         var lastChanged=response.last_changed||null;
                         response = response.data;
                         ssoConfigVersion=Number(response.configuration_version||0);
-                        $('#sso_config_last_changed').text(lastChanged?'Last changed by '+lastChanged.actor_id+' at '+lastChanged.created_at+' (revision '+lastChanged.configuration_version_after+').':'No recorded configuration change.');
+                        $('#sso_config_last_changed').text(lastChanged?adminText('admin.configuration.last_changed',{actor:lastChanged.actor_id,time:lastChanged.created_at,revision:lastChanged.configuration_version_after}):adminText('admin.configuration.no_history'));
                         loadSsoConfigHistory(1);
                         var time_out = Number(response['token_timeout']);
                      	switch(time_out){
@@ -3006,13 +3025,14 @@
                         ssoConfigOriginal = ssoConfigValues();
                         setSsoConfigSaving(false);
                         $('#sso_config_operational_status').text(adminText('admin.configuration.loaded'));
+                        if(ssoConfigResumeAfterStepUp){ssoConfigResumeAfterStepUp=false;restoreSsoConfigDraftAfterStepUp();}
                      },
                      error: function (xhr, error, thrown) {
                         ssoConfigOriginal = null;
                         $('#sso_config_save_button').prop('disabled', true).attr('aria-busy', 'false');
                         $('#sso_config_save_label').text(adminText('admin.configuration.unavailable'));
                         $('#sso_config_operational_status').text(adminText('admin.configuration.load_failed') + ' HTTP ' + xhr.status + '.');
-                        swal('Settings unavailable', 'The current policy could not be loaded. No changes have been made.\nHTTP status: ' + xhr.status, 'error');
+                        swal(adminText('admin.configuration.settings_unavailable_title'), adminText('admin.configuration.load_failed')+'\nHTTP: '+xhr.status, 'error');
                      }
                  });
          }
@@ -3063,10 +3083,10 @@
             }
             var warning = '';
             if (Number(current.token_timeout) >= 168) {
-               warning += '\n\nWarning: the selected token lifetime is one week.';
+               warning += '\n\n'+adminText('admin.configuration.one_week_warning');
             }
             setSsoConfigSaving(true);
-            $('#sso_config_operational_status').text('Calculating affected users and tokens...');
+            $('#sso_config_operational_status').text(adminText('admin.configuration.calculating_impact'));
             $.ajax({
                type:'POST',url:'../lib/q_func',dataType:'json',
                data:{preview_configuration_update:'',sso_settings_multi_session:current.multi_session,token_timeout:current.token_timeout,change_reason:changeReason},
@@ -3076,41 +3096,57 @@
                      return;
                   }
                   var impact=preview.impact||{};
-                  swal({title:adminText('admin.configuration.save_review'),text:changes.join('\n')+warning+'\n\nAffected users: '+Number(impact.affected_users||0)+'\nAffected tokens: '+Number(impact.affected_tokens||0)+'\nGrace period: 15 minutes',type:'warning',showCancelButton:true,confirmButtonColor:'#11a8df',confirmButtonText:adminText('admin.configuration.save_policy'),cancelButtonText:adminText('admin.configuration.cancel'),closeOnConfirm:false},function(){
+                  swal({title:adminText('admin.configuration.save_review'),text:changes.join('\n')+warning+'\n\n'+adminText('admin.configuration.affected_users',{count:Number(impact.affected_users||0)})+'\n'+adminText('admin.configuration.affected_tokens',{count:Number(impact.affected_tokens||0)})+'\n'+adminText('admin.configuration.grace_period'),type:'warning',showCancelButton:true,confirmButtonColor:'#11a8df',confirmButtonText:adminText('admin.configuration.save_policy'),cancelButtonText:adminText('admin.configuration.cancel'),closeOnConfirm:false},function(){
                      submitSsoConfigUpdate(current,preview.preview_id,preview.configuration_version,changeReason);
                   });
                },
-               error:function(xhr){swal(adminText('admin.configuration.preview_failed'),adminText('admin.configuration.no_changes')+' HTTP '+xhr.status+'.','error');},
+               error:function(xhr){
+                  var code=xhr.responseJSON&&xhr.responseJSON.code?String(xhr.responseJSON.code):'';
+                  if(xhr.status===403&&code.indexOf('STEP_UP')===0){
+                     storeSsoConfigDraft(current,changeReason);
+                     window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=configuration_authentication';
+                     return;
+                  }
+                  swal(adminText('admin.configuration.preview_failed'),adminText('admin.configuration.no_changes')+' HTTP '+xhr.status+(code?'\nCode: '+code:'')+'.','error');
+               },
                complete:function(){setSsoConfigSaving(false);}
             });
          }
 
          function submitSsoConfigUpdate(current,previewId,configurationVersion,changeReason){
             setSsoConfigSaving(true);
-            $('#sso_config_operational_status').text('Saving policy. Do not close this page.');
+            $('#sso_config_operational_status').text(adminText('admin.configuration.saving_policy_notice'));
             $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',
                data:{update_configuration:'',policy_preview_id:previewId,sso_settings_multi_session:current.multi_session,token_timeout:current.token_timeout,configuration_version:configurationVersion,change_reason:changeReason},
                      success: function (response) {
                         if(response && Number(response.status) === 1 && response.code === 'SC2_CONFIG_UPDATED'){
+                           clearSsoConfigDraft();
                            ssoConfigOriginal = current;
                            ssoConfigVersion=Number(response.data&&response.data.configuration_version||configurationVersion+1);$('#sso_config_change_reason').val('');admin_get_settings();
                            var enforcement=response.enforcement||{};
-                           $('#sso_config_operational_status').text('Policy saved. Scheduled tokens: '+Number(enforcement.scheduled_tokens||0)+(enforcement.revoke_at?' at '+enforcement.revoke_at:'.'));
-                           swal(adminText('admin.configuration.policy_saved'), 'Scheduled tokens: '+Number(enforcement.scheduled_tokens||0)+'\nGrace period: 15 minutes\nReference: ' + response.correlation_id, 'success');
+                           $('#sso_config_operational_status').text(adminText('admin.configuration.scheduled_tokens',{count:Number(enforcement.scheduled_tokens||0)})+(enforcement.revoke_at?' · '+enforcement.revoke_at:''));
+                           swal(adminText('admin.configuration.policy_saved'), adminText('admin.configuration.scheduled_tokens',{count:Number(enforcement.scheduled_tokens||0)})+'\n'+adminText('admin.configuration.grace_period')+'\n'+adminText('admin.configuration.reference',{reference:response.correlation_id}), 'success');
                         }else if(response && Number(response.status) === 1 && response.code === 'SC2_CONFIG_UNCHANGED'){
+                           clearSsoConfigDraft();
                            ssoConfigOriginal = current;
-                           $('#sso_config_operational_status').text('No database value changed; the saved policy already matched the selection.');
+                           $('#sso_config_operational_status').text(adminText('admin.configuration.no_database_change'));
                            swal(adminText('admin.configuration.no_changes'), adminText('admin.configuration.no_changes')+'\nReference: ' + response.correlation_id, 'info');
                         }else{
                            var errorCode = response && response.code ? response.code : 'SC2_RESPONSE_INVALID';
                            var errorReference = response && response.correlation_id ? response.correlation_id : 'Unavailable';
-                           $('#sso_config_operational_status').text('Policy was not saved. Code: ' + errorCode + '.');
+                           $('#sso_config_operational_status').text(adminText('admin.configuration.not_saved_code',{code:errorCode}));
                            swal(adminText('admin.configuration.policy_not_saved'), 'Code: ' + errorCode + '\nReference: ' + errorReference, 'error');
                         }
                      },
                      error: function (xhr, error, thrown) {
-                        $('#sso_config_operational_status').text('Save failed. The previous loaded policy remains the baseline. HTTP ' + xhr.status + '.');
-                        swal(adminText('admin.configuration.policy_not_saved'), 'HTTP status: ' + xhr.status, 'error');
+                        var code=xhr.responseJSON&&xhr.responseJSON.code?String(xhr.responseJSON.code):'';
+                        if(xhr.status===403&&code.indexOf('STEP_UP')===0){
+                           storeSsoConfigDraft(current,changeReason);
+                           window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=configuration_authentication';
+                           return;
+                        }
+                        $('#sso_config_operational_status').text(adminText('admin.configuration.save_failed_status',{status:xhr.status}));
+                        swal(adminText('admin.configuration.policy_not_saved'), 'HTTP status: ' + xhr.status+(code?'\nCode: '+code:''), 'error');
                      },
                      complete: function () {
                         setSsoConfigSaving(false);
@@ -3126,19 +3162,19 @@
                   var outcome=String(item.outcome||'').toUpperCase();
                   var outcomeClass=outcome==='SUCCESS'?'is-success':'is-rejected';
                   var revision=item.version_before===null?'-':item.version_before+' → '+item.version_after;
-                  var reason=item.change_reason||'No change reason recorded.';
-                  var changes='<span class="configuration-history-empty">'+sessionTextValue(item.action||'Configuration event')+'</span>';
+                  var reason=item.change_reason||adminText('admin.configuration.no_reason_recorded');
+                  var changes='<span class="configuration-history-empty">'+sessionTextValue(item.action||adminText('admin.configuration.event_default'))+'</span>';
                   if(item.before&&item.after){
                      changes=renderConfigurationChanges(item.before,item.after);
                   }
                   rows+='<tr>'+
-                     '<td data-label="Event"><span class="configuration-history-primary">'+sessionTextValue(item.created_at)+'</span><span class="configuration-history-secondary"><i class="fa fa-user-o" aria-hidden="true"></i>'+sessionTextValue(item.actor)+'</span></td>'+
-                     '<td data-label="Result"><span class="configuration-history-outcome '+outcomeClass+'">'+sessionTextValue(outcome||'UNKNOWN')+'</span><span class="configuration-history-secondary">Revision '+sessionTextValue(revision)+'</span></td>'+
-                     '<td data-label="Changes">'+changes+'</td>'+
-                     '<td data-label="Reason &amp; Reference"><span class="configuration-history-reason" title="'+sessionAttributeValue(reason)+'">'+sessionTextValue(reason)+'</span><span class="configuration-history-secondary">'+sessionTextValue(item.reason_code)+' · '+sessionTextValue(item.correlation_id)+'</span></td>'+
+                     '<td data-label="'+sessionAttributeValue(adminText('admin.configuration.event'))+'"><span class="configuration-history-primary">'+sessionTextValue(item.created_at)+'</span><span class="configuration-history-secondary"><i class="fa fa-user-o" aria-hidden="true"></i>'+sessionTextValue(item.actor)+'</span></td>'+
+                     '<td data-label="'+sessionAttributeValue(adminText('admin.configuration.result'))+'"><span class="configuration-history-outcome '+outcomeClass+'">'+sessionTextValue(outcome||adminText('admin.configuration.unknown'))+'</span><span class="configuration-history-secondary">'+sessionTextValue(adminText('admin.configuration.revision',{revision:revision}))+'</span></td>'+
+                     '<td data-label="'+sessionAttributeValue(adminText('admin.configuration.changes'))+'">'+changes+'</td>'+
+                     '<td data-label="'+sessionAttributeValue(adminText('admin.configuration.reason_reference'))+'"><span class="configuration-history-reason" title="'+sessionAttributeValue(reason)+'">'+sessionTextValue(reason)+'</span><span class="configuration-history-secondary">'+sessionTextValue(item.reason_code)+' · '+sessionTextValue(item.correlation_id)+'</span></td>'+
                      '</tr>';
                });
-               if(rows){$('#sso_config_history_body').html(rows);}else{renderSsoConfigHistoryState('No configuration history recorded.');}
+               if(rows){$('#sso_config_history_body').html(rows);}else{renderSsoConfigHistoryState(adminText('admin.configuration.no_history'));}
                var meta=response.meta||{};var p=Number(meta.page||1),pages=Number(meta.total_pages||1);$('#sso_config_history_pagination').html('<button type="button" '+(p<=1?'disabled':'')+' onclick="loadSsoConfigHistory('+(p-1)+')"><i class="fa fa-chevron-left"></i></button><span>'+adminText('admin.configuration.page_of',{page:p,pages:pages})+'</span><button type="button" '+(p>=pages?'disabled':'')+' onclick="loadSsoConfigHistory('+(p+1)+')"><i class="fa fa-chevron-right"></i></button>');
             },'json').fail(function(){renderSsoConfigHistoryState(adminText('admin.configuration.history_unavailable'));});
          }
@@ -6888,7 +6924,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
   renderReleaseNotes();
       </script>
       <script
-         src="../assetsM/js/user-mfa-admin-policy.js?v=20260908-10"
+         src="../assetsM/js/user-mfa-admin-policy.js?v=20260908-11"
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"></script>
       <script

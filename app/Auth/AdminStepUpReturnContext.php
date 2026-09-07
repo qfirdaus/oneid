@@ -9,6 +9,7 @@ final class AdminStepUpReturnContext
     {
         return [
             'active_sessions' => ['mode'=>'tab','primary'=>'#tab_active_sessions'],
+            'configuration_authentication' => ['mode'=>'configuration','primary'=>'#tab_settings','secondary'=>'#configuration_authentication'],
             'configuration_admin_2fa' => ['mode'=>'configuration','primary'=>'#tab_settings','secondary'=>'#configuration_admin_2fa'],
             'configuration_account_recovery' => ['mode'=>'configuration','primary'=>'#tab_settings','secondary'=>'#configuration_recovery'],
             'configuration_locale' => ['mode'=>'configuration','primary'=>'#tab_settings','secondary'=>'#configuration_locale'],
