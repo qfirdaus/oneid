@@ -1899,8 +1899,9 @@
                                                                <div class="sso-config-body">
                                                                   <div class="sso-config-row">
                                                                      <div class="sso-config-copy"><span class="sso-config-index">01</span><div><label for="user_mfa_target_mode">Mode operasi User MFA</label><p>Pilih tahap penguatkuasaan. Runtime production kekal sebagai had keselamatan maksimum.</p></div></div>
-                                                                     <div class="sso-config-control"><select class="form-control" id="user_mfa_target_mode"><option value="ENFORCED">Enforced</option><option value="PILOT_ENFORCED">Pilot enforced</option><option value="ENROLLMENT">Enrollment only</option><option value="EMERGENCY_BYPASS">Emergency bypass</option><option value="OFF">Off</option></select><div id="user_mfa_mode_hint" class="user-mfa-mode-hint" role="status" aria-live="polite"></div></div>
+                                                                     <div class="sso-config-control"><select class="form-control" id="user_mfa_target_mode"><option value="ENFORCED">Enforced</option><option value="PILOT_ENFORCED">Pilot enforced</option><option value="ENROLLMENT">Enrollment only</option><option value="EMERGENCY_BYPASS">Emergency bypass</option><option value="OFF">Off</option></select></div>
                                                                   </div>
+                                                                  <div id="user_mfa_mode_hint" class="user-mfa-mode-hint user-mfa-mode-hint--full" role="status" aria-live="polite"></div>
                                                                   <div class="sso-config-note"><i class="fa fa-info-circle"></i><p id="user_mfa_global_status" role="status" aria-live="polite"><?=htmlspecialchars(oneid_translate('admin.configuration.loading_policy'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                                   <div id="user_mfa_weak_mode_banner" class="sso-config-note sso-config-note-warning" hidden></div>
                                                                   <div class="sso-config-row"><div class="sso-config-copy"><span class="sso-config-index">02</span><div><label for="user_mfa_transition_strategy">Pending challenge</label><p>Grace memberi maksimum 5 minit; Immediate membatalkan transaksi dan OTP tertangguh serta-merta.</p></div></div><div class="sso-config-control"><select class="form-control" id="user_mfa_transition_strategy"><option value="GRACE">Grace period — 5 minit</option><option value="IMMEDIATE">Immediate revoke</option></select><select class="form-control mt-10" id="user_mfa_bypass_duration" hidden><option value="30">30 minit</option><option value="60" selected>1 jam</option><option value="120">2 jam</option><option value="240">4 jam</option><option value="480">8 jam</option></select></div></div>
@@ -6887,7 +6888,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
   renderReleaseNotes();
       </script>
       <script
-         src="../assetsM/js/user-mfa-admin-policy.js?v=20260908-9"
+         src="../assetsM/js/user-mfa-admin-policy.js?v=20260908-10"
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"></script>
       <script
