@@ -1280,6 +1280,7 @@ return [
     'user_session.ok' => 'OK',
     'user_session.remaining_label' => 'OneID Session',
     'user_session.remaining_help' => 'Remaining portal session time based on current activity and the maximum session limit.',
+    'user_session.renew_now' => 'Renew session now',
     'admin.reports.eyebrow' => 'REPORTING CENTRE',
     'admin.reports.title' => 'OneID Reports',
     'admin.reports.intro' => 'Select an approved report for a secure read-only preview and printing.',

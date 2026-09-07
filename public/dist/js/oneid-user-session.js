@@ -18,6 +18,7 @@
     var ending = false;
     var terminalDialogOpen = false;
     var terminalRedirectStarted = false;
+    var renewButtonCooldownTimer = null;
     var channel = typeof window.BroadcastChannel === 'function'
         ? new window.BroadcastChannel('oneid-user-portal-session')
         : null;
@@ -55,6 +56,21 @@
         indicator.classList.toggle('is-warning', remaining > 120 && remaining <= 300);
         indicator.classList.toggle('is-critical', remaining <= 120);
         output.textContent = formatDuration(remaining);
+    }
+
+    function setRenewButtonDisabled(disabled) {
+        Array.prototype.forEach.call(document.querySelectorAll('[data-oneid-user-session-renew]'), function (button) {
+            button.disabled = Boolean(disabled);
+            button.setAttribute('aria-busy', disabled ? 'true' : 'false');
+        });
+    }
+
+    function beginRenewButtonCooldown() {
+        window.clearTimeout(renewButtonCooldownTimer);
+        setRenewButtonDisabled(true);
+        renewButtonCooldownTimer = window.setTimeout(function () {
+            if (!requestPending && !ending) setRenewButtonDisabled(false);
+        }, 30000);
     }
 
     function clearSensitiveInputs() {
@@ -343,6 +359,7 @@
             return;
         }
         requestPending = true;
+        setRenewButtonDisabled(true);
         post('user_session_renew').then(function (payload) {
             requestPending = false;
             try { window.sessionStorage.removeItem('oneid-user-session-csrf-retried'); } catch (ignored) {}
@@ -352,6 +369,7 @@
             warningOpen = false;
             schedule(payload);
             broadcast('renewed');
+            beginRenewButtonCooldown();
             var absoluteLimited = Number(payload.absolute_remaining_seconds || 0)
                 <= Number(payload.idle_remaining_seconds || 0)
                 && Number(payload.effective_remaining_seconds || 0) <= Number(config.warningSeconds || 120);
@@ -366,6 +384,7 @@
             window.setTimeout(markTerminalDialog, 0);
         }).catch(function (error) {
             requestPending = false;
+            setRenewButtonDisabled(false);
             handleError(error);
         });
     }
@@ -452,6 +471,12 @@
         }
     });
     document.addEventListener('oneid:user-activity-committed', activityCommitted);
+    document.addEventListener('click', function (event) {
+        var button = event.target.closest ? event.target.closest('[data-oneid-user-session-renew]') : null;
+        if (!button || button.disabled || requestPending || ending) return;
+        event.preventDefault();
+        renew();
+    });
 
     window.OneIdUserSession = {
         revalidate: function () { synchronize(false); },

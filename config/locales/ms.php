@@ -1280,6 +1280,7 @@ return [
     'user_session.ok' => 'OK',
     'user_session.remaining_label' => 'Sesi OneID',
     'user_session.remaining_help' => 'Baki sesi portal berdasarkan aktiviti semasa dan had maksimum sesi.',
+    'user_session.renew_now' => 'Sambung sesi sekarang',
     'admin.reports.eyebrow' => 'PUSAT LAPORAN',
     'admin.reports.title' => 'Laporan OneID',
     'admin.reports.intro' => 'Pilih laporan yang diluluskan untuk pratonton baca sahaja dan cetakan selamat.',
