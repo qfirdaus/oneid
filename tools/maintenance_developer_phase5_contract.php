@@ -44,9 +44,9 @@ $checks['ineligible developer response does not disclose grant state'] =
     str_contains($api, "'code'=>'MAINTENANCE_ACCESS_DENIED'")
     && str_contains($api, 'The credentials or maintenance access are invalid.');
 $checks['developer maintenance forces MFA even outside normal enforced population'] =
-    str_contains($api, "new \\OneId\\App\\Auth\\UserMfa\\UserLoginMfaPolicy(")
-    && str_contains($api, "'ENFORCED',\$policy->scope")
-    && str_contains($api, 'MAINTENANCE_DEVELOPER_MFA_UNAVAILABLE');
+    str_contains($api, 'PdoMaintenanceMfaPolicyReader')
+    && str_contains($api, '$policy=$maintenanceMfaPolicy')
+    && str_contains($api, 'MaintenanceMfaRuntimeGate');
 $checks['pending transaction binds exact grant id and version'] =
     str_contains($api, "user_mfa_pending_developer_grant_id")
     && str_contains($api, "user_mfa_pending_developer_grant_version");

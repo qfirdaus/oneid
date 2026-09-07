@@ -89,6 +89,12 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_MAINTENANCE_DEVELOPER_LOCAL_APPROVED' => 'false',
         'ONEID_MAINTENANCE_DEVELOPER_STAGING_APPROVED' => 'false',
         'ONEID_MAINTENANCE_DEVELOPER_PRODUCTION_APPROVED' => 'false',
+        // Maintenance MFA is a separate deployment ceiling from User Login MFA.
+        // Environment activation is required before the independent policy is read.
+        'ONEID_MAINTENANCE_MFA_ENABLED' => 'false',
+        'ONEID_MAINTENANCE_MFA_ACTIVATION_AUTHORIZED' => 'false',
+        'ONEID_MAINTENANCE_MFA_EMAIL_ENABLED' => 'true',
+        'ONEID_MAINTENANCE_MFA_TOTP_ENABLED' => 'false',
         // User Login MFA U1 remains dormant. Schema apply and every later
         // activation require separate approval; committed mode stays OFF.
         'ONEID_USER_MFA_MODE' => 'OFF',
@@ -107,6 +113,9 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_USER_MFA_SCHEMA_WINDOW_START' => '',
         'ONEID_USER_MFA_SCHEMA_WINDOW_END' => '',
         'ONEID_USER_MFA_RETENTION_REFERENCE' => '',
+        // Lifecycle worker is installed dormant and enabled independently per environment.
+        'ONEID_USER_MFA_LIFECYCLE_WORKER_ENABLED' => 'false',
+        'ONEID_USER_MFA_LIFECYCLE_WORKER_LIMIT' => '25',
         // Maintenance developer access foundation remains dormant. Schema
         // application and feature activation require separate approvals.
         'ONEID_MAINTENANCE_DEVELOPER_ACCESS_ENABLED' => 'false',

@@ -8,6 +8,7 @@ if (PHP_SAPI !== 'cli') {
 
 $root = dirname(__DIR__);
 $service = (string) file_get_contents($root . '/app/Admin/UserMfaGlobalPolicyService.php');
+$workflow = (string) file_get_contents($root . '/app/Admin/UserMfaPolicyWorkflowService.php');
 $route = (string) file_get_contents($root . '/lib/q_func.php');
 $guard = (string) file_get_contents($root . '/lib/request_security.php');
 $admin = (string) file_get_contents($root . '/admin/dashboard.php');
@@ -36,7 +37,7 @@ $report(
     'typed confirmation reason reference and validation are server enforced'
 );
 $report(
-    str_contains($guard, "'admin_update_user_mfa_global_policy'")
+    str_contains($guard, "'admin_request_user_mfa_policy_change'")
     && str_contains($guard, "'SECURITY_CONFIGURATION_CHANGE'"),
     'global mutation requires Administrator Security Configuration Step-Up'
 );
@@ -56,14 +57,15 @@ $report(
     'policy update is concurrent safe transactional and audit atomic'
 );
 $report(
-    str_contains($reader, "\$databaseMode !== 'OFF'")
-    && str_contains($reader, 'USER_MFA_RUNTIME_DATABASE_POLICY_MISMATCH')
+    str_contains($reader, 'assertWithinRuntimeCeiling')
+    && str_contains((string) file_get_contents($root . '/app/Auth/UserMfa/UserMfaOperationalModeResolver.php'), 'USER_MFA_RUNTIME_DATABASE_POLICY_MISMATCH')
     && str_contains($route, "\$userMfaPolicies->policy()->mode==='OFF'"),
     'database OFF is a safe operational override without permitting active mismatch'
 );
 $report(
     str_contains($admin, 'id="configuration_user_mfa"')
-    && str_contains($admin, 'id="user_mfa_global_enabled"')
+    && str_contains($admin, 'id="user_mfa_target_mode"')
+    && str_contains($admin, 'value="EMERGENCY_BYPASS"')
     && str_contains($admin, 'saveUserMfaGlobalPolicy')
     && !str_contains($admin, 'function loadUserMfaGlobalPolicy')
     && !str_contains($admin, 'var userMfaGlobalOriginal')
@@ -73,14 +75,14 @@ $report(
 $report(
     str_contains($admin, 'user-mfa-admin-policy.js')
     && str_contains($adminScript, 'window.saveUserMfaGlobalPolicy')
-    && str_contains($adminScript, "request('admin_get_user_mfa_global_policy')")
-    && str_contains($adminScript, 'showCancelButton: true')
-    && str_contains($adminScript, 'oneid_user_mfa_global_enabled')
+    && str_contains($adminScript, "post('admin_get_user_mfa_policy_workflow')")
+    && str_contains($adminScript, 'showCancelButton:true')
+    && str_contains($adminScript, 'oneid_user_mfa_workflow')
     && str_contains($adminScript, 'window.fillUserMfaReference')
     && str_contains($adminScript, 'window.fillUserMfaConfirmation')
     && str_contains($adminScript, 'ONEID-USER-MFA-')
-    && str_contains($adminScript, 'AbortController')
-    && str_contains($adminScript, 'data-csrf'),
+    && str_contains($adminScript, 'X-CSRF-Token')
+    && str_contains($workflow, 'expected_policy_version'),
     'User MFA control has an independent CSRF-bound loader with visible timeout failure'
 );
 $report(

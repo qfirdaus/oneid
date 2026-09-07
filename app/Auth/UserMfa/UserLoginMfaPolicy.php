@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 final class UserLoginMfaPolicy
 {
-    public const MODES = ['OFF', 'ENROLLMENT', 'PILOT_ENFORCED', 'ENFORCED'];
+    public const MODES = ['OFF', 'ENROLLMENT', 'PILOT_ENFORCED', 'ENFORCED', 'EMERGENCY_BYPASS'];
     public const SCOPE_PASSWORD_ONLY = 'PASSWORD_ONLY';
 
     public function __construct(
@@ -48,5 +48,10 @@ final class UserLoginMfaPolicy
     public function enforced(): bool
     {
         return in_array($this->mode, ['PILOT_ENFORCED', 'ENFORCED'], true);
+    }
+
+    public function selfServiceAvailable(): bool
+    {
+        return $this->mode !== 'OFF';
     }
 }

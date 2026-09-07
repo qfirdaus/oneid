@@ -62,7 +62,7 @@ exec(
 );
 $checks['characterization_passes'] = $characterizationStatus === 0
     && in_array(
-        'RESULT checks=11 failures=0 tokens_before_mfa=0 network_calls=0 live_database_mutations=0 runtime_activation=0',
+        'RESULT checks=12 failures=0 tokens_before_mfa=0 network_calls=0 live_database_mutations=0 runtime_activation=0',
         $characterization,
         true
     );

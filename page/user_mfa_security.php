@@ -10,6 +10,7 @@ require_once __DIR__ . '/../lib/request_security.php';
 require_once __DIR__ . '/../lib/user_session_presentation.php';
 require_once __DIR__ . '/../lib/environment_banner.php';
 require_once __DIR__ . '/../app/Auth/UserMfa/UserLoginMfaPolicy.php';
+require_once __DIR__ . '/../app/Auth/UserMfa/UserMfaOperationalModeResolver.php';
 require_once __DIR__ . '/../app/Auth/UserMfa/PdoUserMfaPolicyReader.php';
 
 oneid_require_authenticated_page();
@@ -28,14 +29,17 @@ $pdo = new PDO(
     DB_PASSWORD,
     [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]
 );
-$databaseMode = (string) $pdo->query(
-    'SELECT policy_mode FROM user_login_mfa_policy WHERE singleton_key=1'
-)->fetchColumn();
-if ($databaseMode === 'OFF' || ($databaseMode !== $mode && $databaseMode !== 'OFF')) {
+$policyReader = new \OneId\App\Auth\UserMfa\PdoUserMfaPolicyReader($pdo);
+try {
+    $policyReader->assertRuntimeParity($mode);
+    $databaseMode = $policyReader->policy()->mode;
+} catch (Throwable) {
+    $databaseMode = 'OFF';
+}
+if ($databaseMode === 'OFF') {
     http_response_code(404);
     exit('Not found');
 }
-$policyReader = new \OneId\App\Auth\UserMfa\PdoUserMfaPolicyReader($pdo);
 $selfServiceAllowed = $policyReader->selfServiceEligible($user)
     && ($databaseMode !== 'PILOT_ENFORCED' || $policyReader->pilotEligible($user));
 if (!$selfServiceAllowed) {

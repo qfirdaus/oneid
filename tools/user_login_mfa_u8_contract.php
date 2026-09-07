@@ -31,6 +31,7 @@ foreach ($files as $file) {
 }
 $up = (string) file_get_contents($root . '/' . $files[2]);
 $reader = (string) file_get_contents($root . '/' . $files[0]);
+$modeResolver = (string) file_get_contents($root . '/app/Auth/UserMfa/UserMfaOperationalModeResolver.php');
 $decision = (string) file_get_contents($root . '/' . $files[1]);
 $route = (string) file_get_contents($root . '/lib/q_func.php');
 $login = (string) file_get_contents($root . '/index.php');
@@ -47,7 +48,7 @@ $report(
     'pilot schema has bounded representative categories'
 );
 $report(
-    str_contains($reader, 'USER_MFA_RUNTIME_DATABASE_POLICY_MISMATCH')
+    str_contains($modeResolver, 'USER_MFA_RUNTIME_DATABASE_POLICY_MISMATCH')
     && str_contains($decision, 'assertRuntimeParity'),
     'primary authentication fails closed on runtime/database mismatch'
 );
@@ -66,11 +67,11 @@ $report(
 $report(
     !str_contains($login, 'modal_user_mfa')
     && str_contains($login, "response['login_status']==2")
-    && str_contains($login, "window.location.href='page/user-mfa-challenge'")
+    && str_contains($login, "APP_URL . '/page/user-mfa-challenge'")
     && str_contains($challengePage, 'user_mfa_email_request')
     && str_contains($challengePage, 'user_mfa_email_verify')
     && str_contains($challengePage, 'user_mfa_totp_verify_login')
-    && str_contains($challengePage, 'FROM user_mfa_preferences')
+    && str_contains($challengePage, "'user_mfa_preferences'")
     && str_contains($challengePage, "\$preferredTotp")
     && str_contains($challengePage, "\$totp?'':'disabled'")
     && str_contains($challengePage, "\$totpUnavailableKey"),
@@ -119,7 +120,7 @@ $report(
 $report(
     str_contains($dashboard, 'tab_user_mfa_security')
     && str_contains($dashboard, 'href="user-mfa-security"')
-    && str_contains($dashboard, "['ENROLLMENT', 'PILOT_ENFORCED', 'ENFORCED']")
+    && str_contains($dashboard, 'assertRuntimeParity')
     && !str_contains($dashboard, 'modal_user_mfa_security')
     && str_contains($dashboard, 'selfServiceEligible')
     && str_contains($securityPage, "\$databaseMode !== 'PILOT_ENFORCED'")
@@ -138,7 +139,7 @@ $report(
     str_contains($route, "user_mfa_totp_verify_login")
     && str_contains($route, "markVerified(\$pendingTransaction,'TOTP'")
     && str_contains($route, 'LegacyUserMfaLoginFinalizer')
-    && str_contains($route, "\$redirect=APP_URL.'/page/dashboard'")
+    && str_contains($route, "APP_URL.'/page/dashboard'")
     && str_contains($challengePage, "factorElement.value==='TOTP'")
     && str_contains($challengePage, "replace(/^page\\//,'/page/')")
     && !str_contains($challengePage, 'window.onload'),

@@ -27,7 +27,7 @@ final class UserMfaRuntimeGate
         if (!$schemaReady) {
             throw new RuntimeException('USER_MFA_SCHEMA_UNAVAILABLE');
         }
-        if (!in_array($this->mode, UserLoginMfaPolicy::MODES, true)) {
+        if (!in_array($this->mode, ['OFF', 'ENROLLMENT', 'PILOT_ENFORCED', 'ENFORCED'], true)) {
             throw new RuntimeException('USER_MFA_MODE_INVALID');
         }
         if ($this->mode !== 'OFF' && !$this->activationAuthorized) {

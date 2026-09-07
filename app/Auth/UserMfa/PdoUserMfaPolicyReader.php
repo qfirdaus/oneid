@@ -7,10 +7,18 @@ namespace OneId\App\Auth\UserMfa;
 use PDO;
 use RuntimeException;
 
+require_once __DIR__ . '/UserMfaOperationalModeResolver.php';
+
 final class PdoUserMfaPolicyReader
 {
-    public function __construct(private readonly PDO $pdo)
+    private readonly UserMfaOperationalModeResolver $modes;
+    private readonly string $environment;
+
+    public function __construct(private readonly PDO $pdo, ?string $environment = null)
     {
+        $this->modes = new UserMfaOperationalModeResolver();
+        $environment = strtolower(trim((string) ($environment ?? (function_exists('oneid_config') ? \oneid_config('ONEID_ENVIRONMENT', '') : ''))));
+        $this->environment = in_array($environment, ['local','staging','production'], true) ? $environment : '';
     }
 
     public function policy(): UserLoginMfaPolicy
@@ -18,14 +26,15 @@ final class PdoUserMfaPolicyReader
         $row = $this->pdo->query(
             'SELECT policy_mode,login_scope,email_enabled,totp_enabled,
                     pending_ttl_seconds,otp_ttl_seconds,max_attempts,
-                    resend_cooldown_seconds,hourly_send_limit
+                    resend_cooldown_seconds,hourly_send_limit,configuration_version
                FROM user_login_mfa_policy WHERE singleton_key=1'
         )->fetch(PDO::FETCH_ASSOC);
         if (!is_array($row)) {
             throw new RuntimeException('USER_MFA_POLICY_UNAVAILABLE');
         }
+        $state = $this->operationalState((string) $row['policy_mode'], (int) $row['configuration_version']);
         return new UserLoginMfaPolicy(
-            (string) $row['policy_mode'],
+            $state['effective_mode'],
             (string) $row['login_scope'],
             (bool) $row['email_enabled'],
             (bool) $row['totp_enabled'],
@@ -119,10 +128,37 @@ final class PdoUserMfaPolicyReader
 
     public function assertRuntimeParity(string $runtimeMode): void
     {
-        $runtimeMode = strtoupper(trim($runtimeMode));
-        $databaseMode = $this->policy()->mode;
-        if ($databaseMode !== 'OFF' && !hash_equals($databaseMode, $runtimeMode)) {
-            throw new RuntimeException('USER_MFA_RUNTIME_DATABASE_POLICY_MISMATCH');
+        $this->modes->assertWithinRuntimeCeiling($this->policy()->mode, $runtimeMode);
+    }
+
+    /** @return array<string,mixed> */
+    public function operationalState(?string $storedMode = null, ?int $storedVersion = null): array
+    {
+        if ($storedMode === null) {
+            $policy = $this->pdo->query(
+                'SELECT policy_mode,configuration_version FROM user_login_mfa_policy WHERE singleton_key=1'
+            )->fetch(PDO::FETCH_ASSOC);
+            $storedMode = is_array($policy) ? (string) $policy['policy_mode'] : '';
+            $storedVersion = is_array($policy) ? (int) $policy['configuration_version'] : null;
         }
+        $bypass = null;
+        if (strtoupper($storedMode) === 'EMERGENCY_BYPASS') {
+            if ($this->environment === '') {
+                return $this->modes->resolve($storedMode, null, (int) $this->pdo->query('SELECT UNIX_TIMESTAMP(NOW(6))')->fetchColumn(), $storedVersion);
+            }
+            $query = $this->pdo->prepare(
+                "SELECT request_id,requested_mode,restore_mode,request_status,starts_at,expires_at,applied_policy_version,
+                        UNIX_TIMESTAMP(starts_at) starts_at_epoch,UNIX_TIMESTAMP(expires_at) expires_at_epoch
+                   FROM user_mfa_policy_change_requests
+                  WHERE environment=:environment
+                    AND requested_mode='EMERGENCY_BYPASS' AND request_status='ACTIVE'
+                  ORDER BY activated_at DESC,request_id DESC LIMIT 1"
+            );
+            $query->execute([':environment' => $this->environment]);
+            $candidate = $query->fetch(PDO::FETCH_ASSOC);
+            $bypass = is_array($candidate) ? $candidate : null;
+        }
+        $databaseEpoch = (int) $this->pdo->query('SELECT UNIX_TIMESTAMP(NOW(6))')->fetchColumn();
+        return $this->modes->resolve($storedMode, $bypass, $databaseEpoch, $storedVersion);
     }
 }

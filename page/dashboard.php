@@ -8,6 +8,7 @@
    require_once __DIR__ . '/../lib/user_session_presentation.php';
    require_once __DIR__ . '/../lib/environment_banner.php';
    require_once __DIR__ . '/../app/Auth/UserMfa/UserLoginMfaPolicy.php';
+   require_once __DIR__ . '/../app/Auth/UserMfa/UserMfaOperationalModeResolver.php';
    require_once __DIR__ . '/../app/Auth/UserMfa/PdoUserMfaPolicyReader.php';
    require_once __DIR__ . '/../app/Integration/EmadaniAsnbStatusClient.php';
    oneid_require_authenticated_page();
@@ -59,10 +60,9 @@
           && filter_var(oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED', false), FILTER_VALIDATE_BOOLEAN)
       ) {
          $userMfaPdo = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-         $userMfaEffectiveMode = (string) $userMfaPdo->query(
-            'SELECT policy_mode FROM user_login_mfa_policy WHERE singleton_key=1'
-         )->fetchColumn();
          $userMfaPolicyReader = new \OneId\App\Auth\UserMfa\PdoUserMfaPolicyReader($userMfaPdo);
+         $userMfaPolicyReader->assertRuntimeParity((string) oneid_config('ONEID_USER_MFA_MODE', 'OFF'));
+         $userMfaEffectiveMode = $userMfaPolicyReader->policy()->mode;
          $userMfaUser = (string) $_SESSION['login_user'];
          $userMfaEnrollmentAvailable = $userMfaEffectiveMode !== 'OFF'
             && $userMfaPolicyReader->selfServiceEligible($userMfaUser)

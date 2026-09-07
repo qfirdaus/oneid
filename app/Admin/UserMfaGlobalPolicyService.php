@@ -74,6 +74,7 @@ final class UserMfaGlobalPolicyService
         if ($enabled && !$this->activationAvailable()) {
             throw new SsoConfigurationException('USER_MFA_GLOBAL_ACTIVATION_NOT_AUTHORIZED', bin2hex(random_bytes(8)));
         }
+        $persistenceAdminId = $this->persistenceAdminId($adminId);
         $publicAdminId = (new AuditIdentityResolver($this->pdo))->resolve($adminId);
 
         $correlation = bin2hex(random_bytes(16));
@@ -108,7 +109,7 @@ final class UserMfaGlobalPolicyService
                 ':totp' => $totp,
                 ':next_version' => $nextVersion,
                 ':reference' => $reference,
-                ':admin' => $adminId,
+                ':admin' => $persistenceAdminId,
                 ':version' => (int) $version,
             ]);
             if ($update->rowCount() !== 1) {
@@ -121,7 +122,8 @@ final class UserMfaGlobalPolicyService
                     'UPDATE user_login_mfa_challenges c
                        JOIN user_login_mfa_transactions t
                          ON t.transaction_id=c.transaction_id
-                        SET c.revoked_at=COALESCE(c.revoked_at,NOW(6))
+                        SET c.revoked_at=COALESCE(c.revoked_at,NOW(6)),
+                            c.otp_hash=CASE WHEN c.factor_type=\'EMAIL_OTP\' THEN NULL ELSE c.otp_hash END
                       WHERE t.transaction_status IN (\'PENDING\',\'VERIFIED\')
                         AND c.consumed_at IS NULL AND c.revoked_at IS NULL'
                 );
@@ -146,7 +148,7 @@ final class UserMfaGlobalPolicyService
                 ':version' => $nextVersion,
                 ':previous' => json_encode($before, JSON_THROW_ON_ERROR),
                 ':resulting' => json_encode($resulting, JSON_THROW_ON_ERROR),
-                ':admin' => $adminId,
+                ':admin' => $persistenceAdminId,
                 ':reason' => $reason,
                 ':reference' => $reference,
                 ':correlation' => $correlation,
@@ -170,7 +172,7 @@ final class UserMfaGlobalPolicyService
                 throw new SsoConfigurationException('USER_MFA_GLOBAL_POLICY_AUDIT_FAILED', $correlation);
             }
             $notificationId=$this->notification===null?null:($this->notification)(
-                'SECURITY_POLICY_CHANGED',$adminId,$correlation,$correlation,
+                'SECURITY_POLICY_CHANGED',$persistenceAdminId,$correlation,$correlation,
                 ['Policy'=>'Global User MFA','Before'=>(string)$before['policy_mode'],'After'=>$target,'Reference'=>$reference]
             );
             $this->pdo->commit();
@@ -216,6 +218,29 @@ final class UserMfaGlobalPolicyService
             throw new SsoConfigurationException('USER_MFA_GLOBAL_POLICY_UNAVAILABLE', bin2hex(random_bytes(8)));
         }
         return $row;
+    }
+
+    private function persistenceAdminId(string $identifier): string
+    {
+        $statement = $this->pdo->prepare(
+            'SELECT u_id FROM user_tbl
+              WHERE u_type=1 AND avail_status=1
+                AND (u_id=:u_id OR data2=:data2 OR data3=:data3 OR data4=:data4)'
+        );
+        $statement->execute([
+            ':u_id' => $identifier,
+            ':data2' => $identifier,
+            ':data3' => $identifier,
+            ':data4' => $identifier,
+        ]);
+        $matches = $statement->fetchAll(PDO::FETCH_COLUMN);
+        if (count($matches) !== 1 || preg_match('/\A[A-Za-z0-9._@-]{1,20}\z/', (string) $matches[0]) !== 1) {
+            throw new SsoConfigurationException(
+                'USER_MFA_GLOBAL_POLICY_ADMIN_IDENTITY_INVALID',
+                bin2hex(random_bytes(8))
+            );
+        }
+        return (string) $matches[0];
     }
 
     private function pendingImpact(): array

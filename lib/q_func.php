@@ -39,6 +39,8 @@ require_once dirname(__DIR__) . '/app/Admin/PasswordRecoveryConfigurationService
 require_once dirname(__DIR__) . '/app/Admin/SystemLocaleConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/MaintenanceConfigurationService.php';
 require_once dirname(__DIR__) . '/app/Admin/UserMfaGlobalPolicyService.php';
+require_once dirname(__DIR__) . '/app/Admin/UserMfaPolicyWorkflowService.php';
+require_once dirname(__DIR__) . '/app/Admin/UserMfaLifecycleService.php';
 require_once dirname(__DIR__) . '/app/Admin/UserMfaCategoryPolicyService.php';
 require_once dirname(__DIR__) . '/app/Admin/UserMfaTemporaryExemptionService.php';
 require_once dirname(__DIR__) . '/app/Admin/ActiveSessionService.php';
@@ -65,6 +67,7 @@ require_once dirname(__DIR__) . '/app/Auth/AdminStepUpPolicyService.php';
 require_once dirname(__DIR__) . '/app/Auth/AdminStepUpSessionService.php';
 require_once dirname(__DIR__) . '/app/Auth/Admin2faBootstrapService.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserLoginMfaPolicy.php';
+require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaOperationalModeResolver.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaRuntimeGate.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaWebSecurityGate.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaHttpBoundary.php';
@@ -76,6 +79,9 @@ require_once dirname(__DIR__) . '/app/Auth/UserMfa/LegacyUserMfaAuditWriter.php'
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/LegacyUserMfaSessionRevoker.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/PdoUserMfaTotpPersistence.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/PdoUserMfaPolicyReader.php';
+require_once dirname(__DIR__) . '/app/Maintenance/MaintenanceMfaPolicy.php';
+require_once dirname(__DIR__) . '/app/Maintenance/PdoMaintenanceMfaPolicyReader.php';
+require_once dirname(__DIR__) . '/app/Maintenance/MaintenanceMfaRuntimeGate.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaPendingLoginException.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaPendingLoginPersistenceInterface.php';
 require_once dirname(__DIR__) . '/app/Auth/UserMfa/UserMfaRequestBinding.php';
@@ -154,18 +160,32 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
   $mode=(string)oneid_config('ONEID_USER_MFA_MODE','OFF');
   $schemaApply=filter_var(oneid_config('ONEID_USER_MFA_SCHEMA_APPLY_ENABLED','false'),FILTER_VALIDATE_BOOLEAN);
   $authorized=filter_var(oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED','false'),FILTER_VALIDATE_BOOLEAN);
-  $gate=new \OneId\App\Auth\UserMfa\UserMfaRuntimeGate($mode,$schemaApply,$authorized);
+  $maintenanceMfaPending=(bool)($_SESSION['user_mfa_pending_admin_maintenance']??false)
+    ||(bool)($_SESSION['user_mfa_pending_developer_maintenance']??false);
   try{
     $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
     $schemaReady=(int)$pdo->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name IN('user_login_mfa_policy','user_login_mfa_policy_history','user_mfa_factors','user_mfa_preferences','user_login_mfa_transactions','user_login_mfa_challenges','user_login_mfa_pilot_users')")->fetchColumn()===7;
-    $gate->assertRequestAllowed($schemaReady);
-    $gate->assertFeatureActive();
     $userMfaPolicies=new \OneId\App\Auth\UserMfa\PdoUserMfaPolicyReader($pdo);
-    $userMfaPolicies->assertRuntimeParity($mode);
-    if($userMfaPolicies->policy()->mode==='OFF'){
-      throw new RuntimeException('USER_MFA_NOT_ACTIVE');
+    if($maintenanceMfaPending){
+      $maintenanceSchemaReady=$schemaReady&&(int)$pdo->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='maintenance_mfa_policy'")->fetchColumn()===1;
+      $maintenanceMfaPolicy=(new \OneId\App\Maintenance\PdoMaintenanceMfaPolicyReader($pdo))->policy();
+      (new \OneId\App\Maintenance\MaintenanceMfaRuntimeGate(
+        filter_var(oneid_config('ONEID_MAINTENANCE_MFA_ENABLED','false'),FILTER_VALIDATE_BOOLEAN),
+        filter_var(oneid_config('ONEID_MAINTENANCE_MFA_ACTIVATION_AUTHORIZED','false'),FILTER_VALIDATE_BOOLEAN),
+        filter_var(oneid_config('ONEID_MAINTENANCE_MFA_EMAIL_ENABLED','true'),FILTER_VALIDATE_BOOLEAN),
+        filter_var(oneid_config('ONEID_MAINTENANCE_MFA_TOTP_ENABLED','false'),FILTER_VALIDATE_BOOLEAN)
+      ))->assertAvailable($maintenanceSchemaReady,$maintenanceMfaPolicy);
+      $userMfaPolicy=$maintenanceMfaPolicy->loginPolicy();
+    }else{
+      $gate=new \OneId\App\Auth\UserMfa\UserMfaRuntimeGate($mode,$schemaApply,$authorized);
+      $gate->assertRequestAllowed($schemaReady);
+      $gate->assertFeatureActive();
+      $userMfaPolicies->assertRuntimeParity($mode);
+      if($userMfaPolicies->policy()->mode==='OFF'){
+        throw new RuntimeException('USER_MFA_NOT_ACTIVE');
+      }
+      $userMfaPolicy=$userMfaPolicies->policy();
     }
-    $userMfaPolicy=$userMfaPolicies->policy();
     $userMfaSelfServiceUser=(string)($_SESSION['login_user']??'');
     $userMfaSelfServiceAllowed=$userMfaPolicies->selfServiceEligible($userMfaSelfServiceUser)
       && ($userMfaPolicy->mode!=='PILOT_ENFORCED'
@@ -270,6 +290,9 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
         return['status'=>1,'login_status'=>1,'code'=>'USER_MFA_LOGIN_COMPLETE','redirect_uri'=>$redirect];
       };
       if($oneidGuardedAction==='user_mfa_totp_verify_login'){
+        if($maintenanceMfaPending&&!$userMfaPolicy->totpEnabled){
+          throw new RuntimeException('MAINTENANCE_MFA_TOTP_DISABLED');
+        }
         $maintenanceAdmin=(bool)($_SESSION['user_mfa_pending_admin_maintenance']??false);
         $keyring=\OneId\App\Auth\TotpKeyring::fromFile((string)oneid_config('ONEID_TOTP_KEYRING_PATH',''));
         if($maintenanceAdmin){
@@ -761,7 +784,7 @@ function string_sanitize($s) {
               oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED','false'),
               FILTER_VALIDATE_BOOLEAN
             );
-            if($userMfaMode!=='OFF'&&!$userMfaAuthorized){
+            if(!$maintenanceAdminLogin&&!$maintenanceDeveloperLogin&&$userMfaMode!=='OFF'&&!$userMfaAuthorized){
               http_response_code(503);
               echo json_encode([
                 'login_status'=>0,
@@ -777,6 +800,18 @@ function string_sanitize($s) {
               $pendingCoordinator=new \OneId\App\Auth\UserMfa\UserMfaPendingLoginCoordinator(
                 new \OneId\App\Auth\UserMfa\PdoUserMfaPendingLoginPersistence($userMfaPdo,$userMfaAudit)
               );
+              $maintenanceMfaPolicy=null;
+              if($maintenanceAdminLogin||$maintenanceDeveloperLogin){
+                $maintenanceMfaSchemaReady=(int)$userMfaPdo->query("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='maintenance_mfa_policy'")->fetchColumn()===1;
+                $maintenanceMfaDomainPolicy=(new \OneId\App\Maintenance\PdoMaintenanceMfaPolicyReader($userMfaPdo))->policy();
+                (new \OneId\App\Maintenance\MaintenanceMfaRuntimeGate(
+                  filter_var(oneid_config('ONEID_MAINTENANCE_MFA_ENABLED','false'),FILTER_VALIDATE_BOOLEAN),
+                  filter_var(oneid_config('ONEID_MAINTENANCE_MFA_ACTIVATION_AUTHORIZED','false'),FILTER_VALIDATE_BOOLEAN),
+                  filter_var(oneid_config('ONEID_MAINTENANCE_MFA_EMAIL_ENABLED','true'),FILTER_VALIDATE_BOOLEAN),
+                  filter_var(oneid_config('ONEID_MAINTENANCE_MFA_TOTP_ENABLED','false'),FILTER_VALIDATE_BOOLEAN)
+                ))->assertAvailable($maintenanceMfaSchemaReady,$maintenanceMfaDomainPolicy);
+                $maintenanceMfaPolicy=$maintenanceMfaDomainPolicy->loginPolicy();
+              }
               if($maintenanceAdminLogin){
                 $previousPending=(string)($_SESSION['user_mfa_pending_transaction']??'');
                 if(preg_match('/\A[a-f0-9]{64}\z/',$previousPending)===1){
@@ -793,8 +828,7 @@ function string_sanitize($s) {
                   $_SESSION['user_mfa_pending_admin_maintenance'],
                   $_SESSION['user_mfa_pending_maintenance_factor']
                 );
-                $userMfaPolicies->assertRuntimeParity($userMfaMode);
-                $policy=$userMfaPolicies->policy();
+                $policy=$maintenanceMfaPolicy;
                 $adminFactor=$operation->admin_step_up_factor_status((string)$results['u_id']);
                 $email=trim((string)($adminFactor['email']??''));
                 if(!$policy->enforced()||(int)($adminFactor['admin_2fa_enabled']??0)!==1
@@ -817,17 +851,8 @@ function string_sanitize($s) {
                   $_SESSION['user_mfa_pending_developer_grant_id'],
                   $_SESSION['user_mfa_pending_developer_grant_version']
                 );
-                $userMfaPolicies->assertRuntimeParity($userMfaMode);
-                $policy=$userMfaPolicies->policy();
-                if($policy->mode==='OFF'||!$policy->emailEnabled){
-                  throw new RuntimeException('MAINTENANCE_DEVELOPER_MFA_UNAVAILABLE');
-                }
-                $forcedPolicy=new \OneId\App\Auth\UserMfa\UserLoginMfaPolicy(
-                  'ENFORCED',$policy->scope,$policy->emailEnabled,$policy->totpEnabled,
-                  $policy->pendingTtlSeconds,$policy->otpTtlSeconds,$policy->maxAttempts,
-                  $policy->resendCooldownSeconds,$policy->hourlySendLimit
-                );
-                $userMfaResult=$pendingCoordinator->begin((string)$results['u_id'],'PASSWORD',session_id(),(string)($_SERVER['HTTP_USER_AGENT']??''),(string)getUserIP(),$forcedPolicy,true,true);
+                $policy=$maintenanceMfaPolicy;
+                $userMfaResult=$pendingCoordinator->begin((string)$results['u_id'],'PASSWORD',session_id(),(string)($_SERVER['HTTP_USER_AGENT']??''),(string)getUserIP(),$policy,true,true);
               }else{
                 $userMfaDecision=new \OneId\App\Auth\UserMfa\UserMfaPrimaryAuthDecision($userMfaPolicies,$pendingCoordinator);
                 $userMfaResult=$userMfaDecision->afterPasswordAccepted((string)$results['u_id'],session_id(),(string)($_SERVER['HTTP_USER_AGENT']??''),(string)getUserIP(),$userMfaMode);
@@ -1073,28 +1098,29 @@ function string_sanitize($s) {
         }
       }
 
-      if(isset($_POST['admin_update_user_mfa_global_policy'])){
+      if(isset($_POST['admin_get_user_mfa_policy_workflow'])){
         try{
           $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-          $service=new \OneId\App\Admin\UserMfaGlobalPolicyService(
-            $pdo,
-            strtoupper((string)oneid_config('ONEID_USER_MFA_MODE','OFF')),
-            filter_var(oneid_config('ONEID_USER_MFA_ACTIVATION_AUTHORIZED',false),FILTER_VALIDATE_BOOLEAN),
-            filter_var(oneid_config('ONEID_USER_MFA_TOTP_ENABLED',false),FILTER_VALIDATE_BOOLEAN),
-            oneid_admin_email_notification_callback($pdo)
-          );
-          echo json_encode($service->update(
-            $_POST['enabled']??null,
-            $_POST['configuration_version']??null,
-            (string)($_POST['change_reason']??''),
-            (string)($_POST['change_reference']??''),
-            (string)($_POST['typed_confirmation']??''),
-            (string)$_SESSION['login_user'],
-            (string)getUserIP()
-          ));
-        }catch(\OneId\App\Admin\SsoConfigurationException $e){
-          echo json_encode(['status'=>0,'code'=>$e->reason,'correlation_id'=>$e->correlationId]);
-        }
+          echo json_encode((new \OneId\App\Admin\UserMfaPolicyWorkflowService($pdo,strtolower((string)oneid_config('ONEID_ENVIRONMENT','staging')),strtoupper((string)oneid_config('ONEID_USER_MFA_MODE','OFF')),filter_var(oneid_config('ONEID_USER_MFA_TOTP_ENABLED',false),FILTER_VALIDATE_BOOLEAN)))->read());
+        }catch(\OneId\App\Admin\SsoConfigurationException $e){error_log('User MFA workflow read rejected code='.$e->reason.' correlation='.$e->correlationId);echo json_encode(['status'=>0,'code'=>$e->reason,'correlation_id'=>$e->correlationId]);}
+      }
+
+      if(isset($_POST['admin_request_user_mfa_policy_change'])){
+        try{
+          $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+          echo json_encode((new \OneId\App\Admin\UserMfaPolicyWorkflowService($pdo,strtolower((string)oneid_config('ONEID_ENVIRONMENT','staging')),strtoupper((string)oneid_config('ONEID_USER_MFA_MODE','OFF')),filter_var(oneid_config('ONEID_USER_MFA_TOTP_ENABLED',false),FILTER_VALIDATE_BOOLEAN)))->request($_POST,(string)$_SESSION['login_user'],(string)getUserIP()));
+        }catch(\OneId\App\Admin\SsoConfigurationException $e){error_log('User MFA workflow request rejected code='.$e->reason.' correlation='.$e->correlationId);echo json_encode(['status'=>0,'code'=>$e->reason,'correlation_id'=>$e->correlationId]);}
+      }
+
+      if(isset($_POST['admin_decide_user_mfa_policy_change'])){
+        try{
+          $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+          echo json_encode((new \OneId\App\Admin\UserMfaPolicyWorkflowService($pdo,strtolower((string)oneid_config('ONEID_ENVIRONMENT','staging')),strtoupper((string)oneid_config('ONEID_USER_MFA_MODE','OFF')),filter_var(oneid_config('ONEID_USER_MFA_TOTP_ENABLED',false),FILTER_VALIDATE_BOOLEAN)))->decide((int)($_POST['request_id']??0),(string)($_POST['decision']??''),(string)($_POST['decision_reason']??''),(string)$_SESSION['login_user'],(string)getUserIP()));
+        }catch(\OneId\App\Admin\SsoConfigurationException $e){error_log('User MFA workflow decision rejected code='.$e->reason.' correlation='.$e->correlationId);echo json_encode(['status'=>0,'code'=>$e->reason,'correlation_id'=>$e->correlationId]);}
+      }
+
+      if(isset($_POST['admin_restore_user_mfa_emergency_bypass'])){
+        try{$pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);echo json_encode((new \OneId\App\Admin\UserMfaLifecycleService($pdo,oneid_admin_email_notification_callback($pdo),strtolower((string)oneid_config('ONEID_ENVIRONMENT',''))))->manualRestore((int)($_POST['request_id']??0),(string)$_SESSION['login_user'],(string)($_POST['change_reason']??''),(string)($_POST['change_reference']??''),(string)($_POST['typed_confirmation']??''),(string)getUserIP()));}catch(\OneId\App\Admin\SsoConfigurationException$e){error_log('User MFA manual restore rejected code='.$e->reason.' correlation='.$e->correlationId);echo json_encode(['status'=>0,'code'=>$e->reason,'correlation_id'=>$e->correlationId]);}
       }
 
       if(isset($_POST['admin_get_user_mfa_category_policy'])){

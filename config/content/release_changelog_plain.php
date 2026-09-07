@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.12.0' =>
+  array (
+    'version' => '2.12.0',
+    'date' => '2026-09-08',
+    'bm' =>
+    array (
+      0 => 'User Login MFA kini mempunyai mode operasi ENFORCED, PILOT_ENFORCED, ENROLLMENT, EMERGENCY_BYPASS dan OFF dengan runtime sebagai deployment ceiling serta database sebagai kuasa operasi.',
+      1 => 'Maintenance MFA dipisahkan sepenuhnya daripada User Login MFA supaya login Administrator dan developer semasa Maintenance Mode kekal dilindungi walaupun User MFA diturunkan.',
+      2 => 'Administrator boleh mengubah mode melalui workflow UI yang mempunyai preview impak, reason, change reference, typed confirmation, optimistic versioning dan Admin Step-Up.',
+      3 => 'Strategi GRACE mengehadkan challenge sedia ada kepada lima minit, manakala IMMEDIATE membatalkan transaksi serta bahan OTP tertangguh secara atomik tanpa memadam faktor pengguna.',
+      4 => 'EMERGENCY_BYPASS dihadkan kepada 30 minit hingga lapan jam, terikat kepada environment dan policy version, serta gagal tertutup kepada exact restore mode selepas tamat.',
+      5 => 'Lifecycle worker CLI yang bounded, row-locked dan idempotent menyediakan grace cleanup, amaran tamat serta auto-restore dengan audit dan notification outbox.',
+      6 => 'Manual restore menggunakan modal profesional, pengesahan bertulis dan sambung-semula automatik selepas Admin Step-Up SECURITY_CONFIGURATION_CHANGE.',
+      7 => 'Production maker-checker menolak self-approval dan stale approval, sementara staging menyokong controlled approval untuk UAT yang boleh diaudit.',
+      8 => 'Banner mode lemah, self-service Authenticator dan login password-only mengikut matriks mode tanpa menjejaskan password recovery, MyDigital ID atau sesi yang telah authenticated.',
+      9 => 'Schema additive, readiness preflight, rollback runbook dan 25 suite regression mengesahkan baseline ENFORCED, Maintenance MFA bebas serta tiada transition terbuka sebelum release.',
+    ),
+    'en' =>
+    array (
+      0 => 'User Login MFA now supports ENFORCED, PILOT_ENFORCED, ENROLLMENT, EMERGENCY_BYPASS and OFF operating modes, with runtime as the deployment ceiling and the database as operational authority.',
+      1 => 'Maintenance MFA is fully separated from User Login MFA so Administrator and developer sign-in during Maintenance Mode remains protected when User MFA is reduced.',
+      2 => 'Administrators can change modes through a UI workflow with impact preview, reason, change reference, typed confirmation, optimistic versioning and Admin Step-Up.',
+      3 => 'GRACE caps existing challenges at five minutes, while IMMEDIATE atomically revokes pending transactions and OTP material without deleting user factors.',
+      4 => 'EMERGENCY_BYPASS is limited to 30 minutes through eight hours, bound to its environment and policy version, and fails closed to the exact restore mode after expiry.',
+      5 => 'A bounded, row-locked and idempotent lifecycle CLI worker provides grace cleanup, expiry warnings and automatic restore with audit and notification outbox records.',
+      6 => 'Manual restore uses a professional modal, typed confirmation and automatic continuation after SECURITY_CONFIGURATION_CHANGE Admin Step-Up.',
+      7 => 'Production maker-checker rejects self-approval and stale approval, while staging supports controlled approval for auditable UAT.',
+      8 => 'The weakened-mode banner, Authenticator self-service and password-only login follow the mode matrix without affecting password recovery, MyDigital ID or authenticated sessions.',
+      9 => 'Additive schema, readiness preflight, rollback runbook and 25 regression suites verify an ENFORCED baseline, independent Maintenance MFA and no open transition before release.',
+    ),
+  ),
   'release-2.11.1' =>
   array (
     'version' => '2.11.1',
