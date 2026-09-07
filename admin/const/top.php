@@ -14,10 +14,10 @@
 					<a id="toggle_mobile_nav" class="mobile-only-view" href="javascript:void(0);"><i class="ti-more"></i></a>
 				</div>
 				<div class="oneid-session-indicators oneid-session-indicators--admin" aria-live="off">
-					<div class="oneid-session-indicator" id="oneid_admin_portal_session_indicator" hidden title="<?=htmlspecialchars(oneid_translate('user_session.remaining_help'), ENT_QUOTES, 'UTF-8')?>">
-						<i class="fa fa-clock-o" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('user_session.remaining_label'), ENT_QUOTES, 'UTF-8')?></span><strong id="oneid_admin_portal_session_remaining">--:--</strong>
+					<div class="oneid-session-indicator" id="oneid_admin_portal_session_indicator" hidden data-oneid-tooltip="<?=htmlspecialchars(oneid_translate('user_session.remaining_help'), ENT_QUOTES, 'UTF-8')?>">
+						<i class="fa fa-clock-o" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('user_session.remaining_label'), ENT_QUOTES, 'UTF-8')?></span><strong id="oneid_admin_portal_session_remaining">--:--</strong><button type="button" class="oneid-session-renew-button" data-oneid-admin-portal-session-renew title="<?=htmlspecialchars(oneid_translate('user_session.renew_now'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('user_session.renew_now'), ENT_QUOTES, 'UTF-8')?>">+</button>
 					</div>
-					<div class="oneid-session-indicator oneid-session-indicator--admin" id="oneid_admin_access_indicator" hidden title="<?=htmlspecialchars(oneid_translate('admin.session.remaining_help'), ENT_QUOTES, 'UTF-8')?>">
+					<div class="oneid-session-indicator oneid-session-indicator--admin" id="oneid_admin_access_indicator" hidden data-oneid-tooltip="<?=htmlspecialchars(oneid_translate('admin.session.remaining_help'), ENT_QUOTES, 'UTF-8')?>">
 						<i class="fa fa-shield" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.session.remaining_label'), ENT_QUOTES, 'UTF-8')?></span><strong id="oneid_admin_access_remaining">--:--</strong>
 					</div>
 				</div>

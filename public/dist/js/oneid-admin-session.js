@@ -16,6 +16,8 @@
     var warningOpen = false;
     var renewalPending = false;
     var synchronizationPending = false;
+    var portalRenewalPending = false;
+    var portalRenewalCooldownTimer = null;
     var channel = typeof window.BroadcastChannel === 'function'
         ? new window.BroadcastChannel('oneid-admin-access-session')
         : null;
@@ -54,6 +56,43 @@
     function updatePersistentDisplays() {
         renderIndicator('oneid_admin_portal_session_indicator', 'oneid_admin_portal_session_remaining', deadlineRemaining(portalDeadlineMs));
         renderIndicator('oneid_admin_access_indicator', 'oneid_admin_access_remaining', remainingSeconds());
+    }
+
+    function setPortalRenewButton(disabled, symbol) {
+        Array.prototype.forEach.call(document.querySelectorAll('[data-oneid-admin-portal-session-renew]'), function (button) {
+            button.disabled = Boolean(disabled);
+            button.setAttribute('aria-busy', disabled ? 'true' : 'false');
+            button.textContent = symbol || '+';
+        });
+    }
+
+    function renewPortalSession() {
+        if (portalRenewalPending || renewalPending || synchronizationPending) return;
+        portalRenewalPending = true;
+        setPortalRenewButton(true, '…');
+        post('user_session_renew').then(function () {
+            portalRenewalPending = false;
+            setPortalRenewButton(true, '✓');
+            synchronize();
+            window.clearTimeout(portalRenewalCooldownTimer);
+            portalRenewalCooldownTimer = window.setTimeout(function () {
+                setPortalRenewButton(false, '+');
+            }, 30000);
+        }).catch(function (error) {
+            portalRenewalPending = false;
+            setPortalRenewButton(false, '+');
+            if (error.status === 401 || error.code === 'USER_SESSION_EXPIRED') {
+                redirectToUser();
+                return;
+            }
+            window.swal({
+                title: config.text.renewFailedTitle,
+                text: config.text.portalRenewFailedBody,
+                type: 'error',
+                confirmButtonText: config.text.tryAgain,
+                closeOnConfirm: true
+            });
+        });
     }
 
     function applyProfessionalLayout() {
@@ -249,7 +288,7 @@
     }
 
     function synchronize() {
-        if (synchronizationPending || renewalPending || warningOpen) return;
+        if (synchronizationPending || renewalPending || portalRenewalPending || warningOpen) return;
         synchronizationPending = true;
         post('admin_step_up_status', {purpose: 'ADMIN_ACCESS'}).then(function (payload) {
             synchronizationPending = false;
@@ -292,6 +331,12 @@
         if (!document.hidden) {
             synchronize();
         }
+    });
+    document.addEventListener('click', function (event) {
+        var button = event.target.closest ? event.target.closest('[data-oneid-admin-portal-session-renew]') : null;
+        if (!button || button.disabled) return;
+        event.preventDefault();
+        renewPortalSession();
     });
     window.setInterval(synchronize, 30000);
     if (window.jQuery) {

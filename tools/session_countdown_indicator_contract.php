@@ -20,6 +20,8 @@ $checks=[
     'countdown display supports hours and mobile layout'=>str_contains($userJs,"String(hours).padStart(2, '0')")&&str_contains($adminJs,"String(hours).padStart(2, '0')"),
     'only the user-session indicator offers explicit renewal'=>substr_count($userTop,'data-oneid-user-session-renew')===1&&!str_contains($adminTop,'data-oneid-user-session-renew'),
     'renew control uses guarded renewal and a client cooldown'=>str_contains($userJs,"post('user_session_renew')")&&str_contains($userJs,'beginRenewButtonCooldown')&&str_contains($userJs,'30000'),
+    'admin portal session can renew without adding a control to Administrator access'=>substr_count($adminTop,'data-oneid-admin-portal-session-renew')===1&&str_contains($adminJs,"post('user_session_renew')")&&str_contains($adminJs,"post('admin_step_up_renew')"),
+    'bounded tooltip wraps inside the viewport'=>str_contains((string)file_get_contents($root.'/public/dist/css/oneid-session-indicators.css'),'max-width:calc(100vw - 20px)')&&str_contains((string)file_get_contents($root.'/public/dist/css/oneid-session-indicators.css'),'white-space:normal'),
 ];
 $failed=0;
 foreach($checks as $description=>$passed){echo ($passed?'PASS ':'FAIL ').$description.PHP_EOL;if(!$passed)$failed++;}
