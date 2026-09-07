@@ -11,6 +11,11 @@
 						</div>
 					</div>	
 				</div>	
+				<div class="oneid-session-indicators oneid-session-indicators--user" aria-live="off">
+					<div class="oneid-session-indicator" id="oneid_user_session_indicator" hidden title="<?=htmlspecialchars(oneid_translate('user_session.remaining_help'), ENT_QUOTES, 'UTF-8')?>">
+						<i class="fa fa-clock-o" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('user_session.remaining_label'), ENT_QUOTES, 'UTF-8')?></span><strong id="oneid_user_session_remaining">--:--</strong>
+					</div>
+				</div>
 				</div>
 			</nav>
 			<!-- /Top Menu Items -->

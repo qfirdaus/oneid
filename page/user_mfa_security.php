@@ -80,10 +80,12 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
   <link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260821-1">
   <link rel="stylesheet" href="../dist/css/user-mfa-security.css?v=20260731-1">
   <link rel="stylesheet" href="../dist/css/oneid-user-session.css?v=20260808-2">
+  <link rel="stylesheet" href="../dist/css/oneid-session-indicators.css?v=20260908-1">
   <link rel="stylesheet" href="../dist/css/oneid-environment-banner.css?v=20260810-1">
 </head>
 <body class="user-mfa-flow account-security-page<?=oneid_environment_body_class()?>">
 <?php oneid_render_environment_banner(); ?>
+<div class="oneid-session-indicators oneid-session-indicators--user" aria-live="off"><div class="oneid-session-indicator" id="oneid_user_session_indicator" hidden title="<?=$h('user_session.remaining_help')?>"><span class="oneid-session-indicator__icon" aria-hidden="true">◷</span><span><?=$h('user_session.remaining_label')?></span><strong id="oneid_user_session_remaining">--:--</strong></div></div>
 <main class="mfa-shell">
   <aside class="mfa-brand">
     <img class="mfa-logo" src="../img/logo_oneid-1.png" alt="OneID@UPNM">
@@ -186,7 +188,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 </main>
 <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
 <script>window.OneIdUserSessionConfig=<?=json_encode(oneid_user_session_presentation_config(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;</script>
-<script src="../dist/js/oneid-user-session.js?v=20260812-1"></script>
+<script src="../dist/js/oneid-user-session.js?v=20260908-2"></script>
 <script>
 const api='../lib/q_func',csrf=<?=json_encode(oneid_csrf_token())?>;
 const messageElement=document.getElementById('mfaMessage');

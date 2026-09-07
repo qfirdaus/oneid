@@ -11,6 +11,7 @@
     var warningTimer = null;
     var expiryTimer = null;
     var countdownTimer = null;
+    var displayTimer = null;
     var warningOpen = false;
     var requestPending = false;
     var resyncRequested = false;
@@ -25,9 +26,11 @@
         window.clearTimeout(warningTimer);
         window.clearTimeout(expiryTimer);
         window.clearInterval(countdownTimer);
+        window.clearInterval(displayTimer);
         warningTimer = null;
         expiryTimer = null;
         countdownTimer = null;
+        displayTimer = null;
     }
 
     function remainingSeconds() {
@@ -35,9 +38,23 @@
     }
 
     function formatDuration(seconds) {
+        var hours = Math.floor(seconds / 3600);
         var minutes = Math.floor(seconds / 60);
         var remainder = seconds % 60;
-        return String(minutes).padStart(2, '0') + ':' + String(remainder).padStart(2, '0');
+        return hours > 0
+            ? String(hours).padStart(2, '0') + ':' + String(minutes % 60).padStart(2, '0') + ':' + String(remainder).padStart(2, '0')
+            : String(minutes).padStart(2, '0') + ':' + String(remainder).padStart(2, '0');
+    }
+
+    function updatePersistentDisplay() {
+        var indicator = document.getElementById('oneid_user_session_indicator');
+        var output = document.getElementById('oneid_user_session_remaining');
+        if (!indicator || !output) return;
+        var remaining = remainingSeconds();
+        indicator.hidden = false;
+        indicator.classList.toggle('is-warning', remaining > 120 && remaining <= 300);
+        indicator.classList.toggle('is-critical', remaining <= 120);
+        output.textContent = formatDuration(remaining);
     }
 
     function clearSensitiveInputs() {
@@ -275,6 +292,8 @@
             warningOpen = false;
         }
         deadlineMs = Date.now() + (remaining * 1000);
+        updatePersistentDisplay();
+        displayTimer = window.setInterval(updatePersistentDisplay, 1000);
         if (remaining <= 0) {
             expirePortal();
             return;

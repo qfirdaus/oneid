@@ -8,11 +8,14 @@
 
     var warningSeconds = 120;
     var deadlineMs = 0;
+    var portalDeadlineMs = 0;
     var expiryTimer = null;
     var warningTimer = null;
     var countdownTimer = null;
+    var displayTimer = null;
     var warningOpen = false;
     var renewalPending = false;
+    var synchronizationPending = false;
     var channel = typeof window.BroadcastChannel === 'function'
         ? new window.BroadcastChannel('oneid-admin-access-session')
         : null;
@@ -26,9 +29,31 @@
     }
 
     function formatDuration(seconds) {
+        var hours = Math.floor(seconds / 3600);
         var minutes = Math.floor(seconds / 60);
         var remainder = seconds % 60;
-        return String(minutes).padStart(2, '0') + ':' + String(remainder).padStart(2, '0');
+        return hours > 0
+            ? String(hours).padStart(2, '0') + ':' + String(minutes % 60).padStart(2, '0') + ':' + String(remainder).padStart(2, '0')
+            : String(minutes).padStart(2, '0') + ':' + String(remainder).padStart(2, '0');
+    }
+
+    function deadlineRemaining(deadline) {
+        return Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+    }
+
+    function renderIndicator(indicatorId, outputId, seconds) {
+        var indicator = document.getElementById(indicatorId);
+        var output = document.getElementById(outputId);
+        if (!indicator || !output) return;
+        indicator.hidden = false;
+        indicator.classList.toggle('is-warning', seconds > 120 && seconds <= 300);
+        indicator.classList.toggle('is-critical', seconds <= 120);
+        output.textContent = formatDuration(seconds);
+    }
+
+    function updatePersistentDisplays() {
+        renderIndicator('oneid_admin_portal_session_indicator', 'oneid_admin_portal_session_remaining', deadlineRemaining(portalDeadlineMs));
+        renderIndicator('oneid_admin_access_indicator', 'oneid_admin_access_remaining', remainingSeconds());
     }
 
     function applyProfessionalLayout() {
@@ -75,13 +100,15 @@
         window.clearTimeout(expiryTimer);
         window.clearTimeout(warningTimer);
         window.clearInterval(countdownTimer);
+        window.clearInterval(displayTimer);
         expiryTimer = null;
         warningTimer = null;
         countdownTimer = null;
+        displayTimer = null;
     }
 
     function broadcastRenewal() {
-        var message = {type: 'renewed', deadlineMs: deadlineMs, sentAt: Date.now()};
+        var message = {type: 'renewed', deadlineMs: deadlineMs, portalDeadlineMs: portalDeadlineMs, sentAt: Date.now()};
         if (channel) {
             channel.postMessage(message);
         }
@@ -118,10 +145,11 @@
         });
     }
 
-    function schedule(seconds, notifyOtherTabs) {
+    function schedule(seconds, notifyOtherTabs, portalSeconds) {
         clearTimers();
         warningOpen = false;
         deadlineMs = Date.now() + Math.max(0, Number(seconds) || 0) * 1000;
+        portalDeadlineMs = Date.now() + Math.max(0, Number(portalSeconds === undefined ? seconds : portalSeconds) || 0) * 1000;
         if (remainingSeconds() <= 0) {
             redirectToUser();
             return;
@@ -129,12 +157,14 @@
         expiryTimer = window.setTimeout(redirectToUser, remainingSeconds() * 1000);
         var untilWarning = Math.max(0, remainingSeconds() - warningSeconds);
         warningTimer = window.setTimeout(showWarning, untilWarning * 1000);
+        updatePersistentDisplays();
+        displayTimer = window.setInterval(updatePersistentDisplays, 1000);
         if (notifyOtherTabs) {
             broadcastRenewal();
         }
     }
 
-    function adoptDeadline(nextDeadlineMs) {
+    function adoptDeadline(nextDeadlineMs, nextPortalDeadlineMs) {
         var seconds = Math.ceil((Number(nextDeadlineMs) - Date.now()) / 1000);
         if (seconds <= 0) {
             redirectToUser();
@@ -143,7 +173,8 @@
         if (warningOpen) {
             window.swal.close();
         }
-        schedule(seconds, false);
+        var portalSeconds = Math.ceil((Number(nextPortalDeadlineMs || nextDeadlineMs) - Date.now()) / 1000);
+        schedule(seconds, false, portalSeconds);
     }
 
     function renew() {
@@ -164,9 +195,10 @@
                 closeOnConfirm: true,
                 allowEscapeKey: false
             });
+            var portalRemaining=Math.min(Number(payload.idle_remaining_seconds||0),Number(payload.absolute_remaining_seconds||0));
             schedule(payload.effective_remaining_seconds !== undefined
                 ? payload.effective_remaining_seconds
-                : payload.grant_remaining_seconds, true);
+                : payload.grant_remaining_seconds, true, portalRemaining);
         }).catch(function (error) {
             renewalPending = false;
             if (error.status === 401 || error.code === 'STEP_UP_EXPIRED' || remainingSeconds() <= 0) {
@@ -217,7 +249,10 @@
     }
 
     function synchronize() {
+        if (synchronizationPending || renewalPending || warningOpen) return;
+        synchronizationPending = true;
         post('admin_step_up_status', {purpose: 'ADMIN_ACCESS'}).then(function (payload) {
+            synchronizationPending = false;
             if (!payload.feature_enabled) {
                 return;
             }
@@ -225,10 +260,12 @@
                 redirectToUser();
                 return;
             }
+            var portalRemaining=Math.min(Number(payload.idle_remaining_seconds||0),Number(payload.absolute_remaining_seconds||0));
             schedule(payload.effective_remaining_seconds !== undefined
                 ? payload.effective_remaining_seconds
-                : payload.grant_remaining_seconds, false);
+                : payload.grant_remaining_seconds, false, portalRemaining);
         }).catch(function () {
+            synchronizationPending = false;
             redirectToUser();
         });
     }
@@ -236,7 +273,7 @@
     if (channel) {
         channel.onmessage = function (event) {
             if (event.data && event.data.type === 'renewed') {
-                adoptDeadline(event.data.deadlineMs);
+                adoptDeadline(event.data.deadlineMs,event.data.portalDeadlineMs);
             }
         };
     }
@@ -247,7 +284,7 @@
         try {
             var message = JSON.parse(event.newValue);
             if (message.type === 'renewed') {
-                adoptDeadline(message.deadlineMs);
+                adoptDeadline(message.deadlineMs,message.portalDeadlineMs);
             }
         } catch (ignored) {}
     });
@@ -256,6 +293,7 @@
             synchronize();
         }
     });
+    window.setInterval(synchronize, 30000);
     if (window.jQuery) {
         window.jQuery(document).ajaxError(function (_event, xhr) {
             var payload = xhr.responseJSON || {};

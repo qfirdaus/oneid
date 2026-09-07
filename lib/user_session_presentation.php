@@ -32,6 +32,7 @@ function oneid_user_session_presentation_config(bool $pageEligible = true): arra
             'inactiveBody' => oneid_translate('user_session.inactive_body'),
             'requestFailed' => oneid_translate('user_session.request_failed'),
             'ok' => oneid_translate('user_session.ok'),
+            'remainingLabel' => oneid_translate('user_session.remaining_label'),
         ],
     ];
 }

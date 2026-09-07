@@ -9,11 +9,19 @@
 								<span class="brand-text img-responsive"><img src="../img/logo_upnm_30.png" width="187" height="50" alt="Universiti Pertahanan Nasional Malaysia 30 Tahun"/></span>
 							</a>
 						</div>
-					</div>	
+					</div>
 					<!-- <a id="toggle_nav_btn" class="toggle-left-nav-btn inline-block ml-20 pull-left" href="javascript:void(0);"><i class="ti-align-left"></i></a> -->
 					<a id="toggle_mobile_nav" class="mobile-only-view" href="javascript:void(0);"><i class="ti-more"></i></a>
 				</div>
-		<!-- 		<div id="mobile_only_nav" class="mobile-only-nav pull-right">
+				<div class="oneid-session-indicators oneid-session-indicators--admin" aria-live="off">
+					<div class="oneid-session-indicator" id="oneid_admin_portal_session_indicator" hidden title="<?=htmlspecialchars(oneid_translate('user_session.remaining_help'), ENT_QUOTES, 'UTF-8')?>">
+						<i class="fa fa-clock-o" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('user_session.remaining_label'), ENT_QUOTES, 'UTF-8')?></span><strong id="oneid_admin_portal_session_remaining">--:--</strong>
+					</div>
+					<div class="oneid-session-indicator oneid-session-indicator--admin" id="oneid_admin_access_indicator" hidden title="<?=htmlspecialchars(oneid_translate('admin.session.remaining_help'), ENT_QUOTES, 'UTF-8')?>">
+						<i class="fa fa-shield" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('admin.session.remaining_label'), ENT_QUOTES, 'UTF-8')?></span><strong id="oneid_admin_access_remaining">--:--</strong>
+					</div>
+				</div>
+	<!-- 		<div id="mobile_only_nav" class="mobile-only-nav pull-right">
 					<ul class="nav navbar-right top-nav pull-right">
 						
 						<li class="dropdown auth-drp">
