@@ -118,6 +118,12 @@ $report(
         && str_contains($ssoInclude, 'COOKIE_SETTER'),
     'valid SSO flow can establish an authenticated OneID session from a token'
 );
+$report(
+    str_contains($ssoInclude, "isset(\$_COOKIE['sso_cre']) ? trim")
+        && str_contains($ssoInclude, "'sso_cre' => \$token")
+        && !str_contains($ssoInclude, "if(isset(\$_COOKIE['sso_cre'])) {\n\t\t\$rawCookie"),
+    'missing empty and malformed SSO cookies resolve to a safe non-null cookie object'
+);
 $establishOffset = strpos($session, 'function oneid_establish_authenticated_session');
 $establishBlock = $establishOffset === false ? '' : substr($session, $establishOffset, 1800);
 $report(

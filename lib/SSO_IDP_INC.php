@@ -11,18 +11,16 @@ $SSO_IDP_DOMAIN = SSO_IDP_DOMAIN;
 $SSO_SP_DASHBOARD = SSO_SP_DASHBOARD;
 $SP_current_page = GET_CURRENT_PAGE_URI();
 function LOCAL_COOKIES_HANDLER(){
-	if(isset($_COOKIE['sso_cre'])) {
-		$rawCookie = (string) $_COOKIE['sso_cre'];
-		$legacyCookie = json_decode($rawCookie);
-		$token = is_object($legacyCookie) && isset($legacyCookie->sso_cre)
-			? (string) $legacyCookie->sso_cre
-			: $rawCookie;
-		return (object) [
-			'sso_cre' => $token,
-			'sso_dt' => date('Y-m-d H:i:s', (int) ($_SESSION['oneid_session_last_activity'] ?? time())),
-			'u_id' => (string) ($_SESSION['login_user'] ?? ''),
-		];
-	}
+	$rawCookie = isset($_COOKIE['sso_cre']) ? trim((string) $_COOKIE['sso_cre']) : '';
+	$legacyCookie = $rawCookie === '' ? null : json_decode($rawCookie);
+	$token = is_object($legacyCookie) && isset($legacyCookie->sso_cre)
+		? trim((string) $legacyCookie->sso_cre)
+		: $rawCookie;
+	return (object) [
+		'sso_cre' => $token,
+		'sso_dt' => date('Y-m-d H:i:s', (int) ($_SESSION['oneid_session_last_activity'] ?? time())),
+		'u_id' => (string) ($_SESSION['login_user'] ?? ''),
+	];
 }
 if(!isset($_COOKIE['sso_cre'])) {
   //Check if have new SSO token to be publish to browser
