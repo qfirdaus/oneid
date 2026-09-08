@@ -80,7 +80,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
   <link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260821-1">
   <link rel="stylesheet" href="../dist/css/user-mfa-security.css?v=20260731-1">
   <link rel="stylesheet" href="../dist/css/oneid-user-session.css?v=20260808-2">
-  <link rel="stylesheet" href="../dist/css/oneid-session-indicators.css?v=20260908-4">
+  <link rel="stylesheet" href="../dist/css/oneid-session-indicators.css?v=20260908-5">
   <link rel="stylesheet" href="../dist/css/oneid-environment-banner.css?v=20260810-1">
 </head>
 <body class="user-mfa-flow account-security-page<?=oneid_environment_body_class()?>">
