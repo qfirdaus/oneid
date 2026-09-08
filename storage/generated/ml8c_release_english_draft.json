@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2122-CHANGELOG-20260908-01",
+    "authorization": "ONEID-V2123-CHANGELOG-20260908-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.12.3",
+            "version": "2.12.3",
+            "date": "2026-09-08",
+            "items": [
+                {
+                    "identity": "release:2.12.3:item:001",
+                    "bm": "Aliran User MFA dan Security Authentication kini mempunyai terjemahan Bahasa Melayu dan English yang lengkap, termasuk sambung semula selepas Administrator Step-Up.",
+                    "en_draft": "User MFA and Security Authentication flows now provide complete Malay and English translations, including continuation after Administrator Step-Up.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.3:item:002",
+                    "bm": "Header pengguna memaparkan kira detik sesi berdasarkan idle timeout dan had mutlak lapan jam yang dikuatkuasakan oleh pelayan.",
+                    "en_draft": "The user header displays a session countdown based on the server-enforced idle timeout and eight-hour absolute limit.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.3:item:003",
+                    "bm": "Header Administrator memisahkan baki sesi OneID daripada baki akses Administrator supaya kedua-dua tempoh mudah dikenal pasti.",
+                    "en_draft": "The Administrator header separates the remaining OneID session from the remaining Administrator access so both periods are clearly identifiable.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.3:item:004",
+                    "bm": "Pengguna boleh menyambung sesi secara eksplisit melalui butang tambah yang dilindungi CSRF, status login, audit dan cooldown tanpa melepasi had mutlak.",
+                    "en_draft": "Users can explicitly renew their session through a plus button protected by CSRF, sign-in status, audit and cooldown without exceeding the absolute limit.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.3:item:005",
+                    "bm": "Administrator boleh menyambung sesi OneID pengguna dari header admin tanpa memperbaharui grant akses Administrator secara senyap.",
+                    "en_draft": "Administrators can renew the underlying OneID user session from the admin header without silently renewing the Administrator access grant.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.3:item:006",
+                    "bm": "Amaran SweetAlert dua minit terakhir dikekalkan dan polling teknikal tidak dianggap sebagai aktiviti yang memanjangkan sesi.",
+                    "en_draft": "The final two-minute SweetAlert warning remains in place, and technical polling is not treated as activity that extends the session.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.3:item:007",
+                    "bm": "Label kira detik kini menerangkan bahawa sesi tamat apabila tidak aktif, dengan tooltip responsif yang tidak menghasilkan scrollbar.",
+                    "en_draft": "The countdown label now explains that the session ends when inactive, with a responsive tooltip that does not create a scrollbar.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.3:item:008",
+                    "bm": "Kira detik kekal di sebelah kanan dan dijajarkan pada tengah ketinggian header untuk paparan desktop serta mudah alih.",
+                    "en_draft": "The countdown remains right aligned and is vertically centred within the header on desktop and mobile displays.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.3:item:009",
+                    "bm": "Direktori aplikasi menggunakan Akses bagi OneID SSO dan Log Masuk bagi aplikasi Bukan SSO, bersama badge, ikon serta tooltip yang sepadan.",
+                    "en_draft": "The application directory uses Access for OneID SSO and Sign in for Non-SSO applications, with matching badges, icons and tooltips.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.3:item:010",
+                    "bm": "Pengendali cookie SSO kini selamat bagi cookie hilang, kosong atau rosak dan menghalang pendedahan warning apabila sesi tamat.",
+                    "en_draft": "The SSO cookie handler now safely handles missing, empty or malformed cookies and prevents warning disclosure when a session ends.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.12.2",
             "version": "2.12.2",
@@ -3383,5 +3450,5 @@
             ]
         }
     ],
-    "manifest_digest": "4f0a92246b055a4d09a9d4db2a979df9be7ea739d5c42475d4b0c5e496dc9822"
+    "manifest_digest": "02f72295c4a21bf81f1dfbf05ba9817ab0939381e7affebd848ba2dd4ffc77cb"
 }

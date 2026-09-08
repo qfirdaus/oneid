@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.12.3' =>
+  array (
+    'version' => '2.12.3',
+    'date' => '2026-09-08',
+    'bm' =>
+    array (
+      0 => 'Aliran User MFA dan Security Authentication kini mempunyai terjemahan Bahasa Melayu dan English yang lengkap, termasuk sambung semula selepas Administrator Step-Up.',
+      1 => 'Header pengguna memaparkan kira detik sesi berdasarkan idle timeout dan had mutlak lapan jam yang dikuatkuasakan oleh pelayan.',
+      2 => 'Header Administrator memisahkan baki sesi OneID daripada baki akses Administrator supaya kedua-dua tempoh mudah dikenal pasti.',
+      3 => 'Pengguna boleh menyambung sesi secara eksplisit melalui butang tambah yang dilindungi CSRF, status login, audit dan cooldown tanpa melepasi had mutlak.',
+      4 => 'Administrator boleh menyambung sesi OneID pengguna dari header admin tanpa memperbaharui grant akses Administrator secara senyap.',
+      5 => 'Amaran SweetAlert dua minit terakhir dikekalkan dan polling teknikal tidak dianggap sebagai aktiviti yang memanjangkan sesi.',
+      6 => 'Label kira detik kini menerangkan bahawa sesi tamat apabila tidak aktif, dengan tooltip responsif yang tidak menghasilkan scrollbar.',
+      7 => 'Kira detik kekal di sebelah kanan dan dijajarkan pada tengah ketinggian header untuk paparan desktop serta mudah alih.',
+      8 => 'Direktori aplikasi menggunakan Akses bagi OneID SSO dan Log Masuk bagi aplikasi Bukan SSO, bersama badge, ikon serta tooltip yang sepadan.',
+      9 => 'Pengendali cookie SSO kini selamat bagi cookie hilang, kosong atau rosak dan menghalang pendedahan warning apabila sesi tamat.',
+    ),
+    'en' =>
+    array (
+      0 => 'User MFA and Security Authentication flows now provide complete Malay and English translations, including continuation after Administrator Step-Up.',
+      1 => 'The user header displays a session countdown based on the server-enforced idle timeout and eight-hour absolute limit.',
+      2 => 'The Administrator header separates the remaining OneID session from the remaining Administrator access so both periods are clearly identifiable.',
+      3 => 'Users can explicitly renew their session through a plus button protected by CSRF, sign-in status, audit and cooldown without exceeding the absolute limit.',
+      4 => 'Administrators can renew the underlying OneID user session from the admin header without silently renewing the Administrator access grant.',
+      5 => 'The final two-minute SweetAlert warning remains in place, and technical polling is not treated as activity that extends the session.',
+      6 => 'The countdown label now explains that the session ends when inactive, with a responsive tooltip that does not create a scrollbar.',
+      7 => 'The countdown remains right aligned and is vertically centred within the header on desktop and mobile displays.',
+      8 => 'The application directory uses Access for OneID SSO and Sign in for Non-SSO applications, with matching badges, icons and tooltips.',
+      9 => 'The SSO cookie handler now safely handles missing, empty or malformed cookies and prevents warning disclosure when a session ends.',
+    ),
+  ),
   'release-2.12.2' =>
   array (
     'version' => '2.12.2',
