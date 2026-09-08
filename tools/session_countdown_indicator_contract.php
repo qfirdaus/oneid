@@ -22,6 +22,7 @@ $checks=[
     'renew control uses guarded renewal and a client cooldown'=>str_contains($userJs,"post('user_session_renew')")&&str_contains($userJs,'beginRenewButtonCooldown')&&str_contains($userJs,'30000'),
     'admin portal session can renew without adding a control to Administrator access'=>substr_count($adminTop,'data-oneid-admin-portal-session-renew')===1&&str_contains($adminJs,"post('user_session_renew')")&&str_contains($adminJs,"post('admin_step_up_renew')"),
     'bounded tooltip wraps inside the viewport'=>str_contains((string)file_get_contents($root.'/public/dist/css/oneid-session-indicators.css'),'max-width:calc(100vw - 20px)')&&str_contains((string)file_get_contents($root.'/public/dist/css/oneid-session-indicators.css'),'white-space:normal'),
+    'countdown group is centered in desktop and mobile headers'=>substr_count((string)file_get_contents($root.'/public/dist/css/oneid-session-indicators.css'),'left:50%')>=2&&substr_count((string)file_get_contents($root.'/public/dist/css/oneid-session-indicators.css'),'transform:translateX(-50%)')>=2,
 ];
 $failed=0;
 foreach($checks as $description=>$passed){echo ($passed?'PASS ':'FAIL ').$description.PHP_EOL;if(!$passed)$failed++;}

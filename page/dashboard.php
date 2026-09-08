@@ -99,7 +99,7 @@
       <link href="../dist/css/oneid-asnb-reminder.css?v=20260903-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260824-4" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-session-indicators.css?v=20260908-3" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-session-indicators.css?v=20260908-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
 
