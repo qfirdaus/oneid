@@ -18,7 +18,7 @@ $checks = [
     'favourite button is accessible and stateful' => strpos($files['dashboard'], 'aria-pressed=') !== false
         && strpos($files['dashboard'], 'user_set_app_favourite') !== false,
     'NON SSO receives distinct tab styling' => strpos($files['dashboard'], 'is-non-sso-tab') !== false,
-    'SSO and direct access labels are explicit' => strpos($files['dashboard'], 'isDirect ? dashboardI18n.access : dashboardI18n.login') !== false
+    'SSO and Non-SSO actions use the correct access and sign-in labels' => strpos($files['dashboard'], 'isDirect ? dashboardI18n.login : dashboardI18n.access') !== false
         && strpos($files['dashboard'], 'isDirect ? dashboardI18n.directAccess : dashboardI18n.oneidSso') !== false,
     'application summary separates total SSO and non SSO' => strpos($files['dashboard'], 'id="user_app_count"') !== false
         && strpos($files['dashboard'], 'id="user_app_sso_count"') !== false

@@ -746,8 +746,8 @@
             var isFavourite = Number(application.is_favourite) === 1;
             var favouriteTitle = isFavourite ? dashboardI18n.removeFavourite : dashboardI18n.addFavourite;
             var accessLabel = isDirect ? dashboardI18n.directAccess : dashboardI18n.oneidSso;
-            var buttonLabel = isDirect ? dashboardI18n.access : dashboardI18n.login;
-            var buttonTitle = isDirect ? dashboardI18n.accessTitle : dashboardI18n.loginTitle;
+            var buttonLabel = isDirect ? dashboardI18n.login : dashboardI18n.access;
+            var buttonTitle = isDirect ? dashboardI18n.loginTitle : dashboardI18n.accessTitle;
 
             var card = '<article class="user-app-card">';
             card += '<div class="user-app-index">'+index+'</div>';
@@ -756,7 +756,7 @@
             card += '<p title="'+appDescription+'">'+appDescription+'</p></div>';
             card += '<div class="user-app-actions">';
             card += '<button type="button" class="user-app-favourite '+(isFavourite ? 'is-selected' : '')+'" data-app-id="'+appId+'" data-favourite="'+(isFavourite ? '1' : '0')+'" aria-pressed="'+(isFavourite ? 'true' : 'false')+'" title="'+favouriteTitle+'" aria-label="'+favouriteTitle+'"><i class="fa fa-star" aria-hidden="true"></i></button>';
-            card += '<button type="button" class="user-app-open '+(isDirect ? 'is-direct' : '')+'" data-app-id="'+appId+'" title="'+buttonTitle+'"><i class="fa '+(isDirect ? 'fa-external-link' : 'fa-sign-in')+'" aria-hidden="true"></i><span>'+buttonLabel+'</span></button>';
+            card += '<button type="button" class="user-app-open '+(isDirect ? 'is-direct' : '')+'" data-app-id="'+appId+'" title="'+buttonTitle+'"><i class="fa '+(isDirect ? 'fa-sign-in' : 'fa-external-link')+'" aria-hidden="true"></i><span>'+buttonLabel+'</span></button>';
             card += '</div></article>';
             return card;
          }
