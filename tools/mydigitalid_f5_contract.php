@@ -18,7 +18,7 @@ $logoutEndpoint = $read('app/Auth/LogoutEndpoint.php');
 $logoutHandler = $read('app/Auth/LogoutHandler.php');
 $runtime = $read('config/runtime.php');
 $checks = [];
-$checks['flagged_ui'] = str_contains($index, 'if ($myDigitalIdEnabled)')
+$checks['flagged_ui'] = str_contains($index, 'if ($myDigitalIdEnabled')
     && str_contains($index, 'href="auth/mydigitalid/login.php"')
     && str_contains($index, 'mydigitalid-preview')
     && str_contains($runtime, "'ONEID_MYDID_ENABLED' => 'false'");

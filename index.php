@@ -111,13 +111,6 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
           <img src="img/logo_oneid.png" alt="UPNM Logo" style="width: 80%; height: auto !important;" />
           <img src="img/logo_upnm_30.png" alt="UPNM 30 Tahun Logo" style="width: 40%; height: auto !important;" />
         </div>
-        <div class="text-center mb-4">
-          <h5 class="txt-heading text-center txt-dark mb-5 ">
-            <!-- <u><font class="custom_link">S</font></u>atu <u><font class="custom_link">L</font></u>ogin, <u><font class="custom_link">S</font></u>emua <u><font class="custom_link">A</font></u>kses (SSO) -->
-             <?=htmlspecialchars(oneid_translate('login.gateway'), ENT_QUOTES, 'UTF-8')?>
-          </h5>
-        </div>
-
         <div id="login_status" role="status" aria-live="polite"><?php if ($loginFlashKey !== null): ?>
           <div class="alert alert-warning alert-dismissable">
             <p><?=htmlspecialchars(oneid_translate($loginFlashKey), ENT_QUOTES, 'UTF-8')?></p>
@@ -141,23 +134,38 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
           </div>
         <?php endif; ?>
 
-        <div class="login-form-block" style="display: flex; flex-direction: column; gap: 4px;margin-bottom: 20px;">
-          <label for="username" class="login-form-label" style="margin-bottom: 4px; font-weight: 500; color: #2c2c2c;"> <?=htmlspecialchars(oneid_translate('login.user_id'), ENT_QUOTES, 'UTF-8')?></label>
-          <input id="username" name="username" type="text" class="login-form-control custom_input login_placeholder" placeholder="<?=htmlspecialchars(oneid_translate('login.user_id_placeholder'), ENT_QUOTES, 'UTF-8')?>" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@\-]*" autocomplete="username" />
-        </div>
+        <section class="oneid-login-method oneid-login-method--password">
+          <?php if (!defined('ONEID_ADMIN_MAINTENANCE_LOGIN') && !defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')): ?>
+          <div class="oneid-login-method-header">
+            <span class="oneid-login-method-icon" aria-hidden="true"><i class="fas fa-user-lock"></i></span>
+            <div>
+              <span class="oneid-login-method-eyebrow"><?=htmlspecialchars(oneid_translate('login.password_access.eyebrow'), ENT_QUOTES, 'UTF-8')?></span>
+              <h2 id="oneid-password-login-title"><?=htmlspecialchars(oneid_translate('login.password_access.title'), ENT_QUOTES, 'UTF-8')?></h2>
+              <p><?=htmlspecialchars(oneid_translate('login.password_access.description'), ENT_QUOTES, 'UTF-8')?></p>
+            </div>
+          </div>
+          <?php endif; ?>
 
-        <div class="login-form-block" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px;">
-          <label for="password" class="login-form-label" style="margin-bottom: 4px; font-weight: 500; color: #2c2c2c;"> <?=htmlspecialchars(oneid_translate('login.password'), ENT_QUOTES, 'UTF-8')?></label>
-          <input id="password" name="password" type="password" placeholder="<?=htmlspecialchars(oneid_translate('login.password_placeholder'), ENT_QUOTES, 'UTF-8')?>" class="login-form-control custom_input login_placeholder" autocomplete="current-password" />
-		  <small><?=htmlspecialchars(oneid_translate('login.new_user_help'), ENT_QUOTES, 'UTF-8')?></small>
-        </div>
+          <div class="oneid-login-method-body">
+            <div class="login-form-block">
+              <label for="username" class="login-form-label"><?=htmlspecialchars(oneid_translate('login.user_id'), ENT_QUOTES, 'UTF-8')?></label>
+              <input id="username" name="username" type="text" class="login-form-control custom_input login_placeholder" placeholder="<?=htmlspecialchars(oneid_translate('login.user_id_placeholder'), ENT_QUOTES, 'UTF-8')?>" maxlength="20" pattern="[A-Za-z0-9][A-Za-z0-9._@\-]*" autocomplete="username" />
+            </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-3" >
-          <?php if (!defined('ONEID_ADMIN_MAINTENANCE_LOGIN') && !defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')): ?><a style="cursor: pointer;" class="text-primary" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></a><?php else: ?><span aria-hidden="true"></span><?php endif; ?>
-          <button type="submit" class="btn btn-warning px-4">
-            <i class="icon-login me-1 animate__animated animate__swing animate__infinite infinite"></i> <?=htmlspecialchars(oneid_translate('login.submit'), ENT_QUOTES, 'UTF-8')?>
-          </button>
-        </div>
+            <div class="login-form-block">
+              <label for="password" class="login-form-label"><?=htmlspecialchars(oneid_translate('login.password'), ENT_QUOTES, 'UTF-8')?></label>
+              <input id="password" name="password" type="password" placeholder="<?=htmlspecialchars(oneid_translate('login.password_placeholder'), ENT_QUOTES, 'UTF-8')?>" class="login-form-control custom_input login_placeholder" autocomplete="current-password" />
+		      <small><?=htmlspecialchars(oneid_translate('login.new_user_help'), ENT_QUOTES, 'UTF-8')?></small>
+            </div>
+
+            <div class="oneid-password-actions">
+              <?php if (!defined('ONEID_ADMIN_MAINTENANCE_LOGIN') && !defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')): ?><a class="text-primary oneid-forgot-password" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></a><?php else: ?><span aria-hidden="true"></span><?php endif; ?>
+              <button type="submit" class="btn btn-warning px-4">
+                <i class="icon-login me-1 animate__animated animate__swing animate__infinite infinite"></i> <?=htmlspecialchars(oneid_translate('login.submit'), ENT_QUOTES, 'UTF-8')?>
+              </button>
+            </div>
+          </div>
+        </section>
 
         <?php if ($myDigitalIdEnabled && !defined('ONEID_ADMIN_MAINTENANCE_LOGIN') && !defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')): ?>
           <div class="mydigitalid-login-option" role="region" aria-labelledby="mydigitalid-divider">
@@ -180,6 +188,13 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
                 <span class="mydigitalid-arrow" aria-hidden="true">&rarr;</span>
               </a>
             </div>
+            <p class="mydigitalid-registration">
+              <span><?=htmlspecialchars(oneid_translate('login.mydigitalid.register_prompt'), ENT_QUOTES, 'UTF-8')?></span>
+              <a href="https://www.malaysia.gov.my/my/register/mydigital-id" target="_blank" rel="noopener noreferrer">
+                <?=htmlspecialchars(oneid_translate('login.mydigitalid.register_link'), ENT_QUOTES, 'UTF-8')?>
+                <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+              </a>
+            </p>
           </div>
         <?php else: ?>
           <?php $myDigitalIdPreviewTitle=defined('ONEID_ADMIN_MAINTENANCE_LOGIN')?'login.maintenance_mydigitalid_title':'login.future_option';$myDigitalIdPreviewMessage=defined('ONEID_ADMIN_MAINTENANCE_LOGIN')?'login.maintenance_mydigitalid_message':'login.integration_disabled'; ?>
@@ -1061,6 +1076,97 @@ $('#otp_inputs').on('paste', function(e) {
   }
   .maintenance-admin-login-label i { color: #078fbe; }
 
+  .oneid-login-method {
+    overflow: hidden;
+    border: 1px solid #d9e6f0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 8px 22px rgba(24, 62, 92, .08);
+  }
+  .oneid-login-method--password {
+    margin-top: 4px;
+  }
+  .oneid-login-method-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px 16px 14px;
+    border-bottom: 1px solid #dce9f2;
+    background: linear-gradient(135deg, #f4fbff 0%, #eef7fc 100%);
+    text-align: left;
+  }
+  .oneid-login-method-icon {
+    flex: 0 0 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #0678b7, #08a4c8);
+    box-shadow: 0 5px 12px rgba(6, 120, 183, .2);
+    color: #fff;
+    font-size: 15px;
+  }
+  .oneid-login-method-eyebrow {
+    display: block;
+    margin: 0 0 2px;
+    color: #057cae;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .12em;
+  }
+  .oneid-login-method-header h2 {
+    margin: 0;
+    color: #14253c;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.3;
+  }
+  .oneid-login-method-header p {
+    margin: 3px 0 0;
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .oneid-login-method-body {
+    padding: 17px 16px 15px;
+  }
+  .oneid-login-method-body .login-form-block {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 15px;
+  }
+  .oneid-login-method-body .login-form-label {
+    margin: 0;
+    color: #263648;
+    font-weight: 600;
+  }
+  .oneid-login-method-body small {
+    color: #7a8796;
+    line-height: 1.35;
+  }
+  .oneid-password-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding-top: 2px;
+  }
+  .oneid-forgot-password {
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+  .oneid-password-actions .btn {
+    min-height: 42px;
+    border: 0;
+    border-radius: 999px;
+    box-shadow: 0 7px 15px rgba(244, 151, 0, .2);
+    font-weight: 700;
+  }
+
   .mydigitalid-preview {
     margin: 18px auto 4px;
     padding-top: 14px;
@@ -1087,7 +1193,7 @@ $('#otp_inputs').on('paste', function(e) {
   }
   .mydigitalid-preview small { font-size: 11px; }
   .mydigitalid-login-option {
-    margin: 24px auto 6px;
+    margin: 22px auto 6px;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -1236,6 +1342,32 @@ $('#otp_inputs').on('paste', function(e) {
     background: rgba(255, 255, 255, .2);
     transform: translateX(3px);
   }
+  .mydigitalid-registration {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 3px 6px;
+    margin: 0;
+    color: #69788a;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  .mydigitalid-registration a {
+    color: #067eaf;
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+  .mydigitalid-registration a:hover,
+  .mydigitalid-registration a:focus {
+    color: #045f8a;
+  }
+  .mydigitalid-registration i {
+    margin-left: 3px;
+    font-size: 9px;
+  }
   .form-control:focus {
     border-color: #ffc107;
     box-shadow: 0 0 0 0.2rem rgba(255,193,7,.25);
@@ -1377,6 +1509,15 @@ $('#otp_inputs').on('paste', function(e) {
 
       .login-locale-switcher {
         margin-left: auto;
+      }
+
+      .oneid-password-actions {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .oneid-forgot-password {
+        text-align: left;
       }
 
       .mydigitalid-button {
