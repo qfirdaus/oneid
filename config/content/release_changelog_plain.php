@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.12.4' =>
+  array (
+    'version' => '2.12.4',
+    'date' => '2026-09-09',
+    'bm' =>
+    array (
+      0 => 'Halaman login kini membezakan akses OneID staf dan pelajar daripada pilihan login MyDigital ID melalui dua zon visual yang jelas.',
+      1 => 'Kad Staf / Pelajar mempunyai tajuk, ikon dan penerangan ringkas supaya kaedah login menggunakan kelayakan OneID mudah dikenal pasti.',
+      2 => 'Medan ID Pengguna, kata laluan, bantuan pengguna baharu, lupa kata laluan dan butang login disusun dalam satu kad profesional yang responsif.',
+      3 => 'ID borang, nama medan dan aliran submit asal dikekalkan supaya perubahan paparan tidak mengubah proses autentikasi kata laluan.',
+      4 => 'MyDigital ID kekal sebagai kaedah alternatif dalam kad identiti berasingan dengan jenama, penerangan keselamatan dan tindakan yang jelas.',
+      5 => 'Pengguna tanpa akaun MyDigital ID kini boleh membuka halaman pendaftaran rasmi portal Malaysia terus daripada halaman login.',
+      6 => 'Pautan pendaftaran dibuka dalam tab baharu dengan perlindungan noopener dan noreferrer.',
+      7 => 'Semua label baharu disediakan dalam Bahasa Melayu dan English mengikut pilihan bahasa halaman.',
+      8 => 'Susun atur kad, tindakan dan pautan pendaftaran menyesuaikan diri pada paparan desktop serta mudah alih tanpa mengganggu flow maintenance login.',
+      9 => 'Tagline berulang di bawah logo telah dibuang untuk menghasilkan hierarki visual yang lebih kemas tanpa mengubah tajuk halaman atau identiti OneID.',
+    ),
+    'en' =>
+    array (
+      0 => 'The login page now distinguishes staff and student OneID access from the MyDigital ID login option through two clear visual zones.',
+      1 => 'The Staff / Student card provides a title, icon and concise guidance so credential-based OneID login is easy to identify.',
+      2 => 'The User ID, password, new-user guidance, password recovery and login action are arranged in one professional responsive card.',
+      3 => 'Existing form identifiers, field names and submission flow are preserved so the visual update does not alter password authentication.',
+      4 => 'MyDigital ID remains an alternative method in a separate identity card with clear branding, security guidance and action.',
+      5 => 'Users without a MyDigital ID account can now open the official Malaysia portal registration page directly from the login page.',
+      6 => 'The registration link opens in a new tab with noopener and noreferrer protection.',
+      7 => 'All new labels are available in Malay and English according to the selected page language.',
+      8 => 'Cards, actions and the registration link adapt to desktop and mobile displays without disrupting the maintenance-login flow.',
+      9 => 'The repeated tagline beneath the logo has been removed for a cleaner visual hierarchy without changing the page title or OneID identity.',
+    ),
+  ),
   'release-2.12.3' =>
   array (
     'version' => '2.12.3',

@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2123-CHANGELOG-20260908-01",
+    "authorization": "ONEID-V2124-CHANGELOG-20260909-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.12.4",
+            "version": "2.12.4",
+            "date": "2026-09-09",
+            "items": [
+                {
+                    "identity": "release:2.12.4:item:001",
+                    "bm": "Halaman login kini membezakan akses OneID staf dan pelajar daripada pilihan login MyDigital ID melalui dua zon visual yang jelas.",
+                    "en_draft": "The login page now distinguishes staff and student OneID access from the MyDigital ID login option through two clear visual zones.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.4:item:002",
+                    "bm": "Kad Staf / Pelajar mempunyai tajuk, ikon dan penerangan ringkas supaya kaedah login menggunakan kelayakan OneID mudah dikenal pasti.",
+                    "en_draft": "The Staff / Student card provides a title, icon and concise guidance so credential-based OneID login is easy to identify.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.4:item:003",
+                    "bm": "Medan ID Pengguna, kata laluan, bantuan pengguna baharu, lupa kata laluan dan butang login disusun dalam satu kad profesional yang responsif.",
+                    "en_draft": "The User ID, password, new-user guidance, password recovery and login action are arranged in one professional responsive card.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.4:item:004",
+                    "bm": "ID borang, nama medan dan aliran submit asal dikekalkan supaya perubahan paparan tidak mengubah proses autentikasi kata laluan.",
+                    "en_draft": "Existing form identifiers, field names and submission flow are preserved so the visual update does not alter password authentication.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.4:item:005",
+                    "bm": "MyDigital ID kekal sebagai kaedah alternatif dalam kad identiti berasingan dengan jenama, penerangan keselamatan dan tindakan yang jelas.",
+                    "en_draft": "MyDigital ID remains an alternative method in a separate identity card with clear branding, security guidance and action.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.4:item:006",
+                    "bm": "Pengguna tanpa akaun MyDigital ID kini boleh membuka halaman pendaftaran rasmi portal Malaysia terus daripada halaman login.",
+                    "en_draft": "Users without a MyDigital ID account can now open the official Malaysia portal registration page directly from the login page.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.4:item:007",
+                    "bm": "Pautan pendaftaran dibuka dalam tab baharu dengan perlindungan noopener dan noreferrer.",
+                    "en_draft": "The registration link opens in a new tab with noopener and noreferrer protection.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.4:item:008",
+                    "bm": "Semua label baharu disediakan dalam Bahasa Melayu dan English mengikut pilihan bahasa halaman.",
+                    "en_draft": "All new labels are available in Malay and English according to the selected page language.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.4:item:009",
+                    "bm": "Susun atur kad, tindakan dan pautan pendaftaran menyesuaikan diri pada paparan desktop serta mudah alih tanpa mengganggu flow maintenance login.",
+                    "en_draft": "Cards, actions and the registration link adapt to desktop and mobile displays without disrupting the maintenance-login flow.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.12.4:item:010",
+                    "bm": "Tagline berulang di bawah logo telah dibuang untuk menghasilkan hierarki visual yang lebih kemas tanpa mengubah tajuk halaman atau identiti OneID.",
+                    "en_draft": "The repeated tagline beneath the logo has been removed for a cleaner visual hierarchy without changing the page title or OneID identity.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.12.3",
             "version": "2.12.3",
@@ -3450,5 +3517,5 @@
             ]
         }
     ],
-    "manifest_digest": "02f72295c4a21bf81f1dfbf05ba9817ab0939381e7affebd848ba2dd4ffc77cb"
+    "manifest_digest": "b3b7f0120b383fb3f7ba2b6ed20b580790ff8626565f99785f6f70a1e8ae9097"
 }
