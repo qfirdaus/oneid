@@ -113,6 +113,7 @@ return [
     'login.page_title' => "ONEID@UPNM - Your Gateway to UPNM's Digital Ecosystem",
     'login.menu.manual' => 'User Manual',
     'login.menu.directory' => 'UPNM Directory',
+    'login.menu.email' => 'UPNM Mail',
     'login.manual_fallback_notice' => 'English manual is not yet available. The Bahasa Melayu version is provided.',
     'login.contact.title' => 'Contact Us',
     'login.contact.service' => 'OneID@UPNM Support Service',

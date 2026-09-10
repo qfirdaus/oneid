@@ -113,6 +113,7 @@ return [
     'login.page_title' => 'ONEID@UPNM - Gerbang Tunggal ke Sistem Digital UPNM',
     'login.menu.manual' => 'Manual Pengguna',
     'login.menu.directory' => 'Direktori UPNM',
+    'login.menu.email' => 'E-mel UPNM',
     'login.manual_fallback_notice' => 'Manual rasmi semasa disediakan dalam Bahasa Melayu.',
     'login.contact.title' => 'Hubungi Kami',
     'login.contact.service' => 'Perkhidmatan Sokongan OneID@UPNM',

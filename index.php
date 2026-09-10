@@ -234,6 +234,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
           <a href="./public_docs/MANUAL_SALAM.pdf" class="menu_link" target="_blank" rel="noopener"><?=htmlspecialchars(oneid_translate('login.menu.manual'), ENT_QUOTES, 'UTF-8')?></a>
           <a href="#" class="menu_link" data-bs-toggle="modal" data-bs-target="#faqModal"><?=htmlspecialchars(oneid_translate('faq.link'), ENT_QUOTES, 'UTF-8')?></a>
           <a href="https://directory.upnm.edu.my/" target="_blank" rel="noopener" class="menu_link"><?=htmlspecialchars(oneid_translate('login.menu.directory'), ENT_QUOTES, 'UTF-8')?></a>
+          <a href="https://outlook.cloud.microsoft/mail/" target="_blank" rel="noopener noreferrer" class="menu_link"><?=htmlspecialchars(oneid_translate('login.menu.email'), ENT_QUOTES, 'UTF-8')?></a>
         </div>
         <nav class="login-locale-switcher" aria-label="<?=htmlspecialchars(oneid_translate('login.language_label'), ENT_QUOTES, 'UTF-8')?>">
           <i class="fa-solid fa-globe" aria-hidden="true"></i>

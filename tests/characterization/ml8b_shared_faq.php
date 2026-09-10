@@ -73,6 +73,8 @@ $report(
 $report(
     str_contains($login, "oneid_translate('login.menu.manual')")
     && str_contains($login, "oneid_translate('login.menu.directory')")
+    && str_contains($login, "oneid_translate('login.menu.email')")
+    && str_contains($login, 'https://outlook.cloud.microsoft/mail/')
     && str_contains($login, "oneid_translate('login.contact.title')")
     && str_contains($login, "oneid_translate('login.contact.service')")
     && str_contains($login, "oneid_translate('login.contact.department')")
