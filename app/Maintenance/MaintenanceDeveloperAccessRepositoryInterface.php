@@ -11,6 +11,9 @@ interface MaintenanceDeveloperAccessRepositoryInterface
 
     public function transactional(callable $operation): mixed;
 
+    /** @return array<string,mixed>|null */
+    public function maintenanceConfiguration(bool $forUpdate = false): ?array;
+
     /** @return list<array<string,mixed>> */
     public function searchCandidates(string $query): array;
 

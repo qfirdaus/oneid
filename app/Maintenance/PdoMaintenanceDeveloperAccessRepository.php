@@ -52,6 +52,17 @@ final class PdoMaintenanceDeveloperAccessRepository implements MaintenanceDevelo
         }
     }
 
+    public function maintenanceConfiguration(bool $forUpdate = false): ?array
+    {
+        $statement = $this->pdo->query(
+            'SELECT maintenance_mode,maintenance_starts_at,maintenance_ends_at
+               FROM sys_config WHERE singleton_key=1 LIMIT 1'
+            . ($forUpdate ? ' FOR UPDATE' : '')
+        );
+        $row = $statement->fetch();
+        return is_array($row) ? $row : null;
+    }
+
     public function searchCandidates(string $query): array
     {
         $statement = $this->pdo->prepare(

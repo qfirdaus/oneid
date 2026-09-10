@@ -18,7 +18,8 @@ final class MaintenanceGate
             if (isset($_SESSION) && is_array($_SESSION)) {
                 unset(
                     $_SESSION['oneid_maintenance_developer_grant_id'],
-                    $_SESSION['oneid_maintenance_developer_grant_version']
+                    $_SESSION['oneid_maintenance_developer_grant_version'],
+                    $_SESSION['oneid_maintenance_developer_valid_until']
                 );
             }
             return;

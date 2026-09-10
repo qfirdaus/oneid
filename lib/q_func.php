@@ -244,6 +244,11 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
             // admin_step_up_grants.correlation_id is CHAR(16), while User MFA
             // uses a 32-character correlation identifier.
             $grantCorrelation=substr((string)$final['correlation_id'],0,16);
+            $systemConfig=$operation->get_system_config();
+            $maintenanceAdminLifetime=(int)($systemConfig['admin_step_up_lifetime_minutes']??0);
+            if(!in_array($maintenanceAdminLifetime,[5,10,15,30],true)){
+              throw new RuntimeException('MAINTENANCE_ADMIN_LIFETIME_INVALID');
+            }
             $operation->admin_step_up_revoke_all_active_access_grants((string)$final['user_id']);
             if($operation->admin_step_up_create_grant([
               'grant_id'=>bin2hex(random_bytes(32)),
@@ -251,12 +256,12 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
               'session_binding_hash'=>hash('sha256',session_id()),
               'browser_digest'=>hash('sha256',substr($ua,0,1000)),
               'purpose'=>'ADMIN_ACCESS','verified_factor'=>$maintenanceFactor,
-              'lifetime_minutes'=>5,'correlation_id'=>$grantCorrelation,
+              'lifetime_minutes'=>$maintenanceAdminLifetime,'correlation_id'=>$grantCorrelation,
             ])!==1){throw new RuntimeException('MAINTENANCE_GRANT_CREATE_FAILED');}
             if($operation->syslog_record(39,'admin='.(string)$final['user_id'].' action=maintenance_login purpose=ADMIN_ACCESS outcome=verified correlation='.$grantCorrelation,$ip)!==1){
               throw new RuntimeException('MAINTENANCE_LOGIN_AUDIT_FAILED');
             }
-            $_SESSION['oneid_maintenance_admin_verified_until']=time()+300;
+            $_SESSION['oneid_maintenance_admin_verified_until']=time()+($maintenanceAdminLifetime*60);
           }elseif($maintenanceDeveloper){
             if((string)($userInfo['u_type']??'')!=='0'){
               throw new RuntimeException('MAINTENANCE_DEVELOPER_FINALIZATION_INVALID');
@@ -264,6 +269,7 @@ if(str_starts_with($oneidGuardedAction,'user_mfa_')){
             $decision=$verifyMaintenanceDeveloper();
             $_SESSION['oneid_maintenance_developer_grant_id']=(int)$decision['grant_id'];
             $_SESSION['oneid_maintenance_developer_grant_version']=(int)$decision['configuration_version'];
+            $_SESSION['oneid_maintenance_developer_valid_until']=(int)($decision['effective_until_epoch']??0);
             if($operation->syslog_record(70,'user='.(string)$final['user_id'].' action=maintenance_developer_login outcome=verified grant_id='.(int)$decision['grant_id'].' correlation='.(string)$final['correlation_id'],$ip)!==1){
               throw new RuntimeException('MAINTENANCE_DEVELOPER_LOGIN_AUDIT_FAILED');
             }
@@ -434,7 +440,7 @@ if(str_starts_with($oneidGuardedAction,'admin_step_up_')||str_starts_with($oneid
   try{
     $preference=new \OneId\App\Auth\AdminMfaPreferenceService($operation);
     if($oneidGuardedAction==='admin_step_up_status'){$purpose=strtoupper(trim((string)($_POST['purpose']??'ADMIN_ACCESS')));$results=$preference->status($admin);$decision=oneid_admin_step_up_decision($operation,$purpose);$results['purpose']=$purpose;$results['grant_valid']=$decision['allowed']&&($decision['reason']??'')==='STEP_UP_GRANTED';$results['grant_remaining_seconds']=(int)($decision['remaining_seconds']??0);$base=oneid_current_session_deadline_state($operation);$results+=$base;$results['effective_remaining_seconds']=min((int)$base['effective_remaining_seconds'],(int)$results['grant_remaining_seconds']);}
-    elseif($oneidGuardedAction==='admin_step_up_renew'){$results=(new \OneId\App\Auth\AdminStepUpSessionService($operation))->renew($admin,$session,$ua,$ip);oneid_refresh_session_activity();oneid_refresh_configured_sso_cookie($operation);$base=oneid_current_session_deadline_state($operation);$results+=$base;$results['effective_remaining_seconds']=min((int)$base['effective_remaining_seconds'],(int)$results['grant_remaining_seconds']);}
+    elseif($oneidGuardedAction==='admin_step_up_renew'){$results=(new \OneId\App\Auth\AdminStepUpSessionService($operation))->renew($admin,$session,$ua,$ip);if(isset($_SESSION['oneid_maintenance_admin_verified_until'])){$_SESSION['oneid_maintenance_admin_verified_until']=time()+(int)$results['grant_remaining_seconds'];}oneid_refresh_session_activity();oneid_refresh_configured_sso_cookie($operation);$base=oneid_current_session_deadline_state($operation);$results+=$base;$results['effective_remaining_seconds']=min((int)$base['effective_remaining_seconds'],(int)$results['grant_remaining_seconds']);}
     elseif($oneidGuardedAction==='admin_step_up_request_email'){$results=(new \OneId\App\Auth\AdminStepUpEmailOtpService($operation,new \OneId\App\Auth\AdminStepUpPhpMailerSender()))->request($admin,(string)($_POST['purpose']??''),$session,$ua,$ip);}
     elseif($oneidGuardedAction==='admin_step_up_verify_email'){$results=(new \OneId\App\Auth\AdminStepUpEmailOtpService($operation,new \OneId\App\Auth\AdminStepUpPhpMailerSender()))->verify($admin,(string)($_POST['purpose']??''),(string)($_POST['challenge_id']??''),(string)($_POST['code']??''),$session,$ua,$ip);$results+=oneid_complete_step_up_rotation($operation,$results['purpose'],$results['correlation_id']);}
     elseif($oneidGuardedAction==='admin_step_up_verify_totp'){$path=(string)oneid_config('ONEID_TOTP_KEYRING_PATH','');$cipher=new \OneId\App\Auth\TotpSecretCipher(\OneId\App\Auth\TotpKeyring::fromFile($path));$results=(new \OneId\App\Auth\AdminStepUpTotpService($operation,$cipher))->verify($admin,(string)($_POST['purpose']??''),(string)($_POST['code']??''),$session,$ua,$ip);$results+=oneid_complete_step_up_rotation($operation,$results['purpose'],$results['correlation_id']);}

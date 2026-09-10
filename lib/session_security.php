@@ -113,12 +113,21 @@ function oneid_configured_session_idle_seconds(object $operation): int
 function oneid_current_session_deadline_state(object $operation, ?int $now = null): array
 {
     $currentTime = $now ?? time();
-    return oneid_session_deadline_state(
+    $state = oneid_session_deadline_state(
         $currentTime,
         (int) ($_SESSION['oneid_session_created_at'] ?? $currentTime),
         (int) ($_SESSION['oneid_session_last_activity'] ?? $currentTime),
         oneid_configured_session_idle_seconds($operation)
     );
+    $maintenanceDeveloperUntil = (int) ($_SESSION['oneid_maintenance_developer_valid_until'] ?? 0);
+    if ($maintenanceDeveloperUntil > 0) {
+        $state['maintenance_access_remaining_seconds'] = max(0, $maintenanceDeveloperUntil - $currentTime);
+        $state['effective_remaining_seconds'] = min(
+            $state['effective_remaining_seconds'],
+            $state['maintenance_access_remaining_seconds']
+        );
+    }
+    return $state;
 }
 
 function oneid_set_configured_sso_cookie(object $operation, string $token): void

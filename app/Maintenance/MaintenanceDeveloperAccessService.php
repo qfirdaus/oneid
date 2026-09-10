@@ -52,6 +52,12 @@ final class MaintenanceDeveloperAccessService
             return $this->repository->transactional(function () use (
                 $userId, $from, $until, $reason, $reference, $admin, $ip, $correlation, $now
             ): array {
+                $this->assertWithinMaintenanceWindow(
+                    $from,
+                    $until,
+                    $this->repository->maintenanceConfiguration(true),
+                    $correlation
+                );
                 $adminAccount = $this->repository->account($admin, true);
                 if (!is_array($adminAccount) || (int) ($adminAccount['u_type'] ?? 0) !== 1
                     || (int) ($adminAccount['avail_status'] ?? 0) !== 1
@@ -115,6 +121,46 @@ final class MaintenanceDeveloperAccessService
         } catch (Throwable) {
             error_log('Maintenance developer grant failed correlation=' . $correlation);
             throw new MaintenanceDeveloperAccessException('MAINTENANCE_ACCESS_GRANT_FAILED', $correlation);
+        }
+    }
+
+    /** @param array<string,mixed>|null $configuration */
+    private function assertWithinMaintenanceWindow(
+        DateTimeImmutable $from,
+        DateTimeImmutable $until,
+        ?array $configuration,
+        string $correlation
+    ): void {
+        if (!is_array($configuration)) {
+            throw new MaintenanceDeveloperAccessException(
+                'MAINTENANCE_ACCESS_CONFIGURATION_UNAVAILABLE',
+                $correlation
+            );
+        }
+        if (strtoupper(trim((string) ($configuration['maintenance_mode'] ?? 'OFF'))) !== 'SCHEDULED') {
+            return;
+        }
+        $timezone = new DateTimeZone('UTC');
+        try {
+            $maintenanceStart = new DateTimeImmutable(
+                (string) ($configuration['maintenance_starts_at'] ?? ''),
+                $timezone
+            );
+            $maintenanceEnd = new DateTimeImmutable(
+                (string) ($configuration['maintenance_ends_at'] ?? ''),
+                $timezone
+            );
+        } catch (\Throwable) {
+            throw new MaintenanceDeveloperAccessException(
+                'MAINTENANCE_ACCESS_CONFIGURATION_INVALID',
+                $correlation
+            );
+        }
+        if ($from < $maintenanceStart || $until > $maintenanceEnd) {
+            throw new MaintenanceDeveloperAccessException(
+                'MAINTENANCE_ACCESS_EXCEEDS_MAINTENANCE_WINDOW',
+                $correlation
+            );
         }
     }
 
@@ -231,7 +277,7 @@ final class MaintenanceDeveloperAccessService
         }
     }
 
-    /** @return array{allowed:bool,code:string,grant_id:?int,configuration_version:?int} */
+    /** @return array{allowed:bool,code:string,grant_id:?int,configuration_version:?int,effective_until_epoch?:int} */
     public function revalidate(string $userId): array
     {
         if (!oneid_maintenance_developer_access_enabled()) {
@@ -248,11 +294,30 @@ final class MaintenanceDeveloperAccessService
                 return ['allowed' => false, 'code' => 'MAINTENANCE_ACCESS_SCHEMA_UNAVAILABLE',
                     'grant_id' => null, 'configuration_version' => null];
             }
-            return MaintenanceDeveloperAccessPolicy::decide(
+            $grant = $this->repository->activeGrant($userId);
+            $decision = MaintenanceDeveloperAccessPolicy::decide(
                 $this->repository->account($userId),
-                $this->repository->activeGrant($userId),
+                $grant,
                 ($this->clock)()->format('Y-m-d H:i:s.u')
             );
+            if ($decision['allowed'] && is_array($grant)) {
+                $effectiveUntil = strtotime((string) $grant['valid_until'] . ' UTC');
+                $maintenance = $this->repository->maintenanceConfiguration();
+                if (is_array($maintenance)
+                    && strtoupper(trim((string) ($maintenance['maintenance_mode'] ?? ''))) === 'SCHEDULED'
+                ) {
+                    $maintenanceEnd = strtotime((string) ($maintenance['maintenance_ends_at'] ?? '') . ' UTC');
+                    if ($maintenanceEnd !== false) {
+                        $effectiveUntil = $effectiveUntil === false
+                            ? $maintenanceEnd
+                            : min($effectiveUntil, $maintenanceEnd);
+                    }
+                }
+                if ($effectiveUntil !== false) {
+                    $decision['effective_until_epoch'] = $effectiveUntil;
+                }
+            }
+            return $decision;
         } catch (Throwable) {
             return ['allowed' => false, 'code' => 'MAINTENANCE_ACCESS_REVALIDATION_FAILED',
                 'grant_id' => null, 'configuration_version' => null];
