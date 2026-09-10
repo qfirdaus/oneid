@@ -19,6 +19,7 @@ $checks=[
  'draft scalar fields survive step-up while browser-protected uploads require reselection'=>str_contains($js,"kind:'draft'")&&str_contains($js,'draftSnapshot')&&str_contains($js,'restoreDraftSnapshot')&&isset($en['admin.banner.resume_upload'],$ms['admin.banner.resume_upload']),
  'versioned mutations and complete reorder payload are retained'=>str_contains($js,'expected_version:item.configuration_version')&&str_contains($js,'expected_version:Number(input.dataset.version)')&&str_contains($js,'items_json:JSON.stringify(ordered)'),
  'dynamic server data is rendered as text rather than injected HTML'=>str_contains($js,'node.textContent=value')&&!str_contains($js,'.innerHTML'),
+ 'reason choices override legacy SweetAlert button close handling'=>str_contains($js,'bindReasonButtons')&&str_contains($js,'button.onclick')&&str_contains($js,'event.stopPropagation()'),
  'native prompt and confirm are replaced by localized SweetAlert reason choices'=>str_contains($js,'login-banner-reason-chip')&&str_contains($js,'login_banner_reason_input')&&str_contains($js,'swal.showInputError')&&!str_contains($js,'window.prompt')&&!str_contains($js,'window.confirm'),
  'inactive or draft banners can be updated with optional immutable replacement assets'=>str_contains($js,"button(text('admin.banner.edit')")&&str_contains($js,'admin_login_banner_update_draft')&&str_contains($js,'expected_version'),
  'responsive image cards preserve the approved two-to-one ratio'=>str_contains($css,'aspect-ratio:2/1')&&str_contains($css,'@media(max-width:767px)'),
