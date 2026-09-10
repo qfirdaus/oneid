@@ -47,8 +47,7 @@ $loginFlashKey = match ($loginFlashCode) {
   default => null,
 };
 $loginBanners = [
-  ['src' => 'assetsM/images/banner6.png', 'alt' => 'OneID@UPNM', 'width' => 3780, 'height' => 1890],
-  ['src' => 'assetsM/images/banner7.png', 'alt' => 'OneID@UPNM', 'width' => 3780, 'height' => 1890],
+  ['src' => 'assetsM/images/banner_default.png', 'alt' => 'OneID@UPNM', 'width' => 3780, 'height' => 1890],
 ];
 if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALIDATE_BOOLEAN)) {
   try {

@@ -131,8 +131,8 @@ $report(
     str_contains($index, 'PdoLoginBannerPersistence')
     && !str_contains($admin, 'PdoLoginBannerPersistence')
     && str_contains($actions, 'admin_login_banner_list')
-    && str_contains($index, 'assetsM/images/banner6.png')
-    && str_contains($index, 'assetsM/images/banner7.png'),
+    && str_contains($index, 'assetsM/images/banner_default.png')
+    && !str_contains($index, 'assetsM/images/banner7.png'),
     'LB1 schema remains unapplied while LB6 is flagged off and UI stays persistence-free'
 );
 

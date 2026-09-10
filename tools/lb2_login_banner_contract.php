@@ -50,8 +50,8 @@ $checks = [
     'pipeline remains isolated from public login and direct browser execution' =>
         !str_contains($index, 'LoginBannerImagePipeline')
         && str_contains($actions, 'admin_login_banner_create_draft')
-        && str_contains($index, 'assetsM/images/banner6.png')
-        && str_contains($index, 'assetsM/images/banner7.png'),
+        && str_contains($index, 'assetsM/images/banner_default.png')
+        && !str_contains($index, 'assetsM/images/banner7.png'),
 ];
 
 $failures = 0;

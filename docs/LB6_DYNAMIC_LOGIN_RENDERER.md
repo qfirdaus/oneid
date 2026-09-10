@@ -24,8 +24,9 @@ locale LB1/LB3. Reader tidak membuat silent cross-locale fallback.
 
 ## Fail-safe rendering
 
-`banner6.png` dan `banner7.png` dibina sebagai manifest awal pada setiap request.
-Manifest itu hanya diganti apabila sekurang-kurangnya satu row dinamik lulus
+`banner_default.png` dibina sebagai manifest awal pada setiap request. Fail ini
+ialah salinan terkawal `banner6.png` yang dikhususkan sebagai fallback. Manifest
+itu hanya diganti apabila sekurang-kurangnya satu row dinamik lulus
 semua validation. Schema tiada, environment salah, DB unavailable, asset missing,
 checksum mismatch atau exception lain tidak menghalang borang password/MyDigital
 ID; exception hanya direkod bersama correlation ID tanpa SQL/path kepada browser.

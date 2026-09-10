@@ -20,10 +20,10 @@ $report = static function (bool $passed, string $description) use (&$checks, &$f
 };
 
 $report(
-    str_contains($index, 'assetsM/images/banner6.png')
-    && str_contains($index, 'assetsM/images/banner7.png')
+    str_contains($index, 'assetsM/images/banner_default.png')
+    && !str_contains($index, 'assetsM/images/banner7.png')
     && str_contains($index, "\$bannerIndex === 0 ? ' active' : ''"),
-    'two static fallback banners retain deterministic first-item activation'
+    'dedicated static default retains deterministic first-item activation'
 );
 
 $validImages = true;
@@ -59,8 +59,8 @@ $report(
 $report(
     str_contains($plan, 'Pilihan C — Metadata database dan aset persistent khusus environment')
     && str_contains($plan, 'LB0 -> LB1 -> LB2 -> LB3 -> LB4 -> LB5 -> LB6 ->')
-    && str_contains($plan, 'LB0-LB8 TOOLING LOCAL PASS / DATABASE UNCHANGED / STAGING')
-    && str_contains($plan, 'ACTIVATION NO-GO UNTIL BACKUP, RESTORE, UAT AND OWNER EVIDENCE PASS.'),
+    && str_contains($plan, 'LB0-LB8 lengkap')
+    && str_contains($plan, 'Production kekal di luar skop sehingga authorization berasingan.'),
     'canonical plan records architecture sequence and authorization boundary'
 );
 
@@ -82,8 +82,8 @@ $report(
 );
 
 $report(
-    str_contains($index, 'assetsM/images/banner6.png')
-    && str_contains($index, 'assetsM/images/banner7.png'),
+    str_contains($index, 'assetsM/images/banner_default.png')
+    && !str_contains($index, 'assetsM/images/banner7.png'),
     'static banner fallback remains available after later dormant work'
 );
 

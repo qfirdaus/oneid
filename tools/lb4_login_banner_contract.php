@@ -12,5 +12,5 @@ $checks=[
  'bounded reorder JSON and consistent HTTP status mapping exist'=>str_contains($endpoint,'strlen($json) > 4096')&&str_contains($endpoint,"'LB3_BANNER_STALE'")&&str_contains($endpoint,'_http_status'),
  'LB2 LB3 LB4 codes map to localized banner responses'=>str_contains($localizer,"str_starts_with(\$code, 'LB2_')")&&str_contains($localizer,"'LB4_BANNERS_LOADED' => 'admin.banner.loaded'")&&str_contains($localizer,"'LB4_SCHEMA_UNAVAILABLE' => 'admin.banner.schema_unavailable'"),
  'BM and English catalogs contain every LB4 response key'=>substr_count($en,"'admin.banner.")>=8&&substr_count($ms,"'admin.banner.")>=8,
- 'LB6 public reader retains the LB4 static fallback boundary'=>str_contains($index,'assetsM/images/banner6.png')&&str_contains($index,'assetsM/images/banner7.png')&&!str_contains($index,'LoginBannerAdminEndpoint'),
+ 'LB6 public reader retains the LB4 static fallback boundary'=>str_contains($index,'assetsM/images/banner_default.png')&&!str_contains($index,'LoginBannerAdminEndpoint'),
 ];$fail=0;foreach($checks as $label=>$ok){echo($ok?'PASS ':'FAIL ').$label.PHP_EOL;if(!$ok)$fail++;}echo'RESULT checks='.count($checks).' failures='.$fail.PHP_EOL;exit($fail===0?0:1);

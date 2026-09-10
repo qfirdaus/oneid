@@ -27,5 +27,5 @@ $checks=[
  'change reason is collected only by the approval modal'=>!str_contains($page,'id="login_banner_change_reason"')&&str_contains($js,"data.set('change_reason',changeReason)"),
  'responsive image cards preserve the approved two-to-one ratio'=>str_contains($css,'aspect-ratio:2/1')&&str_contains($css,'@media(max-width:767px)'),
  'BM and English catalogs cover every banner UI key'=>count(array_filter(array_keys($en),static fn($key)=>str_starts_with($key,'admin.banner.')))===count(array_filter(array_keys($ms),static fn($key)=>str_starts_with($key,'admin.banner.')))&&count(array_filter(array_keys($en),static fn($key)=>str_starts_with($key,'admin.banner.')))>=48,
- 'LB6 reader does not remove LB5 public static fallback'=>str_contains($index,'assetsM/images/banner6.png')&&str_contains($index,'assetsM/images/banner7.png')&&!str_contains($index,'LoginBannerService'),
+ 'LB6 reader retains the dedicated public default banner'=>str_contains($index,'assetsM/images/banner_default.png')&&!str_contains($index,'LoginBannerService'),
 ];$fail=0;foreach($checks as $label=>$ok){echo($ok?'PASS ':'FAIL ').$label.PHP_EOL;if(!$ok)$fail++;}echo'RESULT checks='.count($checks).' failures='.$fail.PHP_EOL;exit($fail===0?0:1);
