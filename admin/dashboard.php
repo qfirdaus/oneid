@@ -84,7 +84,7 @@
       <link href="../dist/css/oneid-locale-switcher.css?v=20260725-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-sidebar-menu.css?v=20260823-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-login-banner-admin.css?v=20260801-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-login-banner-admin.css?v=20260910-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-configuration-navigation.css?v=20260801-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-admin-profile.css?v=20260824-5" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-session-indicators.css?v=20260908-5" rel="stylesheet" type="text/css">
@@ -6945,7 +6945,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"
          data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=configuration_user_mfa_exemption"></script>
-      <script src="../assetsM/js/login-banner-admin.js?v=20260805-1"></script>
+      <script src="../assetsM/js/login-banner-admin.js?v=20260910-1"></script>
       <style>
          #the-basics .tt-dropdown-menu {
          max-height: 150px;
