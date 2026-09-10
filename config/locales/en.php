@@ -669,7 +669,7 @@ return [
     'admin.banner.status_draft' => 'Draft',
     'admin.banner.status_inactive' => 'Inactive',
     'admin.banner.version' => 'Version :version',
-    'admin.banner.schedule' => 'Schedule (UTC)',
+    'admin.banner.schedule' => 'Schedule (Malaysia time)',
     'admin.banner.missing' => 'Missing',
     'admin.banner.saving' => 'Saving the banner change...',
     'admin.banner.reason_prompt' => 'Enter an approved change reason (10–500 characters). Do not include secrets.',

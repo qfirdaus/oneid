@@ -669,7 +669,7 @@ return [
     'admin.banner.status_draft' => 'Draf',
     'admin.banner.status_inactive' => 'Tidak aktif',
     'admin.banner.version' => 'Versi :version',
-    'admin.banner.schedule' => 'Jadual (UTC)',
+    'admin.banner.schedule' => 'Jadual (waktu Malaysia)',
     'admin.banner.missing' => 'Tiada',
     'admin.banner.saving' => 'Sedang menyimpan perubahan banner...',
     'admin.banner.reason_prompt' => 'Masukkan sebab perubahan yang diluluskan (10–500 aksara). Jangan masukkan rahsia.',
