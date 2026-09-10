@@ -48,8 +48,11 @@ if (!$observerIsBounded) {
 
 $css = (string) file_get_contents($root . '/public/dist/css/oneid-professional-alert.css');
 $responsive = str_contains($css, '@media(max-width:730px)')
-    && str_contains($css, 'max-width:calc(100vw - 32px)');
-echo ($responsive ? 'PASS ' : 'FAIL ') . "theme is viewport bounded and responsive\n";
+    && str_contains($css, 'max-width:calc(100vw - 32px)')
+    && str_contains($css, 'width:560px')
+    && str_contains($css, 'oneid-professional-alert--structured')
+    && str_contains($css, 'width:680px');
+echo ($responsive ? 'PASS ' : 'FAIL ') . "theme is compact by default, structured when needed and responsive\n";
 if (!$responsive) {
     $failures[] = 'responsive';
 }

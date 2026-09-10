@@ -1,13 +1,14 @@
 .sweet-overlay.oneid-professional-alert-overlay{background:rgba(9,29,54,.68);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-.sweet-alert.oneid-professional-alert{border:1px solid rgba(14,104,153,.18);border-radius:16px;box-shadow:0 28px 70px rgba(7,32,61,.28);box-sizing:border-box;margin-left:-350px!important;max-width:calc(100vw - 32px);overflow:hidden;padding:0 44px 30px;width:700px}
+.sweet-alert.oneid-professional-alert{border:1px solid rgba(14,104,153,.18);border-radius:16px;box-shadow:0 28px 70px rgba(7,32,61,.28);box-sizing:border-box;margin-left:-280px!important;max-width:calc(100vw - 32px);overflow:hidden;padding:0 32px 26px;width:560px}
+.sweet-alert.oneid-professional-alert--structured{margin-left:-340px!important;width:680px}
 .sweet-alert.oneid-professional-alert:before{background:linear-gradient(90deg,#ff5b2b 0%,#f5ac27 34%,#079bd3 69%,#173d79 100%);content:"";height:6px;left:0;position:absolute;right:0;top:0}
-.sweet-alert.oneid-professional-alert .oneid-professional-alert__eyebrow{color:#0877a8;font-size:11px;font-weight:800;letter-spacing:.13em;margin:24px 0 2px;text-align:center;text-transform:uppercase}
-.sweet-alert.oneid-professional-alert .sa-icon{height:80px;margin:10px auto 11px;width:80px}
+.sweet-alert.oneid-professional-alert .oneid-professional-alert__eyebrow{color:#0877a8;font-size:11px;font-weight:800;letter-spacing:.13em;margin:21px 0 2px;text-align:center;text-transform:uppercase}
+.sweet-alert.oneid-professional-alert .sa-icon{height:76px;margin:9px auto 10px;width:76px}
 .sweet-alert.oneid-professional-alert h2{color:#10233f;font-size:25px;font-weight:750;line-height:1.25;margin:0 auto 12px;max-width:560px}
 .sweet-alert.oneid-professional-alert>p{box-sizing:border-box;color:#5f7087;font-size:14px;line-height:1.55;margin:0 auto;max-width:none;width:100%}
 .sweet-alert.oneid-professional-alert input,.sweet-alert.oneid-professional-alert textarea,.sweet-alert.oneid-professional-alert select{border:1px solid #c6d3df;border-radius:8px;box-shadow:none;box-sizing:border-box;color:#26384d;font-size:14px;line-height:1.45;width:100%}
 .sweet-alert.oneid-professional-alert input:focus,.sweet-alert.oneid-professional-alert textarea:focus,.sweet-alert.oneid-professional-alert select:focus{border-color:#079bd3;box-shadow:0 0 0 3px rgba(7,155,211,.14);outline:0}
-.sweet-alert.oneid-professional-alert button{border-radius:8px;font-size:13px;font-weight:750;margin-top:24px;min-height:44px;padding:10px 20px;transition:transform .15s ease,box-shadow .15s ease}
+.sweet-alert.oneid-professional-alert button{border-radius:8px;font-size:13px;font-weight:750;margin-top:20px;min-height:44px;padding:10px 20px;transition:transform .15s ease,box-shadow .15s ease}
 .sweet-alert.oneid-professional-alert button.confirm{background:linear-gradient(135deg,#079bd3,#0877a8)!important;box-shadow:0 8px 20px rgba(7,155,211,.22)}
 .sweet-alert.oneid-professional-alert button.cancel{background:#fff!important;border:1px solid #cdd9e6;color:#405673}
 .sweet-alert.oneid-professional-alert button:hover{transform:translateY(-1px)}

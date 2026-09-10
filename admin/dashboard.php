@@ -75,7 +75,7 @@
       <!-- Bootstrap Daterangepicker CSS -->
       <link href="../vendors/bower_components/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet" type="text/css"/>
       <link href="../assetsM/css/sweetalert.css" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-professional-alert.css?v=20260910-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-professional-alert.css?v=20260910-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-admin-session.css?v=20260806-1" rel="stylesheet" type="text/css">
       <link href="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css">
       <link href="../vendors/bower_components/select2/dist/css/select2.min.css?v=4.0.3" rel="stylesheet" type="text/css">
@@ -2135,7 +2135,7 @@
       <script src="../vendors/bower_components/switchery/dist/switchery.min.js"></script>
       <!-- Sweet-Alert  -->
       <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
-      <script src="../dist/js/oneid-professional-alert.js?v=20260910-2"></script>
+      <script src="../dist/js/oneid-professional-alert.js?v=20260910-3"></script>
       <script>
       window.OneIdAdminSessionConfig = <?=json_encode([
          'apiUrl' => APP_URL . '/lib/q_func.php',

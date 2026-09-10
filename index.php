@@ -88,7 +88,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
   <link rel="stylesheet" href="assetsM/css/custom.css" />
   <link rel="stylesheet" href="vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" />
   <link rel="stylesheet" href="assetsM/css/sweetalert.css" />
-  <link rel="stylesheet" href="dist/css/oneid-professional-alert.css?v=20260910-1" />
+  <link rel="stylesheet" href="dist/css/oneid-professional-alert.css?v=20260910-2" />
   <link rel="stylesheet" href="dist/css/oneid-user-faq.css?v=20260823-5" />
   <link rel="stylesheet" href="dist/css/oneid-environment-banner.css?v=20260810-1" />
   <link href="https://fonts.googleapis.com/css2?family=Moon+Dance&display=swap" rel="stylesheet" />
@@ -504,7 +504,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
   <script src="assetsM/js/bootstrap.bundle.min.js"></script>
   <script src="vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
   <script src="vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
-  <script src="dist/js/oneid-professional-alert.js?v=20260910-2"></script>
+  <script src="dist/js/oneid-professional-alert.js?v=20260910-3"></script>
   <script src="assetsM/js/oneid-notifications.js?v=20260716-1"></script>
 
 

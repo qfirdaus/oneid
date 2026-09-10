@@ -32,6 +32,9 @@
     var kind=(options&&options.kind)||alertKind(alert);
     var kinds=['notice','info','success','warning','error'];
     alert.classList.add('oneid-professional-alert');
+    var content=alert.querySelector('p');
+    var structured=!!(content&&content.querySelector('div,section,form,table'));
+    alert.classList.toggle('oneid-professional-alert--structured',structured);
     kinds.forEach(function(item){
       var className='oneid-professional-alert--'+item;
       if(item===kind){alert.classList.add(className);}
