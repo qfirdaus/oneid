@@ -90,7 +90,7 @@
       <link href="../dist/css/oneid-session-indicators.css?v=20260908-5" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-6" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-web-app-modal.css?v=20260815-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-web-app-modal.css?v=20260910-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-maintenance-admin.css?v=20260908-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-maintenance-developer-admin.css?v=20260904-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-maintenance-developer-layout.css?v=20260904-5" rel="stylesheet" type="text/css">
