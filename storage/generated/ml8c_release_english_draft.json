@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2124-CHANGELOG-20260909-01",
+    "authorization": "ONEID-V2130-CHANGELOG-20260910-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.13.0",
+            "version": "2.13.0",
+            "date": "2026-09-10",
+            "items": [
+                {
+                    "identity": "release:2.13.0:item:001",
+                    "bm": "FAQ awam dan pengguna kini mempunyai 13 entri BM/English yang diselaraskan dengan login, MyDigital ID, MFA, sesi, notifikasi keselamatan dan Maintenance Mode semasa.",
+                    "en_draft": "Public and authenticated FAQs now provide 13 aligned Malay and English entries covering current sign-in, MyDigital ID, MFA, sessions, security notifications and Maintenance Mode.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.0:item:002",
+                    "bm": "Panduan Full SSO menggunakan label Akses manakala aplikasi Non-SSO kekal menggunakan Log Masuk, sepadan dengan tindakan sebenar pada direktori aplikasi.",
+                    "en_draft": "Full SSO guidance uses the Access label while Non-SSO applications retain Sign in, matching the actual application-directory actions.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.0:item:003",
+                    "bm": "FAQ menerangkan kira detik sesi, kesan refresh, sambungan melalui butang tambah, had maksimum keseluruhan serta amaran dua minit terakhir.",
+                    "en_draft": "The FAQ explains the session countdown, the effect of refresh, renewal through the plus button, the overall maximum lifetime and the final two-minute warning.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.0:item:004",
+                    "bm": "Panduan baharu menerangkan e-mel keselamatan OneID, maklumat yang tidak akan diminta dan tindakan pengguna apabila aktiviti tidak dikenali.",
+                    "en_draft": "New guidance explains OneID security emails, information that will never be requested and what users should do when they do not recognise an activity.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.0:item:005",
+                    "bm": "FAQ Maintenance Mode menerangkan halaman status pengguna biasa, akses sementara developer, perlindungan Administrator dan pemulihan aliran biasa selepas maintenance.",
+                    "en_draft": "The Maintenance Mode FAQ explains the ordinary-user status page, temporary developer access, Administrator protection and return to normal operation after maintenance.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.0:item:006",
+                    "bm": "Semua SweetAlert aktif menggunakan shell profesional OneID yang responsif tanpa mengubah callback, validasi, AJAX atau workflow keselamatan asal.",
+                    "en_draft": "Every active SweetAlert uses a responsive professional OneID shell without changing existing callbacks, validation, AJAX or security workflows.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.0:item:007",
+                    "bm": "Modal ringkas menggunakan lebar kompak manakala borang, grid dan kandungan berstruktur kekal mempunyai ruang sesuai tanpa ruang kosong berlebihan.",
+                    "en_draft": "Simple dialogs use a compact width while forms, grids and structured content retain appropriate space without excessive empty areas.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.0:item:008",
+                    "bm": "Observer tema SweetAlert dihadkan kepada perubahan buka atau tutup bagi mengelakkan loop DOM dan prestasi pelayar yang perlahan.",
+                    "en_draft": "The SweetAlert theme observer is limited to open and close transitions to prevent DOM loops and slow browser performance.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.0:item:009",
+                    "bm": "Teks notis ASNB English dipermudah, pautan pendaftaran MyDigital ID menggunakan laman rasmi digital-id.my dan jumlah kategori aplikasi dijajarkan ke tengah.",
+                    "en_draft": "The English ASNB notice is clearer, MyDigital ID registration uses the official digital-id.my site, and application-category totals are centred.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.0:item:010",
+                    "bm": "Tempoh akses Administrator serta developer semasa maintenance, reka bentuk halaman maintenance dan kontrak regression UI diperkemas untuk operasi production.",
+                    "en_draft": "Administrator and developer maintenance-access lifetimes, the maintenance-page design and UI regression contracts are refined for production operation.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.12.4",
             "version": "2.12.4",
@@ -3517,5 +3584,5 @@
             ]
         }
     ],
-    "manifest_digest": "b3b7f0120b383fb3f7ba2b6ed20b580790ff8626565f99785f6f70a1e8ae9097"
+    "manifest_digest": "a12c2d3ff4695c37e48d0ab82642e5d336031926c0d7a55fc9c464bfb914f4d0"
 }

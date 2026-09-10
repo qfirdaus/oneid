@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.13.0' =>
+  array (
+    'version' => '2.13.0',
+    'date' => '2026-09-10',
+    'bm' =>
+    array (
+      0 => 'FAQ awam dan pengguna kini mempunyai 13 entri BM/English yang diselaraskan dengan login, MyDigital ID, MFA, sesi, notifikasi keselamatan dan Maintenance Mode semasa.',
+      1 => 'Panduan Full SSO menggunakan label Akses manakala aplikasi Non-SSO kekal menggunakan Log Masuk, sepadan dengan tindakan sebenar pada direktori aplikasi.',
+      2 => 'FAQ menerangkan kira detik sesi, kesan refresh, sambungan melalui butang tambah, had maksimum keseluruhan serta amaran dua minit terakhir.',
+      3 => 'Panduan baharu menerangkan e-mel keselamatan OneID, maklumat yang tidak akan diminta dan tindakan pengguna apabila aktiviti tidak dikenali.',
+      4 => 'FAQ Maintenance Mode menerangkan halaman status pengguna biasa, akses sementara developer, perlindungan Administrator dan pemulihan aliran biasa selepas maintenance.',
+      5 => 'Semua SweetAlert aktif menggunakan shell profesional OneID yang responsif tanpa mengubah callback, validasi, AJAX atau workflow keselamatan asal.',
+      6 => 'Modal ringkas menggunakan lebar kompak manakala borang, grid dan kandungan berstruktur kekal mempunyai ruang sesuai tanpa ruang kosong berlebihan.',
+      7 => 'Observer tema SweetAlert dihadkan kepada perubahan buka atau tutup bagi mengelakkan loop DOM dan prestasi pelayar yang perlahan.',
+      8 => 'Teks notis ASNB English dipermudah, pautan pendaftaran MyDigital ID menggunakan laman rasmi digital-id.my dan jumlah kategori aplikasi dijajarkan ke tengah.',
+      9 => 'Tempoh akses Administrator serta developer semasa maintenance, reka bentuk halaman maintenance dan kontrak regression UI diperkemas untuk operasi production.',
+    ),
+    'en' =>
+    array (
+      0 => 'Public and authenticated FAQs now provide 13 aligned Malay and English entries covering current sign-in, MyDigital ID, MFA, sessions, security notifications and Maintenance Mode.',
+      1 => 'Full SSO guidance uses the Access label while Non-SSO applications retain Sign in, matching the actual application-directory actions.',
+      2 => 'The FAQ explains the session countdown, the effect of refresh, renewal through the plus button, the overall maximum lifetime and the final two-minute warning.',
+      3 => 'New guidance explains OneID security emails, information that will never be requested and what users should do when they do not recognise an activity.',
+      4 => 'The Maintenance Mode FAQ explains the ordinary-user status page, temporary developer access, Administrator protection and return to normal operation after maintenance.',
+      5 => 'Every active SweetAlert uses a responsive professional OneID shell without changing existing callbacks, validation, AJAX or security workflows.',
+      6 => 'Simple dialogs use a compact width while forms, grids and structured content retain appropriate space without excessive empty areas.',
+      7 => 'The SweetAlert theme observer is limited to open and close transitions to prevent DOM loops and slow browser performance.',
+      8 => 'The English ASNB notice is clearer, MyDigital ID registration uses the official digital-id.my site, and application-category totals are centred.',
+      9 => 'Administrator and developer maintenance-access lifetimes, the maintenance-page design and UI regression contracts are refined for production operation.',
+    ),
+  ),
   'release-2.12.4' =>
   array (
     'version' => '2.12.4',

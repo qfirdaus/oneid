@@ -6,7 +6,7 @@ namespace OneId\App\Documentation;
 final class SharedFaqContent
 {
     public const HARD_FALLBACK = 'ms';
-    private const EXPECTED_ENTRY_COUNT = 11;
+    private const EXPECTED_ENTRY_COUNT = 13;
 
     /** @var array<string,array<string,array{question:string,answer:string}>> */
     private array $content;
@@ -82,6 +82,8 @@ TEXT,
 Pada halaman log masuk, masukkan ID pengguna OneID anda—kebiasaannya nombor staf atau nombor pelajar—bersama kata laluan OneID. Jika pilihan MyDigital ID dipaparkan, anda juga boleh memilihnya dan melengkapkan pengesahan pada perkhidmatan MyDigital ID.
 
 Pengguna baharu yang belum mempunyai kata laluan OneID boleh menggunakan Lupa Kata Laluan untuk membuat pengesahan melalui OTP e-mel. Pengguna yang mula masuk melalui MyDigital ID mungkin diminta menetapkan kata laluan OneID selepas identiti berjaya dipadankan.
+
+Jika anda belum mempunyai akaun MyDigital ID, gunakan pautan pendaftaran rasmi yang disediakan pada halaman log masuk. Pautan tersebut akan membuka laman rasmi MyDigital ID dalam tab baharu.
 TEXT,
                 ],
                 'mydigitalid' => [
@@ -95,15 +97,15 @@ TEXT,
                 'mfa' => [
                     'question' => 'Mengapa saya diminta membuat pengesahan tambahan?',
                     'answer' => <<<'TEXT'
-OneID boleh meminta Multi-Factor Authentication (MFA) selepas kata laluan disahkan. Bergantung pada polisi keselamatan akaun atau kategori pengguna, pengesahan boleh menggunakan OTP yang dihantar ke e-mel berdaftar atau kod daripada Microsoft Authenticator.
+OneID boleh meminta Multi-Factor Authentication (MFA) selepas kata laluan disahkan. Bergantung pada mode operasi dan polisi keselamatan akaun atau kategori pengguna, pengesahan boleh menggunakan OTP yang dihantar ke e-mel berdaftar atau kod daripada Microsoft Authenticator. Dalam mode pendaftaran atau pemulihan yang diluluskan, login mungkin menggunakan kata laluan sahaja sementara faktor MFA sedia ada kekal dipelihara.
 
-Masukkan kod hanya pada halaman rasmi OneID dan jangan berkongsi OTP, kod Authenticator atau kunci persediaan dengan sesiapa. Jika faktor Authenticator hilang atau tidak boleh digunakan, ikuti pilihan pemulihan yang dipaparkan atau hubungi khidmat sokongan OneID.
+Masukkan kod hanya pada halaman rasmi OneID dan jangan berkongsi OTP, kod Authenticator atau kunci persediaan dengan sesiapa. Selepas login, gunakan User Security untuk mendaftar atau mengurus Microsoft Authenticator apabila fungsi itu tersedia. Jika faktor Authenticator hilang atau tidak boleh digunakan, ikuti pilihan pemulihan yang dipaparkan atau hubungi khidmat sokongan OneID.
 TEXT,
                 ],
                 'application-access' => [
                     'question' => 'Apakah perbezaan Full SSO dan Non-SSO?',
                     'answer' => <<<'TEXT'
-Aplikasi Full SSO menerima pengesahan daripada OneID. Apabila anda memilih “Log masuk”, OneID mengeluarkan akses untuk aplikasi tersebut dan kebiasaannya anda tidak perlu menaip semula kata laluan OneID.
+Aplikasi Full SSO menerima pengesahan daripada OneID. Apabila anda memilih “Akses”, OneID mengeluarkan akses untuk aplikasi tersebut dan kebiasaannya anda tidak perlu menaip semula kata laluan OneID.
 
 Aplikasi Non-SSO atau pautan terus belum menggunakan aliran SSO penuh. OneID akan membuka alamat aplikasi, tetapi aplikasi itu mungkin meminta kelayakan berasingan. Hanya aplikasi yang diberikan kepada akaun anda akan dipaparkan; akses akhir masih tertakluk pada polisi aplikasi destinasi.
 TEXT,
@@ -116,12 +118,22 @@ OneID menggunakan beberapa lapisan kawalan seperti sambungan selamat, kata lalua
 Keselamatan juga bergantung pada pengguna. Pastikan alamat laman adalah domain rasmi UPNM, gunakan kata laluan unik, jangan kongsi kod pengesahan, dan log keluar pada komputer awam. Jika menerima permintaan atau notifikasi yang tidak dikenali, hentikan tindakan dan hubungi khidmat sokongan OneID.
 TEXT,
                 ],
+                'security-notifications' => [
+                    'question' => 'Mengapa saya menerima e-mel keselamatan OneID?',
+                    'answer' => <<<'TEXT'
+OneID menghantar e-mel keselamatan apabila tindakan penting melibatkan akaun anda, seperti perubahan kata laluan, MFA atau Authenticator, status akaun, sesi, profil dan akses aplikasi. E-mel tersebut menerangkan perkara yang berlaku, kesannya kepada anda dan tindakan yang disyorkan. Rujukan teknikal disediakan untuk membantu semakan pihak sokongan.
+
+E-mel OneID tidak akan meminta anda membalas dengan kata laluan, OTP, token atau kunci Authenticator. Jika anda tidak mengenali tindakan yang dinyatakan, jangan teruskan mana-mana permintaan berkaitan dan hubungi khidmat sokongan OneID dengan segera.
+TEXT,
+                ],
                 'multiple-devices' => [
                     'question' => 'Bolehkah saya log masuk pada beberapa peranti?',
                     'answer' => <<<'TEXT'
 Ia bergantung pada polisi multiple-session yang ditetapkan oleh pentadbir. Jika beberapa sesi dibenarkan, anda boleh mempunyai lebih daripada satu sesi aktif. Jika polisi itu dimatikan, log masuk baharu boleh menyebabkan token atau sesi lama tidak lagi sah dan peranti lama perlu log masuk semula.
 
-Setiap sesi juga tertakluk pada had tidak aktif dan had maksimum keseluruhan. Tamatkan sesi pada peranti yang tidak digunakan dan jangan biarkan akaun terbuka pada peranti awam atau yang dikongsi.
+Setiap sesi juga tertakluk pada had tidak aktif dan had maksimum keseluruhan. Kira detik pada header menunjukkan baki semasa; memuat semula halaman tidak menetapkan semula tempoh itu. Jika butang tambah dipaparkan, anda boleh meminta sambungan sebelum dua minit terakhir, tetapi sambungan tidak boleh melepasi had maksimum keseluruhan. Amaran akan dipaparkan apabila sesi menghampiri tamat.
+
+Tamatkan sesi pada peranti yang tidak digunakan dan jangan biarkan akaun terbuka pada peranti awam atau yang dikongsi.
 TEXT,
                 ],
                 'single-application-sign-out' => [
@@ -130,6 +142,14 @@ TEXT,
 Tidak semestinya. Log keluar daripada aplikasi destinasi biasanya hanya menamatkan sesi aplikasi itu dan tidak secara automatik menutup portal OneID atau aplikasi lain.
 
 Log keluar daripada OneID akan menamatkan sesi dan token OneID semasa. Namun, aplikasi destinasi yang telah mewujudkan sesi sendiri mungkin kekal terbuka sehingga anda log keluar daripada aplikasi tersebut atau sesinya tamat. Untuk komputer awam, log keluar daripada aplikasi sensitif, log keluar daripada OneID dan tutup semua tetingkap pelayar.
+TEXT,
+                ],
+                'maintenance-mode' => [
+                    'question' => 'Apakah yang berlaku apabila OneID dalam Maintenance Mode?',
+                    'answer' => <<<'TEXT'
+Maintenance Mode digunakan semasa kerja penyelenggaraan atau naik taraf terkawal. Pengguna biasa akan melihat halaman status, tujuan penyelenggaraan jika disediakan dan jangkaan masa perkhidmatan dipulihkan. Gunakan Cuba Lagi selepas tempoh tersebut atau hubungi khidmat sokongan jika gangguan berterusan.
+
+Hanya Administrator dan akaun developer yang diberikan akses sementara boleh menggunakan laluan khas semasa maintenance. Akses tersebut memerlukan pengesahan keselamatan, mempunyai tempoh terhad dan tidak memberikan keistimewaan Administrator kepada developer. Apabila maintenance tamat, pengguna dan developer kembali menggunakan aliran login serta akses biasa.
 TEXT,
                 ],
                 'forgot-password' => [
@@ -172,6 +192,8 @@ TEXT,
 On the sign-in page, enter your OneID user ID—normally your staff number or student number—and your OneID password. If the MyDigital ID option is displayed, you may instead select it and complete verification through the MyDigital ID service.
 
 New users without a OneID password can use Forgot Password and verify their identity using an email OTP. Users signing in through MyDigital ID for the first time may be asked to set a OneID password after their identity has been matched successfully.
+
+If you do not have a MyDigital ID account, use the official registration link on the sign-in page. The link opens the official MyDigital ID website in a new tab.
 TEXT,
                 ],
                 'mydigitalid' => [
@@ -185,15 +207,15 @@ TEXT,
                 'mfa' => [
                     'question' => 'Why am I asked for additional verification?',
                     'answer' => <<<'TEXT'
-OneID may require Multi-Factor Authentication (MFA) after the password has been verified. Depending on the security policy for your account or user category, verification may use an OTP sent to your registered email address or a code from Microsoft Authenticator.
+OneID may require Multi-Factor Authentication (MFA) after the password has been verified. Depending on the operating mode and security policy for your account or user category, verification may use an OTP sent to your registered email address or a code from Microsoft Authenticator. During an approved enrolment or recovery mode, sign-in may temporarily use only a password while existing MFA factors remain preserved.
 
-Enter the code only on an official OneID page, and never share an OTP, Authenticator code or setup key with anyone. If your Authenticator factor is lost or unavailable, follow the recovery option shown or contact OneID support.
+Enter the code only on an official OneID page, and never share an OTP, Authenticator code or setup key with anyone. After signing in, use User Security to enrol or manage Microsoft Authenticator when that function is available. If your Authenticator factor is lost or unavailable, follow the recovery option shown or contact OneID support.
 TEXT,
                 ],
                 'application-access' => [
                     'question' => 'What is the difference between Full SSO and Non-SSO?',
                     'answer' => <<<'TEXT'
-A Full SSO application accepts authentication from OneID. When you select “Sign in”, OneID issues access for that application and you normally do not need to enter your OneID password again.
+A Full SSO application accepts authentication from OneID. When you select “Access”, OneID issues access for that application and you normally do not need to enter your OneID password again.
 
 A Non-SSO application or direct link does not yet use the full SSO flow. OneID opens the application address, but that application may request separate credentials. Only applications assigned to your account are displayed; final access remains subject to the destination application's policy.
 TEXT,
@@ -206,12 +228,22 @@ OneID uses several layers of control, including secure connections, protected pa
 Security also depends on the user. Confirm that you are on an official UPNM domain, use a unique password, never share verification codes, and sign out on public computers. If you receive an unfamiliar request or notification, stop and contact OneID support.
 TEXT,
                 ],
+                'security-notifications' => [
+                    'question' => 'Why did I receive a OneID security email?',
+                    'answer' => <<<'TEXT'
+OneID sends security emails when an important action affects your account, such as changes to your password, MFA or Authenticator, account status, sessions, profile or application access. The email explains what happened, how it affects you and the recommended action. A technical reference is included to support an investigation by the support team.
+
+A OneID email will not ask you to reply with your password, OTP, token or Authenticator key. If you do not recognise the stated action, do not continue with any related request and contact OneID support immediately.
+TEXT,
+                ],
                 'multiple-devices' => [
                     'question' => 'Can I sign in on multiple devices?',
                     'answer' => <<<'TEXT'
 This depends on the multiple-session policy configured by the administrator. If multiple sessions are allowed, you can have more than one active session. If the policy is disabled, a new sign-in may make an older token or session invalid, requiring the older device to sign in again.
 
-Every session is also subject to an inactivity timeout and an overall maximum lifetime. End sessions on devices you no longer use, and never leave your account open on a public or shared device.
+Every session is also subject to an inactivity timeout and an overall maximum lifetime. The header countdown shows the current remaining time; refreshing the page does not reset it. When the plus button is available, you can request a renewal before the final two minutes, but a renewal cannot exceed the overall maximum lifetime. A warning appears when the session is close to expiring.
+
+End sessions on devices you no longer use, and never leave your account open on a public or shared device.
 TEXT,
                 ],
                 'single-application-sign-out' => [
@@ -220,6 +252,14 @@ TEXT,
 Not necessarily. Signing out from a destination application normally ends only that application's session; it does not automatically close the OneID portal or other applications.
 
 Signing out from OneID ends the current OneID session and token. However, a destination application that created its own session may remain open until you sign out there or its session expires. On a public computer, sign out from sensitive applications, sign out from OneID, and close every browser window.
+TEXT,
+                ],
+                'maintenance-mode' => [
+                    'question' => 'What happens when OneID is in Maintenance Mode?',
+                    'answer' => <<<'TEXT'
+Maintenance Mode is used during controlled maintenance or upgrade work. Ordinary users see a status page, the maintenance purpose when provided and the expected service-restoration time. Use Try Again after that time, or contact support if the disruption continues.
+
+Only Administrators and developer accounts granted temporary access can use a dedicated route during maintenance. That access requires security verification, has a limited lifetime and does not give a developer Administrator privileges. When maintenance ends, users and developers return to the normal sign-in and access flow.
 TEXT,
                 ],
                 'forgot-password' => [

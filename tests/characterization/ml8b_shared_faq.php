@@ -23,10 +23,10 @@ $root = dirname(__DIR__, 2);
 $login = (string) file_get_contents($root . '/index.php');
 $dashboard = (string) file_get_contents($root . '/page/dashboard.php');
 
-$report(count($ms['entries']) === 11 && count($en['entries']) === 11, 'both approved locales contain eleven FAQ entries');
+$report(count($ms['entries']) === 13 && count($en['entries']) === 13, 'both approved locales contain thirteen FAQ entries');
 $report(
     array_column($ms['entries'], 'id') === array_column($en['entries'], 'id')
-    && count(array_unique(array_column($ms['entries'], 'id'))) === 11,
+    && count(array_unique(array_column($ms['entries'], 'id'))) === 13,
     'BM and English use the same stable FAQ identities'
 );
 $report(
