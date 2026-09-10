@@ -101,15 +101,13 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
   
     <!-- LEFT SIDE: Login  order-2 order-md-1 -->
     <div class="col-md-4 bg-white p-4">
-      <div class="mb-3 pb-2">
-      </div>   
-
       <form id="loginform">
         <?php if (defined('ONEID_ADMIN_MAINTENANCE_LOGIN')): ?><input type="hidden" name="maintenance_admin_login" value="1"><?php endif; ?>
         <?php if (defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')): ?><input type="hidden" name="maintenance_developer_login" value="1"><?php endif; ?>
-        <div style="text-align: center; margin-bottom: 12px;">          
-          <img src="img/logo_oneid.png" alt="UPNM Logo" style="width: 80%; height: auto !important;" />
-          <img src="img/logo_upnm_30.png" alt="UPNM 30 Tahun Logo" style="width: 40%; height: auto !important;" />
+        <div class="oneid-login-brand-lockup" aria-label="OneID@UPNM">
+          <span class="oneid-login-brand-mark oneid-login-brand-lockup__oneid"><img src="img/logo_oneid.png" alt="OneID" width="500" height="199" /></span>
+          <span class="oneid-login-brand-lockup__divider" aria-hidden="true"></span>
+          <span class="oneid-login-brand-mark oneid-login-brand-lockup__upnm"><img src="img/logo_upnm_30.png" alt="UPNM 30 Tahun" width="247" height="66" /></span>
         </div>
         <div id="login_status" role="status" aria-live="polite"><?php if ($loginFlashKey !== null): ?>
           <div class="alert alert-warning alert-dismissable">
@@ -1388,6 +1386,101 @@ $('#otp_inputs').on('paste', function(e) {
     border-right: 0;
   }
 
+  .oneid-login-brand-lockup {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+    min-height: 86px;
+    margin: 0 auto 18px;
+    padding: 7px 8px 14px;
+    border-bottom: 1px solid #dce7ef;
+  }
+
+  .oneid-login-brand-mark {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    overflow: hidden;
+    line-height: 0;
+    transition: filter .25s ease, transform .25s ease;
+  }
+
+  .oneid-login-brand-mark img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .oneid-login-brand-mark::after {
+    position: absolute;
+    top: -35%;
+    bottom: -35%;
+    left: -55%;
+    width: 34%;
+    content: "";
+    pointer-events: none;
+    opacity: 0;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .72), transparent);
+    transform: skewX(-16deg);
+    animation: oneid-login-logo-light-pass 8s ease-in-out infinite;
+  }
+
+  .oneid-login-brand-lockup__upnm::after {
+    animation-delay: 1.1s;
+  }
+
+  .oneid-login-brand-mark:hover {
+    filter: drop-shadow(0 5px 8px rgba(7, 127, 189, .18));
+  }
+
+  .oneid-login-brand-lockup__oneid {
+    width: 156px;
+    height: 62px;
+  }
+
+  .oneid-login-brand-lockup__upnm {
+    width: 157px;
+    height: 42px;
+    transform: translateY(4px);
+  }
+
+  .oneid-login-brand-lockup__oneid:hover {
+    transform: translateY(-1px);
+  }
+
+  .oneid-login-brand-lockup__upnm:hover {
+    transform: translateY(3px);
+  }
+
+  .oneid-login-brand-lockup__divider {
+    flex: 0 0 1px;
+    width: 1px;
+    height: 42px;
+    background: #d5e1e9;
+  }
+
+  @keyframes oneid-login-logo-light-pass {
+    0%, 68% { left: -55%; opacity: 0; }
+    73% { opacity: .72; }
+    87% { opacity: .42; }
+    92%, 100% { left: 125%; opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .oneid-login-brand-mark::after {
+      display: none;
+      animation: none;
+    }
+
+    .oneid-login-brand-mark {
+      transition: none;
+    }
+  }
+
   .login-topbar {
     display: flex;
     align-items: center;
@@ -1516,6 +1609,23 @@ $('#otp_inputs').on('paste', function(e) {
       .oneid-password-actions {
         align-items: stretch;
         flex-direction: column;
+      }
+
+      .oneid-login-brand-lockup {
+        gap: 10px;
+        min-height: 75px;
+        margin-bottom: 14px;
+        padding: 5px 4px 12px;
+      }
+
+      .oneid-login-brand-lockup__oneid {
+        width: 48%;
+        height: auto;
+      }
+
+      .oneid-login-brand-lockup__upnm {
+        width: 43%;
+        height: auto;
       }
 
       .oneid-forgot-password {

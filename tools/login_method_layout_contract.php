@@ -19,6 +19,16 @@ $checks['password_flow_preserved'] = str_contains($index, '<form id="loginform">
 $checks['distinct_login_methods'] = str_contains($index, 'oneid-login-method--password')
     && str_contains($index, 'mydigitalid-login-option')
     && str_contains($index, 'href="auth/mydigitalid/login.php"');
+$checks['professional_single_row_brand_lockup'] = str_contains($index, 'class="oneid-login-brand-lockup"')
+    && str_contains($index, 'oneid-login-brand-lockup__oneid')
+    && str_contains($index, 'oneid-login-brand-lockup__upnm')
+    && str_contains($index, 'oneid-login-brand-lockup__divider')
+    && str_contains($index, 'display: flex;')
+    && str_contains($index, 'align-items: center;');
+$checks['brand_motion_is_subtle_and_accessible'] = str_contains($index, 'oneid-login-logo-light-pass')
+    && str_contains($index, '.oneid-login-brand-mark::after')
+    && str_contains($index, '@media (prefers-reduced-motion: reduce)')
+    && str_contains($index, 'pointer-events: none;');
 $checks['official_registration_link'] = str_contains(
     $index,
     'href="https://www.digital-id.my/"'
