@@ -114,7 +114,7 @@ return [
     'login.menu.manual' => 'User Manual',
     'login.menu.directory' => 'UPNM Directory',
     'login.menu.email' => 'UPNM Mail',
-    'login.manual_fallback_notice' => 'English manual is not yet available. The Bahasa Melayu version is provided.',
+    'login.manual_fallback_notice' => 'User Manual English version is not yet available.',
     'login.contact.title' => 'Contact Us',
     'login.contact.service' => 'OneID@UPNM Support Service',
     'login.contact.department' => 'Information and Communication Technology Division, National Defence University of Malaysia (UPNM)',
