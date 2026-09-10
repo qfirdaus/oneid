@@ -190,7 +190,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
             </div>
             <p class="mydigitalid-registration">
               <span><?=htmlspecialchars(oneid_translate('login.mydigitalid.register_prompt'), ENT_QUOTES, 'UTF-8')?></span>
-              <a href="https://www.malaysia.gov.my/my/register/mydigital-id" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.digital-id.my/" target="_blank" rel="noopener noreferrer">
                 <?=htmlspecialchars(oneid_translate('login.mydigitalid.register_link'), ENT_QUOTES, 'UTF-8')?>
                 <i class="fas fa-external-link-alt" aria-hidden="true"></i>
               </a>

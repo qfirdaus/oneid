@@ -21,7 +21,7 @@ $checks['distinct_login_methods'] = str_contains($index, 'oneid-login-method--pa
     && str_contains($index, 'href="auth/mydigitalid/login.php"');
 $checks['official_registration_link'] = str_contains(
     $index,
-    'href="https://www.malaysia.gov.my/my/register/mydigital-id"'
+    'href="https://www.digital-id.my/"'
 ) && str_contains($index, 'target="_blank" rel="noopener noreferrer"');
 $keys = [
     'login.password_access.eyebrow',
