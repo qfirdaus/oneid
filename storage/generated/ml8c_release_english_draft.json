@@ -1,11 +1,42 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2130-CHANGELOG-20260910-01",
+    "authorization": "ONEID-V2131-CHANGELOG-20260910-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.13.1",
+            "version": "2.13.1",
+            "date": "2026-09-10",
+            "items": [
+                {
+                    "identity": "release:2.13.1:item:001",
+                    "bm": "Perubahan Login Banner yang memerlukan Administrator Step-Up kini disimpan sementara dan dipulihkan selepas pengesahan tanpa memaksa Administrator mengulang susunan atau tindakan asal.",
+                    "en_draft": "Login Banner changes requiring Administrator Step-Up are now retained temporarily and restored after verification without forcing the Administrator to repeat the original order or action.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.1:item:002",
+                    "bm": "Pending action dihadkan kepada 15 minit dan hanya boleh diteruskan selepas data terkini dimuatkan serta configuration version disahkan tidak berubah.",
+                    "en_draft": "A pending action is limited to 15 minutes and can continue only after fresh data is loaded and its configuration version is confirmed unchanged.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.1:item:003",
+                    "bm": "Modal sebab perubahan kini menyediakan pilihan berbentuk butang yang mengisi textarea, bersama pilihan Sebab lain untuk penerangan khusus Administrator.",
+                    "en_draft": "The change-reason dialog now provides clickable choices that populate the textarea, together with an Other reason option for an Administrator-specific explanation.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.1:item:004",
+                    "bm": "Maklumat teks draf banner dipulihkan selepas Step-Up manakala fail imej mesti dipilih semula mengikut perlindungan keselamatan pelayar.",
+                    "en_draft": "Banner draft text is restored after Step-Up while image files must be selected again in accordance with browser security protection.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.13.0",
             "version": "2.13.0",
@@ -3584,5 +3615,5 @@
             ]
         }
     ],
-    "manifest_digest": "a12c2d3ff4695c37e48d0ab82642e5d336031926c0d7a55fc9c464bfb914f4d0"
+    "manifest_digest": "6435f2b60fd86bb994ea8efc118f09ad58c56676394fed787dcb5bdf65b65830"
 }

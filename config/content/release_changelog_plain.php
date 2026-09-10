@@ -6,6 +6,25 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.13.1' =>
+  array (
+    'version' => '2.13.1',
+    'date' => '2026-09-10',
+    'bm' =>
+    array (
+      0 => 'Perubahan Login Banner yang memerlukan Administrator Step-Up kini disimpan sementara dan dipulihkan selepas pengesahan tanpa memaksa Administrator mengulang susunan atau tindakan asal.',
+      1 => 'Pending action dihadkan kepada 15 minit dan hanya boleh diteruskan selepas data terkini dimuatkan serta configuration version disahkan tidak berubah.',
+      2 => 'Modal sebab perubahan kini menyediakan pilihan berbentuk butang yang mengisi textarea, bersama pilihan Sebab lain untuk penerangan khusus Administrator.',
+      3 => 'Maklumat teks draf banner dipulihkan selepas Step-Up manakala fail imej mesti dipilih semula mengikut perlindungan keselamatan pelayar.',
+    ),
+    'en' =>
+    array (
+      0 => 'Login Banner changes requiring Administrator Step-Up are now retained temporarily and restored after verification without forcing the Administrator to repeat the original order or action.',
+      1 => 'A pending action is limited to 15 minutes and can continue only after fresh data is loaded and its configuration version is confirmed unchanged.',
+      2 => 'The change-reason dialog now provides clickable choices that populate the textarea, together with an Other reason option for an Administrator-specific explanation.',
+      3 => 'Banner draft text is restored after Step-Up while image files must be selected again in accordance with browser security protection.',
+    ),
+  ),
   'release-2.13.0' =>
   array (
     'version' => '2.13.0',
