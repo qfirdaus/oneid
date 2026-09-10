@@ -89,6 +89,7 @@
       <!-- vector map CSS -->
       <link href="../vendors/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet" type="text/css"/>
       <link href="../assetsM/css/sweetalert.css" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-professional-alert.css?v=20260910-1" rel="stylesheet" type="text/css">
       <link href="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css">
       <!-- Custom CSS -->
       <link href="../dist/css/style.css" rel="stylesheet" type="text/css">
@@ -542,6 +543,7 @@
       <script src="../vendors/bower_components/switchery/dist/switchery.min.js"></script>
       <!-- Sweet-Alert  -->
       <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
+      <script src="../dist/js/oneid-professional-alert.js?v=20260910-1"></script>
       <script>
          window.OneIdUserSessionConfig = <?=json_encode(
             oneid_user_session_presentation_config((int) ($_SESSION['password_change_required'] ?? 0) !== 1),

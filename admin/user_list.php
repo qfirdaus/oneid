@@ -53,6 +53,7 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title><?=$escape(oneid_translate('admin.user_list.title'))?> · OneID UPNM</title>
     <link href="../assetsM/css/sweetalert.css" rel="stylesheet" type="text/css">
+    <link href="../dist/css/oneid-professional-alert.css?v=20260910-1" rel="stylesheet" type="text/css">
     <link href="../dist/css/oneid-admin-session.css?v=20260806-1" rel="stylesheet" type="text/css">
     <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
     <style>
@@ -280,6 +281,7 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
     </article>
 </main>
 <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
+<script src="../dist/js/oneid-professional-alert.js?v=20260910-1"></script>
 <script>
 window.OneIdAdminSessionConfig = <?=json_encode([
     'apiUrl' => APP_URL . '/lib/q_func.php',

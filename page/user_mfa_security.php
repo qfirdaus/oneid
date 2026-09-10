@@ -77,6 +77,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title><?=$h('user_mfa.security.title')?> | OneID@UPNM</title>
   <link rel="stylesheet" href="../assetsM/css/sweetalert.css">
+  <link rel="stylesheet" href="../dist/css/oneid-professional-alert.css?v=20260910-1">
   <link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260821-1">
   <link rel="stylesheet" href="../dist/css/user-mfa-security.css?v=20260731-1">
   <link rel="stylesheet" href="../dist/css/oneid-user-session.css?v=20260808-2">
@@ -187,6 +188,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
   </section>
 </main>
 <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
+<script src="../dist/js/oneid-professional-alert.js?v=20260910-1"></script>
 <script>window.OneIdUserSessionConfig=<?=json_encode(oneid_user_session_presentation_config(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;</script>
 <script src="../dist/js/oneid-user-session.js?v=20260908-3"></script>
 <script>
