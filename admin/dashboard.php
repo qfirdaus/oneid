@@ -2036,7 +2036,7 @@
                                                                   <form id="login_banner_draft_form" enctype="multipart/form-data">
                                                                      <fieldset><legend id="login_banner_form_title"><?=htmlspecialchars(oneid_translate('admin.banner.new_draft'), ENT_QUOTES, 'UTF-8')?></legend>
                                                                         <div class="login-banner-form-grid">
-                                                                           <div class="form-group"><label for="login_banner_key"><?=htmlspecialchars(oneid_translate('admin.banner.key'), ENT_QUOTES, 'UTF-8')?></label><input class="form-control" id="login_banner_key" name="banner_key" required maxlength="64" pattern="LB-[A-Za-z0-9][A-Za-z0-9_-]{2,61}" placeholder="LB-WELCOME-2026"></div>
+                                                                           <div class="form-group"><label for="login_banner_key"><?=htmlspecialchars(oneid_translate('admin.banner.key'), ENT_QUOTES, 'UTF-8')?></label><input class="form-control" id="login_banner_key" name="banner_key" required maxlength="64" pattern="LB-[A-Z0-9][A-Z0-9_-]{2,61}" placeholder="LB-WELCOME-2026" aria-describedby="login_banner_key_help"><small class="help-block" id="login_banner_key_help"><?=htmlspecialchars(oneid_translate('admin.banner.key_help'), ENT_QUOTES, 'UTF-8')?></small></div>
                                                                            <div class="form-group"><label for="login_banner_order"><?=htmlspecialchars(oneid_translate('admin.banner.order'), ENT_QUOTES, 'UTF-8')?></label><input class="form-control" id="login_banner_order" name="display_order" type="number" min="1" max="5" value="1" required></div>
                                                                            <div class="form-group"><label for="login_banner_start"><?=htmlspecialchars(oneid_translate('admin.banner.starts'), ENT_QUOTES, 'UTF-8')?></label><input class="form-control" id="login_banner_start" type="datetime-local"></div>
                                                                            <div class="form-group"><label for="login_banner_end"><?=htmlspecialchars(oneid_translate('admin.banner.ends'), ENT_QUOTES, 'UTF-8')?></label><input class="form-control" id="login_banner_end" type="datetime-local"></div>
@@ -6944,7 +6944,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          data-api="../lib/q_func"
          data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>"
          data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=configuration_user_mfa_exemption"></script>
-      <script src="../assetsM/js/login-banner-admin.js?v=20260910-5"></script>
+      <script src="../assetsM/js/login-banner-admin.js?v=20260910-6"></script>
       <style>
          #the-basics .tt-dropdown-menu {
          max-height: 150px;

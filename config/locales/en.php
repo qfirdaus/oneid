@@ -644,6 +644,7 @@ return [
     'admin.banner.new_draft' => 'Create a new draft',
     'admin.banner.edit_draft' => 'Update an existing banner',
     'admin.banner.key' => 'Banner key',
+    'admin.banner.key_help' => 'Use letters, numbers, hyphens or underscores. The LB- prefix is added automatically.',
     'admin.banner.order' => 'Display order',
     'admin.banner.starts' => 'Starts (local time)',
     'admin.banner.ends' => 'Ends (local time)',

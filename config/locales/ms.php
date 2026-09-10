@@ -644,6 +644,7 @@ return [
     'admin.banner.new_draft' => 'Cipta draf baharu',
     'admin.banner.edit_draft' => 'Kemaskini banner sedia ada',
     'admin.banner.key' => 'Kunci banner',
+    'admin.banner.key_help' => 'Gunakan huruf, nombor, tanda sempang atau garis bawah. Awalan LB- akan ditambah secara automatik.',
     'admin.banner.order' => 'Susunan paparan',
     'admin.banner.starts' => 'Mula (waktu tempatan)',
     'admin.banner.ends' => 'Tamat (waktu tempatan)',
