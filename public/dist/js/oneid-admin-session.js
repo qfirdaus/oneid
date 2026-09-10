@@ -106,6 +106,10 @@
             overlay.classList.add('oneid-admin-session-overlay');
         }
         if (!alert.querySelector('.oneid-session-eyebrow')) {
+            var genericEyebrow = alert.querySelector('.oneid-professional-alert__eyebrow');
+            if (genericEyebrow) {
+                genericEyebrow.parentNode.removeChild(genericEyebrow);
+            }
             var eyebrow = document.createElement('div');
             eyebrow.className = 'oneid-session-eyebrow';
             eyebrow.textContent = config.text.securityEyebrow;

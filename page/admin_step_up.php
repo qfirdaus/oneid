@@ -45,7 +45,7 @@ foreach(array_keys(require __DIR__.'/../config/locales/ms.php') as $localeKey){
 <section class="card setup-card" id="bootstrap"><div class="settings-title"><h4>Controlled bootstrap</h4><span class="settings-tag">RESTRICTED</span></div><p class="section-intro"><?=$h('stepup.bootstrap_intro')?></p><input id="bootstrapPassword" type="password" autocomplete="current-password" placeholder="<?=$h('stepup.current_password')?>"><input id="changeReason" maxlength="500" placeholder="<?=$h('stepup.change_reason')?>"><input id="changeId" value="ONEID-F7-2FA-20260720-01"><input id="typed" placeholder="<?=$h('stepup.type_confirmation')?>"><button class="danger" id="enable"><?=$h('stepup.enable_2fa')?></button></section>
 <a class="back" href="dashboard">&#8592; <?=$h('stepup.back')?></a><footer class="foot"><span>OneID@UPNM &bull; <?=$h('stepup.footer_security')?></span><span>Pusat Teknologi Maklumat &amp; Komunikasi</span></footer></section></main>
 <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
-<script src="../dist/js/oneid-professional-alert.js?v=20260910-1"></script>
+<script src="../dist/js/oneid-professional-alert.js?v=20260910-2"></script>
 <script>
 const stepupText=<?=json_encode($stepupText,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE)?>;
 let csrf=<?=json_encode(oneid_csrf_token())?>, purpose=<?=json_encode($purpose)?>, setupMode=<?=json_encode($setupMode)?>, enrollmentIntent=<?=json_encode($enrollmentIntent)?>, resetIntent=<?=json_encode($resetIntent)?>, successRedirect=<?=json_encode($successRedirect)?>, state={}; const api=<?=json_encode(APP_URL.'/lib/q_func.php')?>;

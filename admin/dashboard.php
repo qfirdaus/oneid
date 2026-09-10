@@ -2135,7 +2135,7 @@
       <script src="../vendors/bower_components/switchery/dist/switchery.min.js"></script>
       <!-- Sweet-Alert  -->
       <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
-      <script src="../dist/js/oneid-professional-alert.js?v=20260910-1"></script>
+      <script src="../dist/js/oneid-professional-alert.js?v=20260910-2"></script>
       <script>
       window.OneIdAdminSessionConfig = <?=json_encode([
          'apiUrl' => APP_URL . '/lib/q_func.php',
@@ -2160,7 +2160,7 @@
          ],
       ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
       </script>
-      <script src="../dist/js/oneid-admin-session.js?v=20260908-3"></script>
+      <script src="../dist/js/oneid-admin-session.js?v=20260910-1"></script>
       <script>window.OneIdMaintenanceDeveloperAdmin=<?=json_encode(['schemaUnavailable'=>oneid_translate('admin.maintenance_developer.schema_unavailable'),'noResults'=>oneid_translate('admin.maintenance_developer.no_results'),'revoke'=>oneid_translate('admin.maintenance_developer.revoke'),'enabled'=>oneid_translate('admin.maintenance_developer.enabled'),'disabled'=>oneid_translate('admin.maintenance_developer.disabled'),'select'=>oneid_translate('admin.maintenance_developer.select'),'validation'=>oneid_translate('admin.maintenance_developer.validation'),'reviewTitle'=>oneid_translate('admin.maintenance_developer.review_title'),'reviewIntro'=>oneid_translate('admin.maintenance_developer.review_intro'),'reviewUser'=>oneid_translate('admin.maintenance_developer.review_user'),'reviewPeriod'=>oneid_translate('admin.maintenance_developer.review_period'),'reviewReason'=>oneid_translate('admin.maintenance_developer.review_reason'),'reviewReference'=>oneid_translate('admin.maintenance_developer.review_reference'),'confirm'=>oneid_translate('admin.maintenance_developer.confirm_grant'),'cancel'=>oneid_translate('admin.maintenance_developer.cancel'),'success'=>oneid_translate('admin.maintenance_developer.success'),'minutes'=>oneid_translate('admin.maintenance_developer.minutes'),'hours'=>oneid_translate('admin.maintenance_developer.hours'),'day'=>oneid_translate('admin.maintenance_developer.day'),'revokeTitle'=>oneid_translate('admin.maintenance_developer.revoke_title'),'confirmRevoke'=>oneid_translate('admin.maintenance_developer.confirm_revoke'),'reasonLabel'=>oneid_translate('admin.maintenance_developer.reason'),'referenceLabel'=>oneid_translate('admin.maintenance_developer.reference'),'revokeReasonSelect'=>oneid_translate('admin.maintenance_developer.revoke_reason_select'),'revokeReasonComplete'=>oneid_translate('admin.maintenance_developer.revoke_reason_complete'),'revokeReasonSecurity'=>oneid_translate('admin.maintenance_developer.revoke_reason_security'),'revokeReasonChange'=>oneid_translate('admin.maintenance_developer.revoke_reason_change'),'revokeReasonOther'=>oneid_translate('admin.maintenance_developer.revoke_reason_other')],JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE)?>;</script>
       <script src="../dist/js/oneid-maintenance-developer-admin.js?v=20260904-4"></script>
       <script src="../dist/js/oneid-maintenance-developer-layout.js?v=20260904-6"></script>

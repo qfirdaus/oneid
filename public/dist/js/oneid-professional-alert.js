@@ -3,6 +3,7 @@
 
   var alertSelector='.sweet-alert';
   var visibleClass='showSweetAlert';
+  var lastVisible=false;
 
   function localeIsMalay(){
     return String(document.documentElement.lang||'').toLowerCase().indexOf('ms')===0;
@@ -53,8 +54,16 @@
   function sync(){
     var alert=document.querySelector(alertSelector);
     var overlay=document.querySelector('.sweet-overlay');
-    if(alert&&alert.classList.contains(visibleClass)){apply(alert);}
-    else if(overlay){overlay.classList.remove('oneid-professional-alert-overlay');}
+    var visible=!!(alert&&alert.classList.contains(visibleClass));
+    if(visible){
+      var kind=alertKind(alert);
+      var needsTheme=!lastVisible||!alert.classList.contains('oneid-professional-alert')||!alert.classList.contains('oneid-professional-alert--'+kind);
+      lastVisible=true;
+      if(needsTheme){apply(alert,{kind:kind});}
+      return;
+    }
+    lastVisible=false;
+    if(overlay){overlay.classList.remove('oneid-professional-alert-overlay');}
   }
 
   window.OneIdProfessionalAlert={apply:apply,sync:sync};
@@ -65,7 +74,7 @@
       var alert=document.querySelector(alertSelector);
       if(!alert||alertObserver){return false;}
       alertObserver=new MutationObserver(sync);
-      alertObserver.observe(alert,{attributes:true,childList:true,subtree:true,attributeFilter:['class','style']});
+      alertObserver.observe(alert,{attributes:true,attributeFilter:['class']});
       if(bootstrapObserver){bootstrapObserver.disconnect();bootstrapObserver=null;}
       sync();
       return true;

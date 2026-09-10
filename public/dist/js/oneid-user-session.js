@@ -212,6 +212,10 @@
             paragraph.appendChild(note);
         }
         if (!alert.querySelector('.oneid-user-session-eyebrow')) {
+            var genericEyebrow = alert.querySelector('.oneid-professional-alert__eyebrow');
+            if (genericEyebrow) {
+                genericEyebrow.parentNode.removeChild(genericEyebrow);
+            }
             var eyebrow = document.createElement('span');
             eyebrow.className = 'oneid-user-session-eyebrow';
             eyebrow.textContent = config.text.eyebrow;
@@ -231,6 +235,10 @@
         if (alert) {
             alert.classList.add('oneid-user-session-alert');
             if (!alert.querySelector('.oneid-user-session-eyebrow')) {
+                var genericEyebrow = alert.querySelector('.oneid-professional-alert__eyebrow');
+                if (genericEyebrow) {
+                    genericEyebrow.parentNode.removeChild(genericEyebrow);
+                }
                 var eyebrow = document.createElement('div');
                 eyebrow.className = 'oneid-user-session-eyebrow';
                 eyebrow.textContent = config.text.eyebrow;

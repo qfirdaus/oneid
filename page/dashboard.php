@@ -543,14 +543,14 @@
       <script src="../vendors/bower_components/switchery/dist/switchery.min.js"></script>
       <!-- Sweet-Alert  -->
       <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
-      <script src="../dist/js/oneid-professional-alert.js?v=20260910-1"></script>
+      <script src="../dist/js/oneid-professional-alert.js?v=20260910-2"></script>
       <script>
          window.OneIdUserSessionConfig = <?=json_encode(
             oneid_user_session_presentation_config((int) ($_SESSION['password_change_required'] ?? 0) !== 1),
             JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
          )?>;
       </script>
-      <script src="../dist/js/oneid-user-session.js?v=20260908-3"></script>
+      <script src="../dist/js/oneid-user-session.js?v=20260910-1"></script>
       <script src="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
       <script src="../assetsM/js/oneid-notifications.js?v=20260716-1"></script>
       <!-- Init JavaScript -->

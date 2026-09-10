@@ -38,6 +38,14 @@ if (!$presentationOnly) {
     $failures[] = 'presentation_only';
 }
 
+$observerIsBounded = str_contains($javascript, "attributeFilter:['class']")
+    && !str_contains($javascript, "attributes:true,childList:true,subtree:true")
+    && str_contains($javascript, 'needsTheme');
+echo ($observerIsBounded ? 'PASS ' : 'FAIL ') . "observer cannot loop over its own subtree and style mutations\n";
+if (!$observerIsBounded) {
+    $failures[] = 'observer_bounded';
+}
+
 $css = (string) file_get_contents($root . '/public/dist/css/oneid-professional-alert.css');
 $responsive = str_contains($css, '@media(max-width:730px)')
     && str_contains($css, 'max-width:calc(100vw - 32px)');
@@ -46,5 +54,5 @@ if (!$responsive) {
     $failures[] = 'responsive';
 }
 
-printf("RESULT checks=%d failed=%d\n", count($entries) + 2, count($failures));
+printf("RESULT checks=%d failed=%d\n", count($entries) + 3, count($failures));
 exit($failures === [] ? 0 : 1);

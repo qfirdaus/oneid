@@ -504,7 +504,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
   <script src="assetsM/js/bootstrap.bundle.min.js"></script>
   <script src="vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
   <script src="vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
-  <script src="dist/js/oneid-professional-alert.js?v=20260910-1"></script>
+  <script src="dist/js/oneid-professional-alert.js?v=20260910-2"></script>
   <script src="assetsM/js/oneid-notifications.js?v=20260716-1"></script>
 
 

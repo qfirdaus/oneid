@@ -281,7 +281,7 @@ $reportReference = sprintf('ONEID-UC-%d-%s', $categoryId, $generatedAt->format('
     </article>
 </main>
 <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
-<script src="../dist/js/oneid-professional-alert.js?v=20260910-1"></script>
+<script src="../dist/js/oneid-professional-alert.js?v=20260910-2"></script>
 <script>
 window.OneIdAdminSessionConfig = <?=json_encode([
     'apiUrl' => APP_URL . '/lib/q_func.php',
@@ -303,6 +303,6 @@ window.OneIdAdminSessionConfig = <?=json_encode([
     ],
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
 </script>
-<script src="../dist/js/oneid-admin-session.js?v=20260806-5"></script>
+<script src="../dist/js/oneid-admin-session.js?v=20260910-1"></script>
 </body>
 </html>
