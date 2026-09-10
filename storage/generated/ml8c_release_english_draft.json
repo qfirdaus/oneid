@@ -1,11 +1,66 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2131-CHANGELOG-20260910-01",
+    "authorization": "ONEID-V2132-CHANGELOG-20260910-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.13.2",
+            "version": "2.13.2",
+            "date": "2026-09-10",
+            "items": [
+                {
+                    "identity": "release:2.13.2:item:001",
+                    "bm": "Pengurusan Login Banner kini mempunyai modal sebab perubahan yang lebih kemas, borang kemas kini yang memuatkan data semasa dan pilihan sebab yang kekal terbuka sehingga disahkan.",
+                    "en_draft": "Login Banner management now provides a cleaner change-reason dialog, an update form populated with current data, and reason choices that remain open until confirmed.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.2:item:002",
+                    "bm": "Apabila tiada banner dinamik aktif, halaman login memaparkan satu banner default khusus yang boleh diselenggara sebagai aset release tanpa mengubah rekod banner production.",
+                    "en_draft": "When no dynamic banner is active, the login page displays one dedicated default banner that can be maintained as a release asset without changing production banner records.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.2:item:003",
+                    "bm": "Navigasi awam sebelum login kini menyediakan pautan E-mel UPNM atau UPNM Mail ke Outlook bersama pautan Direktori UPNM.",
+                    "en_draft": "Public navigation before sign-in now provides an UPNM Mail link to Outlook alongside the UPNM Directory link.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.2:item:004",
+                    "bm": "Fail imej banner yang dipilih kekal dalam borang semasa Administrator Step-Up dijalankan dalam tetingkap keselamatan, lalu penyimpanan boleh disambung tanpa upload kali kedua.",
+                    "en_draft": "A selected banner image remains in its form while Administrator Step-Up runs in a security window, allowing the save to resume without a second upload.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.2:item:005",
+                    "bm": "Kunci banner dinormalkan kepada format LB- secara automatik dan panduan input dipaparkan sebelum permintaan dihantar ke server.",
+                    "en_draft": "Banner keys are normalized automatically to the LB- format and input guidance is displayed before a request is sent to the server.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.2:item:006",
+                    "bm": "Jadual banner dipaparkan serta diedit secara konsisten dalam waktu Malaysia sementara nilai canonical terus disimpan dalam UTC.",
+                    "en_draft": "Banner schedules are displayed and edited consistently in Malaysia time while canonical values continue to be stored in UTC.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.2:item:007",
+                    "bm": "Notis ketersediaan User Manual English dipermudah dan pautan manual sedia ada kekal tanpa perubahan aliran.",
+                    "en_draft": "The English User Manual availability notice is simplified while the existing manual link and flow remain unchanged.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.2:item:008",
+                    "bm": "Logo OneID dan UPNM30 pada panel login disusun dalam satu lockup responsif yang seimbang, dengan lintasan cahaya halus, hover profesional dan sokongan reduced motion.",
+                    "en_draft": "The OneID and UPNM30 logos on the login panel are arranged in a balanced responsive lockup with a subtle light pass, professional hover effect and reduced-motion support.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.13.1",
             "version": "2.13.1",
@@ -3615,5 +3670,5 @@
             ]
         }
     ],
-    "manifest_digest": "6435f2b60fd86bb994ea8efc118f09ad58c56676394fed787dcb5bdf65b65830"
+    "manifest_digest": "b211548762ee2ba9fc1f4b2003ef1cce4a0ada5e67aa9bffe40695ab500fa83c"
 }

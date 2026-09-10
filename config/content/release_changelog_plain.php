@@ -6,6 +6,33 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.13.2' =>
+  array (
+    'version' => '2.13.2',
+    'date' => '2026-09-10',
+    'bm' =>
+    array (
+      0 => 'Pengurusan Login Banner kini mempunyai modal sebab perubahan yang lebih kemas, borang kemas kini yang memuatkan data semasa dan pilihan sebab yang kekal terbuka sehingga disahkan.',
+      1 => 'Apabila tiada banner dinamik aktif, halaman login memaparkan satu banner default khusus yang boleh diselenggara sebagai aset release tanpa mengubah rekod banner production.',
+      2 => 'Navigasi awam sebelum login kini menyediakan pautan E-mel UPNM atau UPNM Mail ke Outlook bersama pautan Direktori UPNM.',
+      3 => 'Fail imej banner yang dipilih kekal dalam borang semasa Administrator Step-Up dijalankan dalam tetingkap keselamatan, lalu penyimpanan boleh disambung tanpa upload kali kedua.',
+      4 => 'Kunci banner dinormalkan kepada format LB- secara automatik dan panduan input dipaparkan sebelum permintaan dihantar ke server.',
+      5 => 'Jadual banner dipaparkan serta diedit secara konsisten dalam waktu Malaysia sementara nilai canonical terus disimpan dalam UTC.',
+      6 => 'Notis ketersediaan User Manual English dipermudah dan pautan manual sedia ada kekal tanpa perubahan aliran.',
+      7 => 'Logo OneID dan UPNM30 pada panel login disusun dalam satu lockup responsif yang seimbang, dengan lintasan cahaya halus, hover profesional dan sokongan reduced motion.',
+    ),
+    'en' =>
+    array (
+      0 => 'Login Banner management now provides a cleaner change-reason dialog, an update form populated with current data, and reason choices that remain open until confirmed.',
+      1 => 'When no dynamic banner is active, the login page displays one dedicated default banner that can be maintained as a release asset without changing production banner records.',
+      2 => 'Public navigation before sign-in now provides an UPNM Mail link to Outlook alongside the UPNM Directory link.',
+      3 => 'A selected banner image remains in its form while Administrator Step-Up runs in a security window, allowing the save to resume without a second upload.',
+      4 => 'Banner keys are normalized automatically to the LB- format and input guidance is displayed before a request is sent to the server.',
+      5 => 'Banner schedules are displayed and edited consistently in Malaysia time while canonical values continue to be stored in UTC.',
+      6 => 'The English User Manual availability notice is simplified while the existing manual link and flow remain unchanged.',
+      7 => 'The OneID and UPNM30 logos on the login panel are arranged in a balanced responsive lockup with a subtle light pass, professional hover effect and reduced-motion support.',
+    ),
+  ),
   'release-2.13.1' =>
   array (
     'version' => '2.13.1',
