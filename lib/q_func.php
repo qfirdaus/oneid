@@ -7,6 +7,7 @@ require __DIR__ . '/src/Exception.php';
 require __DIR__ . '/src/PHPMailer.php';
 require __DIR__ . '/src/SMTP.php';
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/client_ip.php';
 require_once dirname(__DIR__) . '/app/Audit/AuditIdentityResolver.php';
 require_once __DIR__ . '/upload_security.php';
 require_once __DIR__ . '/device_info.php';
@@ -580,17 +581,6 @@ function sentence_case($string) {
     return trim($new_string); 
 } 
 
-function getUserIP() {
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        return $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        // If multiple IPs, take the first one
-        return explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
-    } else {
-        return $_SERVER['REMOTE_ADDR'];
-    }
-}
-
 function oneid_metadata_repository(): \OneId\App\Metadata\BilingualMetadataRepository {
   static $repository;
   if(!$repository instanceof \OneId\App\Metadata\BilingualMetadataRepository){
@@ -676,8 +666,7 @@ function string_sanitize($s) {
         $maintenanceDeveloperDecision=null;
         // Rate limiting must use the network peer. Untrusted forwarded headers
         // would otherwise let a client rotate its apparent source address.
-        $loginIp=(string)($_SERVER['REMOTE_ADDR']??'');
-        if(filter_var($loginIp,FILTER_VALIDATE_IP)===false){$loginIp='0.0.0.0';}
+        $loginIp=oneid_client_ip($_SERVER);
         $credentialFingerprint=hash('sha256',mb_strtolower($submittedUsername,'UTF-8'));
         if($maintenanceAdminLogin||$maintenanceDeveloperLogin){
           $maintenanceConfig=$operation->get_maintenance_config();

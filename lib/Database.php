@@ -117,9 +117,9 @@ class Database {
     public function count_recent_login_failures($credentialFingerprint,$ipAddress,$minutes=15){
         $since=date('Y-m-d H:i:s',time()-(max(1,(int)$minutes)*60));
         $fingerprintPattern='%credential_fingerprint='.$credentialFingerprint.'%';
-        $byCredential=$this->pdo->prepare("SELECT COUNT(*) FROM syslog WHERE log_type=3 AND ip_addr=:ip AND datetime>=:since AND log_detail LIKE :pattern");
+        $byCredential=$this->pdo->prepare("SELECT COUNT(*) FROM syslog WHERE log_type=3 AND ip_addr=:ip AND datetime>=:since AND log_detail LIKE :pattern AND log_detail NOT LIKE '%reason=AUTH_RATE_LIMITED%'");
         $byCredential->execute([':ip'=>$ipAddress,':since'=>$since,':pattern'=>$fingerprintPattern]);
-        $byIp=$this->pdo->prepare("SELECT COUNT(*) FROM syslog WHERE log_type=3 AND ip_addr=:ip AND datetime>=:since");
+        $byIp=$this->pdo->prepare("SELECT COUNT(*) FROM syslog WHERE log_type=3 AND ip_addr=:ip AND datetime>=:since AND log_detail NOT LIKE '%reason=AUTH_RATE_LIMITED%'");
         $byIp->execute([':ip'=>$ipAddress,':since'=>$since]);
         return ['credential_ip'=>(int)$byCredential->fetchColumn(),'ip'=>(int)$byIp->fetchColumn()];
     }

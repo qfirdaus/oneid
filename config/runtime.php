@@ -15,6 +15,9 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_ENVIRONMENT' => '',
         'ONEID_TIMEZONE' => 'Asia/Kuala_Lumpur',
         'ONEID_DEFAULT_LOCALE' => 'ms',
+        // Only these reverse proxies may supply the originating client chain.
+        // Keep this list narrow: forwarded headers from every other peer are ignored.
+        'ONEID_TRUSTED_PROXY_CIDRS' => '172.16.4.65/32,172.16.250.254/32',
         // Public banner reader is fail-safe and remains off until the environment is approved.
         'ONEID_LOGIN_BANNER_ENABLED' => 'false',
         // Fail closed per environment; staging activation requires its own ML9 approval.

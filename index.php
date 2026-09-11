@@ -679,7 +679,13 @@ $loginform.on('submit', function(ev){
 
             },
             error: function (xhr, error, thrown) {
-                showLoginInlineError(error === 'timeout' ? pilotI18n.loginTimeout : pilotI18n.loginServerError);
+                var response = xhr && xhr.responseJSON;
+                var responseMessage = response && response.login_response_msg;
+                showLoginInlineError(
+                  error === 'timeout'
+                    ? pilotI18n.loginTimeout
+                    : (responseMessage || pilotI18n.loginServerError)
+                );
             },
             complete: function(){
                 $loginform.data('submitting', false).find(':submit').prop('disabled', false);
