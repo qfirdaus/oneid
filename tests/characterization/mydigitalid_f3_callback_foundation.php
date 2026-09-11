@@ -164,6 +164,11 @@ $check(
         && str_contains($callbackEndpoint, 'self::auditFailure('),
     'callback failures are safely auditable before identity-event persistence'
 );
+$check(
+    str_contains($callbackEndpoint, "'/app/Notification/AdminEmailNotificationPdoComposer.php'")
+        && str_contains($callbackEndpoint, "'/app/Notification/AdminEmailNotificationDispatcher.php'"),
+    'first-time link notification dependencies do not rely on a stale optimized class map'
+);
 
 printf(
     "RESULT checks=%d failures=%d network_calls=0 repository_calls=0 authenticated_sessions=0\n",

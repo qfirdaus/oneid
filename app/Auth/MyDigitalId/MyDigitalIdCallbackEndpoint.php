@@ -12,6 +12,12 @@ final class MyDigitalIdCallbackEndpoint
         require_once $root . '/bootstrap/app.php';
         require_once $root . '/lib/secrets.php';
         require_once $root . '/vendor/autoload.php';
+        // Keep first-time identity linking operational even when a deployment
+        // has not yet refreshed Composer's authoritative class map.
+        require_once $root . '/app/Notification/AdminEmailNotificationException.php';
+        require_once $root . '/app/Notification/AdminEmailNotificationRepository.php';
+        require_once $root . '/app/Notification/AdminEmailNotificationDispatcher.php';
+        require_once $root . '/app/Notification/AdminEmailNotificationPdoComposer.php';
 
         $config = MyDigitalIdConfig::fromRuntime();
         if (!$config->enabled) {
