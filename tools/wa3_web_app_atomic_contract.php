@@ -16,6 +16,7 @@ $checks=[
     'update emits atomic success code'=>str_contains($service,"'code'=>'WA4_APP_UPDATED_ENVIRONMENT_ASSET'"),
     'category is locked before mutation'=>substr_count($service,'admin_get_app_category_for_update')>=2,
     'edit target is locked with full image state'=>str_contains($service,'admin_get_service_provider_for_update')&&str_contains($database,'S.sp_description,S.sp_domain,S.production_domain,S.production_ready'),
+    'administrator directory selects the environment URL'=>str_contains($database,"CASE WHEN :domain_environment='production' THEN s.production_domain ELSE s.sp_domain END AS sp_domain")&&str_contains($database,"':domain_environment'=>\$this->environment"),
     'successful create audit is mandatory'=>str_contains($service,'syslog_record(13')&&substr_count($service,"WA3_AUDIT_NOT_WRITTEN")>=2,
     'successful edit audit is mandatory'=>str_contains($service,'syslog_record(14'),
     'upload rejection prevents partial mutation'=>substr_count($service,"throw new WebAppManagementException('WA3_ICON_REJECTED'")===2,

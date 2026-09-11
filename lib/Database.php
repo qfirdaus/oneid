@@ -2146,13 +2146,16 @@ class Database {
 
     public function admin_get_active_app_directory_rows(): array{
         $Q = "SELECT g.sp_group_id,g.sp_group_name,g.sp_group_seq,
-                     s.sp_id,s.sp_name,s.sp_description,s.sp_domain,COALESCE(NULLIF(e.image_filename,''),s.sp_image) AS sp_image,s.sp_sso_support,s.production_ready
+                     s.sp_id,s.sp_name,s.sp_description,
+                     CASE WHEN :domain_environment='production' THEN s.production_domain ELSE s.sp_domain END AS sp_domain,
+                     s.sp_domain AS staging_domain,s.production_domain,
+                     COALESCE(NULLIF(e.image_filename,''),s.sp_image) AS sp_image,s.sp_sso_support,s.production_ready
               FROM sp_group g
               INNER JOIN sp_list s ON s.sp_group_id=g.sp_group_id AND s.avail_status=1
               LEFT JOIN sp_app_asset e ON e.sp_id=s.sp_id AND e.environment=:environment
               ORDER BY (g.sp_group_id=0) ASC,g.sp_group_seq DESC,g.sp_group_name ASC,s.sp_name ASC";
         $R = $this->pdo->prepare($Q);
-        $R->execute([':environment'=>$this->environment]);
+        $R->execute([':environment'=>$this->environment,':domain_environment'=>$this->environment]);
         return $R->fetchAll(PDO::FETCH_ASSOC);
     }
 
