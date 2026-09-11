@@ -82,11 +82,13 @@ $report(
     'Login navigation and contact information are locale-aware'
 );
 $report(
-    str_contains($login, "oneid_translate('login.manual_fallback_notice')")
-    && str_contains($login, "oneid_current_locale() === 'en'")
+    str_contains($login, "oneid_current_locale() === 'en'")
+    && str_contains($login, "'./public_docs/ONEID_USER_MANUAL_EN_V2.pdf'")
+    && str_contains($login, "'./public_docs/ONEID_USER_MANUAL_MS_V2.pdf'")
+    && !str_contains($login, "oneid_translate('login.manual_fallback_notice')")
     && !str_contains($login, '>Manual Pengguna</a>')
     && !str_contains($login, '>Hubungi Kami</h5>'),
-    'English manual uses an explicit notice and Login shell has no stale BM literals'
+    'Login selects the matching BM or English manual and has no stale fallback notice'
 );
 $report(
     str_contains($login, "oneid_translate('login.locked')")

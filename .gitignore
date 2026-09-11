@@ -38,6 +38,8 @@ public_img/*
 /public/login_banners/
 /public/public_img/*
 /public/public_docs/*
+!/public/public_docs/ONEID_USER_MANUAL_MS_V2.pdf
+!/public/public_docs/ONEID_USER_MANUAL_EN_V2.pdf
 /public/videos/*
 
 # Local rollback evidence dan quarantine payload

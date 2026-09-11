@@ -46,6 +46,9 @@ $loginFlashKey = match ($loginFlashCode) {
   'mydigitalid_temporary' => 'login.mydigitalid.temporary',
   default => null,
 };
+$loginManualPath = oneid_current_locale() === 'en'
+  ? './public_docs/ONEID_USER_MANUAL_EN_V2.pdf'
+  : './public_docs/ONEID_USER_MANUAL_MS_V2.pdf';
 $loginBanners = [
   ['src' => 'assetsM/images/banner_default.png', 'alt' => 'OneID@UPNM', 'width' => 3780, 'height' => 1890],
 ];
@@ -229,7 +232,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
        <!-- MENU ATAS -->
       <div class="login-topbar mb-3 pb-2 border-bottom">
         <div class="login-topbar-links txt-heading">
-          <a href="./public_docs/MANUAL_SALAM.pdf" class="menu_link" target="_blank" rel="noopener"><?=htmlspecialchars(oneid_translate('login.menu.manual'), ENT_QUOTES, 'UTF-8')?></a>
+          <a href="<?=htmlspecialchars($loginManualPath, ENT_QUOTES, 'UTF-8')?>" class="menu_link" target="_blank" rel="noopener noreferrer"><?=htmlspecialchars(oneid_translate('login.menu.manual'), ENT_QUOTES, 'UTF-8')?></a>
           <a href="#" class="menu_link" data-bs-toggle="modal" data-bs-target="#faqModal"><?=htmlspecialchars(oneid_translate('faq.link'), ENT_QUOTES, 'UTF-8')?></a>
           <a href="https://directory.upnm.edu.my/" target="_blank" rel="noopener" class="menu_link"><?=htmlspecialchars(oneid_translate('login.menu.directory'), ENT_QUOTES, 'UTF-8')?></a>
           <a href="https://outlook.cloud.microsoft/mail/" target="_blank" rel="noopener noreferrer" class="menu_link"><?=htmlspecialchars(oneid_translate('login.menu.email'), ENT_QUOTES, 'UTF-8')?></a>
@@ -240,12 +243,6 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
           <a class="<?=oneid_current_locale() === 'en' ? 'is-active' : ''?>" href="?locale=en" lang="en" hreflang="en" title="English" aria-label="English" aria-current="<?=oneid_current_locale() === 'en' ? 'true' : 'false'?>">EN</a>
         </nav>
       </div>
-      <?php if (oneid_current_locale() === 'en'): ?>
-        <div class="alert alert-info py-2 px-3 small" role="status">
-          <?=htmlspecialchars(oneid_translate('login.manual_fallback_notice'), ENT_QUOTES, 'UTF-8')?>
-        </div>
-      <?php endif; ?>
-
       <!-- Slider -->
       <div id="carouselExample" class="carousel slide mb-4" data-bs-ride="carousel" data-bs-interval="6000">
         <div class="carousel-inner rounded">
