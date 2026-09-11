@@ -60,10 +60,38 @@ final class MyDigitalIdCallbackEndpoint
             header('Cache-Control: no-store');
             header('Location: ' . \APP_URL . $result['redirect_path'], true, 303);
             exit;
-        } catch (MyDigitalIdConfigurationException|MyDigitalIdPersistenceException) {
+        } catch (MyDigitalIdConfigurationException|MyDigitalIdPersistenceException $exception) {
+            self::auditFailure($operation ?? null, $exception->getMessage());
             self::redirectWithFlash('mydigitalid_invalid');
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
+            self::auditFailure(
+                $operation ?? null,
+                'MYDID_CALLBACK_' . strtoupper((new \ReflectionClass($exception))->getShortName())
+            );
             self::redirectWithFlash('mydigitalid_temporary');
+        }
+    }
+
+    private static function auditFailure(mixed $operation, string $reason): void
+    {
+        if (!is_object($operation) || !method_exists($operation, 'syslog_record')) return;
+        $safeReason = substr(
+            preg_replace('/[^A-Z0-9_]/', '', strtoupper($reason)) ?? 'MYDID_CALLBACK_FAILED',
+            0,
+            100
+        );
+        $correlation = bin2hex(random_bytes(8));
+        $ip = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) $ip = '0.0.0.0';
+        try {
+            $operation->syslog_record(
+                1,
+                'action=mydigitalid_callback outcome=failed reason=' . $safeReason
+                    . ' correlation=' . $correlation,
+                $ip
+            );
+        } catch (\Throwable) {
+            // Authentication failure handling must not depend on audit availability.
         }
     }
 

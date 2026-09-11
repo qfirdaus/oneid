@@ -156,6 +156,15 @@ $check(
     'state mismatch is rejected and cannot be retried'
 );
 
+$callbackEndpoint = (string) file_get_contents(
+    dirname(__DIR__, 2) . '/app/Auth/MyDigitalId/MyDigitalIdCallbackEndpoint.php'
+);
+$check(
+    str_contains($callbackEndpoint, 'action=mydigitalid_callback outcome=failed reason=')
+        && str_contains($callbackEndpoint, 'self::auditFailure('),
+    'callback failures are safely auditable before identity-event persistence'
+);
+
 printf(
     "RESULT checks=%d failures=%d network_calls=0 repository_calls=0 authenticated_sessions=0\n",
     $checks,
