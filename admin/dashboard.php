@@ -9145,15 +9145,21 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       }
 
       #tab_user .user-category-metrics > span {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         padding: 6px 9px;
         border-radius: 6px;
         background: #f5f7fa;
-        text-align: left;
+        text-align: center;
       }
 
       #tab_user .user-category-metrics strong,
       #tab_user .user-category-metrics small {
         display: block;
+        width: 100%;
+        text-align: center;
       }
 
       #tab_user .user-category-metrics strong {

@@ -1320,10 +1320,11 @@ $('#otp_inputs').on('paste', function(e) {
   .mydigitalid-button-copy small {
     position: relative;
     padding-left: 15px;
-    color: rgba(255, 255, 255, .8);
+    color: rgba(255, 255, 255, .94) !important;
     font-size: 10px;
     line-height: 1.35;
-    font-weight: 500;
+    font-weight: 600;
+    text-shadow: 0 1px 1px rgba(0, 43, 77, .18);
   }
   .mydigitalid-button-copy small::before {
     content: "";
@@ -1332,7 +1333,7 @@ $('#otp_inputs').on('paste', function(e) {
     left: 0;
     width: 9px;
     height: 11px;
-    border: 1.5px solid rgba(255, 255, 255, .8);
+    border: 1.5px solid rgba(255, 255, 255, .94);
     border-radius: 2px 2px 4px 4px;
     box-shadow: inset 0 3px 0 rgba(255, 255, 255, .13);
   }
