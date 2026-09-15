@@ -12,6 +12,7 @@ if (defined('ONEID_ADMIN_MAINTENANCE_LOGIN') || defined('ONEID_DEVELOPER_MAINTEN
 }
 require_once __DIR__ . '/lib/shared_faq.php';
 require_once __DIR__ . '/lib/environment_banner.php';
+require_once __DIR__ . '/lib/display_settings.php';
 require_once __DIR__ . '/app/LoginBanner/LoginBannerPersistenceException.php';
 require_once __DIR__ . '/app/LoginBanner/LoginBannerPersistenceInterface.php';
 require_once __DIR__ . '/app/LoginBanner/PdoLoginBannerPersistence.php';
@@ -49,6 +50,8 @@ $loginFlashKey = match ($loginFlashCode) {
 $loginManualPath = oneid_current_locale() === 'en'
   ? './public_docs/ONEID_USER_MANUAL_EN_V2.pdf'
   : './public_docs/ONEID_USER_MANUAL_MS_V2.pdf';
+$displaySettingsAvailable = !defined('ONEID_ADMIN_MAINTENANCE_LOGIN')
+  && !defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN');
 $loginBanners = [
   ['src' => 'assetsM/images/banner_default.png', 'alt' => 'OneID@UPNM', 'width' => 3780, 'height' => 1890],
 ];
@@ -93,12 +96,18 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
   <link rel="stylesheet" href="dist/css/oneid-professional-alert.css?v=20260910-2" />
   <link rel="stylesheet" href="dist/css/oneid-user-faq.css?v=20260823-5" />
   <link rel="stylesheet" href="dist/css/oneid-environment-banner.css?v=20260810-1" />
+  <?php if ($displaySettingsAvailable): ?>
+  <link rel="stylesheet" href="dist/css/oneid-accessibility-baseline.css?v=20260915-1" />
+  <link rel="stylesheet" href="dist/css/oneid-display-settings.css?v=20260915-4" />
+  <script src="dist/js/oneid-display-settings.js?v=20260915-4"></script>
+  <?php endif; ?>
   <link href="https://fonts.googleapis.com/css2?family=Moon+Dance&display=swap" rel="stylesheet" />
 
 </head>
 
 <body class="login-container<?=oneid_environment_body_class()?>">
 <?php oneid_render_environment_banner(); ?>
+<?php if ($displaySettingsAvailable): oneid_render_display_settings(); endif; ?>
 <div class="container py-5">
   <div class="row shadow-lg rounded-4 overflow-hidden" style="background: white;">
   
@@ -160,7 +169,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
             </div>
 
             <div class="oneid-password-actions">
-              <?php if (!defined('ONEID_ADMIN_MAINTENANCE_LOGIN') && !defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')): ?><a class="text-primary oneid-forgot-password" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></a><?php else: ?><span aria-hidden="true"></span><?php endif; ?>
+              <?php if (!defined('ONEID_ADMIN_MAINTENANCE_LOGIN') && !defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')): ?><button type="button" class="text-primary oneid-forgot-password oneid-link-button" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></button><?php else: ?><span aria-hidden="true"></span><?php endif; ?>
               <button type="submit" class="btn btn-warning px-4">
                 <i class="icon-login me-1 animate__animated animate__swing animate__infinite infinite"></i> <?=htmlspecialchars(oneid_translate('login.submit'), ENT_QUOTES, 'UTF-8')?>
               </button>

@@ -9,6 +9,7 @@ require_once __DIR__ . '/../lib/SSO_IDP_INC.php';
 require_once __DIR__ . '/../lib/request_security.php';
 require_once __DIR__ . '/../lib/user_session_presentation.php';
 require_once __DIR__ . '/../lib/environment_banner.php';
+require_once __DIR__ . '/../lib/display_settings.php';
 require_once __DIR__ . '/../app/Auth/UserMfa/UserLoginMfaPolicy.php';
 require_once __DIR__ . '/../app/Auth/UserMfa/UserMfaOperationalModeResolver.php';
 require_once __DIR__ . '/../app/Auth/UserMfa/PdoUserMfaPolicyReader.php';
@@ -83,9 +84,13 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
   <link rel="stylesheet" href="../dist/css/oneid-user-session.css?v=20260808-2">
   <link rel="stylesheet" href="../dist/css/oneid-session-indicators.css?v=20260908-5">
   <link rel="stylesheet" href="../dist/css/oneid-environment-banner.css?v=20260810-1">
+  <link rel="stylesheet" href="../dist/css/oneid-accessibility-baseline.css?v=20260915-1">
+  <link rel="stylesheet" href="../dist/css/oneid-display-settings.css?v=20260915-4">
+  <script src="../dist/js/oneid-display-settings.js?v=20260915-4"></script>
 </head>
 <body class="user-mfa-flow account-security-page<?=oneid_environment_body_class()?>">
 <?php oneid_render_environment_banner(); ?>
+<?php oneid_render_display_settings(); ?>
 <div class="oneid-session-indicators oneid-session-indicators--user" aria-live="off"><div class="oneid-session-indicator" id="oneid_user_session_indicator" hidden data-oneid-tooltip="<?=$h('user_session.remaining_help')?>"><span class="oneid-session-indicator__icon" aria-hidden="true">◷</span><span><?=$h('user_session.remaining_label')?></span><strong id="oneid_user_session_remaining">--:--</strong><button type="button" class="oneid-session-renew-button" data-oneid-user-session-renew title="<?=$h('user_session.renew_now')?>" aria-label="<?=$h('user_session.renew_now')?>">+</button></div></div>
 <main class="mfa-shell">
   <aside class="mfa-brand">

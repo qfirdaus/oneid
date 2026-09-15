@@ -1,6 +1,6 @@
 {
   "name": "oneid-uat",
-  "version": "2.13.2",
+  "version": "2.13.3",
   "private": true,
   "description": "OneID UAT legacy frontend build tooling",
   "scripts": {
@@ -41,7 +41,11 @@
     "check:pilot-compatibility": "php tools/s4e_pilot_compatibility_audit_contract.php",
     "check:sync-stage-telemetry": "php tools/s4e_stage_telemetry_contract.php",
     "check:isolated-pilot-rehearsal": "php tools/s4e_isolated_pilot_rehearsal_contract.php",
-    "check:pilot-result-audit": "php tools/s4e_pilot_result_audit_contract.php"
+    "check:pilot-result-audit": "php tools/s4e_pilot_result_audit_contract.php",
+    "check:accessibility-phase1": "php tools/a11y_phase1_contract.php",
+    "check:accessibility-phase2": "php tools/a11y_phase2_display_settings_contract.php",
+    "check:accessibility-phase3": "php tools/a11y_phase3_hardening_contract.php",
+    "check:accessibility-runtime": "php tools/a11y_phase3_runtime_smoke.php"
   },
   "author": "hencework",
   "license": "ISC",

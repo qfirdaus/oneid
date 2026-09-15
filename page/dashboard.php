@@ -7,6 +7,7 @@
    require_once __DIR__ . '/../lib/shared_faq.php';
    require_once __DIR__ . '/../lib/user_session_presentation.php';
    require_once __DIR__ . '/../lib/environment_banner.php';
+   require_once __DIR__ . '/../lib/display_settings.php';
    require_once __DIR__ . '/../app/Auth/UserMfa/UserLoginMfaPolicy.php';
    require_once __DIR__ . '/../app/Auth/UserMfa/UserMfaOperationalModeResolver.php';
    require_once __DIR__ . '/../app/Auth/UserMfa/PdoUserMfaPolicyReader.php';
@@ -79,7 +80,7 @@
 <html lang="<?=htmlspecialchars(oneid_current_locale(), ENT_QUOTES, 'UTF-8')?>">
    <head>
       <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title><?=htmlspecialchars(oneid_translate('dashboard.title'), ENT_QUOTES, 'UTF-8')?></title>
       <!-- Favicon -->
       <link rel="shortcut icon" href="favicon.ico">
@@ -103,6 +104,9 @@
       <link href="../dist/css/oneid-session-indicators.css?v=20260908-5" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-accessibility-baseline.css?v=20260915-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-display-settings.css?v=20260915-4" rel="stylesheet" type="text/css">
+      <script src="../dist/js/oneid-display-settings.js?v=20260915-4"></script>
 
       <style>
       /* Keep navbar on top */
@@ -159,6 +163,7 @@
    </head>
    <body class="<?=trim(oneid_environment_body_class())?>">
       <?php oneid_render_environment_banner(); ?>
+      <?php oneid_render_display_settings(); ?>
       <div id="adminEntryLoader" class="admin-entry-loader" role="status" aria-live="polite" aria-hidden="true"><div class="admin-entry-loader-card"><div class="admin-entry-loader-shield"><i class="fa fa-lock"></i></div><div class="admin-entry-loader-ring"></div><p class="admin-entry-loader-title"><?=htmlspecialchars(oneid_translate('dashboard.admin_check_title'), ENT_QUOTES, 'UTF-8')?></p><p class="admin-entry-loader-text"><?=htmlspecialchars(oneid_translate('dashboard.admin_check_text'), ENT_QUOTES, 'UTF-8')?></p></div></div>
       <!--Preloader-->
       <div class="preloader-it">
@@ -465,9 +470,9 @@
                                            <h6 class="panel-title txt-dark"><?=htmlspecialchars(oneid_translate('dashboard.sessions.title'), ENT_QUOTES, 'UTF-8')?></h6>
                                          </div>
                                          <div class="pull-right">
-                                           <a href="#" class="pull-left inline-block refresh mr-15" onclick="get_specific_user_activ_session()">
-                                             <i class="zmdi zmdi-replay text-primary"></i>
-                                           </a>
+                                           <button type="button" class="pull-left inline-block refresh mr-15 oneid-icon-button" onclick="get_specific_user_activ_session()" aria-label="<?=htmlspecialchars(oneid_translate('dashboard.sessions.refresh'), ENT_QUOTES, 'UTF-8')?>">
+                                             <i class="zmdi zmdi-replay text-primary" aria-hidden="true"></i>
+                                           </button>
                                          </div>
                                          <div class="clearfix"></div>
                                        </div>

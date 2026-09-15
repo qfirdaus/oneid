@@ -1,11 +1,66 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2132-CHANGELOG-20260910-01",
+    "authorization": "ONEID-V2133-ACCESSIBILITY-20260915-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.13.3",
+            "version": "2.13.3",
+            "date": "2026-09-15",
+            "items": [
+                {
+                    "identity": "release:2.13.3:item:001",
+                    "bm": "Baseline paparan pengguna diperkemas dengan teks operasi yang lebih mudah dibaca, line-height yang selesa, focus indicator yang jelas dan sasaran kawalan yang lebih besar.",
+                    "en_draft": "The user display baseline now provides more readable operational text, comfortable line height, clear focus indicators and larger control targets.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.3:item:002",
+                    "bm": "Dashboard pengguna kini membenarkan browser zoom dan susun atur pengguna mempunyai perlindungan reflow, modal serta jadual untuk viewport sempit.",
+                    "en_draft": "The user dashboard now permits browser zoom, while user layouts provide reflow, modal and table safeguards for narrow viewports.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.3:item:003",
+                    "bm": "Tetapan Paparan baharu diletakkan sebagai ikon gear kemas di sebelah pilihan bahasa pada login dan dashboard pengguna, dengan panel yang kekal di dalam viewport.",
+                    "en_draft": "New Display Settings appear as a compact gear beside the language selector on sign-in and the user dashboard, with a panel that remains inside the viewport.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.3:item:004",
+                    "bm": "Pengguna boleh memilih lima tahap teks yang meningkat hampir sekata daripada 100% hingga maksimum 130%, manakala reset memulihkan saiz default.",
+                    "en_draft": "Users can choose five near-even text levels from 100% to a maximum of 130%, while reset restores the default size.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.3:item:005",
+                    "bm": "Pilihan kontras tinggi, kurangkan animasi dan gariskan pautan membantu pengguna low vision, sensitif gerakan atau sukar membezakan pautan melalui warna.",
+                    "en_draft": "High contrast, reduced motion and underlined-link options assist users with low vision, motion sensitivity or difficulty identifying links by colour.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.3:item:006",
+                    "bm": "Preference paparan disimpan secara setempat menggunakan localStorage berversi dan divalidasi melalui allowlist tanpa menyimpan identiti, token atau data kesihatan.",
+                    "en_draft": "Display preferences are stored locally in versioned localStorage and validated against an allowlist without retaining identity, tokens or health information.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.3:item:007",
+                    "bm": "Panel menyokong keyboard, Escape, focus indicator, status live region dan kedudukan responsif dengan fallback yang selamat apabila storage tidak tersedia.",
+                    "en_draft": "The panel supports keyboard use, Escape, focus indicators, live-region status and responsive positioning with a safe fallback when storage is unavailable.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.3:item:008",
+                    "bm": "Perubahan dihadkan kepada halaman pengguna dan awam; dashboard, laporan, senarai pengguna serta Step-Up pentadbir tidak menerima stylesheet atau komponen baharu dan tiada migration database diperlukan.",
+                    "en_draft": "Changes are limited to user and public pages; Administrator dashboards, reports, user lists and Step-Up receive no new stylesheet or component, and no database migration is required.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.13.2",
             "version": "2.13.2",
@@ -3670,5 +3725,5 @@
             ]
         }
     ],
-    "manifest_digest": "b211548762ee2ba9fc1f4b2003ef1cce4a0ada5e67aa9bffe40695ab500fa83c"
+    "manifest_digest": "97f653fab99e2df9e57fbbdd1311dbfc9bce3415b993259f0248097bd065477a"
 }

@@ -1,0 +1,156 @@
+/* OneID accessibility baseline — Phase 1.
+ * Loaded after legacy styles so readable defaults remain consistent without
+ * changing third-party or generated vendor assets.
+ */
+:root {
+  --oneid-a11y-font-body: 1rem;
+  --oneid-a11y-font-secondary: .875rem;
+  --oneid-a11y-line-height: 1.5;
+  --oneid-a11y-text: #243b53;
+  --oneid-a11y-muted: #52677a;
+  --oneid-a11y-focus: #005fcc;
+}
+
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  color: var(--oneid-a11y-text);
+  font-size: var(--oneid-a11y-font-body) !important;
+  line-height: var(--oneid-a11y-line-height);
+}
+
+/* Operational copy must not fall below 14px at the default browser size. */
+body :where(p, li, dt, dd, label, small, th, td, figcaption),
+body :where(.help-block, .form-text, .text-muted, .oneid-faq-eyebrow,
+  .oneid-faq-header p, .oneid-faq-item .panel-title > a,
+  .oneid-faq-item .panel-body, .oneid-faq-toggle, .accordion-body,
+  .oneid-session-indicator, .oneid-environment-banner,
+  [class*="__eyebrow"], [class*="__hint"], [class*="__help"],
+  [class*="__meta"], [class*="__notice"], [class*="__feedback"]) {
+  font-size: max(var(--oneid-a11y-font-secondary), 1em) !important;
+  line-height: var(--oneid-a11y-line-height);
+}
+
+body :where(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  select, textarea, button, .btn, [role="button"]) {
+  font-size: 1rem !important;
+  line-height: 1.35;
+  min-height: 44px;
+}
+
+body .oneid-link-button {
+  background: transparent;
+  border: 0;
+  min-height: 44px;
+  padding: .5rem 0;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+
+body .oneid-icon-button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  display: inline-flex;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0;
+}
+
+body :where(input[type="checkbox"], input[type="radio"]) {
+  min-height: 1.25rem;
+  min-width: 1.25rem;
+}
+
+body :where(.oneid-sidebar-nav > li > a, .login-locale-switcher a,
+  .maintenance-locale a, .oneid-locale-switcher a) {
+  font-size: var(--oneid-a11y-font-secondary) !important;
+  min-height: 44px;
+}
+
+body :where(.oneid-session-indicator, .oneid-environment-banner,
+  .maintenance-eyebrow, .maintenance-time span,
+  .maintenance-support__head span, .maintenance-support__identity p,
+  .maintenance-bottom__copy, .maintenance-footer,
+  .report-heading .eyebrow, .report-count span, .meta-card span,
+  .oneid-faq-number, .oneid-faq-chevron) {
+  font-size: var(--oneid-a11y-font-secondary) !important;
+}
+
+body :where(.text-muted, small, .help-block, .form-text,
+  [class*="__hint"], [class*="__help"], [class*="__meta"]) {
+  color: var(--oneid-a11y-muted) !important;
+}
+
+body ::placeholder {
+  color: var(--oneid-a11y-muted) !important;
+  opacity: 1;
+}
+
+body :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--oneid-a11y-focus) !important;
+  outline-offset: 3px !important;
+}
+
+body :where(a, button, input, select, textarea, [tabindex]):focus:not(:focus-visible) {
+  outline: none;
+}
+
+img, svg, video, canvas {
+  max-width: 100%;
+}
+
+body :where(p, li, label, small, th, td, button, a, .modal-title,
+  [class*="__title"], [class*="__heading"], [class*="__message"]) {
+  overflow-wrap: anywhere;
+}
+
+body :where(.table-responsive, .table-wrap, .table-frame,
+  [class*="table-wrap"], [class*="table-frame"]) {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body :where(.modal-dialog, .sweet-alert) {
+  max-width: calc(100vw - 2rem) !important;
+}
+
+@media (max-width: 480px) {
+  body :where(.modal-dialog, .sweet-alert) {
+    left: auto !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: calc(100% - 1rem) !important;
+  }
+
+  body :where(.toolbar-actions, .maintenance-actions, .screen-toolbar) {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  body :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline-color: Highlight !important;
+  }
+}

@@ -177,8 +177,19 @@
       .status-code { font-size: 62px; }
     }
   </style>
+  <link rel="stylesheet" href="../dist/css/oneid-accessibility-baseline.css?v=20260915-1">
+  <link rel="stylesheet" href="../dist/css/oneid-display-settings.css?v=20260915-4">
+  <script src="../dist/js/oneid-display-settings.js?v=20260915-4"></script>
 </head>
 <body>
+  <div class="oneid-display-settings" data-oneid-display-settings>
+    <button class="oneid-display-settings__trigger" type="button" aria-expanded="false" aria-controls="oneid-display-settings-panel" aria-label="Tetapan Paparan" title="Tetapan Paparan"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l-2.83 2.83A1.7 1.7 0 0 0 15 19.4 1.7 1.7 0 0 0 13.6 21h-3.2A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.88.34l-2.83-2.83A1.7 1.7 0 0 0 4.6 15 1.7 1.7 0 0 0 3 13.6v-3.2A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.88l2.83-2.83A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10.4 3h3.2A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.88-.34l2.83 2.83A1.7 1.7 0 0 0 19.4 9 1.7 1.7 0 0 0 21 10.4v3.2A1.7 1.7 0 0 0 19.4 15Z"></path></svg></button>
+    <section class="oneid-display-settings__panel" id="oneid-display-settings-panel" role="dialog" aria-modal="false" aria-labelledby="oneid-display-settings-title" hidden>
+      <header class="oneid-display-settings__header"><div><span class="oneid-display-settings__eyebrow">Kebolehcapaian</span><h2 id="oneid-display-settings-title">Tetapan Paparan</h2></div><button class="oneid-display-settings__close" type="button" aria-label="Tutup"><span aria-hidden="true">×</span></button></header>
+      <div class="oneid-display-settings__body"><fieldset class="oneid-display-settings__group"><legend>Saiz teks</legend><p id="oneid-display-settings-size-help">Pilih saiz yang paling selesa untuk dibaca.</p><div class="oneid-display-settings__sizes" role="group" aria-describedby="oneid-display-settings-size-help"><button type="button" data-oneid-font-scale="100" aria-pressed="true">100%</button><button type="button" data-oneid-font-scale="108" aria-pressed="false">108%</button><button type="button" data-oneid-font-scale="115" aria-pressed="false">115%</button><button type="button" data-oneid-font-scale="123" aria-pressed="false">123%</button><button type="button" data-oneid-font-scale="130" aria-pressed="false">130%</button></div></fieldset><div class="oneid-display-settings__toggles"><label><span><strong>Kontras tinggi</strong><small>Jadikan teks dan sempadan lebih jelas.</small></span><input type="checkbox" data-oneid-setting="highContrast"></label><label><span><strong>Kurangkan animasi</strong><small>Kurangkan pergerakan dan transisi yang tidak penting.</small></span><input type="checkbox" data-oneid-setting="reduceMotion"></label><label><span><strong>Gariskan pautan</strong><small>Jadikan pautan teks lebih mudah dikenal pasti.</small></span><input type="checkbox" data-oneid-setting="underlineLinks"></label></div></div>
+      <footer class="oneid-display-settings__footer"><button type="button" class="oneid-display-settings__reset" data-oneid-display-reset>Pulihkan tetapan asal</button><span class="oneid-display-settings__status" role="status" aria-live="polite"></span></footer>
+    </section>
+  </div>
   <main class="error-shell">
     <nav class="locale" aria-label="Pilihan bahasa / Language selection">
       <svg viewBox="0 0 24 24" aria-hidden="true">

@@ -6,6 +6,33 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.13.3' =>
+  array (
+    'version' => '2.13.3',
+    'date' => '2026-09-15',
+    'bm' =>
+    array (
+      0 => 'Baseline paparan pengguna diperkemas dengan teks operasi yang lebih mudah dibaca, line-height yang selesa, focus indicator yang jelas dan sasaran kawalan yang lebih besar.',
+      1 => 'Dashboard pengguna kini membenarkan browser zoom dan susun atur pengguna mempunyai perlindungan reflow, modal serta jadual untuk viewport sempit.',
+      2 => 'Tetapan Paparan baharu diletakkan sebagai ikon gear kemas di sebelah pilihan bahasa pada login dan dashboard pengguna, dengan panel yang kekal di dalam viewport.',
+      3 => 'Pengguna boleh memilih lima tahap teks yang meningkat hampir sekata daripada 100% hingga maksimum 130%, manakala reset memulihkan saiz default.',
+      4 => 'Pilihan kontras tinggi, kurangkan animasi dan gariskan pautan membantu pengguna low vision, sensitif gerakan atau sukar membezakan pautan melalui warna.',
+      5 => 'Preference paparan disimpan secara setempat menggunakan localStorage berversi dan divalidasi melalui allowlist tanpa menyimpan identiti, token atau data kesihatan.',
+      6 => 'Panel menyokong keyboard, Escape, focus indicator, status live region dan kedudukan responsif dengan fallback yang selamat apabila storage tidak tersedia.',
+      7 => 'Perubahan dihadkan kepada halaman pengguna dan awam; dashboard, laporan, senarai pengguna serta Step-Up pentadbir tidak menerima stylesheet atau komponen baharu dan tiada migration database diperlukan.',
+    ),
+    'en' =>
+    array (
+      0 => 'The user display baseline now provides more readable operational text, comfortable line height, clear focus indicators and larger control targets.',
+      1 => 'The user dashboard now permits browser zoom, while user layouts provide reflow, modal and table safeguards for narrow viewports.',
+      2 => 'New Display Settings appear as a compact gear beside the language selector on sign-in and the user dashboard, with a panel that remains inside the viewport.',
+      3 => 'Users can choose five near-even text levels from 100% to a maximum of 130%, while reset restores the default size.',
+      4 => 'High contrast, reduced motion and underlined-link options assist users with low vision, motion sensitivity or difficulty identifying links by colour.',
+      5 => 'Display preferences are stored locally in versioned localStorage and validated against an allowlist without retaining identity, tokens or health information.',
+      6 => 'The panel supports keyboard use, Escape, focus indicators, live-region status and responsive positioning with a safe fallback when storage is unavailable.',
+      7 => 'Changes are limited to user and public pages; Administrator dashboards, reports, user lists and Step-Up receive no new stylesheet or component, and no database migration is required.',
+    ),
+  ),
   'release-2.13.2' =>
   array (
     'version' => '2.13.2',

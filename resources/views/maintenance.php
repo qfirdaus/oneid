@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../../lib/display_settings.php';
 $locale = function_exists('oneid_current_locale') ? oneid_current_locale() : 'ms';
 $title = $locale === 'en' ? $policy['title_en'] : $policy['title_ms'];
 $message = $locale === 'en' ? $policy['message_en'] : $policy['message_ms'];
@@ -80,8 +81,12 @@ $applicationFooter = function_exists('oneid_application_footer')
         @media(max-width:760px){.maintenance-status{grid-template-columns:1fr}.maintenance-locale{right:28px}.maintenance-time{min-height:0}.maintenance-support__body{grid-template-columns:1fr}}
         @media(max-width:650px){body{padding:12px}.maintenance-card{border-radius:18px}.maintenance-content{padding:22px 18px 20px}.maintenance-brands{gap:18px;margin-bottom:17px;padding-bottom:16px}.maintenance-brands__oneid{width:40%}.maintenance-brands__office{width:44%}.maintenance-locale{margin:0 auto 13px;position:static}.maintenance-status{gap:16px;padding:20px 17px}.maintenance-status:before{top:22px}.maintenance-hero{gap:12px}.maintenance-icon{border-radius:13px;flex-basis:48px;height:48px;width:48px}.maintenance-icon svg{height:23px;width:23px}h1{font-size:24px}.maintenance-message{font-size:14px}.maintenance-support__body{gap:14px}.maintenance-bottom{align-items:stretch;flex-direction:column;gap:13px}.maintenance-bottom__copy{text-align:center}.maintenance-actions{flex-wrap:wrap;justify-content:center}.maintenance-retry{flex:1 0 calc(100% - 102px)}.maintenance-actions a.maintenance-icon-action{width:42px}}
     </style>
+    <link rel="stylesheet" href="<?=htmlspecialchars(APP_URL . '/dist/css/oneid-accessibility-baseline.css?v=20260915-1', ENT_QUOTES, 'UTF-8')?>">
+    <link rel="stylesheet" href="<?=htmlspecialchars(APP_URL . '/dist/css/oneid-display-settings.css?v=20260915-4', ENT_QUOTES, 'UTF-8')?>">
+    <script src="<?=htmlspecialchars(APP_URL . '/dist/js/oneid-display-settings.js?v=20260915-4', ENT_QUOTES, 'UTF-8')?>"></script>
 </head>
 <body>
+<?php oneid_render_display_settings(); ?>
 <main class="maintenance-card">
     <div class="maintenance-accent"></div>
     <div class="maintenance-content">
