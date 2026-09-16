@@ -81,7 +81,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
   <link rel="stylesheet" href="../dist/css/oneid-professional-alert.css?v=20260910-2">
   <link rel="stylesheet" href="../dist/css/user-mfa-flow.css?v=20260821-1">
   <link rel="stylesheet" href="../dist/css/user-mfa-security.css?v=20260731-1">
-  <link rel="stylesheet" href="../dist/css/oneid-user-session.css?v=20260808-2">
+  <link rel="stylesheet" href="../dist/css/oneid-user-session.css?v=20260916-1">
   <link rel="stylesheet" href="../dist/css/oneid-session-indicators.css?v=20260908-5">
   <link rel="stylesheet" href="../dist/css/oneid-environment-banner.css?v=20260810-1">
   <link rel="stylesheet" href="../dist/css/oneid-accessibility-baseline.css?v=20260915-1">
@@ -195,7 +195,7 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 <script src="../vendors/bower_components/sweetalert/dist/sweetalert.min.js"></script>
 <script src="../dist/js/oneid-professional-alert.js?v=20260910-3"></script>
 <script>window.OneIdUserSessionConfig=<?=json_encode(oneid_user_session_presentation_config(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;</script>
-<script src="../dist/js/oneid-user-session.js?v=20260910-1"></script>
+<script src="../dist/js/oneid-user-session.js?v=20260916-1"></script>
 <script>
 const api='../lib/q_func',csrf=<?=json_encode(oneid_csrf_token())?>;
 const messageElement=document.getElementById('mfaMessage');

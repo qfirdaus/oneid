@@ -137,12 +137,22 @@
 }
 
 @media (max-width: 560px) {
+  .sweet-overlay.oneid-user-session-overlay {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
   .sweet-alert.oneid-user-session-alert {
     left: 16px !important;
     right: 16px !important;
+    top: max(16px, env(safe-area-inset-top)) !important;
     width: auto;
     max-width: none;
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    margin-top: 0 !important;
     margin-left: 0 !important;
+    overflow-y: auto;
     padding: 0 22px 24px;
   }
 

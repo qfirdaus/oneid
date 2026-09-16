@@ -102,7 +102,7 @@
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260824-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-session-indicators.css?v=20260908-5" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-user-session.css?v=20260808-2" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-session.css?v=20260916-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-accessibility-baseline.css?v=20260915-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-display-settings.css?v=20260915-4" rel="stylesheet" type="text/css">
@@ -555,7 +555,7 @@
             JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
          )?>;
       </script>
-      <script src="../dist/js/oneid-user-session.js?v=20260910-1"></script>
+      <script src="../dist/js/oneid-user-session.js?v=20260916-1"></script>
       <script src="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
       <script src="../assetsM/js/oneid-notifications.js?v=20260716-1"></script>
       <!-- Init JavaScript -->

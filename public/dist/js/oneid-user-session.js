@@ -254,6 +254,39 @@
         markSessionOverlay();
     }
 
+    function clearRenewalDialogState() {
+        var overlay = document.querySelector('.sweet-overlay');
+        if (overlay) {
+            overlay.classList.remove('oneid-user-session-overlay');
+        }
+    }
+
+    function decorateRenewalDialog() {
+        var alert = document.querySelector('.sweet-alert.showSweetAlert');
+        if (!alert) {
+            clearRenewalDialogState();
+            return;
+        }
+        alert.classList.add('oneid-user-session-alert', 'oneid-user-session-renewed-alert');
+        if (!alert.querySelector('.oneid-user-session-eyebrow')) {
+            var genericEyebrow = alert.querySelector('.oneid-professional-alert__eyebrow');
+            if (genericEyebrow) {
+                genericEyebrow.parentNode.removeChild(genericEyebrow);
+            }
+            var eyebrow = document.createElement('div');
+            eyebrow.className = 'oneid-user-session-eyebrow';
+            eyebrow.textContent = config.text.eyebrow;
+            var icon = alert.querySelector('.sa-icon');
+            alert.insertBefore(eyebrow, icon || alert.firstChild);
+        }
+        var confirmButton = alert.querySelector('button.confirm');
+        if (confirmButton && confirmButton.getAttribute('data-oneid-renewal-bound') !== '1') {
+            confirmButton.setAttribute('data-oneid-renewal-bound', '1');
+            confirmButton.addEventListener('click', clearRenewalDialogState, {once: true});
+        }
+        markSessionOverlay();
+    }
+
     function anotherDialogIsOpen() {
         if (warningOpen) {
             return false;
@@ -389,7 +422,7 @@
                 showConfirmButton: true,
                 closeOnConfirm: true
             });
-            window.setTimeout(markTerminalDialog, 0);
+            window.setTimeout(decorateRenewalDialog, 0);
         }).catch(function (error) {
             requestPending = false;
             setRenewButtonDisabled(false);
