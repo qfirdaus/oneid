@@ -966,7 +966,7 @@ function string_sanitize($s) {
      //Admin
 
       if(isset( $_POST['admin_search_keyword_user'])){
-        $results = $operation->admin_search_keyword_user_func($_POST['search_key']);
+        $results = $operation->admin_search_keyword_user_func((string)($_POST['search_key']??''));
         //usort($results, 'php_sort_alpahabet');
         // $results = [];
         echo json_encode($results);

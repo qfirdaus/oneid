@@ -2212,6 +2212,8 @@
             'appAccessDirect' => oneid_translate('admin.apps.access_direct'),
             'appProductionReady' => oneid_translate('admin.apps.production_ready'),
             'appStagingOnly' => oneid_translate('admin.apps.staging_only'),
+            'userStatusActive' => oneid_translate('admin.users.status_active'),
+            'userStatusInactive' => oneid_translate('admin.users.status_inactive'),
          ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
          function localizedResponseMessage(response,fallback){
             if(response&&typeof response.localized_msg==='string'&&response.localized_msg.trim()!==''){
@@ -2709,54 +2711,37 @@
              restoreAdminStepUpReturnContext();
          });
          
+         var adminUserSearchRequest=null;
+         var adminUserSearchSequence=0;
+         function adminUserSearchText(value){return $('<div>').text(value==null?'':String(value)).html();}
+         function adminUserPublicId(user){return String(user.data3||'').trim()||String(user.data4||'').trim()||String(user.u_id||'').trim();}
          $('#the-basics .typeahead').typeahead(
+         {hint:false,highlight:true,minLength:3},
          {
-         hint: false,
-         highlight: true,
-         minLength: 3,
-         items: 10
-         },
-         {
-         // name: 'name',
-         source: function (keyword, process, asyncprocess) {
-         	$.ajax({
-         		type: 'POST',
-         		url: '../lib/q_func',
-         		dataType: "json",
-         		data: {admin_search_keyword_user:"",search_key:keyword},
-         		success: function (response) {       
-         			asyncprocess(response);
-         		},
-         		error: function (xhr, error, thrown) {
-         		}
-         	});
-         },
-         templates: {
-         	empty: [
-         	'<p class="tt-suggestion">Opps! Sorry we were unable to find any record</p>'
-         	],
-         	suggestion: function(name) {
-         		var f1 = "";
-         		var f2 = "";
-         		var f3 = "";
-         		if(name.data1 != "" && name.data1 != " "){
-         			f1=name.data1;
-         		}    	
-         		if(name.data3 != "" && name.data3 != " "){
-         			f2=" ("+name.data3+") ";
-         		}    	
-         
-         		if(name.data6 != "" && name.data6 != " "){
-         			f3=' – ' +name.data6;
-         		}
-         
-         		return '<p>' + f1 + f2+  f3  + '</p>';
-         	}
-         },
-         display: function(name){ 
-         	return name.data1
-         }
-         
+            name:'oneid-user-account-search',limit:50,
+            source:function(keyword,process,asyncprocess){
+               var requestSequence=++adminUserSearchSequence;
+               if(adminUserSearchRequest){adminUserSearchRequest.abort();}
+               adminUserSearchRequest=$.ajax({
+                  type:'POST',url:'../lib/q_func',dataType:'json',data:{admin_search_keyword_user:'',search_key:keyword},
+                  success:function(response){if(requestSequence===adminUserSearchSequence){asyncprocess(Array.isArray(response)?response:[]);}},
+                  error:function(xhr,error){if(error!=='abort'&&requestSequence===adminUserSearchSequence){asyncprocess([{_search_error:true,data1:adminText('admin.users.search_failed')}]);}},
+                  complete:function(){if(requestSequence===adminUserSearchSequence){adminUserSearchRequest=null;}}
+               });
+            },
+            templates:{
+               empty:['<p class="tt-suggestion">Opps! Sorry we were unable to find any record</p>'],
+               suggestion:function(name){
+                  if(name._search_error){return '<p class="user-search-suggestion is-error"><strong>'+adminUserSearchText(name.data1)+'</strong></p>';}
+                  var displayName=String(name.data1||'').trim()!==''?adminUserSearchText(name.data1):'';
+                  var publicId=adminUserPublicId(name);
+                  var idHtml=publicId!==''?'<small class="user-search-suggestion-id">'+adminUserSearchText(publicId)+'</small>':'';
+                  var unitHtml=String(name.data6||'').trim()!==''?'<small class="user-search-suggestion-unit">'+adminUserSearchText(name.data6)+'</small>':'';
+                  var active=String(name.avail_status)!=='0';
+                  var statusHtml='<span class="user-search-suggestion-status '+(active?'is-active':'is-inactive')+'">'+adminUserSearchText(active?adminI18n.userStatusActive:adminI18n.userStatusInactive)+'</span>';
+                  return '<p class="user-search-suggestion"><strong>'+displayName+'</strong><span>'+idHtml+unitHtml+'</span>'+statusHtml+'</p>';
+               }
+            },display:function(name){return name.data1;}
          }).on('typeahead:asyncrequest', function() {
          $('.Typeahead-spinner').show();
          }).on('typeahead:asynccancel typeahead:asyncreceive', function() {
@@ -2764,7 +2749,7 @@
          });
          
          $('#the-basics .typeahead').bind('typeahead:select', function(ev, suggestion) {
-         search_user_account_main(suggestion['data4']);
+         if(!suggestion._search_error){search_user_account_main(String(suggestion.u_id||suggestion.data4||''));}
          });
          
          
@@ -4688,12 +4673,7 @@
                     $('#btn_user_profile_save').addClass('btn-primary').removeClass('btn-warning');
                     switch(response['source']){
                      case "1": //reg
-                     var u_id_text= "";
-                     if(response['data3'] != " "){
-                        u_id_text = response['data3'];
-                     }else{
-                        u_id_text = response['data4'];
-                     }
+                     var u_id_text=String(response['data3']||'').trim()||String(response['data4']||'').trim()||String(response['u_id']||'').trim();
                       $('#modal_user_profile_name').val(response['data1']);
                         m3ProfileSource = String(response['account_source'] || 'legacy').toLowerCase();
                      $('#modal_user_profile_id').val(u_id_text);
@@ -8919,15 +8899,55 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         min-width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box;
+        margin-top: 6px;
+        max-height: 420px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 4px;
+        border: 1px solid #cddde7;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 10px 26px rgba(22, 54, 78, .16);
       }
+
+      #tab_user .user-search-suggestion{align-items:center;display:flex;gap:9px;margin:0;min-height:38px;padding:6px 8px 6px 14px}
+      #tab_user .user-search-suggestion>strong{color:#263d50;flex:0 1 auto;font-size:12px;max-width:34%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      #tab_user .user-search-suggestion>span{align-items:center;display:flex;flex:1 1 auto;gap:8px;min-width:0}
+      #tab_user .user-search-suggestion small{color:#718493;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      #tab_user .user-search-suggestion-id{color:#16799c!important;flex:0 0 auto;font-weight:700}
+      #tab_user .user-search-suggestion-unit{flex:1 1 auto}
+      #tab_user .user-search-suggestion>.user-search-suggestion-status{align-items:center;border-radius:999px;display:inline-flex;flex:0 0 82px;font-size:9px;font-weight:800;height:22px;justify-content:center;margin-left:auto;max-width:82px;min-width:82px;padding:0 7px;text-align:center;text-transform:uppercase;white-space:nowrap;width:82px}
+      #tab_user .user-search-suggestion-status.is-active{background:#e4f7eb;color:#20834a}
+      #tab_user .user-search-suggestion-status.is-inactive{background:#fff0ed;color:#b94a3f}
+      #tab_user .user-search-suggestion.is-error{display:block;color:#b94a3f}
 
       #tab_user .user-search-input-wrap .tt-suggestion {
         width: 100%;
         box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border-bottom: 1px solid #edf2f5;
+        border-radius: 5px;
+        color: #263d50;
         overflow-wrap: anywhere;
         white-space: normal;
         text-align: left;
         vertical-align: top;
+      }
+
+      #tab_user .user-search-input-wrap .tt-suggestion:last-child{border-bottom:0}
+      #tab_user .user-search-input-wrap .tt-suggestion.user-search-suggestion{padding:6px 8px 6px 14px}
+      #tab_user .user-search-input-wrap .tt-suggestion:hover,
+      #tab_user .user-search-input-wrap .tt-suggestion.tt-cursor{background:#eaf7fc;color:#173b52}
+      #tab_user .user-search-input-wrap .tt-suggestion.user-search-suggestion:hover,
+      #tab_user .user-search-input-wrap .tt-suggestion.user-search-suggestion.tt-cursor{box-shadow:inset 3px 0 0 #119dcc}
+      #tab_user .user-search-input-wrap .tt-suggestion:hover .user-search-suggestion,
+      #tab_user .user-search-input-wrap .tt-suggestion.tt-cursor .user-search-suggestion{box-shadow:inset 3px 0 0 #119dcc}
+      @media(max-width:767px){
+        #tab_user .user-search-suggestion{align-items:flex-start;display:grid;gap:2px 8px;grid-template-columns:minmax(0,1fr) auto;padding:7px 9px}
+        #tab_user .user-search-suggestion>strong{max-width:100%}
+        #tab_user .user-search-suggestion>span{grid-column:1/2}
+        #tab_user .user-search-suggestion>.user-search-suggestion-status{flex-basis:82px;grid-column:2;grid-row:1/3;max-width:82px;min-width:82px;width:82px}
       }
 
       #tab_user #search_user_input {

@@ -416,19 +416,35 @@ class Database {
 
 
     public function admin_search_keyword_user_func($keyword_search){
-        $Q = "SELECT data1,data2,data3,data4,data5,data6,data7 FROM user_tbl WHERE data1 LIKE CONCAT('%', :keyword_search, '%')
-                UNION
-                SELECT data1,data2,data3,data4,data5,data6,data7 FROM user_tbl WHERE data2 LIKE CONCAT('%', :keyword_search, '%')
-                UNION
-                SELECT data1,data2,data3,data4,data5,data6,data7 FROM user_tbl WHERE data3 LIKE CONCAT('%', :keyword_search, '%')
-                UNION
-                SELECT data1,data2,data3,data4,data5,data6,data7 FROM user_tbl WHERE data4 LIKE CONCAT('%', :keyword_search, '%')
-                ";
-        $R = $this->pdo->prepare($Q);        
-        $R->bindParam(':keyword_search', $keyword_search);  
-        $R->execute();
-        $result = $R->fetchAll(PDO::FETCH_ASSOC);
-        return $result;
+        $term=trim((string)$keyword_search);
+        if(mb_strlen($term)<3||mb_strlen($term)>100)return [];
+        // '=' is an explicit LIKE escape character. User-entered %, _ and =
+        // therefore remain literal search text rather than query wildcards.
+        $escaped=str_replace(['=','%','_'],['==','=%','=_'],$term);
+        $contains='%'.$escaped.'%';$prefix=$escaped.'%';
+        $Q="SELECT u_id,data1,data2,data3,data4,data5,data6,data7,avail_status,
+                   CASE
+                     WHEN u_id=:exact_uid OR data2=:exact_identity OR data3=:exact_staff OR data4=:exact_student THEN 0
+                     WHEN LOWER(TRIM(data1))=LOWER(:exact_name) THEN 1
+                     WHEN data1 LIKE :name_prefix ESCAPE '=' THEN 2
+                     ELSE 3
+                   END AS search_rank
+            FROM user_tbl
+            WHERE data1 LIKE :name_contains ESCAPE '='
+               OR data2 LIKE :identity_contains ESCAPE '='
+               OR data3 LIKE :staff_contains ESCAPE '='
+               OR data4 LIKE :student_contains ESCAPE '='
+               OR u_id LIKE :uid_contains ESCAPE '='
+            ORDER BY search_rank ASC,avail_status DESC,data1 ASC,u_id ASC
+            LIMIT 50";
+        $R=$this->pdo->prepare($Q);
+        $R->execute([
+            ':exact_uid'=>$term,':exact_identity'=>$term,':exact_staff'=>$term,':exact_student'=>$term,
+            ':exact_name'=>$term,':name_prefix'=>$prefix,':name_contains'=>$contains,
+            ':identity_contains'=>$contains,':staff_contains'=>$contains,':student_contains'=>$contains,
+            ':uid_contains'=>$contains,
+        ]);
+        return $R->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function action_get_ext_header($header_id){
