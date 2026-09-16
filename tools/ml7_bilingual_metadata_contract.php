@@ -85,6 +85,14 @@ $report(
     'Administrator guarded translation-management UI is wired'
 );
 $report(
+    str_contains($admin, 'function reconcileMetadataSave(snapshot,response)')
+    && str_contains($admin, "response.code==='ML7_METADATA_STALE'")
+    && str_contains($admin, "$('#metadata_translation_version').val(Number(current.translation_version||0))")
+    && str_contains($admin, "$('#metadata_translated_name').val(snapshot.name)")
+    && str_contains($admin, "$('#metadata_change_reason').val(committed?'':snapshot.reason)"),
+    'ambiguous and stale saves reconcile the server version without discarding admin input'
+);
+$report(
     !preg_match('/\bSET\b[^;]*(?:sp_domain|sp_group_id|sp_sso_support)\s*=/is', $repository),
     'repository cannot mutate URL, category assignment or SSO configuration'
 );

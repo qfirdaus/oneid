@@ -2199,6 +2199,8 @@
             'metadataSaved' => oneid_translate('admin.metadata.saved'),
             'metadataNoChanges' => oneid_translate('admin.metadata.no_changes'),
             'metadataFailed' => oneid_translate('admin.metadata.failed'),
+            'metadataReconciled' => oneid_translate('admin.metadata.reconciled'),
+            'metadataStale' => oneid_translate('admin.metadata.stale'),
             'metadataReasonRequired' => oneid_translate('admin.metadata.reason_required'),
             'metadataCoverage' => oneid_translate('admin.metadata.coverage'),
             'metadataApps' => oneid_translate('admin.metadata.apps'),
@@ -2306,6 +2308,62 @@
                }
             },'json');
          }
+         function metadataSaveSnapshot(){
+            return {
+               entityType:String($('#metadata_entity_type').val()||''),
+               entityId:String($('#metadata_entity_id').val()||''),
+               locale:String($('#metadata_locale').val()||''),
+               name:String($('#metadata_translated_name').val()||''),
+               description:String($('#metadata_translated_description').val()||''),
+               reason:String($('#metadata_change_reason').val()||'')
+            };
+         }
+         function metadataFailureMessage(response){
+            response=response||{};
+            var code=String(response.code||'').trim();
+            var correlation=String(response.correlation_id||'').trim();
+            var reference=[code,correlation].filter(Boolean).join(' · ');
+            return localizedResponseMessage(response,adminI18n.metadataFailed)+(reference?' ['+reference+']':'');
+         }
+         function reconcileMetadataSave(snapshot,response){
+            $.post('../lib/q_func',{
+               admin_get_metadata_translation:'',
+               entity_type:snapshot.entityType,
+               entity_id:snapshot.entityId,
+               locale:snapshot.locale
+            },function(readResponse){
+               if(!readResponse||Number(readResponse.status)!==1){
+                  $('#metadata_translation_status').text(metadataFailureMessage(response));
+                  return;
+               }
+               var current=readResponse.data||{};
+               var currentName=String(current.sp_name||current.sp_group_name||'').trim();
+               var currentDescription=String(current.sp_description||'').trim();
+               var requestedName=snapshot.name.trim();
+               var requestedDescription=snapshot.entityType==='application'?snapshot.description.trim():'';
+               var committed=currentName===requestedName
+                  && (snapshot.entityType!=='application'||currentDescription===requestedDescription);
+               $('#metadata_translation_version').val(Number(current.translation_version||0));
+               $('#metadata_translated_name').val(snapshot.name);
+               $('#metadata_translated_description').val(snapshot.description);
+               $('#metadata_change_reason').val(committed?'':snapshot.reason);
+               if(committed){
+                  $('.oneid-metadata-reason-chip').removeClass('is-selected').attr('aria-pressed','false');
+                  $('#metadata_translation_status')
+                     .removeClass('alert-info alert-danger').addClass('alert-success')
+                     .text(adminI18n.metadataReconciled);
+                  get_service_provider_list();
+               }else{
+                  $('#metadata_translation_status')
+                     .removeClass('alert-info alert-success').addClass('alert-danger')
+                     .text(adminI18n.metadataStale);
+               }
+            },'json').fail(function(){
+               $('#metadata_translation_status').text(metadataFailureMessage(response));
+            }).always(function(){
+               $('#metadata_translation_save').prop('disabled',!metadataSchemaAvailable);
+            });
+         }
          function openMetadataTranslations(){
             metadataEntityOptions();
             $('#metadata_translation_save').prop('disabled',true);
@@ -2367,6 +2425,8 @@
                   return;
                }
                $('#metadata_translation_save').prop('disabled',true);
+               var saveSnapshot=metadataSaveSnapshot();
+               var metadataSaveReconciling=false;
                $.post('../lib/q_func',{
                   admin_save_metadata_translation:'',
                   entity_type:$('#metadata_entity_type').val(),
@@ -2387,10 +2447,15 @@
                         .text(response.no_changes?adminI18n.metadataNoChanges:localizedResponseMessage(response,adminI18n.metadataSaved));
                      get_service_provider_list();
                   }else{
-                     $('#metadata_translation_status')
-                        .removeClass('alert-info alert-success')
-                        .addClass('alert-danger')
-                        .text(localizedResponseMessage(response,adminI18n.metadataFailed));
+                     if(response&&response.code==='ML7_METADATA_STALE'){
+                        metadataSaveReconciling=true;
+                        reconcileMetadataSave(saveSnapshot,response);
+                     }else{
+                        $('#metadata_translation_status')
+                           .removeClass('alert-info alert-success')
+                           .addClass('alert-danger')
+                           .text(metadataFailureMessage(response));
+                     }
                   }
                },'json').fail(function(xhr){
                   var response=xhr.responseJSON||{};
@@ -2398,9 +2463,12 @@
                      window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_metadata';
                      return;
                   }
-                  $('#metadata_translation_status').text(localizedResponseMessage(response,adminI18n.metadataFailed));
+                  metadataSaveReconciling=true;
+                  reconcileMetadataSave(saveSnapshot,response);
                }).always(function(){
-                  $('#metadata_translation_save').prop('disabled',!metadataSchemaAvailable);
+                  if(!metadataSaveReconciling){
+                     $('#metadata_translation_save').prop('disabled',!metadataSchemaAvailable);
+                  }
                });
             });
             if(new URLSearchParams(window.location.search).get('metadata')==='1'){

@@ -1145,6 +1145,8 @@ return [
     'admin.metadata.saved' => 'Terjemahan metadata berjaya disimpan.',
     'admin.metadata.no_changes' => 'Tiada perubahan dikesan. Terjemahan sedia ada tidak dikemas kini.',
     'admin.metadata.failed' => 'Terjemahan metadata tidak dapat diproses.',
+    'admin.metadata.reconciled' => 'Terjemahan berjaya disimpan. Versi terkini daripada pelayan telah dipulihkan.',
+    'admin.metadata.stale' => 'Versi lebih baharu dikesan pada pelayan. Perubahan anda dikekalkan; semak dan simpan semula.',
     'admin.metadata.reason_required' => 'Sila masukkan sebab perubahan sekurang-kurangnya 10 aksara.',
     'admin.metadata.original_panel' => 'Metadata asal',
     'admin.metadata.original_name' => 'Nama asal',
