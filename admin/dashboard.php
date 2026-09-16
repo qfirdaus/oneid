@@ -2326,6 +2326,12 @@
             var reference=[code,correlation].filter(Boolean).join(' · ');
             return localizedResponseMessage(response,adminI18n.metadataFailed)+(reference?' ['+reference+']':'');
          }
+         function adoptMetadataCsrfToken(response){
+            var token=String(response&&response.csrf_token||'');
+            if(!/^[a-f0-9]{64}$/.test(token)){return false;}
+            $.ajaxSetup({headers:{'X-CSRF-Token':token}});
+            return true;
+         }
          function retryMetadataSave(snapshot,translationVersion){
             $('#metadata_translation_save').prop('disabled',true);
             $('#metadata_translation_status')
@@ -2505,6 +2511,11 @@
                   var response=xhr.responseJSON||{};
                   if(xhr.status===403&&(response.code==='STEP_UP_REQUIRED'||response.code==='STEP_UP_EXPIRED'||response.code==='STEP_UP_PURPOSE_MISMATCH')){
                      window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_metadata';
+                     return;
+                  }
+                  if(xhr.status===403&&response.code==='CSRF_INVALID'&&adoptMetadataCsrfToken(response)){
+                     metadataSaveReconciling=true;
+                     retryMetadataSave(saveSnapshot,Number($('#metadata_translation_version').val()||0));
                      return;
                   }
                   metadataSaveReconciling=true;

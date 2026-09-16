@@ -84,7 +84,20 @@ function oneid_require_csrf(): void
     $providedToken = oneid_request_csrf_token();
 
     if ($providedToken === '' || !hash_equals($expectedToken, $providedToken)) {
-        oneid_json_deny(403, 'Invalid CSRF token', 'CSRF_INVALID');
+        if (!headers_sent()) {
+            http_response_code(403);
+            header('Content-Type: application/json; charset=utf-8');
+            header('Cache-Control: no-store');
+        }
+        echo json_encode([
+            'error' => 'Invalid CSRF token',
+            'status' => 403,
+            'code' => 'CSRF_INVALID',
+            // Allows an authenticated same-origin page left open across a
+            // session rotation to recover without discarding the admin draft.
+            'csrf_token' => $expectedToken,
+        ]);
+        exit;
     }
 }
 

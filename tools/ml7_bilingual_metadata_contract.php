@@ -92,7 +92,10 @@ $report(
     && str_contains($admin, "$('#metadata_change_reason').val(committed?'':snapshot.reason)")
     && str_contains($admin, 'function retryMetadataSave(snapshot,translationVersion)')
     && str_contains($admin, 'retryMetadataSave(snapshot,Number(current.translation_version||0))')
-    && str_contains($admin, 'var automaticRetryStarted=false;'),
+    && str_contains($admin, 'var automaticRetryStarted=false;')
+    && str_contains($admin, 'function adoptMetadataCsrfToken(response)')
+    && str_contains($admin, "response.code==='CSRF_INVALID'")
+    && str_contains($security, "'csrf_token' => \$expectedToken"),
     'ambiguous and stale saves reconcile input and retry the latest version once'
 );
 $report(
