@@ -1147,6 +1147,7 @@ return [
     'admin.metadata.failed' => 'The metadata translation could not be processed.',
     'admin.metadata.reconciled' => 'The translation was saved successfully. The latest server version has been restored.',
     'admin.metadata.stale' => 'A newer server version was detected. Your changes have been preserved; review them and save again.',
+    'admin.metadata.retrying' => 'A newer server version was detected. Saving your changes against the latest version…',
     'admin.metadata.reason_required' => 'Enter a change reason of at least 10 characters.',
     'admin.metadata.original_panel' => 'Original metadata',
     'admin.metadata.original_name' => 'Original name',

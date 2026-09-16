@@ -89,8 +89,11 @@ $report(
     && str_contains($admin, "response.code==='ML7_METADATA_STALE'")
     && str_contains($admin, "$('#metadata_translation_version').val(Number(current.translation_version||0))")
     && str_contains($admin, "$('#metadata_translated_name').val(snapshot.name)")
-    && str_contains($admin, "$('#metadata_change_reason').val(committed?'':snapshot.reason)"),
-    'ambiguous and stale saves reconcile the server version without discarding admin input'
+    && str_contains($admin, "$('#metadata_change_reason').val(committed?'':snapshot.reason)")
+    && str_contains($admin, 'function retryMetadataSave(snapshot,translationVersion)')
+    && str_contains($admin, 'retryMetadataSave(snapshot,Number(current.translation_version||0))')
+    && str_contains($admin, 'var automaticRetryStarted=false;'),
+    'ambiguous and stale saves reconcile input and retry the latest version once'
 );
 $report(
     !preg_match('/\bSET\b[^;]*(?:sp_domain|sp_group_id|sp_sso_support)\s*=/is', $repository),
