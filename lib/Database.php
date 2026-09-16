@@ -7,6 +7,7 @@ class Database {
     protected $pdo;
     private ?bool $userProvenanceSupported = null;
     private ?bool $userAppFavouritesSupported = null;
+    private ?bool $userProductTourProgressSupported = null;
     private string $environment;
     private ?\OneId\App\Audit\AuditIdentityResolver $auditIdentityResolver = null;
     public function __construct()
@@ -813,6 +814,28 @@ class Database {
         $R->execute();
         $this->userAppFavouritesSupported = (int) $R->fetchColumn() === 1;
         return $this->userAppFavouritesSupported;
+    }
+
+    public function supportsUserProductTourProgress(): bool{
+        if ($this->userProductTourProgressSupported !== null) return $this->userProductTourProgressSupported;
+        $R=$this->pdo->prepare("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='user_product_tour_progress'");
+        $R->execute();
+        return $this->userProductTourProgressSupported=(int)$R->fetchColumn()===1;
+    }
+
+    public function getUserProductTourStatus(string $userId,string $tourId,int $version): ?string{
+        if(!$this->supportsUserProductTourProgress()) return null;
+        $R=$this->pdo->prepare("SELECT completion_status FROM user_product_tour_progress WHERE u_id=:u_id AND tour_id=:tour_id AND tour_version=:tour_version LIMIT 1");
+        $R->execute([':u_id'=>$userId,':tour_id'=>$tourId,':tour_version'=>$version]);
+        $status=$R->fetchColumn();
+        return is_string($status)&&in_array($status,['completed','skipped'],true)?$status:null;
+    }
+
+    public function setUserProductTourStatus(string $userId,string $tourId,int $version,string $status): void{
+        if(!$this->supportsUserProductTourProgress()) throw new RuntimeException('Product tour progress storage is unavailable.');
+        if(!in_array($status,['completed','skipped'],true)) throw new InvalidArgumentException('Invalid product tour completion status.');
+        $R=$this->pdo->prepare("INSERT INTO user_product_tour_progress (u_id,tour_id,tour_version,completion_status,completed_at,updated_at) VALUES (:u_id,:tour_id,:tour_version,:completion_status,NOW(),NOW()) ON DUPLICATE KEY UPDATE completion_status=VALUES(completion_status),completed_at=VALUES(completed_at),updated_at=NOW()");
+        $R->execute([':u_id'=>$userId,':tour_id'=>$tourId,':tour_version'=>$version,':completion_status'=>$status]);
     }
 
     /** @return string[] */

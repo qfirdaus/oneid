@@ -128,6 +128,7 @@ function oneid_q_func_action_map(): array
             'admin_get_all_token_for_specific_user',
             'get_specific_user_app_list',
             'user_set_app_favourite',
+            'user_set_product_tour_status',
             'go_to_service_provider',
             'user_signoff_security_sessions',
             'update_specific_token_datetime',

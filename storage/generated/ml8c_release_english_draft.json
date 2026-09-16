@@ -1,11 +1,66 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2133-ACCESSIBILITY-20260915-01",
+    "authorization": "ONEID-V2134-PRODUCT-TOUR-20260916-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.13.4",
+            "version": "2.13.4",
+            "date": "2026-09-16",
+            "items": [
+                {
+                    "identity": "release:2.13.4:item:001",
+                    "bm": "Dashboard pengguna kini menyediakan panduan interaktif yang memperkenalkan carian aplikasi, aplikasi kegemaran, tetapan paparan, keselamatan akaun dan pembaharuan sesi.",
+                    "en_draft": "The user dashboard now provides an interactive guide covering application search, favourites, display settings, account security and session renewal.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.4:item:002",
+                    "bm": "Panduan muncul sekali bagi setiap versi dan boleh dibuka semula pada bila-bila masa melalui menu Lihat Panduan Sistem tanpa mengubah status selesai pengguna.",
+                    "en_draft": "The guide appears once per version and can be reopened at any time through View System Guide without changing the user’s completion state.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.4:item:003",
+                    "bm": "Status selesai atau langkau disimpan mengikut akaun, ID panduan dan versi supaya panduan tidak berulang apabila pengguna bertukar browser atau peranti.",
+                    "en_draft": "Completed or skipped status is stored by account, guide ID and version so the guide does not repeat when users change browser or device.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.4:item:004",
+                    "bm": "Status lama daripada localStorage diselaraskan secara selamat ke rekod akaun, manakala penyimpanan setempat kekal sebagai fallback jika perkhidmatan sementara tidak tersedia.",
+                    "en_draft": "Existing localStorage status is safely synchronized to the account record, while local storage remains a fallback when the service is temporarily unavailable.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.4:item:005",
+                    "bm": "Penyimpanan status dilindungi oleh sesi OneID aktif, CSRF, validasi allowlist serta migration database tambahan yang boleh dipulihkan.",
+                    "en_draft": "Status persistence is protected by an active OneID session, CSRF, allowlist validation and a reversible additive database migration.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.4:item:006",
+                    "bm": "Spotlight tour mengikut saiz dan lengkungan sebenar kawalan yang diterangkan, dengan lapisan fokus, glow dan kad panduan yang lebih profesional.",
+                    "en_draft": "The tour spotlight follows the actual size and corner radius of each control, with a refined focus layer, glow and professional guide card.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.4:item:007",
+                    "bm": "Kad panduan menyediakan progress bar, tindakan Kembali, Seterusnya, Langkau dan Selesai, kawalan keyboard serta sokongan reduced motion.",
+                    "en_draft": "The guide card provides a progress bar, Back, Next, Skip and Finish actions, keyboard controls and reduced-motion support.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.13.4:item:008",
+                    "bm": "Paparan mudah alih menggunakan bottom sheet responsif, safe area dan sasaran sentuhan yang sesuai untuk pelbagai saiz serta orientasi peranti.",
+                    "en_draft": "Mobile presentation uses a responsive bottom sheet, safe-area handling and suitable touch targets across device sizes and orientations.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.13.3",
             "version": "2.13.3",
@@ -3725,5 +3780,5 @@
             ]
         }
     ],
-    "manifest_digest": "97f653fab99e2df9e57fbbdd1311dbfc9bce3415b993259f0248097bd065477a"
+    "manifest_digest": "1cef7c357a2946b8dd83190536bb01957b932d4d118f14311c05f94accdd0739"
 }

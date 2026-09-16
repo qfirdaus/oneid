@@ -73,6 +73,26 @@
    } catch (Throwable) {
       $userMfaEnrollmentAvailable = false;
    }
+   $productTourEnabled = filter_var(
+      oneid_config('ONEID_PRODUCT_TOUR_ENABLED', 'false'),
+      FILTER_VALIDATE_BOOLEAN
+   );
+   $productTourId = 'dashboard';
+   $productTourVersion = 1;
+   $productTourServerStatus = null;
+   $productTourStorageAvailable = false;
+   if ($productTourEnabled) {
+      try {
+         $productTourStorageAvailable = $operation->supportsUserProductTourProgress();
+         if ($productTourStorageAvailable) {
+            $productTourServerStatus = $operation->getUserProductTourStatus(
+               (string) $_SESSION['login_user'], $productTourId, $productTourVersion
+            );
+         }
+      } catch (Throwable) {
+         $productTourStorageAvailable = false;
+      }
+   }
    // echo "Xxxxx" . $_SESSION['user'];
     // echo json_encode($user_info);
    ?>
@@ -106,6 +126,7 @@
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-accessibility-baseline.css?v=20260915-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-display-settings.css?v=20260915-4" rel="stylesheet" type="text/css">
+      <?php if ($productTourEnabled): ?><link href="../dist/css/oneid-product-tour.css?v=20260916-2" rel="stylesheet" type="text/css"><?php endif; ?>
       <script src="../dist/js/oneid-display-settings.js?v=20260915-4"></script>
 
       <style>
@@ -351,6 +372,13 @@
                                             <i class="fa fa-question-circle oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('dashboard.menu.faq'), ENT_QUOTES, 'UTF-8')?></span>
                                           </a>
                                         </li>
+                                       <?php if ($productTourEnabled): ?>
+                                        <li role="presentation">
+                                          <a href="#" class="oneid-tour-trigger" data-oneid-product-tour-start>
+                                            <i class="fa fa-compass oneid-sidebar-icon" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('dashboard.menu.product_tour'), ENT_QUOTES, 'UTF-8')?></span>
+                                          </a>
+                                        </li>
+                                       <?php endif; ?>
                                         <!--<li role="presentation">
                                           <a data-toggle="tab" id="security_tab_1" role="tab" href="#security_tab" aria-expanded="false">
                                             <span>Signed Devices</span>
@@ -556,6 +584,36 @@
          )?>;
       </script>
       <script src="../dist/js/oneid-user-session.js?v=20260916-1"></script>
+      <?php if ($productTourEnabled): ?>
+      <script>
+         window.OneIdProductTourConfig = <?=json_encode([
+            'enabled' => true,
+            'id' => 'dashboard-pilot-v1',
+            'tourId' => $productTourId,
+            'tourVersion' => $productTourVersion,
+            'serverStatus' => $productTourServerStatus,
+            'persistenceEnabled' => $productTourStorageAvailable,
+            'apiUrl' => APP_URL . '/lib/q_func.php',
+            'csrfToken' => oneid_csrf_token(),
+            'text' => [
+               'eyebrow' => oneid_translate('dashboard.tour.eyebrow'),
+               'step' => oneid_translate('dashboard.tour.step'),
+               'back' => oneid_translate('dashboard.tour.back'),
+               'next' => oneid_translate('dashboard.tour.next'),
+               'skip' => oneid_translate('dashboard.tour.skip'),
+               'finish' => oneid_translate('dashboard.tour.finish'),
+            ],
+            'steps' => [
+               ['selector' => '#user_app_search', 'title' => oneid_translate('dashboard.tour.search.title'), 'body' => oneid_translate('dashboard.tour.search.body')],
+               ['selector' => '.user-app-favourite', 'title' => oneid_translate('dashboard.tour.favourite.title'), 'body' => oneid_translate('dashboard.tour.favourite.body')],
+               ['selector' => '.oneid-display-settings__trigger', 'title' => oneid_translate('dashboard.tour.display.title'), 'body' => oneid_translate('dashboard.tour.display.body')],
+               ['selector' => '#tab_user_mfa_security', 'title' => oneid_translate('dashboard.tour.security.title'), 'body' => oneid_translate('dashboard.tour.security.body')],
+               ['selector' => '[data-oneid-user-session-renew]', 'title' => oneid_translate('dashboard.tour.session.title'), 'body' => oneid_translate('dashboard.tour.session.body')],
+            ],
+         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
+      </script>
+      <script src="../dist/js/oneid-product-tour.js?v=20260916-3"></script>
+      <?php endif; ?>
       <script src="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
       <script src="../assetsM/js/oneid-notifications.js?v=20260716-1"></script>
       <!-- Init JavaScript -->

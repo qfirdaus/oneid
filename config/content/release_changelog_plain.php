@@ -6,6 +6,33 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.13.4' =>
+  array (
+    'version' => '2.13.4',
+    'date' => '2026-09-16',
+    'bm' =>
+    array (
+      0 => 'Dashboard pengguna kini menyediakan panduan interaktif yang memperkenalkan carian aplikasi, aplikasi kegemaran, tetapan paparan, keselamatan akaun dan pembaharuan sesi.',
+      1 => 'Panduan muncul sekali bagi setiap versi dan boleh dibuka semula pada bila-bila masa melalui menu Lihat Panduan Sistem tanpa mengubah status selesai pengguna.',
+      2 => 'Status selesai atau langkau disimpan mengikut akaun, ID panduan dan versi supaya panduan tidak berulang apabila pengguna bertukar browser atau peranti.',
+      3 => 'Status lama daripada localStorage diselaraskan secara selamat ke rekod akaun, manakala penyimpanan setempat kekal sebagai fallback jika perkhidmatan sementara tidak tersedia.',
+      4 => 'Penyimpanan status dilindungi oleh sesi OneID aktif, CSRF, validasi allowlist serta migration database tambahan yang boleh dipulihkan.',
+      5 => 'Spotlight tour mengikut saiz dan lengkungan sebenar kawalan yang diterangkan, dengan lapisan fokus, glow dan kad panduan yang lebih profesional.',
+      6 => 'Kad panduan menyediakan progress bar, tindakan Kembali, Seterusnya, Langkau dan Selesai, kawalan keyboard serta sokongan reduced motion.',
+      7 => 'Paparan mudah alih menggunakan bottom sheet responsif, safe area dan sasaran sentuhan yang sesuai untuk pelbagai saiz serta orientasi peranti.',
+    ),
+    'en' =>
+    array (
+      0 => 'The user dashboard now provides an interactive guide covering application search, favourites, display settings, account security and session renewal.',
+      1 => 'The guide appears once per version and can be reopened at any time through View System Guide without changing the user’s completion state.',
+      2 => 'Completed or skipped status is stored by account, guide ID and version so the guide does not repeat when users change browser or device.',
+      3 => 'Existing localStorage status is safely synchronized to the account record, while local storage remains a fallback when the service is temporarily unavailable.',
+      4 => 'Status persistence is protected by an active OneID session, CSRF, allowlist validation and a reversible additive database migration.',
+      5 => 'The tour spotlight follows the actual size and corner radius of each control, with a refined focus layer, glow and professional guide card.',
+      6 => 'The guide card provides a progress bar, Back, Next, Skip and Finish actions, keyboard controls and reduced-motion support.',
+      7 => 'Mobile presentation uses a responsive bottom sheet, safe-area handling and suitable touch targets across device sizes and orientations.',
+    ),
+  ),
   'release-2.13.3' =>
   array (
     'version' => '2.13.3',
