@@ -194,7 +194,10 @@ final class BilingualMetadataRepository
             $current = $this->readForUpdate($table, $idColumn, $entityId, $locale);
             $currentVersion = (int) ($current['translation_version'] ?? 0);
             if ($currentVersion !== $expectedVersion) {
-                throw new RuntimeException('ML7_METADATA_STALE');
+                $lastActor = trim((string) ($current['updated_by'] ?? ''));
+                if ($currentVersion === 0 || $lastActor === '' || !hash_equals($lastActor, $actor)) {
+                    throw new RuntimeException('ML7_METADATA_STALE');
+                }
             }
             $normalized = $this->normalizedValues($entityType, $values);
             if ($currentVersion > 0 && $this->sameTranslation($entityType, $current, $normalized)) {

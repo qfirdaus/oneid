@@ -110,12 +110,21 @@ try {
             'en',
             ['name' => 'Stale App', 'description' => 'Stale Description'],
             0,
-            'ML7-ADMIN',
+            'ML7-OTHER-ADMIN',
             'Approved stale translation rehearsal'
         );
     } catch (RuntimeException $exception) {
         $staleRejected = $exception->getMessage() === 'ML7_METADATA_STALE';
     }
+    $sameActorRetry = $repository->save(
+        'application',
+        'APP1',
+        'en',
+        ['name' => 'English App Retried', 'description' => 'English Description Retried'],
+        0,
+        'ML7-ADMIN',
+        'Approved same administrator retry rehearsal'
+    );
     $history = (int) $pdo->query('SELECT COUNT(*) FROM metadata_translation_history')->fetchColumn();
     if (
         $appSave['translation_version'] !== 1
@@ -128,11 +137,12 @@ try {
         || ($noChange['code'] ?? '') !== 'ML7_METADATA_NO_CHANGES'
         || ($noChange['translation_version'] ?? 0) !== 1
         || !$staleRejected
-        || $history !== 2
+        || ($sameActorRetry['translation_version'] ?? 0) !== 2
+        || $history !== 3
     ) {
         throw new RuntimeException('ML7_FORWARD_RECONCILIATION_FAILED');
     }
-    echo "PASS forward localized=yes audit=2 no_change_suppressed=yes stale_rejected=yes originals_unchanged=yes\n";
+    echo "PASS forward localized=yes audit=3 no_change_suppressed=yes cross_actor_stale_rejected=yes same_actor_retry=yes originals_unchanged=yes\n";
 
     $pdo->exec((string) file_get_contents(
         $root . '/docs/migrations/20260725_ml7_metadata_translation_down.sql'

@@ -102,7 +102,8 @@ $report(
 $report(
     str_contains($repository, 'ML7_METADATA_NO_CHANGES')
     && str_contains($repository, 'translation_exists')
-    && str_contains($repository, 'originalMetadata'),
+    && str_contains($repository, 'originalMetadata')
+    && str_contains($repository, 'hash_equals($lastActor, $actor)'),
     'editor exposes original context and suppresses no-op version history'
 );
 $report(
