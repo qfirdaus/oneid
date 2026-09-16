@@ -6493,16 +6493,6 @@
                      '</td></tr>'
                   );
                }else{
-                  $.toast().reset('all');            
-                  $.toast({
-                     heading: '',
-                     text: adminText('admin.audit.result_found'),
-                     position: 'bottom-center',
-                     loaderBg:'#fec107',
-                     icon: 'success',
-                     hideAfter: 3500, 
-                     stack: 6
-                  });  
                   response.sort(function(a, b){
                      var dateOrder = String(b.datetime || '').localeCompare(String(a.datetime || ''));
                      return dateOrder !== 0 ? dateOrder : Number(b.audit_id || 0) - Number(a.audit_id || 0);

@@ -14,6 +14,7 @@ $report(str_contains($database,'LIMIT 50'),'audit query retains bounded result s
 $report(str_contains($dashboard,'response.sort(function(a, b)')&&str_contains($dashboard,'Number(b.audit_id || 0)'),'UI applies defensive newest-first ordering');
 $report(str_contains($dashboard,'load_audit_log_today_once')&&str_contains($dashboard,"moment().format('DD/MM/YYYY')")&&!str_contains($dashboard,'01/01/2016 - 31/01/2016'),'Audit Log initializes its range to today');
 $report(str_contains($dashboard,"$('a[href=\"#tab_auditlog\"]').on('shown.bs.tab',load_audit_log_today_once)")&&str_contains($dashboard,'auditLogInitialTodayLoaded=true'),'Audit Log loads today once when its tab first becomes visible');
+$report(substr_count($dashboard,"text: adminText('admin.audit.result_found')")===0,'successful Audit Log loading is silent without a redundant toast');
 
 require_once $root.'/lib/config.php';
 $operation=new Database();
