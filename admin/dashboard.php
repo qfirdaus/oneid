@@ -918,7 +918,18 @@
                               <tbody>
                                  <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.user_source'), ENT_QUOTES, 'UTF-8')?></td><td><?=htmlspecialchars(oneid_translate('admin.sync.total_rows'), ENT_QUOTES, 'UTF-8')?></td><td><?=htmlspecialchars(oneid_translate('admin.sync.action_required'), ENT_QUOTES, 'UTF-8')?></td><td><?=htmlspecialchars(oneid_translate('admin.sync.status'), ENT_QUOTES, 'UTF-8')?></td></tr>
                                  <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.staff'), ENT_QUOTES, 'UTF-8')?></td><td id="external_summary_staff_rows">-</td><td id="external_summary_staff_actions">-</td><td id="external_summary_staff_status">-</td></tr>
-                                 <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.ug'), ENT_QUOTES, 'UTF-8')?></td><td id="external_summary_ug_rows">-</td><td id="external_summary_ug_actions">-</td><td id="external_summary_ug_status">-</td></tr>
+                                 <tr>
+                                    <td><?=htmlspecialchars(oneid_translate('admin.sync.ug'), ENT_QUOTES, 'UTF-8')?></td>
+                                    <td>
+                                       <span class="oneid-sync-source-value">
+                                          <span id="external_summary_ug_rows">-</span>
+                                          <button type="button" id="external_summary_ug_breakdown" class="oneid-sync-info-button" aria-label="<?=htmlspecialchars(oneid_translate('admin.sync.ug_breakdown_title'), ENT_QUOTES, 'UTF-8')?>">
+                                             <i class="fa fa-info" aria-hidden="true"></i>
+                                          </button>
+                                       </span>
+                                    </td>
+                                    <td id="external_summary_ug_actions">-</td><td id="external_summary_ug_status">-</td>
+                                 </tr>
                                  <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.odl'), ENT_QUOTES, 'UTF-8')?></td><td id="external_summary_odl_rows">-</td><td id="external_summary_odl_actions">-</td><td id="external_summary_odl_status">-</td></tr>
                               </tbody>
                            </table>
@@ -5224,6 +5235,30 @@
                .show();
          }
 
+         function oneid_ug_breakdown_text(){
+            return externalSyncText.ugBreakdownTitle + '\n'
+               + externalSyncText.ugBreakdownAsasi + ': 612\n'
+               + externalSyncText.ugBreakdownDiploma + ': 760\n'
+               + externalSyncText.ugBreakdownDegree + ': 4,285\n'
+               + externalSyncText.ugBreakdownNieed + ': 533\n'
+               + externalSyncText.ugBreakdownTotal + ': 6,190';
+         }
+
+         function activate_ug_breakdown_tooltip(selector){
+            var button = $(selector);
+            var breakdown = oneid_ug_breakdown_text();
+            button.tooltip('destroy')
+               .attr('title', breakdown)
+               .attr('aria-label', breakdown.replace(/\n/g, '. '))
+               .show()
+               .tooltip({
+                  container:'body',
+                  placement:'top',
+                  trigger:'hover focus',
+                  template:'<div class="tooltip oneid-sync-breakdown-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+               });
+         }
+
          function sync_admin_warning_text(warning){
             var messages = {
                'SOURCE_BASELINE_UNAVAILABLE': externalSyncText.warningBaseline,
@@ -5442,22 +5477,7 @@
                   var ugBreakdownButton = $('#sync_preview_ug_breakdown');
                   ugBreakdownButton.tooltip('destroy');
                   if(sourceCode === 'STUDENT_UG'){
-                     var ugBreakdown = externalSyncText.ugBreakdownTitle + '\n'
-                        + externalSyncText.ugBreakdownAsasi + ': 612\n'
-                        + externalSyncText.ugBreakdownDiploma + ': 760\n'
-                        + externalSyncText.ugBreakdownDegree + ': 4,285\n'
-                        + externalSyncText.ugBreakdownNieed + ': 533\n'
-                        + externalSyncText.ugBreakdownTotal + ': 6,190';
-                     ugBreakdownButton
-                        .attr('title', ugBreakdown)
-                        .attr('aria-label', ugBreakdown.replace(/\n/g, '. '))
-                        .show()
-                        .tooltip({
-                           container:'body',
-                           placement:'top',
-                           trigger:'hover focus',
-                           template:'<div class="tooltip oneid-sync-breakdown-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
-                        });
+                     activate_ug_breakdown_tooltip(ugBreakdownButton);
                   }else{
                      ugBreakdownButton.hide().removeAttr('title');
                   }
@@ -5837,6 +5857,7 @@
                               ? '<i class="fa fa-bell"></i> ' + externalSyncText.actionNeeded
                               : '<i class="fa fa-check-circle"></i> ' + externalSyncText.current));
                   });
+                  activate_ug_breakdown_tooltip('#external_summary_ug_breakdown');
                   $('#external_preview_admin_summary')
                      .removeClass('alert-danger alert-warning alert-success alert-info')
                      .addClass(blockedSourceCount > 0
@@ -8738,10 +8759,15 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
          box-shadow: 0 0 0 3px rgba(7, 136, 189, .15);
       }
 
+      .oneid-sync-breakdown-tooltip {
+         width: min(390px, calc(100vw - 32px));
+         max-width: min(390px, calc(100vw - 32px));
+      }
+
       .oneid-sync-breakdown-tooltip .tooltip-inner {
-         min-width: 250px;
-         max-width: min(320px, calc(100vw - 32px));
-         padding: 10px 13px;
+         width: 100%;
+         max-width: none;
+         padding: 12px 16px;
          text-align: left;
          white-space: pre-line;
          line-height: 1.55;

@@ -14,6 +14,12 @@ $checks = [
     'UG source count exposes a dedicated information control' =>
         str_contains($dashboard, 'id="sync_preview_ug_breakdown"')
         && str_contains($dashboard, 'oneid-sync-info-button'),
+    'summary UG count exposes the same information control' =>
+        str_contains($dashboard, 'id="external_summary_ug_breakdown"')
+        && str_contains(
+            $dashboard,
+            "activate_ug_breakdown_tooltip('#external_summary_ug_breakdown')"
+        ),
     'breakdown appears only for the UG source' =>
         str_contains($dashboard, "sourceCode === 'STUDENT_UG'"),
     'breakdown counts reconcile to 6190' =>
@@ -25,6 +31,8 @@ $checks = [
     'tooltip supports pointer and keyboard focus' =>
         str_contains($dashboard, "trigger:'hover focus'")
         && str_contains($dashboard, "attr('aria-label'"),
+    'tooltip provides a comfortable responsive reading width' =>
+        str_contains($dashboard, 'width: min(390px, calc(100vw - 32px))'),
     'breakdown is localized in Malay and English' =>
         str_contains($en, "'admin.sync.ug_breakdown_nieed'")
         && str_contains($ms, "'admin.sync.ug_breakdown_nieed'"),
