@@ -6,6 +6,33 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.14.0' =>
+  array (
+    'version' => '2.14.0',
+    'date' => '2026-09-21',
+    'bm' =>
+    array (
+      0 => 'Carian akaun Administrator kini menyokong padanan nama separa, nombor staf, nombor matrik dan nombor pengenalan dengan senarai padat, maksimum 10 rekod kelihatan serta scroll bagi hasil tambahan.',
+      1 => 'Hasil carian akaun memaparkan status Aktif atau Tidak Aktif secara seragam, manakala Audit Log memuatkan data tanpa toast kejayaan yang tidak diperlukan.',
+      2 => 'Audit teknikal Google Analytics 4 mendokumenkan skop integrasi, privasi, event yang sesuai, perkara yang dilarang serta cadangan rollout tanpa mengaktifkan tracking production.',
+      3 => 'Sinkronisasi pelajar UG kini menerima kesinambungan identiti yang selamat apabila IC lama hanya dipadankan dengan akaun external yang tidak aktif, tidak dilindungi dan tidak lagi dimiliki sumber aktif.',
+      4 => 'Preview dan Apply menggunakan polisi konflik identiti yang sama, semakan 6,190 rekod dilaksanakan secara berkelompok, dan akaun aktif, manual, dilindungi atau dimiliki sumber lain kekal disekat.',
+      5 => 'Jika sambungan browser atau WAF tamat masa ketika Apply sedang berjalan, UI menyemak keputusan server tanpa menghantar Apply kali kedua dan memulihkan keputusan transaksi yang telah berjaya.',
+      6 => 'Paparan sync UG dan Ringkasan Sinkronisasi menyediakan tooltip responsif bagi pecahan 612 Asasi, 760 Diploma, 4,285 Ijazah dan 533 NIEED dengan jumlah 6,190 pelajar aktif.',
+      7 => 'Regression contract baharu melindungi polisi konflik identiti, recovery selepas timeout serta tooltip dwibahasa yang boleh digunakan melalui mouse, keyboard dan peranti mudah alih.',
+    ),
+    'en' =>
+    array (
+      0 => 'Administrator account search now supports partial names, staff numbers, matric numbers and identity numbers with a compact list, up to 10 visible records and scrolling for additional results.',
+      1 => 'Account search results display consistent Active or Inactive status, while Audit Log loads data without an unnecessary success toast.',
+      2 => 'The Google Analytics 4 technical audit documents integration scope, privacy, suitable events, prohibited data and a recommended rollout without enabling production tracking.',
+      3 => 'UG student synchronization now permits safe identity succession when an old IC matches only an inactive, unprotected external account that is no longer owned by an active source.',
+      4 => 'Preview and Apply use the same identity-conflict policy, validation of 6,190 records is batched, and active, manual, protected or source-owned accounts remain blocked.',
+      5 => 'If the browser or WAF connection times out while Apply is running, the UI verifies the server result without sending Apply a second time and recovers a successfully committed transaction.',
+      6 => 'The UG synchronization and Synchronization Summary views provide a responsive tooltip showing 612 Foundation, 760 Diploma, 4,285 Degree and 533 NIEED students, totalling 6,190 active students.',
+      7 => 'New regression contracts protect the identity-conflict policy, timeout recovery and bilingual tooltip operation through mouse, keyboard and mobile devices.',
+    ),
+  ),
   'release-2.13.4' =>
   array (
     'version' => '2.13.4',

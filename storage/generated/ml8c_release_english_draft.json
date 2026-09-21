@@ -1,11 +1,66 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2134-PRODUCT-TOUR-20260916-01",
+    "authorization": "ONEID-V2140-SYNC-RESILIENCE-20260921-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.14.0",
+            "version": "2.14.0",
+            "date": "2026-09-21",
+            "items": [
+                {
+                    "identity": "release:2.14.0:item:001",
+                    "bm": "Carian akaun Administrator kini menyokong padanan nama separa, nombor staf, nombor matrik dan nombor pengenalan dengan senarai padat, maksimum 10 rekod kelihatan serta scroll bagi hasil tambahan.",
+                    "en_draft": "Administrator account search now supports partial names, staff numbers, matric numbers and identity numbers with a compact list, up to 10 visible records and scrolling for additional results.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.0:item:002",
+                    "bm": "Hasil carian akaun memaparkan status Aktif atau Tidak Aktif secara seragam, manakala Audit Log memuatkan data tanpa toast kejayaan yang tidak diperlukan.",
+                    "en_draft": "Account search results display consistent Active or Inactive status, while Audit Log loads data without an unnecessary success toast.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.0:item:003",
+                    "bm": "Audit teknikal Google Analytics 4 mendokumenkan skop integrasi, privasi, event yang sesuai, perkara yang dilarang serta cadangan rollout tanpa mengaktifkan tracking production.",
+                    "en_draft": "The Google Analytics 4 technical audit documents integration scope, privacy, suitable events, prohibited data and a recommended rollout without enabling production tracking.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.0:item:004",
+                    "bm": "Sinkronisasi pelajar UG kini menerima kesinambungan identiti yang selamat apabila IC lama hanya dipadankan dengan akaun external yang tidak aktif, tidak dilindungi dan tidak lagi dimiliki sumber aktif.",
+                    "en_draft": "UG student synchronization now permits safe identity succession when an old IC matches only an inactive, unprotected external account that is no longer owned by an active source.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.0:item:005",
+                    "bm": "Preview dan Apply menggunakan polisi konflik identiti yang sama, semakan 6,190 rekod dilaksanakan secara berkelompok, dan akaun aktif, manual, dilindungi atau dimiliki sumber lain kekal disekat.",
+                    "en_draft": "Preview and Apply use the same identity-conflict policy, validation of 6,190 records is batched, and active, manual, protected or source-owned accounts remain blocked.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.0:item:006",
+                    "bm": "Jika sambungan browser atau WAF tamat masa ketika Apply sedang berjalan, UI menyemak keputusan server tanpa menghantar Apply kali kedua dan memulihkan keputusan transaksi yang telah berjaya.",
+                    "en_draft": "If the browser or WAF connection times out while Apply is running, the UI verifies the server result without sending Apply a second time and recovers a successfully committed transaction.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.0:item:007",
+                    "bm": "Paparan sync UG dan Ringkasan Sinkronisasi menyediakan tooltip responsif bagi pecahan 612 Asasi, 760 Diploma, 4,285 Ijazah dan 533 NIEED dengan jumlah 6,190 pelajar aktif.",
+                    "en_draft": "The UG synchronization and Synchronization Summary views provide a responsive tooltip showing 612 Foundation, 760 Diploma, 4,285 Degree and 533 NIEED students, totalling 6,190 active students.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.0:item:008",
+                    "bm": "Regression contract baharu melindungi polisi konflik identiti, recovery selepas timeout serta tooltip dwibahasa yang boleh digunakan melalui mouse, keyboard dan peranti mudah alih.",
+                    "en_draft": "New regression contracts protect the identity-conflict policy, timeout recovery and bilingual tooltip operation through mouse, keyboard and mobile devices.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.13.4",
             "version": "2.13.4",
@@ -3780,5 +3835,5 @@
             ]
         }
     ],
-    "manifest_digest": "1cef7c357a2946b8dd83190536bb01957b932d4d118f14311c05f94accdd0739"
+    "manifest_digest": "64fcd91c5c05f3dae84c1b3b8958eb56dc94811f08cbe286780eff70cdd73023"
 }
