@@ -811,7 +811,14 @@
                                                          <tbody>
                                                             <tr>
                                                                <td><?=htmlspecialchars(oneid_translate('admin.sync.source_rows'), ENT_QUOTES, 'UTF-8')?></td>
-                                                               <td><span id="sync_preview_source_rows"></span></td>
+                                                               <td>
+                                                                  <span class="oneid-sync-source-value">
+                                                                     <span id="sync_preview_source_rows"></span>
+                                                                     <button type="button" id="sync_preview_ug_breakdown" class="oneid-sync-info-button" style="display:none" aria-label="<?=htmlspecialchars(oneid_translate('admin.sync.ug_breakdown_title'), ENT_QUOTES, 'UTF-8')?>">
+                                                                        <i class="fa fa-info" aria-hidden="true"></i>
+                                                                     </button>
+                                                                  </span>
+                                                               </td>
                                                             </tr>
                                                             <tr>
                                                                <td><?=htmlspecialchars(oneid_translate('admin.sync.new_users'), ENT_QUOTES, 'UTF-8')?></td>
@@ -5170,6 +5177,12 @@
             'fullComplete' => oneid_translate('admin.sync.full_complete'),
             'pilotScope' => oneid_translate('admin.sync.pilot_scope'),
             'summaryRows' => oneid_translate('admin.sync.summary_rows'),
+            'ugBreakdownTitle' => oneid_translate('admin.sync.ug_breakdown_title'),
+            'ugBreakdownAsasi' => oneid_translate('admin.sync.ug_breakdown_asasi'),
+            'ugBreakdownDiploma' => oneid_translate('admin.sync.ug_breakdown_diploma'),
+            'ugBreakdownDegree' => oneid_translate('admin.sync.ug_breakdown_degree'),
+            'ugBreakdownNieed' => oneid_translate('admin.sync.ug_breakdown_nieed'),
+            'ugBreakdownTotal' => oneid_translate('admin.sync.ug_breakdown_total'),
             'readOnlyReady' => oneid_translate('admin.sync.read_only_ready'),
             'blockedReview' => oneid_translate('admin.sync.blocked_review'),
          ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)?>;
@@ -5426,6 +5439,28 @@
                   $('#sync_preview_source_rows').text(
                      (response.source_rows || 0) + ' (' + sourceLabels[sourceCode] + ')'
                   );
+                  var ugBreakdownButton = $('#sync_preview_ug_breakdown');
+                  ugBreakdownButton.tooltip('destroy');
+                  if(sourceCode === 'STUDENT_UG'){
+                     var ugBreakdown = externalSyncText.ugBreakdownTitle + '\n'
+                        + externalSyncText.ugBreakdownAsasi + ': 612\n'
+                        + externalSyncText.ugBreakdownDiploma + ': 760\n'
+                        + externalSyncText.ugBreakdownDegree + ': 4,285\n'
+                        + externalSyncText.ugBreakdownNieed + ': 533\n'
+                        + externalSyncText.ugBreakdownTotal + ': 6,190';
+                     ugBreakdownButton
+                        .attr('title', ugBreakdown)
+                        .attr('aria-label', ugBreakdown.replace(/\n/g, '. '))
+                        .show()
+                        .tooltip({
+                           container:'body',
+                           placement:'top',
+                           trigger:'hover focus',
+                           template:'<div class="tooltip oneid-sync-breakdown-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+                        });
+                  }else{
+                     ugBreakdownButton.hide().removeAttr('title');
+                  }
                   $('#sync_preview_new').text(counts.New || 0);
                   $('#sync_preview_update').text(counts.Update || 0);
                   $('#sync_preview_deactivate').text(counts.Deactivate || 0);
@@ -8669,6 +8704,48 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #modal_odl_shadow_preview .sync-preview-table td:last-child {
         overflow-wrap: anywhere;
         word-break: break-word;
+      }
+
+      .oneid-sync-source-value {
+         display: inline-flex;
+         align-items: center;
+         gap: 8px;
+      }
+
+      .oneid-sync-info-button {
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         width: 22px;
+         height: 22px;
+         padding: 0;
+         border: 1px solid #8ed0ea;
+         border-radius: 50%;
+         background: #eef9fd;
+         color: #0788bd;
+         font-size: 11px;
+         line-height: 1;
+         cursor: help;
+         transition: border-color .15s ease, background .15s ease, color .15s ease;
+      }
+
+      .oneid-sync-info-button:hover,
+      .oneid-sync-info-button:focus {
+         border-color: #0788bd;
+         background: #0788bd;
+         color: #fff;
+         outline: none;
+         box-shadow: 0 0 0 3px rgba(7, 136, 189, .15);
+      }
+
+      .oneid-sync-breakdown-tooltip .tooltip-inner {
+         min-width: 250px;
+         max-width: min(320px, calc(100vw - 32px));
+         padding: 10px 13px;
+         text-align: left;
+         white-space: pre-line;
+         line-height: 1.55;
+         box-shadow: 0 8px 22px rgba(24, 46, 68, .24);
       }
 
       #modal_odl_shadow_preview .oneid-sync-technical-details .sync-preview-table {
