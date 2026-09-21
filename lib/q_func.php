@@ -1546,6 +1546,8 @@ function string_sanitize($s) {
                     $subsetSelector
                 );
                 $previewResponse['source_code'] = $syncScope->sourceCode;
+                $previewResponse['recovery_checkpoint'] =
+                    $operation->sync_latest_source_header_id($syncScope->sourceCode);
                 $previewResponse['pilot_apply_available'] = $pilotConfig->enabled
                     && $runtimeConfig->canApply()
                     && ($previewResponse['approval_ready'] ?? false) === true;
@@ -1669,6 +1671,44 @@ function string_sanitize($s) {
                     'code' => 'PREVIEW_FAILED',
                     'msg' => 'External sync preview could not be generated safely.',
                     'correlation_id' => $correlationId,
+                ]);
+            }
+      }
+
+      if(isset($_POST['admin_get_sync_apply_status'])){
+            try{
+                $sourceCode=trim((string)($_POST['sync_source_code']??''));
+                \OneId\App\Sync\SyncSourceScope::fromCode($sourceCode);
+                $checkpoint=filter_var(
+                    $_POST['recovery_checkpoint']??null,
+                    FILTER_VALIDATE_INT,
+                    ['options'=>['min_range'=>0]]
+                );
+                if($checkpoint===false)throw new \RuntimeException('SYNC_RECOVERY_CONTEXT_INVALID');
+                $result=$operation->sync_completed_source_result_after(
+                    $sourceCode,(int)$checkpoint,(string)($_SESSION['login_user']??'')
+                );
+                if($result===false){
+                    echo json_encode(['status'=>1,'state'=>'PENDING']);
+                    return;
+                }
+                echo json_encode([
+                    'status'=>1,'state'=>'COMPLETED',
+                    'header_id'=>(int)$result['ext_head_id'],
+                    'source_code'=>$sourceCode,
+                    'counts'=>[
+                        'New'=>(int)$result['total_new'],
+                        'Update'=>(int)$result['total_updated'],
+                        'Deactivate'=>(int)$result['total_deactivated'],
+                        'Reactivate'=>(int)$result['total_reactivated'],
+                    ],
+                ]);
+            }catch(\Throwable $exception){
+                echo json_encode([
+                    'status'=>0,'state'=>'UNCONFIRMED',
+                    'code'=>in_array($exception->getMessage(),[
+                        'SYNC_SOURCE_INVALID','SYNC_RECOVERY_CONTEXT_INVALID'
+                    ],true)?$exception->getMessage():'SYNC_RECOVERY_CHECK_FAILED',
                 ]);
             }
       }

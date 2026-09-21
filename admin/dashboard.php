@@ -5121,6 +5121,9 @@
             'success' => oneid_translate('admin.sync.success'),
             'notApplied' => oneid_translate('admin.sync.not_applied'),
             'requestFailed' => oneid_translate('admin.sync.request_failed'),
+            'verifyingResult' => oneid_translate('admin.sync.verifying_result'),
+            'recoveredSuccess' => oneid_translate('admin.sync.recovered_success'),
+            'resultUnconfirmed' => oneid_translate('admin.sync.result_unconfirmed'),
             'auditWarning' => oneid_translate('admin.sync.audit_warning'),
             'freshPreview' => oneid_translate('admin.sync.fresh_preview'),
             'technicalReference' => oneid_translate('admin.sync.technical_reference'),
@@ -5305,6 +5308,83 @@
             var fullConfirmation = '';
             var operationalApprovalId = '';
             var operationalConfirmation = '';
+            var recoveryCheckpoint = 0;
+            var recoverApplyResult = function(button, onCompleted){
+               var attempts = 0;
+               var verify = function(){
+                  attempts++;
+                  $.ajax({
+                     type: 'POST',
+                     url: '../lib/q_func',
+                     dataType: 'json',
+                     data: {
+                        admin_get_sync_apply_status: '',
+                        sync_source_code: sourceCode,
+                        recovery_checkpoint: recoveryCheckpoint
+                     },
+                     success: function(result){
+                        if(result && result.status === 1 && result.state === 'COMPLETED'){
+                           onCompleted(result);
+                           return;
+                        }
+                        if(attempts < 24){
+                           window.setTimeout(verify, 5000);
+                           return;
+                        }
+                        button.hide();
+                        $('#sync_full_confirmation_group').hide();
+                        oneidToast(
+                           externalSyncText.requestFailed,
+                           externalSyncText.resultUnconfirmed,
+                           'warning',
+                           {hideAfter: 12000}
+                        );
+                     },
+                     error: function(){
+                        if(attempts < 24){
+                           window.setTimeout(verify, 5000);
+                           return;
+                        }
+                        button.hide();
+                        $('#sync_full_confirmation_group').hide();
+                        oneidToast(
+                           externalSyncText.requestFailed,
+                           externalSyncText.resultUnconfirmed,
+                           'warning',
+                           {hideAfter: 12000}
+                        );
+                     }
+                  });
+               };
+               button.prop('disabled', true).text(externalSyncText.verifyingResult);
+               oneidToast(
+                  externalSyncText.verifyingResult,
+                  externalSyncText.resultUnconfirmed,
+                  'warning',
+                  {hideAfter: 7000}
+               );
+               verify();
+            };
+            var showRecoveredApply = function(result, button){
+               pilotApprovalId = '';
+               fullApprovalId = '';
+               operationalApprovalId = '';
+               button.hide();
+               $('#sync_full_confirmation_group').hide();
+               var applied = result.counts || {};
+               oneidToast(
+                  externalSyncText.success,
+                  externalSyncText.recoveredSuccess + ' '
+                     + externalSyncText.reference + ' ' + result.header_id + '; '
+                     + externalSyncText.newLabel + '=' + (applied.New || 0) + ', '
+                     + externalSyncText.updateLabel + '=' + (applied.Update || 0) + ', '
+                     + externalSyncText.deactivateLabel + '=' + (applied.Deactivate || 0) + ', '
+                     + externalSyncText.reactivateLabel + '=' + (applied.Reactivate || 0) + '.',
+                  'success',
+                  {hideAfter: 12000}
+               );
+               refresh_external_sync_child_after_apply(sourceCode);
+            };
             $.ajax({
                type: 'POST',
                url: '../lib/q_func',
@@ -5336,6 +5416,7 @@
                      return;
                   }
                   var counts = response.counts || {};
+                  recoveryCheckpoint = Number(response.recovery_checkpoint || 0);
                   var pilotCounts = response.pilot_counts || {};
                   var safetyMetrics = response.safety_metrics || {};
                   var totalChanges = Number(counts.New || 0)
@@ -5491,9 +5572,9 @@
                            }
                         },
                         error: function(){
-                           pilotApprovalId = '';
-                           button.hide();
-                           oneidToast(externalSyncText.requestFailed, externalSyncText.freshPreview, 'error');
+                           recoverApplyResult(button, function(result){
+                              showRecoveredApply(result, button);
+                           });
                         }
                      });
                         }
@@ -5539,10 +5620,9 @@
                                  }
                               },
                               error: function(){
-                                 fullApprovalId = '';
-                                 button.hide();
-                                 $('#sync_full_confirmation_group').hide();
-                                 oneidToast(externalSyncText.requestFailed, externalSyncText.failureHelp, 'error', {hideAfter: 8000});
+                                 recoverApplyResult(button, function(result){
+                                    showRecoveredApply(result, button);
+                                 });
                               }
                            });
                         }
@@ -5588,10 +5668,9 @@
                                  }
                               },
                               error: function(){
-                                 operationalApprovalId = '';
-                                 button.hide();
-                                 $('#sync_full_confirmation_group').hide();
-                                 oneidToast(externalSyncText.requestFailed, externalSyncText.failureHelp, 'error', {hideAfter: 8000});
+                                 recoverApplyResult(button, function(result){
+                                    showRecoveredApply(result, button);
+                                 });
                               }
                            });
                         }

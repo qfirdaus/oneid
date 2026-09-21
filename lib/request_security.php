@@ -180,6 +180,7 @@ function oneid_q_func_action_map(): array
             'admin_rotate_site_api_code',
             'admin_search_user_account',
             'admin_preview_sync_user',
+            'admin_get_sync_apply_status',
             'admin_preview_odl_shadow',
             'admin_add_sync_user',
             'admin_apply_full_sync',

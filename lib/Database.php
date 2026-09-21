@@ -469,6 +469,42 @@ class Database {
         return $value === false ? null : (int) $value;
     }
 
+    public function sync_latest_source_header_id(string $sourceCode):int{
+        if (!in_array($sourceCode, ['STAFF_HR','STUDENT_UG','STUDENT_ODL_PG'], true)) {
+            throw new InvalidArgumentException('SYNC_SOURCE_INVALID');
+        }
+        $R=$this->pdo->prepare(
+            "SELECT COALESCE(MAX(ext_head_id),0) FROM ext_data_temp_header
+             WHERE source_code=:source_code"
+        );
+        $R->execute([':source_code'=>$sourceCode]);
+        return(int)$R->fetchColumn();
+    }
+
+    public function sync_completed_source_result_after(
+        string $sourceCode,int $afterHeaderId,string $triggeredBy
+    ):array|false{
+        if (!in_array($sourceCode, ['STAFF_HR','STUDENT_UG','STUDENT_ODL_PG'], true)
+            ||$afterHeaderId<0||trim($triggeredBy)===''
+        )throw new InvalidArgumentException('SYNC_RECOVERY_CONTEXT_INVALID');
+        $R=$this->pdo->prepare(
+            "SELECT ext_head_id,ext_head_status,
+                    COALESCE(total_new,0) AS total_new,
+                    COALESCE(total_updated,0) AS total_updated,
+                    COALESCE(total_deactivated,0) AS total_deactivated,
+                    COALESCE(total_reactivated,0) AS total_reactivated
+             FROM ext_data_temp_header
+             WHERE source_code=:source_code AND ext_head_id>:after_header_id
+               AND triggered_by=:triggered_by AND ext_head_status IN(2,4)
+             ORDER BY ext_head_id DESC LIMIT 1"
+        );
+        $R->execute([
+            ':source_code'=>$sourceCode,':after_header_id'=>$afterHeaderId,
+            ':triggered_by'=>$triggeredBy,
+        ]);
+        return$R->fetch(PDO::FETCH_ASSOC);
+    }
+
 
 
     public function admin_update_ext_header_status($ext_head_id,$status,$data_header,$data_count){
