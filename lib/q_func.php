@@ -1516,7 +1516,7 @@ function string_sanitize($s) {
                     new \OneId\App\Sync\SyncSafetyPolicy(
                         requiredSourceCode: $syncScope->sourceCode
                     ),
-                    $isOdlOperational
+                    $syncScope->provenanceEnforced
                         ? fn(array $rows) =>
                             $operation->sync_assert_source_snapshot_isolated(
                                 $rows,
@@ -2080,6 +2080,8 @@ function string_sanitize($s) {
                     'SYNC_ALREADY_RUNNING',
                     'SYNC_SAFETY_BLOCKED',
                     'SYNC_RECONCILIATION_MISMATCH',
+                    'SYNC_CROSS_SOURCE_IDENTITY_COLLISION',
+                    'SYNC_SOURCE_MEMBERSHIP_CONFLICT',
                     'SYNC_SOURCE_INVALID',
                     'SYNC_SOURCE_BASELINE_INVALID',
                 ];

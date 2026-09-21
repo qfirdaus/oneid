@@ -26,6 +26,7 @@ foreach ([
     'app/Sync/SyncSafetyPolicy.php',
     'app/Sync/SyncSafetyViolation.php',
     'app/Sync/SyncDatabaseStageException.php',
+    'app/Sync/SourceIdentityCollisionPolicy.php',
     'app/Sync/SyncReconciler.php',
     'app/Sync/SyncPlanFingerprinter.php',
     'app/Sync/SyncApprovalService.php',

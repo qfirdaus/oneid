@@ -59,7 +59,7 @@ final class ConditionalSyncCronRunner
             300,
             5.0,
             new SyncSafetyPolicy(requiredSourceCode: $sourceCode),
-            $sourceCode === OdlStudentSource::SOURCE_CODE
+            $scope->provenanceEnforced
                 ? fn(array $rows) => $this->operation->sync_assert_source_snapshot_isolated($rows, $sourceCode)
                 : null
         ))->previewForApproval(

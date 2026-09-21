@@ -592,8 +592,9 @@ class Database {
     ){
         $normalizedIdentity=preg_replace('/[\\s\\p{Pd}]+/u','',trim($identityNumber))
             ?:trim($identityNumber);
-        $Q = "SELECT u.u_id,
-                     SUM(i.source_code=:source_code) AS same_source
+        $Q = "SELECT u.u_id,u.avail_status,u.account_source,u.sync_protected,
+                     MAX(i.source_code=:source_code) AS same_source,
+                     MAX(COALESCE(i.source_active,0)) AS active_membership
               FROM user_tbl u
               LEFT JOIN user_external_identity i ON i.u_id=u.u_id
               WHERE u.u_id=:u_id
@@ -608,9 +609,8 @@ class Database {
             ':identity_value'=>$normalizedIdentity,
         ]);
         foreach($R->fetchAll(PDO::FETCH_ASSOC) as$row){
-            if((int)$row['same_source']<1){
-                throw new RuntimeException('SYNC_CROSS_SOURCE_IDENTITY_COLLISION');
-            }
+            if(\OneId\App\Sync\SourceIdentityCollisionPolicy::permits($userId,$row))continue;
+            throw new RuntimeException('SYNC_CROSS_SOURCE_IDENTITY_COLLISION');
         }
         $Q = "SELECT u_id FROM user_external_identity
               WHERE source_code=:source_code AND external_user_id=:external_user_id
@@ -627,41 +627,68 @@ class Database {
     }
 
     public function sync_assert_source_snapshot_isolated(array $rows,string $sourceCode){
-        $identityQuery=$this->pdo->prepare(
-             "SELECT COUNT(*) FROM user_tbl u
-             WHERE (u.u_id=:u_id OR
-                    (:identity_nonempty<>'' AND
-                     REPLACE(REPLACE(TRIM(u.data2),'-',''),' ','')=:identity_value))
-               AND NOT EXISTS(
-                   SELECT 1 FROM user_external_identity i
-                   WHERE i.u_id=u.u_id AND i.source_code=:source_code
-               )"
-        );
-        $membershipQuery=$this->pdo->prepare(
-            "SELECT u_id FROM user_external_identity
-             WHERE source_code=:source_code AND external_user_id=:external_user_id"
-        );
-        foreach($rows as$row){
-            $userId=trim((string)($row['data4']??''));
-            $identity=preg_replace(
-                '/[\\s\\p{Pd}]+/u','',trim((string)($row['data2']??''))
-            )?:trim((string)($row['data2']??''));
-            $identityQuery->execute([
-                ':u_id'=>$userId,
-                ':identity_nonempty'=>$identity,
-                ':identity_value'=>$identity,
-                ':source_code'=>$sourceCode,
-            ]);
-            if((int)$identityQuery->fetchColumn()>0){
-                throw new RuntimeException('SYNC_CROSS_SOURCE_IDENTITY_COLLISION');
+        foreach(array_chunk($rows,250)as$chunk){
+            $users=[];$identities=[];
+            foreach($chunk as$row){
+                $userId=trim((string)($row['data4']??''));
+                $identity=preg_replace(
+                    '/[\\s\\p{Pd}]+/u','',trim((string)($row['data2']??''))
+                )?:trim((string)($row['data2']??''));
+                if($userId!=='')$users[$userId]=true;
+                if($identity!=='')$identities[$identity][$userId]=true;
             }
-            $membershipQuery->execute([
-                ':source_code'=>$sourceCode,
-                ':external_user_id'=>$userId,
-            ]);
-            $owner=$membershipQuery->fetchColumn();
-            if($owner!==false&&!hash_equals((string)$owner,$userId)){
-                throw new RuntimeException('SYNC_SOURCE_MEMBERSHIP_CONFLICT');
+            if($users===[])continue;
+
+            $params=[':source_code'=>$sourceCode];$uidTokens=[];$identityTokens=[];
+            foreach(array_keys($users)as$index=>$userId){
+                $token=':snapshot_uid_'.$index;$uidTokens[]=$token;$params[$token]=$userId;
+            }
+            foreach(array_keys($identities)as$index=>$identity){
+                $token=':snapshot_identity_'.$index;
+                $identityTokens[]=$token;$params[$token]=$identity;
+            }
+            $identityClause=$identityTokens===[]?'':
+                " OR REPLACE(REPLACE(TRIM(u.data2),'-',''),' ','') IN (".
+                implode(',',$identityTokens).')';
+            $Q="SELECT u.u_id,u.avail_status,u.account_source,u.sync_protected,
+                       REPLACE(REPLACE(TRIM(u.data2),'-',''),' ','') AS normalized_identity,
+                       MAX(i.source_code=:source_code) AS same_source,
+                       MAX(COALESCE(i.source_active,0)) AS active_membership
+                FROM user_tbl u
+                LEFT JOIN user_external_identity i ON i.u_id=u.u_id
+                WHERE u.u_id IN (".implode(',',$uidTokens)."){$identityClause}
+                GROUP BY u.u_id";
+            $R=$this->pdo->prepare($Q);$R->execute($params);
+            foreach($R->fetchAll(PDO::FETCH_ASSOC)as$match){
+                $matchedUser=(string)$match['u_id'];
+                if(isset($users[$matchedUser])
+                    &&!\OneId\App\Sync\SourceIdentityCollisionPolicy::permits(
+                        $matchedUser,$match
+                    )
+                )throw new RuntimeException('SYNC_CROSS_SOURCE_IDENTITY_COLLISION');
+                $matchedIdentity=(string)($match['normalized_identity']??'');
+                foreach(array_keys($identities[$matchedIdentity]??[])as$requestedUser){
+                    if(!\OneId\App\Sync\SourceIdentityCollisionPolicy::permits(
+                        (string)$requestedUser,$match
+                    ))throw new RuntimeException('SYNC_CROSS_SOURCE_IDENTITY_COLLISION');
+                }
+            }
+
+            $membershipParams=[':source_code'=>$sourceCode];$membershipTokens=[];
+            foreach(array_keys($users)as$index=>$userId){
+                $token=':membership_uid_'.$index;
+                $membershipTokens[]=$token;$membershipParams[$token]=$userId;
+            }
+            $R=$this->pdo->prepare(
+                "SELECT u_id,external_user_id FROM user_external_identity
+                 WHERE source_code=:source_code
+                   AND external_user_id IN (".implode(',',$membershipTokens).')'
+            );
+            $R->execute($membershipParams);
+            foreach($R->fetchAll(PDO::FETCH_ASSOC)as$membership){
+                if(!hash_equals(
+                    (string)$membership['u_id'],(string)$membership['external_user_id']
+                ))throw new RuntimeException('SYNC_SOURCE_MEMBERSHIP_CONFLICT');
             }
         }
     }
