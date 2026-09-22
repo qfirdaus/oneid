@@ -81,6 +81,7 @@ final class OdlShadowPreviewService
             UgStudentSource::SOURCE_CODE => count($ugSnapshot->rows),
             OdlStudentSource::SOURCE_CODE => count($odlSnapshot->rows),
         ];
+        $safe['ug_breakdown'] = UgStudentBreakdown::fromRows($ugSnapshot->rows);
         $safe['preview_digest'] = hash(
             'sha256',
             json_encode($safe, JSON_UNESCAPED_SLASHES) ?: ''

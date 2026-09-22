@@ -965,6 +965,7 @@ return [
     'admin.sync.ug_breakdown_diploma' => 'Diploma',
     'admin.sync.ug_breakdown_degree' => 'Ijazah',
     'admin.sync.ug_breakdown_nieed' => 'NIEED (nombor matrik bermula dengan 8)',
+    'admin.sync.ug_breakdown_other' => 'Lain-lain',
     'admin.sync.ug_breakdown_total' => 'Jumlah',
     'admin.sync.new_users' => 'Pengguna baharu:',
     'admin.sync.update_users' => 'Maklumat perlu dikemas kini:',

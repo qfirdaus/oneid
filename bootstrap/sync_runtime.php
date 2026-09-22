@@ -63,6 +63,7 @@ foreach ([
     'app/Sync/Odl/OdlStudentSource.php',
     'app/Sync/Odl/OdlShadowPreviewConfig.php',
     'app/Sync/Odl/UgStudentSource.php',
+    'app/Sync/Odl/UgStudentBreakdown.php',
     'app/Sync/Odl/StaffSource.php',
     'app/Sync/Odl/OdlShadowPreviewReader.php',
     'app/Sync/Odl/OdlShadowPreviewService.php',

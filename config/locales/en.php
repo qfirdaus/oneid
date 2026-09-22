@@ -965,6 +965,7 @@ return [
     'admin.sync.ug_breakdown_diploma' => 'Diploma',
     'admin.sync.ug_breakdown_degree' => 'Degree',
     'admin.sync.ug_breakdown_nieed' => 'NIEED (matric number starts with 8)',
+    'admin.sync.ug_breakdown_other' => 'Other',
     'admin.sync.ug_breakdown_total' => 'Total',
     'admin.sync.new_users' => 'New users:',
     'admin.sync.update_users' => 'Information to update:',

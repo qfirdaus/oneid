@@ -152,7 +152,7 @@ final class SyncPreviewService
         $generatedAt = new DateTimeImmutable('now', $timezone);
         $expiresAt = $generatedAt->modify('+' . max(1, $this->expirySeconds) . ' seconds');
 
-        return [
+        $response = [
             'status' => 1,
             'mode' => 'preview',
             'can_apply' => false,
@@ -172,5 +172,10 @@ final class SyncPreviewService
             // Digests only. Raw IDs, names, emails and source rows are never returned.
             'sample' => array_slice($plan->safeProjection(), 0, 20),
         ];
+        if ($this->source instanceof \OneId\App\Sync\Odl\UgStudentSource) {
+            $response['ug_breakdown'] =
+                \OneId\App\Sync\Odl\UgStudentBreakdown::fromRows($externalRows);
+        }
+        return $response;
     }
 }

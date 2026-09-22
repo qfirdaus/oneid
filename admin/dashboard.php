@@ -5215,6 +5215,7 @@
             'ugBreakdownDiploma' => oneid_translate('admin.sync.ug_breakdown_diploma'),
             'ugBreakdownDegree' => oneid_translate('admin.sync.ug_breakdown_degree'),
             'ugBreakdownNieed' => oneid_translate('admin.sync.ug_breakdown_nieed'),
+            'ugBreakdownOther' => oneid_translate('admin.sync.ug_breakdown_other'),
             'ugBreakdownTotal' => oneid_translate('admin.sync.ug_breakdown_total'),
             'readOnlyReady' => oneid_translate('admin.sync.read_only_ready'),
             'blockedReview' => oneid_translate('admin.sync.blocked_review'),
@@ -5257,18 +5258,31 @@
                .show();
          }
 
-         function oneid_ug_breakdown_text(){
-            return externalSyncText.ugBreakdownTitle + '\n'
-               + externalSyncText.ugBreakdownAsasi + ': 612\n'
-               + externalSyncText.ugBreakdownDiploma + ': 760\n'
-               + externalSyncText.ugBreakdownDegree + ': 4,285\n'
-               + externalSyncText.ugBreakdownNieed + ': 533\n'
-               + externalSyncText.ugBreakdownTotal + ': 6,190';
+         function oneid_ug_breakdown_text(counts){
+            var number = function(value){
+               return Number(value || 0).toLocaleString('en-US');
+            };
+            var lines = [
+               externalSyncText.ugBreakdownTitle,
+               externalSyncText.ugBreakdownAsasi + ': ' + number(counts.asasi),
+               externalSyncText.ugBreakdownDiploma + ': ' + number(counts.diploma),
+               externalSyncText.ugBreakdownDegree + ': ' + number(counts.degree),
+               externalSyncText.ugBreakdownNieed + ': ' + number(counts.nieed)
+            ];
+            if(Number(counts.other || 0) > 0){
+               lines.push(externalSyncText.ugBreakdownOther + ': ' + number(counts.other));
+            }
+            lines.push(externalSyncText.ugBreakdownTotal + ': ' + number(counts.total));
+            return lines.join('\n');
          }
 
-         function activate_ug_breakdown_tooltip(selector){
+         function activate_ug_breakdown_tooltip(selector, counts){
             var button = $(selector);
-            var breakdown = oneid_ug_breakdown_text();
+            if(!counts || Number(counts.total || 0) < 1){
+               button.tooltip('destroy').hide().removeAttr('title aria-label');
+               return;
+            }
+            var breakdown = oneid_ug_breakdown_text(counts);
             button.tooltip('destroy')
                .attr('title', breakdown)
                .attr('aria-label', breakdown.replace(/\n/g, '. '))
@@ -5499,7 +5513,7 @@
                   var ugBreakdownButton = $('#sync_preview_ug_breakdown');
                   ugBreakdownButton.tooltip('destroy');
                   if(sourceCode === 'STUDENT_UG'){
-                     activate_ug_breakdown_tooltip(ugBreakdownButton);
+                     activate_ug_breakdown_tooltip(ugBreakdownButton, response.ug_breakdown);
                   }else{
                      ugBreakdownButton.hide().removeAttr('title');
                   }
@@ -5879,7 +5893,10 @@
                               ? '<i class="fa fa-bell"></i> ' + externalSyncText.actionNeeded
                               : '<i class="fa fa-check-circle"></i> ' + externalSyncText.current));
                   });
-                  activate_ug_breakdown_tooltip('#external_summary_ug_breakdown');
+                  activate_ug_breakdown_tooltip(
+                     '#external_summary_ug_breakdown',
+                     response.ug_breakdown
+                  );
                   $('#external_preview_admin_summary')
                      .removeClass('alert-danger alert-warning alert-success alert-info')
                      .addClass(blockedSourceCount > 0
