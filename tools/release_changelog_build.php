@@ -49,7 +49,7 @@ foreach ($source as $releaseIndex => $release) {
 
 $payload = [
     'schema' => 'oneid.release-catalogue.v2',
-    'authorization' => 'ONEID-V2140-SYNC-RESILIENCE-20260921-01',
+    'authorization' => 'ONEID-V2141-HISTORICAL-SEARCH-20260922-01',
     'source_locale' => 'ms',
     'target_locale' => 'en',
     'approval_status' => 'APPROVED',

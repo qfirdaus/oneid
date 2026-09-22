@@ -6,6 +6,33 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.14.1' =>
+  array (
+    'version' => '2.14.1',
+    'date' => '2026-09-22',
+    'bm' =>
+    array (
+      0 => 'Carian Akaun Pengguna kini memaparkan akaun aktif sahaja secara lalai supaya rekod sejarah tidak mengelirukan Administrator.',
+      1 => 'Pilihan Tunjukkan rekod lama membolehkan Administrator melihat akaun tidak aktif secara terkawal apabila semakan sejarah diperlukan.',
+      2 => 'Rekod lama membezakan ID lama, nombor matrik dan akaun aktif pengganti dengan penerangan bahawa rekod itu tidak lagi mempunyai akses aktif.',
+      3 => 'Badge Aktif dan Rekod lama menggunakan saiz, kedudukan dan warna yang seragam supaya status akaun mudah dikenal pasti.',
+      4 => 'Nama, butiran akaun dan badge status menggunakan kolum tetap yang top-aligned untuk memastikan setiap baris kekal kemas.',
+      5 => 'Kolum nama dikecilkan kepada 90 hingga 120 piksel dengan ellipsis bagi nama panjang supaya butiran bermula lebih dekat tanpa ruang kosong berlebihan.',
+      6 => 'Susun atur responsif mengekalkan tiga kolum pada paparan biasa dan hanya menyusun semula butiran pada skrin mudah alih yang sangat kecil.',
+      7 => 'Regression contract melindungi penapisan akaun aktif, opt-in rekod lama, pautan akaun pengganti dan alignment hasil carian.',
+    ),
+    'en' =>
+    array (
+      0 => 'User Account search now shows active accounts by default so historical records do not confuse Administrators.',
+      1 => 'A Show historical records option lets Administrators reveal inactive accounts in a controlled manner when historical review is required.',
+      2 => 'Historical records distinguish the old ID, student ID and replacement active account, with guidance that the record no longer has active access.',
+      3 => 'Active and Historical badges use consistent sizing, positioning and colours so account status is easy to identify.',
+      4 => 'Names, account details and status badges use fixed top-aligned columns to keep every result row orderly.',
+      5 => 'The name column is reduced to 90–120 pixels with ellipsis for long names so details begin closer without excessive empty space.',
+      6 => 'The responsive layout retains three columns on regular displays and rearranges details only on very small mobile screens.',
+      7 => 'A regression contract protects active-account filtering, historical opt-in, replacement-account linking and search-result alignment.',
+    ),
+  ),
   'release-2.14.0' =>
   array (
     'version' => '2.14.0',
