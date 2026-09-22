@@ -1404,6 +1404,10 @@
                                                             </button>
                                                             <img class="Typeahead-spinner" src="../img/Spinner-1s-51px.gif" alt="Searching" hidden>
                                                          </div>
+                                                         <label class="user-search-history-toggle" for="search_user_include_inactive">
+                                                            <input type="checkbox" id="search_user_include_inactive" value="1">
+                                                            <span><?=htmlspecialchars(oneid_translate('admin.users.show_historical'), ENT_QUOTES, 'UTF-8')?></span>
+                                                         </label>
 
                                                          <div id="search_user_account_main_progress_bar" class="user-search-state is-loading">
                                                             <span><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>
@@ -2232,6 +2236,11 @@
             'appStagingOnly' => oneid_translate('admin.apps.staging_only'),
             'userStatusActive' => oneid_translate('admin.users.status_active'),
             'userStatusInactive' => oneid_translate('admin.users.status_inactive'),
+            'userHistoricalRecord' => oneid_translate('admin.users.historical_record'),
+            'userLegacyId' => oneid_translate('admin.users.legacy_id'),
+            'userStudentId' => oneid_translate('admin.users.student_id'),
+            'userReplacedBy' => oneid_translate('admin.users.replaced_by'),
+            'userHistoricalHelp' => oneid_translate('admin.users.historical_help'),
          ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
          function localizedResponseMessage(response,fallback){
             if(response&&typeof response.localized_msg==='string'&&response.localized_msg.trim()!==''){
@@ -2741,7 +2750,7 @@
                var requestSequence=++adminUserSearchSequence;
                if(adminUserSearchRequest){adminUserSearchRequest.abort();}
                adminUserSearchRequest=$.ajax({
-                  type:'POST',url:'../lib/q_func',dataType:'json',data:{admin_search_keyword_user:'',search_key:keyword},
+                  type:'POST',url:'../lib/q_func',dataType:'json',data:{admin_search_keyword_user:'',search_key:keyword,include_inactive:$('#search_user_include_inactive').is(':checked')?1:0},
                   success:function(response){if(requestSequence===adminUserSearchSequence){asyncprocess(Array.isArray(response)?response:[]);}},
                   error:function(xhr,error){if(error!=='abort'&&requestSequence===adminUserSearchSequence){asyncprocess([{_search_error:true,data1:adminText('admin.users.search_failed')}]);}},
                   complete:function(){if(requestSequence===adminUserSearchSequence){adminUserSearchRequest=null;}}
@@ -2753,17 +2762,29 @@
                   if(name._search_error){return '<p class="user-search-suggestion is-error"><strong>'+adminUserSearchText(name.data1)+'</strong></p>';}
                   var displayName=String(name.data1||'').trim()!==''?adminUserSearchText(name.data1):'';
                   var publicId=adminUserPublicId(name);
-                  var idHtml=publicId!==''?'<small class="user-search-suggestion-id">'+adminUserSearchText(publicId)+'</small>':'';
+                  var active=Number(name.avail_status)===1;
+                  var legacyId=adminUserSearchText(name.u_id);
+                  var studentId=adminUserSearchText(String(name.data4||'').trim());
+                  var idHtml=active
+                     ?(publicId!==''?'<small class="user-search-suggestion-id">'+adminUserSearchText(publicId)+'</small>':'')
+                     :'<small class="user-search-suggestion-id">'+adminUserSearchText(adminI18n.userLegacyId)+': '+legacyId+'</small>'+(studentId!==''?'<small>'+adminUserSearchText(adminI18n.userStudentId)+': '+studentId+'</small>':'');
                   var unitHtml=String(name.data6||'').trim()!==''?'<small class="user-search-suggestion-unit">'+adminUserSearchText(name.data6)+'</small>':'';
-                  var active=String(name.avail_status)!=='0';
-                  var statusHtml='<span class="user-search-suggestion-status '+(active?'is-active':'is-inactive')+'">'+adminUserSearchText(active?adminI18n.userStatusActive:adminI18n.userStatusInactive)+'</span>';
-                  return '<p class="user-search-suggestion"><strong>'+displayName+'</strong><span>'+idHtml+unitHtml+'</span>'+statusHtml+'</p>';
+                  var replacement=String(name.replacement_u_id||'').trim();
+                  var historyHtml=!active&&replacement!==''?'<small class="user-search-suggestion-history">'+adminUserSearchText(adminI18n.userReplacedBy)+': '+adminUserSearchText(replacement)+'</small>':'';
+                  var statusHtml='<span class="user-search-suggestion-status '+(active?'is-active':'is-historical')+'">'+adminUserSearchText(active?adminI18n.userStatusActive:adminI18n.userHistoricalRecord)+'</span>';
+                  return '<p class="user-search-suggestion'+(active?'':' is-historical')+'"><strong>'+displayName+'</strong><span>'+idHtml+unitHtml+historyHtml+'</span>'+statusHtml+'</p>';
                }
             },display:function(name){return name.data1;}
          }).on('typeahead:asyncrequest', function() {
          $('.Typeahead-spinner').show();
          }).on('typeahead:asynccancel typeahead:asyncreceive', function() {
          $('.Typeahead-spinner').hide();
+         });
+
+         $('#search_user_include_inactive').on('change',function(){
+            var current=String($('#search_user_input').typeahead('val')||'');
+            $('#search_user_input').typeahead('val','');
+            if(current.length>=3){$('#search_user_input').typeahead('val',current).focus();}
          });
          
          $('#the-basics .typeahead').bind('typeahead:select', function(ev, suggestion) {
@@ -3743,8 +3764,9 @@
 						tr += '<div class="user-result-card"><div class="user-result-profile"><span class="user-result-avatar"><i class="fa fa-user" aria-hidden="true"></i></span><div><strong title="'+resultName+'">'+resultName+'</strong><small>Category: '+resultCategory+'</small>';
            			switch(response['source']){
          				case "1": //reg
-         				if(response['avail_status']=="0"){
-							tr += '<span class="user-result-status is-removed">Removed</span>';
+						if(response['avail_status']=="0"){
+							tr += '<span class="user-result-status is-removed">'+searchText(adminI18n.userHistoricalRecord)+'</span>';
+							tr += '<small class="user-result-history-help">'+searchText(adminI18n.userHistoricalHelp)+'</small>';
          
          				}else{
 							tr += '<span class="user-result-status is-registered">Registered</span>';
@@ -4704,7 +4726,7 @@
                      }
                      $('#modal_user_profile_user_id').val(response['u_id']);
                      if(response['avail_status']=="0"){
-                        $('#modal_user_profile_status').html('<div class="alert alert-danger alert-dismissable mt-10">Status : Removed</div></div>');
+                        $('#modal_user_profile_status').html('<div class="alert alert-warning mt-10"><strong>'+adminUserSearchText(adminI18n.userHistoricalRecord)+'</strong><br><small>'+adminUserSearchText(adminI18n.userHistoricalHelp)+'</small></div>');
                         $('.user_info_btn').hide();
                         $('.user_info_btn_reactivate').show();
                         $(".modal_user_profile_input_enable").prop('disabled', true);
@@ -9101,7 +9123,14 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #tab_user .user-search-suggestion>.user-search-suggestion-status{align-items:center;border-radius:999px;display:inline-flex;flex:0 0 82px;font-size:9px;font-weight:800;height:22px;justify-content:center;margin-left:auto;max-width:82px;min-width:82px;padding:0 7px;text-align:center;text-transform:uppercase;white-space:nowrap;width:82px}
       #tab_user .user-search-suggestion-status.is-active{background:#e4f7eb;color:#20834a}
       #tab_user .user-search-suggestion-status.is-inactive{background:#fff0ed;color:#b94a3f}
+      #tab_user .user-search-suggestion-status.is-historical{background:#eef1f4;color:#596875}
+      #tab_user .user-search-suggestion.is-historical{background:#fafbfc}
+      #tab_user .user-search-suggestion.is-historical>span{flex-wrap:wrap;row-gap:1px}
+      #tab_user .user-search-suggestion-history{color:#596875!important;flex-basis:100%;font-style:italic}
       #tab_user .user-search-suggestion.is-error{display:block;color:#b94a3f}
+
+      #tab_user .user-search-history-toggle{align-items:center;color:#596875;display:inline-flex;font-size:11px;font-weight:600;gap:7px;margin:9px 0 0 2px;user-select:none}
+      #tab_user .user-search-history-toggle input{accent-color:#119dcc;margin:0}
 
       #tab_user .user-search-input-wrap .tt-suggestion {
         width: 100%;
@@ -9303,10 +9332,20 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         color: #22844f;
       }
 
-      #tab_user .user-result-status.is-removed,
+      #tab_user .user-result-status.is-removed {
+        background: #eef1f4;
+        color: #596875;
+      }
+
       #tab_user .user-result-status.is-unregistered {
         background: #fceceb;
         color: #b34d45;
+      }
+
+      #tab_user .user-result-profile .user-result-history-help {
+        margin-top: 6px;
+        max-width: 520px;
+        white-space: normal;
       }
 
       #tab_user .user-result-empty {

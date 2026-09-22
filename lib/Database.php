@@ -415,7 +415,7 @@ class Database {
 
 
 
-    public function admin_search_keyword_user_func($keyword_search){
+    public function admin_search_keyword_user_func($keyword_search, bool $includeInactive = false){
         $term=trim((string)$keyword_search);
         if(mb_strlen($term)<3||mb_strlen($term)>100)return [];
         // '=' is an explicit LIKE escape character. User-entered %, _ and =
@@ -423,6 +423,18 @@ class Database {
         $escaped=str_replace(['=','%','_'],['==','=%','=_'],$term);
         $contains='%'.$escaped.'%';$prefix=$escaped.'%';
         $Q="SELECT u_id,data1,data2,data3,data4,data5,data6,data7,avail_status,
+                   CASE WHEN avail_status<>1 THEN (
+                     SELECT active_user.u_id
+                     FROM user_tbl active_user
+                     WHERE active_user.avail_status=1
+                       AND active_user.u_category=user_tbl.u_category
+                       AND TRIM(active_user.data4)<>''
+                       AND TRIM(active_user.data4)=TRIM(user_tbl.data4)
+                       AND active_user.u_id<>user_tbl.u_id
+                     ORDER BY (active_user.u_id=TRIM(user_tbl.data4)) DESC,
+                              active_user.u_id ASC
+                     LIMIT 1
+                   ) ELSE NULL END AS replacement_u_id,
                    CASE
                      WHEN u_id=:exact_uid OR data2=:exact_identity OR data3=:exact_staff OR data4=:exact_student THEN 0
                      WHEN LOWER(TRIM(data1))=LOWER(:exact_name) THEN 1
@@ -430,11 +442,12 @@ class Database {
                      ELSE 3
                    END AS search_rank
             FROM user_tbl
-            WHERE data1 LIKE :name_contains ESCAPE '='
+            WHERE (data1 LIKE :name_contains ESCAPE '='
                OR data2 LIKE :identity_contains ESCAPE '='
                OR data3 LIKE :staff_contains ESCAPE '='
                OR data4 LIKE :student_contains ESCAPE '='
-               OR u_id LIKE :uid_contains ESCAPE '='
+               OR u_id LIKE :uid_contains ESCAPE '=')
+              AND (:include_inactive=1 OR avail_status=1)
             ORDER BY search_rank ASC,avail_status DESC,data1 ASC,u_id ASC
             LIMIT 50";
         $R=$this->pdo->prepare($Q);
@@ -442,7 +455,7 @@ class Database {
             ':exact_uid'=>$term,':exact_identity'=>$term,':exact_staff'=>$term,':exact_student'=>$term,
             ':exact_name'=>$term,':name_prefix'=>$prefix,':name_contains'=>$contains,
             ':identity_contains'=>$contains,':staff_contains'=>$contains,':student_contains'=>$contains,
-            ':uid_contains'=>$contains,
+            ':uid_contains'=>$contains,':include_inactive'=>$includeInactive?1:0,
         ]);
         return $R->fetchAll(PDO::FETCH_ASSOC);
     }

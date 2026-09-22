@@ -966,7 +966,14 @@ function string_sanitize($s) {
      //Admin
 
       if(isset( $_POST['admin_search_keyword_user'])){
-        $results = $operation->admin_search_keyword_user_func((string)($_POST['search_key']??''));
+        $includeInactive = filter_var(
+          $_POST['include_inactive'] ?? false,
+          FILTER_VALIDATE_BOOLEAN
+        );
+        $results = $operation->admin_search_keyword_user_func(
+          (string)($_POST['search_key']??''),
+          $includeInactive
+        );
         //usort($results, 'php_sort_alpahabet');
         // $results = [];
         echo json_encode($results);
