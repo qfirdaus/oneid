@@ -45,6 +45,12 @@ $report(
     'historical results clearly show the old ID and active replacement'
 );
 $report(
+    str_contains($dashboard, 'grid-template-columns:minmax(130px,28%) minmax(0,1fr) 82px')
+        && str_contains($dashboard, '.user-search-suggestion{align-items:start;display:grid')
+        && str_contains($dashboard, '.user-search-suggestion>.user-search-suggestion-status{align-items:center'),
+    'active and historical results share fixed top-aligned columns'
+);
+$report(
     ($ms['admin.users.historical_record'] ?? '') === 'Rekod lama'
         && ($en['admin.users.historical_record'] ?? '') === 'Historical',
     'historical-record labels are available in Malay and English'
