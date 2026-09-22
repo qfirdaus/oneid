@@ -9114,7 +9114,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
         box-shadow: 0 10px 26px rgba(22, 54, 78, .16);
       }
 
-      #tab_user .user-search-suggestion{align-items:start;display:grid;gap:3px 8px;grid-template-columns:minmax(90px,120px) minmax(0,1fr) 82px;margin:0;min-height:42px;padding:7px 8px 7px 14px}
+      #tab_user .user-search-suggestion{align-items:start;display:grid;gap:3px 8px;grid-template-columns:minmax(120px,150px) minmax(0,1fr) 82px;margin:0;min-height:42px;padding:7px 8px 7px 14px}
       #tab_user .user-search-suggestion>strong{color:#263d50;font-size:12px;grid-column:1;line-height:22px;max-width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       #tab_user .user-search-suggestion>span{align-items:flex-start;display:flex;flex-wrap:wrap;gap:2px 8px;grid-column:2;line-height:18px;min-width:0;padding-top:2px}
       #tab_user .user-search-suggestion small{color:#718493;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

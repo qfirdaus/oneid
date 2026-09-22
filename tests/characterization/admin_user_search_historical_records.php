@@ -45,7 +45,7 @@ $report(
     'historical results clearly show the old ID and active replacement'
 );
 $report(
-    str_contains($dashboard, 'grid-template-columns:minmax(90px,120px) minmax(0,1fr) 82px')
+    str_contains($dashboard, 'grid-template-columns:minmax(120px,150px) minmax(0,1fr) 82px')
         && str_contains($dashboard, '.user-search-suggestion{align-items:start;display:grid')
         && str_contains($dashboard, '.user-search-suggestion>.user-search-suggestion-status{align-items:center'),
     'active and historical results share fixed top-aligned columns'
