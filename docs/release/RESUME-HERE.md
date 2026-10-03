@@ -62,6 +62,21 @@ Tugas seterusnya ialah **menutup input production dan menyemak release**, bukan 
 
 Baki had: native production Android, remote downstream PHP/ODBC inventory, formal performance acceptance dan production backup/provider readiness belum ditutup. Perbezaan median API +5.01% berdasarkan lima sampel UAT setiap runtime bukan pensijilan prestasi.
 
+## Arahan terakhir pemilik sebelum berhenti — 3 Oktober 2026
+
+- **Berhenti sekarang; sambung kemudian menggunakan dokumen ini.** Tiada deployment atau penyelarasan folder live dibuat pada masa berhenti.
+- Production OneID **mesti dinaik taraf ke PHP 8.4.26** dalam release yang dirancang, bukan mobile/web sahaja. Server yang diaudit ialah `iqs@172.16.2.109`, hostname `APPSSSOPRODv1`, root `/var/www/oneid`. Skop pool OneID sahaja; default PHP/cron dan sistem lain kekal 8.3 melainkan ada arahan baharu.
+- **Selepas production selesai dinaik taraf dan disahkan**, pemilik mahu fail source untracked dalam `/var/www/oneid-uat` dimasukkan/diselaraskan ke Git supaya IDE tidak lagi menunjukkan fail source tersebut sebagai untracked. Ini tugas susulan yang dipersetujui, belum dilaksanakan. Jangan buat lebih awal sewaktu kerja sedang dihentikan.
+- Commit release `35d353dabefa85b7b18008e3973dd9455ab9d8f3` sudah dipush dan hash remote disahkan. Live UAT masih branch main dengan perubahan asal kerana push datang daripada worktree berasingan. Push branch lain sahaja tidak membersihkan working tree live.
+
+### Penyelarasan Git UAT selepas production berjaya
+
+1. Ambil snapshot/diff status UAT ketika itu, termasuk semua perubahan baharu selepas checkpoint; bandingkan dengan commit release yang benar-benar digunakan pada production.
+2. Rekod fail source yang belum tersimpan dalam commit. Selepas menentukan branch sasaran/merge yang sesuai, selaraskan sejarah Git dan working tree live secara terkawal tanpa menimpa perubahan pengguna atau menukar kod aktif secara tidak sengaja. Menukar branch live boleh menukar fail aplikasi; jangan anggap ia sekadar mengubah paparan IDE.
+3. Secrets, `.private`, vendor hasil Composer, uploads, logs, caches dan data runtime kekal di luar Git mengikut polisi ignore. Jangan commit semuanya secara membuta tuli atau menyembunyikan source dengan `.gitignore` semata-mata untuk mendapatkan status bersih.
+4. Verify kandungan live dan ujian ringkas yang relevan; commit/push perubahan source yang diperlukan. Sahkan tiada fail source yang dimaksudkan masih untracked dan terangkan jika ada local configuration/data yang sengaja tidak dijejak.
+5. Jangan gunakan `git clean -fdx`, `reset --hard`, atau overwrite folder live untuk membersihkan status. Kemas kini checkpoint sekali lagi setelah penyelarasan benar-benar selesai.
+
 ## Ayat untuk sambung sesi
 
 > Sambung dari `docs/release/RESUME-HERE.md` pada branch `release/production-php84-mobile`. Semak checkpoint dan perubahan sejak berhenti; lengkapkan input Android/MyDigital ID/production sebelum cadangkan deployment. Jangan ubah production atau main dahulu.
