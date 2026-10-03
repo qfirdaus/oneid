@@ -1,0 +1,106 @@
+{
+  "scope": "Private MySQL actual Database refresh method; CLI 8.3/8.4, FPM API branches tested separately",
+  "results": [
+    {
+      "version": "8.3",
+      "exit_code": 0,
+      "stderr_empty": true,
+      "result": {
+        "runtime": "8.3.35",
+        "tests": [
+          {
+            "test": "valid refresh commits retirement and replacement",
+            "passed": true
+          },
+          {
+            "test": "same old token cannot refresh twice",
+            "passed": true
+          },
+          {
+            "test": "revoked rejected without issuance",
+            "passed": true
+          },
+          {
+            "test": "policy_revoked rejected without issuance",
+            "passed": true
+          },
+          {
+            "test": "fully_expired rejected without issuance",
+            "passed": true
+          },
+          {
+            "test": "still_active rejected without issuance",
+            "passed": true
+          },
+          {
+            "test": "future rejected without issuance",
+            "passed": true
+          },
+          {
+            "test": "ACL recheck denies without issuance",
+            "passed": true
+          },
+          {
+            "test": "insert failure rolls back old-token retirement",
+            "passed": true
+          },
+          {
+            "test": "concurrent refresh issues exactly one replacement",
+            "passed": true
+          }
+        ]
+      }
+    },
+    {
+      "version": "8.4",
+      "exit_code": 0,
+      "stderr_empty": true,
+      "result": {
+        "runtime": "8.4.26",
+        "tests": [
+          {
+            "test": "valid refresh commits retirement and replacement",
+            "passed": true
+          },
+          {
+            "test": "same old token cannot refresh twice",
+            "passed": true
+          },
+          {
+            "test": "revoked rejected without issuance",
+            "passed": true
+          },
+          {
+            "test": "policy_revoked rejected without issuance",
+            "passed": true
+          },
+          {
+            "test": "fully_expired rejected without issuance",
+            "passed": true
+          },
+          {
+            "test": "still_active rejected without issuance",
+            "passed": true
+          },
+          {
+            "test": "future rejected without issuance",
+            "passed": true
+          },
+          {
+            "test": "ACL recheck denies without issuance",
+            "passed": true
+          },
+          {
+            "test": "insert failure rolls back old-token retirement",
+            "passed": true
+          },
+          {
+            "test": "concurrent refresh issues exactly one replacement",
+            "passed": true
+          }
+        ]
+      }
+    }
+  ],
+  "private_mysql_stopped": true
+}

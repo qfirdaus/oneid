@@ -1,0 +1,24 @@
+# REVIEW TEMPLATE ONLY. No service has been installed or enabled.
+[Unit]
+Description=OneID mobile OIDC provider UAT
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=oneid-mobile-uat
+Group=oneid-mobile-uat
+WorkingDirectory=/var/lib/oneid-mobile-uat
+EnvironmentFile=/etc/oneid-mobile-uat/hydra.env
+ExecStart=/opt/oneid-mobile-uat/hydra serve all --sqa-opt-out -c /etc/oneid-mobile-uat/hydra.yaml
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/oneid-mobile-uat
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

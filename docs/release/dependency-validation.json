@@ -1,0 +1,69 @@
+[
+  {
+    "command": [
+      "php8.3",
+      "/usr/bin/composer",
+      "validate",
+      "--no-check-publish",
+      "--no-interaction"
+    ],
+    "exit": 0,
+    "composer_deprecation_lines": 0,
+    "summary": [
+      "./composer.json is valid"
+    ]
+  },
+  {
+    "command": [
+      "php8.3",
+      "/usr/bin/composer",
+      "install",
+      "--no-dev",
+      "--prefer-dist",
+      "--optimize-autoloader",
+      "--no-interaction"
+    ],
+    "exit": 0,
+    "composer_deprecation_lines": 0,
+    "summary": [
+      "  - Installing paragonie/random_compat (v9.99.100): Extracting archive",
+      "  - Installing paragonie/constant_time_encoding (v3.1.3): Extracting archive",
+      "  - Installing phpseclib/phpseclib (3.0.57): Extracting archive",
+      "  - Installing jumbojett/openid-connect-php (v1.0.2): Extracting archive",
+      " 0/4 [>---------------------------]   0%",
+      " 4/4 [============================] 100%",
+      "Generating optimized autoload files",
+      "1 package you are using is looking for funding.",
+      "Use the `composer fund` command to find out more!",
+      "> @php tools/patch_openid_php84.php --apply"
+    ]
+  },
+  {
+    "command": [
+      "php8.4",
+      "tools/patch_openid_php84.php",
+      "--check"
+    ],
+    "exit": 0,
+    "composer_deprecation_lines": 0,
+    "summary": [
+      "PASS: Jumbojett nullable patch present."
+    ]
+  },
+  {
+    "command": [
+      "php8.4",
+      "/usr/bin/composer",
+      "check-platform-reqs",
+      "--no-dev"
+    ],
+    "exit": 0,
+    "composer_deprecation_lines": 55,
+    "summary": [
+      "ext-curl 8.4.26   success ",
+      "ext-json 8.4.26   success ",
+      "php      8.4.26   success ",
+      "Checking non-dev platform requirements for packages in the vendor dir"
+    ]
+  }
+]

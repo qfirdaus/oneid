@@ -1,0 +1,167 @@
+# REVIEW ONLY: include inside existing staging HTTPS server; do not create a duplicate server.
+# Pilot remains loopback-only until an explicit access policy is configured.
+# Dedicated FPM socket must exist before installation; hosted enabled=false remains required.
+location = /login {
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-uat.access.log oneid_safe;
+    include /etc/nginx/fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME /var/www/oneid-uat/mobile-public/index.php;
+    fastcgi_param HTTPS on;
+    fastcgi_param HTTP_PROXY "";
+    fastcgi_pass unix:/run/php/oneid-mobile-uat.sock;
+    fastcgi_intercept_errors off;
+}
+location = /consent {
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-uat.access.log oneid_safe;
+    include /etc/nginx/fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME /var/www/oneid-uat/mobile-public/index.php;
+    fastcgi_param HTTPS on;
+    fastcgi_param HTTP_PROXY "";
+    fastcgi_pass unix:/run/php/oneid-mobile-uat.sock;
+    fastcgi_intercept_errors off;
+}
+location = /login.css {
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-uat.access.log oneid_safe;
+    include /etc/nginx/fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME /var/www/oneid-uat/mobile-public/index.php;
+    fastcgi_param HTTPS on;
+    fastcgi_param HTTP_PROXY "";
+    fastcgi_pass unix:/run/php/oneid-mobile-uat.sock;
+    fastcgi_intercept_errors off;
+}
+location = /mobile/session {
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-uat.access.log oneid_safe;
+    include /etc/nginx/fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME /var/www/oneid-uat/mobile-public/index.php;
+    fastcgi_param HTTPS on;
+    fastcgi_param HTTP_PROXY "";
+    fastcgi_pass unix:/run/php/oneid-mobile-uat.sock;
+    fastcgi_intercept_errors off;
+}
+location = /mobile/logout {
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-uat.access.log oneid_safe;
+    include /etc/nginx/fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME /var/www/oneid-uat/mobile-public/index.php;
+    fastcgi_param HTTPS on;
+    fastcgi_param HTTP_PROXY "";
+    fastcgi_pass unix:/run/php/oneid-mobile-uat.sock;
+    fastcgi_intercept_errors off;
+}
+location = /token-hook {
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-uat.access.log oneid_safe;
+    include /etc/nginx/fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME /var/www/oneid-uat/mobile-public/index.php;
+    fastcgi_param HTTPS on;
+    fastcgi_param HTTP_PROXY "";
+    fastcgi_pass unix:/run/php/oneid-mobile-uat.sock;
+    fastcgi_intercept_errors off;
+}
+location = /.well-known/openid-configuration {
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-uat.access.log oneid_safe;
+    proxy_pass http://127.0.0.1:24144;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+location = /.well-known/jwks.json {
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-uat.access.log oneid_safe;
+    proxy_pass http://127.0.0.1:24144;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+location = /oauth2/auth {
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-uat.access.log oneid_safe;
+    proxy_pass http://127.0.0.1:24144;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+location = /oauth2/token {
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-uat.access.log oneid_safe;
+    proxy_pass http://127.0.0.1:24144;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+location = /oauth2/revoke {
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-uat.access.log oneid_safe;
+    proxy_pass http://127.0.0.1:24144;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+location = /userinfo {
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-uat.access.log oneid_safe;
+    proxy_pass http://127.0.0.1:24144;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto https;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Real-IP $remote_addr;
+}
+
+location = /mobile/mydigitalid/callback {
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-uat.access.log oneid_safe;
+    include /etc/nginx/fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME /var/www/oneid-uat/mobile-public/index.php;
+    fastcgi_param HTTPS on;
+    fastcgi_param HTTP_PROXY "";
+    fastcgi_pass unix:/run/php/oneid-mobile-uat.sock;
+    fastcgi_intercept_errors off;
+}

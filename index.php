@@ -108,7 +108,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
 <body class="login-container<?=oneid_environment_body_class()?>">
 <?php oneid_render_environment_banner(); ?>
 <?php if ($displaySettingsAvailable): oneid_render_display_settings(); endif; ?>
-<div class="container py-5">
+<div class="container py-5 oneid-login-shell">
   <div class="row shadow-lg rounded-4 overflow-hidden" style="background: white;">
   
     <!-- LEFT SIDE: Login  order-2 order-md-1 -->
@@ -117,9 +117,9 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
         <?php if (defined('ONEID_ADMIN_MAINTENANCE_LOGIN')): ?><input type="hidden" name="maintenance_admin_login" value="1"><?php endif; ?>
         <?php if (defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')): ?><input type="hidden" name="maintenance_developer_login" value="1"><?php endif; ?>
         <div class="oneid-login-brand-lockup" aria-label="OneID@UPNM">
-          <span class="oneid-login-brand-mark oneid-login-brand-lockup__oneid"><img src="img/logo_oneid.png" alt="OneID" width="500" height="199" /></span>
-          <span class="oneid-login-brand-lockup__divider" aria-hidden="true"></span>
           <span class="oneid-login-brand-mark oneid-login-brand-lockup__upnm"><img src="img/logo_upnm_30.png" alt="UPNM 30 Tahun" width="247" height="66" /></span>
+          <span class="oneid-login-brand-lockup__divider" aria-hidden="true"></span>
+          <span class="oneid-login-brand-mark oneid-login-brand-lockup__oneid"><img src="img/logo_oneid.png" alt="OneID" width="500" height="199" /></span>
         </div>
         <div id="login_status" role="status" aria-live="polite"><?php if ($loginFlashKey !== null): ?>
           <div class="alert alert-warning alert-dismissable">
@@ -156,6 +156,11 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
           </div>
           <?php endif; ?>
 
+            <div class="oneid-new-user-notice" role="note">
+              <span class="oneid-new-user-notice__icon" aria-hidden="true"><i class="fas fa-info-circle"></i></span>
+              <p><?=htmlspecialchars(oneid_translate('login.new_user_help'), ENT_QUOTES, 'UTF-8')?></p>
+            </div>
+
           <div class="oneid-login-method-body">
             <div class="login-form-block">
               <label for="username" class="login-form-label"><?=htmlspecialchars(oneid_translate('login.user_id'), ENT_QUOTES, 'UTF-8')?></label>
@@ -164,15 +169,16 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
 
             <div class="login-form-block">
               <label for="password" class="login-form-label"><?=htmlspecialchars(oneid_translate('login.password'), ENT_QUOTES, 'UTF-8')?></label>
+              <div class="oneid-web-password-field">
               <input id="password" name="password" type="password" placeholder="<?=htmlspecialchars(oneid_translate('login.password_placeholder'), ENT_QUOTES, 'UTF-8')?>" class="login-form-control custom_input login_placeholder" autocomplete="current-password" />
-		      <small><?=htmlspecialchars(oneid_translate('login.new_user_help'), ENT_QUOTES, 'UTF-8')?></small>
+              <button type="button" class="oneid-web-password-toggle" id="oneid-web-password-toggle" aria-controls="password" aria-pressed="false" aria-label="<?=htmlspecialchars(oneid_translate('login.show_password'), ENT_QUOTES, 'UTF-8')?>" hidden><i class="fas fa-eye" aria-hidden="true"></i></button></div>
             </div>
 
             <div class="oneid-password-actions">
-              <?php if (!defined('ONEID_ADMIN_MAINTENANCE_LOGIN') && !defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')): ?><button type="button" class="text-primary oneid-forgot-password oneid-link-button" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></button><?php else: ?><span aria-hidden="true"></span><?php endif; ?>
-              <button type="submit" class="btn btn-warning px-4">
-                <i class="icon-login me-1 animate__animated animate__swing animate__infinite infinite"></i> <?=htmlspecialchars(oneid_translate('login.submit'), ENT_QUOTES, 'UTF-8')?>
+              <button type="submit" class="btn btn-primary px-4 oneid-web-submit">
+                <i class="icon-login me-1"></i> <?=htmlspecialchars(oneid_translate('login.submit'), ENT_QUOTES, 'UTF-8')?>
               </button>
+              <?php if (!defined('ONEID_ADMIN_MAINTENANCE_LOGIN') && !defined('ONEID_DEVELOPER_MAINTENANCE_LOGIN')): ?><button type="button" class="text-primary oneid-forgot-password oneid-link-button" onclick="open_forgot_password()"><?=htmlspecialchars(oneid_translate('login.forgot_password'), ENT_QUOTES, 'UTF-8')?></button><?php else: ?><span aria-hidden="true"></span><?php endif; ?>
             </div>
           </div>
         </section>
@@ -237,10 +243,11 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
     </div>
       
     <!-- RIGHT SIDE: Slider + Contact order-1 order-md-2 -->
-    <div class="col-md-8 bg-light px-4 py-4">
+    <div class="col-md-8 bg-light px-4 py-4 oneid-login-support">
        <!-- MENU ATAS -->
       <div class="login-topbar mb-3 pb-2 border-bottom">
-        <div class="login-topbar-links txt-heading">
+        <button type="button" class="oneid-support-menu-toggle" aria-expanded="false" aria-controls="oneid-support-links"><i class="fa-solid fa-bars" aria-hidden="true"></i> Menu <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+        <div class="login-topbar-links txt-heading" id="oneid-support-links">
           <a href="<?=htmlspecialchars($loginManualPath, ENT_QUOTES, 'UTF-8')?>" class="menu_link" target="_blank" rel="noopener noreferrer"><?=htmlspecialchars(oneid_translate('login.menu.manual'), ENT_QUOTES, 'UTF-8')?></a>
           <a href="#" class="menu_link" data-bs-toggle="modal" data-bs-target="#faqModal"><?=htmlspecialchars(oneid_translate('faq.link'), ENT_QUOTES, 'UTF-8')?></a>
           <a href="https://directory.upnm.edu.my/" target="_blank" rel="noopener" class="menu_link"><?=htmlspecialchars(oneid_translate('login.menu.directory'), ENT_QUOTES, 'UTF-8')?></a>
@@ -272,7 +279,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
       </div>
 
       <!-- Contact Info -->
-      <div class="px-2">
+      <div class="px-2 oneid-login-contact">
         <h5 class="txt-heading"><i class="fa-solid fa-bullhorn fa-corporate-red "></i> <?=htmlspecialchars(oneid_translate('login.contact.title'), ENT_QUOTES, 'UTF-8')?></h5>
         <hr>
         <div class="row" style="margin-bottom:10px">
@@ -281,21 +288,21 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
         <div class="row" style="margin-bottom:10px">
           <div class="col-md-3">
             <i class="fa-solid fa-phone fa-corporate-red"></i> 
-            <small>03-9051 2700 </small>
+            <small><a href="tel:+60390512700">03-9051 2700</a></small>
           </div>        
         </div>        
         <div class="row" style="margin-bottom:10px">
-          <div class="col-md-12">
-            <i class="fa-solid fa-location-dot fa-corporate-red"></i> 
-            <small><?=htmlspecialchars(oneid_translate('login.contact.department'), ENT_QUOTES, 'UTF-8')?></small>
-            <br>
-            <i class="fa-solid"></i> 
-            <small><?=htmlspecialchars(oneid_translate('login.contact.address'), ENT_QUOTES, 'UTF-8')?></small>
+          <div class="col-md-12 oneid-contact-address">
+            <i class="fa-solid fa-location-dot fa-corporate-red" aria-hidden="true"></i>
+            <div>
+              <small><?=htmlspecialchars(oneid_translate('login.contact.department'), ENT_QUOTES, 'UTF-8')?></small>
+              <small><?=htmlspecialchars(oneid_translate('login.contact.address'), ENT_QUOTES, 'UTF-8')?></small>
+            </div>
           </div>
         </div>
         <div class="row" style="margin-bottom:10px">
           <div class="col-md-12"><i class="fa-solid fa-envelope fa-corporate-red "></i> 
-          <small>ask.oneid@upnm.edu.my</small></div>
+          <small><a href="mailto:ask.oneid@upnm.edu.my">ask.oneid@upnm.edu.my</a></small></div>
         </div>  
   
       </div>
@@ -1667,7 +1674,7 @@ $('#otp_inputs').on('paste', function(e) {
 
 #loginform input.login-form-control {
     background-color: #ffffff !important;   /* white background */
-    border: 2px solid #f4b740 !important;   /* yellow border */
+    border: 1px solid #b9cbd9 !important;   /* neutral input border */
     color: #2c2c2c !important;              /* dark grey text */
     border-radius: 8px !important;
     padding: 10px !important;
@@ -1681,8 +1688,8 @@ $('#otp_inputs').on('paste', function(e) {
   }
 
   #loginform input.login-form-control:focus {
-    border-color: #f4b740 !important;
-    box-shadow: 0 0 0 2px rgba(244, 183, 64, 0.2) !important;
+    border-color: #078ab1 !important;
+    box-shadow: 0 0 0 3px rgba(7, 138, 177, 0.16) !important;
   }
 
    .topnav-link {
@@ -1723,7 +1730,122 @@ $('#otp_inputs').on('paste', function(e) {
   font-size: 13px;        /* Change this to your size */
   color: #999;            /* Optional */
 }
+
+/* Web login polish; selectors confined to the existing login form. */
+#loginform .oneid-password-actions{flex-direction:column;align-items:stretch;gap:0;padding-top:0}
+#loginform .oneid-forgot-password{align-self:flex-end;width:auto;margin:4px 0 0 auto;padding:8px 0;min-height:40px;background:transparent;border:0;box-shadow:none;color:#075e8d!important;font-size:12px;font-weight:650;line-height:1.4;text-decoration:underline;text-underline-offset:3px}
+#loginform .oneid-web-submit{width:100%;min-height:46px;border-radius:9px;background:linear-gradient(105deg,#09649f,#009bbb);color:#fff;box-shadow:0 4px 12px #08669122}
+#loginform .oneid-web-submit:hover{filter:brightness(.95)}
+#loginform .oneid-web-password-field{position:relative;width:100%;min-width:0;display:block}
+#loginform input.login-form-control{display:block;width:100%!important;box-sizing:border-box;min-height:46px}
+#loginform .oneid-web-password-field input{padding-right:50px!important;min-height:46px}
+#loginform .oneid-web-password-toggle{position:absolute;right:3px;top:3px;min-width:40px;min-height:40px;border:0;border-radius:6px;background:transparent;color:#536781;cursor:pointer}
+#loginform .oneid-web-password-toggle:hover{background:#edf6fa}
+#loginform .oneid-web-password-toggle:focus-visible{outline:2px solid #078ab1;outline-offset:1px}
+#loginform .mydigitalid-button-copy strong{font-size:13px;line-height:1.4}
+#loginform .login-form-block{margin-bottom:12px}
+#loginform .login-form-block small{display:block;font-size:12px;line-height:1.5;margin-top:2px}
+#loginform .oneid-web-submit{margin:0}
+#loginform .mydigitalid-button{grid-template-columns:92px minmax(0,1fr) 28px;padding-right:12px}
+#loginform .mydigitalid-brand{padding:10px 8px}
+#loginform .mydigitalid-button-copy{padding:12px 10px}
+#loginform .mydigitalid-button-copy small{font-size:11px;line-height:1.4}
+#loginform .mydigitalid-arrow{width:28px;height:28px}
+
+
+
+/* Constrain only web recovery dialogs; leave FAQ and other app modals alone. */
+#modal_forgot_password .modal-dialog,
+#modal_OTP .modal-dialog,
+#modal_reset_password .modal-dialog{width:calc(100% - 32px);max-width:480px!important;margin-left:auto;margin-right:auto}
+#modal_forgot_password .modal-content,
+#modal_OTP .modal-content,
+#modal_reset_password .modal-content{width:100%;border:1px solid #dbe6ef;border-radius:16px;overflow:hidden;background:#fff;color:#12354e;box-shadow:0 20px 60px #12354e26}
+#modal_forgot_password .modal-header,
+#modal_OTP .modal-header,
+#modal_reset_password .modal-header{padding:18px 22px;background:#f5f9fc;border-bottom:1px solid #e3ebf2}
+#modal_forgot_password .modal-body,
+#modal_OTP .modal-body,
+#modal_reset_password .modal-body{padding:22px}
+#modal_forgot_password .form-control,
+#modal_OTP .form-control,
+#modal_reset_password .form-control{background:#fff!important;color:#12354e!important;border:1px solid #b9cbd9!important;border-radius:8px;min-height:44px;font-size:16px}
+#modal_forgot_password .form-control:focus,
+#modal_OTP .form-control:focus,
+#modal_reset_password .form-control:focus{border-color:#078ab1!important;box-shadow:0 0 0 3px #078ab11f}
+#modal_forgot_password .form-label,
+#modal_reset_password .form-label{color:#274b66;font-weight:600}
+#modal_forgot_password .modal-footer,
+#modal_OTP .modal-footer,
+#modal_reset_password .modal-footer{padding:14px 22px;border-top:1px solid #e3ebf2;gap:8px;background:#fafcfe}
+
+
+/* Match the compact mobile language control without resizing its settings panel. */
+body.login-container .login-locale-switcher{padding:2px 4px;gap:2px;border-radius:999px}
+body.login-container .login-locale-switcher a{height:32px;min-height:32px;min-width:32px;padding:6px 8px;border-radius:999px;font-size:11px;line-height:1}
+body.login-container .login-locale-switcher .oneid-display-settings__trigger{height:32px;min-height:32px;width:32px;min-width:32px;padding:0}
+
+#loginform .oneid-new-user-notice{display:flex;align-items:flex-start;gap:10px;margin:0;padding:13px 16px;border:0;border-bottom:1px solid #efdfba;border-radius:0;background:#fff7e6;color:#75551e}
+#loginform .oneid-new-user-notice__icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 24px;height:24px;border-radius:7px;background:#f8e8bf;color:#946717;font-size:13px}
+#loginform .oneid-new-user-notice p{margin:0;font-size:12px;line-height:1.6;color:inherit}
 </style>
 
+
+<script>
+(() => {
+ const input=document.getElementById('password');
+ const button=document.getElementById('oneid-web-password-toggle');
+ if(!input || !button) return;
+ const show=<?=json_encode(oneid_translate('login.show_password'), JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT)?>;
+ const hide=<?=json_encode(oneid_translate('login.hide_password'), JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT)?>;
+ function update(){const visible=input.type==='text';button.setAttribute('aria-pressed',String(visible));button.setAttribute('aria-label',visible?hide:show);button.firstElementChild.className=visible?'fas fa-eye-slash':'fas fa-eye';}
+ button.hidden=false;
+ button.addEventListener('click',()=>{input.type=input.type==='password'?'text':'password';update();});
+ window.addEventListener('pageshow',()=>{input.type='password';update();});
+})();
+</script>
+<style>
+.oneid-support-menu-toggle{display:none}
+.oneid-login-contact .oneid-contact-address{display:grid;grid-template-columns:14px minmax(0,1fr);column-gap:8px;align-items:start;text-align:left}
+.oneid-contact-address > i{margin:4px 0 0!important}
+.oneid-contact-address small{display:block}
+@media(max-width:767.98px){
+ body.login-container .oneid-login-shell{width:100%;max-width:100%;padding:10px 8px!important}
+ body.login-container .oneid-login-shell > .row{margin:0!important;border-radius:14px!important;box-shadow:0 4px 18px rgba(28,55,76,.1)!important}
+ body.login-container .oneid-login-shell > .row > .col-md-4,
+ body.login-container .oneid-login-shell > .row > .oneid-login-support{padding:16px 12px!important;min-width:0}
+ .oneid-login-support .login-topbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:16px!important;padding-bottom:12px!important}
+ .oneid-support-menu-toggle{display:flex;align-items:center;gap:9px;border:1px solid #cce1ec;border-radius:10px;background:#fff;color:#075b86;padding:10px 12px;min-height:44px;font-weight:600}
+ .oneid-support-menu-toggle:focus-visible{outline:2px solid #078fbe;outline-offset:2px}
+ .oneid-support-menu-toggle[aria-expanded="true"] .fa-chevron-down{transform:rotate(180deg)}
+ .oneid-login-support .login-locale-switcher{order:1;margin-left:auto}
+ .oneid-login-support #oneid-support-links{display:none;order:2;flex:0 0 100%;width:100%;gap:6px}
+ .oneid-login-support #oneid-support-links.is-open{display:flex;flex-direction:column}
+ .oneid-login-support #oneid-support-links .menu_link{display:block;width:100%;padding:12px 14px;margin:0;min-height:44px;border:1px solid #dce9f1;border-radius:8px;background:#fff;text-decoration:none;box-sizing:border-box}
+ .oneid-login-support #carouselExample{margin-bottom:16px!important}
+ .oneid-login-support .slider-img{height:auto!important;max-width:100%;object-fit:contain}
+ .oneid-login-contact{padding:16px!important;border:1px solid #dce9f1;border-radius:12px;background:#fff;color:#40586c;line-height:1.6}
+ .oneid-login-contact h5{font-size:15px;margin:0}
+ .oneid-login-contact hr{margin:12px 0}
+ body.login-container .oneid-login-contact .row{margin:0 0 10px!important}
+ .oneid-login-contact .row > div{width:100%;padding:0}
+ .oneid-login-contact small{font-size:13px}
+ .oneid-login-contact a{color:#076b99;overflow-wrap:anywhere}
+}
+</style>
+<script>
+(function(){
+ const toggle=document.querySelector('.oneid-support-menu-toggle');
+ const links=document.getElementById('oneid-support-links');
+ if(!toggle||!links)return;
+ toggle.addEventListener('click',function(){
+  const open=toggle.getAttribute('aria-expanded')!=='true';
+  toggle.setAttribute('aria-expanded',String(open));links.classList.toggle('is-open',open);
+ });
+ links.addEventListener('keydown',function(event){
+  if(event.key==='Escape'){links.classList.remove('is-open');toggle.setAttribute('aria-expanded','false');toggle.focus();}
+ });
+})();
+</script>
 </body>
 </html>

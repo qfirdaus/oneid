@@ -1,0 +1,15 @@
+{
+  "status": "USER_ACCEPTED",
+  "scope": "Controlled OneID UAT web/mobile cutover to PHP 8.4.26 only",
+  "accepted_deferrals": [
+    "Remote downstream runtime and ODBC verification",
+    "Native-device PHP 8.4 end-to-end verification",
+    "Formal performance acceptance"
+  ],
+  "post_cutover_check": "One combined pass: web login + one downstream; mobile-test login/session/refresh/logout",
+  "excluded": [
+    "Production deployment",
+    "Changing other applications or default PHP 8.3"
+  ],
+  "execution_status": "Not applied; latest preflight passed, interactive sudo password required"
+}

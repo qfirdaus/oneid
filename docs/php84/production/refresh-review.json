@@ -1,0 +1,5 @@
+{
+  "scope": "Read-only static source inspection, no production tokens used",
+  "refresh_branch_before_status_and_acl": true,
+  "new_refresh_method_missing": true
+}

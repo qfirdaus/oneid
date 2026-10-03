@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "scope": "Existing active token validation using IDP API contract; not per-application ACL or remote downstream runtime",
+  "checks": {
+    "accepted_on_both": true,
+    "php84_marker": true,
+    "response_keys_match": true,
+    "user_packet_matches": true,
+    "token_record_unchanged": true
+  },
+  "date": "2026-10-03"
+}

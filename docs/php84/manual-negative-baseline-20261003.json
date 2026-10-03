@@ -1,0 +1,27 @@
+{
+  "reported_date": "2026-10-03",
+  "environment": "oneid-uat",
+  "runtime_baseline": "PHP 8.3",
+  "evidence": "User reports: dah akses ditolak dan token tamat berjaya",
+  "results": [
+    {
+      "scenario": "access_denied",
+      "status": "PASS_USER_REPORTED"
+    },
+    {
+      "scenario": "expired_token",
+      "status": "PASS_USER_REPORTED"
+    }
+  ],
+  "applications": [
+    {
+      "reference": "APP-032",
+      "name": "Sistem IStAD",
+      "integration": "SSO"
+    }
+  ],
+  "test_account": "NOT_SPECIFIED",
+  "expected_and_observed_details": "NOT_PROVIDED",
+  "limitation": "User-reported baseline only; no independent log verification or PHP 8.4 test.",
+  "scenario_mapping": "Both reported negative scenarios attributed to the remaining identified SSO system IStAD after user explicitly excluded e-Risk."
+}

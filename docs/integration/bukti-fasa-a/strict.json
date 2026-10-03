@@ -1,0 +1,387 @@
+{
+  "provider": "v26.2.0",
+  "provider_commit": "0b84568fffccf151dc5e6c7955fdfb738555bf4b",
+  "scope": "UAT loopback only; fake identity; isolated PostgreSQL",
+  "grace": "0s",
+  "access_token_ttl_seconds": 5,
+  "refresh_ttl": "1h (test only)",
+  "rotation_grace_reuse_count": 0,
+  "failure": null,
+  "tests": [
+    {
+      "test": "register public client poc-android",
+      "passed": true
+    },
+    {
+      "test": "register public client poc-ios",
+      "passed": true
+    },
+    {
+      "test": "discovery issuer and public code flow",
+      "passed": true
+    },
+    {
+      "test": "JWKS publishes public keys",
+      "passed": true
+    },
+    {
+      "test": "unauthenticated hook rejected",
+      "passed": true
+    },
+    {
+      "test": "authenticated hook rejects missing session binding",
+      "passed": true
+    },
+    {
+      "test": "missing PKCE rejected",
+      "passed": true
+    },
+    {
+      "test": "plain PKCE rejected",
+      "passed": true
+    },
+    {
+      "test": "unregistered redirect rejected",
+      "passed": true
+    },
+    {
+      "test": "wrong PKCE verifier rejected",
+      "passed": true
+    },
+    {
+      "test": "code cannot be exchanged by another public client",
+      "passed": true
+    },
+    {
+      "test": "code exchange poc-android",
+      "passed": true,
+      "detail": {
+        "http_status": 200,
+        "error": null
+      }
+    },
+    {
+      "test": "ID token has bound issuer subject audience nonce",
+      "passed": true
+    },
+    {
+      "test": "userinfo returns fake identity only",
+      "passed": true
+    },
+    {
+      "test": "session endpoint validates access token",
+      "passed": true
+    },
+    {
+      "test": "ID token cannot replace access token",
+      "passed": true
+    },
+    {
+      "test": "expired access token rejected",
+      "passed": true
+    },
+    {
+      "test": "refresh restores access without interactive login",
+      "passed": true
+    },
+    {
+      "test": "refresh hook receives trusted session context",
+      "passed": true
+    },
+    {
+      "test": "used refresh token replay rejected",
+      "passed": true
+    },
+    {
+      "test": "refresh replay invalidates successor",
+      "passed": true
+    },
+    {
+      "test": "code exchange poc-android",
+      "passed": true,
+      "detail": {
+        "http_status": 200,
+        "error": null
+      }
+    },
+    {
+      "test": "refresh survives provider restart with persistent database and keys",
+      "passed": true
+    },
+    {
+      "test": "code exchange poc-android",
+      "passed": true,
+      "detail": {
+        "http_status": 200,
+        "error": null
+      }
+    },
+    {
+      "test": "code exchange poc-android",
+      "passed": true,
+      "detail": {
+        "http_status": 200,
+        "error": null
+      }
+    },
+    {
+      "test": "per-device refresh revocation accepted",
+      "passed": true
+    },
+    {
+      "test": "revocation invalidates device access token",
+      "passed": true
+    },
+    {
+      "test": "logged-out device cannot refresh",
+      "passed": true
+    },
+    {
+      "test": "logout leaves second device on same client active",
+      "passed": true
+    },
+    {
+      "test": "code exchange poc-ios",
+      "passed": true,
+      "detail": {
+        "http_status": 200,
+        "error": null
+      }
+    },
+    {
+      "test": "refresh token bound to original client",
+      "passed": true
+    },
+    {
+      "test": "original iOS client can still refresh",
+      "passed": true
+    },
+    {
+      "test": "code exchange poc-android",
+      "passed": true,
+      "detail": {
+        "http_status": 200,
+        "error": null
+      }
+    },
+    {
+      "test": "disabled account denied by session status",
+      "passed": true
+    },
+    {
+      "test": "disabled account blocked during refresh hook",
+      "passed": true
+    },
+    {
+      "test": "reactivation cannot resurrect pre-disable session",
+      "passed": true
+    },
+    {
+      "test": "code exchange poc-android",
+      "passed": true,
+      "detail": {
+        "http_status": 200,
+        "error": null
+      }
+    },
+    {
+      "test": "forced password change blocks session status",
+      "passed": true
+    },
+    {
+      "test": "forced password change blocks refresh",
+      "passed": true
+    },
+    {
+      "test": "security version invalidates pre-reset session",
+      "passed": true
+    },
+    {
+      "test": "code exchange poc-android",
+      "passed": true,
+      "detail": {
+        "http_status": 200,
+        "error": null
+      }
+    },
+    {
+      "test": "hook outage fails closed",
+      "passed": true
+    },
+    {
+      "test": "transient hook outage does not consume refresh credential",
+      "passed": true
+    },
+    {
+      "test": "code exchange poc-android",
+      "passed": true,
+      "detail": {
+        "http_status": 200,
+        "error": null
+      }
+    },
+    {
+      "test": "authorization code replay rejected",
+      "passed": true
+    },
+    {
+      "test": "code replay invalidates issued access token",
+      "passed": true
+    },
+    {
+      "test": "tracked legacy runtime files unchanged",
+      "passed": true
+    },
+    {
+      "test": "all child services stopped",
+      "passed": true
+    }
+  ],
+  "hook_calls": [
+    {
+      "grant": [],
+      "permitted": false,
+      "session_context_present": false
+    },
+    {
+      "grant": [
+        "authorization_code"
+      ],
+      "permitted": true,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "refresh_token"
+      ],
+      "permitted": true,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "authorization_code"
+      ],
+      "permitted": true,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "refresh_token"
+      ],
+      "permitted": true,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "authorization_code"
+      ],
+      "permitted": true,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "authorization_code"
+      ],
+      "permitted": true,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "refresh_token"
+      ],
+      "permitted": true,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "authorization_code"
+      ],
+      "permitted": true,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "refresh_token"
+      ],
+      "permitted": true,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "authorization_code"
+      ],
+      "permitted": true,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "refresh_token"
+      ],
+      "permitted": false,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "refresh_token"
+      ],
+      "permitted": false,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "authorization_code"
+      ],
+      "permitted": true,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "refresh_token"
+      ],
+      "permitted": false,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "refresh_token"
+      ],
+      "permitted": false,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "authorization_code"
+      ],
+      "permitted": true,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "refresh_token"
+      ],
+      "permitted": true,
+      "session_context_present": true
+    },
+    {
+      "grant": [
+        "authorization_code"
+      ],
+      "permitted": true,
+      "session_context_present": true
+    }
+  ],
+  "legacy_before": {
+    "files": 1589,
+    "sha256": "e22bcbb1a651d121d389ad1650fdea434d7febb63105c7e50ce45336ca79bb9b"
+  },
+  "legacy_after": {
+    "files": 1589,
+    "sha256": "e22bcbb1a651d121d389ad1650fdea434d7febb63105c7e50ce45336ca79bb9b"
+  },
+  "limits": [
+    "No real OneID DB/credentials/MFA used",
+    "No Flutter/real-device/TLS validation",
+    "Refresh only simulated short TTL; no infinite-session policy established",
+    "Token claims decoded for assertions; no client-side signature-verifier certification"
+  ]
+}

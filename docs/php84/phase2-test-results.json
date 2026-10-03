@@ -1,0 +1,80 @@
+{
+  "runtime": "8.3.35",
+  "php84_runtime_tested": false,
+  "results": [
+    {
+      "test": "tests/characterization/mydigitalid_f3_callback_foundation.php",
+      "exit": 0,
+      "pass_lines": 14,
+      "stderr": ""
+    },
+    {
+      "test": "tests/characterization/mydigitalid_f1_foundation.php",
+      "exit": 0,
+      "pass_lines": 22,
+      "stderr": ""
+    },
+    {
+      "test": "tests/characterization/mydigitalid_f5_ui_logout.php",
+      "exit": 0,
+      "pass_lines": 6,
+      "stderr": ""
+    },
+    {
+      "test": "tests/characterization/mydigitalid_f7_rejection_logout.php",
+      "exit": 0,
+      "pass_lines": 9,
+      "stderr": ""
+    },
+    {
+      "test": "tests/characterization/mydigitalid_f2_identity_protection.php",
+      "exit": 0,
+      "pass_lines": 11,
+      "stderr": ""
+    },
+    {
+      "test": "tests/characterization/mydigitalid_f8_access_denied_page.php",
+      "exit": 0,
+      "pass_lines": 7,
+      "stderr": ""
+    },
+    {
+      "test": "tests/characterization/mydigitalid_f4b_callback_session.php",
+      "exit": 0,
+      "pass_lines": 6,
+      "stderr": ""
+    },
+    {
+      "test": "tests/characterization/php84_openid_compatibility.php",
+      "exit": 0,
+      "pass_lines": 1,
+      "stderr": ""
+    },
+    {
+      "test": "tests/mobile-oidc/adapter.php",
+      "exit": 0,
+      "pass_lines": 73,
+      "stderr": ""
+    },
+    {
+      "test": "tests/mobile-oidc/mydigitalid.php",
+      "exit": 0,
+      "pass_lines": 36,
+      "stderr": ""
+    },
+    {
+      "test": "tests/mobile-oidc/profile.php",
+      "exit": 0,
+      "pass_lines": 7,
+      "stderr": ""
+    },
+    {
+      "test": "tests/mobile-oidc-hosted/protocol.php",
+      "exit": 0,
+      "pass_lines": 20,
+      "stderr": ""
+    }
+  ],
+  "phpseclib": "3.0.57",
+  "jumbojett": "1.0.2 + checked nullable patch"
+}

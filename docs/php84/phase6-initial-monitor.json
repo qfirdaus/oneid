@@ -1,0 +1,72 @@
+{
+  "checked_at": "2026-10-03T14:17:22.516084+08:00",
+  "since_local": "2026-10-03T14:10:22",
+  "scope": "Point-in-time snapshot, not continuous monitoring",
+  "services": {
+    "nginx": {
+      "NRestarts": "0",
+      "MemoryCurrent": "60694528",
+      "TasksCurrent": "5",
+      "ActiveState": "active",
+      "SubState": "running"
+    },
+    "php8.3-fpm": {
+      "NRestarts": "0",
+      "MemoryCurrent": "231460864",
+      "TasksCurrent": "7",
+      "ActiveState": "active",
+      "SubState": "running"
+    },
+    "php8.4-fpm": {
+      "NRestarts": "0",
+      "MemoryCurrent": "23961600",
+      "TasksCurrent": "3",
+      "ActiveState": "active",
+      "SubState": "running"
+    }
+  },
+  "access_logs": {
+    "oneid-uat.access.log": {
+      "status_counts": {
+        "200": 23,
+        "302": 1,
+        "303": 1,
+        "400": 2
+      },
+      "http_5xx": 0,
+      "unparsed_lines_whole_file": 0
+    },
+    "oneid-mobile-uat.access.log": {
+      "status_counts": {
+        "200": 23,
+        "204": 3,
+        "302": 3,
+        "303": 6,
+        "400": 1,
+        "401": 2
+      },
+      "http_5xx": 0,
+      "unparsed_lines_whole_file": 0
+    }
+  },
+  "error_logs": {
+    "oneid-uat.error.log": {
+      "readable": true,
+      "timestamped_entries": 6,
+      "categories": {
+        "integration_audit": 6
+      }
+    },
+    "php8.4-fpm.log": {
+      "readable": false,
+      "limitation": "Requires root or permitted log group; no absence-of-errors claim"
+    }
+  },
+  "default_php": "/usr/bin/php8.3",
+  "limitations": [
+    "Current log files only; no rotated logs",
+    "Counts include unauthenticated smoke checks and normal rejected requests",
+    "Mobile Nginx routes suppress error logs; FPM log visibility matters",
+    "No claim of native SDK compatibility or production capacity"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-03",
+  "scope": "Actual additive DDL/triggers on synthetic private MySQL 8.0.46; not production apply wrapper or production privileges",
+  "results": [
+    {
+      "runtime": "PHP 8.3.35",
+      "passed": 14,
+      "failed": 0
+    },
+    {
+      "runtime": "PHP 8.4.26",
+      "passed": 14,
+      "failed": 0
+    }
+  ],
+  "services_stopped": true,
+  "production_accessed": false,
+  "initial_harness_issue": "Relative socket location corrected from process cwd to MySQL datadir; subsequent run passed."
+}

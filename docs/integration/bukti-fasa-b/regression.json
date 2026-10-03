@@ -1,0 +1,56 @@
+[
+  {
+    "suite": "user_login_mfa_u2_primitives",
+    "exit_code": 0,
+    "checks": [
+      "OTP generation is six-digit and Argon2id hash-only",
+      "OTP verification accepts exact value and rejects malformed or wrong values",
+      "rate limits cover user session IP and destination",
+      "resend cooldown is explicit",
+      "request binding stores digests rather than raw session",
+      "TOTP enrollment uses local URI and encrypted persistence material",
+      "encrypted TOTP verifies to an atomic time-step",
+      "TOTP replay is rejected using last-used time-step"
+    ],
+    "failed": []
+  },
+  {
+    "suite": "user_login_mfa_u3_pending_login",
+    "exit_code": 0,
+    "checks": [
+      "OFF mode preserves password-login bypass without pending mutation",
+      "MyDigital ID remains outside PASSWORD_ONLY User MFA",
+      "pilot enforcement creates pending state only for allowlisted user",
+      "password success cannot finalize login before factor verification",
+      "cross-session verification is rejected without state mutation",
+      "verified factor changes pending state but still creates no login token",
+      "one-use finalization occurs only after verified factor",
+      "consumed transaction cannot create a second login token",
+      "finalizer failure rolls back consumption and leaves no prepared token",
+      "expired pending login is durably closed without finalization",
+      "cancelled pending login is revoked and audited before returning to maintenance",
+      "audit trail contains no raw session material"
+    ],
+    "failed": []
+  },
+  {
+    "suite": "user_login_mfa_u5_totp_self_service",
+    "exit_code": 0,
+    "checks": [
+      "self enrollment returns local no-store URI and persists encrypted secret only",
+      "factor target is derived from authenticated user and rejects IDOR",
+      "confirmation rejects cross-session enrollment",
+      "valid confirmation atomically activates factor and TOTP preference",
+      "active encrypted TOTP verifies and advances atomic time-step",
+      "same-step TOTP replay is rejected",
+      "global TOTP kill switch preserves mandatory email fallback",
+      "user can select email preference",
+      "self revoke requires fresh factor verification",
+      "self revoke resets preference and revokes challenges and all sessions",
+      "admin recovery requires a different second Administrator verifier",
+      "admin recovery requires fresh Admin Step-Up",
+      "existing Admin recovery records actor target verifier controls and no secret"
+    ],
+    "failed": []
+  }
+]

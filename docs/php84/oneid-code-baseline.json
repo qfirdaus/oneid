@@ -1,0 +1,10 @@
+{
+  "api.php": "397d8b8be3ed4b0ec351372572bdc701b018c3206e801a3e524deefec61204d0",
+  "lib/integration_security.php": "13fec6233d2ed6e6adec3b8c9c5f993b58de5bd46455125f6561eb44c0e81a1c",
+  "lib/stateless_jwt.php": "3d88e1e0c4898dcbb198704a721a0f57b86314fb862ba77b89c0f6aea9ab4ddf",
+  "lib/sso_IDP_index.php": "d72353f3fb7dc7d956f3957af735aac8a5d3529b360872febfc5c7772f06d00c",
+  "lib/sso_IDP_sub.php": "45658987090eeddbf2835b1353af2348a07e98ba939c1b6fc4a6e9f5beee4ea1",
+  "lib/auth_security.php": "ae0e458cf48306a81862554dbbd63e0bbf5c417f87ff0a75c5a3524738c2a53d",
+  "composer.json": "a58437422e06ae17c8c72886a755ebaa8688c4e85ab0cfae05251dde833a6464",
+  "composer.lock": "1094a4620e6e0f28b5b792f85d61dabe85cdeecf6c78e458afacd6f9e88bf6f4"
+}

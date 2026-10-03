@@ -1,0 +1,56 @@
+# REVIEW TEMPLATE ONLY. Not included by the running Nginx configuration.
+# Replace both .invalid names and TLS paths with approved UAT values.
+# log_format belongs in the http context, never include args/cookies/Authorization.
+log_format oneid_mobile_safe '$remote_addr $request_method $uri $status $request_time';
+limit_req_zone $binary_remote_addr zone=oneid_mobile_auth:1m rate=5r/s;
+
+server {
+    listen 443 ssl;
+    server_name login-host-not-configured.invalid;
+    ssl_certificate /etc/nginx/ssl/UAT_CERT_NOT_CONFIGURED.pem;
+    ssl_certificate_key /etc/nginx/ssl/UAT_KEY_NOT_CONFIGURED.pem;
+    root /var/www/oneid-uat/mobile-public;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-uat.access.log oneid_mobile_safe;
+    error_log /var/log/nginx/oneid-mobile-uat.error.log;
+
+    # Hook is server-to-server; PHP also requires the independent shared hook key.
+    location = /token-hook {
+        allow 127.0.0.1;
+        deny all;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME /var/www/oneid-uat/mobile-public/index.php;
+        fastcgi_param HTTPS on;
+        fastcgi_param HTTP_PROXY "";
+        fastcgi_pass unix:/run/php/oneid-mobile-uat.sock;
+    }
+    location ~ ^/(login|consent|mobile/session|mobile/logout|login\.css)$ {
+        limit_req zone=oneid_mobile_auth burst=10 nodelay;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME /var/www/oneid-uat/mobile-public/index.php;
+        fastcgi_param HTTPS on;
+        fastcgi_param HTTP_PROXY "";
+        fastcgi_pass unix:/run/php/oneid-mobile-uat.sock;
+        fastcgi_intercept_errors off;
+    }
+    location / { return 404; }
+}
+
+server {
+    listen 443 ssl;
+    server_name issuer-host-not-configured.invalid;
+    ssl_certificate /etc/nginx/ssl/UAT_CERT_NOT_CONFIGURED.pem;
+    ssl_certificate_key /etc/nginx/ssl/UAT_KEY_NOT_CONFIGURED.pem;
+    client_max_body_size 64k;
+    access_log /var/log/nginx/oneid-mobile-issuer-uat.access.log oneid_mobile_safe;
+    # Allowlist includes discovery explicitly; no blanket hidden-file rule can block it.
+    location ~ ^/(\.well-known/openid-configuration|\.well-known/jwks\.json|oauth2/auth|oauth2/token|oauth2/revoke|userinfo)$ {
+        proxy_pass http://127.0.0.1:24144;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+    # Admin API, dynamic registration, metrics and other provider paths are not public.
+    location / { return 404; }
+}

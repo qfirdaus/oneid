@@ -1,0 +1,12 @@
+{
+  "environment": "staging",
+  "issuer": "https://sso.digital-id.my/realms/upnm",
+  "existing_client_id": "upnm-generic",
+  "operation": "add_exact_redirect_uri_only",
+  "additional_redirect_uri": "https://oneid-uat.upnm.edu.my/mobile/mydigitalid/callback",
+  "preserve_existing_redirect_uris": true,
+  "rotate_or_replace_client_secret": false,
+  "wildcard_redirects": false,
+  "status": "staging_callback_verified_by_user_login",
+  "verification_source": "User reported successful MyDigital ID mobile and web login; provider console not independently inspected"
+}

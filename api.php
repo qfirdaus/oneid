@@ -43,6 +43,15 @@ switch($data['flag'] ?? null){
                }
                $results['status']=0;
 	        }
+            // Authorization applies before both active-token and refresh branches.
+            if ((int)$results['status'] !== 1) {
+                echo json_encode(['respond_flag'=>'1','respond'=>'0','respond_description'=>'Token is inactive.']);
+                break;
+            }
+            if ($data['data']['site_id'] !== 'IDP' && check_specific_sp_allowed($operation,$data['data']['site_id'],$results['user_id'])['status'] !== 1) {
+                echo json_encode(['respond_flag'=>'1','respond'=>'0','respond_description'=>'Token is active but Site not allowed to access.']);
+                break;
+            }
 	        //Here will check with the system settings for token timeout
 	        $tokenEvaluation = $tokenLifetimePolicy->evaluate($results['token_issued_at'],date("Y-m-d H:i:s"),(float)$token_timeout);
 	        $hour_diff = round(-$tokenEvaluation['age_seconds']/3600, 1);
@@ -61,10 +70,15 @@ switch($data['flag'] ?? null){
 						$API_respond_fields['respond_description'] = "Token expired, automate kick in to reissue new token. All token will be force expired status = 0 ". $hour_diff;
 						$new_refresh_token = generate_token(); //generate new token
 						// echo "XX";	
-						$operation->update_specific_token_status($results['user_id'],$data['data']['token'],0); //expired current browser token for specific browser
-
-						//Add new token to DB
-						$operation->add_new_token($new_refresh_token,$results['user_id'],$results['device_info']);
+                        $refreshed = $operation->refresh_legacy_token(
+                            $data['data']['token'], $new_refresh_token,
+                            static fn($locked) => $data['data']['site_id'] === 'IDP'
+                                || check_specific_sp_allowed($operation,$data['data']['site_id'],$locked['user_id'])['status'] === 1
+                        );
+                        if (!$refreshed) {
+                            echo json_encode(['respond_flag'=>'1','respond'=>'0','respond_description'=>'Token cannot be refreshed. Login again.']);
+                            break;
+                        }
 						$API_respond_fields['respond_new_token'] = $new_refresh_token;
 						$user_info = $operation->get_specific_user_info($results['user_id']);
 						$API_respond_fields['respond_user_packet'] = $user_info;

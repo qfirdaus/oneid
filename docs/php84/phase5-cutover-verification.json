@@ -1,0 +1,46 @@
+{
+  "status": "CUTOVER_VERIFIED",
+  "backup": "/var/backups/oneid-php84-cutover-20261003-140643",
+  "pools": {
+    "oneid-web-uat84": {
+      "version": "8.4.26",
+      "sapi": "fpm-fcgi"
+    },
+    "oneid-mobile-uat84": {
+      "version": "8.4.26",
+      "sapi": "fpm-fcgi"
+    },
+    "php8.3-fpm": {
+      "version": "8.3.35",
+      "sapi": "fpm-fcgi"
+    }
+  },
+  "http_checks": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/api.php",
+      "status": 400
+    },
+    {
+      "path": "/login.css",
+      "status": 200
+    },
+    {
+      "path": "/mobile/session",
+      "status": 401
+    },
+    {
+      "path": "/.well-known/openid-configuration",
+      "status": 200
+    },
+    {
+      "path": "/mobile-test/",
+      "status": 200
+    }
+  ],
+  "post_cutover_user_check": "PENDING",
+  "limits": "Approved UAT deferrals remain; no production rollout"
+}

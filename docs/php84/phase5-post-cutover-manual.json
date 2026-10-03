@@ -1,0 +1,18 @@
+{
+  "status": "PASS_USER_REPORTED",
+  "stage": "Post-cutover ordinary public UAT routing",
+  "checks": [
+    "Test hosts entry removed and SSH tunnel stopped",
+    "Web login and one downstream access successful",
+    "mobile-test login, session check, refresh and logout successful"
+  ],
+  "runtime_evidence": "Public web/mobile routing and PHP 8.4.26 pools independently verified in phase5-cutover-reapplied.json",
+  "scope_limit": "Browser harness validation, not native Android/iOS SDK E2E",
+  "latest_backup": "/var/backups/oneid-php84-cutover-20261003-141022",
+  "approved_deferrals": [
+    "Native device 8.4 E2E",
+    "Remote runtime and ODBC inventory",
+    "Formal performance acceptance"
+  ],
+  "production_changed": false
+}

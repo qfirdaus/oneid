@@ -55,7 +55,16 @@ class Database {
 
         if (oneid_password_needs_rehash((string) $result['u_password'])) {
             $modernHash = oneid_password_hash($password);
-            $this->updatePasswordHash($result['u_id'], $modernHash, $changeRequired);
+            // The password above was verified unchanged. Let the dormant mobile
+            // lifecycle observer distinguish an algorithm rehash from a reset.
+            // Connection-local only; never inherited by subsequent writes.
+            $this->pdo->exec('SET @oneid_mobile_password_rehash=1');
+            try {
+                $rehashApplied = $this->updatePasswordHash($result['u_id'], $modernHash, $changeRequired, (string) $result['u_password']);
+            } finally {
+                $this->pdo->exec('SET @oneid_mobile_password_rehash=NULL');
+            }
+            if ($rehashApplied !== 1) return false; // A concurrent reset must not be overwritten by a stale rehash.
             $result['u_password'] = $modernHash;
         } elseif ($changeRequired !== (int) ($result['password_change_required'] ?? 0)) {
             $this->setPasswordChangeRequired($result['u_id'], $changeRequired);
@@ -83,10 +92,13 @@ class Database {
         return $this->authenticateByField('u_id', $userId, $password) !== false;
     }
 
-    private function updatePasswordHash($userId,$hash,$changeRequired){
+    private function updatePasswordHash($userId,$hash,$changeRequired,$expectedHash=null){
         $Q = "UPDATE user_tbl SET u_password=:password, password_change_required=:required WHERE u_id=:user_id";
+        if($expectedHash!==null)$Q.=" AND BINARY u_password=BINARY :expected_hash";
         $R = $this->pdo->prepare($Q);
-        $R->execute([':password'=>$hash, ':required'=>$changeRequired, ':user_id'=>$userId]);
+        $parameters=[':password'=>$hash, ':required'=>$changeRequired, ':user_id'=>$userId];
+        if($expectedHash!==null)$parameters[':expected_hash']=$expectedHash;
+        $R->execute($parameters);
         return $R->rowCount();
     }
 
@@ -2041,14 +2053,14 @@ class Database {
 
 
 
-    public function check_token($token){
+    public function check_token($token, bool $forUpdate = false){
         $tokenHash = oneid_token_hash((string) $token);
         $legacyToken = strlen((string) $token) <= 25 ? (string) $token : '__not_legacy__';
         $Q = "SELECT A.*
                 FROM token_tbl A
                 LEFT JOIN user_tbl B ON B.u_id = A.user_id
                 WHERE (A.token_id=:token_hash OR A.token_id=:legacy_token)
-                  AND B.avail_status=1";
+                  AND B.avail_status=1" . ($forUpdate ? ' FOR UPDATE' : '');
         $R = $this->pdo->prepare($Q);
         $R->bindParam(':token_hash', $tokenHash);
         $R->bindParam(':legacy_token', $legacyToken);
@@ -2062,6 +2074,32 @@ class Database {
         return $result;
     }
 
+
+    /** Recheck locked token and authorization, then retire/issue atomically. */
+    public function refresh_legacy_token(string $token, string $replacement, callable $authorized): bool {
+        if ($this->pdo->inTransaction()) throw new \LogicException('Refresh requires its own transaction.');
+        $this->pdo->beginTransaction();
+        try {
+            $row = $this->check_token($token, true);
+            if (!$row || (int)$row['status'] !== 1
+                || (!empty($row['policy_revoke_at']) && strtotime((string)$row['policy_revoke_at']) <= time())) {
+                $this->pdo->rollBack(); return false;
+            }
+            $hours = (float)$this->get_system_config()['token_timeout'];
+            $state = (new \OneId\App\Auth\SsoTokenLifetimePolicy())->evaluate($row['token_issued_at'],date('Y-m-d H:i:s'),$hours);
+            if ($state['state'] !== \OneId\App\Auth\SsoTokenLifetimePolicy::LEGACY_REFRESH || !$authorized($row)) {
+                $this->pdo->rollBack(); return false;
+            }
+            if ($this->update_specific_token_status($row['user_id'],$token,0) !== 1
+                || $this->add_new_token($replacement,$row['user_id'],$row['device_info']) !== 1) {
+                throw new \RuntimeException('Token refresh persistence failed.');
+            }
+            $this->pdo->commit(); return true;
+        } catch (\Throwable $error) {
+            if ($this->pdo->inTransaction()) $this->pdo->rollBack();
+            throw $error;
+        }
+    }
 
    public function add_new_token($token_id,$user_id,$device){
         $storedToken = oneid_token_hash((string) $token_id);

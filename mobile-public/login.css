@@ -1,0 +1,65 @@
+:root{font-family:Inter,"Segoe UI",system-ui,-apple-system,sans-serif;color:#12354e;background:#f0f5fa;font-synthesis:none;color-scheme:light}*{box-sizing:border-box}body{margin:0;padding:44px 20px;min-height:100vh;display:grid;place-items:center;background:radial-gradient(ellipse at 0 0,#d9f0f5 0,transparent 50%),radial-gradient(ellipse at 100% 100%,#e0eafa 0,transparent 55%),#f3f7fb}main{width:100%;max-width:520px;background:#fff;border:1px solid #dbe6ef;border-radius:24px;overflow:hidden;box-shadow:0 22px 65px #183e6410}.brand-header{display:flex;align-items:center;justify-content:space-between;gap:28px;padding:29px 36px;border-bottom:1px solid #e6eef4;background:linear-gradient(120deg,#fff,#f8fbfd)}.logo-oneid{display:block;width:148px;max-width:45%;height:auto}.logo-upnm{display:block;width:132px;max-width:40%;height:auto}.content{padding:30px 36px 22px}.eyebrow{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:1.6px;color:#53738a}.status-dot{width:7px;height:7px;flex-shrink:0;background:#009cbd;border-radius:50%}h1{font-size:28px;letter-spacing:-.7px;line-height:1.25;margin:14px 0 22px;color:#103956}h2{font-size:19px;letter-spacing:-.25px;margin:22px 0 7px}h3{font-size:15px;margin:0 0 5px;font-weight:700}p{font-size:14px;line-height:1.65;color:#5b7184;margin:0 0 16px}.intro{margin-bottom:22px}.factor-card{padding:20px;margin:16px 0;border:1px solid #dce7f0;border-radius:15px;background:#fbfdff}.factor-heading{display:flex;gap:12px;align-items:flex-start}.factor-heading p{font-size:12px;line-height:1.6;margin:0}.factor-icon{display:grid;place-items:center;flex-shrink:0;width:34px;height:34px;background:#e5f3f8;color:#057ca0;font-size:20px;border-radius:10px}label{display:block;margin:18px 0 8px;font-size:13px;font-weight:650;color:#274b66}input{display:block;width:100%;min-height:48px;padding:12px 14px;border:1px solid #b9cbd9;border-radius:9px;background:#fff;color:#12354e;font:inherit;transition:border-color .15s,box-shadow .15s}input:focus{outline:3px solid #069fc223;outline-offset:1px;border-color:#078ab1}input::placeholder{color:#8ca1b2}.otp-input{font-size:21px;letter-spacing:8px;text-align:center;font-variant-numeric:tabular-nums}.field-hint{font-size:11px;margin:7px 0 0;color:#667e90}button{display:block;width:100%;min-height:46px;padding:12px 14px;margin-top:16px;border:1px solid transparent;border-radius:9px;background:linear-gradient(105deg,#09649f,#009bbb);color:#fff;font:inherit;font-size:14px;font-weight:650;cursor:pointer;box-shadow:0 4px 10px #08669112;transition:filter .15s}button:hover{filter:brightness(.94)}button:focus-visible{outline:3px solid #079abb66;outline-offset:3px}.secondary{background:#edf6fa;color:#075c81;border-color:#d4e9f2;box-shadow:none}.cancel{background:transparent;color:#526d81;box-shadow:none;margin-top:20px}.cancel:hover{background:#f2f6f9;filter:none}.notice{padding:13px 15px;background:#f0f7fc;border:1px solid #cddfeb;border-left:3px solid #0984ac;border-radius:9px;font-size:13px;margin:0 0 20px}footer{padding:20px 28px;text-align:center;background:#f8fbfd;border-top:1px solid #e4edf4;color:#738899;font-size:10px;line-height:1.7}.footer-title{font-weight:650;font-size:12px;color:#46667d}footer p{font-size:11px;margin:5px 0 10px}footer>span:last-child{font-size:10px}@media(max-width:540px){body{padding:20px 12px;place-items:start center}.brand-header{padding:23px 24px}.content{padding:26px 24px 18px}main{border-radius:19px}h1{font-size:25px}.factor-card{padding:17px}.logo-oneid{width:135px}.logo-upnm{width:119px}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.language-switch{display:flex;align-items:center;justify-content:flex-end;width:fit-content;gap:2px;margin:-9px 0 20px auto;padding:4px 5px;border:1px solid #dfe8ef;border-radius:999px;background:#fff;box-shadow:0 2px 8px #183e6412}.language-icon{display:inline-flex;align-items:center;justify-content:center;width:27px;color:#708ba0}.language-switch a{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;padding:6px 8px;border-radius:999px;text-decoration:none;color:#526d81;font-size:11px;font-weight:700;border:1px solid transparent}.language-switch a:hover{background:#edf6fa}.language-switch a[aria-current="true"]{color:#fff;background:#009ed0;box-shadow:0 2px 5px #009ed033}.language-switch a:focus-visible{outline:3px solid #079abb66;outline-offset:2px}
+
+/* Compact password screen; authentication stages retain their own spacing. */
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.login-divider{display:flex;align-items:center;gap:12px;color:#72899b;font-size:11px;margin:12px 0 8px}.login-divider::before,.login-divider::after{content:"";flex:1;height:1px;background:#e2eaf2}
+.mydid-accounts{margin:0;padding:0;border:0;min-width:0}.mydid-options{display:flex;justify-content:center;gap:20px}.mydid-options label{display:flex;align-items:center;gap:7px;min-height:36px;margin:0;padding:4px 8px;cursor:pointer;font-size:12px}.mydid-options input{width:16px;height:16px;min-height:0;padding:0;margin:0;accent-color:#235997}.mydid-options label:focus-within{outline:2px solid #079abb66;border-radius:6px}/* Mobile identity button with a distinct violet palette. */
+.mydid-button{display:grid;grid-template-columns:108px minmax(0,1fr) 30px;align-items:center;gap:0;min-height:76px;padding:0 14px 0 0;margin-top:5px;overflow:hidden;border:0;border-radius:14px;background:linear-gradient(118deg,#075b9a 0%,#087fbd 58%,#09a3c6 100%);color:#fff;text-align:left;box-shadow:0 6px 16px #124a7021}.mydid-button:hover{filter:saturate(1.08) brightness(1.03)}.mydid-brand{display:flex;align-items:center;justify-content:center;align-self:stretch;min-height:76px;padding:12px 11px;background:linear-gradient(145deg,#fff,#f5fbff);border-right:1px solid #ffffffa6}.mydid-brand img{display:block;width:92px;max-width:100%;height:auto}.mydid-copy{display:flex;flex-direction:column;gap:4px;min-width:0;padding:12px 13px}.mydid-copy strong{font-size:13px;line-height:1.3;font-weight:800;letter-spacing:-.01em}.mydid-copy small{position:relative;padding-left:15px;color:#fffffff0;font-size:10px;line-height:1.35;font-weight:600}.mydid-copy small::before{content:"";position:absolute;top:2px;left:0;width:7px;height:9px;border:1.5px solid #fffffff0;border-radius:2px 2px 4px 4px}.mydid-arrow{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid #ffffff66;border-radius:50%;background:#ffffff1a;font-size:20px;font-weight:400}.login-divider{letter-spacing:.7px;font-size:10px}
+@media(max-width:380px){.mydid-button{grid-template-columns:88px minmax(0,1fr) 26px;padding-right:9px}.mydid-brand{padding:10px 8px}.mydid-copy{padding:10px 9px}.mydid-copy strong{font-size:12px}.mydid-arrow{width:26px;height:26px}}
+body.login-compact{padding:12px}.login-compact .brand-header{padding:17px 26px}.login-compact .logo-oneid{width:125px}.login-compact .logo-upnm{width:150px;max-width:48%}.login-compact .content{padding:14px 26px 6px}.login-compact .language-switch{margin:0 0 6px auto;padding:2px 4px}.login-compact .eyebrow{display:none}.login-compact h1{font-size:24px;margin:4px 0 7px}.login-compact .content>p{font-size:12px;margin:0 0 8px}.login-compact label{margin-top:10px;margin-bottom:5px}.login-compact input:not([type=radio]){min-height:44px;padding:10px 12px}.login-compact .mydid-options label{margin:0}.login-compact .cancel{margin-top:6px;min-height:36px;padding:7px}.login-compact footer{padding:10px 20px}.login-compact footer .footer-title,.login-compact footer>span:last-child{display:none}.login-compact footer p{margin:0;font-size:10px}
+@media(max-width:380px){.login-compact .content{padding-left:18px;padding-right:18px}.login-compact .brand-header{padding-left:18px;padding-right:18px}}
+
+.account-choice{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid #b9cde2;border-radius:10px;min-height:48px;cursor:pointer}.account-choice input{width:18px;height:18px;min-height:0;margin:0;padding:0;accent-color:#087fbd}.account-choice:has(input:checked){background:#edf6fa;border-color:#087fbd}
+
+.mydid-info{display:flex;align-items:flex-start;gap:8px;margin:0 0 10px;padding:9px 11px;border-radius:8px;background:#eef7fc;color:#496b83;font-size:11px;line-height:1.5}.mydid-info svg{flex-shrink:0;margin-top:1px;color:#087fbd}.application-footer p{margin:0;font-size:11px;color:#8293a1}.login-compact .application-footer p{font-size:10px}
+
+/* On narrow phones the logo gets its own compact row, leaving full width for
+   both BM and EN labels. Allow natural wrapping at enlarged accessibility sizes. */
+@media(max-width:600px){
+ .login-compact .content{padding-left:18px;padding-right:18px}
+ .mydid-button{grid-template-columns:minmax(0,1fr) 28px;padding:0 12px 0 0;min-height:0;row-gap:0}
+ .mydid-brand{grid-column:1 / -1;min-height:0;margin-right:-12px;padding:8px 14px;justify-content:flex-start;background:#f5fbff;border-right:0;border-bottom:1px solid #dceaf3}
+ .mydid-brand img{width:94px;height:auto}
+ .mydid-copy{padding:10px 12px;gap:4px}
+ .mydid-copy strong{font-size:13px;line-height:1.4;letter-spacing:-.02em}
+ .mydid-copy small{font-size:10px;line-height:1.4}
+ .mydid-arrow{width:26px;height:26px;font-size:18px}
+}
+.mydid-button:focus-visible{outline:3px solid #0879c94d;outline-offset:3px}
+.mydid-info{background:#eef7fc;color:#496b83}
+.mydid-info svg{color:#087fbd}
+
+/* Fluid mobile spacing; keep the action label complete on a single line. */
+body.login-compact{padding:clamp(6px,2.5vw,12px)}
+.login-compact .content{padding-left:clamp(12px,4vw,26px);padding-right:clamp(12px,4vw,26px)}
+.mydid-copy strong{white-space:nowrap;font-size:clamp(12px,3.4vw,13px)}
+@media(max-width:340px){
+ .mydid-button{grid-template-columns:minmax(0,1fr) 26px;padding-right:10px}
+ .mydid-brand{margin-right:-10px}
+ .mydid-arrow{display:inline-flex;width:26px;height:26px}
+ .mydid-copy{padding:10px}
+}
+
+/* Progressive enhancement: password control and submission feedback. */
+.password-field{position:relative}
+.login-compact .password-field input{padding-right:52px;font-size:16px}
+.password-toggle{position:absolute;right:2px;top:2px;display:grid;place-items:center;width:42px;min-height:40px;margin:0;padding:8px;background:transparent;color:#536781;box-shadow:none;border-radius:7px}
+.password-toggle:hover,.password-toggle[aria-pressed=true]{background:#edf2f8;color:#493078}
+button[aria-busy=true]{opacity:.8;cursor:wait}
+button[aria-busy=true]::before{content:"";display:inline-block;width:12px;height:12px;margin-right:8px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:login-spin .8s linear infinite}
+.mydid-button[aria-busy=true]{display:flex;justify-content:center;min-height:76px;padding:14px}
+.notice{display:flex;align-items:flex-start;gap:10px;line-height:1.6}
+.notice-icon{display:inline-grid;place-items:center;flex:0 0 20px;height:20px;margin-top:1px;border:1px solid currentColor;border-radius:50%;font-weight:700}
+.login-compact input:not([type=radio]){font-size:16px;min-height:46px}
+.login-compact label{line-height:1.5}
+@keyframes login-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){button[aria-busy=true]::before{animation:none}}
+
+.login-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.login-toolbar .language-switch{margin:0 0 0 auto}
+.environment-badge{display:inline-flex;align-items:center;border:1px solid #ead8a8;border-radius:999px;background:#fff8e8;color:#795719;padding:5px 9px;font-size:10px;font-weight:650;line-height:1.4}
+.recovery-link{width:auto;margin:4px 0 0 auto;padding:8px 0;min-height:40px;background:transparent;box-shadow:none;color:#075e8d;font-size:12px;text-decoration:underline;text-underline-offset:3px}.recovery-return{margin-top:20px;line-height:1.6}.recovery-success{padding:14px;border:1px solid #b5d8c8;border-radius:10px;background:#edf8f2;color:#235d44}
+
+.password-login-button{display:flex;align-items:center;justify-content:center;gap:6px;font-weight:700;background:linear-gradient(105deg,#09649f,#009bbb);box-shadow:0 4px 12px #08669122}.password-login-button svg{flex-shrink:0}

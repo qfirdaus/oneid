@@ -49,3 +49,7 @@ public_img/*
 !/storage/backups/.gitkeep
 /storage/runtime/
 /storage/quarantine/
+
+# Generated Python bytecode is not release source.
+__pycache__/
+*.py[cod]

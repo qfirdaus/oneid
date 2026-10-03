@@ -1,0 +1,26 @@
+# REVIEW TEMPLATE ONLY. No service has been installed or enabled.
+[Unit]
+Description=OneID mobile OIDC provider production
+After=network-online.target oneid-mobile-postgres-prod.service
+Requires=oneid-mobile-postgres-prod.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=oneid-mobile-prod
+Group=oneid-mobile-prod
+WorkingDirectory=/var/lib/oneid-mobile-prod
+EnvironmentFile=/etc/oneid-mobile-prod/hydra.env
+ExecStart=/opt/oneid-mobile-prod/hydra serve all --sqa-opt-out -c /etc/oneid-mobile-prod/hydra.yaml
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/oneid-mobile-prod
+BindReadOnlyPaths=/etc/oneid-mobile-prod/hosts:/etc/hosts
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

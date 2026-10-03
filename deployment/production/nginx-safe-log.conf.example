@@ -1,0 +1,2 @@
+# http{} scope. No args, cookies, Authorization, referer or request bodies.
+log_format oneid_mobile_safe '$remote_addr [$time_local] "$request_method $uri $server_protocol" $status $body_bytes_sent $request_time';

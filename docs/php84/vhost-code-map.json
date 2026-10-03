@@ -1,0 +1,685 @@
+[
+  {
+    "host": "efacility-uat.upnm.edu.my",
+    "config": "/etc/nginx/sites-enabled/e-facility",
+    "root": "/var/www/e-facility-uat/public",
+    "upstreams": [
+      "unix:/run/php/php8.3-fpm.sock"
+    ],
+    "configured_php": "8.3",
+    "fpm_binary_version": "8.3.35 (installed binary; not a per-request probe)",
+    "code_evidence": [
+      {
+        "file": "/var/www/e-facility-uat/public/index.php",
+        "sha256": "a26040162e666ce95c0e3da830b1b52a880330beb9f9d9d77b770b03cb5c03bd",
+        "references": [
+          {
+            "line": 50,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 112,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 137,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 217,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      },
+      {
+        "file": "/var/www/e-facility-uat/public/sso_sp_client.php",
+        "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+        "references": [
+          {
+            "line": 12,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 13,
+            "target": "sso-flow.php"
+          },
+          {
+            "line": 47,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 49,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "host": "epms-uat.upnm.edu.my",
+    "config": "/etc/nginx/sites-enabled/e-pms-uat",
+    "root": "/var/www/e-pms-uat/public",
+    "upstreams": [
+      "unix:/run/php/php8.3-fpm.sock"
+    ],
+    "configured_php": "8.3",
+    "fpm_binary_version": "8.3.35 (installed binary; not a per-request probe)",
+    "code_evidence": [
+      {
+        "file": "/var/www/e-pms-uat/public/index.php",
+        "sha256": "a26040162e666ce95c0e3da830b1b52a880330beb9f9d9d77b770b03cb5c03bd",
+        "references": [
+          {
+            "line": 50,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 112,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 137,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 217,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      },
+      {
+        "file": "/var/www/e-pms-uat/public/sso_sp_client.php",
+        "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+        "references": [
+          {
+            "line": 12,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 13,
+            "target": "sso-flow.php"
+          },
+          {
+            "line": 47,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 49,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "host": "oneid-uat.upnm.edu.my",
+    "config": "/etc/nginx/sites-enabled/oneid-uat",
+    "root": "/var/www/oneid-uat/public",
+    "upstreams": [
+      "unix:/run/php/php8.3-fpm.sock"
+    ],
+    "configured_php": "8.3",
+    "fpm_binary_version": "8.3.35 (installed binary; not a per-request probe)",
+    "code_evidence": []
+  },
+  {
+    "host": "sap-uat.upnm.edu.my",
+    "config": "/etc/nginx/sites-enabled/sap-uat",
+    "root": "/var/www/sap-uat/public",
+    "upstreams": [
+      "unix:/run/php/php8.3-fpm.sock"
+    ],
+    "configured_php": "8.3",
+    "fpm_binary_version": "8.3.35 (installed binary; not a per-request probe)",
+    "code_evidence": [
+      {
+        "file": "/var/www/sap-uat/public/index.php",
+        "sha256": "a26040162e666ce95c0e3da830b1b52a880330beb9f9d9d77b770b03cb5c03bd",
+        "references": [
+          {
+            "line": 50,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 112,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 137,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 217,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      },
+      {
+        "file": "/var/www/sap-uat/public/sso_sp_client.php",
+        "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+        "references": [
+          {
+            "line": 12,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 13,
+            "target": "sso-flow.php"
+          },
+          {
+            "line": 47,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 49,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "host": "eprestasi-uat.upnm.edu.my",
+    "config": "/etc/nginx/sites-enabled/e-prestasi",
+    "root": "/var/www/e-prestasi-uat/public",
+    "upstreams": [
+      "unix:/run/php/php8.3-fpm.sock"
+    ],
+    "configured_php": "8.3",
+    "fpm_binary_version": "8.3.35 (installed binary; not a per-request probe)",
+    "code_evidence": [
+      {
+        "file": "/var/www/e-prestasi-uat/public/index.php",
+        "sha256": "a26040162e666ce95c0e3da830b1b52a880330beb9f9d9d77b770b03cb5c03bd",
+        "references": [
+          {
+            "line": 50,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 112,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 137,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 217,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      },
+      {
+        "file": "/var/www/e-prestasi-uat/public/sso_sp_client.php",
+        "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+        "references": [
+          {
+            "line": 12,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 13,
+            "target": "sso-flow.php"
+          },
+          {
+            "line": 47,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 49,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "host": "ehepa-uat.upnm.edu.my",
+    "config": "/etc/nginx/sites-enabled/e-hepa",
+    "root": "/var/www/e-hepa-uat/public",
+    "upstreams": [
+      "unix:/run/php/php8.3-fpm.sock"
+    ],
+    "configured_php": "8.3",
+    "fpm_binary_version": "8.3.35 (installed binary; not a per-request probe)",
+    "code_evidence": [
+      {
+        "file": "/var/www/e-hepa-uat/public/index.php",
+        "sha256": "a26040162e666ce95c0e3da830b1b52a880330beb9f9d9d77b770b03cb5c03bd",
+        "references": [
+          {
+            "line": 50,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 112,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 137,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 217,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      },
+      {
+        "file": "/var/www/e-hepa-uat/public/sso_sp_client.php",
+        "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+        "references": [
+          {
+            "line": 12,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 13,
+            "target": "sso-flow.php"
+          },
+          {
+            "line": 47,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 49,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "host": "mymohes.upnm.edu.my",
+    "config": "/etc/nginx/sites-enabled/mymohes",
+    "root": "/var/www/e-mymohes-uat/public",
+    "upstreams": [
+      "unix:/run/php/php8.3-fpm.sock"
+    ],
+    "configured_php": "8.3",
+    "fpm_binary_version": "8.3.35 (installed binary; not a per-request probe)",
+    "code_evidence": [
+      {
+        "file": "/var/www/e-mymohes-uat/public/index.php",
+        "sha256": "a26040162e666ce95c0e3da830b1b52a880330beb9f9d9d77b770b03cb5c03bd",
+        "references": [
+          {
+            "line": 50,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 112,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 137,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 217,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      },
+      {
+        "file": "/var/www/e-mymohes-uat/public/sso_sp_client.php",
+        "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+        "references": [
+          {
+            "line": 12,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 13,
+            "target": "sso-flow.php"
+          },
+          {
+            "line": 47,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 49,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "host": "iqs-framework.upnm.edu.my",
+    "config": "/etc/nginx/sites-enabled/iqs-framework",
+    "root": "/var/www/iqs-framework/public",
+    "upstreams": [
+      "unix:/run/php/php8.3-fpm.sock"
+    ],
+    "configured_php": "8.3",
+    "fpm_binary_version": "8.3.35 (installed binary; not a per-request probe)",
+    "code_evidence": [
+      {
+        "file": "/var/www/iqs-framework/public/index.php",
+        "sha256": "a26040162e666ce95c0e3da830b1b52a880330beb9f9d9d77b770b03cb5c03bd",
+        "references": [
+          {
+            "line": 50,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 112,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 137,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 217,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      },
+      {
+        "file": "/var/www/iqs-framework/public/sso_sp_client.php",
+        "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+        "references": [
+          {
+            "line": 12,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 13,
+            "target": "sso-flow.php"
+          },
+          {
+            "line": 47,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 49,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "host": "apel-uat.upnm.edu.my",
+    "config": "/etc/nginx/sites-enabled/apel",
+    "root": "/var/www/apel/public",
+    "upstreams": [
+      "unix:/run/php/php8.3-fpm.sock"
+    ],
+    "configured_php": "8.3",
+    "fpm_binary_version": "8.3.35 (installed binary; not a per-request probe)",
+    "code_evidence": [
+      {
+        "file": "/var/www/apel/public/index.php",
+        "sha256": "a26040162e666ce95c0e3da830b1b52a880330beb9f9d9d77b770b03cb5c03bd",
+        "references": [
+          {
+            "line": 50,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 112,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 137,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 217,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      },
+      {
+        "file": "/var/www/apel/public/sso_sp_client.php",
+        "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+        "references": [
+          {
+            "line": 12,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 13,
+            "target": "sso-flow.php"
+          },
+          {
+            "line": 47,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 49,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "host": "survey-uat.upnm.edu.my",
+    "config": "/etc/nginx/sites-enabled/survey-uat",
+    "root": "/var/www/survey-uat/public",
+    "upstreams": [
+      "unix:/run/php/php8.3-fpm.sock"
+    ],
+    "configured_php": "8.3",
+    "fpm_binary_version": "8.3.35 (installed binary; not a per-request probe)",
+    "code_evidence": [
+      {
+        "file": "/var/www/survey-uat/public/index.php",
+        "sha256": "a26040162e666ce95c0e3da830b1b52a880330beb9f9d9d77b770b03cb5c03bd",
+        "references": [
+          {
+            "line": 50,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 112,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 137,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 217,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      },
+      {
+        "file": "/var/www/survey-uat/public/sso_sp_client.php",
+        "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+        "references": [
+          {
+            "line": 12,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 13,
+            "target": "sso-flow.php"
+          },
+          {
+            "line": 47,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 49,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "host": "spk-uat.upnm.edu.my",
+    "config": "/etc/nginx/sites-enabled/spk-uat.upnm.edu.my",
+    "root": "/var/www/e-spk-uat/public",
+    "upstreams": [
+      "unix:/run/php/php8.3-fpm.sock"
+    ],
+    "configured_php": "8.3",
+    "fpm_binary_version": "8.3.35 (installed binary; not a per-request probe)",
+    "code_evidence": [
+      {
+        "file": "/var/www/e-spk-uat/public/index.php",
+        "sha256": "a26040162e666ce95c0e3da830b1b52a880330beb9f9d9d77b770b03cb5c03bd",
+        "references": [
+          {
+            "line": 50,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 112,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 137,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 217,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      },
+      {
+        "file": "/var/www/e-spk-uat/public/sso_sp_client.php",
+        "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+        "references": [
+          {
+            "line": 12,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 13,
+            "target": "sso-flow.php"
+          },
+          {
+            "line": 47,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 49,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "host": "epr-uat.upnm.edu.my",
+    "config": "/etc/nginx/sites-enabled/epr-uat.upnm.edu.my",
+    "root": "/var/www/e-pr-uat/public",
+    "upstreams": [
+      "unix:/run/php/php8.3-fpm.sock"
+    ],
+    "configured_php": "8.3",
+    "fpm_binary_version": "8.3.35 (installed binary; not a per-request probe)",
+    "code_evidence": [
+      {
+        "file": "/var/www/e-pr-uat/public/index.php",
+        "sha256": "a26040162e666ce95c0e3da830b1b52a880330beb9f9d9d77b770b03cb5c03bd",
+        "references": [
+          {
+            "line": 50,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 112,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 137,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 217,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      },
+      {
+        "file": "/var/www/e-pr-uat/public/sso_sp_client.php",
+        "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+        "references": [
+          {
+            "line": 12,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 13,
+            "target": "sso-flow.php"
+          },
+          {
+            "line": 47,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 49,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "host": "ebdr-uat.upnm.edu.my",
+    "config": "/etc/nginx/sites-enabled/e-bdr",
+    "root": "/var/www/e-bdr-uat/public",
+    "upstreams": [
+      "unix:/run/php/php8.3-fpm.sock"
+    ],
+    "configured_php": "8.3",
+    "fpm_binary_version": "8.3.35 (installed binary; not a per-request probe)",
+    "code_evidence": [
+      {
+        "file": "/var/www/e-bdr-uat/public/index.php",
+        "sha256": "a26040162e666ce95c0e3da830b1b52a880330beb9f9d9d77b770b03cb5c03bd",
+        "references": [
+          {
+            "line": 50,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 112,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 137,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 217,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      },
+      {
+        "file": "/var/www/e-bdr-uat/public/sso_sp_client.php",
+        "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+        "references": [
+          {
+            "line": 12,
+            "target": "sso-config.php"
+          },
+          {
+            "line": 13,
+            "target": "sso-flow.php"
+          },
+          {
+            "line": 47,
+            "target": "sso_sp_client.php"
+          },
+          {
+            "line": 49,
+            "target": "sso_sp_client.php"
+          }
+        ]
+      }
+    ]
+  }
+]

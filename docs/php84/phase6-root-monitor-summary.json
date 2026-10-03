@@ -1,0 +1,13 @@
+{
+  "source": "User supplied sudo monitor output",
+  "checked_at": "2026-10-03T14:18:19.678420+08:00",
+  "since_local": "2026-10-03T14:10:22",
+  "services_active": true,
+  "reported_service_restarts": 0,
+  "web_http_5xx": 0,
+  "mobile_http_5xx": 0,
+  "web_integration_audit_entries": 6,
+  "php84_pool_capacity_warning": 1,
+  "warning_pool": "UNKNOWN_PENDING_LOG_LINE",
+  "assessment": "No HTTP 5xx observed; capacity warning requires identification. Not a clean capacity acceptance."
+}

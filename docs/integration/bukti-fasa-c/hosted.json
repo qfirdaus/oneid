@@ -1,0 +1,462 @@
+{
+  "phase": "C",
+  "scope": "full hosted HTTP flow against private MySQL/Hydra/PostgreSQL fixtures",
+  "failure": null,
+  "tests": [
+    {
+      "test": "fixture lifecycle triggers installed and enabled only in private database",
+      "passed": true
+    },
+    {
+      "test": "register public client poc-android",
+      "passed": true
+    },
+    {
+      "test": "register public client poc-ios",
+      "passed": true
+    },
+    {
+      "test": "unauthenticated token hook rejected",
+      "passed": true
+    },
+    {
+      "test": "session without bearer rejected",
+      "passed": true
+    },
+    {
+      "test": "staff: hosted login form is no-store and frame protected",
+      "passed": true
+    },
+    {
+      "test": "staff: separate HttpOnly mobile cookie, no legacy web cookie",
+      "passed": true
+    },
+    {
+      "test": "foreign Origin cannot submit password form",
+      "passed": true
+    },
+    {
+      "test": "invalid CSRF cannot submit password form",
+      "passed": true
+    },
+    {
+      "test": "staff: completed hosted authentication redirects to provider",
+      "passed": true
+    },
+    {
+      "test": "callback binds original state",
+      "passed": true
+    },
+    {
+      "test": "staff: actual authenticated token hook permits PKCE exchange",
+      "passed": true
+    },
+    {
+      "test": "staff: token claims preserve nonce and actual MFA assurance",
+      "passed": true
+    },
+    {
+      "test": "staff: online session accepts issued access token",
+      "passed": true
+    },
+    {
+      "test": "ID token cannot be used as session access token",
+      "passed": true
+    },
+    {
+      "test": "refresh credential cannot be used as session access token",
+      "passed": true
+    },
+    {
+      "test": "ordinary mobile login leaves web tokens active",
+      "passed": true
+    },
+    {
+      "test": "legacy password algorithm rehash does not invalidate mobile session",
+      "passed": true
+    },
+    {
+      "test": "stale legacy rehash cannot overwrite a concurrently changed password",
+      "passed": true
+    },
+    {
+      "test": "staff: hosted login form is no-store and frame protected",
+      "passed": true
+    },
+    {
+      "test": "staff: separate HttpOnly mobile cookie, no legacy web cookie",
+      "passed": true
+    },
+    {
+      "test": "callback binds original state",
+      "passed": true
+    },
+    {
+      "test": "cancel returns access_denied without authorization code",
+      "passed": true
+    },
+    {
+      "test": "real hook allows refresh without browser login",
+      "passed": true
+    },
+    {
+      "test": "full adapter and provider restart preserves SQL mobile session",
+      "passed": true
+    },
+    {
+      "test": "rolled-back account update also rolls back invalidation",
+      "passed": true
+    },
+    {
+      "test": "disable-enable between requests invalidates previous session",
+      "passed": true
+    },
+    {
+      "test": "disable-enable blocks old refresh through real hook",
+      "passed": true
+    },
+    {
+      "test": "staff: hosted login form is no-store and frame protected",
+      "passed": true
+    },
+    {
+      "test": "staff: separate HttpOnly mobile cookie, no legacy web cookie",
+      "passed": true
+    },
+    {
+      "test": "staff: completed hosted authentication redirects to provider",
+      "passed": true
+    },
+    {
+      "test": "callback binds original state",
+      "passed": true
+    },
+    {
+      "test": "staff: actual authenticated token hook permits PKCE exchange",
+      "passed": true
+    },
+    {
+      "test": "staff: token claims preserve nonce and actual MFA assurance",
+      "passed": true
+    },
+    {
+      "test": "staff: online session accepts issued access token",
+      "passed": true
+    },
+    {
+      "test": "staff: hosted login form is no-store and frame protected",
+      "passed": true
+    },
+    {
+      "test": "staff: separate HttpOnly mobile cookie, no legacy web cookie",
+      "passed": true
+    },
+    {
+      "test": "staff: completed hosted authentication redirects to provider",
+      "passed": true
+    },
+    {
+      "test": "callback binds original state",
+      "passed": true
+    },
+    {
+      "test": "staff: actual authenticated token hook permits PKCE exchange",
+      "passed": true
+    },
+    {
+      "test": "staff: token claims preserve nonce and actual MFA assurance",
+      "passed": true
+    },
+    {
+      "test": "staff: online session accepts issued access token",
+      "passed": true
+    },
+    {
+      "test": "hosted logout revokes only this installation",
+      "passed": true
+    },
+    {
+      "test": "logged-out installation cannot refresh",
+      "passed": true
+    },
+    {
+      "test": "maintenance returns retryable status without granting access",
+      "passed": true
+    },
+    {
+      "test": "maintenance refuses refresh",
+      "passed": true
+    },
+    {
+      "test": "temporary maintenance does not consume valid refresh token",
+      "passed": true
+    },
+    {
+      "test": "temporary category-policy changes permanently retire prior assurance",
+      "passed": true
+    },
+    {
+      "test": "staff: hosted login form is no-store and frame protected",
+      "passed": true
+    },
+    {
+      "test": "staff: separate HttpOnly mobile cookie, no legacy web cookie",
+      "passed": true
+    },
+    {
+      "test": "staff: completed hosted authentication redirects to provider",
+      "passed": true
+    },
+    {
+      "test": "callback binds original state",
+      "passed": true
+    },
+    {
+      "test": "staff: actual authenticated token hook permits PKCE exchange",
+      "passed": true
+    },
+    {
+      "test": "staff: token claims preserve nonce and actual MFA assurance",
+      "passed": true
+    },
+    {
+      "test": "staff: online session accepts issued access token",
+      "passed": true
+    },
+    {
+      "test": "delete-recreate cannot resurrect old subject session",
+      "passed": true
+    },
+    {
+      "test": "staff: hosted login form is no-store and frame protected",
+      "passed": true
+    },
+    {
+      "test": "staff: separate HttpOnly mobile cookie, no legacy web cookie",
+      "passed": true
+    },
+    {
+      "test": "staff: completed hosted authentication redirects to provider",
+      "passed": true
+    },
+    {
+      "test": "callback binds original state",
+      "passed": true
+    },
+    {
+      "test": "staff: actual authenticated token hook permits PKCE exchange",
+      "passed": true
+    },
+    {
+      "test": "staff: token claims preserve nonce and actual MFA assurance",
+      "passed": true
+    },
+    {
+      "test": "staff: online session accepts issued access token",
+      "passed": true
+    },
+    {
+      "test": "recreated user ID receives a new stable subject",
+      "passed": true
+    },
+    {
+      "test": "observer OFF-ON retires prior sessions",
+      "passed": true
+    },
+    {
+      "test": "student: hosted login form is no-store and frame protected",
+      "passed": true
+    },
+    {
+      "test": "student: separate HttpOnly mobile cookie, no legacy web cookie",
+      "passed": true
+    },
+    {
+      "test": "student: password alone stops at MFA",
+      "passed": true
+    },
+    {
+      "test": "student: email delivery response contains no OTP",
+      "passed": true
+    },
+    {
+      "test": "student: completed hosted authentication redirects to provider",
+      "passed": true
+    },
+    {
+      "test": "callback binds original state",
+      "passed": true
+    },
+    {
+      "test": "student: actual authenticated token hook permits PKCE exchange",
+      "passed": true
+    },
+    {
+      "test": "student: token claims preserve nonce and actual MFA assurance",
+      "passed": true
+    },
+    {
+      "test": "student: online session accepts issued access token",
+      "passed": true
+    },
+    {
+      "test": "student: hosted login form is no-store and frame protected",
+      "passed": true
+    },
+    {
+      "test": "student: separate HttpOnly mobile cookie, no legacy web cookie",
+      "passed": true
+    },
+    {
+      "test": "student: password alone stops at MFA",
+      "passed": true
+    },
+    {
+      "test": "student: email delivery response contains no OTP",
+      "passed": true
+    },
+    {
+      "test": "mandatory password change follows completed MFA",
+      "passed": true
+    },
+    {
+      "test": "hosted password quality validation refuses weak password",
+      "passed": true
+    },
+    {
+      "test": "hosted password reuse validation refuses current password",
+      "passed": true
+    },
+    {
+      "test": "student: completed hosted authentication redirects to provider",
+      "passed": true
+    },
+    {
+      "test": "callback binds original state",
+      "passed": true
+    },
+    {
+      "test": "student: actual authenticated token hook permits PKCE exchange",
+      "passed": true
+    },
+    {
+      "test": "student: token claims preserve nonce and actual MFA assurance",
+      "passed": true
+    },
+    {
+      "test": "student: online session accepts issued access token",
+      "passed": true
+    },
+    {
+      "test": "password change saves history and invalidates reset OTPs",
+      "passed": true
+    },
+    {
+      "test": "password change revokes only affected user web sessions",
+      "passed": true
+    },
+    {
+      "test": "password change invalidates pre-change mobile refresh",
+      "passed": true
+    },
+    {
+      "test": "totp: hosted login form is no-store and frame protected",
+      "passed": true
+    },
+    {
+      "test": "totp: separate HttpOnly mobile cookie, no legacy web cookie",
+      "passed": true
+    },
+    {
+      "test": "totp: password alone stops at MFA",
+      "passed": true
+    },
+    {
+      "test": "totp: completed hosted authentication redirects to provider",
+      "passed": true
+    },
+    {
+      "test": "callback binds original state",
+      "passed": true
+    },
+    {
+      "test": "totp: actual authenticated token hook permits PKCE exchange",
+      "passed": true
+    },
+    {
+      "test": "totp: token claims preserve nonce and actual MFA assurance",
+      "passed": true
+    },
+    {
+      "test": "totp: online session accepts issued access token",
+      "passed": true
+    },
+    {
+      "test": "TOTP last-used counter does not invalidate its own successful login",
+      "passed": true
+    },
+    {
+      "test": "factor reset invalidates existing mobile refresh",
+      "passed": true
+    },
+    {
+      "test": "staff: hosted login form is no-store and frame protected",
+      "passed": true
+    },
+    {
+      "test": "staff: separate HttpOnly mobile cookie, no legacy web cookie",
+      "passed": true
+    },
+    {
+      "test": "staff: completed hosted authentication redirects to provider",
+      "passed": true
+    },
+    {
+      "test": "callback binds original state",
+      "passed": true
+    },
+    {
+      "test": "staff: actual authenticated token hook permits PKCE exchange",
+      "passed": true
+    },
+    {
+      "test": "staff: token claims preserve nonce and actual MFA assurance",
+      "passed": true
+    },
+    {
+      "test": "staff: online session accepts issued access token",
+      "passed": true
+    },
+    {
+      "test": "missing lifecycle trigger fails closed",
+      "passed": true
+    },
+    {
+      "test": "dormant switch hides every operational endpoint",
+      "passed": true
+    },
+    {
+      "test": "tracked runtime files unchanged during rehearsal (not a comparison with Git HEAD)",
+      "passed": true
+    },
+    {
+      "test": "all temporary services stopped",
+      "passed": true
+    }
+  ],
+  "legacy_before": {
+    "files": 1589,
+    "sha256": "a1864b9933bd02bc4e2da69bdba160448a910de12a9a10d03e1115f1bdc0334e"
+  },
+  "legacy_after": {
+    "files": 1589,
+    "sha256": "a1864b9933bd02bc4e2da69bdba160448a910de12a9a10d03e1115f1bdc0334e"
+  },
+  "refresh_ttl": "-1 (provider non-expiring setting; not a months-long elapsed-time test)",
+  "limits": [
+    "No application database or production writes",
+    "No real account or SMTP delivery",
+    "HTTP loopback fixture; approved HTTPS hostname and real Flutter not tested",
+    "ID token claims inspected; Flutter SDK cryptographic verification remains separate"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "reported_date": "2026-10-03",
+  "environment": "oneid-uat",
+  "phase": "2 dependency preparation",
+  "runtime": "PHP 8.3.35; PHP 8.4 not yet tested",
+  "evidence_source": "User report in conversation",
+  "results": [
+    {
+      "scenario": "MyDigital ID web login",
+      "status": "PASS_USER_REPORTED"
+    },
+    {
+      "scenario": "MyDigital ID mobile login",
+      "status": "PASS_USER_REPORTED"
+    },
+    {
+      "scenario": "Mobile session check",
+      "status": "PASS_USER_REPORTED"
+    },
+    {
+      "scenario": "Mobile refresh",
+      "status": "PASS_USER_REPORTED"
+    },
+    {
+      "scenario": "Mobile logout",
+      "status": "PASS_USER_REPORTED"
+    }
+  ],
+  "limitations": "Device, account, exact test time and server logs not provided. Does not verify PHP 8.4, remote downstream runtime or authenticated performance."
+}

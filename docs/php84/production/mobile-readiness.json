@@ -1,0 +1,14 @@
+{
+  "environment": "production",
+  "relevant_tables": [
+    "sys_config",
+    "token_tbl",
+    "user_login_mfa_category_policy",
+    "user_login_mfa_policy",
+    "user_mfa_factors",
+    "user_tbl"
+  ],
+  "mobile_triggers": [],
+  "mobile_entrypoint_exists": false,
+  "mobile_config_exists": false
+}

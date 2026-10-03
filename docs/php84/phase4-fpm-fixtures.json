@@ -1,0 +1,111 @@
+{
+  "date": "2026-10-03",
+  "runtime": "FPM 8.4.26",
+  "method": "Temporary CLI-guard-removed copies of reviewed synthetic tests; original source unmodified; no real credentials/provider/SMTP/DB",
+  "limitations": "Not real browser E2E, real SMTP/ODBC or downstream authentication. Timings are fixture execution, not production latency.",
+  "results": [
+    {
+      "test": "tests/characterization/mydigitalid_f1_foundation.php",
+      "pool": "oneid-web-uat84",
+      "status": "PASS",
+      "pass_lines": 22,
+      "expected_log_messages": [],
+      "unexpected_stderr": "",
+      "elapsed_seconds": 0.02,
+      "output_tail": ""
+    },
+    {
+      "test": "tests/characterization/mydigitalid_f3_callback_foundation.php",
+      "pool": "oneid-web-uat84",
+      "status": "PASS",
+      "pass_lines": 14,
+      "expected_log_messages": [],
+      "unexpected_stderr": "",
+      "elapsed_seconds": 0.004,
+      "output_tail": ""
+    },
+    {
+      "test": "tests/characterization/mydigitalid_f4b_callback_session.php",
+      "pool": "oneid-web-uat84",
+      "status": "PASS",
+      "pass_lines": 6,
+      "expected_log_messages": [],
+      "unexpected_stderr": "",
+      "elapsed_seconds": 0.003,
+      "output_tail": ""
+    },
+    {
+      "test": "tests/characterization/mydigitalid_f7_rejection_logout.php",
+      "pool": "oneid-web-uat84",
+      "status": "PASS",
+      "pass_lines": 9,
+      "expected_log_messages": [],
+      "unexpected_stderr": "",
+      "elapsed_seconds": 0.002,
+      "output_tail": ""
+    },
+    {
+      "test": "tests/characterization/user_session_timeout_f1_policy.php",
+      "pool": "oneid-web-uat84",
+      "status": "PASS",
+      "pass_lines": 21,
+      "expected_log_messages": [
+        "User session timeout policy fallback reason=InvalidArgumentException",
+        "User portal session expiry audit unavailable"
+      ],
+      "unexpected_stderr": "",
+      "elapsed_seconds": 0.004,
+      "output_tail": ""
+    },
+    {
+      "test": "tests/mobile-oidc/adapter.php",
+      "pool": "oneid-mobile-uat84",
+      "status": "PASS",
+      "pass_lines": 73,
+      "expected_log_messages": [],
+      "unexpected_stderr": "",
+      "elapsed_seconds": 29.865,
+      "output_tail": ""
+    },
+    {
+      "test": "tests/mobile-oidc/mydigitalid.php",
+      "pool": "oneid-mobile-uat84",
+      "status": "PASS",
+      "pass_lines": 36,
+      "expected_log_messages": [],
+      "unexpected_stderr": "",
+      "elapsed_seconds": 13.642,
+      "output_tail": ""
+    },
+    {
+      "test": "tests/mobile-oidc/profile.php",
+      "pool": "oneid-mobile-uat84",
+      "status": "PASS",
+      "pass_lines": 7,
+      "expected_log_messages": [],
+      "unexpected_stderr": "",
+      "elapsed_seconds": 4.907,
+      "output_tail": ""
+    },
+    {
+      "test": "tests/mobile-oidc-hosted/protocol.php",
+      "pool": "oneid-mobile-uat84",
+      "status": "PASS",
+      "pass_lines": 20,
+      "expected_log_messages": [],
+      "unexpected_stderr": "",
+      "elapsed_seconds": 1.003,
+      "output_tail": ""
+    },
+    {
+      "test": "tests/mobile-oidc-hosted/mydigitalid-selection.php",
+      "pool": "oneid-mobile-uat84",
+      "status": "PASS",
+      "pass_lines": 42,
+      "expected_log_messages": [],
+      "unexpected_stderr": "",
+      "elapsed_seconds": 14.439,
+      "output_tail": ""
+    }
+  ]
+}

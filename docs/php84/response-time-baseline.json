@@ -1,0 +1,92 @@
+{
+  "date": "2026-10-03",
+  "runtime": "PHP 8.3 baseline",
+  "method": "5 sequential fresh curl processes per endpoint; loopback TLS verified; no redirects, cookies reused, credentials or concurrency",
+  "limitations": "Unauthenticated HTTP timings only, not end-to-end user latency or login/token validation performance. Discovery may be served by Hydra rather than PHP. No load testing.",
+  "results": [
+    {
+      "path": "/",
+      "samples": [
+        {
+          "exit": 0,
+          "status": "200",
+          "ttfb_seconds": 0.083463,
+          "total_seconds": 0.083635,
+          "tls_verify": "0"
+        },
+        {
+          "exit": 0,
+          "status": "200",
+          "ttfb_seconds": 0.079402,
+          "total_seconds": 0.081682,
+          "tls_verify": "0"
+        },
+        {
+          "exit": 0,
+          "status": "200",
+          "ttfb_seconds": 0.076671,
+          "total_seconds": 0.079436,
+          "tls_verify": "0"
+        },
+        {
+          "exit": 0,
+          "status": "200",
+          "ttfb_seconds": 0.090773,
+          "total_seconds": 0.090978,
+          "tls_verify": "0"
+        },
+        {
+          "exit": 0,
+          "status": "200",
+          "ttfb_seconds": 0.073982,
+          "total_seconds": 0.076834,
+          "tls_verify": "0"
+        }
+      ],
+      "median_seconds": 0.081682,
+      "max_seconds": 0.090978
+    },
+    {
+      "path": "/.well-known/openid-configuration",
+      "samples": [
+        {
+          "exit": 0,
+          "status": "200",
+          "ttfb_seconds": 0.08544,
+          "total_seconds": 0.085581,
+          "tls_verify": "0"
+        },
+        {
+          "exit": 0,
+          "status": "200",
+          "ttfb_seconds": 0.066127,
+          "total_seconds": 0.066225,
+          "tls_verify": "0"
+        },
+        {
+          "exit": 0,
+          "status": "200",
+          "ttfb_seconds": 0.063132,
+          "total_seconds": 0.063275,
+          "tls_verify": "0"
+        },
+        {
+          "exit": 0,
+          "status": "200",
+          "ttfb_seconds": 0.062337,
+          "total_seconds": 0.062554,
+          "tls_verify": "0"
+        },
+        {
+          "exit": 0,
+          "status": "200",
+          "ttfb_seconds": 0.06126,
+          "total_seconds": 0.061343,
+          "tls_verify": "0"
+        }
+      ],
+      "median_seconds": 0.063275,
+      "max_seconds": 0.085581
+    }
+  ]
+}

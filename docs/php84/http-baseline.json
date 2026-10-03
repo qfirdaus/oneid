@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-03",
+  "scope": "single unauthenticated request; not a login/token performance baseline",
+  "results": [
+    {
+      "host": "ebdr-uat.upnm.edu.my",
+      "probe": "GET / via loopback TLS verified; no redirect following",
+      "curl_exit": 0,
+      "status_timing_tls": "200 0.226432 0",
+      "authenticated": false
+    },
+    {
+      "host": "efacility-uat.upnm.edu.my",
+      "probe": "GET / via loopback TLS verified; no redirect following",
+      "curl_exit": 0,
+      "status_timing_tls": "200 0.105252 0",
+      "authenticated": false
+    },
+    {
+      "host": "ehepa-uat.upnm.edu.my",
+      "probe": "GET / via loopback TLS verified; no redirect following",
+      "curl_exit": 0,
+      "status_timing_tls": "200 0.200385 0",
+      "authenticated": false
+    },
+    {
+      "host": "epms-uat.upnm.edu.my",
+      "probe": "GET / via loopback TLS verified; no redirect following",
+      "curl_exit": 0,
+      "status_timing_tls": "200 0.214962 0",
+      "authenticated": false
+    },
+    {
+      "host": "epr-uat.upnm.edu.my",
+      "probe": "GET / via loopback TLS verified; no redirect following",
+      "curl_exit": 0,
+      "status_timing_tls": "200 0.127440 0",
+      "authenticated": false
+    },
+    {
+      "host": "eprestasi-uat.upnm.edu.my",
+      "probe": "GET / via loopback TLS verified; no redirect following",
+      "curl_exit": 0,
+      "status_timing_tls": "200 0.269022 0",
+      "authenticated": false
+    },
+    {
+      "host": "iqs-framework.upnm.edu.my",
+      "probe": "GET / via loopback TLS verified; no redirect following",
+      "curl_exit": 0,
+      "status_timing_tls": "200 0.109620 0",
+      "authenticated": false
+    },
+    {
+      "host": "sap-uat.upnm.edu.my",
+      "probe": "GET / via loopback TLS verified; no redirect following",
+      "curl_exit": 0,
+      "status_timing_tls": "200 0.124059 0",
+      "authenticated": false
+    },
+    {
+      "host": "oneid-uat.upnm.edu.my",
+      "probe": "GET / via loopback TLS verified; no redirect following",
+      "curl_exit": 0,
+      "status_timing_tls": "200 0.106978 0",
+      "authenticated": false
+    }
+  ]
+}

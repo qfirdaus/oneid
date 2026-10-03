@@ -1,0 +1,138 @@
+{
+  "phase": "B",
+  "scope": "PHP adapter + real Hydra, synthetic sources, no OneID database or SMTP",
+  "provider": "v26.2.0",
+  "failure": null,
+  "tests": [
+    {
+      "test": "register public client poc-android",
+      "passed": true
+    },
+    {
+      "test": "register public client poc-ios",
+      "passed": true
+    },
+    {
+      "test": "staff: PHP adapter completed without bootstrap",
+      "passed": true
+    },
+    {
+      "test": "staff: adapter session bound to real provider client",
+      "passed": true
+    },
+    {
+      "test": "staff: provider receives adapter subject and context",
+      "passed": true
+    },
+    {
+      "test": "staff: fixture consent accepted",
+      "passed": true
+    },
+    {
+      "test": "staff: callback state preserved",
+      "passed": true
+    },
+    {
+      "test": "staff: real PKCE token exchange succeeds",
+      "passed": true
+    },
+    {
+      "test": "staff: ID token binds subject nonce and verified assurance",
+      "passed": true
+    },
+    {
+      "test": "student: PHP adapter completed without bootstrap",
+      "passed": true
+    },
+    {
+      "test": "student: adapter session bound to real provider client",
+      "passed": true
+    },
+    {
+      "test": "student: provider receives adapter subject and context",
+      "passed": true
+    },
+    {
+      "test": "student: fixture consent accepted",
+      "passed": true
+    },
+    {
+      "test": "student: callback state preserved",
+      "passed": true
+    },
+    {
+      "test": "student: real PKCE token exchange succeeds",
+      "passed": true
+    },
+    {
+      "test": "student: ID token binds subject nonce and verified assurance",
+      "passed": true
+    },
+    {
+      "test": "totp: PHP adapter completed without bootstrap",
+      "passed": true
+    },
+    {
+      "test": "totp: adapter session bound to real provider client",
+      "passed": true
+    },
+    {
+      "test": "totp: provider receives adapter subject and context",
+      "passed": true
+    },
+    {
+      "test": "totp: fixture consent accepted",
+      "passed": true
+    },
+    {
+      "test": "totp: callback state preserved",
+      "passed": true
+    },
+    {
+      "test": "totp: real PKCE token exchange succeeds",
+      "passed": true
+    },
+    {
+      "test": "totp: ID token binds subject nonce and verified assurance",
+      "passed": true
+    },
+    {
+      "test": "wrong_password: PHP adapter completed without bootstrap",
+      "passed": true
+    },
+    {
+      "test": "wrong_password: denied before provider acceptance",
+      "passed": true
+    },
+    {
+      "test": "wrong_otp: PHP adapter completed without bootstrap",
+      "passed": true
+    },
+    {
+      "test": "wrong_otp: denied before provider acceptance",
+      "passed": true
+    },
+    {
+      "test": "tracked runtime unchanged during rehearsal",
+      "passed": true
+    },
+    {
+      "test": "child services stopped",
+      "passed": true
+    }
+  ],
+  "legacy_before": {
+    "files": 1589,
+    "sha256": "e22bcbb1a651d121d389ad1650fdea434d7febb63105c7e50ce45336ca79bb9b"
+  },
+  "legacy_after": {
+    "files": 1589,
+    "sha256": "e22bcbb1a651d121d389ad1650fdea434d7febb63105c7e50ce45336ca79bb9b"
+  },
+  "limits": [
+    "PdoIdentitySource/PdoStateStore not exercised",
+    "Consent and token hook remain Phase A fixtures",
+    "No public hosted UI, Flutter or live account verification",
+    "JWT claims decoded, not signature verifier test"
+  ]
+}

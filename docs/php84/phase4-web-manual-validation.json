@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-03",
+  "status": "PASS_USER_REPORTED",
+  "scope": "Web browser via isolated PHP 8.4 listener",
+  "runtime_evidence": "User supplied HTTP 200 and php84-isolated response marker for GET / before tests; dashboard/callback markers not independently supplied.",
+  "tests": [
+    {
+      "scenario": "Login ID/password to dashboard",
+      "status": "PASS_USER_REPORTED"
+    },
+    {
+      "scenario": "Extend session with +; page usable and scroll works",
+      "status": "PASS_USER_REPORTED"
+    },
+    {
+      "scenario": "Logout and login again",
+      "status": "PASS_USER_REPORTED"
+    },
+    {
+      "scenario": "Logout and login using MyDigital ID",
+      "status": "PASS_USER_REPORTED"
+    }
+  ],
+  "excluded": [
+    "Full native mobile login/session/refresh/logout on PHP 8.4",
+    "Downstream back-channel validation on PHP 8.4",
+    "Password reset and SMTP",
+    "Authenticated performance comparison",
+    "Remote downstream runtime inventory"
+  ],
+  "sensitive_data": "No cookies or session identifiers retained in this report."
+}

@@ -1,0 +1,110 @@
+[
+  {
+    "runtime": "php8.3",
+    "test": "tests/release/production-environment.php",
+    "exit": 0,
+    "summary": [
+      "28 checks passed; no external identity/provider/database requests."
+    ],
+    "stderr": ""
+  },
+  {
+    "runtime": "php8.3",
+    "test": "tests/mobile-oidc/adapter.php",
+    "exit": 0,
+    "summary": [
+      "Result: 73/73 passed"
+    ],
+    "stderr": ""
+  },
+  {
+    "runtime": "php8.3",
+    "test": "tests/mobile-oidc/mydigitalid.php",
+    "exit": 0,
+    "summary": [
+      "36 checks passed; synthetic only, no provider requests."
+    ],
+    "stderr": ""
+  },
+  {
+    "runtime": "php8.3",
+    "test": "tests/mobile-oidc/profile.php",
+    "exit": 0,
+    "summary": [
+      "PASS missing student program returns null"
+    ],
+    "stderr": ""
+  },
+  {
+    "runtime": "php8.3",
+    "test": "tests/mobile-oidc-hosted/protocol.php",
+    "exit": 0,
+    "summary": [
+      "Result: 20/20 passed"
+    ],
+    "stderr": ""
+  },
+  {
+    "runtime": "php8.3",
+    "test": "tests/characterization/php84_openid_compatibility.php",
+    "exit": 0,
+    "summary": [
+      "PASS: 12 nullable contracts and null/string construction; no load warnings on PHP 8.3.35"
+    ],
+    "stderr": ""
+  },
+  {
+    "runtime": "php8.4",
+    "test": "tests/release/production-environment.php",
+    "exit": 0,
+    "summary": [
+      "28 checks passed; no external identity/provider/database requests."
+    ],
+    "stderr": ""
+  },
+  {
+    "runtime": "php8.4",
+    "test": "tests/mobile-oidc/adapter.php",
+    "exit": 0,
+    "summary": [
+      "Result: 73/73 passed"
+    ],
+    "stderr": ""
+  },
+  {
+    "runtime": "php8.4",
+    "test": "tests/mobile-oidc/mydigitalid.php",
+    "exit": 0,
+    "summary": [
+      "36 checks passed; synthetic only, no provider requests."
+    ],
+    "stderr": ""
+  },
+  {
+    "runtime": "php8.4",
+    "test": "tests/mobile-oidc/profile.php",
+    "exit": 0,
+    "summary": [
+      "PASS missing student program returns null"
+    ],
+    "stderr": ""
+  },
+  {
+    "runtime": "php8.4",
+    "test": "tests/mobile-oidc-hosted/protocol.php",
+    "exit": 0,
+    "summary": [
+      "Result: 20/20 passed"
+    ],
+    "stderr": ""
+  },
+  {
+    "runtime": "php8.4",
+    "test": "tests/characterization/php84_openid_compatibility.php",
+    "exit": 0,
+    "summary": [
+      "PASS: 12 nullable contracts and null/string construction; no load warnings on PHP 8.4.26"
+    ],
+    "stderr": ""
+  }
+]

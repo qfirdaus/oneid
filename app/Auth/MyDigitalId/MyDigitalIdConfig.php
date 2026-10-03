@@ -27,6 +27,26 @@ final class MyDigitalIdConfig
     ) {
     }
 
+    /** Mobile-only immutable copy; the web configuration and callback remain unchanged. */
+    public function forMobileStaging(): self
+    {
+        return $this->forMobile('staging');
+    }
+
+    /** Exact environment-specific callback; web configuration stays immutable. */
+    public function forMobile(string $environment): self
+    {
+        $host=self::EXPECTED_HOSTS[$environment] ?? null;
+        if ($host===null) throw new MyDigitalIdConfigurationException('MYDID_MOBILE_ENVIRONMENT_INVALID');
+        $origin='https://'.$host;
+        if ($this->redirectUri !== $origin.'/auth/mydigitalid/callback.php') {
+            throw new MyDigitalIdConfigurationException('MYDID_MOBILE_ENVIRONMENT_MISMATCH');
+        }
+        return new self($this->enabled, $this->issuer, $this->clientId, $this->clientSecret,
+            $origin.'/mobile/mydigitalid/callback', $this->postLogoutRedirectUri,
+            $this->scope, $this->httpTimeoutSeconds, $this->pkceMethod);
+    }
+
     /**
      * @param null|callable(string,mixed):mixed $configReader
      * @param null|callable(string,bool):string $secretReader

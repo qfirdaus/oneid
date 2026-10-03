@@ -1,0 +1,21 @@
+# REVIEW ONLY. Requires installed/verified PostgreSQL 16 binary and initdb completed separately.
+[Unit]
+Description=Private PostgreSQL for OneID mobile production
+After=local-fs.target
+[Service]
+Type=simple
+User=oneid-mobile-prod
+Group=oneid-mobile-prod
+RuntimeDirectory=oneid-mobile-prod
+RuntimeDirectoryMode=0700
+ExecStart=/usr/lib/postgresql/16/bin/postgres -D /var/lib/oneid-mobile-prod/postgres -k /run/oneid-mobile-prod -p 25432 -c listen_addresses=127.0.0.1
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/oneid-mobile-prod /run/oneid-mobile-prod
+UMask=0077
+[Install]
+WantedBy=multi-user.target

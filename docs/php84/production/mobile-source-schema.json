@@ -1,0 +1,14 @@
+{
+  "present": [
+    "user_tbl",
+    "user_mfa_factors",
+    "user_external_identity",
+    "user_login_mfa_exemptions",
+    "user_login_mfa_pilot_users",
+    "user_login_mfa_policy",
+    "user_login_mfa_category_policy",
+    "user_mfa_policy_change_requests",
+    "external_source"
+  ],
+  "missing": []
+}

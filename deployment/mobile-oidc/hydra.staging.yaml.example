@@ -1,0 +1,33 @@
+# REVIEW TEMPLATE ONLY. Pinned v26.2.0, no --dev for real HTTPS UAT.
+# DSN and secrets supplied by private service environment/secret store, not Git.
+serve:
+  public: {host: 127.0.0.1, port: 24144}
+  admin: {host: 127.0.0.1, port: 24145}
+  tls:
+    allow_termination_from: [127.0.0.1/32]
+urls:
+  self:
+    issuer: https://oneid-uat.upnm.edu.my/
+    public: https://oneid-uat.upnm.edu.my/
+  login: https://oneid-uat.upnm.edu.my/login
+  consent: https://oneid-uat.upnm.edu.my/consent
+log:
+  level: error
+  leak_sensitive_values: false
+ttl:
+  access_token: 5m
+  refresh_token: '-1'
+  auth_code: 1m
+oauth2:
+  pkce: {enforced: true, enforced_for_public_clients: true}
+  grant:
+    refresh_token:
+      rotation_grace_period: 5s
+      rotation_grace_reuse_count: 2
+  token_hook:
+    url: https://oneid-uat.upnm.edu.my/token-hook
+    auth:
+      type: api_key
+      config: {in: header, name: X-OneID-Hook-Key, value: REPLACE_FROM_PRIVATE_SECRET_STORE}
+oidc:
+  dynamic_client_registration: {enabled: false}

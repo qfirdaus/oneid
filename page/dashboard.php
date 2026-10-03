@@ -121,7 +121,7 @@
       <link href="../dist/css/oneid-asnb-reminder.css?v=20260903-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260824-4" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-session-indicators.css?v=20260908-5" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-session-indicators.css?v=20260930-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260916-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-accessibility-baseline.css?v=20260915-1" rel="stylesheet" type="text/css">
@@ -180,7 +180,22 @@
 .admin-entry-loader-shield{width:58px;height:66px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:25px;background:linear-gradient(145deg,#174d91,#2f82d0);clip-path:polygon(50% 0,94% 17%,88% 72%,50% 100%,12% 72%,6% 17%)}
 .admin-entry-loader-ring{width:42px;height:42px;margin:0 auto 18px;border:4px solid #dce8f5;border-top-color:#256bb2;border-radius:50%;animation:admin-entry-spin .75s linear infinite}.admin-entry-loader-title{margin:0 0 7px;color:#172b4d;font-size:18px;font-weight:700}.admin-entry-loader-text{margin:0;color:#64748b;font-size:14px}@keyframes admin-entry-spin{to{transform:rotate(360deg)}}
 
-      </style>
+
+      .user-app-results { display:block; padding:12px 16px; color:#075b86; font-weight:600; }
+      .user-app-content .user-app-result-category { display:block; color:#52677d; margin:3px 0; padding:0; }
+      @media (max-width:767px) {
+        .profile-box .profile-cover-pic { height:auto; min-height:0; aspect-ratio:2 / 1; background-size:100% 100%; }
+        .profile-box .profile-info .profile-img-wrap { width:108px; height:108px; margin:-64px auto 0; padding:4px; border-width:4px; z-index:2; animation:none; }
+        .profile-box .profile-info { padding:0 12px; margin-bottom:8px !important; }
+        .profile-box .profile-info h6 { margin-top:6px !important; }
+        .profile-box .profile-info > span { font-size:12px; line-height:1.5; }
+        .oneid-user-sidebar-menu { margin-top:12px !important; }
+        .oneid-user-sidebar-menu .oneid-sidebar-nav { display:block; }
+        .oneid-user-sidebar-menu .oneid-sidebar-nav > li { width:100%; margin:0 !important; min-width:0; }
+        .oneid-user-sidebar-menu .oneid-sidebar-nav > li > a { padding:8px; min-height:44px; font-size:12px; }
+        .oneid-user-sidebar-menu .oneid-sidebar-nav > li > a span { overflow-wrap:anywhere; }
+      }
+   </style>
    </head>
    <body class="<?=trim(oneid_environment_body_class())?>">
       <?php oneid_render_environment_banner(); ?>
@@ -342,6 +357,7 @@
                                        </div>
                                     </div>
 
+                                    <button type="button" class="oneid-mobile-menu-toggle" aria-expanded="false" aria-controls="myTabs_8"><i class="fa fa-bars" aria-hidden="true"></i><span>Menu</span><i class="fa fa-chevron-down" aria-hidden="true"></i></button>
                                     <div class="pills-struct vertical-pills mt-40 oneid-user-sidebar-menu">
                                       <!-- Vertical nav -->
                                       <ul role="tablist" class="nav nav-pills ver-nav-pills oneid-sidebar-nav" id="myTabs_8">
@@ -583,7 +599,7 @@
             JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
          )?>;
       </script>
-      <script src="../dist/js/oneid-user-session.js?v=20260916-1"></script>
+      <script src="../dist/js/oneid-user-session.js?v=20261001-1"></script>
       <?php if ($productTourEnabled): ?>
       <script>
          window.OneIdProductTourConfig = <?=json_encode([
@@ -623,6 +639,7 @@
          const dashboardI18n = <?=json_encode([
             'noAccess' => oneid_translate('dashboard.apps.no_access'),
             'noAccessHelp' => oneid_translate('dashboard.apps.no_access_help'),
+            'searchResults' => oneid_translate('dashboard.apps.search_results'),
             'favourite' => oneid_translate('dashboard.apps.favourite'),
             'addFavourite' => oneid_translate('dashboard.apps.add_favourite'),
             'removeFavourite' => oneid_translate('dashboard.apps.remove_favourite'),
@@ -809,7 +826,8 @@
             var imageSource = appImage === '' ? '../img/thumb-1.jpg' : '../public_img/' + appImage;
             var isDirect = String(application.sp_sso_support) !== '0';
             var isFavourite = Number(application.is_favourite) === 1;
-            var favouriteTitle = isFavourite ? dashboardI18n.removeFavourite : dashboardI18n.addFavourite;
+            var favouriteTitle = userAppText((isFavourite ? dashboardI18n.removeFavourite : dashboardI18n.addFavourite)
+               .replace('{name}', function(){ return String(application.sp_name || ''); })).replace(/"/g, '&quot;');
             var accessLabel = isDirect ? dashboardI18n.directAccess : dashboardI18n.oneidSso;
             var buttonLabel = isDirect ? dashboardI18n.login : dashboardI18n.access;
             var buttonTitle = isDirect ? dashboardI18n.loginTitle : dashboardI18n.accessTitle;
@@ -818,6 +836,15 @@
             card += '<div class="user-app-index">'+index+'</div>';
             card += '<div class="user-app-image"><img src="'+imageSource+'" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'../img/thumb-1.jpg\';"></div>';
             card += '<div class="user-app-content"><div class="user-app-name"><strong title="'+appName+'">'+appName+'</strong><span class="user-app-access '+(isDirect ? 'is-direct' : '')+'">'+accessLabel+'</span></div>';
+            if (userAppSearchTerm.trim() !== '') {
+               var categories = [];
+               $.each(userAppDirectoryGroups, function(_, group){
+                  if ((group.data || []).some(function(item){ return String(item.sp_id) === String(application.sp_id); })) {
+                     if (categories.indexOf(group.sp_group_name) === -1) categories.push(group.sp_group_name);
+                  }
+               });
+               card += '<small class="user-app-result-category">'+userAppText(categories.join(' · '))+'</small>';
+            }
             card += '<p title="'+appDescription+'">'+appDescription+'</p></div>';
             card += '<div class="user-app-actions">';
             card += '<button type="button" class="user-app-favourite '+(isFavourite ? 'is-selected' : '')+'" data-app-id="'+appId+'" data-favourite="'+(isFavourite ? '1' : '0')+'" aria-pressed="'+(isFavourite ? 'true' : 'false')+'" title="'+favouriteTitle+'" aria-label="'+favouriteTitle+'"><i class="fa fa-star" aria-hidden="true"></i></button>';
@@ -850,12 +877,12 @@
             }
 
             tabs += '<li class="is-favourite-tab" role="presentation">';
-            tabs += '<a data-toggle="tab" role="tab" href="#user_app_favourites_tab" title="'+userAppText(dashboardI18n.favourite)+'" aria-label="'+userAppText(dashboardI18n.favourite)+'"><i class="fa fa-star" aria-hidden="true"></i><strong>'+favouriteApplications.length+'</strong></a></li>';
+            tabs += '<a data-toggle="tab" role="tab" href="#user_app_favourites_tab" title="'+userAppText(dashboardI18n.favourite)+'" aria-label="'+userAppText(dashboardI18n.favourite)+'"><i class="fa fa-star" aria-hidden="true"></i><span>'+userAppText(dashboardI18n.favourite)+'</span><strong>'+favouriteApplications.length+'</strong></a></li>';
             panes += '<div id="user_app_favourites_tab" class="tab-pane fade" role="tabpanel"><div class="user-app-list">';
+            matchingTabs.push('#user_app_favourites_tab');
             if (favouriteApplications.length === 0) {
                panes += '<div class="user-app-category-empty"><i class="fa fa-star-o" aria-hidden="true"></i><span>'+userAppText(term === '' ? dashboardI18n.noFavourite : dashboardI18n.noFavouriteSearch)+'</span></div>';
             } else {
-               matchingTabs.push('#user_app_favourites_tab');
                $.each(favouriteApplications, function(index, application){ panes += userAppCard(application, index + 1); });
             }
             panes += '</div></div>';
@@ -892,9 +919,20 @@
             $('#user_app_non_sso_count').text(allApplications.length - ssoCount);
             $('#follo_data_list_count_text').html('(' + allApplications.length + ')');
             $('#follo_data_list').html('');
-            $('#WebAppsTabsHeader').html(tabs);
+            if (term !== '') {
+               var results = allApplications.filter(function(application){ return userAppMatches(application, term); });
+               tabs = '<li class="active" role="presentation"><span class="user-app-results" role="status">'+userAppText(dashboardI18n.searchResults)+' ('+results.length+')</span></li>';
+               panes = '<div class="user-app-list">';
+               $.each(results, function(index, application){
+                  panes += userAppCard(application, index + 1);
+               });
+               if (!results.length) panes += '<div class="user-app-category-empty">'+userAppText(dashboardI18n.emptySearch)+'</div>';
+               panes += '</div>';
+            }
+            $('#WebAppsTabsHeader').toggleClass('is-search-results', term !== '').html(tabs);
             $('#WebAppsTabsContent').html(panes);
 
+            if (term !== '') return;
             if (matchingTabs.indexOf(requestedTab) === -1) {
                requestedTab = matchingTabs.length > 0 ? matchingTabs[0] : '#user_app_favourites_tab';
             }
@@ -909,7 +947,7 @@
          function get_specific_user_app_list(){
             var href = $('#WebAppsTabsHeader li.active a').attr('href');
             if (href) {
-               userAppActiveTab = href;
+               if (userAppSearchTerm.trim() === '') userAppActiveTab = href;
             }
          $.ajax({
                  type: 'POST',
@@ -959,7 +997,7 @@
          });
 
          $(document).on('shown.bs.tab', '#WebAppsTabsHeader a[data-toggle="tab"]', function(){
-            userAppActiveTab = $(this).attr('href');
+            if (userAppSearchTerm.trim() === '') userAppActiveTab = $(this).attr('href');
          });
 
          $(document).on('click', '.user-app-open', function(){
@@ -969,6 +1007,13 @@
             }
             go_to_service_provider(String($(this).data('app-id') || ''), applicationWindow);
          });
+
+         function userAppFavouriteFailed($button){
+            $button.prop('disabled', false).removeClass('is-saving');
+            $.toast().reset('all');
+            $.toast({heading: dashboardI18n.favouriteFailed, text: dashboardI18n.loadFailedHelp,
+               position: 'bottom-center', loaderBg: '#fec107', icon: 'error', hideAfter: 3500, stack: 4});
+         }
 
          $(document).on('click', '.user-app-favourite', function(){
             var $button = $(this);
@@ -980,9 +1025,11 @@
                type: 'POST',
                url: '../lib/q_func',
                dataType: 'json',
+               timeout: 15000,
                data: {user_set_app_favourite: '', sp_id: appId, enabled: enabled},
                success: function(response){
-                  if (Number(response.status) !== 1) {
+                  if (!response || Number(response.status) !== 1) {
+                     userAppFavouriteFailed($button);
                      return;
                   }
                   $.each(userAppDirectoryGroups, function(_, group){
@@ -992,20 +1039,18 @@
                         }
                      });
                   });
+                  var restoreFocus = document.activeElement === $button[0] || document.activeElement === document.body;
                   renderUserAppDirectory();
+                  if (restoreFocus) {
+                     var $next = $('#WebAppsTabsContent .user-app-favourite').filter(function(){
+                        return String($(this).data('app-id')) === appId && $(this).is(':visible');
+                     }).first();
+                     if ($next.length) $next.trigger('focus');
+                     else $('#WebAppsTabsHeader li.active a').trigger('focus');
+                  }
                },
                error: function(){
-                  $button.prop('disabled', false).removeClass('is-saving');
-                  $.toast().reset('all');
-                  $.toast({
-                     heading: dashboardI18n.favouriteFailed,
-                     text: dashboardI18n.loadFailedHelp,
-                     position: 'bottom-center',
-                     loaderBg: '#fec107',
-                     icon: 'error',
-                     hideAfter: 3500,
-                     stack: 4
-                  });
+                  userAppFavouriteFailed($button);
                }
             });
          });
@@ -1617,14 +1662,31 @@
 
       #WebAppsTabsHeader {
         display: flex;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        max-width: 100%;
+        min-height: 54px;
+        align-items: flex-start;
+        scrollbar-width: thin;
         gap: 8px;
         margin: 0;
-        padding: 0;
+        padding: 3px 2px 12px;
         border: 0;
       }
 
+      #WebAppsTabsHeader.is-search-results {
+        min-height: 0;
+        padding: 0;
+        overflow: visible;
+      }
+      #WebAppsTabsHeader.is-search-results .user-app-results {
+        padding: 0;
+        line-height: 20px;
+      }
+
       #WebAppsTabsHeader > li {
+        flex: 0 0 auto;
+        white-space: nowrap;
         float: none;
         margin: 0;
       }
@@ -2175,9 +2237,61 @@
 
 
 
+
+      .user-app-results { display:block; padding:12px 16px; color:#075b86; font-weight:600; }
+      .user-app-content .user-app-result-category { display:block; color:#52677d; margin:3px 0; padding:0; }
+      @media (max-width:767px) {
+        .profile-box .profile-cover-pic { height:auto; min-height:0; aspect-ratio:2 / 1; background-size:100% 100%; }
+        .profile-box .profile-info .profile-img-wrap { width:108px; height:108px; margin:-64px auto 0; padding:4px; border-width:4px; z-index:2; animation:none; }
+        .profile-box .profile-info { padding:0 12px; margin-bottom:8px !important; }
+        .profile-box .profile-info h6 { margin-top:6px !important; }
+        .profile-box .profile-info > span { font-size:12px; line-height:1.5; }
+        .oneid-user-sidebar-menu { margin-top:12px !important; }
+        .oneid-user-sidebar-menu .oneid-sidebar-nav { display:block; }
+        .oneid-user-sidebar-menu .oneid-sidebar-nav > li { width:100%; margin:0 !important; min-width:0; }
+        .oneid-user-sidebar-menu .oneid-sidebar-nav > li > a { padding:8px; min-height:44px; font-size:12px; }
+        .oneid-user-sidebar-menu .oneid-sidebar-nav > li > a span { overflow-wrap:anywhere; }
+      }
+      .oneid-mobile-menu-toggle { display:none; }
+      @media (max-width:767px) {
+        .oneid-mobile-menu-toggle { display:flex; align-items:center; gap:10px; width:calc(100% - 24px); margin:12px; min-height:44px; padding:10px 14px; border:1px solid #cfe3ef; border-radius:10px; background:#f0f8fc; color:#075b86; font-weight:600; cursor:pointer; }
+        .oneid-mobile-menu-toggle > i:last-child { margin-left:auto; }
+        .oneid-mobile-menu-toggle[aria-expanded="true"] > i:last-child { transform:rotate(180deg); }
+        .oneid-mobile-menu-toggle:focus-visible { outline:2px solid #008eb8; outline-offset:2px; }
+        .oneid-user-sidebar-menu { display:none !important; margin:0 12px 12px !important; }
+        .oneid-user-sidebar-menu.is-open { display:block !important; }
+        .oneid-user-sidebar-menu .oneid-sidebar-nav { float:none; width:100%; max-width:100%; box-sizing:border-box; padding:0 !important; }
+        .oneid-user-sidebar-menu .oneid-sidebar-nav > li > a { width:100%; box-sizing:border-box; }
+        .oneid-user-sidebar-menu .oneid-sidebar-nav > li { float:none; margin-bottom:4px !important; }
+        .user-app-card { grid-template-columns:44px minmax(0,1fr); gap:10px 12px; padding:16px; }
+        .user-app-index { display:none; }
+        .user-app-image { width:44px; height:44px; }
+        .user-app-name strong { white-space:normal; overflow-wrap:anywhere; }
+        .user-app-content > p { white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .user-app-actions { grid-column:1 / -1; display:flex; flex-direction:row; align-items:center; justify-content:flex-end; gap:8px; margin-top:2px; }
+        .user-app-favourite { width:44px; min-width:44px; height:44px; }
+        .user-app-open { width:auto; min-width:112px; height:44px; padding:0 16px; }
+        .user-app-open span { display:inline; }
+      }
    </style>
    <script>
    (function(){
+      var menuToggle = document.querySelector('.oneid-mobile-menu-toggle');
+      var mobileMenu = document.querySelector('.oneid-user-sidebar-menu');
+      if (menuToggle && mobileMenu) {
+         menuToggle.addEventListener('click', function(){
+            var open = menuToggle.getAttribute('aria-expanded') !== 'true';
+            menuToggle.setAttribute('aria-expanded', String(open));
+            mobileMenu.classList.toggle('is-open', open);
+         });
+         mobileMenu.addEventListener('keydown', function(event){
+            if (event.key === 'Escape') {
+               mobileMenu.classList.remove('is-open');
+               menuToggle.setAttribute('aria-expanded', 'false');
+               menuToggle.focus();
+            }
+         });
+      }
       var entry=document.getElementById('administrator_entry'),loader=document.getElementById('adminEntryLoader');
       if(!entry||!loader)return;
       entry.addEventListener('click',async function(event){

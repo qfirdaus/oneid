@@ -1,0 +1,38 @@
+<?php
+declare(strict_types=1);
+// Included only by the private UNIX-socket MySQL fixture after its existing checks.
+require_once dirname(__DIR__,2).'/vendor/autoload.php';
+use OneId\App\Auth\MyDigitalId\{MyDigitalIdIdentityProtector,MyDigitalIdVerifiedIdentity,PdoMyDigitalIdIdentityRepository};
+use OneId\App\Auth\MobileOidc\PdoMobileMyDigitalIdAccounts;
+$ddl=file_get_contents(dirname(__DIR__,2).'/docs/migrations/20260726_mydigitalid_f2_identity_audit_up.sql');
+foreach(explode(';',$ddl) as $statement)if(trim($statement)!=='')$pdo->exec($statement);
+$pdo->exec("UPDATE user_tbl SET avail_status=1,password_change_required=0,data4='900101010101' WHERE u_id='STAFF_FIXTURE'");
+$pdo->exec("UPDATE user_tbl SET avail_status=1,password_change_required=0,data2='900101010101' WHERE u_id='STUDENT_FIXTURE'");
+$protector=MyDigitalIdIdentityProtector::fromBase64(base64_encode(random_bytes(32)),'fixture');
+$matched=new PdoMobileMyDigitalIdAccounts($pdo,$protector);
+$verified=new MyDigitalIdVerifiedIdentity('synthetic-subject','Synthetic','900101010101','a.b.c');
+$resolved=$matched->resolve($verified);
+check($resolved['ids']===['STAFF_FIXTURE','STUDENT_FIXTURE'],'mobile SQL finds distinct staff and student accounts for verified identity');
+$id=$begin();$adapter->beginMyDigitalId($id,$f->binding,$f->agent);
+$offered=$adapter->offerMyDigitalId($id,$f->binding,$f->agent,$resolved['ids'],$verified->nric);
+check(count($offered['choices']??[])===2,'PDO stores two bound account choices');
+$choice=$offered['choices'][1]['id'];
+$accepted=$adapter->chooseMyDigitalId($id,$f->binding,$f->agent,$choice,fn($uid)=>$matched->allows($uid,$resolved['proof']));
+check(($accepted['code']??'')==='AUTHENTICATION_READY' && isset($finish($id)['redirect_to']),'PDO account choice validates identity under shared transaction');
+check((int)$pdo->query('SELECT COUNT(*) FROM user_federated_identity')->fetchColumn()===0,'mobile matching creates no web identity link');
+$links=new PdoMyDigitalIdIdentityRepository($pdo);
+$linkId=$links->transactional(fn()=>$links->createActiveLink('STAFF_FIXTURE',$resolved['proof']['subject'],$resolved['proof']['nric'],'fixture',new DateTimeImmutable()));
+$before=$pdo->query('SELECT * FROM user_federated_identity')->fetchAll(PDO::FETCH_ASSOC);
+check(count($matched->resolve($verified)['ids'])===2,'existing staff web link still permits verified student mobile choice');
+check($pdo->query('SELECT * FROM user_federated_identity')->fetchAll(PDO::FETCH_ASSOC)===$before,'web identity link remains byte-for-byte unchanged');
+$other=new MyDigitalIdVerifiedIdentity('other-subject','Synthetic','900101010101','a.b.c');
+check($matched->resolve($other)['ids']===['STUDENT_FIXTURE'],'conflicting user link excludes that account');
+$pdo->exec("UPDATE user_federated_identity SET identity_status='REVOKED'");
+check($matched->resolve($verified)['ids']===[],'revoked subject link cannot be bypassed by mobile matching');
+$pdo->exec("UPDATE user_federated_identity SET identity_status='ACTIVE'");
+$pdo->exec("UPDATE user_tbl SET data4='800101010101' WHERE u_id='STAFF_FIXTURE'");
+check($matched->resolve($verified)['ids']===[],'changed linked NRIC prevents expansion to another account');
+$pdo->exec("UPDATE user_tbl SET data4='900101010101' WHERE u_id='STAFF_FIXTURE'");
+$pdo->exec("UPDATE user_tbl SET avail_status=0 WHERE u_id='STUDENT_FIXTURE'");
+check($matched->resolve($verified)['ids']===['STAFF_FIXTURE'],'inactive account is absent from mobile choices');
+check($pdo->query('SELECT fixture_marker FROM token_tbl')->fetchAll(PDO::FETCH_COLUMN)===['WEB_UNCHANGED'],'mobile account matching leaves legacy web sessions unchanged');

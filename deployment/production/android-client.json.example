@@ -1,0 +1,10 @@
+{
+  "client_id": "REPLACE_WITH_APPROVED_PRODUCTION_CLIENT_ID",
+  "client_name": "OneID Android production",
+  "redirect_uris": [],
+  "grant_types": ["authorization_code", "refresh_token"],
+  "response_types": ["code"],
+  "scope": "openid offline_access",
+  "token_endpoint_auth_method": "none",
+  "skip_consent": false
+}

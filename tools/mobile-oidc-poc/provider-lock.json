@@ -1,0 +1,12 @@
+{
+  "hydra_version": "v26.2.0",
+  "hydra_archive": "hydra_26.2.0-linux_64bit.tar.gz",
+  "hydra_archive_sha256": "88f5112cfa594968592eb4bbba9a0b0274790f4fec909ee5874ae080506cf890",
+  "hydra_binary_sha256": "b1437b7882f1863b2173003d6be86ad7b1f9381808cb5f4a19f9c27659595ddf",
+  "hydra_commit": "0b84568fffccf151dc5e6c7955fdfb738555bf4b",
+  "license": "Apache-2.0 (release LICENSE; no enterprise feature assumed)",
+  "postgres_package": "postgresql-16=16.15-0ubuntu0.24.04.1",
+  "postgres_deb_sha256": "d60ae76fb862cd4cca7bfdcdcdcc271c5e1d75f6b7915305ce2d962735a4b666",
+  "platform": "linux-amd64",
+  "scope": "UAT localhost synthetic-identity proof of concept only"
+}

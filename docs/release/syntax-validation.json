@@ -1,0 +1,9 @@
+{
+  "php_files": 860,
+  "runtimes": [
+    "php8.3",
+    "php8.4"
+  ],
+  "issues": [],
+  "python_syntax_failures": []
+}

@@ -1,0 +1,41 @@
+{
+  "status": "PASS",
+  "scope": "Registered application credential/ACL API parity; not remote runtime execution",
+  "cases": [
+    {
+      "application": "e-BDR",
+      "expected": "allow",
+      "response_keys_match": true,
+      "user_packet_matches": true,
+      "php84_marker": true,
+      "expected_result_on_both": true
+    },
+    {
+      "application": "ODL",
+      "expected": "allow",
+      "response_keys_match": true,
+      "user_packet_matches": true,
+      "php84_marker": true,
+      "expected_result_on_both": true
+    },
+    {
+      "application": "SAP",
+      "expected": "allow",
+      "response_keys_match": true,
+      "user_packet_matches": true,
+      "php84_marker": true,
+      "expected_result_on_both": true
+    },
+    {
+      "application": "Existing denied application",
+      "expected": "deny",
+      "response_keys_match": true,
+      "user_packet_matches": true,
+      "php84_marker": true,
+      "expected_result_on_both": true
+    }
+  ],
+  "denied_case_available": true,
+  "token_record_unchanged": true,
+  "date": "2026-10-03"
+}

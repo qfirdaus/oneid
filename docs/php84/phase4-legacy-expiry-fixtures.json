@@ -1,0 +1,200 @@
+{
+  "date": "2026-10-03",
+  "scope": "Actual API branch code in temporary copies, synthetic in-memory operation; config, integration auth guard and request body replaced. Not real database E2E. No live tokens/data modified.",
+  "results": [
+    {
+      "case": "active",
+      "expected_respond": "1",
+      "expected_flag": "1",
+      "security_expectation_pass": true,
+      "runtime_parity": true,
+      "observed": {
+        "8.3": {
+          "respond": "1",
+          "flag": "1",
+          "new_token_present": false,
+          "user_packet_present": true,
+          "writes": []
+        },
+        "8.4": {
+          "respond": "1",
+          "flag": "1",
+          "new_token_present": false,
+          "user_packet_present": true,
+          "writes": []
+        }
+      }
+    },
+    {
+      "case": "revoked_active",
+      "expected_respond": "0",
+      "expected_flag": "1",
+      "security_expectation_pass": true,
+      "runtime_parity": true,
+      "observed": {
+        "8.3": {
+          "respond": "0",
+          "flag": "1",
+          "new_token_present": false,
+          "user_packet_present": false,
+          "writes": []
+        },
+        "8.4": {
+          "respond": "0",
+          "flag": "1",
+          "new_token_present": false,
+          "user_packet_present": false,
+          "writes": []
+        }
+      }
+    },
+    {
+      "case": "future",
+      "expected_respond": "0",
+      "expected_flag": "1",
+      "security_expectation_pass": true,
+      "runtime_parity": true,
+      "observed": {
+        "8.3": {
+          "respond": "0",
+          "flag": "1",
+          "new_token_present": false,
+          "user_packet_present": false,
+          "writes": []
+        },
+        "8.4": {
+          "respond": "0",
+          "flag": "1",
+          "new_token_present": false,
+          "user_packet_present": false,
+          "writes": []
+        }
+      }
+    },
+    {
+      "case": "refresh",
+      "expected_respond": "1",
+      "expected_flag": "2",
+      "security_expectation_pass": true,
+      "runtime_parity": true,
+      "observed": {
+        "8.3": {
+          "respond": "1",
+          "flag": "2",
+          "new_token_present": true,
+          "user_packet_present": true,
+          "writes": [
+            "deactivate_old",
+            "issue_new"
+          ]
+        },
+        "8.4": {
+          "respond": "1",
+          "flag": "2",
+          "new_token_present": true,
+          "user_packet_present": true,
+          "writes": [
+            "deactivate_old",
+            "issue_new"
+          ]
+        }
+      }
+    },
+    {
+      "case": "expired",
+      "expected_respond": "0",
+      "expected_flag": "1",
+      "security_expectation_pass": true,
+      "runtime_parity": true,
+      "observed": {
+        "8.3": {
+          "respond": "0",
+          "flag": "1",
+          "new_token_present": false,
+          "user_packet_present": false,
+          "writes": []
+        },
+        "8.4": {
+          "respond": "0",
+          "flag": "1",
+          "new_token_present": false,
+          "user_packet_present": false,
+          "writes": []
+        }
+      }
+    },
+    {
+      "case": "revoked_refresh",
+      "expected_respond": "0",
+      "expected_flag": "1",
+      "security_expectation_pass": true,
+      "runtime_parity": true,
+      "observed": {
+        "8.3": {
+          "respond": "0",
+          "flag": "1",
+          "new_token_present": false,
+          "user_packet_present": false,
+          "writes": []
+        },
+        "8.4": {
+          "respond": "0",
+          "flag": "1",
+          "new_token_present": false,
+          "user_packet_present": false,
+          "writes": []
+        }
+      }
+    },
+    {
+      "case": "denied_refresh",
+      "expected_respond": "0",
+      "expected_flag": "1",
+      "security_expectation_pass": true,
+      "runtime_parity": true,
+      "observed": {
+        "8.3": {
+          "respond": "0",
+          "flag": "1",
+          "new_token_present": false,
+          "user_packet_present": false,
+          "writes": []
+        },
+        "8.4": {
+          "respond": "0",
+          "flag": "1",
+          "new_token_present": false,
+          "user_packet_present": false,
+          "writes": []
+        }
+      }
+    },
+    {
+      "case": "policy_revoked_refresh",
+      "expected_respond": "0",
+      "expected_flag": "1",
+      "security_expectation_pass": true,
+      "runtime_parity": true,
+      "observed": {
+        "8.3": {
+          "respond": "0",
+          "flag": "1",
+          "new_token_present": false,
+          "user_packet_present": false,
+          "writes": [
+            "policy_revoke"
+          ]
+        },
+        "8.4": {
+          "respond": "0",
+          "flag": "1",
+          "new_token_present": false,
+          "user_packet_present": false,
+          "writes": [
+            "policy_revoke"
+          ]
+        }
+      }
+    }
+  ]
+}

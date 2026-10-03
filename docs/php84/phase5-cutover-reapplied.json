@@ -1,0 +1,34 @@
+{
+  "status": "CUTOVER_REAPPLIED_VERIFIED",
+  "backup": "/var/backups/oneid-php84-cutover-20261003-141022",
+  "web_mobile_runtime": "8.4.26",
+  "default_cli": "8.3",
+  "http_checks": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/api.php",
+      "status": 400
+    },
+    {
+      "path": "/login.css",
+      "status": 200
+    },
+    {
+      "path": "/mobile/session",
+      "status": 401
+    },
+    {
+      "path": "/.well-known/openid-configuration",
+      "status": 200
+    },
+    {
+      "path": "/mobile-test/",
+      "status": 200
+    }
+  ],
+  "previous_rollback_reason": "User confirmed accidental execution, not an application failure",
+  "post_cutover_user_check": "PENDING"
+}

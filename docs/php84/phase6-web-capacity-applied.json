@@ -1,0 +1,36 @@
+{
+  "status": "CAPACITY_ADJUSTMENT_VERIFIED",
+  "applied_at": "2026-10-03T14:22:21+08:00",
+  "web_max_children": 8,
+  "mobile_max_children": 4,
+  "backup": "/var/backups/oneid-php84-web-capacity-20261003-142220",
+  "web_fpm_version": "8.4.26",
+  "http_checks": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/api.php",
+      "status": 400
+    },
+    {
+      "path": "/login.css",
+      "status": 200
+    },
+    {
+      "path": "/mobile/session",
+      "status": 401
+    },
+    {
+      "path": "/.well-known/openid-configuration",
+      "status": 200
+    },
+    {
+      "path": "/mobile-test/",
+      "status": 200
+    }
+  ],
+  "default_php": "/usr/bin/php8.3",
+  "capacity_under_load": "NOT_VERIFIED"
+}

@@ -1,0 +1,22 @@
+<?php
+// Copy into .private/mobile-oidc-hosted.php with owner-only write, no world permissions.
+// No service or application DB is contacted while enabled=false.
+return [
+    'enabled' => false,
+    'environment' => 'staging',
+    'database_scope_confirmed' => false,
+    'loopback_fixture' => false,
+    'origin' => 'https://oneid-uat.upnm.edu.my',
+    'issuer' => 'https://oneid-uat.upnm.edu.my',
+    'admin_url' => 'http://127.0.0.1:24145',
+    'clients' => [], // exact client_id => [approved redirect URIs], per platform/environment
+    'dsn' => 'mysql:host=DB_UAT_NOT_CONFIGURED;dbname=DB_UAT_NOT_CONFIGURED;charset=utf8mb4',
+    'db_user' => '', 'db_password' => '',
+    'mfa_runtime_mode' => 'ENFORCED', // must match reviewed OneID runtime ceiling
+    'mfa_activation_authorized' => false,
+    'binding_key' => '', // persistent random server secret >=32 bytes, never in Git
+    'hook_key' => '', // distinct persistent random secret, shared only with Hydra hook config
+    'totp_keyring' => '', // reviewed OneID TOTP keyring path; do not generate a replacement for existing factors
+    'session_path' => '/var/lib/oneid-mobile-uat/sessions',
+    'smtp' => ['host'=>'','port'=>587,'encryption'=>'tls','username'=>'','password'=>'','from'=>''],
+];

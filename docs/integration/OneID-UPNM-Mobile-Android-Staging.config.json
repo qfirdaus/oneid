@@ -1,0 +1,37 @@
+{
+  "environment": "staging",
+  "application_name": "UPNM Mobile",
+  "platform": "android",
+  "registration_status": "registered_provider_and_authorization_to_login_verified",
+  "client_id": "upnm-mobile-android-staging",
+  "redirect_uri": "com.upnmmobile1.app://oneid/callback",
+  "issuer": "https://oneid-uat.upnm.edu.my/",
+  "discovery_url": "https://oneid-uat.upnm.edu.my/.well-known/openid-configuration",
+  "authorization_endpoint": "https://oneid-uat.upnm.edu.my/oauth2/auth",
+  "token_endpoint": "https://oneid-uat.upnm.edu.my/oauth2/token",
+  "jwks_uri": "https://oneid-uat.upnm.edu.my/.well-known/jwks.json",
+  "session_endpoint": "https://oneid-uat.upnm.edu.my/mobile/session",
+  "logout_endpoint": "https://oneid-uat.upnm.edu.my/mobile/logout",
+  "revocation_endpoint": "https://oneid-uat.upnm.edu.my/oauth2/revoke",
+  "userinfo_endpoint": "https://oneid-uat.upnm.edu.my/userinfo",
+  "scopes": [
+    "openid",
+    "profile",
+    "offline_access",
+    "mobile:session"
+  ],
+  "authorization_additional_parameters": {
+    "audience": "oneid-mobile-session"
+  },
+  "response_type": "code",
+  "grant_types": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "code_challenge_method": "S256",
+  "token_endpoint_auth_method": "none",
+  "client_secret_required": false,
+  "android_package_id": "com.upnmmobile1.app",
+  "verification_date": "2026-09-30",
+  "android_end_to_end_test_status": "pending_mobile_team_test"
+}

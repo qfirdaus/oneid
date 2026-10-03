@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-03",
+  "status": "PASS_USER_REPORTED",
+  "scope": "SSO launch from OneID UAT browser tunnel routed to PHP 8.4",
+  "evidence": "User confirmed logging in, clicking ODL, SAP and e-BDR, and arriving authenticated in all three downstream systems.",
+  "systems": [
+    {
+      "name": "ODL",
+      "result": "PASS_USER_REPORTED"
+    },
+    {
+      "name": "SAP",
+      "result": "PASS_USER_REPORTED"
+    },
+    {
+      "name": "e-BDR",
+      "result": "PASS_USER_REPORTED"
+    }
+  ],
+  "limits": [
+    "Downstream back-channel still uses existing PHP 8.3 routing; valid-token validation on PHP 8.4 not proven",
+    "Remote PHP runtime versions not established by this test",
+    "No assertion about downstream global logout or token expiry from this report"
+  ]
+}

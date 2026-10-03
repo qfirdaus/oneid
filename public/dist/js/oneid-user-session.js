@@ -404,9 +404,8 @@
         post('user_session_renew').then(function (payload) {
             requestPending = false;
             try { window.sessionStorage.removeItem('oneid-user-session-csrf-retried'); } catch (ignored) {}
-            if (typeof sessionSwal.close === 'function') {
-                sessionSwal.close();
-            }
+            // Replace the warning in place. Closing first starts an asynchronous
+            // fade-out that can hide the new alert while leaving body scroll locked.
             warningOpen = false;
             schedule(payload);
             broadcast('renewed');

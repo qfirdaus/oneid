@@ -12,7 +12,10 @@
     "autoload": {
         "psr-4": {
             "OneId\\App\\": "app/"
-        }
+        },
+        "classmap": [
+            "app/Auth/MobileOidc/Contracts.php"
+        ]
     },
     "config": {
         "allow-plugins": {},
@@ -25,5 +28,13 @@
         },
         "sort-packages": true
     },
-    "prefer-stable": true
+    "prefer-stable": true,
+    "scripts": {
+        "post-install-cmd": [
+            "@php tools/patch_openid_php84.php --apply"
+        ],
+        "post-update-cmd": [
+            "@php tools/patch_openid_php84.php --apply"
+        ]
+    }
 }

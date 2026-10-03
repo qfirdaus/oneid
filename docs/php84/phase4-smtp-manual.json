@@ -1,0 +1,4 @@
+{
+  "status": "PASS_USER_REPORTED",
+  "scope": "User confirmed all four instructed password-reset steps, including email reception, reset and new-password login; browser tunnel was instructed, per-step markers not provided"
+}

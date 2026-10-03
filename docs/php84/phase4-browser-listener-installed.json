@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-03",
+  "status": "installed_and_independently_smoke_verified",
+  "listener": "127.0.0.1:24484",
+  "backup_user_reported": "/var/backups/oneid-php84-browser-20261003-130132",
+  "public_routes": "unchanged PHP 8.3 sockets confirmed",
+  "smoke": [
+    {
+      "path": "/",
+      "status": 200,
+      "php84_marker": true
+    },
+    {
+      "path": "/login.css",
+      "status": 200,
+      "php84_marker": true
+    },
+    {
+      "path": "/mobile/session",
+      "status": 401,
+      "php84_marker": true
+    },
+    {
+      "path": "/.well-known/openid-configuration",
+      "status": 200,
+      "php84_marker": false
+    }
+  ],
+  "remaining": "Browser authenticated tests and backend integrations not yet verified on 8.4"
+}

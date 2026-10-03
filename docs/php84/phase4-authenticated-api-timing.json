@@ -1,0 +1,39 @@
+{
+  "status": "MEASURED",
+  "functional_checks_pass": true,
+  "scope": "Authenticated IDP token validation API over loopback TLS; not browser login, application ACL latency or load capacity",
+  "method": "One warmup and five measured requests per runtime; alternating order; fresh cURL connection per request; TLS verified",
+  "results": {
+    "8.3": {
+      "samples_ms": [
+        58.098,
+        58.117,
+        68.024,
+        69.347,
+        76.542
+      ],
+      "median_ms": 68.024,
+      "mean_ms": 66.026,
+      "min_ms": 58.098,
+      "max_ms": 76.542
+    },
+    "8.4": {
+      "samples_ms": [
+        78.095,
+        67.482,
+        71.431,
+        61.897,
+        76.548
+      ],
+      "median_ms": 71.431,
+      "mean_ms": 71.091,
+      "min_ms": 61.897,
+      "max_ms": 78.095
+    }
+  },
+  "median_delta_ms": 3.407,
+  "median_delta_percent": 5.01,
+  "token_record_unchanged": true,
+  "performance_acceptance": "NOT_ASSESSED: no agreed threshold; small serial sample",
+  "date": "2026-10-03"
+}

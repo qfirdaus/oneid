@@ -1,0 +1,268 @@
+[
+  {
+    "project": "e-facility-uat",
+    "file": "/var/www/e-facility-uat/public/sso_sp_client.php",
+    "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-facility-uat",
+    "file": "/var/www/e-facility-uat/public/includes/sso-config.php",
+    "sha256": "8e848a2e8ab0f0ab5fc466b1bbdb1a6c731a6baa72e17049c3c4f41e0e6d2b34",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-facility-uat",
+    "file": "/var/www/e-facility-uat/public/includes/sso-flow.php",
+    "sha256": "0f6ee362642a398a15ed86c1f76e302319c0b30502e2e832f4f80a472f69915e",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-facility-uat",
+    "file": "/var/www/e-facility-uat/public/ajax/my-module/sso-submit.php",
+    "sha256": "d46bb9c09d37a8aa34e507437e1beb961d26c3a10a14101476106a813daa6c2a",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-facility-uat",
+    "file": "/var/www/e-facility-uat/public/ajax/my-module/sso-update-draft.php",
+    "sha256": "0477a8b9d6ab7cbd0b7c1a60c0e737c2aa328df3d7f679a800a43f1049312a63",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-bdr-uat",
+    "file": "/var/www/e-bdr-uat/public/sso_sp_client.php",
+    "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-bdr-uat",
+    "file": "/var/www/e-bdr-uat/public/includes/sso-config.php",
+    "sha256": "8e848a2e8ab0f0ab5fc466b1bbdb1a6c731a6baa72e17049c3c4f41e0e6d2b34",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-bdr-uat",
+    "file": "/var/www/e-bdr-uat/public/includes/sso-flow.php",
+    "sha256": "0f6ee362642a398a15ed86c1f76e302319c0b30502e2e832f4f80a472f69915e",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-mymohes-uat",
+    "file": "/var/www/e-mymohes-uat/public/sso_sp_client.php",
+    "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-mymohes-uat",
+    "file": "/var/www/e-mymohes-uat/public/includes/sso-config.php",
+    "sha256": "8e848a2e8ab0f0ab5fc466b1bbdb1a6c731a6baa72e17049c3c4f41e0e6d2b34",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-mymohes-uat",
+    "file": "/var/www/e-mymohes-uat/public/includes/sso-flow.php",
+    "sha256": "0f6ee362642a398a15ed86c1f76e302319c0b30502e2e832f4f80a472f69915e",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-hepa-uat",
+    "file": "/var/www/e-hepa-uat/public/sso_sp_client.php",
+    "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-hepa-uat",
+    "file": "/var/www/e-hepa-uat/public/includes/sso-config.php",
+    "sha256": "8e848a2e8ab0f0ab5fc466b1bbdb1a6c731a6baa72e17049c3c4f41e0e6d2b34",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-hepa-uat",
+    "file": "/var/www/e-hepa-uat/public/includes/sso-flow.php",
+    "sha256": "0f6ee362642a398a15ed86c1f76e302319c0b30502e2e832f4f80a472f69915e",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-pms-uat",
+    "file": "/var/www/e-pms-uat/public/sso_sp_client.php",
+    "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-pms-uat",
+    "file": "/var/www/e-pms-uat/public/includes/sso-config.php",
+    "sha256": "8e848a2e8ab0f0ab5fc466b1bbdb1a6c731a6baa72e17049c3c4f41e0e6d2b34",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-pms-uat",
+    "file": "/var/www/e-pms-uat/public/includes/sso-flow.php",
+    "sha256": "0f6ee362642a398a15ed86c1f76e302319c0b30502e2e832f4f80a472f69915e",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-pr-uat",
+    "file": "/var/www/e-pr-uat/public/sso_sp_client.php",
+    "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-pr-uat",
+    "file": "/var/www/e-pr-uat/public/includes/sso-config.php",
+    "sha256": "8e848a2e8ab0f0ab5fc466b1bbdb1a6c731a6baa72e17049c3c4f41e0e6d2b34",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-pr-uat",
+    "file": "/var/www/e-pr-uat/public/includes/sso-flow.php",
+    "sha256": "0f6ee362642a398a15ed86c1f76e302319c0b30502e2e832f4f80a472f69915e",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "sap-uat",
+    "file": "/var/www/sap-uat/public/sso_sp_client.php",
+    "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "sap-uat",
+    "file": "/var/www/sap-uat/public/includes/sso-config.php",
+    "sha256": "8e848a2e8ab0f0ab5fc466b1bbdb1a6c731a6baa72e17049c3c4f41e0e6d2b34",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "sap-uat",
+    "file": "/var/www/sap-uat/public/includes/sso-flow.php",
+    "sha256": "0f6ee362642a398a15ed86c1f76e302319c0b30502e2e832f4f80a472f69915e",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-prestasi-uat",
+    "file": "/var/www/e-prestasi-uat/public/sso_sp_client.php",
+    "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-prestasi-uat",
+    "file": "/var/www/e-prestasi-uat/public/includes/sso-config.php",
+    "sha256": "8e848a2e8ab0f0ab5fc466b1bbdb1a6c731a6baa72e17049c3c4f41e0e6d2b34",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-prestasi-uat",
+    "file": "/var/www/e-prestasi-uat/public/includes/sso-flow.php",
+    "sha256": "0f6ee362642a398a15ed86c1f76e302319c0b30502e2e832f4f80a472f69915e",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-spk-uat",
+    "file": "/var/www/e-spk-uat/public/sso_sp_client.php",
+    "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-spk-uat",
+    "file": "/var/www/e-spk-uat/public/includes/sso-config.php",
+    "sha256": "8e848a2e8ab0f0ab5fc466b1bbdb1a6c731a6baa72e17049c3c4f41e0e6d2b34",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "e-spk-uat",
+    "file": "/var/www/e-spk-uat/public/includes/sso-flow.php",
+    "sha256": "0f6ee362642a398a15ed86c1f76e302319c0b30502e2e832f4f80a472f69915e",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "iqs-framework",
+    "file": "/var/www/iqs-framework/public/sso_sp_client.php",
+    "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "iqs-framework",
+    "file": "/var/www/iqs-framework/public/includes/sso-config.php",
+    "sha256": "8e848a2e8ab0f0ab5fc466b1bbdb1a6c731a6baa72e17049c3c4f41e0e6d2b34",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "iqs-framework",
+    "file": "/var/www/iqs-framework/public/includes/sso-flow.php",
+    "sha256": "0f6ee362642a398a15ed86c1f76e302319c0b30502e2e832f4f80a472f69915e",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "apel",
+    "file": "/var/www/apel/public/sso_sp_client.php",
+    "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "apel",
+    "file": "/var/www/apel/public/includes/sso-config.php",
+    "sha256": "8e848a2e8ab0f0ab5fc466b1bbdb1a6c731a6baa72e17049c3c4f41e0e6d2b34",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "apel",
+    "file": "/var/www/apel/public/includes/sso-flow.php",
+    "sha256": "0f6ee362642a398a15ed86c1f76e302319c0b30502e2e832f4f80a472f69915e",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "survey-uat",
+    "file": "/var/www/survey-uat/public/sso_sp_client.php",
+    "sha256": "52d1505c1607279e9c854e0dce439eb4e86b3a31468958c6d120b07e3e1cd6e5",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "survey-uat",
+    "file": "/var/www/survey-uat/public/includes/sso-config.php",
+    "sha256": "8e848a2e8ab0f0ab5fc466b1bbdb1a6c731a6baa72e17049c3c4f41e0e6d2b34",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  },
+  {
+    "project": "survey-uat",
+    "file": "/var/www/survey-uat/public/includes/sso-flow.php",
+    "sha256": "0f6ee362642a398a15ed86c1f76e302319c0b30502e2e832f4f80a472f69915e",
+    "php_runtime": "UNVERIFIED",
+    "execution_test": "NOT_RUN"
+  }
+]

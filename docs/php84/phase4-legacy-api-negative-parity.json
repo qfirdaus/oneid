@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-03",
+  "scope": "Negative legacy API parity only; no authenticated downstream validation",
+  "normalization": "Only per-request request_id value excluded; presence/type validated",
+  "results": [
+    {
+      "case": "missing_body",
+      "match_excluding_request_id_value": true,
+      "baseline_status": 400,
+      "php84_status": 400,
+      "rejected_both": true,
+      "request_ids_valid": true
+    },
+    {
+      "case": "invalid_json",
+      "match_excluding_request_id_value": true,
+      "baseline_status": 400,
+      "php84_status": 400,
+      "rejected_both": true,
+      "request_ids_valid": true
+    },
+    {
+      "case": "unknown_token",
+      "match_excluding_request_id_value": true,
+      "baseline_status": 200,
+      "php84_status": 200,
+      "rejected_both": true,
+      "request_ids_valid": true
+    }
+  ]
+}

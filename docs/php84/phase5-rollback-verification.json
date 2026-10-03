@@ -1,0 +1,33 @@
+{
+  "status": "ROLLED_BACK_TO_83",
+  "source": "User executed rollback; routing and HTTP checks independently verified",
+  "backup": "/var/backups/oneid-php84-cutover-20261003-140643",
+  "http_checks": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/api.php",
+      "status": 400
+    },
+    {
+      "path": "/login.css",
+      "status": 200
+    },
+    {
+      "path": "/mobile/session",
+      "status": 401
+    },
+    {
+      "path": "/.well-known/openid-configuration",
+      "status": 200
+    },
+    {
+      "path": "/mobile-test/",
+      "status": 200
+    }
+  ],
+  "reason": "Not provided",
+  "code_database_rollback": false
+}

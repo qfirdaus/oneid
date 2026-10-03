@@ -1,0 +1,15 @@
+{
+  "scope": "Syntax-only private copies; log paths redirected; services not started or reloaded. Does not validate integration with full production Nginx configuration.",
+  "results": [
+    {
+      "tool": "/usr/sbin/nginx",
+      "exit": 0,
+      "output": "nginx: the configuration file /var/www/oneid-uat/.private/release-workspaces/full-production/.private/template-check/nginx.conf syntax is ok\nnginx: configuration file /var/www/oneid-uat/.private/release-workspaces/full-production/.private/template-check/nginx.conf test is successful\n"
+    },
+    {
+      "tool": "/usr/sbin/php-fpm8.4",
+      "exit": 0,
+      "output": "[03-Oct-2026 15:00:37] NOTICE: configuration file /var/www/oneid-uat/.private/release-workspaces/full-production/.private/template-check/fpm.conf test is successful\n"
+    }
+  ]
+}

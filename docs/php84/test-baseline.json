@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-03",
+  "runtime": "8.3.35",
+  "scope": "in-memory fixtures; no real provider, SMTP or downstream login",
+  "results": [
+    {
+      "test": "tests/mobile-oidc/adapter.php",
+      "sha256": "b967698d030ac05bd9ca6469fc60789120c18a633d105fca36983c3426305358",
+      "exit_code": 0,
+      "passed_checks": 73,
+      "stderr_present": false
+    },
+    {
+      "test": "tests/mobile-oidc/mydigitalid.php",
+      "sha256": "0ba30b2fa5b62ed1542dfd6a29841a259df1f72bea391a535e762eb63c07c837",
+      "exit_code": 0,
+      "passed_checks": 36,
+      "stderr_present": false
+    },
+    {
+      "test": "tests/mobile-oidc/profile.php",
+      "sha256": "2477736e32189a9ce272c719561118b230cdd945c3879503890b03c84eea11b1",
+      "exit_code": 0,
+      "passed_checks": 7,
+      "stderr_present": false
+    },
+    {
+      "test": "tests/mobile-oidc-hosted/protocol.php",
+      "sha256": "e6567b926928242de95721bf57e147d3bb189723689108eedb3751a550bdf8eb",
+      "exit_code": 0,
+      "passed_checks": 20,
+      "stderr_present": false
+    },
+    {
+      "test": "tests/characterization/mydigitalid_f1_foundation.php",
+      "sha256": "fe5c3637606294638f9631f0d417346847107675ac8460d52669ab96426bb077",
+      "exit_code": 0,
+      "passed_checks": 22,
+      "stderr_present": false
+    },
+    {
+      "test": "tests/characterization/user_login_mfa_u4_email_otp.php",
+      "sha256": "3668e1ab8982c8a92cb08476f2fffa2c85c7666c7eb6a372b307052796256545",
+      "exit_code": 0,
+      "passed_checks": 12,
+      "stderr_present": false
+    }
+  ]
+}

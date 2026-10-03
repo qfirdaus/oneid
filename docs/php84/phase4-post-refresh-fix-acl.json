@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "scope": "Registered application credential/ACL API parity; not remote runtime execution",
+  "cases": [
+    {
+      "application": "e-BDR",
+      "expected": "allow",
+      "response_keys_match": true,
+      "user_packet_matches": true,
+      "php84_marker": true,
+      "expected_result_on_both": true
+    },
+    {
+      "application": "ODL",
+      "expected": "allow",
+      "response_keys_match": true,
+      "user_packet_matches": true,
+      "php84_marker": true,
+      "expected_result_on_both": true
+    },
+    {
+      "application": "SAP",
+      "expected": "allow",
+      "response_keys_match": true,
+      "user_packet_matches": true,
+      "php84_marker": true,
+      "expected_result_on_both": true
+    },
+    {
+      "application": "Existing denied application",
+      "expected": "deny",
+      "response_keys_match": true,
+      "user_packet_matches": true,
+      "php84_marker": true,
+      "expected_result_on_both": true
+    }
+  ],
+  "denied_case_available": true,
+  "token_record_unchanged": true,
+  "date": "2026-10-03",
+  "verification_stage": "Post legacy-refresh remediation; user-executed live active-token/ACL regression",
+  "source_hashes": {
+    "api.php": "de4d8461f25e4fa7358b544bb1e2d6ac16c12bb746c387aaf1226738790abae3",
+    "lib/Database.php": "a032f70ca9e2c1c420ec90a527d4ed00fe313be025e7af2720409913822ca029"
+  }
+}

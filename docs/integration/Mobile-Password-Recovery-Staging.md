@@ -1,0 +1,11 @@
+# Pemulihan kata laluan mobile — staging
+
+Pautan Lupa kata laluan pada halaman login mobile membuka paparan penuh, bukan modal web. Langkah: pengenalan → OTP emel → kata laluan baharu → tutup browser dan mulakan login baharu dari aplikasi. BM/EN tersedia. Tiada login/token diberikan secara automatik selepas reset.
+
+Semua borang menggunakan POST /login dengan Origin dan CSRF sedia ada. Transaksi OAuth ditangguhkan dalam state RECOVERY ketika pemulihan dimulakan. Kembali ke login memusnahkan proof/OTP pemulihan dan memulihkan PASSWORD hanya untuk transaksi asal yang masih sah serta binding browser yang sama. Selepas reset berjaya, transaksi lama tidak dipulihkan. Rekod OTP/proof mobile disimpan berasingan dalam mobile_oidc_records; tidak menggunakan sesi PHP pemulihan web atau OTP MFA. Tiada route Nginx, migrasi jadual atau perubahan controller web diperlukan.
+
+Konfigurasi sys_config.password_reset_email_enabled, status akaun aktif, maintenance dan lifecycle readiness diperiksa semula. Lookup menggunakan u_id/data2 seperti pemulihan web tetapi padanan lebih daripada satu ditolak. Respons permintaan emel adalah generik. Tempoh OTP 5 minit, maksimum 5 cubaan; pemulihan keseluruhan 20 minit, proof selepas OTP maksimum 10 minit. Had IP 20 permintaan/15 minit, pengenalan dan akaun 5/hari; cooldown akaun 60 saat. Kuota mobile mengambil kira permintaan web terkini; controller web kekal tanpa perubahan dan tidak membaca kaunter mobile.
+
+Password menggunakan validator/hash/history dan writer mobile OneID sedia ada. Reset membatalkan token web, OTP web aktif dan mengubah epoch identiti melalui observer supaya sesi mobile lama tidak sah. Itulah kesan keselamatan reset password yang disengajakan; bukan perubahan aliran UI web. Perubahan password/emel/epoch selepas permintaan membatalkan proof. Tiada OTP/password/token dalam audit; audit mobile merekod outcome permintaan/penghantaran/reset.
+
+Emel recovery menggunakan SMTP sedia ada dengan tajuk dan penerangan pemulihan. Ujian automatik menggunakan MySQL sementara dan penghantaran tiruan; ujian emel sebenar dan telefon masih diperlukan. Selepas selesai reset, mulakan authorization request baharu dan ikut polisi MFA normal. Jangan guna semula callback/code/transaksi sebelum reset.

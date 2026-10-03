@@ -1,0 +1,29 @@
+{
+  "scope": "Real UAT unauthenticated HTTP bootstrap through temporary loopback Nginx and FPM 8.4; temporary certificate trusted explicitly. No login or real provider flow tested.",
+  "results": [
+    {
+      "path": "/",
+      "status": 200,
+      "php84_marker": true,
+      "pass": true
+    },
+    {
+      "path": "/login.css",
+      "status": 200,
+      "php84_marker": true,
+      "pass": true
+    },
+    {
+      "path": "/mobile/session",
+      "status": 401,
+      "php84_marker": true,
+      "pass": true
+    },
+    {
+      "path": "/.well-known/openid-configuration",
+      "status": 200,
+      "php84_marker": false,
+      "pass": true
+    }
+  ]
+}

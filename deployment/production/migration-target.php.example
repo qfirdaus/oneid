@@ -1,0 +1,6 @@
+<?php
+// .private/production-release-target.php, mode 0640 or stricter. Never guess these.
+return [
+    'database_name'=>'', 'database_hostname'=>'',
+    'backup_verified'=>false, 'backup_reference'=>'',
+];

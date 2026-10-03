@@ -1,0 +1,24 @@
+<?php
+// Installed in .private only. Reuse current OneID settings; no legacy session bootstrap.
+$runtime = require __DIR__ . '/runtime.php';
+$keys = require __DIR__ . '/mobile-oidc-secrets.php';
+$get = static function (string $key) use ($runtime): mixed {
+    $env = getenv($key);
+    return $env !== false && $env !== '' ? $env : ($runtime[$key] ?? null);
+};
+$mode = (string)$get('ONEID_USER_MFA_MODE');
+if ($get('ONEID_ENVIRONMENT') !== 'staging' || !in_array($mode, ['OFF','ENROLLMENT','PILOT_ENFORCED','ENFORCED'], true)) throw new RuntimeException('MOBILE_RUNTIME_INVALID');
+return [
+    'enabled'=>false, 'environment'=>'staging', 'database_scope_confirmed'=>true, 'loopback_fixture'=>false,
+    'origin'=>'https://oneid-uat.upnm.edu.my', 'issuer'=>'https://oneid-uat.upnm.edu.my',
+    'admin_url'=>'http://127.0.0.1:24145', 'clients'=>[],
+    'dsn'=>(string)$get('ONEID_DB_DSN'), 'db_user'=>(string)$get('ONEID_DB_USERNAME'), 'db_password'=>(string)$get('ONEID_DB_PASSWORD'),
+    'mfa_runtime_mode'=>$mode,
+    'mfa_activation_authorized'=>filter_var($get('ONEID_USER_MFA_ACTIVATION_AUTHORIZED'), FILTER_VALIDATE_BOOLEAN),
+    'binding_key'=>$keys['binding_key'], 'hook_key'=>$keys['hook_key'],
+    'totp_keyring'=>(string)$get('ONEID_TOTP_KEYRING_PATH'),
+    'session_path'=>'/var/lib/oneid-mobile-web/sessions',
+    'smtp'=>['host'=>(string)$get('ONEID_SMTP_HOST'), 'port'=>(int)$get('ONEID_SMTP_PORT'),
+        'encryption'=>(string)$get('ONEID_SMTP_ENCRYPTION'), 'username'=>(string)$get('ONEID_SMTP_USERNAME'),
+        'password'=>(string)$get('ONEID_SMTP_PASSWORD'), 'from'=>(string)$get('ONEID_SMTP_USERNAME')],
+];

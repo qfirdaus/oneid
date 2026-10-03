@@ -1,0 +1,21 @@
+; REVIEW TEMPLATE ONLY. Separate capacity and cookies from legacy web.
+[oneid-mobile-uat]
+user = www-data
+group = www-data
+listen = /run/php/oneid-mobile-uat.sock
+listen.owner = www-data
+listen.group = www-data
+listen.mode = 0660
+pm = ondemand
+pm.max_children = 4
+pm.process_idle_timeout = 10s
+pm.max_requests = 500
+clear_env = yes
+env[ONEID_MOBILE_CONFIG] = /var/www/oneid-uat/.private/mobile-oidc-hosted.php
+security.limit_extensions = .php
+php_admin_flag[display_errors] = off
+php_admin_flag[log_errors] = on
+php_admin_value[post_max_size] = 64K
+php_admin_value[upload_max_filesize] = 64K
+php_admin_value[max_execution_time] = 30
+request_terminate_timeout = 35s
