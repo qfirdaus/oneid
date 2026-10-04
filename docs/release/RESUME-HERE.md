@@ -115,3 +115,19 @@ Ayat sambungan:
 ## Ayat untuk sambung sesi
 
 > Sambung dari `docs/release/RESUME-HERE.md` pada branch `release/production-php84-mobile`. Semak checkpoint dan perubahan sejak berhenti; lengkapkan input Android/MyDigital ID/production sebelum cadangkan deployment. Jangan ubah production atau main dahulu.
+
+## Checkpoint Fasa 2 — dry-run sahaja (4 Oktober 2026)
+
+Fasa 2 sudah bermula tetapi **pemasangan sebenar belum dilakukan**. Dry-run package PHP 8.4.26 di production lulus: 12 package baharu + 2 upgrade, 0 removal. Punca berhenti: pemasangan memerlukan kata laluan `sudo` operator. Tiada production runtime berubah.
+
+Skrip: `tools/release/prepare-production-php84.py`.
+
+Untuk sambung, semak dahulu backup/approval kemudian jalankan di production:
+
+```sh
+scp tools/release/prepare-production-php84.py iqs@172.16.2.109:/home/iqs/
+ssh iqs@172.16.2.109
+sudo python3 -B /home/iqs/prepare-production-php84.py --apply
+```
+
+Skrip mesti melaporkan PHP 8.4.26, FPM 8.4 aktif, default `php`/`phar`/`phar.phar` masih 8.3 dan routing belum berubah. Jika berhenti separuh jalan, jangan ulang secara membuta tuli; periksa backup yang dicetak dan status dpkg/FPM dahulu.
