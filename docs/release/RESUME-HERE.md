@@ -62,6 +62,41 @@ Tugas seterusnya ialah **menutup input production dan menyemak release**, bukan 
 
 Baki had: native production Android, remote downstream PHP/ODBC inventory, formal performance acceptance dan production backup/provider readiness belum ditutup. Mobile production akan kekal OFF sehingga package ID dan redirect URI Android disahkan. Perbezaan median API +5.01% berdasarkan lima sampel UAT setiap runtime bukan pensijilan prestasi.
 
+## Checkpoint berhenti selepas Fasa 1 — 4 Oktober 2026
+
+Pemilik meminta tugasan dihentikan selepas **Fasa 1 audit production**. **Fasa 2 belum dimulakan**: tiada PHP package dipasang, tiada alternatives ditukar, tiada FPM pool/socket dibuat, tiada cron diubah dan tiada production traffic disentuh.
+
+Sasaran versi yang dimuktamadkan ialah **PHP 8.4.26** untuk semua runtime OneID production: CLI, FPM web, FPM mobile dormant, `phar`, `phar.phar` dan cron/timer OneID. Partial package 8.4.25 yang terlihat semasa audit bukan target akhir dan mesti disejajarkan ke 8.4.26.
+
+Fasa 1 report: [PHASE-1-PRODUCTION-AUDIT-20261004.md](PHASE-1-PRODUCTION-AUDIT-20261004.md)
+Pelan penuh: [PRODUCTION-PHP84-PHASES.md](PRODUCTION-PHP84-PHASES.md)
+Commit dokumentasi terakhir: `99a8ff6` (branch `release/production-php84-mobile`, sudah dipush).
+
+### Dapatan yang perlu dibawa ke Fasa 2
+
+- Production `172.16.2.109` / `APPSSSOPRODv1` hanya menjalankan OneID; root `/var/www/oneid`.
+- Aktif sekarang PHP 8.3.33, FPM web socket `/run/php/php8.3-fpm-oneid.sock`, pool max 10.
+- PHP 8.4.26 tersedia sebagai apt candidate; PHP 8.4.25 partial packages wujud tetapi CLI/FPM/ODBC lengkap belum tersedia.
+- Extension 8.3 yang perlu dipadankan termasuk PDO MySQL, ODBC, PDO ODBC, PDO DBLIB, mysqli, curl, mbstring, intl, XML, ZIP, GD, sodium dan OPcache.
+- Tiga cron menggunakan `/usr/bin/php`: external sync, session housekeeping dan user MFA lifecycle. Semak system timers penuh sebelum tukar.
+- Backup package/alternatives wujud, tetapi backup restore code/vendor/private config/database belum dibuktikan. Ini syarat sebelum cutover.
+- Mobile Android production kekal OFF; package ID, redirect URI dan callback MyDigital ID mobile belum tersedia.
+
+### Cara sambung
+
+```sh
+cd /var/www/oneid-uat/.private/release-workspaces/full-production
+git status --short
+git log -1 --format='%H %s'
+git ls-remote origin refs/heads/release/production-php84-mobile
+```
+
+Kemudian baca dua report Fasa 1 di atas. Langkah pertama sambungan ialah **Fasa 2: semak `apt-get --simulate` dan sediakan PHP 8.4.26 secara selari**, bukan terus cutover. Kekalkan PHP 8.3 sebagai rollback sehingga Fasa 4 selesai. Mobile config mesti kekal `enabled=false` dan `production_ready=false`.
+
+Ayat sambungan:
+
+> Sambung dari checkpoint selepas Fasa 1 dalam `docs/release/RESUME-HERE.md`. Mulakan Fasa 2 dengan persediaan PHP 8.4.26 secara selari; jangan ubah trafik production sebelum runtime, extension dan rollback disahkan.
+
 ## Arahan terakhir pemilik sebelum berhenti — 3 Oktober 2026
 
 - **Berhenti sekarang; sambung kemudian menggunakan dokumen ini.** Tiada deployment atau penyelarasan folder live dibuat pada masa berhenti.
