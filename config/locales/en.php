@@ -102,7 +102,7 @@ return [
     'login.success' => 'Sign-in successful.',
     'login.timeout' => 'The sign-in request timed out. Try again.',
     'login.server_error' => 'The server response could not be received.',
-    'login.account_suspended' => 'Your account has been suspended. Contact BTMK for further information.',
+    'login.account_suspended' => 'Your account is inactive. Please contact PTMK for assistance.',
     'login.future_option' => 'More sign-in options coming soon',
     'login.integration_disabled' => 'Integration is not enabled',
     'login.mydigitalid.divider' => 'or continue with',
