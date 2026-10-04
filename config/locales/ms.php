@@ -102,7 +102,7 @@ return [
     'login.success' => 'Log masuk berjaya.',
     'login.timeout' => 'Permintaan log masuk tamat tempoh. Cuba semula.',
     'login.server_error' => 'Respons pelayan tidak dapat diterima.',
-    'login.account_suspended' => 'Akaun anda telah digantung. Sila hubungi BTMK untuk maklumat lanjut.',
+    'login.account_suspended' => 'Akaun anda tidak aktif. Sila hubungi PTMK untuk bantuan.',
     'login.future_option' => 'Pilihan log masuk akan datang',
     'login.integration_disabled' => 'Integrasi belum diaktifkan',
     'login.mydigitalid.divider' => 'atau teruskan dengan',
