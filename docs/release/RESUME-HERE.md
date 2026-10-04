@@ -131,3 +131,20 @@ sudo python3 -B /home/iqs/prepare-production-php84.py --apply
 ```
 
 Skrip mesti melaporkan PHP 8.4.26, FPM 8.4 aktif, default `php`/`phar`/`phar.phar` masih 8.3 dan routing belum berubah. Jika berhenti separuh jalan, jangan ulang secara membuta tuli; periksa backup yang dicetak dan status dpkg/FPM dahulu.
+
+## Checkpoint Fasa 2 — PHP 8.4.26 dipasang selari (4 Oktober 2026)
+
+Operator menjalankan `sudo python3 -B /home/iqs/prepare-production-php84.py --apply` pada production.
+
+Keputusan: **INSTALLED_PENDING_FASTCGI_PROBE**.
+
+- PHP 8.4.26 berjaya dipasang.
+- FPM 8.4 berjaya diaktifkan dan config test lulus.
+- Semua extension yang ada pada PHP 8.3 dipadankan pada PHP 8.4, termasuk ODBC, PDO ODBC dan PDO DBLIB.
+- Default `php`, `phar` dan `phar.phar` masih menunjuk PHP 8.3.
+- Nginx routing belum berubah; web traffic masih PHP 8.3.
+- Mobile routes belum ditambah dan mobile login kekal OFF.
+- Backup pemasangan: `/var/backups/oneid-prod-php84-phase2-20261004-183102`.
+- Host melaporkan pending kernel upgrade/reboot (`7.0.0-31` berbanding `7.0.0-34`). Jangan reboot dalam langkah seterusnya tanpa maintenance approval; ia bukan sebahagian daripada cutover PHP.
+
+**Langkah sambungan wajib sebelum Fasa 3:** jalankan probe FastCGI/INI untuk pool 8.4 secara terpencil, semak socket dan logs, kemudian deploy/test code dependency release. Jangan tukar Nginx, alternatives, cron atau mobile feature sehingga probe dan Fasa 3 diluluskan.

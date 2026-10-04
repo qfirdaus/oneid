@@ -88,3 +88,7 @@ Dry-run pada production untuk sasaran tepat `8.4.26-1+ubuntu24.04.1+deb.sury.org
 - 0 package dibuang; routing Nginx/FPM 8.3 tidak disentuh.
 
 Pemasangan sebenar belum berlaku kerana sesi SSH memerlukan kata laluan `sudo`. Skrip disimpan di `tools/release/prepare-production-php84.py` dan dry-run telah berjaya di production. Operator perlu menjalankannya dengan `sudo` pada server, selepas menyemak backup/approval. Skrip menetapkan PHP 8.3 sebagai default, memasang FPM 8.4 secara selari, menyediakan web/mobile dormant pool dan tidak menukar Nginx, cron atau trafik.
+
+## Fasa 2 outcome (4 Oktober 2026)
+
+Fasa 2 sekarang **dipasang selari** pada production dan berstatus `INSTALLED_PENDING_FASTCGI_PROBE`. PHP 8.4.26/FPM serta extension parity lulus, tetapi trafik, alternatives dan cron belum ditukar. Backup pemasangan: `/var/backups/oneid-prod-php84-phase2-20261004-183102`. Probe FastCGI/INI dan Fasa 3 masih diperlukan.
