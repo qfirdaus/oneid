@@ -92,3 +92,7 @@ Pemasangan sebenar belum berlaku kerana sesi SSH memerlukan kata laluan `sudo`. 
 ## Fasa 2 outcome (4 Oktober 2026)
 
 Fasa 2 sekarang **dipasang selari** pada production dan berstatus `INSTALLED_PENDING_FASTCGI_PROBE`. PHP 8.4.26/FPM serta extension parity lulus, tetapi trafik, alternatives dan cron belum ditukar. Backup pemasangan: `/var/backups/oneid-prod-php84-phase2-20261004-183102`. Probe FastCGI/INI dan Fasa 3 masih diperlukan.
+
+## Fasa 2 final outcome — 4 Oktober 2026
+
+Fasa 2 selesai dengan PHP 8.4.26/FPM dipasang selari dan probe privileged lulus. Default CLI/Phar kekal 8.3, Nginx masih routing 8.3, cron belum ditukar, mobile OFF. Probe `defaults_unchanged=false` ialah false positive kerana penyelesaian symlink Phar (`phar8.3.phar`); operator mengesahkan alternatives masih menunjuk 8.3. Fasa 3 code/dependency release ialah langkah seterusnya.

@@ -148,3 +148,50 @@ Keputusan: **INSTALLED_PENDING_FASTCGI_PROBE**.
 - Host melaporkan pending kernel upgrade/reboot (`7.0.0-31` berbanding `7.0.0-34`). Jangan reboot dalam langkah seterusnya tanpa maintenance approval; ia bukan sebahagian daripada cutover PHP.
 
 **Langkah sambungan wajib sebelum Fasa 3:** jalankan probe FastCGI/INI untuk pool 8.4 secara terpencil, semak socket dan logs, kemudian deploy/test code dependency release. Jangan tukar Nginx, alternatives, cron atau mobile feature sehingga probe dan Fasa 3 diluluskan.
+
+## Checkpoint Fasa 2 selesai — 4 Oktober 2026
+
+Pemilik menghentikan kerja selepas **Fasa 2: PHP 8.4.26 dipasang secara selari dan diprobe**. **Fasa 3 belum bermula**: code release/vendor production belum ditukar dan Nginx production masih menggunakan PHP 8.3.
+
+### Pencapaian production
+
+- PHP 8.4.26 dipasang dengan package lengkap dan extension parity.
+- PHP-FPM 8.4 aktif; `php-fpm8.4 -t` lulus.
+- Socket pool disediakan:
+  - `/run/php/oneid-web-prod84.sock`
+  - `/run/php/oneid-mobile-prod84.sock`
+- Kedua-dua socket mode `0660`, owner/group `www-data`.
+- FPM service aktif dan Nginx `-t` lulus.
+- PHP 8.4 loaded extensions sepadan dengan PHP 8.3, termasuk `odbc`, `PDO_ODBC`, `pdo_dblib`, `pdo_mysql`, curl, mbstring, intl, XML, GD, ZIP, sodium dan OPcache.
+- Default CLI masih PHP 8.3.33.
+- `php`, `phar`, `phar.phar` masih menunjuk kepada 8.3; `readlink` Phar menunjukkan executable dalaman `phar8.3.phar`, yang normal.
+- Nginx traffic masih socket `/run/php/php8.3-fpm-oneid.sock`; tiada cutover.
+- Cron masih menggunakan `/usr/bin/php` 8.3.
+- Mobile route/client/provider masih OFF; tiada package ID/redirect URI Android production.
+- Backup pemasangan: `/var/backups/oneid-prod-php84-phase2-20261004-183102`.
+
+### False positive probe yang telah dikenal pasti
+
+Probe pertama menghasilkan `defaults_unchanged=false` kerana skrip membandingkan target Phar literal `/usr/bin/phar8.3`, sedangkan `readlink -f` menyelesaikan symlink kepada `/usr/bin/phar8.3.phar`. Semakan `update-alternatives --display` dan `readlink` operator mengesahkan `phar`/`phar.phar` masih 8.3. Ini isu probe, bukan runtime drift. Jangan menukar alternatives lagi berdasarkan keputusan false positive itu.
+
+### Keadaan sistem yang perlu dikekalkan
+
+- Jangan reboot server untuk pending kernel tanpa maintenance approval; kernel update bukan sebahagian daripada PHP cutover.
+- Jangan tukar Nginx, alternatives, cron, code root, vendor, database atau mobile config sebelum Fasa 3 dirancang.
+- PHP 8.3 kekal rollback runtime dan production web aktif.
+- Provider/mobile migration tidak dijalankan.
+
+### Cara sambung ke Fasa 3
+
+1. Baca checkpoint ini dan `docs/release/PRODUCTION-PHP84-PHASES.md`.
+2. Sahkan backup directory masih ada dan simpan salinan evidence probe output.
+3. Betulkan/gunakan probe alternatives berasaskan `readlink -f /usr/bin/phar` berbanding target `phar8.3.phar`, supaya false positive tidak berulang.
+4. Sahkan commit release yang akan dipasang: `release/production-php84-mobile`, remote HEAD semasa boleh disemak dengan `git ls-remote`.
+5. Backup source production/vendor/private config/uploads dan semak Composer lock sebelum menyentuh `/var/www/oneid`.
+6. Jalankan Fasa 3 secara berasingan: deploy code candidate, build vendor dengan lock, patch OIDC PHP 8.4, lint/compatibility/platform check melalui `/usr/bin/php8.4`, dan uji script/cron OneID tanpa menukar cron production dahulu.
+7. Pastikan mobile config kekal `enabled=false`, `production_ready=false`; jangan aktifkan client Android.
+8. Hanya selepas Fasa 3 lulus, rancang Fasa 4 cutover Nginx web.
+
+Arahan sambungan:
+
+> Sambung dari checkpoint **Fasa 2 selesai** dalam `docs/release/RESUME-HERE.md`. Mulakan Fasa 3 dengan code/dependency release secara staged; jangan cutover trafik atau aktifkan mobile.
