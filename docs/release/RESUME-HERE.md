@@ -60,12 +60,12 @@ Tugas seterusnya ialah **menutup input production dan menyemak release**, bukan 
 4. Review commit/diff, deployment templates dan rollback. Bina artifact baru daripada commit yang dipersetujui, sahkan hash. Commit/push sekarang **bukan approval merge/deploy**.
 5. Hanya selepas pengguna memberi arahan deployment yang jelas dan syarat selesai, ikuti RUNBOOK secara berurutan. Kekalkan sistem lain/default PHP 8.3. Buat smoke terhad: web+downstream, Android sebenar login/sesi/refresh/logout, MyDigital ID production dan reject akaun tidak dibenarkan.
 
-Baki had: native production Android, remote downstream PHP/ODBC inventory, formal performance acceptance dan production backup/provider readiness belum ditutup. Perbezaan median API +5.01% berdasarkan lima sampel UAT setiap runtime bukan pensijilan prestasi.
+Baki had: native production Android, remote downstream PHP/ODBC inventory, formal performance acceptance dan production backup/provider readiness belum ditutup. Mobile production akan kekal OFF sehingga package ID dan redirect URI Android disahkan. Perbezaan median API +5.01% berdasarkan lima sampel UAT setiap runtime bukan pensijilan prestasi.
 
 ## Arahan terakhir pemilik sebelum berhenti — 3 Oktober 2026
 
 - **Berhenti sekarang; sambung kemudian menggunakan dokumen ini.** Tiada deployment atau penyelarasan folder live dibuat pada masa berhenti.
-- Production OneID **mesti dinaik taraf ke PHP 8.4.26** dalam release yang dirancang, bukan mobile/web sahaja. Server yang diaudit ialah `iqs@172.16.2.109`, hostname `APPSSSOPRODv1`, root `/var/www/oneid`. Skop pool OneID sahaja; default PHP/cron dan sistem lain kekal 8.3 melainkan ada arahan baharu.
+- Production OneID **mesti dinaik taraf ke PHP 8.4.26** dalam release yang dirancang. Server yang diaudit ialah `iqs@172.16.2.109`, hostname `APPSSSOPRODv1`, root `/var/www/oneid`, dan hanya menjalankan OneID. Oleh itu web, mobile pool (dormant dahulu), CLI dan cron OneID production dirancang menggunakan PHP 8.4.x. Pengekalan PHP 8.3 untuk sistem lain/CLI hanya terpakai pada staging, bukan server production ini.
 - **Selepas production selesai dinaik taraf dan disahkan**, pemilik mahu fail source untracked dalam `/var/www/oneid-uat` dimasukkan/diselaraskan ke Git supaya IDE tidak lagi menunjukkan fail source tersebut sebagai untracked. Ini tugas susulan yang dipersetujui, belum dilaksanakan. Jangan buat lebih awal sewaktu kerja sedang dihentikan.
 - Commit release `35d353dabefa85b7b18008e3973dd9455ab9d8f3` sudah dipush dan hash remote disahkan. Live UAT masih branch main dengan perubahan asal kerana push datang daripada worktree berasingan. Push branch lain sahaja tidak membersihkan working tree live.
 
