@@ -1,4 +1,4 @@
-# Pelan upgrade production OneID ke PHP 8.4.26
+# Pelan upgrade production OneID ke PHP **8.4.26**
 
 Server: `iqs@172.16.2.109` (`APPSSSOPRODv1`), root `/var/www/oneid`.
 Skop: production OneID sahaja. Server ini tidak berkongsi aplikasi lain yang perlu kekal pada PHP 8.3.
@@ -12,7 +12,7 @@ Mobile Android production belum mempunyai package ID/redirect URI, maka mobile O
 
 ## Fasa 2 — Runtime PHP 8.4 secara selari
 
-**Tindakan:** pasang PHP 8.4.26 dan extension, sediakan FPM web/mobile khusus OneID, semak INI/pool dan socket, bina PHP 8.4 CLI/phar. PHP 8.3 masih tersedia sebagai rollback.
+**Tindakan:** pasang PHP **8.4.26** dan extension, sediakan FPM web/mobile khusus OneID, semak INI/pool dan socket, bina PHP 8.4 CLI/phar. PHP 8.3 masih tersedia sebagai rollback.
 
 **Hasil diperlukan:** FPM/CLI probes lulus dan rollback package/socket tersedia. Trafik belum ditukar.
 

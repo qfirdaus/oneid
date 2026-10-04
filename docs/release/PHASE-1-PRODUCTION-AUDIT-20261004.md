@@ -53,6 +53,18 @@ Tiga cron OneID menggunakan `/usr/bin/php` dan perlu ditukar/diuji secara ekspli
 - Tiada bukti dalam semakan ini yang mengesahkan backup restore aplikasi/database OneID, vendor, `.private`, uploads dan konfigurasi Nginx/FPM boleh dipulihkan. Backup production khusus dan restore rehearsal masih **wajib** sebelum Fasa 4.
 - Jangan anggap backup `dpkg`/`alternatives` sebagai backup database atau code runtime.
 
+## Sasaran versi yang dimuktamadkan
+
+Sasaran upgrade production ialah **PHP 8.4.26**, iaitu versi latest yang dipersetujui untuk release ini. Semua runtime OneID production akan disejajarkan kepada 8.4.26:
+
+- CLI `/usr/bin/php`
+- FPM web OneID
+- FPM mobile yang masih dormant/OFF
+- `phar` dan `phar.phar`
+- tiga cron OneID dan timer/script berkaitan
+
+Package PHP 8.4.25 yang telah kelihatan secara partial tidak boleh dijadikan runtime akhir; ia perlu dinaik taraf/disejajarkan ke 8.4.26 bersama extension yang sepadan. Tiada trafik atau package diubah dalam Fasa 1.
+
 ## Keputusan Fasa 1
 
 **STATUS: PASS dengan blocker sebelum Fasa 2.**
