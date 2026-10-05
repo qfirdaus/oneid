@@ -282,3 +282,50 @@ Post-restore smoke:
 - Log integration menunjukkan authenticated `oneid-internal-production` requests; ini bukti trafik authenticated sedia ada, bukan pengganti login browser/downstream E2E.
 
 Status Fasa 4: **CUTOVER + DEPENDENCY RESTORE PASS**, dengan pemantauan authenticated/downstream sebenar masih perlu dibuat menggunakan akaun ujian yang diluluskan. Jangan aktifkan mobile atau tukar cron/CLI semasa pengesahan ini. Deployment script perlu dikemas kini supaya legacy `vendors/` tidak disentuh pada deployment akan datang.
+
+## Checkpoint stop — 2026-10-05: post-cutover web validation complete
+
+### Current phase
+
+**Fasa 4 — Web production cutover to PHP 8.4.26: COMPLETE and validated.**
+
+The production web route now uses `/run/php/oneid-web-prod84.sock`. Browser login, authenticated dashboard, session countdown, session renewal control, logout, and downstream SSO access were tested successfully.
+
+### Post-upgrade audit result
+
+- PHP-FPM 8.4.26 is active and serving production web traffic.
+- Nginx configuration tested successfully and remains active.
+- Public HTTPS smoke returned HTTP 200.
+- PHP-FPM and Nginx services remained active.
+- No new PHP-FPM application errors were found in the supplied post-cutover log review.
+- Browser initially reported corrupted/missing vendor assets. Root cause was incomplete vendor deployment under the document root.
+- Legacy vendor directories and frontend assets were restored from the production backup.
+- Final asset checks returned HTTP 200 with correct JavaScript/CSS content types for jQuery, Bootstrap and vectormap.
+- Session countdown became visible after the vendor restoration.
+- Browser console was reported clear of the previous asset corruption errors.
+- Downstream SSO access was reported successful.
+
+### Production state intentionally unchanged
+
+- Mobile production login remains disabled; Android package ID and production redirect URI are not registered.
+- PHP CLI/default remains 8.3.
+- `phar` and `phar.phar` remain 8.3.
+- Cron/timers remain on the existing PHP 8.3 path.
+- Database was not changed.
+- Other production services were not changed.
+
+### Backups and rollback references
+
+- Web cutover: `/var/backups/oneid-nginx-cutover-20261005-081739`
+- Staged code: `/var/backups/oneid-code-20261005-081341`
+- Legacy vendors: `/var/backups/oneid-legacy-vendors-20261005-082053`
+- Frontend vendor pre-restore: `/var/backups/oneid-bower-components-before-restore-20261005-*`
+- PHP 8.4 preparation: `/var/backups/oneid-prod-php84-phase2-20261004-183102`
+
+### Monitoring window
+
+Recommended observation period before the next migration is **24 hours minimum**; **48–72 hours** is preferred when normal production traffic allows it. During the window record Nginx 5xx responses, PHP-FPM errors, application errors, login failures, downstream SSO failures and session-renewal issues.
+
+### Resume point
+
+After the monitoring window is accepted, start the next staged phase: review and migrate production CLI, `phar`, `phar.phar`, cron and timers to PHP 8.4.26. Keep mobile disabled until the Android production package ID and redirect URI are approved. Do not start those changes from this checkpoint without a new backup and rollback plan.
