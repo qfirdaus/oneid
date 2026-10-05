@@ -185,7 +185,7 @@
       .user-app-content .user-app-result-category { display:block; color:#52677d; margin:3px 0; padding:0; }
       @media (max-width:767px) {
         .profile-box .profile-cover-pic { height:auto; min-height:0; aspect-ratio:2 / 1; background-size:100% 100%; }
-        .profile-box .profile-info .profile-img-wrap { width:116px; height:116px; margin:-69px auto 0; padding:4px; border-width:4px; z-index:2; animation:none; }
+        .profile-box .profile-info .profile-img-wrap { width:112px; height:112px; margin:-66px auto 0; padding:4px; border-width:4px; z-index:2; animation:none; }
         .profile-box .profile-info { padding:0 12px; margin-bottom:8px !important; }
         .profile-box .profile-info h6 { margin-top:6px !important; }
         .profile-box .profile-info > span { font-size:12px; line-height:1.5; }
@@ -2242,7 +2242,7 @@
       .user-app-content .user-app-result-category { display:block; color:#52677d; margin:3px 0; padding:0; }
       @media (max-width:767px) {
         .profile-box .profile-cover-pic { height:auto; min-height:0; aspect-ratio:2 / 1; background-size:100% 100%; }
-        .profile-box .profile-info .profile-img-wrap { width:116px; height:116px; margin:-69px auto 0; padding:4px; border-width:4px; z-index:2; animation:none; }
+        .profile-box .profile-info .profile-img-wrap { width:112px; height:112px; margin:-66px auto 0; padding:4px; border-width:4px; z-index:2; animation:none; }
         .profile-box .profile-info { padding:0 12px; margin-bottom:8px !important; }
         .profile-box .profile-info h6 { margin-top:6px !important; }
         .profile-box .profile-info > span { font-size:12px; line-height:1.5; }
