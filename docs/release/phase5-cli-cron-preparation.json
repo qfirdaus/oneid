@@ -1,0 +1,14 @@
+{
+  "checked_at": "2026-10-05T15:37:05+08:00",
+  "status": "PREPARED_BACKUP_COMPLETE_NO_SWITCH",
+  "backup": "/var/backups/oneid-cli-cron-pre84-20261005-153705",
+  "php": {"current": "8.3.33", "target": "8.4.26"},
+  "cron_entrypoint_lint_php84": "PASS",
+  "housekeeping_read_only": "PASS_MUTATION_0",
+  "mfa_lifecycle_read_only": "PASS_MUTATION_0",
+  "runtime_switched": false,
+  "cron_changed": false,
+  "mobile_changed": false,
+  "database_changed": false,
+  "earliest_monitoring_gate": "2026-10-06T08:17:00+08:00"
+}

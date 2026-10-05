@@ -337,3 +337,20 @@ Fasa 4 web production kekal validated, tetapi audit admin selepas cutover menemu
 Fasa 5 (CLI, `phar`, `phar.phar`, cron dan timer ke PHP 8.4.26) berstatus **PREPARED, NOT SWITCHED**. Pada 15:33 +08, hanya kira-kira tujuh jam berlalu sejak cutover web 08:17; minimum monitoring 24 jam belum dipenuhi. Ketiga-tiga cron entrypoint lulus PHP 8.4 lint. Session housekeeping dan MFA lifecycle turut lulus read-only `--check` pada PHP 8.4 tanpa mutasi. External sync tidak dijalankan manual kerana berpotensi menulis data.
 
 Pelan: `docs/release/PHASE-5-CLI-CRON-PHP84.md`. Skrip backup-only disediakan di `tools/release/prepare-production-cli-cron84.py` dan disalin ke production sebagai `/home/iqs/prepare-production-cli-cron84.py`. Jalankan dengan `sudo ... --apply` untuk membuat snapshot sahaja; skrip tidak menukar runtime. Jangan buat CLI/cron switch sehingga monitoring gate diterima. Mobile kekal OFF dan database tidak diubah.
+
+### Fasa 5 backup checkpoint — 2026-10-05 15:37 +08
+
+Production backup-only preparation completed successfully using `/home/iqs/prepare-production-cli-cron84.py --apply`.
+
+- Backup: `/var/backups/oneid-cli-cron-pre84-20261005-153705`
+- PHP versions confirmed: 8.3.33 and 8.4.26.
+- Existing alternatives confirmed on PHP 8.3.
+- All three cron entrypoints passed PHP 8.4 lint.
+- PHP 8.4 housekeeping `--check`: PASS, mutation statements 0.
+- PHP 8.4 MFA lifecycle `--check`: PASS, mutation 0.
+- Runtime switched: false.
+- Cron/timers changed: false.
+- Mobile changed: false.
+- Database changed: false.
+
+Fasa 5 remains **PREPARED + BACKUP COMPLETE, CUTOVER NOT STARTED**. Earliest minimum 24-hour monitoring gate is approximately 2026-10-06 08:17 +08. Prefer 48–72 hours if operationally practical. Before any switch, review monitoring logs and confirm admin dynamic pages after the final `typeahead.js` vendor restoration.
