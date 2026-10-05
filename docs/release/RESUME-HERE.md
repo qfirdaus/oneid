@@ -354,3 +354,7 @@ Production backup-only preparation completed successfully using `/home/iqs/prepa
 - Database changed: false.
 
 Fasa 5 remains **PREPARED + BACKUP COMPLETE, CUTOVER NOT STARTED**. Earliest minimum 24-hour monitoring gate is approximately 2026-10-06 08:17 +08. Prefer 48–72 hours if operationally practical. Before any switch, review monitoring logs and confirm admin dynamic pages after the final `typeahead.js` vendor restoration.
+
+### Production mobile avatar correction — 2026-10-05
+
+Production and staging dashboard source initially matched, but computed CSS showed a 108px border-box produced only a 92px visible photo after border/padding. Mobile dashboard avatar was increased to a 124px wrapper (approximately 108px visible image) with `margin-top:-74px` so it overlaps the banner edge as intended. Only `page/dashboard.php` changed; PHP 8.4 lint passed. Production pre-change backup: `/home/iqs/oneid-backups/mobile-avatar-20261005/dashboard.php.before`. No Nginx, runtime, database, mobile login or cron change.
