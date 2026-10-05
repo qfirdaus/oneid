@@ -244,3 +244,20 @@ Candidate code/vendor yang telah staged di `/var/www/oneid` berjaya diuji terus 
 Deploy backup kekal di `/var/backups/oneid-code-20261005-081341`. Legacy directories yang rsync tidak padam (`vendors`, `public.bak`, `public/vendors`) dikekalkan dan perlu direview kemudian; ia tidak menghalang smoke login.
 
 Status Fasa 3: **STAGED + APPLICATION FPM SMOKE PASS**. Langkah seterusnya ialah Fasa 4: review backup/rollback, semak Nginx diff dan health baseline, kemudian cutover web OneID ke `/run/php/oneid-web-prod84.sock` dalam maintenance window. Jangan tukar cron/CLI atau enable mobile dalam langkah cutover web pertama.
+
+## Checkpoint Fasa 4 — web cutover PHP 8.4 berjaya (5 Oktober 2026)
+
+Production web OneID telah dipindahkan daripada `/run/php/php8.3-fpm-oneid.sock` kepada `/run/php/oneid-web-prod84.sock` menggunakan skrip guarded `cutover-production-web84.py`.
+
+- Backup Nginx: `/var/backups/oneid-nginx-cutover-20261005-081739`.
+- Root `nginx -t`: successful.
+- Public `https://oneid.upnm.edu.my/`: HTTP/2 200.
+- Login HTML marker hadir, response 92,274 bytes.
+- Secure/HttpOnly/SameSite session cookie dan security headers hadir.
+- Tiada Fatal error, Parse error, Warning atau Deprecated pada response.
+- Nginx, PHP 8.3-FPM dan PHP 8.4-FPM aktif.
+- Default CLI masih PHP 8.3.33; cron belum ditukar.
+- Mobile route/client/provider kekal OFF.
+- Database tidak diubah.
+
+Fasa 4 web cutover berstatus **PASS**. Langkah operasi seterusnya ialah pemantauan selepas cutover dan smoke authenticated/downstream dengan akaun ujian yang diluluskan. Jangan tukar CLI/cron atau aktifkan mobile sebagai sebahagian daripada smoke web ini.

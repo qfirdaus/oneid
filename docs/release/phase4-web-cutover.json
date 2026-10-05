@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-05",
+  "status": "PASS",
+  "old_socket": "/run/php/php8.3-fpm-oneid.sock",
+  "new_socket": "/run/php/oneid-web-prod84.sock",
+  "nginx_test": "PASS as root",
+  "public_http": 200,
+  "http_version": "HTTP/2",
+  "login_body_bytes": 92274,
+  "login_marker": true,
+  "php_error_markers": false,
+  "default_cli": "8.3.33",
+  "cron_changed": false,
+  "database_changed": false,
+  "mobile_enabled": false,
+  "backup": "/var/backups/oneid-nginx-cutover-20261005-081739"
+}
