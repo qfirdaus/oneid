@@ -1,6 +1,6 @@
 {
   "cutover_at": "2026-10-05T20:43:09+08:00",
-  "status": "CUTOVER_SUCCESS_EXTERNAL_SYNC_OBSERVATION_PENDING",
+  "status": "COMPLETE_ALL_SCHEDULED_JOBS_VALIDATED",
   "backup": "/var/backups/oneid-cli-cron-cutover-20261005-204309",
   "default_php": "8.4.26",
   "php83_removed": false,
@@ -12,6 +12,7 @@
   "scheduled_validation": {
     "mfa_lifecycle": "PASS_2026-10-05T20:44:01+08:00",
     "session_housekeeping": "PASS_RECONCILIATION_2026-10-05T20:50:01+08:00",
-    "external_sync": "PENDING_2026-10-05T21:10:00+08:00"
-  }
+    "external_sync": "PASS_SKIP_NO_CHANGES_2026-10-05T21:10:03+08:00"
+  },
+  "completed_at": "2026-10-05T21:11:48+08:00"
 }

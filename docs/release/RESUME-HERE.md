@@ -376,3 +376,15 @@ Scheduled execution evidence after cutover:
 - External sync first post-cutover scheduled run remains pending at `21:10 +08`; do not invoke it manually because it may write synchronized data.
 
 Rollback command: `sudo python3 -B /home/iqs/cutover-production-cli-cron84.py --rollback /var/backups/oneid-cli-cron-cutover-20261005-204309`.
+
+### Fasa 5 complete — production CLI/cron PHP 8.4.26 (2026-10-05 21:11 +08)
+
+All scheduled post-cutover jobs are validated:
+
+- MFA lifecycle: repeated normal executions after cutover.
+- Session housekeeping: repeated successful executions with reconciliation pass.
+- External sync first post-cutover run at `21:10:03 +08`: `STAFF_HR`, `STUDENT_UG`, and `STUDENT_ODL_PG` all returned `SKIP_NO_CHANGES` with `code=NONE`.
+
+Final snapshot: default `php`, `phar`, and `phar.phar` resolve to PHP 8.4.26; Nginx/PHP 8.4-FPM/PHP 8.3-FPM active; public web HTTP 200 (~0.011s). PHP 8.3 remains installed for rollback. Crontab/timer contents, Nginx web routing, mobile production and database were not changed.
+
+Fasa 5 status: **COMPLETE**. Retain `/var/backups/oneid-cli-cron-cutover-20261005-204309` and the rollback script during the observation period. Mobile production remains OFF pending approved Android production package ID and redirect URI. Do not remove PHP 8.3 until a separately approved cleanup phase.
