@@ -364,3 +364,15 @@ Production and staging dashboard source initially matched, but computed CSS show
 The operator explicitly accepted an approximately 12.5-hour observation window instead of the previously recommended 24-hour minimum because OneID had been used throughout the working day without a reported critical issue. Latest snapshot: Nginx/PHP 8.3-FPM/PHP 8.4-FPM active; public web HTTP 200 (~0.013s); external sync reported normal `SKIP_NO_CHANGES`; session housekeeping applied with reconciliation pass; MFA lifecycle reported normal zero-work executions; application log showed ongoing authenticated SSO validations without fatal/parse errors. Admin dynamic pages, session countdown and mobile avatar asset/code issues found earlier were corrected and user-validated.
 
 Guarded cutover script prepared and copied to `/home/iqs/cutover-production-cli-cron84.py`. It snapshots alternatives/crontabs/hashes, switches only `php`, `phar`, and `phar.phar`, performs PHP 8.4 lint/read-only checks, verifies required extensions and rolls alternatives back automatically on failure. Cron contents and system timers are not rewritten; existing `/usr/bin/php` cron commands inherit PHP 8.4. `phpsessionclean.timer` remains version-aware system infrastructure. PHP 8.3 remains installed. Mobile, Nginx web routing and database are excluded.
+
+### Fasa 5 cutover — PHP CLI/cron 8.4.26 (2026-10-05 20:43 +08)
+
+Guarded cutover completed successfully. Backup: `/var/backups/oneid-cli-cron-cutover-20261005-204309`. Default `php`, `phar`, and `phar.phar` now resolve to PHP 8.4.26. Crontab and timer content did not change; PHP 8.3 remains installed; web routing, mobile and database were unchanged. Required CLI extensions and Asia/Kuala_Lumpur timezone passed. PHP 8.4 lint plus housekeeping/MFA read-only checks passed.
+
+Scheduled execution evidence after cutover:
+
+- User MFA lifecycle log mtime `20:44:01 +08`; result normal (`processed=0 warnings=0`).
+- Session housekeeping ran at `20:50:01 +08`; selected/updated 2 and reconciliation passed.
+- External sync first post-cutover scheduled run remains pending at `21:10 +08`; do not invoke it manually because it may write synchronized data.
+
+Rollback command: `sudo python3 -B /home/iqs/cutover-production-cli-cron84.py --rollback /var/backups/oneid-cli-cron-cutover-20261005-204309`.
