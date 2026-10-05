@@ -329,3 +329,11 @@ Recommended observation period before the next migration is **24 hours minimum**
 ### Resume point
 
 After the monitoring window is accepted, start the next staged phase: review and migrate production CLI, `phar`, `phar.phar`, cron and timers to PHP 8.4.26. Keep mobile disabled until the Android production package ID and redirect URI are approved. Do not start those changes from this checkpoint without a new backup and rollback plan.
+
+## Fasa 5 prepared — CLI/cron monitoring gate (2026-10-05)
+
+Fasa 4 web production kekal validated, tetapi audit admin selepas cutover menemui asset frontend yang tidak lengkap. Asset legacy dalam `public/vendors`, termasuk `typeahead.js`, dipulihkan daripada backup production. Session countdown kembali berfungsi; admin dynamic pages perlu disahkan semula selepas `typeahead.js` restore.
+
+Fasa 5 (CLI, `phar`, `phar.phar`, cron dan timer ke PHP 8.4.26) berstatus **PREPARED, NOT SWITCHED**. Pada 15:33 +08, hanya kira-kira tujuh jam berlalu sejak cutover web 08:17; minimum monitoring 24 jam belum dipenuhi. Ketiga-tiga cron entrypoint lulus PHP 8.4 lint. Session housekeeping dan MFA lifecycle turut lulus read-only `--check` pada PHP 8.4 tanpa mutasi. External sync tidak dijalankan manual kerana berpotensi menulis data.
+
+Pelan: `docs/release/PHASE-5-CLI-CRON-PHP84.md`. Skrip backup-only disediakan di `tools/release/prepare-production-cli-cron84.py` dan disalin ke production sebagai `/home/iqs/prepare-production-cli-cron84.py`. Jalankan dengan `sudo ... --apply` untuk membuat snapshot sahaja; skrip tidak menukar runtime. Jangan buat CLI/cron switch sehingga monitoring gate diterima. Mobile kekal OFF dan database tidak diubah.
