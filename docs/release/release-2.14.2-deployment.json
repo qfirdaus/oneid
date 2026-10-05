@@ -1,0 +1,25 @@
+{
+  "release": "2.14.2",
+  "date": "2026-10-05",
+  "release_commit": "dbd61cb",
+  "git": {
+    "release_branch_pushed": true,
+    "main_fast_forwarded": true,
+    "main_pushed": true,
+    "staging_worktree_clean": true
+  },
+  "production": {
+    "path": "/var/www/oneid",
+    "release_commit_deployed": true,
+    "web_runtime": "PHP 8.4.26 FPM",
+    "cli_runtime": "PHP 8.4.26",
+    "public_http_status": 200,
+    "version_marker": "Version 2.14.2",
+    "mobile_enabled": false,
+    "database_changed": false,
+    "pre_sync_stash": "pre-origin-main-sync-2.14.2-20261005"
+  },
+  "phase6": "PASS_COMPLETE",
+  "phase7": "NOT_REQUIRED",
+  "phase8": "DEFERRED"
+}

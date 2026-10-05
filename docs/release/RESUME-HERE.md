@@ -408,3 +408,31 @@ Final evidence:
 - Mobile remained OFF and database was unchanged.
 
 Fasa 6 status: **PASS / COMPLETE**. Fasa 7 rollback is not required and must not be run without an actual runtime incident. Fasa 8 mobile activation remains deferred until approved Android production package ID and redirect URI are available.
+
+## Release 2.14.2 dan penyelarasan Git/production (2026-10-05)
+
+Keseluruhan kerja upgrade PHP 8.4.26, integrasi mobile dormant, bukti audit,
+skrip operasi dan dokumentasi telah digabungkan secara fast-forward daripada
+branch `release/production-php84-mobile` ke `main`.
+
+- Commit release: `dbd61cb` (`release: publish OneID 2.14.2 PHP 8.4 upgrade`).
+- Branch `main` dan branch release telah dipush ke `origin`.
+- Fail yang sebelum ini kelihatan untracked di `/var/www/oneid-uat` kini
+  direkodkan dalam Git; working tree staging bersih.
+- Laporan Word rasmi disimpan di
+  `docs/release/reports/OneID_Laporan_Upgrade_PHP_8.4.26_Production_2026-10-05.docx`.
+- Metadata aplikasi, footer dan Version Releases dinaikkan daripada 2.14.1
+  kepada **2.14.2** dengan changelog BM/English serta approval digest baharu.
+- Production `/var/www/oneid` telah fast-forward ke commit release yang sama.
+- Keadaan production sebelum penyelarasan Git disimpan sebagai stash
+  `pre-origin-main-sync-2.14.2-20261005` untuk rujukan pemulihan tambahan.
+- Kontrak metadata release dan polisi versi lulus pada PHP 8.4.26.
+- Public login mengembalikan HTTP 200 dan memaparkan `Version 2.14.2`.
+- Nginx kekal menggunakan `/run/php/oneid-web-prod84.sock`; Nginx dan
+  PHP 8.4-FPM aktif.
+- Mobile production kekal OFF: tiada location mobile khusus dalam Nginx dan
+  service mobile production tidak aktif/tidak dipasang.
+- Tiada migration atau perubahan database dibuat dalam penyelarasan ini.
+
+Status akhir: **RELEASE 2.14.2 DEPLOYED / GIT MAIN SYNCHRONIZED**. Fasa 7
+rollback kekal sebagai contingency sahaja. Fasa 8 mobile masih ditangguhkan.
