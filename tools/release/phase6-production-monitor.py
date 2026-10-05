@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Read-only Phase 6 production snapshot after PHP 8.4 cutovers."""
 import collections
+import argparse
 import datetime
 import json
 import re
@@ -69,6 +70,13 @@ def tail(path, count=8):
 
 
 def main():
+    global START
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--since', default=START.isoformat(), help='ISO-8601 cutoff with timezone')
+    args = parser.parse_args()
+    START = datetime.datetime.fromisoformat(args.since)
+    if START.tzinfo is None:
+        raise SystemExit('STOP: --since requires timezone')
     if socket.gethostname() != 'APPSSSOPRODv1':
         raise SystemExit('STOP: wrong host')
     result = {
