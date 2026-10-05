@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-10-05T21:26:55.641280+08:00",
+  "since": "2026-10-05T08:21:12+08:00",
+  "status": "PASS_COMPLETE",
+  "http_status": {"200": 52406, "http_5xx": 0},
+  "nginx_error_matches": 0,
+  "php84_fpm_error_matches": 0,
+  "application_error_matches": 0,
+  "service_restarts": {"nginx": 0, "php8.4-fpm": 0, "php8.3-fpm": 0},
+  "default_php": "8.4.26",
+  "cron": {"external_sync": "PASS", "session_housekeeping": "PASS_RECONCILIATION", "mfa_lifecycle": "PASS"},
+  "authenticated_and_downstream_tests": "PASS_OPERATOR_CONFIRMED",
+  "mobile_changed": false,
+  "database_changed": false,
+  "phase7_started": false,
+  "phase8_started": false
+}

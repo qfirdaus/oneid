@@ -388,3 +388,23 @@ All scheduled post-cutover jobs are validated:
 Final snapshot: default `php`, `phar`, and `phar.phar` resolve to PHP 8.4.26; Nginx/PHP 8.4-FPM/PHP 8.3-FPM active; public web HTTP 200 (~0.011s). PHP 8.3 remains installed for rollback. Crontab/timer contents, Nginx web routing, mobile production and database were not changed.
 
 Fasa 5 status: **COMPLETE**. Retain `/var/backups/oneid-cli-cron-cutover-20261005-204309` and the rollback script during the observation period. Mobile production remains OFF pending approved Android production package ID and redirect URI. Do not remove PHP 8.3 until a separately approved cleanup phase.
+
+## Fasa 6 complete — production monitoring and validation (2026-10-05 21:26 +08)
+
+Operator-confirmed random downstream tests, authenticated login/session behaviour, admin dynamic pages and normal user workflows passed. The final read-only monitoring snapshot used the post-recovery cutoff `2026-10-05T08:21:12+08:00`, excluding the known vendor deployment incident that was fixed immediately after cutover.
+
+Final evidence:
+
+- 52,406 HTTP 200 responses in the observed post-recovery window.
+- HTTP 5xx: 0.
+- Nginx critical/upstream error matches: 0.
+- PHP 8.4-FPM warning/crash/max_children matches: 0.
+- Application fatal/parse/permission/required-file matches: 0.
+- Nginx, PHP 8.4-FPM and retained PHP 8.3-FPM active; `NRestarts=0` for all.
+- Default CLI remains PHP 8.4.26.
+- External sync: normal `SKIP_NO_CHANGES`, `code=NONE` for all three sources.
+- Session housekeeping: repeated reconciliation pass.
+- MFA lifecycle: repeated normal executions.
+- Mobile remained OFF and database was unchanged.
+
+Fasa 6 status: **PASS / COMPLETE**. Fasa 7 rollback is not required and must not be run without an actual runtime incident. Fasa 8 mobile activation remains deferred until approved Android production package ID and redirect URI are available.
