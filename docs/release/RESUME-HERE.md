@@ -217,3 +217,13 @@ Had yang direkodkan: ujian PHP CLI candidate belum menjadi FastCGI request melal
 Mobile production kekal OFF: `.private/mobile-oidc-hosted.php` tiada pada live root, tiada Android client/callback dan Nginx live tiada route mobile. `phase3-source.tar` checksum production: `a56e53f727bfcf506f2d8cb8809a85fa2d0eb8c105cbd6e2f80faa40e33904fa`.
 
 Langkah seterusnya: jalankan effective FPM probe/loopback FastCGI smoke menggunakan candidate atau disposable docroot, kemudian review backup dan rancang deploy code/vendor ke `/var/www/oneid` dalam maintenance window. Jangan tukar Nginx traffic atau cron dahulu.
+
+## Checkpoint FastCGI smoke lulus — 5 Oktober 2026
+
+Probe privileged read-only `/home/iqs/probe-production-fpm-fastcgi.py` lulus untuk kedua-dua pool:
+
+- `oneid-web-prod84.sock`: PHP 8.4.26, `fpm-fcgi`, memory 512M, timeout 120s, post/upload 100M, timezone Asia/Kuala_Lumpur, session 28800, secure/httponly cookies.
+- `oneid-mobile-prod84.sock`: PHP 8.4.26, `fpm-fcgi`, memory 512M, timeout 30s, post/upload 64K, timezone Asia/Kuala_Lumpur, session 28800, secure/httponly cookies.
+- `display_errors=0` untuk kedua-dua pool.
+
+Probe ini mengesahkan INI efektif melalui FastCGI; ia tidak menukar Nginx, code, database, cron, alternatives atau mobile feature. Live web masih `/run/php/php8.3-fpm-oneid.sock`. Fasa 3 candidate validation lulus; langkah berikutnya ialah review/backup dan deploy code/vendor ke live sebelum merancang Fasa 4 web cutover.

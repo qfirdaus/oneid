@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-05",
+  "scope": "Read-only FastCGI smoke; no Nginx, code, DB, cron, alternatives or mobile changes",
+  "pools": {
+    "oneid-web-prod84": {"version": "8.4.26", "sapi": "fpm-fcgi", "memory_limit": "512M", "max_execution_time": "120", "post_max_size": "100M", "upload_max_filesize": "100M", "timezone": "Asia/Kuala_Lumpur", "session_gc_maxlifetime": "28800", "secure_cookies": true},
+    "oneid-mobile-prod84": {"version": "8.4.26", "sapi": "fpm-fcgi", "memory_limit": "512M", "max_execution_time": "30", "post_max_size": "64K", "upload_max_filesize": "64K", "timezone": "Asia/Kuala_Lumpur", "session_gc_maxlifetime": "28800", "secure_cookies": true}
+  },
+  "result": "PASS",
+  "live_web_cutover": false,
+  "mobile_enabled": false
+}
