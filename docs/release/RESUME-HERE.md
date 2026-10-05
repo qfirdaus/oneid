@@ -227,3 +227,20 @@ Probe privileged read-only `/home/iqs/probe-production-fpm-fastcgi.py` lulus unt
 - `display_errors=0` untuk kedua-dua pool.
 
 Probe ini mengesahkan INI efektif melalui FastCGI; ia tidak menukar Nginx, code, database, cron, alternatives atau mobile feature. Live web masih `/run/php/php8.3-fpm-oneid.sock`. Fasa 3 candidate validation lulus; langkah berikutnya ialah review/backup dan deploy code/vendor ke live sebelum merancang Fasa 4 web cutover.
+
+## Checkpoint staged application smoke lulus — 5 Oktober 2026
+
+Candidate code/vendor yang telah staged di `/var/www/oneid` berjaya diuji terus melalui FastCGI web 8.4 menggunakan `/home/iqs/probe-production-app-fpm.py`.
+
+- Socket: `oneid-web-prod84.sock`
+- PHP SAPI: FPM 8.4.26
+- Response: HTML login 92,274 bytes
+- Login marker: ditemui
+- Fatal/Parse error: tiada
+- Secure `PHPSESSID` (`Secure`, `HttpOnly`, `SameSite=Lax`) dan security headers hadir.
+- Nginx live masih menggunakan `/run/php/php8.3-fpm-oneid.sock`; tiada cutover.
+- Mobile route/config kekal OFF.
+
+Deploy backup kekal di `/var/backups/oneid-code-20261005-081341`. Legacy directories yang rsync tidak padam (`vendors`, `public.bak`, `public/vendors`) dikekalkan dan perlu direview kemudian; ia tidak menghalang smoke login.
+
+Status Fasa 3: **STAGED + APPLICATION FPM SMOKE PASS**. Langkah seterusnya ialah Fasa 4: review backup/rollback, semak Nginx diff dan health baseline, kemudian cutover web OneID ke `/run/php/oneid-web-prod84.sock` dalam maintenance window. Jangan tukar cron/CLI atau enable mobile dalam langkah cutover web pertama.

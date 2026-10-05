@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-05",
+  "status": "PASS",
+  "socket": "oneid-web-prod84.sock",
+  "runtime": "PHP 8.4.26 fpm-fcgi",
+  "body_bytes": 92274,
+  "login_marker": true,
+  "php_errors": false,
+  "secure_session_cookie": true,
+  "nginx_cutover": false,
+  "mobile_enabled": false,
+  "backup": "/var/backups/oneid-code-20261005-081341"
+}
