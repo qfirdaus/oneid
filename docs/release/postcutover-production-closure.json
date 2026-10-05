@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-05",
+  "scope": "production web only",
+  "status": "WEB_PHP84_CUTOVER_VALIDATED",
+  "runtime": "PHP 8.4.26",
+  "authenticated_browser": "PASS",
+  "session_countdown": "PASS_AFTER_VENDOR_RESTORE",
+  "downstream_sso": "PASS",
+  "mobile_enabled": false,
+  "cli_default": "PHP 8.3",
+  "cron_changed": false,
+  "database_changed": false,
+  "deferred": ["post-cutover monitoring window", "CLI/cron/phar migration", "Android production mobile enablement"]
+}
