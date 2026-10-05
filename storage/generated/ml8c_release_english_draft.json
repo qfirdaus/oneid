@@ -1,11 +1,66 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2141-HISTORICAL-SEARCH-20260922-01",
+    "authorization": "ONEID-V2142-PHP84-PRODUCTION-20261005-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.14.2",
+            "version": "2.14.2",
+            "date": "2026-10-05",
+            "items": [
+                {
+                    "identity": "release:2.14.2:item:001",
+                    "bm": "Runtime web, CLI dan proses berjadual OneID production telah dinaik taraf secara berperingkat daripada PHP 8.3.33 kepada PHP 8.4.26 dengan backup dan laluan rollback yang lengkap.",
+                    "en_draft": "The OneID production web, CLI and scheduled runtimes were upgraded in stages from PHP 8.3.33 to PHP 8.4.26 with complete backups and rollback paths.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.2:item:002",
+                    "bm": "Keserasian login OneID, MyDigital ID, sesi pengguna, Administrator dan integrasi downstream SSO telah disahkan melalui ujian UAT, FastCGI terpencil dan ujian production selepas cutover.",
+                    "en_draft": "OneID login, MyDigital ID, user sessions, Administrator functions and downstream SSO compatibility were verified through UAT, isolated FastCGI and post-cutover production tests.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.2:item:003",
+                    "bm": "PHP-FPM 8.4 menggunakan pool khusus web dan mobile, manakala PHP 8.3 dikekalkan pada server sebagai pilihan rollback; mobile production kekal tidak aktif.",
+                    "en_draft": "PHP-FPM 8.4 uses dedicated web and mobile pools while PHP 8.3 remains on the server for rollback; production mobile access remains disabled.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.2:item:004",
+                    "bm": "CLI, phar, phar.phar, cron sinkronisasi luaran, housekeeping sesi dan worker kitar hayat MFA kini berjalan pada PHP 8.4.26 dengan semakan sintaks serta hasil jadual sebenar yang berjaya.",
+                    "en_draft": "CLI, phar, phar.phar, external synchronization cron, session housekeeping and the MFA lifecycle worker now run on PHP 8.4.26 with successful syntax and scheduled-run validation.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.2:item:005",
+                    "bm": "Pemulihan aset frontend legacy memastikan JavaScript dan stylesheet dashboard dimuatkan dengan MIME type yang betul, termasuk pemulihan paparan kira detik sesi.",
+                    "en_draft": "Legacy frontend asset recovery ensures dashboard JavaScript and stylesheets load with the correct MIME types, including restoration of the session countdown display.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.2:item:006",
+                    "bm": "Paparan mudah alih dashboard diperkemas dengan saiz avatar 110 piksel dan pembetulan susun atur responsif yang telah disahkan pada peranti sebenar.",
+                    "en_draft": "The mobile dashboard presentation was refined with a 110-pixel avatar and responsive layout corrections verified on a real device.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.2:item:007",
+                    "bm": "Pemantauan Fasa 6 merekodkan 52,406 respons HTTP 200, sifar HTTP 5xx, sifar ralat kritikal Nginx, PHP-FPM atau aplikasi, serta tiada restart perkhidmatan.",
+                    "en_draft": "Phase 6 monitoring recorded 52,406 HTTP 200 responses, zero HTTP 5xx responses, zero critical Nginx, PHP-FPM or application errors, and no service restarts.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.2:item:008",
+                    "bm": "Laporan teknikal, bukti ujian, konfigurasi contoh, skrip deployment dan prosedur rollback disimpan dalam repositori untuk audit serta penyelenggaraan seterusnya.",
+                    "en_draft": "Technical reports, test evidence, example configurations, deployment scripts and rollback procedures are retained in the repository for audit and future maintenance.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.14.1",
             "version": "2.14.1",
@@ -3890,5 +3945,5 @@
             ]
         }
     ],
-    "manifest_digest": "6db07d9394bb17b24428c3c007eb6cae2aaa9c49aecc4caa3a6627b611ad7885"
+    "manifest_digest": "b11db87e066ee3a39b9e9bd646e97be5fa07e2db79ab680c8ca972edd6f681f3"
 }

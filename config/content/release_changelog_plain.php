@@ -6,6 +6,33 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.14.2' =>
+  array (
+    'version' => '2.14.2',
+    'date' => '2026-10-05',
+    'bm' =>
+    array (
+      0 => 'Runtime web, CLI dan proses berjadual OneID production telah dinaik taraf secara berperingkat daripada PHP 8.3.33 kepada PHP 8.4.26 dengan backup dan laluan rollback yang lengkap.',
+      1 => 'Keserasian login OneID, MyDigital ID, sesi pengguna, Administrator dan integrasi downstream SSO telah disahkan melalui ujian UAT, FastCGI terpencil dan ujian production selepas cutover.',
+      2 => 'PHP-FPM 8.4 menggunakan pool khusus web dan mobile, manakala PHP 8.3 dikekalkan pada server sebagai pilihan rollback; mobile production kekal tidak aktif.',
+      3 => 'CLI, phar, phar.phar, cron sinkronisasi luaran, housekeeping sesi dan worker kitar hayat MFA kini berjalan pada PHP 8.4.26 dengan semakan sintaks serta hasil jadual sebenar yang berjaya.',
+      4 => 'Pemulihan aset frontend legacy memastikan JavaScript dan stylesheet dashboard dimuatkan dengan MIME type yang betul, termasuk pemulihan paparan kira detik sesi.',
+      5 => 'Paparan mudah alih dashboard diperkemas dengan saiz avatar 110 piksel dan pembetulan susun atur responsif yang telah disahkan pada peranti sebenar.',
+      6 => 'Pemantauan Fasa 6 merekodkan 52,406 respons HTTP 200, sifar HTTP 5xx, sifar ralat kritikal Nginx, PHP-FPM atau aplikasi, serta tiada restart perkhidmatan.',
+      7 => 'Laporan teknikal, bukti ujian, konfigurasi contoh, skrip deployment dan prosedur rollback disimpan dalam repositori untuk audit serta penyelenggaraan seterusnya.',
+    ),
+    'en' =>
+    array (
+      0 => 'The OneID production web, CLI and scheduled runtimes were upgraded in stages from PHP 8.3.33 to PHP 8.4.26 with complete backups and rollback paths.',
+      1 => 'OneID login, MyDigital ID, user sessions, Administrator functions and downstream SSO compatibility were verified through UAT, isolated FastCGI and post-cutover production tests.',
+      2 => 'PHP-FPM 8.4 uses dedicated web and mobile pools while PHP 8.3 remains on the server for rollback; production mobile access remains disabled.',
+      3 => 'CLI, phar, phar.phar, external synchronization cron, session housekeeping and the MFA lifecycle worker now run on PHP 8.4.26 with successful syntax and scheduled-run validation.',
+      4 => 'Legacy frontend asset recovery ensures dashboard JavaScript and stylesheets load with the correct MIME types, including restoration of the session countdown display.',
+      5 => 'The mobile dashboard presentation was refined with a 110-pixel avatar and responsive layout corrections verified on a real device.',
+      6 => 'Phase 6 monitoring recorded 52,406 HTTP 200 responses, zero HTTP 5xx responses, zero critical Nginx, PHP-FPM or application errors, and no service restarts.',
+      7 => 'Technical reports, test evidence, example configurations, deployment scripts and rollback procedures are retained in the repository for audit and future maintenance.',
+    ),
+  ),
   'release-2.14.1' =>
   array (
     'version' => '2.14.1',

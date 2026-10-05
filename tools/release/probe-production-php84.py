@@ -16,8 +16,9 @@ for name in ['oneid-web-prod84.sock','oneid-mobile-prod84.sock']:
  p=Path('/run/php')/name;st=p.stat() if p.exists() else None
  out['checks']['sockets'][name]={'exists':p.exists(),'mode':oct(st.st_mode & 0o777) if st else None,'uid':st.st_uid if st else None,'gid':st.st_gid if st else None}
 for sapi in ['cli','fpm']:
- out['checks']['ini_'+sapi]=run(['/usr/bin/php8.4','-c','/etc/php/8.4/'+sapi+'/php.ini','-r','echo json_encode(ini_get_all(null,false));'])
+ out['checks']['cli_loading_'+sapi+'_ini']=run(['/usr/bin/php8.4','-c','/etc/php/8.4/'+sapi+'/php.ini','-r','echo json_encode(ini_get_all(null,false));'])
 for log in ['/var/log/php8.4-fpm.log','/var/log/php8.4-fpm.log']:
  if Path(log).exists():out['checks']['log_tail']=Path(log).read_text(errors='replace').splitlines()[-30:]
-out['defaults_unchanged']=Path('/usr/bin/php').resolve()==Path('/usr/bin/php8.3') and Path('/usr/bin/phar').resolve().name in ('phar8.3','phar8.3.phar') and Path('/usr/bin/phar.phar').resolve().name in ('phar.phar8.3','phar.phar8.3.phar')
+out['defaults_unchanged']=all(Path('/usr/bin/'+n).resolve()==Path('/usr/bin/'+n+'8.3').resolve() for n in ('php','phar','phar.phar'))
+out['limitations']=['No FastCGI request made; effective pool INI/extensions remain pending.', 'CLI loading fpm/php.ini does not reproduce FPM conf.d or pool overrides.']
 print(json.dumps(out,indent=2))
