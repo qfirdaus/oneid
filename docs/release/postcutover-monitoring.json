@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-05",
+  "status": "PASS_WITH_LEGACY_DEPENDENCY_RESTORE",
+  "public_smoke": {"statuses": [200,200,200], "body_bytes": 92274, "error_markers": false},
+  "legacy_vendor_restore": {"paths": ["vendors/spyc-master", "vendors/device-detector-master"], "backup": "/var/backups/oneid-legacy-vendors-20261005-082053", "source_archive": "/home/iqs/oneid-backups/oneid-app-pre-2.12.0-20260908-000757.tar.gz"},
+  "new_vendor_errors_after_restore": false,
+  "services": {"nginx": "active", "php8.3-fpm": "active", "php8.4-fpm": "active"},
+  "web_socket": "/run/php/oneid-web-prod84.sock",
+  "authenticated_log_evidence": "oneid-internal-production authenticated requests observed",
+  "browser_downstream_e2e": "pending",
+  "mobile_enabled": false
+}

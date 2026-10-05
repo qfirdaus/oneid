@@ -261,3 +261,24 @@ Production web OneID telah dipindahkan daripada `/run/php/php8.3-fpm-oneid.sock`
 - Database tidak diubah.
 
 Fasa 4 web cutover berstatus **PASS**. Langkah operasi seterusnya ialah pemantauan selepas cutover dan smoke authenticated/downstream dengan akaun ujian yang diluluskan. Jangan tukar CLI/cron atau aktifkan mobile sebagai sebahagian daripada smoke web ini.
+
+## Checkpoint post-cutover monitoring — dependency restore (5 Oktober 2026)
+
+Selepas web cutover, public smoke mendedahkan legacy dependency `vendors/spyc-master` dan `vendors/device-detector-master` hilang/terbaca sebagai permission error. HTTP 200 masih returned tetapi log PHP menunjukkan `q_func.php` gagal load dependency. Punca: staging rsync mengecualikan vendor Composer tetapi juga cuba membersihkan direktori legacy `vendors`; direktori non-empty dikekalkan dalam keadaan tidak lengkap.
+
+Pemulihan dibuat daripada backup production yang disahkan:
+
+- Archive: `/home/iqs/oneid-backups/oneid-app-pre-2.12.0-20260908-000757.tar.gz`
+- Paths dipulihkan: `vendors/spyc-master`, `vendors/device-detector-master`
+- Backup sebelum restore: `/var/backups/oneid-legacy-vendors-20261005-082053`
+- Owner/group selepas restore: `iqs:www-data`, file mode 644, directories 755.
+
+Post-restore smoke:
+
+- Public GET `/`: HTTP 200, 92,274 bytes, tiga request sekitar 0.013s.
+- `Spyc.php` dan `device-detector-master/autoload.php`: hadir.
+- Request baharu selepas restore tidak menambah error vendor pada `php-error.log`; error tail yang dilihat ialah rekod lama sebelum restore.
+- Service nginx/php8.3-fpm/php8.4-fpm aktif, web route kekal `oneid-web-prod84.sock`.
+- Log integration menunjukkan authenticated `oneid-internal-production` requests; ini bukti trafik authenticated sedia ada, bukan pengganti login browser/downstream E2E.
+
+Status Fasa 4: **CUTOVER + DEPENDENCY RESTORE PASS**, dengan pemantauan authenticated/downstream sebenar masih perlu dibuat menggunakan akaun ujian yang diluluskan. Jangan aktifkan mobile atau tukar cron/CLI semasa pengesahan ini. Deployment script perlu dikemas kini supaya legacy `vendors/` tidak disentuh pada deployment akan datang.
