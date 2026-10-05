@@ -195,3 +195,25 @@ Probe pertama menghasilkan `defaults_unchanged=false` kerana skrip membandingkan
 Arahan sambungan:
 
 > Sambung dari checkpoint **Fasa 2 selesai** dalam `docs/release/RESUME-HERE.md`. Mulakan Fasa 3 dengan code/dependency release secara staged; jangan cutover trafik atau aktifkan mobile.
+
+## Checkpoint Fasa 3 — candidate code/dependency lulus, live belum ditukar (5 Oktober 2026)
+
+Candidate release `1b27cab15a6e5c89eafc5210de230a58ab8dfa9f` telah diextract ke production pada `/home/iqs/oneid-release-candidates/1b27cab` dan vendor dibina daripada `composer.lock`. `/var/www/oneid` live kekal pada commit `06f364d5d2fbd936d8ed496d7e68095aa640cdcb`, bersih dan masih dilayan PHP 8.3.
+
+Validation pada candidate menggunakan PHP 8.4.26:
+
+- 1,221 fail PHP lint: tiada syntax error.
+- Production environment suite: 28 checks lulus.
+- Mobile adapter: 73/73 lulus.
+- Mobile MyDigital ID: 36 checks synthetic lulus.
+- Hosted protocol: 20/20 lulus.
+- OIDC nullable compatibility: lulus.
+- Session housekeeping policy: 6/6 lulus.
+- Idle heartbeat policy: 11/11 lulus.
+- Composer install daripada lock berjaya; PHP 8.4 platform requirements `ext-curl`, `ext-json`, PHP `8.4.26` lulus. Composer 2.7.1 mengeluarkan deprecation notices pada PHP 8.4; bukan aplikasi, tetapi Composer baharu patut dipertimbangkan sebelum production build final.
+
+Had yang direkodkan: ujian PHP CLI candidate belum menjadi FastCGI request melalui socket pool 8.4; bacaan `php -c ... fpm/php.ini` tidak merangkumi semua pool override. Probe effective FPM/worker dan smoke HTTP loopback masih diperlukan sebelum Fasa 4. Tiada code, vendor, database, cron, alternatives atau Nginx live ditukar.
+
+Mobile production kekal OFF: `.private/mobile-oidc-hosted.php` tiada pada live root, tiada Android client/callback dan Nginx live tiada route mobile. `phase3-source.tar` checksum production: `a56e53f727bfcf506f2d8cb8809a85fa2d0eb8c105cbd6e2f80faa40e33904fa`.
+
+Langkah seterusnya: jalankan effective FPM probe/loopback FastCGI smoke menggunakan candidate atau disposable docroot, kemudian review backup dan rancang deploy code/vendor ke `/var/www/oneid` dalam maintenance window. Jangan tukar Nginx traffic atau cron dahulu.

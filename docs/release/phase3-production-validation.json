@@ -1,0 +1,21 @@
+{
+  "source_commit": "1b27cab15a6e5c89eafc5210de230a58ab8dfa9f",
+  "candidate": "/home/iqs/oneid-release-candidates/1b27cab",
+  "php_runtime": "8.4.26",
+  "php_files_linted": 1221,
+  "syntax_errors": 0,
+  "tests": {
+    "production_environment": "28 checks passed",
+    "mobile_adapter": "73/73 passed",
+    "mobile_mydigitalid": "36 synthetic checks passed",
+    "hosted_protocol": "20/20 passed",
+    "openid_compatibility": "passed",
+    "session_housekeeping": "6/6 passed",
+    "idle_heartbeat": "11/11 passed"
+  },
+  "composer_platform": "PHP 8.4.26/ext-curl/ext-json passed",
+  "live_root_changed": false,
+  "nginx_cutover": false,
+  "mobile_enabled": false,
+  "limits": ["effective FPM pool overrides and FastCGI request pending", "Composer 2.7.1 emits PHP 8.4 deprecations", "no real downstream/Android/MyDigital ID provider request"]
+}
