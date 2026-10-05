@@ -1,0 +1,23 @@
+{
+  "release": "2.14.3",
+  "date": "2026-10-05",
+  "release_commit": "e399da4",
+  "scope": "user FAQ content and release metadata",
+  "faq": {
+    "existing_entries_retained": 13,
+    "new_entries_added": 5,
+    "malay_entries": 18,
+    "english_entries": 18,
+    "live_http_status": 200
+  },
+  "production_backup": "/home/iqs/oneid-backups/oneid-faq-pre-2.14.3-20261005-230810.tar.gz",
+  "validation": {
+    "faq_contract": "PASS",
+    "faq_presentation_contract": "PASS",
+    "release_metadata_contract": "PASS",
+    "version_documentation_contract": "PASS",
+    "live_bm_en_count": "PASS"
+  },
+  "mobile_enabled": false,
+  "database_changed": false
+}

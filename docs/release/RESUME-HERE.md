@@ -436,3 +436,21 @@ branch `release/production-php84-mobile` ke `main`.
 
 Status akhir: **RELEASE 2.14.2 DEPLOYED / GIT MAIN SYNCHRONIZED**. Fasa 7
 rollback kekal sebagai contingency sahaja. Fasa 8 mobile masih ditangguhkan.
+
+## Release 2.14.3 — FAQ pengguna (2026-10-05)
+
+Audit semula Soalan Lazim selesai dan semua 13 FAQ asal dikekalkan. Lima FAQ
+baharu ditambah untuk akaun tidak aktif, aplikasi hilang/akses ditolak, masalah
+downstream, paparan browser selepas kemas kini dan saluran bantuan PTMK.
+
+- Parity kandungan: 18/18 BM dan English.
+- Commit release: `e399da4` (`feat: update user FAQ for OneID 2.14.3`).
+- Backup production:
+  `/home/iqs/oneid-backups/oneid-faq-pre-2.14.3-20261005-230810.tar.gz`.
+- Git staging dan production berada pada commit yang sama.
+- Kontrak FAQ dan metadata release: PASS.
+- Semakan live: HTTP 200, 18 FAQ BM, 18 FAQ English dan footer Version 2.14.3.
+- Nginx/PHP 8.4-FPM kekal aktif.
+- Mobile production kekal OFF dan database tidak diubah.
+
+Status: **ONEID 2.14.3 FAQ DEPLOYED / VERIFIED**.
