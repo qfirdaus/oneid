@@ -6,7 +6,7 @@ namespace OneId\App\Documentation;
 final class SharedFaqContent
 {
     public const HARD_FALLBACK = 'ms';
-    private const EXPECTED_ENTRY_COUNT = 13;
+    private const EXPECTED_ENTRY_COUNT = 18;
 
     /** @var array<string,array<string,array{question:string,answer:string}>> */
     private array $content;
@@ -74,6 +74,8 @@ TEXT,
 OneID@UPNM disediakan untuk warga UPNM yang mempunyai rekod aktif, termasuk staf dalam Sistem Maklumat Staf dan pelajar dalam Sistem Maklumat Pelajar. Akaun lain yang dibenarkan oleh UPNM boleh diwujudkan atau diuruskan oleh pentadbir mengikut keperluan rasmi.
 
 Maklumat akses bergantung pada status akaun, kategori pengguna dan aplikasi yang telah diberikan. Jika rekod anda baru didaftarkan, berubah atau tidak aktif, kemas kini mungkin perlu diselaraskan daripada sistem sumber sebelum akses dipaparkan dengan betul.
+
+Jika mesej “Akaun anda tidak aktif” dipaparkan, rekod OneID anda tidak boleh digunakan untuk log masuk pada masa itu. Mesej ini tidak semestinya bermaksud akaun dikenakan tindakan disiplin. Hubungi PTMK untuk semakan status rekod dan tindakan seterusnya.
 TEXT,
                 ],
                 'how-to-sign-in' => [
@@ -168,6 +170,46 @@ Kata laluan mesti mempunyai sekurang-kurangnya 12 aksara serta mengandungi sekur
 Gunakan kata laluan unik yang tidak digunakan pada sistem lain. OneID juga menghalang penggunaan semula kata laluan semasa dan kata laluan terkini dalam sejarah akaun. Selepas menukar atau menetapkan semula kata laluan, sesi lain mungkin ditamatkan dan anda mungkin diminta log masuk semula.
 TEXT,
                 ],
+                'inactive-account' => [
+                    'question' => 'Mengapa OneID memaklumkan akaun saya tidak aktif?',
+                    'answer' => <<<'TEXT'
+Mesej ini dipaparkan apabila rekod akaun OneID anda wujud tetapi status semasanya tidak membenarkan log masuk. Ia boleh berlaku apabila status staf atau pelajar belum aktif, telah tamat, berubah, atau kemas kini daripada sistem sumber masih belum diselaraskan.
+
+Hubungi PTMK dan berikan ID pengguna atau nombor pelajar anda untuk semakan. Jangan hantar kata laluan, OTP atau kod Authenticator. Jika status anda baru sahaja dikemas kini oleh fakulti atau bahagian berkaitan, beri sedikit masa untuk proses penyelarasan sebelum mencuba semula.
+TEXT,
+                ],
+                'application-missing-or-denied' => [
+                    'question' => 'Mengapa aplikasi yang saya perlukan tidak dipaparkan atau akses saya ditolak?',
+                    'answer' => <<<'TEXT'
+Senarai aplikasi ditentukan oleh kategori pengguna, peranan dan kebenaran yang diberikan kepada akaun anda. Gunakan carian atau kategori pada dashboard terlebih dahulu. Jika aplikasi masih tidak dipaparkan, akaun anda mungkin belum diberikan akses atau perubahan akses masih belum diselaraskan.
+
+Jika aplikasi dipaparkan tetapi akses ditolak, permintaan anda mungkin tidak memenuhi polisi aplikasi tersebut atau token lama telah tamat. Muat semula dashboard, cuba log masuk semula dan pilih Akses sekali lagi. Jika masalah berterusan, hubungi pemilik aplikasi atau PTMK serta nyatakan nama aplikasi dan masa kejadian.
+TEXT,
+                ],
+                'downstream-access-problem' => [
+                    'question' => 'Apa perlu dibuat jika aplikasi dibuka tetapi saya masih tidak dapat menggunakannya?',
+                    'answer' => <<<'TEXT'
+Bagi aplikasi Full SSO, OneID mengesahkan identiti dan menghantar akses kepada aplikasi destinasi. Aplikasi tersebut masih boleh menolak akses jika akaun, peranan atau perkhidmatannya sendiri mempunyai masalah. Bagi Non-SSO, anda mungkin perlu menggunakan kelayakan yang ditetapkan oleh aplikasi itu.
+
+Kembali ke dashboard OneID dan cuba sekali lagi selepas memuat semula halaman. Jika hanya satu aplikasi terjejas sedangkan aplikasi lain boleh dibuka, hubungi pasukan aplikasi berkenaan atau PTMK. Sertakan nama aplikasi, mesej ralat dan masa kejadian tanpa berkongsi kata laluan atau token.
+TEXT,
+                ],
+                'browser-after-update' => [
+                    'question' => 'Apa perlu dibuat jika paparan tidak lengkap atau butang tidak berfungsi selepas kemas kini?',
+                    'answer' => <<<'TEXT'
+Muat semula halaman terlebih dahulu. Jika masalah kekal, tutup tab OneID, buka semula laman rasmi dan log masuk semula. Anda juga boleh melakukan hard refresh atau membersihkan cache laman OneID supaya browser memuatkan fail paparan terkini.
+
+Gunakan versi semasa Chrome, Firefox, Edge atau Safari dan pastikan JavaScript serta cookies dibenarkan untuk domain rasmi OneID. Elakkan membuka OneID melalui browser dalam aplikasi pihak ketiga. Jika masalah berlaku pada satu peranti sahaja, cuba browser lain dan laporkan jenis peranti, browser serta tangkap layar kepada PTMK.
+TEXT,
+                ],
+                'contact-support' => [
+                    'question' => 'Bagaimana saya mendapatkan bantuan OneID?',
+                    'answer' => <<<'TEXT'
+Gunakan maklumat Hubungi Kami pada halaman log masuk atau saluran rasmi PTMK. Untuk mempercepat semakan, berikan nama, ID pengguna atau nombor pelajar, nama aplikasi yang terjejas, masa kejadian dan mesej ralat atau tangkap layar yang berkaitan.
+
+Jangan sertakan kata laluan, OTP, token SSO, recovery code atau kunci Authenticator dalam e-mel, tangkap layar atau mesej sokongan. PTMK tidak memerlukan maklumat rahsia tersebut untuk menyemak akaun anda.
+TEXT,
+                ],
             ],
             'en' => [
                 'what-is-oneid' => [
@@ -184,6 +226,8 @@ TEXT,
 OneID@UPNM is provided to UPNM community members with active records, including staff in the Staff Information System and students in the Student Information System. Other accounts authorised by UPNM may be created or managed by an administrator for official requirements.
 
 Access depends on the account status, user category and applications assigned to it. If your record is newly registered, changed or inactive, information may need to be synchronised from the source system before access appears correctly.
+
+If the message “Your account is inactive” appears, your OneID record cannot be used to sign in at that time. This does not necessarily mean that disciplinary action has been taken against the account. Contact PTMK for a status review and the next action.
 TEXT,
                 ],
                 'how-to-sign-in' => [
@@ -276,6 +320,46 @@ TEXT,
 A password must contain at least 12 characters, including at least one uppercase letter, one lowercase letter, one number and one symbol. It must not be common or easily predictable, and it must not contain your user ID.
 
 Use a unique password that is not used for another system. OneID also prevents reuse of the current password and recent passwords in the account history. After a password change or reset, other sessions may be ended and you may be required to sign in again.
+TEXT,
+                ],
+                'inactive-account' => [
+                    'question' => 'Why does OneID say that my account is inactive?',
+                    'answer' => <<<'TEXT'
+This message appears when your OneID record exists but its current status does not permit sign-in. It may occur when your staff or student status is not yet active, has ended or changed, or recent information from the source system has not yet been synchronised.
+
+Contact PTMK and provide your user ID or student number for verification. Do not send your password, OTP or Authenticator code. If your status was recently updated by the relevant faculty or department, allow some time for synchronisation before trying again.
+TEXT,
+                ],
+                'application-missing-or-denied' => [
+                    'question' => 'Why is an application missing or why is my access denied?',
+                    'answer' => <<<'TEXT'
+The application list is determined by your user category, role and permissions. First use the search box or categories on the dashboard. If the application is still missing, access may not yet have been assigned to your account or a recent change may still be awaiting synchronisation.
+
+If the application is shown but access is denied, the request may not meet that application's policy or an older token may have expired. Refresh the dashboard, sign in again and select Access once more. If the problem continues, contact the application owner or PTMK and provide the application name and time of the incident.
+TEXT,
+                ],
+                'downstream-access-problem' => [
+                    'question' => 'What should I do if an application opens but I still cannot use it?',
+                    'answer' => <<<'TEXT'
+For a Full SSO application, OneID verifies your identity and sends access to the destination application. That application may still reject access if its own account, role or service has a problem. A Non-SSO application may require the credentials issued specifically for that application.
+
+Return to the OneID dashboard and try again after refreshing the page. If only one application is affected while others open normally, contact that application's support team or PTMK. Include the application name, error message and incident time without sharing a password or token.
+TEXT,
+                ],
+                'browser-after-update' => [
+                    'question' => 'What should I do if the page is incomplete or a button stops working after an update?',
+                    'answer' => <<<'TEXT'
+Refresh the page first. If the problem remains, close the OneID tab, reopen the official site and sign in again. You can also perform a hard refresh or clear the OneID site cache so the browser downloads the latest interface files.
+
+Use a current version of Chrome, Firefox, Edge or Safari, and allow JavaScript and cookies for the official OneID domain. Avoid opening OneID in an in-app browser. If the issue affects only one device, try another browser and report the device type, browser and a screenshot to PTMK.
+TEXT,
+                ],
+                'contact-support' => [
+                    'question' => 'How do I get help with OneID?',
+                    'answer' => <<<'TEXT'
+Use the Contact Us information on the sign-in page or an official PTMK support channel. To speed up the investigation, provide your name, user ID or student number, the affected application, the incident time, and the relevant error message or screenshot.
+
+Never include your password, OTP, SSO token, recovery code or Authenticator key in an email, screenshot or support message. PTMK does not need those secrets to investigate your account.
 TEXT,
                 ],
             ],

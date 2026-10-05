@@ -1,11 +1,66 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2142-PHP84-PRODUCTION-20261005-01",
+    "authorization": "ONEID-V2143-USER-FAQ-20261005-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.14.3",
+            "version": "2.14.3",
+            "date": "2026-10-05",
+            "items": [
+                {
+                    "identity": "release:2.14.3:item:001",
+                    "bm": "Soalan Lazim pengguna diaudit semula selepas upgrade PHP 8.4.26 dan semua 13 topik asal dikekalkan serta dikemas kini mengikut operasi OneID semasa.",
+                    "en_draft": "The user FAQ was reviewed after the PHP 8.4.26 upgrade, retaining all 13 original topics and updating them for current OneID operations.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.3:item:002",
+                    "bm": "Lima topik baharu menerangkan akaun tidak aktif, aplikasi yang tidak dipaparkan atau akses ditolak, masalah aplikasi downstream, isu paparan browser dan cara mendapatkan bantuan.",
+                    "en_draft": "Five new topics explain inactive accounts, missing or denied applications, downstream application problems, browser display issues and how to obtain support.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.3:item:003",
+                    "bm": "Penerangan akaun tidak aktif kini menjelaskan bahawa status tersebut tidak semestinya tindakan disiplin dan pengguna perlu menghubungi PTMK untuk semakan.",
+                    "en_draft": "Inactive-account guidance now explains that the status does not necessarily indicate disciplinary action and directs users to PTMK for verification.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.3:item:004",
+                    "bm": "Panduan akses aplikasi membezakan isu senarai atau kebenaran OneID daripada isu akaun, peranan atau perkhidmatan pada aplikasi destinasi.",
+                    "en_draft": "Application-access guidance distinguishes OneID listing or permission issues from account, role or service problems in the destination application.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.3:item:005",
+                    "bm": "Panduan selepas kemas kini menerangkan refresh, cache laman, browser yang sesuai, cookies dan JavaScript tanpa meminta pengguna mengubah konfigurasi server.",
+                    "en_draft": "Post-update guidance covers refresh, site cache, supported browsers, cookies and JavaScript without asking users to change server configuration.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.3:item:006",
+                    "bm": "Panduan sokongan menyenaraikan maklumat yang membantu siasatan sambil melarang perkongsian kata laluan, OTP, token, recovery code dan kunci Authenticator.",
+                    "en_draft": "Support guidance lists useful investigation details while prohibiting the disclosure of passwords, OTPs, tokens, recovery codes and Authenticator keys.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.3:item:007",
+                    "bm": "Kandungan BM dan English kini mempunyai parity 18 daripada 18 dengan identiti serta urutan yang sama pada halaman login dan dashboard pengguna.",
+                    "en_draft": "Malay and English content now provides 18-of-18 parity with matching identities and ordering on the sign-in page and user dashboard.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.3:item:008",
+                    "bm": "Perubahan hanya melibatkan kandungan bantuan dan metadata release; tiada perubahan database, runtime, konfigurasi SSO atau pengaktifan mobile production.",
+                    "en_draft": "The release changes help content and release metadata only; it does not change the database, runtime, SSO configuration or production mobile activation.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.14.2",
             "version": "2.14.2",
@@ -3945,5 +4000,5 @@
             ]
         }
     ],
-    "manifest_digest": "b11db87e066ee3a39b9e9bd646e97be5fa07e2db79ab680c8ca972edd6f681f3"
+    "manifest_digest": "3d83620d23acc8e2b518232cd9d41fc701d31b82014e723fffd0f88e5c0d9266"
 }

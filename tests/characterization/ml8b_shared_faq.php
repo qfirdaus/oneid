@@ -23,11 +23,32 @@ $root = dirname(__DIR__, 2);
 $login = (string) file_get_contents($root . '/index.php');
 $dashboard = (string) file_get_contents($root . '/page/dashboard.php');
 
-$report(count($ms['entries']) === 13 && count($en['entries']) === 13, 'both approved locales contain thirteen FAQ entries');
+$report(count($ms['entries']) === 18 && count($en['entries']) === 18, 'both approved locales contain eighteen FAQ entries');
 $report(
     array_column($ms['entries'], 'id') === array_column($en['entries'], 'id')
-    && count(array_unique(array_column($ms['entries'], 'id'))) === 13,
+    && count(array_unique(array_column($ms['entries'], 'id'))) === 18,
     'BM and English use the same stable FAQ identities'
+);
+$requiredUserTopics = [
+    'inactive-account',
+    'application-missing-or-denied',
+    'downstream-access-problem',
+    'browser-after-update',
+    'contact-support',
+];
+$report(
+    array_diff($requiredUserTopics, array_column($ms['entries'], 'id')) === []
+    && array_diff($requiredUserTopics, array_column($en['entries'], 'id')) === [],
+    'current user support topics exist in both approved locales'
+);
+$msById = array_column($ms['entries'], null, 'id');
+$enById = array_column($en['entries'], null, 'id');
+$report(
+    str_contains($msById['inactive-account']['answer'], 'Hubungi PTMK')
+    && str_contains($enById['inactive-account']['answer'], 'Contact PTMK')
+    && str_contains($msById['contact-support']['answer'], 'Jangan sertakan kata laluan')
+    && str_contains($enById['contact-support']['answer'], 'Never include your password'),
+    'inactive-account and support guidance direct users safely to PTMK'
 );
 $report(
     $ms['fallback_used'] === false

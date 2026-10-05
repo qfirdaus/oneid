@@ -1339,7 +1339,7 @@ return [
     'faq.link' => 'Frequently Asked Questions',
     'faq.title' => 'Frequently Asked Questions (FAQ)',
     'faq.eyebrow' => 'ONEID HELP CENTRE',
-    'faq.intro' => 'Quick answers to common questions about your account, application access and OneID security.',
+    'faq.intro' => 'Current answers to common questions about sign-in, account status, application access, sessions, security and OneID support.',
     'user_session.eyebrow' => 'OneID Session Security',
     'user_session.warning_title' => 'Your OneID session will end',
     'user_session.warning_body' => 'Your OneID portal session will end due to inactivity.',

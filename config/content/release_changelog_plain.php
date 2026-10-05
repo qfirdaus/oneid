@@ -6,6 +6,33 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.14.3' =>
+  array (
+    'version' => '2.14.3',
+    'date' => '2026-10-05',
+    'bm' =>
+    array (
+      0 => 'Soalan Lazim pengguna diaudit semula selepas upgrade PHP 8.4.26 dan semua 13 topik asal dikekalkan serta dikemas kini mengikut operasi OneID semasa.',
+      1 => 'Lima topik baharu menerangkan akaun tidak aktif, aplikasi yang tidak dipaparkan atau akses ditolak, masalah aplikasi downstream, isu paparan browser dan cara mendapatkan bantuan.',
+      2 => 'Penerangan akaun tidak aktif kini menjelaskan bahawa status tersebut tidak semestinya tindakan disiplin dan pengguna perlu menghubungi PTMK untuk semakan.',
+      3 => 'Panduan akses aplikasi membezakan isu senarai atau kebenaran OneID daripada isu akaun, peranan atau perkhidmatan pada aplikasi destinasi.',
+      4 => 'Panduan selepas kemas kini menerangkan refresh, cache laman, browser yang sesuai, cookies dan JavaScript tanpa meminta pengguna mengubah konfigurasi server.',
+      5 => 'Panduan sokongan menyenaraikan maklumat yang membantu siasatan sambil melarang perkongsian kata laluan, OTP, token, recovery code dan kunci Authenticator.',
+      6 => 'Kandungan BM dan English kini mempunyai parity 18 daripada 18 dengan identiti serta urutan yang sama pada halaman login dan dashboard pengguna.',
+      7 => 'Perubahan hanya melibatkan kandungan bantuan dan metadata release; tiada perubahan database, runtime, konfigurasi SSO atau pengaktifan mobile production.',
+    ),
+    'en' =>
+    array (
+      0 => 'The user FAQ was reviewed after the PHP 8.4.26 upgrade, retaining all 13 original topics and updating them for current OneID operations.',
+      1 => 'Five new topics explain inactive accounts, missing or denied applications, downstream application problems, browser display issues and how to obtain support.',
+      2 => 'Inactive-account guidance now explains that the status does not necessarily indicate disciplinary action and directs users to PTMK for verification.',
+      3 => 'Application-access guidance distinguishes OneID listing or permission issues from account, role or service problems in the destination application.',
+      4 => 'Post-update guidance covers refresh, site cache, supported browsers, cookies and JavaScript without asking users to change server configuration.',
+      5 => 'Support guidance lists useful investigation details while prohibiting the disclosure of passwords, OTPs, tokens, recovery codes and Authenticator keys.',
+      6 => 'Malay and English content now provides 18-of-18 parity with matching identities and ordering on the sign-in page and user dashboard.',
+      7 => 'The release changes help content and release metadata only; it does not change the database, runtime, SSO configuration or production mobile activation.',
+    ),
+  ),
   'release-2.14.2' =>
   array (
     'version' => '2.14.2',
