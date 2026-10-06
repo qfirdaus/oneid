@@ -1,11 +1,30 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2170-SECURITY-LOGIN-ADOPTION-20261006-01",
+    "authorization": "ONEID-V2171-SECURITY-REPORT-LOCATION-20261006-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.17.1",
+            "version": "2.17.1",
+            "date": "2026-10-06",
+            "items": [
+                {
+                    "identity": "release:2.17.1:item:001",
+                    "bm": "Laporan Ringkasan Keselamatan dan Penggunaan Login kini ditempatkan di bawah tab Sesi & Keselamatan supaya mudah ditemui.",
+                    "en_draft": "The Security and Login Adoption Summary is now located under the Sessions & Security tab for easier discovery.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.17.1:item:002",
+                    "bm": "Statistik staf dan pelajar yang tidak pernah login serta jadual keselamatan sedia ada dikekalkan tanpa perubahan pengiraan.",
+                    "en_draft": "Never-logged-in staff and student statistics and the existing security table retain the same calculations.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.17.0",
             "version": "2.17.0",
@@ -4420,7 +4439,7 @@
             ]
         }
     ],
-    "release_count": 87,
-    "item_count": 634,
-    "manifest_digest": "e80fee8f2f4365c7b4442bbf9bf5c7589e8a4dc4d6bd745202b698eca361bb2f"
+    "release_count": 88,
+    "item_count": 636,
+    "manifest_digest": "62cdf15dc942292374538566fd5606130e8fe7779f90a3322306330e39de8538"
 }

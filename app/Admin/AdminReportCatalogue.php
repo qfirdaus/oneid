@@ -12,7 +12,6 @@ final class AdminReportCatalogue
         return [
             'executive' => ['label'=>'Executive Overview','icon'=>'fa-dashboard','reports'=>[
                 ['key'=>'executive_summary','name'=>'OneID Executive Summary','description'=>'Ringkasan pengguna, aplikasi, akses dan sesi semasa.','status'=>'ready'],
-                ['key'=>'security_summary','name'=>'Security & Session Summary','description'=>'Trend keselamatan, sesi dan tindakan pentadbir.','status'=>'ready'],
                 ['key'=>'sync_summary','name'=>'Synchronisation Summary','description'=>'Ringkasan perubahan daripada semua sumber data.','status'=>'ready'],
                 ['key'=>'mydigitalid_overview','name'=>'MyDigital ID Executive Overview','description'=>'Ringkasan pautan identiti dan hasil pengesahan MyDigital ID.','status'=>'ready'],
             ]],
@@ -29,6 +28,7 @@ final class AdminReportCatalogue
                 ['key'=>'downstream_sso_usage','name'=>'Downstream SSO Usage','description'=>'Penggunaan akses downstream berdasarkan audit redirect OneID.','status'=>'ready'],
             ]],
             'sessions' => ['label'=>'Sessions & Security','icon'=>'fa-shield','reports'=>[
+                ['key'=>'security_summary','name'=>'Security and Login Adoption Summary','description'=>'Aktiviti keselamatan sesi dan penggunaan login staf dan pelajar.','status'=>'ready'],
                 ['key'=>'session_activity','name'=>'Session Activity Summary','description'=>'Sesi aktif, tamat dan sebab penamatan mengikut tempoh.','status'=>'ready'],
                 ['key'=>'device_summary','name'=>'Device & Browser Summary','description'=>'Pecahan sesi mengikut maklumat peranti yang direkod.','status'=>'ready'],
                 ['key'=>'mfa_adoption','name'=>'MFA Adoption & Outcomes','description'=>'Liputan MFA dan hasil transaksi keselamatan.','status'=>'ready'],

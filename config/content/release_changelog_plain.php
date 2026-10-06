@@ -6,6 +6,21 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.17.1' =>
+  array (
+    'version' => '2.17.1',
+    'date' => '2026-10-06',
+    'bm' =>
+    array (
+      0 => 'Laporan Ringkasan Keselamatan dan Penggunaan Login kini ditempatkan di bawah tab Sesi & Keselamatan supaya mudah ditemui.',
+      1 => 'Statistik staf dan pelajar yang tidak pernah login serta jadual keselamatan sedia ada dikekalkan tanpa perubahan pengiraan.',
+    ),
+    'en' =>
+    array (
+      0 => 'The Security and Login Adoption Summary is now located under the Sessions & Security tab for easier discovery.',
+      1 => 'Never-logged-in staff and student statistics and the existing security table retain the same calculations.',
+    ),
+  ),
   'release-2.17.0' =>
   array (
     'version' => '2.17.0',
