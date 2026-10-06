@@ -1557,6 +1557,7 @@ return [
     'admin.reports.preview.last_login' => 'Login Terakhir',
     'admin.reports.preview.login_count' => 'Jumlah Login',
     'admin.reports.preview.linked_accounts' => 'Akaun Dipautkan',
+    'admin.reports.preview.records_shown' => 'Rekod Dipaparkan',
     'admin.reports.preview.revoked' => 'Dibatalkan',
     'admin.reports.preview.event_count' => 'Jumlah Kejadian',
     'admin.reports.preview.events_90d' => 'Kejadian 90 Hari',

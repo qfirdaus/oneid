@@ -2046,8 +2046,10 @@ class Database {
         $Q="SELECT COALESCE(NULLIF(TRIM(U.data3),''),F.u_id) AS public_user_id,
               COALESCE(NULLIF(TRIM(U.data1),''),'-') AS user_name,
               COALESCE(C.uc_name,'Uncategorised') AS category_name,U.avail_status AS user_status,
-              F.identity_status,F.first_verified_at,F.last_verified_at,F.last_login_at,F.login_count
+              F.identity_status,F.first_verified_at,F.last_verified_at,F.last_login_at,F.login_count,
+              T.total_links,T.active_links
             FROM user_federated_identity F
+            CROSS JOIN (SELECT COUNT(*) AS total_links,SUM(identity_status='ACTIVE') AS active_links FROM user_federated_identity WHERE provider_code='mydigitalid') T
             LEFT JOIN user_tbl U ON U.u_id=F.u_id
             LEFT JOIN user_category C ON C.uc_id=U.u_category
             WHERE F.provider_code='mydigitalid'

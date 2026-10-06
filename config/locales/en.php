@@ -1557,6 +1557,7 @@ return [
     'admin.reports.preview.last_login' => 'Last Login',
     'admin.reports.preview.login_count' => 'Login Count',
     'admin.reports.preview.linked_accounts' => 'Linked Accounts',
+    'admin.reports.preview.records_shown' => 'Records Shown',
     'admin.reports.preview.revoked' => 'Revoked',
     'admin.reports.preview.event_count' => 'Event Count',
     'admin.reports.preview.events_90d' => '90-Day Events',
