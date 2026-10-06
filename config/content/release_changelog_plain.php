@@ -6,6 +6,25 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.15.3' =>
+  array (
+    'version' => '2.15.3',
+    'date' => '2026-10-06',
+    'bm' =>
+    array (
+      0 => 'Kesemua 25 preview report kini menggunakan pengiraan lebar kolum bersama berdasarkan jenis dan panjang data sebenar.',
+      1 => 'Kolum nombor turutan ditetapkan kepada 52px, kolum nombor dan tarikh kepada 115px, serta kolum tarikh-masa kepada 155px secara konsisten.',
+      2 => 'Kolum teks dan URL berubah mengikut kandungan dalam julat terkawal supaya data pendek tidak menghasilkan kolum yang terlalu besar.',
+      3 => 'Report yang lebih lebar menggunakan scroll mendatar, tooltip header dan tooltip data tanpa mengubah query, database atau kandungan report.',
+    ),
+    'en' =>
+    array (
+      0 => 'All 25 report previews now use shared column-width calculation based on the actual data type and content length.',
+      1 => 'Sequence columns are consistently set to 52px, numeric and date columns to 115px, and date-time columns to 155px.',
+      2 => 'Text and URL columns adapt to their content within controlled limits so short data no longer produces oversized columns.',
+      3 => 'Wider reports use horizontal scrolling, header tooltips and data tooltips without changing report queries, the database or report content.',
+    ),
+  ),
   'release-2.15.2' =>
   array (
     'version' => '2.15.2',

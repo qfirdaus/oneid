@@ -5,6 +5,7 @@ declare(strict_types=1);
 $root=dirname(__DIR__);
 require_once $root.'/app/Admin/AdminReportCatalogue.php';
 require_once $root.'/app/Admin/AdminReportReference.php';
+require_once $root.'/app/Admin/ReportColumnLayout.php';
 
 $dashboard=(string)file_get_contents($root.'/admin/dashboard.php');
 $preview=(string)file_get_contents($root.'/admin/report_preview.php');
@@ -36,16 +37,24 @@ $checks['report navigation remains one row at desktop width']=str_contains($dash
 $checks['Bootstrap clearfix cannot consume report tab grid columns']=str_contains($dashboard,'.admin-report-tabs:before')&&str_contains($dashboard,'.admin-report-tabs:after')&&str_contains($dashboard,'content:none');
 $checks['report preview loads the shared environment banner stylesheet']=str_contains($preview,'oneid-environment-banner.css');
 $checks['all report previews match the OneID content width']=str_contains($preview,'.shell{max-width:1280px');
-$checks['application readiness preview uses compact fixed columns and single-line cells']=str_contains($preview,'.compact-report{font-size:11px;table-layout:fixed;min-width:0}')&&str_contains($preview,'text-overflow:ellipsis;white-space:nowrap')&&str_contains($preview,'title="<?=$escape($cell)?>"');
+$checks['report previews use compact fixed columns and single-line cells']=str_contains($preview,'.compact-report{font-size:11px;table-layout:fixed;min-width:0}')&&str_contains($preview,'text-overflow:ellipsis;white-space:nowrap')&&str_contains($preview,'title="<?=$escape($cell)?>"');
 $checks['application readiness uses the full production-ready label and a wider status column']=($english['admin.reports.preview.ready']??'')==='Production Ready'&&($malay['admin.reports.preview.ready']??'')==='Sedia Production'&&str_contains($preview,'.application-readiness col:nth-child(7){width:13%}');
 $checks['Users and Access previews use compact fixed report columns']=str_contains($preview,'.access-matrix col:nth-child(5)')&&str_contains($preview,'.access-exceptions col:nth-child(7)')&&str_contains($preview,"'access_matrix'=>' access-matrix'")&&str_contains($preview,"'access_exceptions'=>' access-exceptions'");
-$checks['all report tables retain compact single-line printable columns']=str_contains($preview,'.table-wrap table{font-size:11px;table-layout:fixed;min-width:0}')&&str_contains($preview,'text-overflow:ellipsis;vertical-align:top;white-space:nowrap}');
+$checks['all report tables retain compact single-line printable columns']=str_contains($preview,'.table-wrap table{font-size:11px;table-layout:fixed}')&&str_contains($preview,'text-overflow:ellipsis;vertical-align:top;white-space:nowrap}');
 $checks['all report headers and cells are consistently left and top aligned']=str_contains($preview,'.table-wrap th,.table-wrap td{overflow:hidden;text-align:left;text-overflow:ellipsis;vertical-align:top;white-space:nowrap}')&&!str_contains($preview,'{text-align:center}');
 $checks['credential report exposes safe rotation metadata without credential material']=str_contains($preview,'credential_age_days')&&str_contains($preview,'credential_version')&&str_contains($preview,'rotated_by_staff_no')&&!str_contains($preview,"row['rotated_by']")&&!str_contains($preview,'code_hash')&&!str_contains($preview,'code_ciphertext')&&!str_contains($preview,'code_nonce')&&!str_contains($preview,'key_version');
-$checks['report tables use report-specific proportional column sizing']=str_contains($preview,"'compact-report report-'.str_replace('_','-',\$reportKey)")&&str_contains($preview,'.report-executive-summary col:nth-child(1){width:5%}')&&str_contains($preview,'.report-executive-summary col:nth-child(2){width:73%}')&&str_contains($preview,'.report-device-summary col:nth-child(2){width:34%}')&&str_contains($preview,'.report-audit-activity col:nth-child(4){width:60%}');
-$checks['audit activity prioritizes detail while retaining compact supporting columns']=str_contains($preview,'.report-audit-activity col:nth-child(2){width:12%}')&&str_contains($preview,'.report-audit-activity col:nth-child(3){width:13%}')&&str_contains($preview,'.report-audit-activity col:nth-child(5){width:11%}');
+$checks['all twenty-five reports use the shared content-aware column layout']=str_contains($preview,'ReportColumnLayout::calculate($columns,$rows)')&&str_contains($preview,"style=\"width:<?=\$columnLayout['table_width']?>px\"")&&str_contains($preview,"style=\"width:<?=\$columnLayout['widths'][\$columnIndex]?>px\"");
+$layout=\OneId\App\Admin\ReportColumnLayout::calculate(
+    ['No.','Date','Recorded At','Count','Description'],
+    [
+        ['No.'=>1,'Date'=>'06/10/2026','Recorded At'=>'06/10/2026 15:10:58','Count'=>7,'Description'=>'Short'],
+        ['No.'=>2,'Date'=>'07/10/2026','Recorded At'=>'07/10/2026 08:00:00','Count'=>1250,'Description'=>'A substantially longer narrative value for sizing'],
+    ]
+);
+$checks['shared sequence numeric date and datetime columns have one consistent size']=($layout['types']??[])===['sequence','date','datetime','numeric','text']&&($layout['widths']??[])[0]===52&&$layout['widths'][1]===115&&$layout['widths'][2]===155&&$layout['widths'][3]===115;
+$checks['variable text column width follows its longest displayed data']=($layout['widths'][4]??0)>105&&($layout['widths'][4]??0)<=360&&($layout['table_width']??0)===array_sum($layout['widths']??[]);
 $checks['executive summary includes a compact sequential number column']=str_contains($preview,"\$columns=[oneid_translate('admin.reports.number'),oneid_translate('admin.reports.preview.metric')")&&str_contains($preview,'$rowNumber++');
-$checks['numeric report columns remain compact while narrative columns receive priority']=str_contains($preview,'.report-session-activity col:nth-child(1){width:4%}')&&str_contains($preview,'.report-mfa-adoption col:nth-child(2){width:26%}')&&str_contains($preview,'.report-configuration-changes col:nth-child(6){width:19%}')&&str_contains($preview,'.report-content-changes col:nth-child(8){width:14%}');
+$checks['column sizing remains bounded and supports horizontal overflow']=str_contains($preview,'.table-wrap{border:1px solid var(--line);border-radius:8px;overflow:auto}')&&max($layout['widths']??[0])<=360;
 $checks['summary cards retain translated text values instead of coercing them to zero']=str_contains($preview,'is_numeric($value)?number_format((float)$value):$escape($value)');
 $checks['session activity report excludes session tokens and limits ended history to 30 days']=str_contains($preview,"\$reportKey==='session_activity'")&&!str_contains($preview,'token_id')&&str_contains($database,'A.ended_at>=DATE_SUB(NOW(),INTERVAL 30 DAY)');
 $checks['device summary aggregates recorded device data without exposing session tokens']=str_contains($preview,"\$reportKey==='device_summary'")&&str_contains($database,"GROUP BY device_label")&&!str_contains($preview,'token_id');
