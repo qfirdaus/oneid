@@ -6,6 +6,33 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.14.4' =>
+  array (
+    'version' => '2.14.4',
+    'date' => '2026-10-06',
+    'bm' =>
+    array (
+      0 => 'Panduan Sistem pada telefon kini mengekalkan pasangan arahan dan elemen sasaran yang sama sepanjang setiap langkah.',
+      1 => 'Senarai langkah dibekukan ketika panduan bermula supaya aplikasi atau butang Pilihan yang dimuatkan kemudian tidak mengalihkan spotlight kepada elemen yang salah.',
+      2 => 'Pemilihan sasaran menyemak semua elemen yang sepadan dan menggunakan elemen yang benar-benar kelihatan pada viewport semasa.',
+      3 => 'Langkah Keselamatan Akaun membuka menu mobile secara automatik apabila sasaran berada dalam menu yang masih tertutup.',
+      4 => 'Kedudukan spotlight dikemas kini semasa scroll, resize, perubahan orientasi dan selepas smooth scrolling selesai.',
+      5 => 'Paparan telefon menyediakan ruang khusus di atas bottom sheet supaya sasaran tidak terlindung oleh kad arahan.',
+      6 => 'Ketinggian maksimum kad mobile dilaraskan kepada 44 peratus viewport dengan safe-area dan sasaran sentuhan yang dikekalkan.',
+      7 => 'Perubahan hanya melibatkan product tour dan metadata release; tiada perubahan database, SSO, runtime atau pengaktifan mobile login production.',
+    ),
+    'en' =>
+    array (
+      0 => 'The System Guide on phones now keeps each instruction paired with the same target element throughout the step.',
+      1 => 'The step list is frozen when the guide starts so applications or Favourite buttons loaded later cannot move the spotlight to the wrong element.',
+      2 => 'Target selection checks every matching element and uses the element that is actually visible in the current viewport.',
+      3 => 'The Account Security step automatically opens the mobile menu when its target is inside the collapsed menu.',
+      4 => 'Spotlight placement is updated during scrolling, resizing, orientation changes and after smooth scrolling completes.',
+      5 => 'The phone layout reserves space above the bottom sheet so the target is not hidden behind the instruction card.',
+      6 => 'The mobile card maximum height is adjusted to 44 percent of the viewport while preserving safe-area handling and touch targets.',
+      7 => 'The change affects the product tour and release metadata only; it does not change the database, SSO, runtime or production mobile-login activation.',
+    ),
+  ),
   'release-2.14.3' =>
   array (
     'version' => '2.14.3',

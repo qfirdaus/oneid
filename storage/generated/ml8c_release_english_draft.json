@@ -1,11 +1,66 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2143-USER-FAQ-20261005-01",
+    "authorization": "ONEID-V2144-MOBILE-TOUR-20261006-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.14.4",
+            "version": "2.14.4",
+            "date": "2026-10-06",
+            "items": [
+                {
+                    "identity": "release:2.14.4:item:001",
+                    "bm": "Panduan Sistem pada telefon kini mengekalkan pasangan arahan dan elemen sasaran yang sama sepanjang setiap langkah.",
+                    "en_draft": "The System Guide on phones now keeps each instruction paired with the same target element throughout the step.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.4:item:002",
+                    "bm": "Senarai langkah dibekukan ketika panduan bermula supaya aplikasi atau butang Pilihan yang dimuatkan kemudian tidak mengalihkan spotlight kepada elemen yang salah.",
+                    "en_draft": "The step list is frozen when the guide starts so applications or Favourite buttons loaded later cannot move the spotlight to the wrong element.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.4:item:003",
+                    "bm": "Pemilihan sasaran menyemak semua elemen yang sepadan dan menggunakan elemen yang benar-benar kelihatan pada viewport semasa.",
+                    "en_draft": "Target selection checks every matching element and uses the element that is actually visible in the current viewport.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.4:item:004",
+                    "bm": "Langkah Keselamatan Akaun membuka menu mobile secara automatik apabila sasaran berada dalam menu yang masih tertutup.",
+                    "en_draft": "The Account Security step automatically opens the mobile menu when its target is inside the collapsed menu.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.4:item:005",
+                    "bm": "Kedudukan spotlight dikemas kini semasa scroll, resize, perubahan orientasi dan selepas smooth scrolling selesai.",
+                    "en_draft": "Spotlight placement is updated during scrolling, resizing, orientation changes and after smooth scrolling completes.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.4:item:006",
+                    "bm": "Paparan telefon menyediakan ruang khusus di atas bottom sheet supaya sasaran tidak terlindung oleh kad arahan.",
+                    "en_draft": "The phone layout reserves space above the bottom sheet so the target is not hidden behind the instruction card.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.4:item:007",
+                    "bm": "Ketinggian maksimum kad mobile dilaraskan kepada 44 peratus viewport dengan safe-area dan sasaran sentuhan yang dikekalkan.",
+                    "en_draft": "The mobile card maximum height is adjusted to 44 percent of the viewport while preserving safe-area handling and touch targets.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.14.4:item:008",
+                    "bm": "Perubahan hanya melibatkan product tour dan metadata release; tiada perubahan database, SSO, runtime atau pengaktifan mobile login production.",
+                    "en_draft": "The change affects the product tour and release metadata only; it does not change the database, SSO, runtime or production mobile-login activation.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.14.3",
             "version": "2.14.3",
@@ -4000,5 +4055,5 @@
             ]
         }
     ],
-    "manifest_digest": "3d83620d23acc8e2b518232cd9d41fc701d31b82014e723fffd0f88e5c0d9266"
+    "manifest_digest": "c4746b99e67b15d049faa5ee3707b0d1dfb657c51b1a9f0c2125d07ed6c0fdaa"
 }

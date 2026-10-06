@@ -22,7 +22,7 @@
 @keyframes oneid-tour-card-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:767px){
   .oneid-tour-focus{transition:none}
-  .oneid-tour-card{bottom:max(12px,env(safe-area-inset-bottom));left:12px!important;max-height:min(48dvh,390px);overflow-y:auto;padding:20px 17px 17px;right:12px;top:auto!important;width:auto}
+  .oneid-tour-card{bottom:max(12px,env(safe-area-inset-bottom));left:12px!important;max-height:min(44dvh,360px);overflow-y:auto;padding:20px 17px 17px;right:12px;top:auto!important;width:auto}
   .oneid-tour-card h2{font-size:18px}
   .oneid-tour-card p{font-size:13px}
   .oneid-tour-actions{display:grid;grid-template-columns:1fr 1fr 1fr}

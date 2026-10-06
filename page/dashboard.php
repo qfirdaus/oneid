@@ -126,7 +126,7 @@
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-accessibility-baseline.css?v=20260915-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-display-settings.css?v=20260915-4" rel="stylesheet" type="text/css">
-      <?php if ($productTourEnabled): ?><link href="../dist/css/oneid-product-tour.css?v=20260916-2" rel="stylesheet" type="text/css"><?php endif; ?>
+      <?php if ($productTourEnabled): ?><link href="../dist/css/oneid-product-tour.css?v=20261006-1" rel="stylesheet" type="text/css"><?php endif; ?>
       <script src="../dist/js/oneid-display-settings.js?v=20260915-4"></script>
 
       <style>
@@ -623,12 +623,12 @@
                ['selector' => '#user_app_search', 'title' => oneid_translate('dashboard.tour.search.title'), 'body' => oneid_translate('dashboard.tour.search.body')],
                ['selector' => '.user-app-favourite', 'title' => oneid_translate('dashboard.tour.favourite.title'), 'body' => oneid_translate('dashboard.tour.favourite.body')],
                ['selector' => '.oneid-display-settings__trigger', 'title' => oneid_translate('dashboard.tour.display.title'), 'body' => oneid_translate('dashboard.tour.display.body')],
-               ['selector' => '#tab_user_mfa_security', 'title' => oneid_translate('dashboard.tour.security.title'), 'body' => oneid_translate('dashboard.tour.security.body')],
+               ['selector' => '#tab_user_mfa_security', 'mobileReveal' => 'sidebar', 'title' => oneid_translate('dashboard.tour.security.title'), 'body' => oneid_translate('dashboard.tour.security.body')],
                ['selector' => '[data-oneid-user-session-renew]', 'title' => oneid_translate('dashboard.tour.session.title'), 'body' => oneid_translate('dashboard.tour.session.body')],
             ],
          ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
       </script>
-      <script src="../dist/js/oneid-product-tour.js?v=20260916-3"></script>
+      <script src="../dist/js/oneid-product-tour.js?v=20261006-1"></script>
       <?php endif; ?>
       <script src="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
       <script src="../assetsM/js/oneid-notifications.js?v=20260716-1"></script>
