@@ -2029,6 +2029,98 @@ class Database {
         return $rows;
     }
 
+    public function admin_report_mydigitalid_overview(): array{
+        $Q="SELECT
+              (SELECT COUNT(*) FROM user_federated_identity WHERE provider_code='mydigitalid') AS linked_total,
+              (SELECT COUNT(*) FROM user_federated_identity WHERE provider_code='mydigitalid' AND identity_status='ACTIVE') AS linked_active,
+              (SELECT COUNT(*) FROM federated_auth_event WHERE provider_code='mydigitalid' AND occurred_at>=DATE_SUB(NOW(),INTERVAL 30 DAY)) AS attempts_30d,
+              (SELECT COUNT(*) FROM federated_auth_event WHERE provider_code='mydigitalid' AND outcome='SUCCESS' AND occurred_at>=DATE_SUB(NOW(),INTERVAL 30 DAY)) AS success_30d,
+              (SELECT COUNT(*) FROM federated_auth_event WHERE provider_code='mydigitalid' AND outcome='REJECTED' AND occurred_at>=DATE_SUB(NOW(),INTERVAL 30 DAY)) AS rejected_30d,
+              (SELECT COUNT(*) FROM federated_auth_event WHERE provider_code='mydigitalid' AND outcome='ERROR' AND occurred_at>=DATE_SUB(NOW(),INTERVAL 30 DAY)) AS error_30d,
+              (SELECT COUNT(DISTINCT u_id) FROM federated_auth_event WHERE provider_code='mydigitalid' AND outcome='SUCCESS' AND occurred_at>=DATE_SUB(NOW(),INTERVAL 30 DAY)) AS unique_users_30d,
+              (SELECT MAX(occurred_at) FROM federated_auth_event WHERE provider_code='mydigitalid') AS last_event_at";
+        return (array)$this->pdo->query($Q)->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_mydigitalid_linked_accounts(): array{
+        $Q="SELECT COALESCE(NULLIF(TRIM(U.data3),''),F.u_id) AS public_user_id,
+              COALESCE(NULLIF(TRIM(U.data1),''),'-') AS user_name,
+              COALESCE(C.uc_name,'Uncategorised') AS category_name,U.avail_status AS user_status,
+              F.identity_status,F.first_verified_at,F.last_verified_at,F.last_login_at,F.login_count
+            FROM user_federated_identity F
+            LEFT JOIN user_tbl U ON U.u_id=F.u_id
+            LEFT JOIN user_category C ON C.uc_id=U.u_category
+            WHERE F.provider_code='mydigitalid'
+            ORDER BY F.identity_status,F.last_login_at DESC,F.identity_id DESC LIMIT 500";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_mydigitalid_authentication(): array{
+        $Q="SELECT DATE(occurred_at) AS activity_date,outcome,reason_code,
+              COUNT(*) AS event_count,COUNT(DISTINCT u_id) AS unique_users,MAX(occurred_at) AS last_event_at
+            FROM federated_auth_event
+            WHERE provider_code='mydigitalid' AND occurred_at>=DATE_SUB(CURRENT_DATE(),INTERVAL 89 DAY)
+            GROUP BY DATE(occurred_at),outcome,reason_code
+            ORDER BY activity_date DESC,outcome,reason_code";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_downstream_sso_usage(): array{
+        $Q="SELECT S.sp_id,S.sp_name,S.avail_status AS application_status,
+              COUNT(A.id) AS access_count,
+              COUNT(DISTINCT CASE WHEN A.id IS NULL THEN NULL ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(A.log_detail,' Logged in -> ',1),'User:',-1) END) AS unique_users,
+              MAX(A.datetime) AS last_access_at
+            FROM sp_list S
+            LEFT JOIN syslog A ON A.log_type=2 AND A.datetime>=DATE_SUB(NOW(),INTERVAL 90 DAY)
+              AND ((NULLIF(TRIM(S.production_domain),'') IS NOT NULL AND A.log_detail LIKE CONCAT('%',S.production_domain,'%'))
+                OR (NULLIF(TRIM(S.sp_domain),'') IS NOT NULL AND A.log_detail LIKE CONCAT('%',S.sp_domain,'%')))
+            WHERE S.sp_sso_support=0
+            GROUP BY S.sp_id,S.sp_name,S.avail_status
+            ORDER BY access_count DESC,S.sp_name";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_sync_health(): array{
+        $sourceColumn=$this->sync_header_source_code_available()?"COALESCE(NULLIF(TRIM(H.source_code),''),H.ext_head_type)":"H.ext_head_type";
+        $sourceGroup=$this->sync_header_source_code_available()?"H.source_code,H.ext_head_type":"H.ext_head_type";
+        $Q="SELECT {$sourceColumn} AS source_code,MAX(H.ext_head_id) AS latest_run_id,
+              MAX(H.ext_head_dt_start) AS last_started_at,MAX(H.ext_head_dt_end) AS last_completed_at,
+              TIMESTAMPDIFF(MINUTE,MAX(COALESCE(H.ext_head_dt_end,H.ext_head_dt_start)),NOW()) AS age_minutes,
+              SUBSTRING_INDEX(GROUP_CONCAT(H.ext_head_status ORDER BY H.ext_head_id DESC),',',1) AS latest_status,
+              SUM(H.ext_head_dt_start>=DATE_SUB(NOW(),INTERVAL 30 DAY)) AS runs_30d,
+              SUM(H.ext_head_dt_start>=DATE_SUB(NOW(),INTERVAL 30 DAY) AND H.ext_head_status NOT IN (2,4)) AS incomplete_30d
+            FROM ext_data_temp_header H GROUP BY {$sourceGroup} ORDER BY source_code";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_report_administrator_activity(): array{
+        $Q="SELECT A.id AS audit_id,A.datetime,COALESCE(E.syslog_event_name,CONCAT('EVENT_',A.log_type)) AS event_name,A.log_detail
+            FROM syslog A LEFT JOIN syslog_event_conf E ON E.syslog_event_id=A.log_type
+            WHERE A.datetime>=DATE_SUB(NOW(),INTERVAL 30 DAY)
+              AND (A.log_detail LIKE 'admin=%' OR A.log_detail LIKE '% admin=%' OR A.log_type IN (11,12,13,14,15,16,17,19,25,28,29,33,34,39,40,41,44,45,48,49,50,51,52,53,54,64,66,69,70))
+            ORDER BY A.datetime DESC,A.id DESC LIMIT 200";
+        $rows=$this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+        foreach($rows as &$row){
+            $detail=$this->auditIdentity()->sanitizeDetail((string)$row['log_detail']);
+            foreach(['action','outcome','reason','correlation'] as $field){$row[$field]='';if(preg_match('/(?:^|\\s)'.preg_quote($field,'/').'=([^\\s]+)/',$detail,$m)===1)$row[$field]=(string)$m[1];}
+            $actor='';if(preg_match('/(?:^|\\s)admin=([^\\s]+)/',$detail,$m)===1)$actor=(string)$m[1];
+            $row['actor_staff_no']=$actor===''?'-':$this->auditIdentity()->resolve($actor);unset($row['log_detail']);
+        }unset($row);return $rows;
+    }
+
+    public function admin_report_mfa_policy_history(): array{
+        $Q="SELECT H.configuration_version,H.changed_at,H.changed_by,H.change_reason,H.change_reference,H.correlation_id,H.previous_policy,H.resulting_policy
+            FROM user_login_mfa_policy_history H ORDER BY H.configuration_version DESC LIMIT 200";
+        $rows=$this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+        foreach($rows as &$row){
+            $before=json_decode((string)($row['previous_policy']??''),true);$after=json_decode((string)($row['resulting_policy']??''),true);
+            $row['previous_mode']=is_array($before)?(string)($before['policy_mode']??'-'):'-';
+            $row['resulting_mode']=is_array($after)?(string)($after['policy_mode']??'-'):'-';
+            $row['actor_staff_no']=$this->auditIdentity()->resolve((string)$row['changed_by']);
+            unset($row['changed_by'],$row['previous_policy'],$row['resulting_policy']);
+        }unset($row);return $rows;
+    }
+
 
 
    public function admin_set_deny_access_record($sp_id,$user_id){

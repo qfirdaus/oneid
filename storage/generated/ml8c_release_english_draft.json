@@ -1,11 +1,78 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2144-MOBILE-TOUR-20261006-01",
+    "authorization": "ONEID-V2150-ADMIN-REPORTS-20261006-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.15.0",
+            "version": "2.15.0",
+            "date": "2026-10-06",
+            "items": [
+                {
+                    "identity": "release:2.15.0:item:001",
+                    "bm": "Modul Reports kekal menggunakan enam kategori sedia ada dan kini menyediakan 25 laporan baca sahaja.",
+                    "en_draft": "The Reports module retains its existing six categories and now provides 25 read-only reports.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.0:item:002",
+                    "bm": "Ringkasan Eksekutif MyDigital ID menunjukkan pautan aktif, cubaan, kejayaan, penolakan, ralat dan pengguna unik bagi 30 hari.",
+                    "en_draft": "The MyDigital ID Executive Overview shows active links, attempts, successes, rejections, errors and unique users for 30 days.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.0:item:003",
+                    "bm": "Laporan Akaun Dipautkan MyDigital ID menunjukkan status pautan, kategori, pengesahan pertama, login terakhir dan jumlah login tanpa mendedahkan NRIC atau pengecam provider.",
+                    "en_draft": "The MyDigital ID Linked Accounts report shows link status, category, first verification, last login and login count without exposing NRIC or provider identifiers.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.0:item:004",
+                    "bm": "Laporan Pengesahan MyDigital ID menunjukkan trend 90 hari mengikut hasil dan kod sebab.",
+                    "en_draft": "The MyDigital ID Authentication Report shows 90-day trends by outcome and reason code.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.0:item:005",
+                    "bm": "Laporan Penggunaan SSO Downstream mengagregatkan akses 90 hari, pengguna unik dan akses terakhir daripada audit redirect OneID.",
+                    "en_draft": "The Downstream SSO Usage report aggregates 90-day access, unique users and last access from OneID redirect audit events.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.0:item:006",
+                    "bm": "Laporan Kesihatan Penyelarasan menunjukkan run terakhir, usia data, status dan run tidak lengkap bagi setiap sumber.",
+                    "en_draft": "The Synchronisation Health report shows the latest run, data age, status and incomplete runs for each source.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.0:item:007",
+                    "bm": "Laporan Aktiviti Pentadbir menunjukkan pelaku, tindakan, hasil, sebab dan correlation ID tanpa alamat IP atau butiran rahsia.",
+                    "en_draft": "The Administrator Activity report shows actor, action, outcome, reason and correlation ID without IP addresses or secret details.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.0:item:008",
+                    "bm": "Laporan Sejarah Polisi MFA menunjukkan perubahan versi, mod sebelum dan selepas, pelaku dan rujukan perubahan.",
+                    "en_draft": "The MFA Policy Change History report shows version changes, previous and resulting modes, actor and change reference.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.0:item:009",
+                    "bm": "Semua laporan baharu tersedia dalam Bahasa Melayu dan English serta menggunakan kawalan preview pentadbir sedia ada.",
+                    "en_draft": "All new reports are available in Malay and English and use the existing administrator preview controls.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.0:item:010",
+                    "bm": "Perubahan tidak menambah tab, mengubah database, mengaktifkan mobile production atau mendedahkan token, HMAC dan secret.",
+                    "en_draft": "The change adds no tabs, database changes or production mobile activation and exposes no tokens, HMAC values or secrets.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.14.4",
             "version": "2.14.4",
@@ -4055,5 +4122,7 @@
             ]
         }
     ],
-    "manifest_digest": "c4746b99e67b15d049faa5ee3707b0d1dfb657c51b1a9f0c2125d07ed6c0fdaa"
+    "release_count": 77,
+    "item_count": 596,
+    "manifest_digest": "314a5b6bceeaa279237fa8f917153b0d5ad4f16e46cc4be0504a039191d15fea"
 }

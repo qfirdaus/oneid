@@ -6,6 +6,37 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.15.0' =>
+  array (
+    'version' => '2.15.0',
+    'date' => '2026-10-06',
+    'bm' =>
+    array (
+      0 => 'Modul Reports kekal menggunakan enam kategori sedia ada dan kini menyediakan 25 laporan baca sahaja.',
+      1 => 'Ringkasan Eksekutif MyDigital ID menunjukkan pautan aktif, cubaan, kejayaan, penolakan, ralat dan pengguna unik bagi 30 hari.',
+      2 => 'Laporan Akaun Dipautkan MyDigital ID menunjukkan status pautan, kategori, pengesahan pertama, login terakhir dan jumlah login tanpa mendedahkan NRIC atau pengecam provider.',
+      3 => 'Laporan Pengesahan MyDigital ID menunjukkan trend 90 hari mengikut hasil dan kod sebab.',
+      4 => 'Laporan Penggunaan SSO Downstream mengagregatkan akses 90 hari, pengguna unik dan akses terakhir daripada audit redirect OneID.',
+      5 => 'Laporan Kesihatan Penyelarasan menunjukkan run terakhir, usia data, status dan run tidak lengkap bagi setiap sumber.',
+      6 => 'Laporan Aktiviti Pentadbir menunjukkan pelaku, tindakan, hasil, sebab dan correlation ID tanpa alamat IP atau butiran rahsia.',
+      7 => 'Laporan Sejarah Polisi MFA menunjukkan perubahan versi, mod sebelum dan selepas, pelaku dan rujukan perubahan.',
+      8 => 'Semua laporan baharu tersedia dalam Bahasa Melayu dan English serta menggunakan kawalan preview pentadbir sedia ada.',
+      9 => 'Perubahan tidak menambah tab, mengubah database, mengaktifkan mobile production atau mendedahkan token, HMAC dan secret.',
+    ),
+    'en' =>
+    array (
+      0 => 'The Reports module retains its existing six categories and now provides 25 read-only reports.',
+      1 => 'The MyDigital ID Executive Overview shows active links, attempts, successes, rejections, errors and unique users for 30 days.',
+      2 => 'The MyDigital ID Linked Accounts report shows link status, category, first verification, last login and login count without exposing NRIC or provider identifiers.',
+      3 => 'The MyDigital ID Authentication Report shows 90-day trends by outcome and reason code.',
+      4 => 'The Downstream SSO Usage report aggregates 90-day access, unique users and last access from OneID redirect audit events.',
+      5 => 'The Synchronisation Health report shows the latest run, data age, status and incomplete runs for each source.',
+      6 => 'The Administrator Activity report shows actor, action, outcome, reason and correlation ID without IP addresses or secret details.',
+      7 => 'The MFA Policy Change History report shows version changes, previous and resulting modes, actor and change reference.',
+      8 => 'All new reports are available in Malay and English and use the existing administrator preview controls.',
+      9 => 'The change adds no tabs, database changes or production mobile activation and exposes no tokens, HMAC values or secrets.',
+    ),
+  ),
   'release-2.14.4' =>
   array (
     'version' => '2.14.4',

@@ -14,31 +14,38 @@ final class AdminReportCatalogue
                 ['key'=>'executive_summary','name'=>'OneID Executive Summary','description'=>'Ringkasan pengguna, aplikasi, akses dan sesi semasa.','status'=>'ready'],
                 ['key'=>'security_summary','name'=>'Security & Session Summary','description'=>'Trend keselamatan, sesi dan tindakan pentadbir.','status'=>'ready'],
                 ['key'=>'sync_summary','name'=>'Synchronisation Summary','description'=>'Ringkasan perubahan daripada semua sumber data.','status'=>'ready'],
+                ['key'=>'mydigitalid_overview','name'=>'MyDigital ID Executive Overview','description'=>'Ringkasan pautan identiti dan hasil pengesahan MyDigital ID.','status'=>'ready'],
             ]],
             'users' => ['label'=>'Users & Access','icon'=>'fa-users','reports'=>[
                 ['key'=>'users_by_category','name'=>'Users by Category','description'=>'Pecahan akaun aktif dan tidak aktif bagi setiap kategori.','status'=>'ready'],
                 ['key'=>'access_matrix','name'=>'Category Application Access Matrix','description'=>'Matriks kategori pengguna dan aplikasi yang dibenarkan.','status'=>'ready'],
                 ['key'=>'access_exceptions','name'=>'Direct ACL & Blacklist Exceptions','description'=>'Akses terus dan sekatan yang berada di luar polisi kategori.','status'=>'ready'],
+                ['key'=>'mydigitalid_linked_accounts','name'=>'MyDigital ID Linked Accounts','description'=>'Status pautan MyDigital ID tanpa mendedahkan pengecam identiti sensitif.','status'=>'ready'],
             ]],
             'applications' => ['label'=>'Applications & Production Readiness','icon'=>'fa-th-large','reports'=>[
                 ['key'=>'application_readiness','name'=>'Application Production Readiness','description'=>'Status URL, SSO dan kelulusan production bagi setiap aplikasi.','status'=>'ready'],
                 ['key'=>'application_acl_coverage','name'=>'Application ACL Coverage','description'=>'Aplikasi tanpa kategori akses atau liputan pengguna.','status'=>'ready'],
                 ['key'=>'credential_rotation','name'=>'Site API Credential Rotation','description'=>'Versi dan umur credential tanpa mendedahkan secret.','status'=>'ready'],
+                ['key'=>'downstream_sso_usage','name'=>'Downstream SSO Usage','description'=>'Penggunaan akses downstream berdasarkan audit redirect OneID.','status'=>'ready'],
             ]],
             'sessions' => ['label'=>'Sessions & Security','icon'=>'fa-shield','reports'=>[
                 ['key'=>'session_activity','name'=>'Session Activity Summary','description'=>'Sesi aktif, tamat dan sebab penamatan mengikut tempoh.','status'=>'ready'],
                 ['key'=>'device_summary','name'=>'Device & Browser Summary','description'=>'Pecahan sesi mengikut maklumat peranti yang direkod.','status'=>'ready'],
                 ['key'=>'mfa_adoption','name'=>'MFA Adoption & Outcomes','description'=>'Liputan MFA dan hasil transaksi keselamatan.','status'=>'ready'],
+                ['key'=>'mydigitalid_authentication','name'=>'MyDigital ID Authentication Report','description'=>'Trend kejayaan, penolakan dan ralat pengesahan MyDigital ID.','status'=>'ready'],
             ]],
             'synchronisation' => ['label'=>'Synchronisation','icon'=>'fa-refresh','reports'=>[
                 ['key'=>'sync_runs','name'=>'Synchronisation Run Summary','description'=>'Rekod sync, sumber, tempoh dan jumlah perubahan.','status'=>'ready'],
                 ['key'=>'sync_changes','name'=>'Synchronisation Change Detail','description'=>'Akaun baharu, dikemas kini, dinyahaktif dan diaktifkan semula.','status'=>'ready'],
                 ['key'=>'sync_exceptions','name'=>'Synchronisation Exceptions','description'=>'Akaun terlindung dan perubahan yang memerlukan perhatian.','status'=>'ready'],
+                ['key'=>'sync_health','name'=>'Synchronisation Health & Freshness','description'=>'Status run terakhir dan kesegaran setiap sumber penyelarasan.','status'=>'ready'],
             ]],
             'audit' => ['label'=>'Audit & Configuration','icon'=>'fa-history','reports'=>[
                 ['key'=>'audit_activity','name'=>'System Audit Activity','description'=>'Aktiviti sistem mengikut event, pelaku dan masa.','status'=>'ready'],
                 ['key'=>'configuration_changes','name'=>'Configuration Change History','description'=>'Perubahan konfigurasi dengan sebab dan correlation ID.','status'=>'ready'],
                 ['key'=>'content_changes','name'=>'Metadata & Banner Change History','description'=>'Sejarah terjemahan metadata dan login banner.','status'=>'ready'],
+                ['key'=>'administrator_activity','name'=>'Administrator Activity','description'=>'Aktiviti pentadbiran berstruktur tanpa alamat IP atau data rahsia.','status'=>'ready'],
+                ['key'=>'mfa_policy_history','name'=>'MFA Policy Change History','description'=>'Sejarah versi dan perubahan polisi MFA pengguna.','status'=>'ready'],
             ]],
         ];
     }

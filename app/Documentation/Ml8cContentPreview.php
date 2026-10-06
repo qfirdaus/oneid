@@ -26,8 +26,9 @@ final class Ml8cContentPreview
         ];
         $manualPath = $this->root . '/public/public_docs/MANUAL_SALAM.pdf';
         $manualDraft = $this->root . '/docs/MANUAL_SALAM_ENGLISH_DRAFT_REVIEW.md';
+        $expectedReleaseCount = $this->expectedReleaseCount();
         $blocking = [];
-        if (count($releases) !== 70) {
+        if (count($releases) !== $expectedReleaseCount) {
             $blocking[] = 'ML8C_RELEASE_BASELINE_MISMATCH';
         }
         if ($duplicateVersions !== 0) {
@@ -49,7 +50,7 @@ final class Ml8cContentPreview
             'release_english_approved' => count($releases),
             'release_english_review_required' => 0,
             'duplicate_release_identities' => $duplicateVersions,
-            'unresolved_release_identities' => count($releases) === 70 ? 0 : abs(70 - count($releases)),
+            'unresolved_release_identities' => count($releases) === $expectedReleaseCount ? 0 : abs($expectedReleaseCount - count($releases)),
             'official_bm_manuals' => is_file($manualPath) ? 1 : 0,
             'approved_english_manuals' => 0,
             'english_manual_draft_review_file' => is_file($manualDraft),
@@ -160,6 +161,17 @@ final class Ml8cContentPreview
             return 'CURRENT';
         }
         return $match[1];
+    }
+
+    private function expectedReleaseCount(): int
+    {
+        $path = $this->root . '/config/content/ml8c_release_approval.php';
+        $approval = is_file($path) ? require $path : null;
+        $count = is_array($approval) ? (int)($approval['expected_release_count'] ?? 0) : 0;
+        if ($count < 1) {
+            throw new RuntimeException('ML8C_RELEASE_BASELINE_NOT_CONFIGURED');
+        }
+        return $count;
     }
 
     /** @return array{source:string,bilingual_sections_present:bool,digest:string} */
