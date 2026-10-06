@@ -6,6 +6,25 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.16.0' =>
+  array (
+    'version' => '2.16.0',
+    'date' => '2026-10-06',
+    'bm' =>
+    array (
+      0 => 'Ringkasan Eksekutif MyDigital ID kini menerangkan skop masa data secara terus pada preview report.',
+      1 => 'Jumlah akaun dipautkan dikenal pasti sebagai Snapshot Semasa dan tidak terhad kepada tempoh 30 hari.',
+      2 => 'Cubaan, kejayaan, penolakan, ralat dan pengguna unik dikenal pasti sebagai aktiviti bagi 30 Hari Terakhir.',
+      3 => 'Nota skop tersedia dalam Bahasa Melayu dan English tanpa perubahan query, pengiraan atau data report.',
+    ),
+    'en' =>
+    array (
+      0 => 'The MyDigital ID Executive Overview now explains the time scope of its data directly in the report preview.',
+      1 => 'Linked-account totals are identified as a Current Snapshot and are not limited to the 30-day period.',
+      2 => 'Attempts, successes, rejections, errors and unique users are identified as activity for the Last 30 Days.',
+      3 => 'The scope note is available in Malay and English without changing report queries, calculations or data.',
+    ),
+  ),
   'release-2.15.4' =>
   array (
     'version' => '2.15.4',
