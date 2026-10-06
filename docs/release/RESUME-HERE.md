@@ -479,3 +479,28 @@ boleh mengalihkan indeks kepada sasaran lain.
 - Mobile production kekal OFF dan database tidak diubah.
 
 Status: **ONEID 2.14.4 MOBILE PRODUCT TOUR DEPLOYED / VERIFIED**.
+
+## Release 2.15.0 — peluasan laporan pentadbiran (2026-10-06)
+
+Modul Reports dikembangkan daripada 18 kepada 25 laporan sambil mengekalkan
+enam kategori tab sedia ada. Tujuh laporan baharu ialah Ringkasan Eksekutif
+MyDigital ID, Akaun Dipautkan MyDigital ID, Penggunaan SSO Downstream, Laporan
+Pengesahan MyDigital ID, Kesihatan & Kesegaran Penyelarasan, Aktiviti Pentadbir
+dan Sejarah Perubahan Polisi MFA.
+
+- Commit release: `5a8f702`; pembetulan jumlah pautan: `135b0ae`.
+- Backup production:
+  `/home/iqs/oneid-backups/oneid-admin-reports-pre-2.15.0-20261006-144427.tar.gz`.
+- Production mempunyai semua enam jadual sumber dan 2,944 event MyDigital ID
+  semasa preflight.
+- Ketujuh-tujuh query production lulus; masa semakan antara 1.5 ms dan 1.46 s.
+- Pautan MyDigital ID production: 1,112 keseluruhan/aktif; senarai dipagarkan
+  kepada 500 rekod terkini dan ringkasan memaparkan jumlah penuh.
+- Kontrak Reports 48/48, metadata release 18/18 dan ML8C 6/6 lulus.
+- Public login HTTP 200 dan footer Version 2.15.0 disahkan.
+- Nginx dan PHP 8.4-FPM aktif; mobile production kekal OFF.
+- Tiada migration atau perubahan database dibuat.
+
+Status: **ONEID 2.15.0 ADMIN REPORTS DEPLOYED / VERIFIED**. Pengesahan visual
+oleh pentadbir bagi setiap preview laporan masih merupakan semakan operasi yang
+disyorkan; query, authorization contract dan sumber production telah disahkan.

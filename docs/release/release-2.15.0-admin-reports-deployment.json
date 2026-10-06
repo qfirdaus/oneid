@@ -1,0 +1,22 @@
+{
+  "release": "2.15.0",
+  "deployed_at": "2026-10-06T14:44:27+08:00",
+  "scope": "Seven read-only administrative reports within the existing six categories",
+  "release_commit": "5a8f702",
+  "final_commit": "135b0ae",
+  "production_backup": "/home/iqs/oneid-backups/oneid-admin-reports-pre-2.15.0-20261006-144427.tar.gz",
+  "report_count_before": 18,
+  "report_count_after": 25,
+  "category_count": 6,
+  "verification": {
+    "admin_reports_contract": "PASS 48/48",
+    "release_metadata_contract": "PASS 18/18",
+    "ml8c_content_contract": "PASS 6/6",
+    "production_queries": "PASS 7/7",
+    "public_login": "HTTP 200; Version 2.15.0",
+    "nginx": "active",
+    "php84_fpm": "active"
+  },
+  "mobile_production": "OFF",
+  "database_changed": false
+}
