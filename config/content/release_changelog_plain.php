@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.16.4' =>
+  array (
+    'version' => '2.16.4',
+    'date' => '2026-10-06',
+    'bm' =>
+    array (
+      0 => 'Report MyDigital ID Linked Accounts kini menyusun Login Count daripada nilai tertinggi kepada terendah.',
+      1 => 'Jika jumlah login sama, rekod dengan Last Login paling terkini dipaparkan dahulu.',
+      2 => 'Had 500 rekod kini memilih akaun dengan penggunaan MyDigital ID tertinggi.',
+    ),
+    'en' =>
+    array (
+      0 => 'The MyDigital ID Linked Accounts report now sorts Login Count from highest to lowest.',
+      1 => 'When login counts match, the record with the most recent Last Login appears first.',
+      2 => 'The 500-record limit now selects accounts with the highest MyDigital ID usage.',
+    ),
+  ),
   'release-2.16.3' =>
   array (
     'version' => '2.16.3',

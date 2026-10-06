@@ -1,11 +1,36 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2163-MYDIGITALID-STAFF-20261006-01",
+    "authorization": "ONEID-V2164-MYDIGITALID-LOGIN-ORDER-20261006-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.16.4",
+            "version": "2.16.4",
+            "date": "2026-10-06",
+            "items": [
+                {
+                    "identity": "release:2.16.4:item:001",
+                    "bm": "Report MyDigital ID Linked Accounts kini menyusun Login Count daripada nilai tertinggi kepada terendah.",
+                    "en_draft": "The MyDigital ID Linked Accounts report now sorts Login Count from highest to lowest.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.16.4:item:002",
+                    "bm": "Jika jumlah login sama, rekod dengan Last Login paling terkini dipaparkan dahulu.",
+                    "en_draft": "When login counts match, the record with the most recent Last Login appears first.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.16.4:item:003",
+                    "bm": "Had 500 rekod kini memilih akaun dengan penggunaan MyDigital ID tertinggi.",
+                    "en_draft": "The 500-record limit now selects accounts with the highest MyDigital ID usage.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.16.3",
             "version": "2.16.3",
@@ -4364,7 +4389,7 @@
             ]
         }
     ],
-    "release_count": 85,
-    "item_count": 627,
-    "manifest_digest": "3c7e2489e61e7dc64bee602895a2714735088b61c9dc6433f01f3165946a94f2"
+    "release_count": 86,
+    "item_count": 630,
+    "manifest_digest": "1ee5de80e254f29f70e037b49b3cb4ff183b882be0b07127757f99e76af5d0fd"
 }

@@ -2067,7 +2067,7 @@ class Database {
             LEFT JOIN user_tbl U ON U.u_id=F.u_id
             LEFT JOIN user_category C ON C.uc_id=U.u_category
             WHERE F.provider_code='mydigitalid'
-            ORDER BY F.identity_status,F.last_login_at DESC,F.identity_id DESC LIMIT 500";
+            ORDER BY F.login_count DESC,F.last_login_at DESC,F.identity_id DESC LIMIT 500";
         return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
     }
 
