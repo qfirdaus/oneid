@@ -1,0 +1,18 @@
+{
+  "release": "2.14.4",
+  "deployed_at": "2026-10-06T09:59:51+08:00",
+  "scope": "Mobile System Guide target and spotlight alignment",
+  "code_commit": "2502746",
+  "production_backup": "/home/iqs/oneid-backups/oneid-product-tour-pre-2.14.4-20261006-095951.tar.gz",
+  "verification": {
+    "product_tour_contract": "PASS 16/16",
+    "release_metadata_contract": "PASS 18/18",
+    "version_documentation_contract": "PASS 4/4",
+    "javascript_asset": "HTTP 200 application/javascript",
+    "css_asset": "HTTP 200 text/css",
+    "nginx": "active",
+    "php84_fpm": "active"
+  },
+  "mobile_production": "OFF",
+  "database_changed": false
+}

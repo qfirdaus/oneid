@@ -454,3 +454,28 @@ downstream, paparan browser selepas kemas kini dan saluran bantuan PTMK.
 - Mobile production kekal OFF dan database tidak diubah.
 
 Status: **ONEID 2.14.3 FAQ DEPLOYED / VERIFIED**.
+
+## Release 2.14.4 — pembetulan Panduan Sistem mobile (2026-10-06)
+
+Isu arahan dan spotlight Panduan Sistem yang tidak sepadan pada telefon telah
+dibetulkan. Puncanya ialah senarai langkah dikira semula ketika kandungan
+aplikasi dimuatkan secara asynchronous; kemunculan butang Pilihan di tengah tour
+boleh mengalihkan indeks kepada sasaran lain.
+
+- Senarai langkah dan pasangan sasaran dibekukan ketika tour bermula.
+- Pemilih sasaran menggunakan elemen sepadan yang benar-benar kelihatan.
+- Langkah Keselamatan Akaun boleh membuka menu mobile yang tertutup.
+- Spotlight dikemas kini semasa scroll, resize dan perubahan orientasi.
+- Ruang paparan sasaran dikira di atas kad arahan mobile; tinggi kad maksimum
+  dilaraskan kepada 44dvh.
+- Versi aplikasi dinaikkan kepada **2.14.4**.
+- Commit kod release: `2502746` (`fix: align mobile product tour targets`).
+- Backup production:
+  `/home/iqs/oneid-backups/oneid-product-tour-pre-2.14.4-20261006-095951.tar.gz`.
+- Kontrak product tour 16/16, metadata release 18/18 dan dokumentasi 4/4 lulus.
+- Aset JavaScript dan CSS live mengembalikan HTTP 200 dengan MIME yang betul.
+- Git staging dan production berada pada commit release yang sama ketika
+  pengesahan deployment; Nginx dan PHP 8.4-FPM aktif.
+- Mobile production kekal OFF dan database tidak diubah.
+
+Status: **ONEID 2.14.4 MOBILE PRODUCT TOUR DEPLOYED / VERIFIED**.
