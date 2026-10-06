@@ -6,6 +6,25 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.16.2' =>
+  array (
+    'version' => '2.16.2',
+    'date' => '2026-10-06',
+    'bm' =>
+    array (
+      0 => 'Ringkasan Eksekutif MyDigital ID kini memecahkan jumlah akaun dipautkan kepada Staf, Pelajar dan Lain-lain atau Tidak Berkategori.',
+      1 => 'Pengelasan menggunakan sumber akaun dan kategori pengguna dengan Pelajar diberi keutamaan bagi mengelakkan kiraan berganda.',
+      2 => 'Kad ringkasan memaparkan Jumlah Akaun Dipautkan, Akaun Dipautkan Staf dan Akaun Dipautkan Pelajar.',
+      3 => 'Jumlah Staf, Pelajar dan Lain-lain direkonsiliasi kepada jumlah keseluruhan tanpa mengubah rekod sumber.',
+    ),
+    'en' =>
+    array (
+      0 => 'The MyDigital ID Executive Overview now breaks linked-account totals into Staff, Student and Other or Uncategorised.',
+      1 => 'Classification uses account source and user category with Student taking precedence to prevent double counting.',
+      2 => 'Summary cards show Total Linked Accounts, Staff Linked Accounts and Student Linked Accounts.',
+      3 => 'Staff, Student and Other totals reconcile to the overall total without changing source records.',
+    ),
+  ),
   'release-2.16.1' =>
   array (
     'version' => '2.16.1',
