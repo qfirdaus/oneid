@@ -1,11 +1,42 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2150-ADMIN-REPORTS-20261006-01",
+    "authorization": "ONEID-V2151-FAQ-SPACING-20261006-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.15.1",
+            "version": "2.15.1",
+            "date": "2026-10-06",
+            "items": [
+                {
+                    "identity": "release:2.15.1:item:001",
+                    "bm": "Semua 18 jawapan Soalan Lazim Bahasa Melayu dan 18 jawapan English telah diaudit untuk memastikan setiap jawapan mempunyai pemisahan perenggan yang jelas.",
+                    "en_draft": "All 18 Malay and 18 English FAQ answers were audited to ensure that every answer has clear paragraph separation.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.1:item:002",
+                    "bm": "Jarak antara perenggan ditambah kepada satu baris penuh supaya kandungan yang panjang lebih mudah dibaca pada paparan web dan telefon.",
+                    "en_draft": "Paragraph spacing is increased to one full line so longer content is easier to read on web and phone displays.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.1:item:003",
+                    "bm": "Halaman login dan dashboard pengguna menggunakan gaya bersama yang sama serta versi aset baharu bagi mengelakkan cache lama.",
+                    "en_draft": "The login page and user dashboard use the same shared style and a new asset version to prevent stale browser caching.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.1:item:004",
+                    "bm": "Ujian kontrak kini mengesahkan struktur perenggan bagi semua 36 jawapan dan jarak paparan bersama tanpa perubahan database, SSO atau mobile production.",
+                    "en_draft": "Contract tests now verify paragraph structure for all 36 answers and the shared display spacing, with no database, SSO or production mobile changes.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.15.0",
             "version": "2.15.0",
@@ -4122,7 +4153,7 @@
             ]
         }
     ],
-    "release_count": 77,
-    "item_count": 596,
-    "manifest_digest": "314a5b6bceeaa279237fa8f917153b0d5ad4f16e46cc4be0504a039191d15fea"
+    "release_count": 78,
+    "item_count": 600,
+    "manifest_digest": "de49947eb27c9edf6f97fb73930bee5a6d42ac57bd2de68d71903c2eb195306b"
 }

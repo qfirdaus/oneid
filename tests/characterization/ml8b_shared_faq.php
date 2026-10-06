@@ -22,12 +22,33 @@ $invalid = $catalogue->resolve('xx');
 $root = dirname(__DIR__, 2);
 $login = (string) file_get_contents($root . '/index.php');
 $dashboard = (string) file_get_contents($root . '/page/dashboard.php');
+$faqCss = (string) file_get_contents($root . '/public/dist/css/oneid-user-faq.css');
 
 $report(count($ms['entries']) === 18 && count($en['entries']) === 18, 'both approved locales contain eighteen FAQ entries');
 $report(
     array_column($ms['entries'], 'id') === array_column($en['entries'], 'id')
     && count(array_unique(array_column($ms['entries'], 'id'))) === 18,
     'BM and English use the same stable FAQ identities'
+);
+$paragraphStructureValid = true;
+foreach ([$ms, $en] as $localeContent) {
+    foreach ($localeContent['entries'] as $entry) {
+        $paragraphs = preg_split('/\R{2,}/', trim($entry['answer'])) ?: [];
+        if (count($paragraphs) < 2 || in_array('', array_map('trim', $paragraphs), true)) {
+            $paragraphStructureValid = false;
+            break 2;
+        }
+    }
+}
+$report(
+    $paragraphStructureValid,
+    'all thirty-six localized FAQ answers contain explicit non-empty paragraph breaks'
+);
+$report(
+    str_contains($faqCss, '.oneid-faq-answer-copy p+p{margin-top:1.15em}')
+    && str_contains($login, 'oneid-user-faq.css?v=20261006-1')
+    && str_contains($dashboard, 'oneid-user-faq.css?v=20261006-1'),
+    'Login and User Dashboard load the FAQ stylesheet with a full-line paragraph gap'
 );
 $requiredUserTopics = [
     'inactive-account',

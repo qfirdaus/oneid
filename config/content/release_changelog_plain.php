@@ -6,6 +6,25 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.15.1' =>
+  array (
+    'version' => '2.15.1',
+    'date' => '2026-10-06',
+    'bm' =>
+    array (
+      0 => 'Semua 18 jawapan Soalan Lazim Bahasa Melayu dan 18 jawapan English telah diaudit untuk memastikan setiap jawapan mempunyai pemisahan perenggan yang jelas.',
+      1 => 'Jarak antara perenggan ditambah kepada satu baris penuh supaya kandungan yang panjang lebih mudah dibaca pada paparan web dan telefon.',
+      2 => 'Halaman login dan dashboard pengguna menggunakan gaya bersama yang sama serta versi aset baharu bagi mengelakkan cache lama.',
+      3 => 'Ujian kontrak kini mengesahkan struktur perenggan bagi semua 36 jawapan dan jarak paparan bersama tanpa perubahan database, SSO atau mobile production.',
+    ),
+    'en' =>
+    array (
+      0 => 'All 18 Malay and 18 English FAQ answers were audited to ensure that every answer has clear paragraph separation.',
+      1 => 'Paragraph spacing is increased to one full line so longer content is easier to read on web and phone displays.',
+      2 => 'The login page and user dashboard use the same shared style and a new asset version to prevent stale browser caching.',
+      3 => 'Contract tests now verify paragraph structure for all 36 answers and the shared display spacing, with no database, SSO or production mobile changes.',
+    ),
+  ),
   'release-2.15.0' =>
   array (
     'version' => '2.15.0',
