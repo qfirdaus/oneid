@@ -6,6 +6,25 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.15.4' =>
+  array (
+    'version' => '2.15.4',
+    'date' => '2026-10-06',
+    'bm' =>
+    array (
+      0 => 'Jadual report kini memenuhi keseluruhan lebar panel supaya header dan baris tidak kelihatan terpotong.',
+      1 => 'Saiz tetap kolum nombor turutan, nombor, tarikh dan tarikh-masa dikekalkan tanpa dibesarkan oleh ruang tambahan.',
+      2 => 'Kolum teks utama yang mempunyai kandungan terpanjang menyerap baki ruang panel untuk menghasilkan susun atur yang seimbang.',
+      3 => 'Lebar minimum berdasarkan data dikekalkan dan scroll mendatar hanya digunakan apabila jumlah kolum benar-benar melebihi panel.',
+    ),
+    'en' =>
+    array (
+      0 => 'Report tables now fill the full panel width so headers and rows no longer appear cut off.',
+      1 => 'Fixed sequence, numeric, date and date-time column widths remain unchanged and are not enlarged by spare space.',
+      2 => 'The primary text column with the longest content absorbs the remaining panel space to produce a balanced layout.',
+      3 => 'The data-based minimum width is retained and horizontal scrolling is used only when the columns genuinely exceed the panel.',
+    ),
+  ),
   'release-2.15.3' =>
   array (
     'version' => '2.15.3',

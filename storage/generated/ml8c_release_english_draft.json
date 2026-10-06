@@ -1,11 +1,42 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2153-REPORT-COLUMNS-20261006-01",
+    "authorization": "ONEID-V2154-REPORT-TABLE-FILL-20261006-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.15.4",
+            "version": "2.15.4",
+            "date": "2026-10-06",
+            "items": [
+                {
+                    "identity": "release:2.15.4:item:001",
+                    "bm": "Jadual report kini memenuhi keseluruhan lebar panel supaya header dan baris tidak kelihatan terpotong.",
+                    "en_draft": "Report tables now fill the full panel width so headers and rows no longer appear cut off.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.4:item:002",
+                    "bm": "Saiz tetap kolum nombor turutan, nombor, tarikh dan tarikh-masa dikekalkan tanpa dibesarkan oleh ruang tambahan.",
+                    "en_draft": "Fixed sequence, numeric, date and date-time column widths remain unchanged and are not enlarged by spare space.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.4:item:003",
+                    "bm": "Kolum teks utama yang mempunyai kandungan terpanjang menyerap baki ruang panel untuk menghasilkan susun atur yang seimbang.",
+                    "en_draft": "The primary text column with the longest content absorbs the remaining panel space to produce a balanced layout.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.4:item:004",
+                    "bm": "Lebar minimum berdasarkan data dikekalkan dan scroll mendatar hanya digunakan apabila jumlah kolum benar-benar melebihi panel.",
+                    "en_draft": "The data-based minimum width is retained and horizontal scrolling is used only when the columns genuinely exceed the panel.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.15.3",
             "version": "2.15.3",
@@ -4215,7 +4246,7 @@
             ]
         }
     ],
-    "release_count": 80,
-    "item_count": 608,
-    "manifest_digest": "aa1c78eadb1722c5f8a4a202c12bbb6aa040382c3f96e383e89fa13a8819d717"
+    "release_count": 81,
+    "item_count": 612,
+    "manifest_digest": "6fdc0d2cb6c953fdf397094ae488734ead3781103915de2e1a5b52be1b50da04"
 }

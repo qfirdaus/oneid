@@ -8,7 +8,7 @@ final class ReportColumnLayout
     /**
      * @param list<string> $columns
      * @param list<array<string,mixed>> $rows
-     * @return array{table_width:int,widths:list<int>,types:list<string>}
+     * @return array{minimum_width:int,widths:list<int>,types:list<string>,flex_index:int}
      */
     public static function calculate(array $columns, array $rows): array
     {
@@ -48,10 +48,19 @@ final class ReportColumnLayout
             $widths[] = $width;
         }
 
+        $flexCandidates = [];
+        foreach ($types as $index => $type) {
+            if ($type === 'text' || $type === 'url') {
+                $flexCandidates[$index] = $widths[$index];
+            }
+        }
+        $flexIndex = $flexCandidates === [] ? max(0, count($columns) - 1) : (int) array_search(max($flexCandidates), $flexCandidates, true);
+
         return [
-            'table_width' => array_sum($widths),
+            'minimum_width' => array_sum($widths),
             'widths' => $widths,
             'types' => $types,
+            'flex_index' => $flexIndex,
         ];
     }
 
