@@ -1,11 +1,42 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2151-FAQ-SPACING-20261006-01",
+    "authorization": "ONEID-V2152-FAQ-BLANK-LINE-20261006-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.15.2",
+            "version": "2.15.2",
+            "date": "2026-10-06",
+            "items": [
+                {
+                    "identity": "release:2.15.2:item:001",
+                    "bm": "Jarak kosong satu baris kini dipaparkan sebelum setiap perenggan kedua dan seterusnya dalam semua jawapan Soalan Lazim.",
+                    "en_draft": "A full blank line is now displayed before the second and every subsequent paragraph in all FAQ answers.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.2:item:002",
+                    "bm": "Selector CSS diperkukuh supaya peraturan jarak perenggan tidak lagi dikalahkan oleh gaya panel dan accordion sedia ada.",
+                    "en_draft": "The CSS selectors were strengthened so existing panel and accordion styles can no longer override paragraph spacing.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.2:item:003",
+                    "bm": "Pembetulan meliputi semua 18 FAQ Bahasa Melayu dan 18 FAQ English pada halaman login serta dashboard pengguna.",
+                    "en_draft": "The correction covers all 18 Malay and 18 English FAQs on both the login page and user dashboard.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.15.2:item:004",
+                    "bm": "Versi aset CSS ditukar bagi memastikan browser memuatkan pembetulan terkini tanpa menggunakan cache lama.",
+                    "en_draft": "The CSS asset version was changed to ensure browsers load the latest correction instead of a stale cached copy.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.15.1",
             "version": "2.15.1",
@@ -4153,7 +4184,7 @@
             ]
         }
     ],
-    "release_count": 78,
-    "item_count": 600,
-    "manifest_digest": "de49947eb27c9edf6f97fb73930bee5a6d42ac57bd2de68d71903c2eb195306b"
+    "release_count": 79,
+    "item_count": 604,
+    "manifest_digest": "3fa2efb77981ae03cf9eda8d519051e9e831753ae4b6f0117f6463a520084292"
 }

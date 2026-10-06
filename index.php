@@ -94,7 +94,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
   <link rel="stylesheet" href="vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css" />
   <link rel="stylesheet" href="assetsM/css/sweetalert.css" />
   <link rel="stylesheet" href="dist/css/oneid-professional-alert.css?v=20260910-2" />
-  <link rel="stylesheet" href="dist/css/oneid-user-faq.css?v=20261006-1" />
+  <link rel="stylesheet" href="dist/css/oneid-user-faq.css?v=20261006-2" />
   <link rel="stylesheet" href="dist/css/oneid-environment-banner.css?v=20260810-1" />
   <?php if ($displaySettingsAvailable): ?>
   <link rel="stylesheet" href="dist/css/oneid-accessibility-baseline.css?v=20260915-1" />

@@ -6,6 +6,25 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.15.2' =>
+  array (
+    'version' => '2.15.2',
+    'date' => '2026-10-06',
+    'bm' =>
+    array (
+      0 => 'Jarak kosong satu baris kini dipaparkan sebelum setiap perenggan kedua dan seterusnya dalam semua jawapan Soalan Lazim.',
+      1 => 'Selector CSS diperkukuh supaya peraturan jarak perenggan tidak lagi dikalahkan oleh gaya panel dan accordion sedia ada.',
+      2 => 'Pembetulan meliputi semua 18 FAQ Bahasa Melayu dan 18 FAQ English pada halaman login serta dashboard pengguna.',
+      3 => 'Versi aset CSS ditukar bagi memastikan browser memuatkan pembetulan terkini tanpa menggunakan cache lama.',
+    ),
+    'en' =>
+    array (
+      0 => 'A full blank line is now displayed before the second and every subsequent paragraph in all FAQ answers.',
+      1 => 'The CSS selectors were strengthened so existing panel and accordion styles can no longer override paragraph spacing.',
+      2 => 'The correction covers all 18 Malay and 18 English FAQs on both the login page and user dashboard.',
+      3 => 'The CSS asset version was changed to ensure browsers load the latest correction instead of a stale cached copy.',
+    ),
+  ),
   'release-2.15.1' =>
   array (
     'version' => '2.15.1',

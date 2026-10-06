@@ -45,10 +45,10 @@ $report(
     'all thirty-six localized FAQ answers contain explicit non-empty paragraph breaks'
 );
 $report(
-    str_contains($faqCss, '.oneid-faq-answer-copy p+p{margin-top:1.15em}')
-    && str_contains($login, 'oneid-user-faq.css?v=20261006-1')
-    && str_contains($dashboard, 'oneid-user-faq.css?v=20261006-1'),
-    'Login and User Dashboard load the FAQ stylesheet with a full-line paragraph gap'
+    str_contains($faqCss, '.oneid-faq-item .panel-body .oneid-faq-answer-copy p+p,.oneid-faq-login .accordion-body .oneid-faq-answer-copy p+p{margin-top:1.65em}')
+    && str_contains($login, 'oneid-user-faq.css?v=20261006-2')
+    && str_contains($dashboard, 'oneid-user-faq.css?v=20261006-2'),
+    'Login and User Dashboard use sufficiently specific selectors for a full blank-line paragraph gap'
 );
 $requiredUserTopics = [
     'inactive-account',
