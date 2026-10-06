@@ -2037,7 +2037,7 @@ class Database {
                 LEFT JOIN user_tbl U ON U.u_id=F.u_id LEFT JOIN user_category C ON C.uc_id=U.u_category
                 WHERE F.provider_code='mydigitalid'
                   AND NOT (COALESCE(U.account_source,'') LIKE 'STUDENT_%' OR COALESCE(C.uc_name,'')='Pelajar')
-                  AND (COALESCE(U.account_source,'')='STAFF_HR' OR COALESCE(C.uc_name,'') IN ('Penyarah','Staf Pentadbiran'))) AS linked_staff,
+                  AND (COALESCE(U.account_source,'')='STAFF_HR' OR COALESCE(C.uc_name,'') IN ('Pensyarah','Staf Pentadbiran'))) AS linked_staff,
               (SELECT COUNT(*) FROM user_federated_identity F
                 LEFT JOIN user_tbl U ON U.u_id=F.u_id LEFT JOIN user_category C ON C.uc_id=U.u_category
                 WHERE F.provider_code='mydigitalid'
@@ -2046,7 +2046,7 @@ class Database {
                 LEFT JOIN user_tbl U ON U.u_id=F.u_id LEFT JOIN user_category C ON C.uc_id=U.u_category
                 WHERE F.provider_code='mydigitalid'
                   AND NOT (COALESCE(U.account_source,'') LIKE 'STUDENT_%' OR COALESCE(C.uc_name,'')='Pelajar')
-                  AND NOT (COALESCE(U.account_source,'')='STAFF_HR' OR COALESCE(C.uc_name,'') IN ('Penyarah','Staf Pentadbiran'))) AS linked_other,
+                  AND NOT (COALESCE(U.account_source,'')='STAFF_HR' OR COALESCE(C.uc_name,'') IN ('Pensyarah','Staf Pentadbiran'))) AS linked_other,
               (SELECT COUNT(*) FROM federated_auth_event WHERE provider_code='mydigitalid' AND occurred_at>=DATE_SUB(NOW(),INTERVAL 30 DAY)) AS attempts_30d,
               (SELECT COUNT(*) FROM federated_auth_event WHERE provider_code='mydigitalid' AND outcome='SUCCESS' AND occurred_at>=DATE_SUB(NOW(),INTERVAL 30 DAY)) AS success_30d,
               (SELECT COUNT(*) FROM federated_auth_event WHERE provider_code='mydigitalid' AND outcome='REJECTED' AND occurred_at>=DATE_SUB(NOW(),INTERVAL 30 DAY)) AS rejected_30d,

@@ -31,7 +31,7 @@ $runtime = is_file($runtimePath) ? require $runtimePath : null;
 $report(is_array($runtime) ? 'PASS' : 'FAIL', 'private runtime is readable PHP configuration');
 
 require_once $root . '/config/application.php';
-$report(ONEID_APP_VERSION === '2.16.2' ? 'PASS' : 'FAIL', 'application version is approved v2.16.2');
+$report(ONEID_APP_VERSION === '2.16.3' ? 'PASS' : 'FAIL', 'application version is approved v2.16.3');
 $report(
     is_array($runtime) && ($runtime['ONEID_ENVIRONMENT'] ?? null) === 'production' ? 'PASS' : 'FAIL',
     'runtime environment is production'

@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.16.3' =>
+  array (
+    'version' => '2.16.3',
+    'date' => '2026-10-06',
+    'bm' =>
+    array (
+      0 => 'Pengelasan linked account MyDigital ID kini menggunakan nama kategori Pensyarah yang tepat.',
+      1 => 'Rekod Pensyarah dengan sumber akaun external kini dikira sebagai Staf dan tidak lagi dipaparkan sebagai Lain-lain.',
+      2 => 'Ujian kontrak menghalang ejaan kategori yang salah daripada digunakan semula dalam query report.',
+    ),
+    'en' =>
+    array (
+      0 => 'MyDigital ID linked-account classification now uses the correct Pensyarah category name.',
+      1 => 'Pensyarah records with the external account source are now counted as Staff instead of Other.',
+      2 => 'A contract test prevents the misspelled category name from returning to the report query.',
+    ),
+  ),
   'release-2.16.2' =>
   array (
     'version' => '2.16.2',
