@@ -5,6 +5,7 @@ namespace OneId\App\Admin;
 
 final class ReportColumnLayout
 {
+    private const PANEL_WIDTH = 1160;
     /**
      * @param list<string> $columns
      * @param list<array<string,mixed>> $rows
@@ -48,6 +49,8 @@ final class ReportColumnLayout
             $widths[] = $width;
         }
 
+        self::shrinkVariableColumnsToPanel($widths, $types);
+
         $flexCandidates = [];
         foreach ($types as $index => $type) {
             if ($type === 'text' || $type === 'url') {
@@ -88,5 +91,32 @@ final class ReportColumnLayout
     private static function length(string $value): int
     {
         return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
+    }
+
+    /** @param list<int> $widths @param list<string> $types */
+    private static function shrinkVariableColumnsToPanel(array &$widths, array $types): void
+    {
+        $overflow = array_sum($widths) - self::PANEL_WIDTH;
+        while ($overflow > 0) {
+            $candidates = [];
+            foreach ($types as $index => $type) {
+                $minimum = $type === 'url' ? 180 : 105;
+                if (($type === 'text' || $type === 'url') && $widths[$index] > $minimum) {
+                    $candidates[$index] = $minimum;
+                }
+            }
+            if ($candidates === []) {
+                break;
+            }
+            $share = (int) ceil($overflow / count($candidates));
+            foreach ($candidates as $index => $minimum) {
+                $reduction = min($share, $widths[$index] - $minimum, $overflow);
+                $widths[$index] -= $reduction;
+                $overflow -= $reduction;
+                if ($overflow <= 0) {
+                    break;
+                }
+            }
+        }
     }
 }

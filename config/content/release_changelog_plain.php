@@ -6,6 +6,25 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.16.1' =>
+  array (
+    'version' => '2.16.1',
+    'date' => '2026-10-06',
+    'bm' =>
+    array (
+      0 => 'Kolum Login Count dalam report MyDigital ID Linked Accounts kini kekal kelihatan dalam panel tanpa perlu mencapai scrollbar selepas 500 rekod.',
+      1 => 'Kolum teks dikecilkan secara terkawal apabila jumlah lebar melebihi panel, dengan lebar minimum yang melindungi kebolehbacaan.',
+      2 => 'Lebar konsisten kolum nombor turutan, nombor, tarikh dan tarikh-masa tidak berubah.',
+      3 => 'Ujian report kini mengesahkan kesemua sembilan kolum MyDigital ID Linked Accounts termasuk Login Count muat dalam panel.',
+    ),
+    'en' =>
+    array (
+      0 => 'The Login Count column in MyDigital ID Linked Accounts now remains visible within the panel without reaching a scrollbar after 500 records.',
+      1 => 'Text columns are reduced in a controlled manner when their combined width exceeds the panel, with minimum widths that preserve readability.',
+      2 => 'Consistent sequence, numeric, date and date-time column widths remain unchanged.',
+      3 => 'Report tests now verify that all nine MyDigital ID Linked Accounts columns, including Login Count, fit within the panel.',
+    ),
+  ),
   'release-2.16.0' =>
   array (
     'version' => '2.16.0',

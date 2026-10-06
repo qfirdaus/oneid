@@ -53,6 +53,15 @@ $layout=\OneId\App\Admin\ReportColumnLayout::calculate(
 );
 $checks['shared sequence numeric date and datetime columns have one consistent size']=($layout['types']??[])===['sequence','date','datetime','numeric','text']&&($layout['widths']??[])[0]===52&&$layout['widths'][1]===115&&$layout['widths'][2]===155&&$layout['widths'][3]===115;
 $checks['variable text column width follows its longest displayed data']=($layout['widths'][4]??0)>105&&($layout['widths'][4]??0)<=360&&($layout['minimum_width']??0)===array_sum($layout['widths']??[])&&($layout['flex_index']??null)===4;
+$linkedLayout=\OneId\App\Admin\ReportColumnLayout::calculate(
+    ['No.','Staff/Student ID','User','Category','User Status','Link Status','First Verified','Last Login','Login Count'],
+    [[
+        'No.'=>1,'Staff/Student ID'=>'0530-09','User'=>'A deliberately long representative user name for layout verification',
+        'Category'=>'Staf Pentadbiran','User Status'=>'Active','Link Status'=>'Active','First Verified'=>'21/09/2026 14:45',
+        'Last Login'=>'06/10/2026 15:23','Login Count'=>123,
+    ]]
+);
+$checks['MyDigital ID linked accounts keeps Login Count visible within the report panel']=count($linkedLayout['widths']??[])===9&&($linkedLayout['types'][8]??null)==='numeric'&&($linkedLayout['widths'][8]??null)===115&&($linkedLayout['minimum_width']??PHP_INT_MAX)<=1160;
 $checks['executive summary includes a compact sequential number column']=str_contains($preview,"\$columns=[oneid_translate('admin.reports.number'),oneid_translate('admin.reports.preview.metric')")&&str_contains($preview,'$rowNumber++');
 $checks['column sizing remains bounded and supports horizontal overflow']=str_contains($preview,'.table-wrap{border:1px solid var(--line);border-radius:8px;overflow:auto}')&&max($layout['widths']??[0])<=360;
 $checks['summary cards retain translated text values instead of coercing them to zero']=str_contains($preview,'is_numeric($value)?number_format((float)$value):$escape($value)');
