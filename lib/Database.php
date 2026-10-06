@@ -1868,6 +1868,25 @@ class Database {
         return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function admin_report_never_logged_in_summary(): array{
+        $Q="SELECT X.account_group,COUNT(*) AS active_accounts,
+              SUM(CASE WHEN NOT EXISTS (SELECT 1 FROM token_tbl T WHERE T.user_id=X.u_id) THEN 1 ELSE 0 END) AS never_logged_in
+            FROM (
+              SELECT U.u_id,CASE
+                WHEN COALESCE(U.account_source,'') LIKE 'STUDENT_%' OR COALESCE(C.uc_name,'')='Pelajar' THEN 'STUDENT'
+                WHEN COALESCE(U.account_source,'')='STAFF_HR' OR COALESCE(C.uc_name,'') IN ('Pensyarah','Staf Pentadbiran') THEN 'STAFF'
+                ELSE 'OTHER'
+              END AS account_group
+              FROM user_tbl U
+              LEFT JOIN user_category C ON C.uc_id=U.u_category
+              WHERE U.avail_status=1
+            ) X
+            WHERE X.account_group IN ('STAFF','STUDENT')
+            GROUP BY X.account_group
+            ORDER BY FIELD(X.account_group,'STAFF','STUDENT')";
+        return $this->pdo->query($Q)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function admin_report_device_summary(): array{
         $Q="SELECT COALESCE(NULLIF(TRIM(A.device_info),''),'UNKNOWN') AS device_label,
               COUNT(*) AS session_count,COUNT(DISTINCT A.user_id) AS unique_users,

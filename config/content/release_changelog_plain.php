@@ -6,6 +6,25 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.17.0' =>
+  array (
+    'version' => '2.17.0',
+    'date' => '2026-10-06',
+    'bm' =>
+    array (
+      0 => 'Laporan Ringkasan Keselamatan dan Penggunaan Login kini memaparkan statistik staf dan pelajar aktif yang tidak pernah login ke OneID.',
+      1 => 'Setiap statistik menunjukkan bilangan tidak pernah login, jumlah akaun aktif dan peratus bagi kategori tersebut.',
+      2 => 'Tidak Pernah Login ditakrifkan sebagai akaun aktif tanpa sebarang sesi OneID direkodkan dalam sejarah token.',
+      3 => 'Penambahan laporan ini bersifat read-only dan tidak mengubah akaun, sesi atau struktur database.',
+    ),
+    'en' =>
+    array (
+      0 => 'The Security and Login Adoption Summary now reports active staff and students who have never logged in to OneID.',
+      1 => 'Each statistic shows the never-logged-in count, active account total and percentage for that category.',
+      2 => 'Never Logged In means an active account with no OneID session recorded in token history.',
+      3 => 'This read-only reporting addition does not change accounts, sessions or the database structure.',
+    ),
+  ),
   'release-2.16.4' =>
   array (
     'version' => '2.16.4',

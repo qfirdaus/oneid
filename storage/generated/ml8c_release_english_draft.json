@@ -1,11 +1,42 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2164-MYDIGITALID-LOGIN-ORDER-20261006-01",
+    "authorization": "ONEID-V2170-SECURITY-LOGIN-ADOPTION-20261006-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.17.0",
+            "version": "2.17.0",
+            "date": "2026-10-06",
+            "items": [
+                {
+                    "identity": "release:2.17.0:item:001",
+                    "bm": "Laporan Ringkasan Keselamatan dan Penggunaan Login kini memaparkan statistik staf dan pelajar aktif yang tidak pernah login ke OneID.",
+                    "en_draft": "The Security and Login Adoption Summary now reports active staff and students who have never logged in to OneID.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.17.0:item:002",
+                    "bm": "Setiap statistik menunjukkan bilangan tidak pernah login, jumlah akaun aktif dan peratus bagi kategori tersebut.",
+                    "en_draft": "Each statistic shows the never-logged-in count, active account total and percentage for that category.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.17.0:item:003",
+                    "bm": "Tidak Pernah Login ditakrifkan sebagai akaun aktif tanpa sebarang sesi OneID direkodkan dalam sejarah token.",
+                    "en_draft": "Never Logged In means an active account with no OneID session recorded in token history.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.17.0:item:004",
+                    "bm": "Penambahan laporan ini bersifat read-only dan tidak mengubah akaun, sesi atau struktur database.",
+                    "en_draft": "This read-only reporting addition does not change accounts, sessions or the database structure.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.16.4",
             "version": "2.16.4",
@@ -4389,7 +4420,7 @@
             ]
         }
     ],
-    "release_count": 86,
-    "item_count": 630,
-    "manifest_digest": "1ee5de80e254f29f70e037b49b3cb4ff183b882be0b07127757f99e76af5d0fd"
+    "release_count": 87,
+    "item_count": 634,
+    "manifest_digest": "e80fee8f2f4365c7b4442bbf9bf5c7589e8a4dc4d6bd745202b698eca361bb2f"
 }
