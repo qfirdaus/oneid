@@ -4,7 +4,7 @@
 
 **Diluluskan:** 19 Julai 2026
 **Baseline selepas normalisasi:** 2.4.0
-**Versi semasa:** 2.17.4
+**Versi semasa:** 2.18.0
 
 ## Polisi
 
@@ -56,7 +56,7 @@ commit yang sama untuk pemulihan operasi tidak dikira sebagai release baharu.
 
 **Approved:** 19 July 2026
 **Post-normalisation baseline:** 2.4.0
-**Current version:** 2.17.4
+**Current version:** 2.18.0
 
 ### Policy
 

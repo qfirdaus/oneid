@@ -122,6 +122,7 @@
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260824-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-session-indicators.css?v=20260930-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-health.css?v=20261007-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260916-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-accessibility-baseline.css?v=20260915-1" rel="stylesheet" type="text/css">
@@ -600,6 +601,39 @@
          )?>;
       </script>
       <script src="../dist/js/oneid-user-session.js?v=20261001-1"></script>
+      <script>
+         window.OneIdUserHealthConfig = <?=json_encode([
+            'version' => ONEID_APP_VERSION,
+            'environment' => strtolower(trim((string) oneid_config('ONEID_ENVIRONMENT', 'unknown'))),
+            'supportEmail' => 'ask.oneid@upnm.edu.my',
+            'supportPhone' => '03-9051 2700',
+            'text' => [
+               'title' => oneid_translate('dashboard.health.title'),
+               'subtitle' => oneid_translate('dashboard.health.subtitle'),
+               'connection' => oneid_translate('dashboard.health.connection'),
+               'online' => oneid_translate('dashboard.health.online'),
+               'offline' => oneid_translate('dashboard.health.offline'),
+               'response' => oneid_translate('dashboard.health.response'),
+               'fast' => oneid_translate('dashboard.health.fast'),
+               'moderate' => oneid_translate('dashboard.health.moderate'),
+               'slow' => oneid_translate('dashboard.health.slow'),
+               'updated' => oneid_translate('dashboard.health.updated'),
+               'version' => oneid_translate('dashboard.health.version'),
+               'refresh' => oneid_translate('dashboard.health.refresh'),
+               'clear' => oneid_translate('dashboard.health.clear'),
+               'copy' => oneid_translate('dashboard.health.copy'),
+               'support' => oneid_translate('dashboard.health.support'),
+               'refreshing' => oneid_translate('dashboard.health.refreshing'),
+               'refreshed' => oneid_translate('dashboard.health.refreshed'),
+               'failed' => oneid_translate('dashboard.health.failed'),
+               'cleared' => oneid_translate('dashboard.health.cleared'),
+               'copied' => oneid_translate('dashboard.health.copied'),
+               'close' => oneid_translate('dashboard.health.close'),
+               'note' => oneid_translate('dashboard.health.note'),
+            ],
+         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
+      </script>
+      <script src="../dist/js/oneid-user-health.js?v=20261007-2"></script>
       <?php if ($productTourEnabled): ?>
       <script>
          window.OneIdProductTourConfig = <?=json_encode([
@@ -949,7 +983,7 @@
             if (href) {
                if (userAppSearchTerm.trim() === '') userAppActiveTab = href;
             }
-         $.ajax({
+         return $.ajax({
                  type: 'POST',
                  url: '../lib/q_func',
                  dataType: "json",
@@ -1057,7 +1091,7 @@
          
          
          function get_specific_user_activ_session(){
-         $.ajax({
+         return $.ajax({
                  type: 'POST',
                  url: '../lib/q_func',
                  dataType: "json",

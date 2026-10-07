@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.18.0' =>
+  array (
+    'version' => '2.18.0',
+    'date' => '2026-10-07',
+    'bm' =>
+    array (
+      0 => 'Dashboard pengguna kini menyediakan panel Status Sambungan dan Paparan melalui ikon graf di sebelah countdown sesi.',
+      1 => 'Panel memaparkan sambungan, respons halaman, masa kemas kini dan versi OneID serta menyediakan tindakan refresh data, clear cache dan salin diagnostik.',
+      2 => 'Panel menggunakan susun atur responsif desktop dan telefon, sokongan BM/English serta tidak memadam sesi login, token SSO, bahasa atau favourite pengguna.',
+    ),
+    'en' =>
+    array (
+      0 => 'The user dashboard now provides a Connection and Display Status panel through a chart icon beside the session countdown.',
+      1 => 'The panel shows connection, page response, last update time and OneID version, with refresh data, clear cache and copy diagnostics actions.',
+      2 => 'The panel uses responsive desktop and mobile layouts, supports BM and English, and does not clear the login session, SSO token, language or user favourites.',
+    ),
+  ),
   'release-2.17.4' =>
   array (
     'version' => '2.17.4',

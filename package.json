@@ -1,6 +1,6 @@
 {
   "name": "oneid-uat",
-  "version": "2.17.4",
+  "version": "2.18.0",
   "private": true,
   "description": "OneID UAT legacy frontend build tooling",
   "scripts": {
@@ -45,7 +45,8 @@
     "check:accessibility-phase1": "php tools/a11y_phase1_contract.php",
     "check:accessibility-phase2": "php tools/a11y_phase2_display_settings_contract.php",
     "check:accessibility-phase3": "php tools/a11y_phase3_hardening_contract.php",
-    "check:accessibility-runtime": "php tools/a11y_phase3_runtime_smoke.php"
+    "check:accessibility-runtime": "php tools/a11y_phase3_runtime_smoke.php",
+    "check:user-health-panel": "php tools/user_health_panel_contract.php"
   },
   "author": "hencework",
   "license": "ISC",

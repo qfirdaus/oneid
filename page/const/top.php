@@ -12,6 +12,9 @@
 					</div>	
 				</div>	
 				<div class="oneid-session-indicators oneid-session-indicators--user" aria-live="off">
+					<button type="button" class="oneid-health-trigger" id="oneid_user_health_trigger" aria-expanded="false" aria-controls="oneid_user_health_panel" title="<?=htmlspecialchars(oneid_translate('dashboard.health.open'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('dashboard.health.open'), ENT_QUOTES, 'UTF-8')?>">
+						<i class="fa fa-line-chart" aria-hidden="true"></i>
+					</button>
 					<div class="oneid-session-indicator" id="oneid_user_session_indicator" hidden data-oneid-tooltip="<?=htmlspecialchars(oneid_translate('user_session.remaining_help'), ENT_QUOTES, 'UTF-8')?>">
 						<i class="fa fa-clock-o" aria-hidden="true"></i><span><?=htmlspecialchars(oneid_translate('user_session.remaining_label'), ENT_QUOTES, 'UTF-8')?></span><strong id="oneid_user_session_remaining">--:--</strong><button type="button" class="oneid-session-renew-button" data-oneid-user-session-renew title="<?=htmlspecialchars(oneid_translate('user_session.renew_now'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('user_session.renew_now'), ENT_QUOTES, 'UTF-8')?>">+</button>
 					</div>

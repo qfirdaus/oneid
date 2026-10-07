@@ -31,13 +31,13 @@ $runtime = is_file($runtimePath) ? require $runtimePath : null;
 $report(is_array($runtime) ? 'PASS' : 'FAIL', 'private runtime is readable PHP configuration');
 
 require_once $root . '/config/application.php';
-$report(ONEID_APP_VERSION === '2.17.4' ? 'PASS' : 'FAIL', 'application version is approved v2.17.4');
+$report(ONEID_APP_VERSION === '2.18.0' ? 'PASS' : 'FAIL', 'application version is approved v2.18.0');
 $report(
     is_array($runtime) && ($runtime['ONEID_ENVIRONMENT'] ?? null) === 'production' ? 'PASS' : 'FAIL',
     'runtime environment is production'
 );
 
-foreach (['nginx', 'php8.3-fpm'] as $service) {
+foreach (['nginx', 'php8.4-fpm'] as $service) {
     $active = $command('systemctl is-active ' . escapeshellarg($service) . ' 2>/dev/null');
     $enabled = $command('systemctl is-enabled ' . escapeshellarg($service) . ' 2>/dev/null');
     $report($active === 'active' && $enabled === 'enabled' ? 'PASS' : 'FAIL', $service . ' is enabled and active');
