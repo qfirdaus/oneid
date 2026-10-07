@@ -1,11 +1,36 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2172-SECURITY-REPORT-LAYOUT-20261007-01",
+    "authorization": "ONEID-V2173-IOS-STAGING-PACKAGE-20261007-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.17.3",
+            "version": "2.17.3",
+            "date": "2026-10-07",
+            "items": [
+                {
+                    "identity": "release:2.17.3:item:001",
+                    "bm": "Pakej integrasi staging UPNM Mobile kini menyediakan client iOS berasingan dengan Bundle ID dan callback yang diluluskan.",
+                    "en_draft": "The UPNM Mobile staging integration package now provides a separate iOS client with the approved Bundle ID and callback.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.17.3:item:002",
+                    "bm": "Konfigurasi iOS menggunakan Authorization Code, PKCE S256, public client tanpa secret serta scope dan audience sesi mobile yang terkawal.",
+                    "en_draft": "The iOS configuration uses Authorization Code, PKCE S256, a public client without a secret, and constrained mobile session scope and audience.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.17.3:item:003",
+                    "bm": "Panduan iOS merekodkan minimum iOS 15.0 dan sasaran ujian iPhone 15/iOS 18.1.1; mobile production kekal tidak aktif.",
+                    "en_draft": "The iOS guide records iOS 15.0 as the minimum and iPhone 15/iOS 18.1.1 as the acceptance target; mobile production remains disabled.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.17.2",
             "version": "2.17.2",
@@ -4464,7 +4489,7 @@
             ]
         }
     ],
-    "release_count": 89,
-    "item_count": 639,
-    "manifest_digest": "2cd10b6a9606eb813295d2339cbce5a92271fa60c3ece92ecdb5bf571f85d966"
+    "release_count": 90,
+    "item_count": 642,
+    "manifest_digest": "d35de6abe09e9589a68d8448666f5277b1c225dbffcc6657d656b1bcf744922d"
 }

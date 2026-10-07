@@ -1,0 +1,19 @@
+{
+  "client_id": "upnm-mobile-ios-staging",
+  "client_name": "UPNM Mobile iOS staging",
+  "grant_types": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "response_types": [
+    "code"
+  ],
+  "redirect_uris": [
+    "com.upnmmobile1.app://oneid/callback"
+  ],
+  "scope": "openid profile offline_access mobile:session",
+  "audience": [
+    "oneid-mobile-session"
+  ],
+  "token_endpoint_auth_method": "none"
+}

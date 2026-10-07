@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.17.3' =>
+  array (
+    'version' => '2.17.3',
+    'date' => '2026-10-07',
+    'bm' =>
+    array (
+      0 => 'Pakej integrasi staging UPNM Mobile kini menyediakan client iOS berasingan dengan Bundle ID dan callback yang diluluskan.',
+      1 => 'Konfigurasi iOS menggunakan Authorization Code, PKCE S256, public client tanpa secret serta scope dan audience sesi mobile yang terkawal.',
+      2 => 'Panduan iOS merekodkan minimum iOS 15.0 dan sasaran ujian iPhone 15/iOS 18.1.1; mobile production kekal tidak aktif.',
+    ),
+    'en' =>
+    array (
+      0 => 'The UPNM Mobile staging integration package now provides a separate iOS client with the approved Bundle ID and callback.',
+      1 => 'The iOS configuration uses Authorization Code, PKCE S256, a public client without a secret, and constrained mobile session scope and audience.',
+      2 => 'The iOS guide records iOS 15.0 as the minimum and iPhone 15/iOS 18.1.1 as the acceptance target; mobile production remains disabled.',
+    ),
+  ),
   'release-2.17.2' =>
   array (
     'version' => '2.17.2',

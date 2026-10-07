@@ -1,6 +1,6 @@
 # Borang Maklumat Aplikasi Flutter — Integrasi OneID Staging
 
-Versi 2.0 • 30 September 2026
+Versi 2.1 • 7 Oktober 2026
 Maklumat yang diketahui telah diisi. Team Flutter hanya perlu melengkapkan ruangan [ISI] dan memulangkan borang kepada pemilik projek. Isi BELUM ADA jika belum diputuskan. Jangan masukkan password, OTP, private key, signing keystore atau token.
 
 ## A. Identiti projek dan PIC
@@ -9,8 +9,8 @@ Maklumat yang diketahui telah diisi. Team Flutter hanya perlu melengkapkan ruang
 | --- | --- |
 | Nama aplikasi dan organisasi/pasukan | UPNM Mobile; pasukan/PIC: [ISI] |
 | Nama PIC teknikal, email kerja dan saluran koordinasi | [ISI] |
-| Platform diuji dahulu: Android / iOS / kedua-duanya | Android dahulu (disahkan pemilik); iOS belum dijadualkan |
-| Versi Flutter/Dart dan minimum Android/iOS | [ISI] |
+| Platform diuji dahulu: Android / iOS / kedua-duanya | Android dan iOS; pendaftaran iOS staging dimulakan 7 Oktober 2026 |
+| Versi Flutter/Dart dan minimum Android/iOS | Flutter/Dart: [ISI]; minimum iOS 15.0 |
 | Sasaran tarikh build staging dan sesi ujian | [ISI] |
 
 ## B. Identiti aplikasi dan callback
@@ -18,18 +18,18 @@ Maklumat yang diketahui telah diisi. Team Flutter hanya perlu melengkapkan ruang
 | Soalan | Jawapan team Flutter |
 | --- | --- |
 | Android applicationId/package ID untuk staging | com.upnmmobile1.app |
-| iOS bundle ID untuk staging | [LENGKAPKAN APABILA FASA iOS DIMULAKAN] |
+| iOS bundle ID untuk staging | com.upnmmobile1.app |
 | Adakah staging berbeza daripada production? | [ISI] |
 | Exact redirect URI Android selepas login | com.upnmmobile1.app://oneid/callback (disahkan team mobile) |
-| Exact redirect URI iOS selepas login | [FASA iOS; BELUM DIPERLUKAN UNTUK UJIAN ANDROID] |
+| Exact redirect URI iOS selepas login | com.upnmmobile1.app://oneid/callback |
 | Callback menggunakan App Link/Universal Link atau custom scheme? | Custom scheme; scheme com.upnmmobile1.app, host oneid, path /callback |
 | Domain callback / fail association | Tidak berkenaan untuk callback Android custom scheme semasa |
 | SHA-256 fingerprint untuk App Link | Tidak diperlukan untuk callback custom scheme semasa |
-| Apple Team ID / App ID | Fasa iOS kemudian; tidak diperlukan untuk ujian Android ini |
+| Apple Team ID / App ID | Bundle ID disahkan; Apple Team ID masih perlu direkod jika Universal Link atau association digunakan kemudian |
 | Pakej/library OIDC Flutter dan versinya yang digunakan/dicadang | [ISI] |
 | Kaedah browser sistem dan pengendalian callback semasa app ditutup/aktif | [ISI] |
 
-Client Android upnm-mobile-android-staging telah disahkan berdaftar pada provider, menggunakan PKCE S256 tanpa client secret. Callback tepat sudah disahkan. Client iOS akan disediakan secara berasingan.
+Client Android `upnm-mobile-android-staging` telah disahkan berdaftar. Client iOS staging menggunakan `upnm-mobile-ios-staging`. Kedua-duanya ialah public client dengan PKCE S256 tanpa client secret dan menggunakan callback yang disahkan di atas.
 
 ## C. Seni bina aplikasi dan backend
 
@@ -61,7 +61,7 @@ Keperluan pengguna: aplikasi dibuka semula tanpa login berulang selagi sesi sah;
 
 | Soalan | Jawapan team Flutter |
 | --- | --- |
-| Peranti fizikal/emulator, model dan versi OS | [ISI] |
+| Peranti fizikal/emulator, model dan versi OS | iPhone 15, iOS 18.1.1 untuk penerimaan iOS; Android [ISI] |
 | Bolehkah telefon mengakses rangkaian staging melalui VPN yang diluluskan? | [ISI] |
 | IP/rangkaian penguji seperti dilihat server; jika belum diketahui, nyatakan perlu semakan bersama | [ISI] |
 | Akaun staf/pelajar yang akan digunakan untuk ujian (identifier sahaja) | [ISI untuk koordinasi; semua akaun yang layak dibenarkan mengikut polisi] |
@@ -76,7 +76,7 @@ Arahan pemilik ialah ujian terbuka kepada semua akaun yang layak. Semakan server
 | Item | Nilai akhir / keputusan |
 | --- | --- |
 | client_id Android | upnm-mobile-android-staging — disahkan pada provider; authorization request sampai ke borang login |
-| client_id iOS | [BELUM DIDAFTARKAN] |
+| client_id iOS | upnm-mobile-ios-staging — berdaftar pada provider dan adapter staging pada 7 Oktober 2026 |
 | Exact redirect URI diluluskan | com.upnmmobile1.app://oneid/callback |
 | Issuer/discovery disahkan dari telefon | [BELUM DIUJI] |
 | Akses staging dan akaun | Semua akaun layak mengikut polisi; laluan telefon ke staging perlu diuji |

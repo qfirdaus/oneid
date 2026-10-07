@@ -38,9 +38,9 @@ Rujuk [hasil dan batas ujian](../../docs/integration/Hasil-Fasa-C-OneID-Mobile-O
 
 Implementasi callback berasingan dan arahan pengaktifan: [mydigitalid/README.md](mydigitalid/README.md). Login MyDigital ID mobile dan web telah disahkan pengguna. Aliran pemilihan akaun selepas pengesahan kini siap diuji secara automatik; ujian pengguna bagi perubahan terkini masih diperlukan. Konfigurasi web tidak diganti.
 
-## Serahan UPNM Mobile — Android dahulu
+## Serahan UPNM Mobile — Android dan iOS staging
 
-[Panduan integrasi Flutter staging](../../docs/integration/Serahan-Integrasi-OneID-Flutter-Staging.md) ([Word](../../docs/integration/Serahan-Integrasi-OneID-Flutter-Staging.docx)) dan [borang maklumat aplikasi](../../docs/integration/Borang-Maklumat-Aplikasi-Flutter-Staging.md) ([Word](../../docs/integration/Borang-Maklumat-Aplikasi-Flutter-Staging.docx)). Nama aplikasi dan Android dahulu telah disahkan pemilik; package ID, callback dan PIC masih perlu diisi. Dokumen tidak mendaftarkan client atau membuka akses staging.
+[Panduan Android](../../docs/integration/Serahan-Integrasi-OneID-Flutter-Staging.md), [panduan iOS](../../docs/integration/Serahan-Integrasi-OneID-iOS-Staging.md) dan [borang maklumat aplikasi](../../docs/integration/Borang-Maklumat-Aplikasi-Flutter-Staging.md) merekodkan kontrak staging. Client iOS `upnm-mobile-ios-staging` telah didaftarkan pada provider dan allowlist adapter staging pada 7 Oktober 2026. Ia menggunakan Bundle ID `com.upnmmobile1.app`, callback `com.upnmmobile1.app://oneid/callback`, minimum iOS 15.0 dan peranti penerimaan iPhone 15/iOS 18.1.1. Skrip `register-ios-staging.php --check` boleh digunakan untuk semakan read-only; tiada perubahan production dibuat.
 
 ## Mod ujian staging terbuka — 30 September 2026
 

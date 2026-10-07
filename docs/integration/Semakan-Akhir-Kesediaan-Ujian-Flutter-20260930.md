@@ -15,6 +15,8 @@ OneID staging bersedia menerima ujian integrasi Android. Client dan callback ber
 | Hydra, PostgreSQL dan harness selepas reboot | Semua enabled |
 | Had masa servis harness | RuntimeMaxUSec=infinity; Restart=on-failure |
 | Android client | upnm-mobile-android-staging, public client tanpa secret |
+| iOS client | upnm-mobile-ios-staging, public client tanpa secret; berdaftar 7 Oktober 2026 |
+| iOS acceptance target | Bundle ID com.upnmmobile1.app; minimum iOS 15.0; iPhone 15/iOS 18.1.1 |
 | Callback berdaftar | com.upnmmobile1.app://oneid/callback |
 | Grants / scope / audience | authorization_code + refresh_token; openid profile offline_access mobile:session; oneid-mobile-session |
 | HTTPS discovery dan JWKS | HTTP 200; sijil disahkan curl tanpa mengabaikan TLS |

@@ -1,0 +1,18 @@
+{
+  "application_name": "UPNM Mobile",
+  "platform": "iOS",
+  "environment": "staging",
+  "bundle_id": "com.upnmmobile1.app",
+  "client_id": "upnm-mobile-ios-staging",
+  "redirect_uri": "com.upnmmobile1.app://oneid/callback",
+  "issuer": "https://oneid-uat.upnm.edu.my/",
+  "discovery_url": "https://oneid-uat.upnm.edu.my/.well-known/openid-configuration",
+  "scopes": ["openid", "profile", "offline_access", "mobile:session"],
+  "audience": "oneid-mobile-session",
+  "response_type": "code",
+  "pkce_method": "S256",
+  "token_endpoint_auth_method": "none",
+  "minimum_ios_version": "15.0",
+  "acceptance_device": "iPhone 15",
+  "acceptance_ios_version": "18.1.1"
+}
