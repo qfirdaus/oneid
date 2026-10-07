@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.18.1' =>
+  array (
+    'version' => '2.18.1',
+    'date' => '2026-10-07',
+    'bm' =>
+    array (
+      0 => 'Ikon panel Status Sambungan dan Paparan ditukar kepada lampu isyarat tiga warna supaya fungsi status lebih mudah dikenal pasti.',
+      1 => 'Ikon merah, kuning dan hijau menggunakan perumah gelap yang jelas serta mengekalkan ketinggian yang sepadan dengan countdown sesi.',
+      2 => 'Ikon baharu digunakan secara konsisten pada header dan tajuk panel untuk paparan desktop dan telefon.',
+    ),
+    'en' =>
+    array (
+      0 => 'The Connection and Display Status panel icon now uses three traffic-light colours so its status purpose is easier to identify.',
+      1 => 'The red, amber and green lights use a clear dark housing while retaining the same height as the session countdown.',
+      2 => 'The new icon is used consistently in the header and panel heading across desktop and mobile layouts.',
+    ),
+  ),
   'release-2.18.0' =>
   array (
     'version' => '2.18.0',

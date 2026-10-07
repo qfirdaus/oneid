@@ -41,7 +41,7 @@
     panel.setAttribute('aria-modal', 'false');
     panel.setAttribute('aria-labelledby', 'oneid_user_health_title');
     panel.innerHTML = '<div class="oneid-health-panel__head">' +
-      '<span class="oneid-health-panel__head-icon"><i class="fa fa-line-chart" aria-hidden="true"></i></span>' +
+      '<span class="oneid-health-panel__head-icon"><span class="oneid-status-lights is-panel" aria-hidden="true"><i></i><i></i><i></i></span></span>' +
       '<span class="oneid-health-panel__heading"><strong id="oneid_user_health_title">' + escapeHtml(text.title) + '</strong><small>' + escapeHtml(text.subtitle) + '</small></span>' +
       '<button type="button" class="oneid-health-panel__close" data-health-close aria-label="' + escapeHtml(text.close) + '">&times;</button></div>' +
       '<div class="oneid-health-panel__body"><div class="oneid-health-grid">' +

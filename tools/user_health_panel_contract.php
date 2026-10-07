@@ -11,8 +11,8 @@ $en = require $root . '/config/locales/en.php';
 $ms = require $root . '/config/locales/ms.php';
 
 $checks = [
-    'chart trigger is beside the user session indicator' => str_contains($top, 'oneid_user_health_trigger') && str_contains($top, 'fa-line-chart'),
-    'versioned panel assets are loaded' => str_contains($page, 'oneid-user-health.css?v=20261007-3') && str_contains($page, 'oneid-user-health.js?v=20261007-2'),
+    'traffic-light trigger is beside the user session indicator' => str_contains($top, 'oneid_user_health_trigger') && str_contains($top, 'oneid-status-lights'),
+    'versioned panel assets are loaded' => str_contains($page, 'oneid-user-health.css?v=20261007-4') && str_contains($page, 'oneid-user-health.js?v=20261007-3'),
     'diagnostic environment follows runtime configuration' => str_contains($page, "oneid_config('ONEID_ENVIRONMENT', 'unknown')"),
     'desktop panel uses four balanced metric and action columns' => substr_count($css, 'grid-template-columns:repeat(4,minmax(0,1fr))') === 2,
     'mobile panel remains inside viewport with two columns' => str_contains($css, 'left:9px;max-height:calc(100vh - 90px);right:9px') && str_contains($css, '.oneid-health-grid,.oneid-health-actions{grid-template-columns:1fr 1fr}'),
