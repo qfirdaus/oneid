@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.17.2' =>
+  array (
+    'version' => '2.17.2',
+    'date' => '2026-10-07',
+    'bm' =>
+    array (
+      0 => 'Ringkasan Keselamatan dan Penggunaan Login kini mempunyai enam kotak statistik yang seimbang dengan tambahan jumlah keseluruhan akaun aktif yang tidak pernah login.',
+      1 => 'Statistik keseluruhan memaparkan bilangan tidak pernah login, jumlah akaun aktif serta peratus gabungan staf dan pelajar.',
+      2 => 'Enam kolum jadual ditetapkan kepada lebar yang seimbang supaya data memenuhi panel dan kolum terakhir tidak lagi terlalu besar.',
+    ),
+    'en' =>
+    array (
+      0 => 'The Security and Login Adoption Summary now has six balanced statistic cards, including the combined total of active accounts that have never logged in.',
+      1 => 'The combined statistic shows the never-logged-in count, active account total and percentage across staff and students.',
+      2 => 'All six table columns now use balanced widths so data fills the panel without an oversized final column.',
+    ),
+  ),
   'release-2.17.1' =>
   array (
     'version' => '2.17.1',

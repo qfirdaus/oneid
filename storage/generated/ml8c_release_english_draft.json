@@ -1,11 +1,36 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2171-SECURITY-REPORT-LOCATION-20261006-01",
+    "authorization": "ONEID-V2172-SECURITY-REPORT-LAYOUT-20261007-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.17.2",
+            "version": "2.17.2",
+            "date": "2026-10-07",
+            "items": [
+                {
+                    "identity": "release:2.17.2:item:001",
+                    "bm": "Ringkasan Keselamatan dan Penggunaan Login kini mempunyai enam kotak statistik yang seimbang dengan tambahan jumlah keseluruhan akaun aktif yang tidak pernah login.",
+                    "en_draft": "The Security and Login Adoption Summary now has six balanced statistic cards, including the combined total of active accounts that have never logged in.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.17.2:item:002",
+                    "bm": "Statistik keseluruhan memaparkan bilangan tidak pernah login, jumlah akaun aktif serta peratus gabungan staf dan pelajar.",
+                    "en_draft": "The combined statistic shows the never-logged-in count, active account total and percentage across staff and students.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.17.2:item:003",
+                    "bm": "Enam kolum jadual ditetapkan kepada lebar yang seimbang supaya data memenuhi panel dan kolum terakhir tidak lagi terlalu besar.",
+                    "en_draft": "All six table columns now use balanced widths so data fills the panel without an oversized final column.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.17.1",
             "version": "2.17.1",
@@ -4439,7 +4464,7 @@
             ]
         }
     ],
-    "release_count": 88,
-    "item_count": 636,
-    "manifest_digest": "62cdf15dc942292374538566fd5606130e8fe7779f90a3322306330e39de8538"
+    "release_count": 89,
+    "item_count": 639,
+    "manifest_digest": "2cd10b6a9606eb813295d2339cbce5a92271fa60c3ece92ecdb5bf571f85d966"
 }

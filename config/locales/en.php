@@ -1381,6 +1381,7 @@ return [
     'admin.reports.report.security_summary.description' => 'Daily session and MFA security activity with staff and student login adoption.',
     'admin.reports.preview.staff_never_logged_in' => 'Staff Never Logged In / Active',
     'admin.reports.preview.student_never_logged_in' => 'Students Never Logged In / Active',
+    'admin.reports.preview.total_never_logged_in' => 'Total Never Logged In / Active',
     'admin.reports.preview.never_logged_in_definition' => 'Never Logged In',
     'admin.reports.preview.never_logged_in_definition_value' => 'Active account with no recorded OneID session',
     'admin.reports.report.sync_summary.name' => 'Synchronisation Summary',

@@ -1381,6 +1381,7 @@ return [
     'admin.reports.report.security_summary.description' => 'Aktiviti keselamatan sesi dan MFA serta penggunaan login staf dan pelajar.',
     'admin.reports.preview.staff_never_logged_in' => 'Staf Tidak Pernah Login / Aktif',
     'admin.reports.preview.student_never_logged_in' => 'Pelajar Tidak Pernah Login / Aktif',
+    'admin.reports.preview.total_never_logged_in' => 'Jumlah Tidak Pernah Login / Aktif',
     'admin.reports.preview.never_logged_in_definition' => 'Tidak Pernah Login',
     'admin.reports.preview.never_logged_in_definition_value' => 'Akaun aktif tanpa sebarang sesi OneID direkodkan',
     'admin.reports.report.sync_summary.name' => 'Ringkasan Penyelarasan',

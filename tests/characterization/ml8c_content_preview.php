@@ -26,19 +26,19 @@ $report(
     'ML8C inventory matches its authorized baseline'
 );
 $report(
-    $manifest['active_release_entries'] === 88
+    $manifest['active_release_entries'] === 89
     && $manifest['duplicate_release_identities'] === 0
     && $manifest['unresolved_release_identities'] === 0
-    && count(array_unique($versions)) === 88,
-    'all 88 active releases have stable unique identities'
+    && count(array_unique($versions)) === 89,
+    'all 89 active releases have stable unique identities'
 );
 $report(
-    $manifest['release_english_approved'] === 88
+    $manifest['release_english_approved'] === 89
     && $manifest['release_english_review_required'] === 0
     && count(array_filter(
         $manifest['releases'],
         static fn (array $release): bool => $release['english_status'] === 'APPROVED'
-    )) === 88,
+    )) === 89,
     'English release content is approved with BM parity'
 );
 $report(
@@ -61,7 +61,7 @@ $report(
     $english['fallback_used'] === false
     && $english['locale'] === 'en'
     && $english['notice'] === null
-    && count($english['releases']) === 88,
+    && count($english['releases']) === 89,
     'locale-aware release seam serves approved English content'
 );
 $report(
