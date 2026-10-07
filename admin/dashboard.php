@@ -3885,6 +3885,8 @@
                      var categoryId = webAppManagementAttribute(category.sp_group_id);
                      var categoryName = webAppManagementText(category.sp_group_name);
                      var categoryNameAttribute = webAppManagementAttribute(category.sp_group_name);
+                     var categoryCanonicalName = String(category.sp_group_name_original == null ? category.sp_group_name : category.sp_group_name_original);
+                     var categoryCanonicalNameAttribute = webAppManagementAttribute(categoryCanonicalName);
                      var activeCount = Number(category.active_count || 0);
                      var inactiveCount = Number(category.inactive_count || 0);
                      var assignedCount = Number(category.assigned_count || 0);
@@ -3898,7 +3900,7 @@
                      rows += '<div class="category-manage-name"><strong title="'+categoryName+'">'+categoryName+'</strong><small>'+webAppManagementText(reason)+'</small></div>';
                      rows += '<div class="category-manage-counts"><span><strong>'+activeCount+'</strong><small>Active</small></span>'+(isSystem?'<button type="button" class="category-archive-open" title="'+webAppManagementAttribute(adminText('admin.archive.open'))+'"><strong>'+inactiveCount+'</strong><small>Inactive</small></button>':'<span><strong>'+inactiveCount+'</strong><small>Inactive</small></span>')+'</div>';
                      rows += '<div class="category-manage-actions">';
-                     rows += '<button type="button" class="category-manage-edit" data-category-id="'+categoryId+'" data-category-name="'+categoryNameAttribute+'" '+(isSystem ? 'disabled' : '')+' title="'+(isSystem ? 'System category — protected' : 'Edit category name')+'" aria-label="'+(isSystem ? 'System category — protected' : 'Edit '+categoryNameAttribute)+'"><i class="fa fa-pencil" aria-hidden="true"></i></button>';
+                     rows += '<button type="button" class="category-manage-edit" data-category-id="'+categoryId+'" data-category-name="'+categoryNameAttribute+'" data-category-canonical-name="'+categoryCanonicalNameAttribute+'" '+(isSystem ? 'disabled' : '')+' title="'+(isSystem ? 'System category — protected' : 'Edit category name')+'" aria-label="'+(isSystem ? 'System category — protected' : 'Edit '+categoryNameAttribute)+'"><i class="fa fa-pencil" aria-hidden="true"></i></button>';
                      rows += '<button type="button" class="category-manage-remove" data-category-id="'+categoryId+'" data-category-name="'+categoryNameAttribute+'" '+(canRemove ? '' : 'disabled')+' title="'+(canRemove ? 'Remove empty category' : webAppManagementAttribute(reason))+'" aria-label="'+(canRemove ? 'Remove '+categoryNameAttribute : webAppManagementAttribute(reason))+'"><i class="fa fa-trash" aria-hidden="true"></i></button>';
                      rows += '</div>';
                      rows += '</div>';
@@ -3953,7 +3955,8 @@
 
            $(document).on('click', '.category-manage-edit:not(:disabled)', function(){
             $('#edit_webapp_category_id').val(String($(this).data('category-id') || ''));
-            $('#edit_webapp_category_name').val(String($(this).data('category-name') || ''));
+            var canonicalName = String($(this).attr('data-category-canonical-name') || $(this).attr('data-category-name') || '');
+            $('#edit_webapp_category_name').val(canonicalName).attr('data-original-name', canonicalName);
             $('#modal_manage_webapp_categories').modal('hide');
             $('#modal_edit_webapp_category').modal('show');
            });
@@ -3966,8 +3969,13 @@
             event.preventDefault();
             var categoryId = $('#edit_webapp_category_id').val();
             var categoryName = $('#edit_webapp_category_name').val().replace(/\s+/g, ' ').trim();
+            var originalName = String($('#edit_webapp_category_name').attr('data-original-name') || '').replace(/\s+/g, ' ').trim();
             if (!categoryName || categoryName.length > 100) {
                oneidToast('Category not renamed', 'Enter a category title between 1 and 100 characters.', 'error');
+               return;
+            }
+            if (categoryName.toLocaleLowerCase() === originalName.toLocaleLowerCase()) {
+               oneidToast('No changes to save', 'Enter a different category title. Use Metadata translations to update the translated BM or English label.', 'info');
                return;
             }
             oneidConfirm(
