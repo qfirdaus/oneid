@@ -78,7 +78,7 @@
       FILTER_VALIDATE_BOOLEAN
    );
    $productTourId = 'dashboard';
-   $productTourVersion = 1;
+   $productTourVersion = 2;
    $productTourServerStatus = null;
    $productTourStorageAvailable = false;
    if ($productTourEnabled) {
@@ -638,7 +638,7 @@
       <script>
          window.OneIdProductTourConfig = <?=json_encode([
             'enabled' => true,
-            'id' => 'dashboard-pilot-v1',
+            'id' => 'dashboard-guide-v2',
             'tourId' => $productTourId,
             'tourVersion' => $productTourVersion,
             'serverStatus' => $productTourServerStatus,
@@ -657,12 +657,13 @@
                ['selector' => '#user_app_search', 'title' => oneid_translate('dashboard.tour.search.title'), 'body' => oneid_translate('dashboard.tour.search.body')],
                ['selector' => '.user-app-favourite', 'title' => oneid_translate('dashboard.tour.favourite.title'), 'body' => oneid_translate('dashboard.tour.favourite.body')],
                ['selector' => '.oneid-display-settings__trigger', 'title' => oneid_translate('dashboard.tour.display.title'), 'body' => oneid_translate('dashboard.tour.display.body')],
+               ['selector' => '#oneid_user_health_trigger', 'title' => oneid_translate('dashboard.tour.health.title'), 'body' => oneid_translate('dashboard.tour.health.body')],
                ['selector' => '#tab_user_mfa_security', 'mobileReveal' => 'sidebar', 'title' => oneid_translate('dashboard.tour.security.title'), 'body' => oneid_translate('dashboard.tour.security.body')],
                ['selector' => '[data-oneid-user-session-renew]', 'title' => oneid_translate('dashboard.tour.session.title'), 'body' => oneid_translate('dashboard.tour.session.body')],
             ],
          ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
       </script>
-      <script src="../dist/js/oneid-product-tour.js?v=20261006-1"></script>
+      <script src="../dist/js/oneid-product-tour.js?v=20261007-2"></script>
       <?php endif; ?>
       <script src="../vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.js"></script>
       <script src="../assetsM/js/oneid-notifications.js?v=20260716-1"></script>

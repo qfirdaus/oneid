@@ -7,6 +7,31 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.18.3",
+            "version": "2.18.3",
+            "date": "2026-10-07",
+            "items": [
+                {
+                    "identity": "release:2.18.3:item:001",
+                    "bm": "Panduan Sistem versi 2 menambah langkah khusus untuk memperkenalkan gauge Status Sambungan dan Paparan serta tindakan yang tersedia dalam panel.",
+                    "en_draft": "System Guide version 2 adds a dedicated step introducing the Connection and Display Status gauge and the actions available in its panel.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.18.3:item:002",
+                    "bm": "Highlight panduan mensasarkan keseluruhan butang gauge dan mengekalkan titik sasaran tepat untuk header tetap pada paparan web dan telefon.",
+                    "en_draft": "The guide highlights the complete gauge button and keeps the fixed-header target accurate across web and mobile displays.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.18.3:item:003",
+                    "bm": "Panduan mengira semula kedudukan selepas scroll, resize dan perubahan orientasi, dengan kandungan BM dan English yang lengkap serta pilihan ulang tayang.",
+                    "en_draft": "The guide recalculates placement after scrolling, resizing and orientation changes, with complete BM and English content and replay support.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.18.2",
             "version": "2.18.2",
             "date": "2026-10-07",
@@ -4589,5 +4614,5 @@
             ]
         }
     ],
-    "manifest_digest": "73eb87457f976835f3bf540cbfb6df2cd1a9106de2636b848d2e9882b1cedb1a"
+    "manifest_digest": "809fffa2309f0c835cd2af83b5e8f555bc9a4941a3617d804da7799c1931ef49"
 }

@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.18.3' =>
+  array (
+    'version' => '2.18.3',
+    'date' => '2026-10-07',
+    'bm' =>
+    array (
+      0 => 'Panduan Sistem versi 2 menambah langkah khusus untuk memperkenalkan gauge Status Sambungan dan Paparan serta tindakan yang tersedia dalam panel.',
+      1 => 'Highlight panduan mensasarkan keseluruhan butang gauge dan mengekalkan titik sasaran tepat untuk header tetap pada paparan web dan telefon.',
+      2 => 'Panduan mengira semula kedudukan selepas scroll, resize dan perubahan orientasi, dengan kandungan BM dan English yang lengkap serta pilihan ulang tayang.',
+    ),
+    'en' =>
+    array (
+      0 => 'System Guide version 2 adds a dedicated step introducing the Connection and Display Status gauge and the actions available in its panel.',
+      1 => 'The guide highlights the complete gauge button and keeps the fixed-header target accurate across web and mobile displays.',
+      2 => 'The guide recalculates placement after scrolling, resizing and orientation changes, with complete BM and English content and replay support.',
+    ),
+  ),
   'release-2.18.2' =>
   array (
     'version' => '2.18.2',

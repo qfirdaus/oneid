@@ -231,6 +231,8 @@ return [
     'dashboard.tour.favourite.body' => 'Select the star to keep frequently used applications in your Favourite list.',
     'dashboard.tour.display.title' => 'Adjust your display',
     'dashboard.tour.display.body' => 'Change text size, contrast, motion and link presentation to suit your needs.',
+    'dashboard.tour.health.title' => 'Check connection and display status',
+    'dashboard.tour.health.body' => 'Open the coloured gauge to view connection status, page response, update time and version, or to refresh data, clear cache and copy diagnostics.',
     'dashboard.tour.security.title' => 'Protect your OneID account',
     'dashboard.tour.security.body' => 'Open Account Security to manage Microsoft Authenticator and your verification preferences.',
     'dashboard.tour.session.title' => 'Extend your portal session',

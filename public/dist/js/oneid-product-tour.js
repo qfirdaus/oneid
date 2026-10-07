@@ -82,6 +82,7 @@
     window.setTimeout(function(){next.focus();position();},0);
   }
   function moveTargetIntoView(target){
+    if(window.getComputedStyle(target).position==='fixed'){return;}
     var behavior=window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
     if(!mobile()){target.scrollIntoView({behavior:behavior,block:'center',inline:'nearest'});return;}
     var rect=target.getBoundingClientRect(),cardHeight=Math.max(190,card.getBoundingClientRect().height),visibleBottom=Math.max(110,window.innerHeight-cardHeight-32),desiredTop=Math.max(12,(visibleBottom-Math.min(rect.height,visibleBottom-24))/2);

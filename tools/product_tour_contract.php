@@ -22,17 +22,19 @@ $report = static function (bool $ok, string $label) use (&$checks, &$failed): vo
 $report(str_contains($runtime, "'ONEID_PRODUCT_TOUR_ENABLED' => 'false'"), 'feature fails closed outside approved environments');
 $report(str_contains($dashboard, "oneid_config('ONEID_PRODUCT_TOUR_ENABLED', 'false')"), 'dashboard activation is environment controlled');
 $report(str_contains($dashboard, "'tourVersion' => \$productTourVersion") && str_contains($controller, "'oneid.product-tour.'+config.id"), 'versioned completion state is isolated per tour');
+$report(str_contains($dashboard, "'id' => 'dashboard-guide-v2'") && str_contains($dashboard, '$productTourVersion = 2;'), 'guide v2 uses a fresh local and server completion identity');
 $report(str_contains($dashboard, 'data-oneid-product-tour-start') && str_contains($controller, '[data-oneid-product-tour-start]'), 'user can replay the guide from the sidebar');
-$report(str_contains($dashboard, "'#user_app_search'") && str_contains($dashboard, "'.user-app-favourite'") && str_contains($dashboard, "'.oneid-display-settings__trigger'") && str_contains($dashboard, "'#tab_user_mfa_security'") && str_contains($dashboard, "'[data-oneid-user-session-renew]'"), 'pilot covers five approved dashboard features');
+$report(str_contains($dashboard, "'#user_app_search'") && str_contains($dashboard, "'.user-app-favourite'") && str_contains($dashboard, "'.oneid-display-settings__trigger'") && str_contains($dashboard, "'#oneid_user_health_trigger'") && str_contains($dashboard, "'#tab_user_mfa_security'") && str_contains($dashboard, "'[data-oneid-user-session-renew]'"), 'guide covers six approved dashboard features including the status gauge');
 $report(str_contains($controller, 'availableSteps()') && str_contains($controller, '.filter(function(step)') && str_contains($controller, 'visibleTarget(step.selector)'), 'role-specific or unavailable targets are skipped');
 $report(str_contains($controller, 'resolvedSteps=availableSteps()') && str_contains($controller, 'currentStep=step;currentTarget=target') && str_contains($controller, 'var target=currentTarget'), 'step content and spotlight retain one frozen target mapping');
 $report(str_contains($controller, 'scrollIntoView') && str_contains($controller, "addEventListener('orientationchange'") && str_contains($controller, "addEventListener('resize'") && str_contains($controller, "addEventListener('scroll'"), 'target placement responds to scrolling resizing and rotation');
+$report(str_contains($controller, "window.getComputedStyle(target).position==='fixed'"), 'fixed header targets remain pinned correctly on desktop and mobile');
 $report(str_contains($controller, "event.key==='Escape'") && str_contains($controller, "event.key==='Tab'") && str_contains($controller, "role','dialog'") && str_contains($controller, "aria-modal','true'"), 'dialog supports keyboard escape focus containment and semantics');
 $report(!str_contains($controller, 'go_to_service_provider') && !str_contains($controller, '$.post'), 'tour does not mutate access or application data');
 $report(str_contains($css, '@media(max-width:767px)') && str_contains($css, '44dvh') && str_contains($css, 'safe-area-inset-bottom') && str_contains($controller, 'visibleBottom=Math.max') && str_contains($controller, "mobileReveal==='sidebar'"), 'mobile reserves visible target space and can reveal a collapsed sidebar target');
 $report(str_contains($css, 'min-height:44px') && str_contains($css, 'prefers-reduced-motion'), 'touch targets and reduced motion are supported');
 
-$keys = ['eyebrow','step','back','next','skip','finish','search.title','search.body','favourite.title','favourite.body','display.title','display.body','security.title','security.body','session.title','session.body'];
+$keys = ['eyebrow','step','back','next','skip','finish','search.title','search.body','favourite.title','favourite.body','display.title','display.body','health.title','health.body','security.title','security.body','session.title','session.body'];
 $localized = true;
 foreach ($keys as $key) {
     $full = 'dashboard.tour.' . $key;

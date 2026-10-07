@@ -231,6 +231,8 @@ return [
     'dashboard.tour.favourite.body' => 'Pilih ikon bintang untuk menyimpan aplikasi yang kerap digunakan dalam senarai Pilihan.',
     'dashboard.tour.display.title' => 'Laraskan paparan anda',
     'dashboard.tour.display.body' => 'Ubah saiz teks, kontras, pergerakan dan paparan pautan mengikut keperluan anda.',
+    'dashboard.tour.health.title' => 'Semak status sambungan dan paparan',
+    'dashboard.tour.health.body' => 'Buka gauge berwarna untuk melihat status sambungan, respons halaman, masa kemas kini dan versi, atau untuk menyegar data, mengosongkan cache dan menyalin diagnostik.',
     'dashboard.tour.security.title' => 'Lindungi akaun OneID',
     'dashboard.tour.security.body' => 'Buka Keselamatan Akaun untuk mengurus Microsoft Authenticator dan pilihan pengesahan anda.',
     'dashboard.tour.session.title' => 'Sambung sesi portal',
