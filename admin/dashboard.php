@@ -2258,6 +2258,7 @@
          var metadataWebAppGroups=[];
          var metadataReadSequence=0;
          var metadataReadRequest=null;
+         var metadataPendingSaveKey='oneid_metadata_translation_pending_save';
          function metadataText(value){
             return $('<div>').text(value==null?'':String(value)).html();
          }
@@ -2348,6 +2349,29 @@
                reason:String($('#metadata_change_reason').val()||'')
             };
          }
+         function storePendingMetadataSave(snapshot){
+            try{
+               sessionStorage.setItem(metadataPendingSaveKey,JSON.stringify({
+                  snapshot:snapshot,
+                  storedAt:Date.now()
+               }));
+            }catch(ignore){}
+         }
+         function hasPendingMetadataSave(){
+            try{return sessionStorage.getItem(metadataPendingSaveKey)!==null;}catch(ignore){return false;}
+         }
+         function takePendingMetadataSave(){
+            try{
+               var raw=sessionStorage.getItem(metadataPendingSaveKey);
+               sessionStorage.removeItem(metadataPendingSaveKey);
+               var pending=raw?JSON.parse(raw):null;
+               if(!pending||!pending.snapshot||Number(pending.storedAt)<Date.now()-900000){return null;}
+               return pending.snapshot;
+            }catch(ignore){
+               sessionStorage.removeItem(metadataPendingSaveKey);
+               return null;
+            }
+         }
          function metadataFailureMessage(response){
             response=response||{};
             var code=String(response.code||'').trim();
@@ -2377,6 +2401,7 @@
                change_reason:snapshot.reason.trim()
             },function(response){
                if(response&&Number(response.status)===1){
+                  sessionStorage.removeItem(metadataPendingSaveKey);
                   $('#metadata_translation_version').val(Number(response.translation_version||translationVersion));
                   $('#metadata_change_reason').val('');
                   $('.oneid-metadata-reason-chip').removeClass('is-selected').attr('aria-pressed','false');
@@ -2392,6 +2417,7 @@
             },'json').fail(function(xhr){
                var response=xhr.responseJSON||{};
                if(xhr.status===403&&(response.code==='STEP_UP_REQUIRED'||response.code==='STEP_UP_EXPIRED'||response.code==='STEP_UP_PURPOSE_MISMATCH')){
+                  storePendingMetadataSave(snapshot);
                   window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_metadata';
                   return;
                }
@@ -2400,6 +2426,43 @@
                   .text(metadataFailureMessage(response));
             }).always(function(){
                $('#metadata_translation_save').prop('disabled',!metadataSchemaAvailable);
+            });
+         }
+         function resumeMetadataSaveAfterStepUp(attempt){
+            attempt=Number(attempt||0);
+            if(!metadataSchemaAvailable){
+               if(attempt<50){setTimeout(function(){resumeMetadataSaveAfterStepUp(attempt+1);},100);}
+               return;
+            }
+            var snapshot=takePendingMetadataSave();
+            if(!snapshot){return;}
+            $('#metadata_entity_type').val(snapshot.entityType);
+            metadataEntityOptions();
+            $('#metadata_entity_id').val(snapshot.entityId).trigger('change.select2');
+            $('#metadata_locale').val(snapshot.locale);
+            $('#metadata_translated_name').val(snapshot.name);
+            $('#metadata_translated_description').val(snapshot.description);
+            $('#metadata_change_reason').val(snapshot.reason);
+            $('#metadata_translation_status')
+               .removeClass('alert-danger alert-success').addClass('alert-info')
+               .text(adminI18n.metadataRetrying);
+            $.post('../lib/q_func',{
+               admin_get_metadata_translation:'',
+               entity_type:snapshot.entityType,
+               entity_id:snapshot.entityId,
+               locale:snapshot.locale
+            },function(response){
+               if(!response||Number(response.status)!==1){
+                  storePendingMetadataSave(snapshot);
+                  $('#metadata_translation_status').removeClass('alert-info').addClass('alert-danger').text(metadataFailureMessage(response));
+                  return;
+               }
+               var version=Number((response.data||{}).translation_version||0);
+               $('#metadata_translation_version').val(version);
+               retryMetadataSave(snapshot,version);
+            },'json').fail(function(xhr){
+               storePendingMetadataSave(snapshot);
+               $('#metadata_translation_status').removeClass('alert-info').addClass('alert-danger').text(metadataFailureMessage(xhr.responseJSON||{}));
             });
          }
          function reconcileMetadataSave(snapshot,response){
@@ -2461,7 +2524,7 @@
                   +'; English — '+adminI18n.metadataApps+' '+Number(en.applications||0)+'/'+Number(source.applications||0)+', '
                   +adminI18n.metadataCategories+' '+Number(en.categories||0)+'/'+Number(source.categories||0)+'.'
                ).removeClass('alert-danger alert-success').addClass(metadataSchemaAvailable?'alert-info':'alert-danger');
-               if(metadataSchemaAvailable){loadMetadataTranslation();}
+               if(metadataSchemaAvailable&&!hasPendingMetadataSave()){loadMetadataTranslation();}
             },'json').fail(function(){
                metadataSchemaAvailable=false;
                $('#metadata_translation_status').text(adminI18n.metadataFailed);
@@ -2517,6 +2580,7 @@
                   change_reason:changeReason
                },function(response){
                   if(response&&Number(response.status)===1){
+                     sessionStorage.removeItem(metadataPendingSaveKey);
                      $('#metadata_change_reason').val('');
                      $('.oneid-metadata-reason-chip').removeClass('is-selected').attr('aria-pressed','false');
                      $('#metadata_translation_version').val(Number(response.translation_version||0));
@@ -2539,6 +2603,7 @@
                },'json').fail(function(xhr){
                   var response=xhr.responseJSON||{};
                   if(xhr.status===403&&(response.code==='STEP_UP_REQUIRED'||response.code==='STEP_UP_EXPIRED'||response.code==='STEP_UP_PURPOSE_MISMATCH')){
+                     storePendingMetadataSave(saveSnapshot);
                      window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_metadata';
                      return;
                   }
@@ -2558,6 +2623,11 @@
             if(new URLSearchParams(window.location.search).get('metadata')==='1'){
                setTimeout(openMetadataTranslations,250);
             }
+            document.addEventListener('oneid:step-up-context-ready',function(event){
+               if(event.detail&&event.detail.context==='admin_metadata'){
+                  resumeMetadataSaveAfterStepUp();
+               }
+            });
             var auditDatePicker = $('.input-daterange-datepicker').daterangepicker({
                startDate: moment(),
                endDate: moment(),

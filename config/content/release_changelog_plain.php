@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.17.4' =>
+  array (
+    'version' => '2.17.4',
+    'date' => '2026-10-07',
+    'bm' =>
+    array (
+      0 => 'Editor kategori aplikasi kini membezakan nama canonical daripada label terjemahan BM dan English supaya perubahan kategori tidak lagi bercampur dengan metadata paparan.',
+      1 => 'Simpan terjemahan kategori kini menyambung permintaan asal secara automatik selepas Admin Step-Up pertama berjaya tanpa memerlukan pengguna menekan Save kali kedua.',
+      2 => 'Draf terjemahan tertangguh dihadkan kepada sesi tab browser dan 15 minit, kemudian disemak semula terhadap translation version terkini sebelum disimpan.',
+    ),
+    'en' =>
+    array (
+      0 => 'The application category editor now separates the canonical name from BM and English translation labels so category changes no longer conflict with display metadata.',
+      1 => 'Saving a category translation now resumes the original request automatically after the first successful Admin Step-Up without requiring a second Save action.',
+      2 => 'A pending translation draft is limited to the browser tab session and 15 minutes, then revalidated against the latest translation version before it is saved.',
+    ),
+  ),
   'release-2.17.3' =>
   array (
     'version' => '2.17.3',

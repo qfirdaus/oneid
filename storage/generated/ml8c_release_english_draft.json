@@ -1,11 +1,36 @@
 {
     "schema": "oneid.release-catalogue.v2",
-    "authorization": "ONEID-V2173-IOS-STAGING-PACKAGE-20261007-01",
+    "authorization": "ONEID-V2174-CATEGORY-STEPUP-20261007-01",
     "source_locale": "ms",
     "target_locale": "en",
     "approval_status": "APPROVED",
     "automatic_approval": false,
     "releases": [
+        {
+            "identity": "release:2.17.4",
+            "version": "2.17.4",
+            "date": "2026-10-07",
+            "items": [
+                {
+                    "identity": "release:2.17.4:item:001",
+                    "bm": "Editor kategori aplikasi kini membezakan nama canonical daripada label terjemahan BM dan English supaya perubahan kategori tidak lagi bercampur dengan metadata paparan.",
+                    "en_draft": "The application category editor now separates the canonical name from BM and English translation labels so category changes no longer conflict with display metadata.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.17.4:item:002",
+                    "bm": "Simpan terjemahan kategori kini menyambung permintaan asal secara automatik selepas Admin Step-Up pertama berjaya tanpa memerlukan pengguna menekan Save kali kedua.",
+                    "en_draft": "Saving a category translation now resumes the original request automatically after the first successful Admin Step-Up without requiring a second Save action.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.17.4:item:003",
+                    "bm": "Draf terjemahan tertangguh dihadkan kepada sesi tab browser dan 15 minit, kemudian disemak semula terhadap translation version terkini sebelum disimpan.",
+                    "en_draft": "A pending translation draft is limited to the browser tab session and 15 minutes, then revalidated against the latest translation version before it is saved.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
         {
             "identity": "release:2.17.3",
             "version": "2.17.3",
@@ -4489,7 +4514,7 @@
             ]
         }
     ],
-    "release_count": 90,
-    "item_count": 642,
-    "manifest_digest": "d35de6abe09e9589a68d8448666f5277b1c225dbffcc6657d656b1bcf744922d"
+    "release_count": 91,
+    "item_count": 645,
+    "manifest_digest": "fdd0bd35d437398fb6898cff078e8c35f309cf3ec801615d5905c8c67a7a6f17"
 }

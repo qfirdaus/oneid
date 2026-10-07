@@ -99,6 +99,15 @@ $report(
     'ambiguous and stale saves reconcile input and retry the latest version once'
 );
 $report(
+    str_contains($admin, "metadataPendingSaveKey='oneid_metadata_translation_pending_save'")
+    && str_contains($admin, 'function storePendingMetadataSave(snapshot)')
+    && str_contains($admin, 'function resumeMetadataSaveAfterStepUp(attempt)')
+    && str_contains($admin, "event.detail.context==='admin_metadata'")
+    && str_contains($admin, 'retryMetadataSave(snapshot,version)')
+    && str_contains($admin, 'Date.now()-900000'),
+    'metadata save survives one security step-up and resumes automatically with a bounded pending draft'
+);
+$report(
     !preg_match('/\bSET\b[^;]*(?:sp_domain|sp_group_id|sp_sso_support)\s*=/is', $repository),
     'repository cannot mutate URL, category assignment or SSO configuration'
 );

@@ -4,7 +4,7 @@
 
 **Diluluskan:** 19 Julai 2026
 **Baseline selepas normalisasi:** 2.4.0
-**Versi semasa:** 2.17.3
+**Versi semasa:** 2.17.4
 
 ## Polisi
 
@@ -40,6 +40,10 @@ tertakluk kepada polisi OneID.
 
 ## Gate Release
 
+Setiap deployment aplikasi ke production mesti mempunyai versi OneID baharu,
+release card BM/English dan dokumen release yang sepadan. Deployment semula
+commit yang sama untuk pemulihan operasi tidak dikira sebagai release baharu.
+
 1. Ubah `ONEID_APP_VERSION` dalam `config/application.php`.
 2. Selaraskan `package.json` dan latest release card.
 3. Pastikan patch berada antara 0 hingga 4.
@@ -52,7 +56,7 @@ tertakluk kepada polisi OneID.
 
 **Approved:** 19 July 2026
 **Post-normalisation baseline:** 2.4.0
-**Current version:** 2.17.3
+**Current version:** 2.17.4
 
 ### Policy
 
@@ -86,6 +90,10 @@ history UI and active documents after this decision. Third-party dependency
 versions are outside the OneID versioning policy.
 
 ### Release gate
+
+Every application deployment to production must have a new OneID version, a
+matching BM/English release card and a release document. Redeploying the same
+commit for operational recovery does not constitute a new release.
 
 1. Update `ONEID_APP_VERSION` in `config/application.php`.
 2. Align `package.json` and the latest release card.
