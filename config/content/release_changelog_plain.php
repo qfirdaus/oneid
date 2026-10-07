@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.18.2' =>
+  array (
+    'version' => '2.18.2',
+    'date' => '2026-10-07',
+    'bm' =>
+    array (
+      0 => 'Ikon panel Status Sambungan dan Paparan kini menggunakan gauge berwarna seperti meter kereta untuk menggambarkan konteks prestasi dengan lebih tepat.',
+      1 => 'Gauge memaparkan lengkung hijau, kuning dan merah serta jarum tahap tinggi melalui SVG tersuai yang konsisten tanpa bergantung pada Font Awesome 6.',
+      2 => 'Ikon gauge mengekalkan ketinggian countdown sesi dan digunakan secara responsif pada header serta tajuk panel di desktop dan telefon.',
+    ),
+    'en' =>
+    array (
+      0 => 'The Connection and Display Status panel now uses a coloured automotive-style gauge to represent its performance context more accurately.',
+      1 => 'The gauge shows green, amber and red arcs with a high-level needle through a consistent custom SVG without requiring Font Awesome 6.',
+      2 => 'The gauge retains the session-countdown height and responds consistently in the header and panel heading on desktop and mobile.',
+    ),
+  ),
   'release-2.18.1' =>
   array (
     'version' => '2.18.1',

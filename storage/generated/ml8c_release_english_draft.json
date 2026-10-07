@@ -7,6 +7,31 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.18.2",
+            "version": "2.18.2",
+            "date": "2026-10-07",
+            "items": [
+                {
+                    "identity": "release:2.18.2:item:001",
+                    "bm": "Ikon panel Status Sambungan dan Paparan kini menggunakan gauge berwarna seperti meter kereta untuk menggambarkan konteks prestasi dengan lebih tepat.",
+                    "en_draft": "The Connection and Display Status panel now uses a coloured automotive-style gauge to represent its performance context more accurately.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.18.2:item:002",
+                    "bm": "Gauge memaparkan lengkung hijau, kuning dan merah serta jarum tahap tinggi melalui SVG tersuai yang konsisten tanpa bergantung pada Font Awesome 6.",
+                    "en_draft": "The gauge shows green, amber and red arcs with a high-level needle through a consistent custom SVG without requiring Font Awesome 6.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.18.2:item:003",
+                    "bm": "Ikon gauge mengekalkan ketinggian countdown sesi dan digunakan secara responsif pada header serta tajuk panel di desktop dan telefon.",
+                    "en_draft": "The gauge retains the session-countdown height and responds consistently in the header and panel heading on desktop and mobile.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.18.1",
             "version": "2.18.1",
             "date": "2026-10-07",
@@ -4564,5 +4589,5 @@
             ]
         }
     ],
-    "manifest_digest": "7f91cd67c62d4c6c746754035063d04ce73b879d0021fe452153bc4acef542dc"
+    "manifest_digest": "73eb87457f976835f3bf540cbfb6df2cd1a9106de2636b848d2e9882b1cedb1a"
 }

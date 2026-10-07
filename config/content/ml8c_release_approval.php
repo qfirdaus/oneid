@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 return [
     'environment' => 'Local WSL',
-    'approved_manifest_digest' => '7f91cd67c62d4c6c746754035063d04ce73b879d0021fe452153bc4acef542dc',
-    'expected_release_count' => 93,
-    'expected_item_count' => 651,
+    'approved_manifest_digest' => '73eb87457f976835f3bf540cbfb6df2cd1a9106de2636b848d2e9882b1cedb1a',
+    'expected_release_count' => 94,
+    'expected_item_count' => 654,
     'content_status' => 'APPROVED',
-    'evidence_reference' => 'ONEID-V2181-STATUS-TRAFFIC-LIGHT-20261007-01',
+    'evidence_reference' => 'ONEID-V2182-COLOURED-GAUGE-20261007-01',
     'live_activation_authorized' => true,
-    'activation_change_reference' => 'ONEID-V2181-STATUS-TRAFFIC-LIGHT-20261007-01',
+    'activation_change_reference' => 'ONEID-V2182-COLOURED-GAUGE-20261007-01',
     'english_manual_publication_authorized' => false,
     'automatic_approval' => false,
 ];

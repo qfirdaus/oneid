@@ -41,7 +41,7 @@
     panel.setAttribute('aria-modal', 'false');
     panel.setAttribute('aria-labelledby', 'oneid_user_health_title');
     panel.innerHTML = '<div class="oneid-health-panel__head">' +
-      '<span class="oneid-health-panel__head-icon"><i class="fa fa-heartbeat oneid-health-symbol is-panel" aria-hidden="true"></i></span>' +
+      '<span class="oneid-health-panel__head-icon"><svg class=\"oneid-gauge-icon fa-gauge-high\" viewBox=\"0 0 32 24\" aria-hidden=\"true\" focusable=\"false\"><path class=\"oneid-gauge-icon__track\" d=\"M4 19a12 12 0 0 1 24 0\"/><path class=\"oneid-gauge-icon__green\" d=\"M4 19a12 12 0 0 1 3.5-8.5\"/><path class=\"oneid-gauge-icon__amber\" d=\"M7.5 10.5A12 12 0 0 1 18 7.2\"/><path class=\"oneid-gauge-icon__red\" d=\"M18 7.2A12 12 0 0 1 28 19\"/><path class=\"oneid-gauge-icon__needle\" d=\"M16 19l7-7\"/><circle class=\"oneid-gauge-icon__hub\" cx=\"16\" cy=\"19\" r=\"2.2\"/></svg></span>' +
       '<span class="oneid-health-panel__heading"><strong id="oneid_user_health_title">' + escapeHtml(text.title) + '</strong><small>' + escapeHtml(text.subtitle) + '</small></span>' +
       '<button type="button" class="oneid-health-panel__close" data-health-close aria-label="' + escapeHtml(text.close) + '">&times;</button></div>' +
       '<div class="oneid-health-panel__body"><div class="oneid-health-grid">' +
