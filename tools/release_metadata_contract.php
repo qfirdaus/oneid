@@ -25,7 +25,7 @@ $approvedCatalogue = new \OneId\App\Documentation\ApprovedReleaseCatalogue($proj
 $approvedEnglish = $approvedCatalogue->forLocale('en')['releases'];
 $report(
     ($approvedEnglish[0]['version'] ?? null) === '2.18.1'
-        && str_starts_with((string)($approvedEnglish[0]['changes'][0] ?? ''), 'The Connection and Display Status panel icon'),
+        && str_starts_with((string)($approvedEnglish[0]['changes'][0] ?? ''), 'The Connection and Display Status panel uses'),
     'approved English release catalogue is bound to v2.18.1 content'
 );
 

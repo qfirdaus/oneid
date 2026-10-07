@@ -12,15 +12,15 @@ return array_values(array (
     'date' => '2026-10-07',
     'bm' =>
     array (
-      0 => 'Ikon panel Status Sambungan dan Paparan ditukar kepada lampu isyarat tiga warna supaya fungsi status lebih mudah dikenal pasti.',
-      1 => 'Ikon merah, kuning dan hijau menggunakan perumah gelap yang jelas serta mengekalkan ketinggian yang sepadan dengan countdown sesi.',
-      2 => 'Ikon baharu digunakan secara konsisten pada header dan tajuk panel untuk paparan desktop dan telefon.',
+      0 => 'Ikon panel Status Sambungan dan Paparan menggunakan simbol heartbeat kesihatan sistem supaya fungsi status, prestasi dan diagnostik lebih mudah dikenal pasti.',
+      1 => 'Ikon heartbeat menggunakan latar gradien biru yang jelas serta mengekalkan ketinggian yang sepadan dengan countdown sesi.',
+      2 => 'Simbol kesihatan sistem digunakan secara konsisten pada header dan tajuk panel untuk paparan desktop dan telefon.',
     ),
     'en' =>
     array (
-      0 => 'The Connection and Display Status panel icon now uses three traffic-light colours so its status purpose is easier to identify.',
-      1 => 'The red, amber and green lights use a clear dark housing while retaining the same height as the session countdown.',
-      2 => 'The new icon is used consistently in the header and panel heading across desktop and mobile layouts.',
+      0 => 'The Connection and Display Status panel uses a system-health heartbeat symbol so its status, performance and diagnostics purpose is easier to identify.',
+      1 => 'The heartbeat icon uses a clear blue gradient while retaining the same height as the session countdown.',
+      2 => 'The system-health symbol is used consistently in the header and panel heading across desktop and mobile layouts.',
     ),
   ),
   'release-2.18.0' =>

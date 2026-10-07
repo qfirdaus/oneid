@@ -13,20 +13,20 @@
             "items": [
                 {
                     "identity": "release:2.18.1:item:001",
-                    "bm": "Ikon panel Status Sambungan dan Paparan ditukar kepada lampu isyarat tiga warna supaya fungsi status lebih mudah dikenal pasti.",
-                    "en_draft": "The Connection and Display Status panel icon now uses three traffic-light colours so its status purpose is easier to identify.",
+                    "bm": "Ikon panel Status Sambungan dan Paparan menggunakan simbol heartbeat kesihatan sistem supaya fungsi status, prestasi dan diagnostik lebih mudah dikenal pasti.",
+                    "en_draft": "The Connection and Display Status panel uses a system-health heartbeat symbol so its status, performance and diagnostics purpose is easier to identify.",
                     "review_status": "APPROVED"
                 },
                 {
                     "identity": "release:2.18.1:item:002",
-                    "bm": "Ikon merah, kuning dan hijau menggunakan perumah gelap yang jelas serta mengekalkan ketinggian yang sepadan dengan countdown sesi.",
-                    "en_draft": "The red, amber and green lights use a clear dark housing while retaining the same height as the session countdown.",
+                    "bm": "Ikon heartbeat menggunakan latar gradien biru yang jelas serta mengekalkan ketinggian yang sepadan dengan countdown sesi.",
+                    "en_draft": "The heartbeat icon uses a clear blue gradient while retaining the same height as the session countdown.",
                     "review_status": "APPROVED"
                 },
                 {
                     "identity": "release:2.18.1:item:003",
-                    "bm": "Ikon baharu digunakan secara konsisten pada header dan tajuk panel untuk paparan desktop dan telefon.",
-                    "en_draft": "The new icon is used consistently in the header and panel heading across desktop and mobile layouts.",
+                    "bm": "Simbol kesihatan sistem digunakan secara konsisten pada header dan tajuk panel untuk paparan desktop dan telefon.",
+                    "en_draft": "The system-health symbol is used consistently in the header and panel heading across desktop and mobile layouts.",
                     "review_status": "APPROVED"
                 }
             ]
@@ -4564,5 +4564,5 @@
             ]
         }
     ],
-    "manifest_digest": "206cae6dcf31a3481fe89a9cf34c2df706fa53b99bfef60dce1b60cd97fae333"
+    "manifest_digest": "7f91cd67c62d4c6c746754035063d04ce73b879d0021fe452153bc4acef542dc"
 }
