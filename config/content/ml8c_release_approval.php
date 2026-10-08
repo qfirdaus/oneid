@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 return [
     'environment' => 'Local WSL',
-    'approved_manifest_digest' => 'ad8fdc34575db7207a5eabcc3b370005e79985c98428ef356bb4310f32b7876b',
-    'expected_release_count' => 97,
-    'expected_item_count' => 663,
+    'approved_manifest_digest' => '05d13de0423fd4572578477b40df363d8559a7932f905c69676b3b541d5b8b23',
+    'expected_release_count' => 98,
+    'expected_item_count' => 666,
     'content_status' => 'APPROVED',
-    'evidence_reference' => 'ONEID-V2190-DYNAMIC-STATUS-RECENT-20261008-01',
+    'evidence_reference' => 'ONEID-V2191-SMART-SEARCH-STATUS-DIAGNOSTICS-20261008-01',
     'live_activation_authorized' => true,
-    'activation_change_reference' => 'ONEID-V2190-DYNAMIC-STATUS-RECENT-20261008-01',
+    'activation_change_reference' => 'ONEID-V2191-SMART-SEARCH-STATUS-DIAGNOSTICS-20261008-01',
     'english_manual_publication_authorized' => false,
     'automatic_approval' => false,
 ];

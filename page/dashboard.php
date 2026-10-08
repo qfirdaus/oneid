@@ -122,7 +122,7 @@
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260824-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-session-indicators.css?v=20260930-1" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-user-health.css?v=20261008-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-health.css?v=20261008-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260916-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-accessibility-baseline.css?v=20260915-1" rel="stylesheet" type="text/css">
@@ -500,18 +500,24 @@
                                              <div class="user-app-search">
                                                 <i class="fa fa-search" aria-hidden="true"></i>
                                                 <label class="sr-only" for="user_app_search"><?=htmlspecialchars(oneid_translate('dashboard.apps.search'), ENT_QUOTES, 'UTF-8')?></label>
-                                                <input type="search" id="user_app_search" autocomplete="off" placeholder="<?=htmlspecialchars(oneid_translate('dashboard.apps.search_placeholder'), ENT_QUOTES, 'UTF-8')?>">
+                                                <input type="search" id="user_app_search" autocomplete="off" placeholder="<?=htmlspecialchars(oneid_translate('dashboard.apps.search_placeholder'), ENT_QUOTES, 'UTF-8')?>" aria-autocomplete="list" aria-controls="user_app_search_suggestions" aria-expanded="false">
                                                 <button type="button" id="user_app_search_clear" title="<?=htmlspecialchars(oneid_translate('dashboard.apps.clear_search'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('dashboard.apps.clear_search'), ENT_QUOTES, 'UTF-8')?>" hidden>
                                                    <i class="fa fa-times" aria-hidden="true"></i>
                                                 </button>
+                                                <div class="user-app-search-suggestions" id="user_app_search_suggestions" role="listbox" aria-label="<?=htmlspecialchars(oneid_translate('dashboard.apps.suggestions'), ENT_QUOTES, 'UTF-8')?>" hidden></div>
                                              </div>
                                              <ul role="tablist" class="nav" id="WebAppsTabsHeader"></ul>
                                           </div>
 
-                                          <div id="app_list_loading" class="user-app-state is-loading" style="display:none;">
-                                             <span><i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i></span>
-                                             <strong><?=htmlspecialchars(oneid_translate('dashboard.apps.loading'), ENT_QUOTES, 'UTF-8')?></strong>
-                                             <small><?=htmlspecialchars(oneid_translate('dashboard.apps.loading_help'), ENT_QUOTES, 'UTF-8')?></small>
+                                          <div id="app_list_loading" class="user-app-skeleton" style="display:none;" role="status" aria-live="polite">
+                                             <span class="sr-only"><?=htmlspecialchars(oneid_translate('dashboard.apps.loading'), ENT_QUOTES, 'UTF-8')?>. <?=htmlspecialchars(oneid_translate('dashboard.apps.loading_help'), ENT_QUOTES, 'UTF-8')?></span>
+                                             <?php for ($skeletonIndex = 0; $skeletonIndex < 5; $skeletonIndex++): ?>
+                                             <div class="user-app-skeleton__row" aria-hidden="true">
+                                                <span class="user-app-skeleton__index"></span><span class="user-app-skeleton__image"></span>
+                                                <span class="user-app-skeleton__copy"><i></i><i></i></span>
+                                                <span class="user-app-skeleton__action"></span>
+                                             </div>
+                                             <?php endfor; ?>
                                           </div>
 
                                           <div id="app_list" class="user-app-directory">
@@ -635,18 +641,29 @@
                'refresh' => oneid_translate('dashboard.health.refresh'),
                'clear' => oneid_translate('dashboard.health.clear'),
                'copy' => oneid_translate('dashboard.health.copy'),
+               'view' => oneid_translate('dashboard.health.view'),
+               'diagnosticsTitle' => oneid_translate('dashboard.health.diagnostics_title'),
+               'environment' => oneid_translate('dashboard.health.environment'),
+               'browser' => oneid_translate('dashboard.health.browser'),
+               'viewport' => oneid_translate('dashboard.health.viewport'),
+               'reference' => oneid_translate('dashboard.health.reference'),
+               'checkedAt' => oneid_translate('dashboard.health.checked_at'),
+               'notAvailable' => oneid_translate('dashboard.health.not_available'),
+               'diagnosticsNote' => oneid_translate('dashboard.health.diagnostics_note'),
                'support' => oneid_translate('dashboard.health.support'),
                'refreshing' => oneid_translate('dashboard.health.refreshing'),
                'refreshed' => oneid_translate('dashboard.health.refreshed'),
                'failed' => oneid_translate('dashboard.health.failed'),
                'cleared' => oneid_translate('dashboard.health.cleared'),
+               'retry' => oneid_translate('dashboard.health.retry'),
                'copied' => oneid_translate('dashboard.health.copied'),
                'close' => oneid_translate('dashboard.health.close'),
+               'closeDiagnostics' => oneid_translate('dashboard.health.close_diagnostics'),
                'note' => oneid_translate('dashboard.health.note'),
             ],
          ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
       </script>
-      <script src="../dist/js/oneid-user-health.js?v=20261008-1"></script>
+      <script src="../dist/js/oneid-user-health.js?v=20261008-4"></script>
       <?php if ($productTourEnabled): ?>
       <script>
          window.OneIdProductTourConfig = <?=json_encode([
@@ -697,12 +714,16 @@
             'statusMaintenance' => oneid_translate('dashboard.apps.status.maintenance'),
             'statusUnavailable' => oneid_translate('dashboard.apps.status.unavailable'),
             'statusChecking' => oneid_translate('dashboard.apps.status.checking'),
+            'statusChecked' => oneid_translate('dashboard.apps.status.checked', ['time' => '{time}']),
+            'statusBlocked' => oneid_translate('dashboard.apps.status.blocked', ['status' => '{status}']),
             'addFavourite' => oneid_translate('dashboard.apps.add_favourite'),
             'removeFavourite' => oneid_translate('dashboard.apps.remove_favourite'),
             'noFavourite' => oneid_translate('dashboard.apps.no_favourite'),
             'noFavouriteSearch' => oneid_translate('dashboard.apps.no_favourite_search'),
             'emptyCategory' => oneid_translate('dashboard.apps.empty_category'),
             'emptySearch' => oneid_translate('dashboard.apps.empty_search'),
+            'suggestions' => oneid_translate('dashboard.apps.suggestions'),
+            'noResultsHelp' => oneid_translate('dashboard.apps.no_results_help'),
             'directAccess' => oneid_translate('dashboard.apps.direct_access'),
             'oneidSso' => oneid_translate('dashboard.apps.oneid_sso'),
             'access' => oneid_translate('dashboard.apps.access'),
@@ -831,6 +852,7 @@
          var userAppHealth = {};
          var userAppHealthRequest = null;
          var userAppRecentStorageKey = 'oneid.recent-apps.v1';
+         var userAppSearchStorageKey = 'oneid.app-search.v1';
 
          function userAppRecentEntries(){
             try {
@@ -868,18 +890,127 @@
                checking:dashboardI18n.statusChecking}[state] || dashboardI18n.statusChecking;
          }
 
+         function userAppHealthEntry(appId){
+            var entry = userAppHealth[String(appId)];
+            if (entry && typeof entry === 'object') return entry;
+            return {state:String(entry || 'checking'), checked_at:''};
+         }
+
+         function userAppHealthCheckedAt(value){
+            if (!value) return '';
+            var date = new Date(value);
+            if (isNaN(date.getTime())) return '';
+            try {
+               return new Intl.DateTimeFormat(document.documentElement.lang === 'en' ? 'en-MY' : 'ms-MY', {
+                  hour:'2-digit', minute:'2-digit'
+               }).format(date);
+            } catch (error) { return date.toLocaleTimeString(); }
+         }
+
+         function userAppHealthMarkup(appId){
+            var entry = userAppHealthEntry(appId);
+            var state = entry.state;
+            var checked = userAppHealthCheckedAt(entry.checked_at);
+            var checkedText = checked ? dashboardI18n.statusChecked.replace('{time}', checked) : '';
+            return '<span class="user-app-health is-'+state+'" data-app-health="'+userAppText(appId)+'" title="'+userAppText(checkedText)+'"><i></i><span>'+userAppText(userAppStatusText(state))+'</span>'+
+               (checkedText ? '<em>'+userAppText(checkedText)+'</em>' : '')+'</span>';
+         }
+
+         function userAppHealthBlocksAccess(state){
+            return state === 'maintenance' || state === 'unavailable';
+         }
+
          function userAppText(value){
             return $('<div>').text(value == null ? '' : value).html();
          }
 
+         function userAppNormalize(value){
+            var text = String(value || '').toLocaleLowerCase();
+            try { text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); } catch (error) {}
+            return text.replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+         }
+
+         function userAppSearchFields(application){
+            var name = userAppNormalize(application.sp_name);
+            var description = userAppNormalize(application.sp_description);
+            var ignored = {system:1,sistem:1,application:1,aplikasi:1,the:1,of:1,dan:1,untuk:1};
+            var initials = name.split(' ').filter(function(word){ return word && !ignored[word]; })
+               .map(function(word){ return word.charAt(0); }).join('');
+            return {
+               name:name,
+               description:description,
+               compact:name.replace(/\s/g, ''),
+               acronym:initials
+            };
+         }
+
          function userAppMatches(application, term){
-            if (term === '') {
-               return true;
+            var query = userAppNormalize(term);
+            if (query === '') return true;
+            var fields = userAppSearchFields(application);
+            var compactQuery = query.replace(/\s/g, '');
+            return fields.name.indexOf(query) !== -1 || fields.description.indexOf(query) !== -1 ||
+               fields.compact.indexOf(compactQuery) !== -1 || fields.acronym.indexOf(compactQuery) !== -1;
+         }
+
+         function userAppSearchScore(application, term){
+            var query = userAppNormalize(term);
+            var compactQuery = query.replace(/\s/g, '');
+            var fields = userAppSearchFields(application);
+            if (!query) return 0;
+            if (fields.name === query || fields.compact === compactQuery) return 100;
+            if (fields.acronym === compactQuery) return 95;
+            if (fields.name.indexOf(query) === 0) return 85;
+            if (fields.compact.indexOf(compactQuery) === 0) return 80;
+            if (fields.name.indexOf(query) !== -1) return 70;
+            if (fields.acronym.indexOf(compactQuery) !== -1) return 65;
+            if (fields.description.indexOf(query) !== -1) return 50;
+            return 0;
+         }
+
+         function hideUserAppSearchSuggestions(){
+            $('#user_app_search_suggestions').prop('hidden', true).empty();
+            $('#user_app_search').attr('aria-expanded', 'false');
+         }
+
+         function renderUserAppSearchSuggestions(){
+            var term = userAppSearchTerm.trim();
+            var $list = $('#user_app_search_suggestions');
+            if (!term || !$list.length) { hideUserAppSearchSuggestions(); return; }
+            var suggestions = userAppUniqueApplications().map(function(application){
+               return {application:application, score:userAppSearchScore(application, term)};
+            }).filter(function(item){ return item.score > 0; })
+              .sort(function(a, b){ return b.score - a.score || String(a.application.sp_name).localeCompare(String(b.application.sp_name)); })
+              .slice(0, 5);
+            if (!suggestions.length) { hideUserAppSearchSuggestions(); return; }
+            var html = '<div class="user-app-search-suggestions__label">'+userAppText(dashboardI18n.suggestions)+'</div>';
+            suggestions.forEach(function(item){
+               var application = item.application;
+               var image = userAppText(application.sp_image);
+               var source = image === '' ? '../img/thumb-1.jpg' : '../public_img/' + image;
+               html += '<button type="button" role="option" class="user-app-search-suggestion" data-search-value="'+userAppText(application.sp_name)+'">';
+               html += '<img src="'+source+'" alt="" onerror="this.onerror=null;this.src=\'../img/thumb-1.jpg\';">';
+               html += '<span><strong>'+userAppText(application.sp_name)+'</strong><small>'+userAppText(application.sp_description)+'</small></span>';
+               html += '<i class="fa fa-arrow-right" aria-hidden="true"></i></button>';
+            });
+            $list.html(html).prop('hidden', false);
+            $('#user_app_search').attr('aria-expanded', 'true');
+         }
+
+         function userAppNoResults(applicationPool){
+            var choices = applicationPool.slice().sort(function(a, b){
+               return Number(b.is_favourite || 0) - Number(a.is_favourite || 0) || String(a.sp_name).localeCompare(String(b.sp_name));
+            }).slice(0, 3);
+            var html = '<div class="user-app-category-empty user-app-search-empty"><i class="fa fa-search" aria-hidden="true"></i>'+
+               '<span>'+userAppText(dashboardI18n.emptySearch)+'</span><small>'+userAppText(dashboardI18n.noResultsHelp)+'</small>';
+            if (choices.length) {
+               html += '<div class="user-app-search-empty__choices">';
+               choices.forEach(function(application){
+                  html += '<button type="button" data-search-value="'+userAppText(application.sp_name)+'">'+userAppText(application.sp_name)+'</button>';
+               });
+               html += '</div>';
             }
-            var searchable = [application.sp_name, application.sp_description]
-               .map(function(value){ return String(value || '').toLocaleLowerCase(); })
-               .join(' ');
-            return searchable.indexOf(term) !== -1;
+            return html + '</div>';
          }
 
          function userAppUniqueApplications(){
@@ -927,11 +1058,13 @@
             var buttonLabel = isDirect ? dashboardI18n.login : dashboardI18n.access;
             var buttonTitle = isDirect ? dashboardI18n.loginTitle : dashboardI18n.accessTitle;
 
-            var healthState = userAppHealth[String(application.sp_id)] || 'checking';
+            var healthEntry = userAppHealthEntry(application.sp_id);
+            var healthState = healthEntry.state;
+            var accessBlocked = userAppHealthBlocksAccess(healthState);
             var card = '<article class="user-app-card" data-app-card="'+appId+'">';
             card += '<div class="user-app-index">'+index+'</div>';
             card += '<div class="user-app-image"><img src="'+imageSource+'" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'../img/thumb-1.jpg\';"></div>';
-            card += '<div class="user-app-content"><div class="user-app-name"><strong title="'+appName+'">'+appName+'</strong><span class="user-app-access '+(isDirect ? 'is-direct' : '')+'">'+accessLabel+'</span><span class="user-app-health is-'+healthState+'" data-app-health="'+appId+'"><i></i>'+userAppText(userAppStatusText(healthState))+'</span></div>';
+            card += '<div class="user-app-content"><div class="user-app-name"><strong title="'+appName+'">'+appName+'</strong><span class="user-app-access '+(isDirect ? 'is-direct' : '')+'">'+accessLabel+'</span>'+userAppHealthMarkup(application.sp_id)+'</div>';
             if (userAppSearchTerm.trim() !== '') {
                var categories = [];
                $.each(userAppDirectoryGroups, function(_, group){
@@ -944,7 +1077,8 @@
             card += '<p title="'+appDescription+'">'+appDescription+'</p></div>';
             card += '<div class="user-app-actions">';
             card += '<button type="button" class="user-app-favourite '+(isFavourite ? 'is-selected' : '')+'" data-app-id="'+appId+'" data-favourite="'+(isFavourite ? '1' : '0')+'" aria-pressed="'+(isFavourite ? 'true' : 'false')+'" title="'+favouriteTitle+'" aria-label="'+favouriteTitle+'"><i class="fa fa-star" aria-hidden="true"></i></button>';
-            card += '<button type="button" class="user-app-open '+(isDirect ? 'is-direct' : '')+'" data-app-id="'+appId+'" title="'+buttonTitle+'"><i class="fa '+(isDirect ? 'fa-sign-in' : 'fa-external-link')+'" aria-hidden="true"></i><span>'+buttonLabel+'</span></button>';
+            var effectiveTitle = accessBlocked ? dashboardI18n.statusBlocked.replace('{status}', userAppStatusText(healthState)) : buttonTitle;
+            card += '<button type="button" class="user-app-open '+(isDirect ? 'is-direct ' : '')+(accessBlocked ? 'is-disabled' : '')+'" data-app-id="'+appId+'" title="'+userAppText(effectiveTitle)+'" '+(accessBlocked ? 'disabled aria-disabled="true"' : '')+'><i class="fa '+(isDirect ? 'fa-sign-in' : 'fa-external-link')+'" aria-hidden="true"></i><span>'+buttonLabel+'</span></button>';
             card += '</div></article>';
             return card;
          }
@@ -965,12 +1099,13 @@
                var appName = userAppText(application.sp_name);
                var appImage = userAppText(application.sp_image);
                var imageSource = appImage === '' ? '../img/thumb-1.jpg' : '../public_img/' + appImage;
-               var healthState = userAppHealth[String(application.sp_id)] || 'checking';
+               var healthState = userAppHealthEntry(application.sp_id).state;
+               var accessBlocked = userAppHealthBlocksAccess(healthState);
                var lastUsed = userAppRecentTimestamp(application.sp_id);
-               html += '<button type="button" class="user-app-recent__item" data-recent-open data-app-id="'+appId+'" data-app-card="'+appId+'" title="'+appName+'">';
+               html += '<button type="button" class="user-app-recent__item" data-recent-open data-app-id="'+appId+'" data-app-card="'+appId+'" title="'+appName+'" '+(accessBlocked ? 'disabled aria-disabled="true"' : '')+'>';
                html += '<img src="'+imageSource+'" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'../img/thumb-1.jpg\';">';
                html += '<span class="user-app-recent__name">'+appName+'</span>';
-               html += '<span class="user-app-recent__meta"><span class="user-app-health is-'+healthState+'" data-app-health="'+appId+'"><i></i>'+userAppText(userAppStatusText(healthState))+'</span><span class="user-app-recent__separator" aria-hidden="true">&middot;</span><span class="user-app-recent__time" title="'+userAppText(dashboardI18n.lastUsed)+'"><i class="fa fa-clock-o" aria-hidden="true"></i>'+userAppText(lastUsed || '\u2014')+'</span></span>';
+               html += '<span class="user-app-recent__meta">'+userAppHealthMarkup(application.sp_id)+'<span class="user-app-recent__separator" aria-hidden="true">&middot;</span><span class="user-app-recent__time" title="'+userAppText(dashboardI18n.lastUsed)+'"><i class="fa fa-clock-o" aria-hidden="true"></i>'+userAppText(lastUsed || '\u2014')+'</span></span>';
                html += '<i class="fa fa-angle-right user-app-recent__arrow" aria-hidden="true"></i></button>';
             });
             $grid.html(html);
@@ -979,7 +1114,7 @@
          }
 
          function renderUserAppDirectory(){
-            var term = userAppSearchTerm.trim().toLocaleLowerCase();
+            var term = userAppSearchTerm.trim();
             var allApplications = userAppUniqueApplications();
             var favouriteApplications = allApplications.filter(function(application){
                return Number(application.is_favourite) === 1 && userAppMatches(application, term);
@@ -1059,7 +1194,7 @@
                $.each(results, function(index, application){
                   panes += userAppCard(application, index + 1);
                });
-               if (!results.length) panes += '<div class="user-app-category-empty">'+userAppText(dashboardI18n.emptySearch)+'</div>';
+               if (!results.length) panes += userAppNoResults(allApplications);
                panes += '</div>';
             }
             $('#WebAppsTabsHeader').toggleClass('is-search-results', term !== '').html(tabs);
@@ -1089,11 +1224,31 @@
                data:{user_downstream_status:'',sp_ids:JSON.stringify(ids)}})
                .done(function(response){
                   $.each(response && response.applications ? response.applications : {}, function(id, item){
-                     userAppHealth[String(id)] = String(item.state || 'unavailable');
-                     $('[data-app-health="'+String(id).replace(/"/g, '')+'"]').attr('class','user-app-health is-'+userAppHealth[String(id)]).html('<i></i>'+userAppText(userAppStatusText(userAppHealth[String(id)])));
+                     userAppHealth[String(id)] = {
+                        state:String(item.state || 'unavailable'),
+                        checked_at:String(item.checked_at || '')
+                     };
+                     var entry = userAppHealthEntry(id);
+                     var checked = userAppHealthCheckedAt(entry.checked_at);
+                     var checkedText = checked ? dashboardI18n.statusChecked.replace('{time}', checked) : '';
+                     $('[data-app-health="'+String(id).replace(/"/g, '')+'"]').attr('class','user-app-health is-'+entry.state).attr('title',checkedText)
+                        .html('<i></i><span>'+userAppText(userAppStatusText(entry.state))+'</span>'+(checkedText ? '<em>'+userAppText(checkedText)+'</em>' : ''));
+                     var blocked = userAppHealthBlocksAccess(entry.state);
+                     $('.user-app-open[data-app-id="'+String(id).replace(/"/g, '')+'"], [data-recent-open][data-app-id="'+String(id).replace(/"/g, '')+'"]')
+                        .prop('disabled', blocked).attr('aria-disabled', blocked ? 'true' : 'false').toggleClass('is-disabled', blocked)
+                        .each(function(){
+                           var normalTitle = $(this).hasClass('user-app-open')
+                              ? ($(this).hasClass('is-direct') ? dashboardI18n.loginTitle : dashboardI18n.accessTitle)
+                              : String($(this).find('.user-app-recent__name').text() || '');
+                           $(this).attr('title', blocked ? dashboardI18n.statusBlocked.replace('{status}', userAppStatusText(entry.state)) : normalTitle);
+                        });
                   });
-               }).always(function(){ userAppHealthRequest = null; });
+               }).always(function(){ userAppHealthRequest = null; window.setTimeout(refreshVisibleDownstreamStatus, 0); });
          }
+
+         document.addEventListener('oneid:dashboard-health-refresh', function(){
+            Object.keys(userAppHealth).forEach(function(id){ delete userAppHealth[id]; });
+         });
 
          //----Login
          function get_specific_user_app_list(){
@@ -1114,10 +1269,15 @@
 				   $('#WebAppsTabsContent').html('');
 				   $('#follo_data_list').html('');
                  },
-                 success: function (response) {
+				 success: function (response) {
                    $('#app_list_loading').hide();
                    $('#app_list').fadeIn();
 				   userAppDirectoryGroups = Array.isArray(response) ? response : [];
+				   if (userAppSearchTerm === '') {
+				      try { userAppSearchTerm = String(sessionStorage.getItem(userAppSearchStorageKey) || ''); } catch (error) {}
+				      $('#user_app_search').val(userAppSearchTerm);
+				      $('#user_app_search_clear').prop('hidden', userAppSearchTerm === '');
+				   }
 				   renderUserAppDirectory();
 				},
 				error: function (xhr, error, thrown) {
@@ -1138,13 +1298,51 @@
          $(document).on('input', '#user_app_search', function(){
             userAppSearchTerm = String(this.value || '');
             $('#user_app_search_clear').prop('hidden', userAppSearchTerm === '');
+            try {
+               if (userAppSearchTerm === '') sessionStorage.removeItem(userAppSearchStorageKey);
+               else sessionStorage.setItem(userAppSearchStorageKey, userAppSearchTerm);
+            } catch (error) {}
             renderUserAppDirectory();
+            renderUserAppSearchSuggestions();
+         });
+
+         $(document).on('focus', '#user_app_search', renderUserAppSearchSuggestions);
+
+         $(document).on('keydown', '#user_app_search', function(event){
+            if (event.key === 'ArrowDown') {
+               var first = $('#user_app_search_suggestions .user-app-search-suggestion').first();
+               if (first.length) { event.preventDefault(); first.focus(); }
+            } else if (event.key === 'Escape') hideUserAppSearchSuggestions();
+         });
+
+         $(document).on('keydown', '.user-app-search-suggestion', function(event){
+            var items = $('.user-app-search-suggestion');
+            var index = items.index(this);
+            if (event.key === 'ArrowDown') { event.preventDefault(); items.eq((index + 1) % items.length).focus(); }
+            if (event.key === 'ArrowUp') { event.preventDefault(); index > 0 ? items.eq(index - 1).focus() : $('#user_app_search').focus(); }
+            if (event.key === 'Escape') { hideUserAppSearchSuggestions(); $('#user_app_search').focus(); }
+         });
+
+         $(document).on('click', '[data-search-value]', function(){
+            userAppSearchTerm = String($(this).attr('data-search-value') || '');
+            $('#user_app_search').val(userAppSearchTerm);
+            $('#user_app_search_clear').prop('hidden', false);
+            try { sessionStorage.setItem(userAppSearchStorageKey, userAppSearchTerm); } catch (error) {}
+            hideUserAppSearchSuggestions();
+            renderUserAppDirectory();
+            $('#user_app_search').focus();
+         });
+
+         $(document).on('click', function(event){
+            if (!$(event.target).closest('.user-app-search').length) hideUserAppSearchSuggestions();
          });
 
          $(document).on('click', '#user_app_search_clear', function(){
             userAppSearchTerm = '';
             $('#user_app_search').val('').focus();
             $(this).prop('hidden', true);
+            try { sessionStorage.removeItem(userAppSearchStorageKey); } catch (error) {}
+            hideUserAppSearchSuggestions();
             renderUserAppDirectory();
          });
 
@@ -1195,6 +1393,7 @@
          });
 
          $(document).on('click', '.user-app-open', function(){
+            if (this.disabled || $(this).attr('aria-disabled') === 'true') return;
             var applicationWindow = window.open('about:blank', '_blank');
             if (applicationWindow) {
                applicationWindow.opener = null;
@@ -1884,6 +2083,103 @@
         color: #168fcb;
       }
 
+      .user-app-search-suggestions {
+        position: absolute;
+        z-index: 30;
+        top: calc(100% + 5px);
+        left: 0;
+        right: 0;
+        overflow: hidden;
+        border: 1px solid #cfe2ed;
+        border-radius: 9px;
+        background: #fff;
+        box-shadow: 0 12px 28px rgba(33, 58, 82, .16);
+      }
+
+      .user-app-search-suggestions__label {
+        padding: 8px 12px 6px;
+        color: #708397;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+      }
+
+      .user-app-search .user-app-search-suggestion {
+        position: relative;
+        right: auto;
+        display: grid;
+        grid-template-columns: 32px minmax(0, 1fr) 18px;
+        width: 100%;
+        height: auto;
+        min-height: 48px;
+        gap: 9px;
+        padding: 7px 11px;
+        border-radius: 0;
+        border-top: 1px solid #edf2f5;
+        color: #173d57;
+        text-align: left;
+      }
+
+      .user-app-search .user-app-search-suggestion:hover,
+      .user-app-search .user-app-search-suggestion:focus {
+        background: #eef8fc;
+        outline: 0;
+      }
+
+      .user-app-search-suggestion img { width:32px; height:32px; border:1px solid #d4dee5; border-radius:7px; object-fit:cover; }
+      .user-app-search-suggestion span { min-width:0; }
+      .user-app-search-suggestion strong,
+      .user-app-search-suggestion small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .user-app-search-suggestion strong { font-size:11px; line-height:16px; }
+      .user-app-search-suggestion small { color:#73869a; font-size:10px; line-height:15px; }
+      .user-app-search-suggestion > i { color:#7ea0b6; }
+
+      .user-app-skeleton {
+        overflow: hidden;
+        border: 1px solid #e0e7ed;
+        border-radius: 0 0 8px 8px;
+        background: #fff;
+      }
+
+      .user-app-skeleton__row {
+        display: grid;
+        grid-template-columns: 28px 50px minmax(0, 1fr) 112px;
+        align-items: center;
+        gap: 14px;
+        min-height: 82px;
+        padding: 14px 18px;
+        border-bottom: 1px solid #edf1f4;
+      }
+
+      .user-app-skeleton__row:last-child { border-bottom:0; }
+      .user-app-skeleton__index,
+      .user-app-skeleton__image,
+      .user-app-skeleton__copy i,
+      .user-app-skeleton__action {
+        position: relative;
+        overflow: hidden;
+        display: block;
+        background: #e8eef2;
+      }
+      .user-app-skeleton__index { width:22px; height:22px; border-radius:50%; }
+      .user-app-skeleton__image { width:50px; height:50px; border-radius:9px; }
+      .user-app-skeleton__copy i { width:min(320px, 72%); height:12px; margin-bottom:9px; border-radius:5px; }
+      .user-app-skeleton__copy i:last-child { width:min(470px, 92%); height:9px; margin-bottom:0; }
+      .user-app-skeleton__action { width:112px; height:36px; border-radius:7px; }
+      .user-app-skeleton__index::after,
+      .user-app-skeleton__image::after,
+      .user-app-skeleton__copy i::after,
+      .user-app-skeleton__action::after {
+        content:"";
+        position:absolute;
+        inset:0;
+        transform:translateX(-100%);
+        background:linear-gradient(90deg, transparent, rgba(255,255,255,.75), transparent);
+        animation:oneid-skeleton-shimmer 1.25s ease-in-out infinite;
+      }
+      @keyframes oneid-skeleton-shimmer { to { transform:translateX(100%); } }
+
       #WebAppsTabsHeader {
         display: flex;
         flex-wrap: nowrap;
@@ -2116,6 +2412,15 @@
         background: #9aabb4;
       }
 
+      .user-app-health em {
+        color: #7a8e9a;
+        font-size: 8px;
+        font-style: normal;
+        font-weight: 500;
+      }
+
+      .user-app-health em::before { content: "\00b7"; margin: 0 3px; }
+
       .user-app-health.is-available { color:#21824e; }
       .user-app-health.is-available i { background:#24a861; }
       .user-app-health.is-slow { color:#9a6900; }
@@ -2206,6 +2511,17 @@
         color: #8d5a0f;
       }
 
+      .user-app-open.is-disabled,
+      .user-app-open:disabled,
+      .user-app-recent__item:disabled {
+        cursor: not-allowed;
+        filter: grayscale(.35);
+        opacity: .58;
+      }
+
+      .user-app-open.is-disabled:hover,
+      .user-app-open:disabled:hover { border-color:#dce4ec; background:#eef2f4; color:#72818d; }
+
       .user-app-state,
       .user-app-category-empty {
         padding: 38px 20px;
@@ -2260,6 +2576,12 @@
         font-size: 18px;
       }
 
+      .user-app-search-empty small { display:block; margin:7px auto 0; color:#718398; font-size:11px; }
+      .user-app-search-empty__choices { display:flex; flex-wrap:wrap; justify-content:center; gap:7px; margin-top:12px; }
+      .user-app-search-empty__choices button { min-height:32px; padding:5px 11px; border:1px solid #cde1ec; border-radius:16px; background:#f4fafc; color:#12698f; font-size:10px; font-weight:600; }
+      .user-app-search-empty__choices button:hover,
+      .user-app-search-empty__choices button:focus { border-color:#22a8db; background:#e8f7fc; outline:0; }
+
       @media (max-width: 767px) {
         .user-app-panel {
           padding: 20px 15px;
@@ -2270,6 +2592,12 @@
         .user-app-recent__head { padding:10px 11px; }
         .user-app-recent__grid { grid-template-columns:1fr; padding:8px; }
         .user-app-recent__item { min-height:50px; }
+        .user-app-search-suggestions { left:-2px; right:-2px; }
+        .user-app-search .user-app-search-suggestion { min-height:52px; padding:8px 10px; }
+        .user-app-skeleton__row { grid-template-columns:44px minmax(0,1fr) 72px; min-height:76px; gap:10px; padding:12px 14px; }
+        .user-app-skeleton__index { display:none; }
+        .user-app-skeleton__image { width:44px; height:44px; }
+        .user-app-skeleton__action { width:72px; height:34px; }
 
         .user-app-header {
           display: block;
@@ -2340,6 +2668,13 @@
           min-width: 34px;
           height: 32px;
         }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .user-app-skeleton__index::after,
+        .user-app-skeleton__image::after,
+        .user-app-skeleton__copy i::after,
+        .user-app-skeleton__action::after { animation:none; }
       }
 
       .pills-struct.vertical-pills { display:flex; gap:20px; }

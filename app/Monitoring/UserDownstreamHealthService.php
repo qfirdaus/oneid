@@ -99,7 +99,12 @@ final class UserDownstreamHealthService
 
     private function result(string $state, ?int $httpCode, ?int $elapsedMs): array
     {
-        return ['state' => $state, 'http_code' => $httpCode, 'response_ms' => $elapsedMs];
+        return [
+            'state' => $state,
+            'http_code' => $httpCode,
+            'response_ms' => $elapsedMs,
+            'checked_at' => gmdate(DATE_ATOM),
+        ];
     }
 
     private function cachePath(string $url): string

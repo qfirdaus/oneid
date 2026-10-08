@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.19.1' =>
+  array (
+    'version' => '2.19.1',
+    'date' => '2026-10-08',
+    'bm' =>
+    array (
+      0 => 'Carian aplikasi kini menyokong nama, fungsi dan singkatan, menyediakan cadangan semasa menaip, menyimpan carian dalam sesi browser serta menggunakan skeleton loading yang responsif.',
+      1 => 'Status downstream kini menunjukkan masa semakan terakhir, memeriksa aplikasi secara batch terkawal dan menyekat sementara tindakan akses apabila aplikasi dalam penyelenggaraan atau tidak tersedia.',
+      2 => 'Panel Status Sambungan dan Paparan kini memberi maklum balas tindakan yang jelas, retry apabila gagal serta paparan diagnostik selamat dengan environment, browser, saiz skrin, masa respons dan ID rujukan tanpa data sensitif.',
+    ),
+    'en' =>
+    array (
+      0 => 'Application search now supports names, functions and abbreviations, offers suggestions while typing, retains the search for the browser session and uses responsive skeleton loading.',
+      1 => 'Downstream status now shows the latest check time, checks applications in controlled batches and temporarily blocks access while an application is under maintenance or unavailable.',
+      2 => 'The Connection and Display Status panel now provides clear action feedback, retry after failure and a safe diagnostics view with environment, browser, screen size, response time and reference ID without sensitive data.',
+    ),
+  ),
   'release-2.19.0' =>
   array (
     'version' => '2.19.0',
