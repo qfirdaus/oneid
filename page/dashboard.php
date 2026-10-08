@@ -122,7 +122,7 @@
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260824-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-session-indicators.css?v=20260930-1" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-user-health.css?v=20261007-6" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-health.css?v=20261008-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260916-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-accessibility-baseline.css?v=20260915-1" rel="stylesheet" type="text/css">
@@ -481,9 +481,22 @@
                                           </div>
 
                                           <div class="user-app-category-card">
-                                             <div>
+                                             <div class="user-app-category-title-row">
                                                 <h5><?=htmlspecialchars(oneid_translate('dashboard.apps.categories'), ENT_QUOTES, 'UTF-8')?></h5>
+                                                <button type="button" class="user-app-recent__trigger" id="user_app_recent_trigger" title="<?=htmlspecialchars(oneid_translate('dashboard.apps.recent'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('dashboard.apps.recent'), ENT_QUOTES, 'UTF-8')?>" aria-expanded="false" aria-controls="user_app_recent" hidden>
+                                                   <i class="fa fa-history" aria-hidden="true"></i>
+                                                </button>
                                              </div>
+                                             <section class="user-app-recent" id="user_app_recent" hidden role="dialog" aria-modal="false" aria-labelledby="user_app_recent_title">
+                                                <div class="user-app-recent__head">
+                                                   <span id="user_app_recent_title"><i class="fa fa-history" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('dashboard.apps.recent'), ENT_QUOTES, 'UTF-8')?></span>
+                                                   <button type="button" class="user-app-recent__close" data-recent-close aria-label="<?=htmlspecialchars(oneid_translate('dashboard.health.close'), ENT_QUOTES, 'UTF-8')?>">&times;</button>
+                                                </div>
+                                                <div class="user-app-recent__grid" id="user_app_recent_grid"></div>
+                                                <div class="user-app-recent__footer">
+                                                   <button type="button" data-recent-clear><i class="fa fa-trash-o" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('dashboard.apps.clear_recent'), ENT_QUOTES, 'UTF-8')?></button>
+                                                </div>
+                                             </section>
                                              <div class="user-app-search">
                                                 <i class="fa fa-search" aria-hidden="true"></i>
                                                 <label class="sr-only" for="user_app_search"><?=htmlspecialchars(oneid_translate('dashboard.apps.search'), ENT_QUOTES, 'UTF-8')?></label>
@@ -633,7 +646,7 @@
             ],
          ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
       </script>
-      <script src="../dist/js/oneid-user-health.js?v=20261007-5"></script>
+      <script src="../dist/js/oneid-user-health.js?v=20261008-1"></script>
       <?php if ($productTourEnabled): ?>
       <script>
          window.OneIdProductTourConfig = <?=json_encode([
@@ -676,6 +689,14 @@
             'noAccessHelp' => oneid_translate('dashboard.apps.no_access_help'),
             'searchResults' => oneid_translate('dashboard.apps.search_results'),
             'favourite' => oneid_translate('dashboard.apps.favourite'),
+            'recent' => oneid_translate('dashboard.apps.recent'),
+            'noRecent' => oneid_translate('dashboard.apps.no_recent'),
+            'lastUsed' => oneid_translate('dashboard.apps.last_used'),
+            'statusAvailable' => oneid_translate('dashboard.apps.status.available'),
+            'statusSlow' => oneid_translate('dashboard.apps.status.slow'),
+            'statusMaintenance' => oneid_translate('dashboard.apps.status.maintenance'),
+            'statusUnavailable' => oneid_translate('dashboard.apps.status.unavailable'),
+            'statusChecking' => oneid_translate('dashboard.apps.status.checking'),
             'addFavourite' => oneid_translate('dashboard.apps.add_favourite'),
             'removeFavourite' => oneid_translate('dashboard.apps.remove_favourite'),
             'noFavourite' => oneid_translate('dashboard.apps.no_favourite'),
@@ -807,6 +828,45 @@
          var userAppDirectoryGroups = [];
          var userAppSearchTerm = '';
          var userAppActiveTab = '#user_app_favourites_tab';
+         var userAppHealth = {};
+         var userAppHealthRequest = null;
+         var userAppRecentStorageKey = 'oneid.recent-apps.v1';
+
+         function userAppRecentEntries(){
+            try {
+               var value = JSON.parse(localStorage.getItem(userAppRecentStorageKey) || '[]');
+               return Array.isArray(value) ? value.map(function(item){
+                  if (item && typeof item === 'object') return {id:String(item.id || ''),at:Number(item.at || 0)};
+                  return {id:String(item || ''),at:0};
+               }).filter(function(item){ return item.id !== ''; }).slice(0, 6) : [];
+            } catch (error) { return []; }
+         }
+
+         function userAppRecentIds(){ return userAppRecentEntries().map(function(item){ return item.id; }); }
+
+         function userAppRecentTimestamp(appId){
+            var entry = userAppRecentEntries().find(function(item){ return item.id === String(appId); });
+            if (!entry || !entry.at) return '';
+            try {
+               return new Intl.DateTimeFormat(document.documentElement.lang === 'en' ? 'en-MY' : 'ms-MY', {
+                  day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'
+               }).format(new Date(entry.at));
+            } catch (error) { return new Date(entry.at).toLocaleString(); }
+         }
+
+         function rememberUserApp(appId){
+            var id = String(appId || '');
+            if (!id) return;
+            var entries = userAppRecentEntries().filter(function(item){ return item.id !== id; });
+            entries.unshift({id:id,at:Date.now()});
+            try { localStorage.setItem(userAppRecentStorageKey, JSON.stringify(entries.slice(0, 6))); } catch (error) {}
+         }
+
+         function userAppStatusText(state){
+            return {available:dashboardI18n.statusAvailable,slow:dashboardI18n.statusSlow,
+               maintenance:dashboardI18n.statusMaintenance,unavailable:dashboardI18n.statusUnavailable,
+               checking:dashboardI18n.statusChecking}[state] || dashboardI18n.statusChecking;
+         }
 
          function userAppText(value){
             return $('<div>').text(value == null ? '' : value).html();
@@ -867,10 +927,11 @@
             var buttonLabel = isDirect ? dashboardI18n.login : dashboardI18n.access;
             var buttonTitle = isDirect ? dashboardI18n.loginTitle : dashboardI18n.accessTitle;
 
-            var card = '<article class="user-app-card">';
+            var healthState = userAppHealth[String(application.sp_id)] || 'checking';
+            var card = '<article class="user-app-card" data-app-card="'+appId+'">';
             card += '<div class="user-app-index">'+index+'</div>';
             card += '<div class="user-app-image"><img src="'+imageSource+'" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'../img/thumb-1.jpg\';"></div>';
-            card += '<div class="user-app-content"><div class="user-app-name"><strong title="'+appName+'">'+appName+'</strong><span class="user-app-access '+(isDirect ? 'is-direct' : '')+'">'+accessLabel+'</span></div>';
+            card += '<div class="user-app-content"><div class="user-app-name"><strong title="'+appName+'">'+appName+'</strong><span class="user-app-access '+(isDirect ? 'is-direct' : '')+'">'+accessLabel+'</span><span class="user-app-health is-'+healthState+'" data-app-health="'+appId+'"><i></i>'+userAppText(userAppStatusText(healthState))+'</span></div>';
             if (userAppSearchTerm.trim() !== '') {
                var categories = [];
                $.each(userAppDirectoryGroups, function(_, group){
@@ -888,6 +949,35 @@
             return card;
          }
 
+         function renderUserAppRecentlyUsed(applications){
+            var $section = $('#user_app_recent');
+            var $trigger = $('#user_app_recent_trigger');
+            var $grid = $('#user_app_recent_grid');
+            if (!applications.length || userAppSearchTerm.trim() !== '') {
+               $section.prop('hidden', true);
+               $trigger.prop('hidden', true).attr('aria-expanded', 'false');
+               $grid.html('');
+               return;
+            }
+            var html = '';
+            $.each(applications.slice(0, 6), function(_, application){
+               var appId = userAppText(application.sp_id);
+               var appName = userAppText(application.sp_name);
+               var appImage = userAppText(application.sp_image);
+               var imageSource = appImage === '' ? '../img/thumb-1.jpg' : '../public_img/' + appImage;
+               var healthState = userAppHealth[String(application.sp_id)] || 'checking';
+               var lastUsed = userAppRecentTimestamp(application.sp_id);
+               html += '<button type="button" class="user-app-recent__item" data-recent-open data-app-id="'+appId+'" data-app-card="'+appId+'" title="'+appName+'">';
+               html += '<img src="'+imageSource+'" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'../img/thumb-1.jpg\';">';
+               html += '<span class="user-app-recent__name">'+appName+'</span>';
+               html += '<span class="user-app-recent__meta"><span class="user-app-health is-'+healthState+'" data-app-health="'+appId+'"><i></i>'+userAppText(userAppStatusText(healthState))+'</span><span class="user-app-recent__separator" aria-hidden="true">&middot;</span><span class="user-app-recent__time" title="'+userAppText(dashboardI18n.lastUsed)+'"><i class="fa fa-clock-o" aria-hidden="true"></i>'+userAppText(lastUsed || '\u2014')+'</span></span>';
+               html += '<i class="fa fa-angle-right user-app-recent__arrow" aria-hidden="true"></i></button>';
+            });
+            $grid.html(html);
+            $trigger.prop('hidden', false);
+            if ($trigger.attr('aria-expanded') !== 'true') $section.prop('hidden', true);
+         }
+
          function renderUserAppDirectory(){
             var term = userAppSearchTerm.trim().toLocaleLowerCase();
             var allApplications = userAppUniqueApplications();
@@ -898,11 +988,17 @@
             var panes = '';
             var matchingTabs = [];
             var requestedTab = userAppActiveTab;
+            var recentOrder = userAppRecentIds();
+            var recentApplications = recentOrder.map(function(id){
+               return allApplications.find(function(application){ return String(application.sp_id) === id; });
+            }).filter(Boolean).filter(function(application){ return userAppMatches(application, term); });
 
             if (allApplications.length === 0) {
                $('#user_app_count').text('0');
                $('#user_app_sso_count, #user_app_non_sso_count').text('0');
                $('#WebAppsTabsHeader, #WebAppsTabsContent').html('');
+               $('#user_app_recent').prop('hidden', true);
+               $('#user_app_recent_trigger').prop('hidden', true).attr('aria-expanded', 'false');
                $('#follo_data_list').html(
                   '<div class="user-app-state"><span><i class="fa fa-th-large" aria-hidden="true"></i></span>' +
                   '<strong>'+userAppText(dashboardI18n.noAccess)+'</strong>' +
@@ -910,6 +1006,8 @@
                );
                return;
             }
+
+            renderUserAppRecentlyUsed(recentApplications);
 
             tabs += '<li class="is-favourite-tab" role="presentation">';
             tabs += '<a data-toggle="tab" role="tab" href="#user_app_favourites_tab" title="'+userAppText(dashboardI18n.favourite)+'" aria-label="'+userAppText(dashboardI18n.favourite)+'"><i class="fa fa-star" aria-hidden="true"></i><span>'+userAppText(dashboardI18n.favourite)+'</span><strong>'+favouriteApplications.length+'</strong></a></li>';
@@ -976,6 +1074,25 @@
                $requestedLink.tab('show');
                userAppActiveTab = requestedTab;
             }
+            refreshVisibleDownstreamStatus();
+         }
+
+         function refreshVisibleDownstreamStatus(){
+            var ids = [];
+            $('#user_app_recent [data-app-card], #WebAppsTabsContent .tab-pane.active [data-app-card], #WebAppsTabsContent > .user-app-list [data-app-card]').each(function(){
+               var id = String($(this).data('app-card') || '');
+               if (id && ids.indexOf(id) === -1 && !userAppHealth[id]) ids.push(id);
+            });
+            ids = ids.slice(0, 12);
+            if (!ids.length || userAppHealthRequest) return;
+            userAppHealthRequest = $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',timeout:5000,
+               data:{user_downstream_status:'',sp_ids:JSON.stringify(ids)}})
+               .done(function(response){
+                  $.each(response && response.applications ? response.applications : {}, function(id, item){
+                     userAppHealth[String(id)] = String(item.state || 'unavailable');
+                     $('[data-app-health="'+String(id).replace(/"/g, '')+'"]').attr('class','user-app-health is-'+userAppHealth[String(id)]).html('<i></i>'+userAppText(userAppStatusText(userAppHealth[String(id)])));
+                  });
+               }).always(function(){ userAppHealthRequest = null; });
          }
 
          //----Login
@@ -1033,6 +1150,48 @@
 
          $(document).on('shown.bs.tab', '#WebAppsTabsHeader a[data-toggle="tab"]', function(){
             if (userAppSearchTerm.trim() === '') userAppActiveTab = $(this).attr('href');
+            refreshVisibleDownstreamStatus();
+         });
+
+         $(document).on('click', '#user_app_recent_trigger', function(event){
+            event.stopPropagation();
+            var $trigger = $(this);
+            var open = $trigger.attr('aria-expanded') !== 'true';
+            $trigger.attr('aria-expanded', open ? 'true' : 'false');
+            $('#user_app_recent').prop('hidden', !open);
+            if (open) $('#user_app_recent [data-recent-open]').first().trigger('focus');
+         });
+
+         $(document).on('click', '[data-recent-close]', function(){
+            $('#user_app_recent').prop('hidden', true);
+            $('#user_app_recent_trigger').attr('aria-expanded', 'false').trigger('focus');
+         });
+
+         $(document).on('click', '[data-recent-clear]', function(){
+            try { localStorage.removeItem(userAppRecentStorageKey); } catch (error) {}
+            $('#user_app_recent_grid').html('');
+            $('#user_app_recent').prop('hidden', true);
+            $('#user_app_recent_trigger').prop('hidden', true).attr('aria-expanded', 'false');
+         });
+
+         $(document).on('click', function(event){
+            if (!$(event.target).closest('#user_app_recent, #user_app_recent_trigger').length) {
+               $('#user_app_recent').prop('hidden', true);
+               $('#user_app_recent_trigger').attr('aria-expanded', 'false');
+            }
+         });
+
+         $(document).on('keydown', function(event){
+            if (event.key === 'Escape' && !$('#user_app_recent').prop('hidden')) {
+               $('#user_app_recent').prop('hidden', true);
+               $('#user_app_recent_trigger').attr('aria-expanded', 'false').trigger('focus');
+            }
+         });
+
+         $(document).on('click', '[data-recent-open]', function(){
+            var applicationWindow = window.open('about:blank', '_blank');
+            if (applicationWindow) applicationWindow.opener = null;
+            go_to_service_provider(String($(this).data('app-id') || ''), applicationWindow);
          });
 
          $(document).on('click', '.user-app-open', function(){
@@ -1149,6 +1308,7 @@
                data: {go_to_service_provider: '', sp_id: sp_id},
                success: function(response){
                   if (Number(response.status) === 1 && String(response.domain || '').trim() !== '') {
+                     rememberUserApp(sp_id);
                      var destination = String(response.domain).trim();
                      if (applicationWindow && !applicationWindow.closed) {
                         applicationWindow.location.replace(destination);
@@ -1625,6 +1785,35 @@
         border-radius: 8px 8px 0 0;
       }
 
+      .user-app-category-card { position:relative; }
+      .user-app-category-title-row { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+      .user-app-category-title-row h5 { margin:0; }
+      body .user-app-recent__trigger { display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; flex:0 0 26px; width:26px; min-width:26px!important; max-width:26px; height:26px; min-height:26px!important; max-height:26px; padding:0; border:1px solid #cfe1e9; border-radius:6px; background:#f5fafc; color:#168fcb; font-size:11px!important; line-height:1; }
+      .user-app-recent__trigger[hidden] { display:none!important; }
+      .user-app-recent__trigger:hover,.user-app-recent__trigger:focus,.user-app-recent__trigger[aria-expanded="true"] { border-color:#75bdd5; background:#eaf7fc; color:#087ba7; outline:0; }
+      .user-app-recent { position:absolute; z-index:20; top:46px; right:20px; width:430px; max-width:calc(100vw - 40px); padding:0; border:1px solid #cfe0e8; border-radius:10px; background:#fff; box-shadow:0 13px 32px rgba(25,66,86,.20); }
+      .user-app-recent[hidden] { display:none!important; }
+      .user-app-recent__head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 12px; border-bottom:1px solid #e5edf1; color:#294b5d; font-size:11px; font-weight:700; }
+      .user-app-recent__head span { display:flex; align-items:center; gap:7px; }
+      .user-app-recent__head i { color:#168fcb; font-size:12px; }
+      body .user-app-recent__close { display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; width:25px; min-width:25px!important; height:25px; min-height:25px!important; padding:0; border:0; border-radius:6px; background:#eef7fa; color:#537281; font-size:17px!important; line-height:1; }
+      .user-app-recent__close:hover,.user-app-recent__close:focus { background:#dff1f7; color:#174f68; outline:0; }
+      .user-app-recent__grid { display:grid; grid-template-columns:1fr; gap:6px; padding:9px; }
+      .user-app-recent__item { position:relative; display:grid; grid-template-columns:34px minmax(0,1fr); grid-template-rows:auto auto; align-items:center; gap:2px 9px; width:100%; min-height:50px; padding:6px 25px 6px 7px; border:1px solid transparent; border-radius:8px; background:#f8fbfc; color:#24475a; text-align:left; }
+      .user-app-recent__item:hover,.user-app-recent__item:focus { border-color:#8ecde2; background:#eef9fd; outline:0; }
+      .user-app-recent__item > img { grid-row:1 / 3; width:34px; height:34px; border:1px solid #dce4e9; border-radius:7px; object-fit:cover; }
+      .user-app-recent__name { overflow:hidden; color:#243f50; font-size:11px; font-weight:700; line-height:1.25; text-overflow:ellipsis; white-space:nowrap; }
+      .user-app-recent__meta { grid-column:2; display:flex; align-items:center; min-width:0; gap:5px; overflow:hidden; white-space:nowrap; }
+      .user-app-recent__item .user-app-health { flex:0 0 auto; font-size:8px; line-height:1.1; }
+      .user-app-recent__separator { flex:0 0 auto; color:#a2b1b9; font-size:9px; }
+      .user-app-recent__time { min-width:0; overflow:hidden; color:#748995; font-size:8px; font-weight:500; line-height:1.2; text-overflow:ellipsis; white-space:nowrap; }
+      .user-app-recent__time i { margin-right:4px; color:#7895a4; }
+      .user-app-recent__arrow { position:absolute; right:9px; top:50%; color:#8aa0ad; font-size:13px; transform:translateY(-50%); }
+      .user-app-recent__footer { display:flex; justify-content:flex-end; padding:8px 9px 9px; border-top:1px solid #e7eef2; }
+      body .user-app-recent__footer button { display:inline-flex; align-items:center; gap:6px; min-height:30px!important; padding:5px 9px; border:1px solid #d8e4ea; border-radius:7px; background:#fff; color:#607985; font-size:9px!important; font-weight:700; }
+      .user-app-recent__footer button:hover,.user-app-recent__footer button:focus { border-color:#e3aeb5; background:#fff6f7; color:#a83d4b; outline:0; }
+
+
       .user-app-category-card h5 {
         margin: 0 0 4px;
         color: #29384b;
@@ -1907,6 +2096,36 @@
         color: #a86c15;
       }
 
+      .user-app-health {
+        display: inline-flex;
+        align-items: center;
+        flex: 0 0 auto;
+        gap: 4px;
+        color: #647985;
+        font-size: 8px;
+        font-weight: 700;
+        line-height: 1.35;
+        white-space: nowrap;
+      }
+
+      .user-app-health i {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #9aabb4;
+      }
+
+      .user-app-health.is-available { color:#21824e; }
+      .user-app-health.is-available i { background:#24a861; }
+      .user-app-health.is-slow { color:#9a6900; }
+      .user-app-health.is-slow i { background:#e5a60b; }
+      .user-app-health.is-maintenance { color:#9a5a12; }
+      .user-app-health.is-maintenance i { background:#ef811a; }
+      .user-app-health.is-unavailable { color:#b23d4b; }
+      .user-app-health.is-unavailable i { background:#d94b5b; }
+
+
       .user-app-content p {
         display: block;
         margin: 0;
@@ -2045,6 +2264,12 @@
         .user-app-panel {
           padding: 20px 15px;
         }
+
+        body .user-app-recent__trigger { flex-basis:28px; width:28px; min-width:28px!important; max-width:28px; height:28px; min-height:28px!important; max-height:28px; }
+        .user-app-recent { left:10px; right:10px; top:48px; width:auto; max-width:none; }
+        .user-app-recent__head { padding:10px 11px; }
+        .user-app-recent__grid { grid-template-columns:1fr; padding:8px; }
+        .user-app-recent__item { min-height:50px; }
 
         .user-app-header {
           display: block;
@@ -2301,6 +2526,7 @@
         .user-app-card { grid-template-columns:44px minmax(0,1fr); gap:10px 12px; padding:16px; }
         .user-app-index { display:none; }
         .user-app-image { width:44px; height:44px; }
+        .user-app-name { flex-wrap:wrap; }
         .user-app-name strong { white-space:normal; overflow-wrap:anywhere; }
         .user-app-content > p { white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
         .user-app-actions { grid-column:1 / -1; display:flex; flex-direction:row; align-items:center; justify-content:flex-end; gap:8px; margin-top:2px; }

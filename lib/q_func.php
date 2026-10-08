@@ -30,6 +30,7 @@ require_once dirname(__DIR__) . '/app/User/InitialPasswordSetupService.php';
 require_once dirname(__DIR__) . '/app/User/UserManagementException.php';
 require_once dirname(__DIR__) . '/app/User/UserProfilePolicyService.php';
 require_once dirname(__DIR__) . '/app/User/UserAclManagementService.php';
+require_once dirname(__DIR__) . '/app/Monitoring/UserDownstreamHealthService.php';
 require_once dirname(__DIR__) . '/app/Admin/WebAppManagementException.php';
 require_once dirname(__DIR__) . '/app/Admin/WebAppCategoryService.php';
 require_once dirname(__DIR__) . '/app/Admin/WebAppService.php';
@@ -2751,6 +2752,33 @@ function string_sanitize($s) {
 
 
       // echo json_encode(array_values($acl_merged_keyed),JSON_PRETTY_PRINT);
+     }
+
+     if(isset($_POST['user_downstream_status'])){
+      $rawIds = $_POST['sp_ids'] ?? [];
+      if (is_string($rawIds)) {
+        $decodedIds = json_decode($rawIds, true);
+        $rawIds = is_array($decodedIds) ? $decodedIds : [];
+      }
+      $ids = [];
+      foreach (is_array($rawIds) ? $rawIds : [] as $rawId) {
+        $id = trim((string) $rawId);
+        if (preg_match('/^[A-Za-z0-9_-]{1,20}$/', $id) && !in_array($id, $ids, true)) {
+          $ids[] = $id;
+        }
+        if (count($ids) >= 12) break;
+      }
+      $allowed = [];
+      foreach ($ids as $id) {
+        $access = check_specific_sp_allowed($operation, $id);
+        if ((int) ($access['status'] ?? 0) === 1) {
+          $allowed[] = ['sp_id' => $id, 'sp_domain' => (string) ($access['domain'] ?? '')];
+        }
+      }
+      $service = new \OneId\App\Monitoring\UserDownstreamHealthService(
+        dirname(__DIR__) . '/storage/cache/downstream-health'
+      );
+      echo json_encode(['status' => 1, 'applications' => $service->check($allowed)]);
      }
 
      if(isset( $_POST['user_set_app_favourite'])){

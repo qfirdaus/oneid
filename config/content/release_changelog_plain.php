@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.19.0' =>
+  array (
+    'version' => '2.19.0',
+    'date' => '2026-10-08',
+    'bm' =>
+    array (
+      0 => 'Gauge Status Sambungan dan Paparan kini bergerak mengikut masa respons sebenar serta menunjukkan keadaan pantas, sederhana, perlahan atau luar talian.',
+      1 => 'Direktori aplikasi memaparkan status downstream secara selamat untuk aplikasi yang dibenarkan, dengan semakan terhad, timeout pendek dan cache sementara tanpa mendedahkan URL kepada pelayar.',
+      2 => 'Recently Used menyediakan menu konteks responsif dengan enam aplikasi terakhir, status, timestamp penggunaan terakhir dan tindakan kosongkan sejarah khusus tanpa menjejaskan Favourite atau sesi pengguna.',
+    ),
+    'en' =>
+    array (
+      0 => 'The Connection and Display Status gauge now moves with measured response time and indicates fast, moderate, slow or offline conditions.',
+      1 => 'The application directory safely presents downstream status for authorised applications using capped checks, short timeouts and temporary caching without exposing URLs to the browser.',
+      2 => 'Recently Used provides a responsive context menu with the six latest applications, status, last-used timestamps and a dedicated history-clear action that does not affect Favourites or the user session.',
+    ),
+  ),
   'release-2.18.4' =>
   array (
     'version' => '2.18.4',

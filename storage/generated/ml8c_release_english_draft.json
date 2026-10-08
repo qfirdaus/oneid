@@ -7,6 +7,31 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.19.0",
+            "version": "2.19.0",
+            "date": "2026-10-08",
+            "items": [
+                {
+                    "identity": "release:2.19.0:item:001",
+                    "bm": "Gauge Status Sambungan dan Paparan kini bergerak mengikut masa respons sebenar serta menunjukkan keadaan pantas, sederhana, perlahan atau luar talian.",
+                    "en_draft": "The Connection and Display Status gauge now moves with measured response time and indicates fast, moderate, slow or offline conditions.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.19.0:item:002",
+                    "bm": "Direktori aplikasi memaparkan status downstream secara selamat untuk aplikasi yang dibenarkan, dengan semakan terhad, timeout pendek dan cache sementara tanpa mendedahkan URL kepada pelayar.",
+                    "en_draft": "The application directory safely presents downstream status for authorised applications using capped checks, short timeouts and temporary caching without exposing URLs to the browser.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.19.0:item:003",
+                    "bm": "Recently Used menyediakan menu konteks responsif dengan enam aplikasi terakhir, status, timestamp penggunaan terakhir dan tindakan kosongkan sejarah khusus tanpa menjejaskan Favourite atau sesi pengguna.",
+                    "en_draft": "Recently Used provides a responsive context menu with the six latest applications, status, last-used timestamps and a dedicated history-clear action that does not affect Favourites or the user session.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.18.4",
             "version": "2.18.4",
             "date": "2026-10-08",
@@ -4639,5 +4664,5 @@
             ]
         }
     ],
-    "manifest_digest": "3cc294c022f7a2955a4007cbc3916eeda284638428971d21154f1d1cf2d6e309"
+    "manifest_digest": "ad8fdc34575db7207a5eabcc3b370005e79985c98428ef356bb4310f32b7876b"
 }

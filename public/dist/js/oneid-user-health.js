@@ -67,20 +67,26 @@
 
     function sync() {
       var online = navigator.onLine !== false;
+      var gaugeState = !online ? 'offline' : (responseMs > 2500 ? 'slow' : (responseMs > 1000 ? 'moderate' : 'fast'));
       connection.classList.toggle('is-offline', !online);
       connection.querySelector('b').textContent = online ? text.online : text.offline;
       response.textContent = responseLabel(responseMs) + (responseMs ? ' · ' + responseMs + ' ms' : '');
       updated.textContent = localTime(updatedAt);
+      Array.prototype.forEach.call(document.querySelectorAll('.oneid-gauge-icon'), function (gauge) {
+        gauge.classList.remove('is-fast', 'is-moderate', 'is-slow', 'is-offline');
+        gauge.classList.add('is-' + gaugeState);
+      });
     }
     function open() { panel.hidden = false; trigger.setAttribute('aria-expanded', 'true'); panel.querySelector('[data-health-close]').focus(); sync(); }
     function close(restore) { panel.hidden = true; trigger.setAttribute('aria-expanded', 'false'); if (restore) trigger.focus(); }
     function runRefresh(message) {
+      var refreshStartedAt = window.performance && performance.now ? performance.now() : Date.now();
       status.textContent = text.refreshing;
       refresh.disabled = true; clear.disabled = true;
       var requests = [];
       try { if (typeof window.get_specific_user_app_list === 'function') requests.push(window.get_specific_user_app_list()); } catch (error) { /* handled below */ }
       try { if (typeof window.get_specific_user_activ_session === 'function') requests.push(window.get_specific_user_activ_session()); } catch (error) { /* handled below */ }
-      var complete = function (resultMessage) { updatedAt = new Date(); sync(); status.textContent = resultMessage; refresh.disabled = false; clear.disabled = false; };
+      var complete = function (resultMessage) { responseMs = Math.max(0, Math.round((window.performance && performance.now ? performance.now() : Date.now()) - refreshStartedAt)); updatedAt = new Date(); sync(); status.textContent = resultMessage; refresh.disabled = false; clear.disabled = false; };
       if (window.jQuery && requests.length) {
         window.jQuery.when.apply(window.jQuery, requests)
           .done(function () { complete(message); })
