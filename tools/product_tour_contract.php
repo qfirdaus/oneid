@@ -46,6 +46,7 @@ $report($localized, 'BM and English tour content is complete');
 $up=(string)file_get_contents($root.'/docs/migrations/20260916_user_product_tour_progress_up.sql');
 $report(str_contains($up,'PRIMARY KEY (u_id, tour_id, tour_version)')&&is_file($root.'/docs/migrations/20260916_user_product_tour_progress_down.sql'),'per-account progress has additive reversible schema');
 $report(str_contains($controller,'user_set_product_tour_status')&&str_contains($controller,"'X-CSRF-Token':config.csrfToken")&&str_contains($requestSecurity,"'user_set_product_tour_status'")&&str_contains($endpoint,"isset(\$_POST['user_set_product_tour_status'])"),'completion synchronizes through authenticated CSRF endpoint');
+$report(str_contains($endpoint, "in_array(\$versionRaw,['1','2'],true)"), 'completion endpoint accepts the current guide version while retaining a bounded allowlist');
 $report(str_contains($controller,'Local completion remains the safe fallback')&&str_contains($database,'getUserProductTourStatus'),'database is authoritative with local fallback');
 
 echo "RESULT checks={$checks} failed={$failed}" . PHP_EOL;

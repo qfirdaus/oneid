@@ -2781,7 +2781,7 @@ function string_sanitize($s) {
 
      if(isset($_POST['user_set_product_tour_status'])){
       $tourId=trim((string)($_POST['tour_id']??''));$versionRaw=(string)($_POST['tour_version']??'');$status=trim((string)($_POST['completion_status']??''));
-      if($tourId!=='dashboard'||$versionRaw!=='1'||!in_array($status,['completed','skipped'],true)){
+      if($tourId!=='dashboard'||!in_array($versionRaw,['1','2'],true)||!in_array($status,['completed','skipped'],true)){
         http_response_code(422);echo json_encode(['status'=>0,'code'=>'INVALID_PRODUCT_TOUR_STATUS']);
       }elseif(!$operation->supportsUserProductTourProgress()){
         http_response_code(503);echo json_encode(['status'=>0,'code'=>'PRODUCT_TOUR_STORAGE_UNAVAILABLE']);

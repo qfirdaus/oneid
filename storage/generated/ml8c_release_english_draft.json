@@ -7,6 +7,31 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.18.4",
+            "version": "2.18.4",
+            "date": "2026-10-08",
+            "items": [
+                {
+                    "identity": "release:2.18.4:item:001",
+                    "bm": "Status selesai atau dilangkau untuk Panduan Sistem versi 2 kini diterima dan disimpan oleh endpoint progress mengikut akaun pengguna.",
+                    "en_draft": "Completed or skipped status for System Guide version 2 is now accepted and stored by the progress endpoint for each user account.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.18.4:item:002",
+                    "bm": "Panduan automatik hanya dipaparkan sekali selepas pengguna menyelesaikan atau melangkaunya; login seterusnya tidak lagi membuka panduan berulang kali.",
+                    "en_draft": "The automatic guide appears only once after completion or skipping; subsequent sign-ins no longer reopen it repeatedly.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.18.4:item:003",
+                    "bm": "Menu Lihat Panduan Sistem kekal tersedia untuk pengguna menjalankan semula panduan secara manual pada bila-bila masa.",
+                    "en_draft": "View System Guide remains available for users to replay the guide manually at any time.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.18.3",
             "version": "2.18.3",
             "date": "2026-10-07",
@@ -4614,5 +4639,5 @@
             ]
         }
     ],
-    "manifest_digest": "809fffa2309f0c835cd2af83b5e8f555bc9a4941a3617d804da7799c1931ef49"
+    "manifest_digest": "3cc294c022f7a2955a4007cbc3916eeda284638428971d21154f1d1cf2d6e309"
 }

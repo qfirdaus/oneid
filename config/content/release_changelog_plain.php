@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.18.4' =>
+  array (
+    'version' => '2.18.4',
+    'date' => '2026-10-08',
+    'bm' =>
+    array (
+      0 => 'Status selesai atau dilangkau untuk Panduan Sistem versi 2 kini diterima dan disimpan oleh endpoint progress mengikut akaun pengguna.',
+      1 => 'Panduan automatik hanya dipaparkan sekali selepas pengguna menyelesaikan atau melangkaunya; login seterusnya tidak lagi membuka panduan berulang kali.',
+      2 => 'Menu Lihat Panduan Sistem kekal tersedia untuk pengguna menjalankan semula panduan secara manual pada bila-bila masa.',
+    ),
+    'en' =>
+    array (
+      0 => 'Completed or skipped status for System Guide version 2 is now accepted and stored by the progress endpoint for each user account.',
+      1 => 'The automatic guide appears only once after completion or skipping; subsequent sign-ins no longer reopen it repeatedly.',
+      2 => 'View System Guide remains available for users to replay the guide manually at any time.',
+    ),
+  ),
   'release-2.18.3' =>
   array (
     'version' => '2.18.3',
