@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.19.2' =>
+  array (
+    'version' => '2.19.2',
+    'date' => '2026-10-08',
+    'bm' =>
+    array (
+      0 => 'Ringkasan Keselamatan Akaun kini tersedia melalui ikon khusus bersebelahan Recently Used tanpa memanjangkan kategori aplikasi.',
+      1 => 'Panel responsif memaparkan status MFA, sesi aktif, login terakhir dan semakan peranti dalam kad satu kolum yang ringkas, kemas dan mudah dibaca pada web serta telefon.',
+      2 => 'Maklumat keselamatan menggunakan data sesi pengguna sedia ada dan semakan MFA baca sahaja, tanpa mendedahkan token, cookie atau maklumat sensitif dan tanpa perubahan database.',
+    ),
+    'en' =>
+    array (
+      0 => 'Account Security is now available through a dedicated icon beside Recently Used without extending the application categories.',
+      1 => 'The responsive panel presents MFA status, active sessions, last login and device review in concise single-column cards designed for clear reading on desktop and mobile.',
+      2 => 'Security information uses the existing user-session response and a read-only MFA check without exposing tokens, cookies or sensitive information and without database changes.',
+    ),
+  ),
   'release-2.19.1' =>
   array (
     'version' => '2.19.1',

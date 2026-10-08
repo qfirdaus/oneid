@@ -52,6 +52,8 @@
       ? 'dashboard.role.staff'
       : 'dashboard.role.student';
    $userMfaEnrollmentAvailable = false;
+   $userMfaSummaryState = 'unavailable';
+   $userMfaSummaryMethod = '';
    try {
       if (in_array(
           (string) oneid_config('ONEID_USER_MFA_MODE', 'OFF'),
@@ -69,9 +71,20 @@
             && $userMfaPolicyReader->selfServiceEligible($userMfaUser)
             && ($userMfaEffectiveMode !== 'PILOT_ENFORCED'
                || $userMfaPolicyReader->pilotEligible($userMfaUser));
+         if ($userMfaEnrollmentAvailable) {
+            $userMfaSummaryState = 'active';
+            $factorStatement = $userMfaPdo->prepare(
+               "SELECT COUNT(*) FROM user_mfa_factors WHERE u_id=:user AND factor_type='TOTP' AND factor_status='ACTIVE'"
+            );
+            $factorStatement->execute([':user' => $userMfaUser]);
+            $userMfaSummaryMethod = (int) $factorStatement->fetchColumn() > 0 ? 'authenticator' : 'email';
+         } else {
+            $userMfaSummaryState = $userMfaEffectiveMode === 'OFF' ? 'inactive' : 'unavailable';
+         }
       }
    } catch (Throwable) {
       $userMfaEnrollmentAvailable = false;
+      $userMfaSummaryState = 'unavailable';
    }
    $productTourEnabled = filter_var(
       oneid_config('ONEID_PRODUCT_TOUR_ENABLED', 'false'),
@@ -483,10 +496,42 @@
                                           <div class="user-app-category-card">
                                              <div class="user-app-category-title-row">
                                                 <h5><?=htmlspecialchars(oneid_translate('dashboard.apps.categories'), ENT_QUOTES, 'UTF-8')?></h5>
-                                                <button type="button" class="user-app-recent__trigger" id="user_app_recent_trigger" title="<?=htmlspecialchars(oneid_translate('dashboard.apps.recent'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('dashboard.apps.recent'), ENT_QUOTES, 'UTF-8')?>" aria-expanded="false" aria-controls="user_app_recent" hidden>
-                                                   <i class="fa fa-history" aria-hidden="true"></i>
-                                                </button>
+                                                <div class="user-app-category-tools">
+                                                   <button type="button" class="user-security-context__trigger" id="user_security_context_trigger" title="<?=htmlspecialchars(oneid_translate('dashboard.security_summary.title'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('dashboard.security_summary.title'), ENT_QUOTES, 'UTF-8')?>" aria-expanded="false" aria-controls="user_security_context">
+                                                      <i class="fa fa-shield" aria-hidden="true"></i>
+                                                   </button>
+                                                   <button type="button" class="user-app-recent__trigger" id="user_app_recent_trigger" title="<?=htmlspecialchars(oneid_translate('dashboard.apps.recent'), ENT_QUOTES, 'UTF-8')?>" aria-label="<?=htmlspecialchars(oneid_translate('dashboard.apps.recent'), ENT_QUOTES, 'UTF-8')?>" aria-expanded="false" aria-controls="user_app_recent" hidden>
+                                                      <i class="fa fa-history" aria-hidden="true"></i>
+                                                   </button>
+                                                </div>
                                              </div>
+                                             <section class="user-security-context" id="user_security_context" hidden role="dialog" aria-modal="false" aria-labelledby="user_security_summary_title">
+                                                <div class="user-security-context__head">
+                                                   <span id="user_security_summary_title"><i class="fa fa-shield" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('dashboard.security_summary.title'), ENT_QUOTES, 'UTF-8')?></span>
+                                                   <button type="button" data-security-context-close aria-label="<?=htmlspecialchars(oneid_translate('dashboard.health.close'), ENT_QUOTES, 'UTF-8')?>">&times;</button>
+                                                </div>
+                                                <p class="user-security-context__intro"><?=htmlspecialchars(oneid_translate('dashboard.security_summary.intro'), ENT_QUOTES, 'UTF-8')?></p>
+                                                <div class="user-security-summary__grid" aria-live="polite">
+                                                   <article class="user-security-summary__card is-<?=$userMfaSummaryState?>">
+                                                      <?php $userMfaSummaryHelp = $userMfaSummaryMethod !== '' ? oneid_translate('dashboard.security_summary.method_' . $userMfaSummaryMethod) : oneid_translate('dashboard.security_summary.mfa_help_' . $userMfaSummaryState); ?>
+                                                      <span><?=htmlspecialchars(oneid_translate('dashboard.security_summary.mfa'), ENT_QUOTES, 'UTF-8')?></span>
+                                                      <strong><i class="fa fa-lock" aria-hidden="true"></i><b><?=htmlspecialchars(oneid_translate('dashboard.security_summary.mfa_' . $userMfaSummaryState), ENT_QUOTES, 'UTF-8')?></b><small title="<?=htmlspecialchars($userMfaSummaryHelp, ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars($userMfaSummaryHelp, ENT_QUOTES, 'UTF-8')?></small></strong>
+                                                   </article>
+                                                   <article class="user-security-summary__card">
+                                                      <span><?=htmlspecialchars(oneid_translate('dashboard.security_summary.sessions'), ENT_QUOTES, 'UTF-8')?></span>
+                                                      <strong><i class="fa fa-desktop" aria-hidden="true"></i><b id="user_security_active_sessions">&mdash;</b><small id="user_security_sessions_help" title="<?=htmlspecialchars(oneid_translate('dashboard.security_summary.loading'), ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars(oneid_translate('dashboard.security_summary.loading'), ENT_QUOTES, 'UTF-8')?></small></strong>
+                                                   </article>
+                                                   <article class="user-security-summary__card">
+                                                      <span><?=htmlspecialchars(oneid_translate('dashboard.security_summary.last_login'), ENT_QUOTES, 'UTF-8')?></span>
+                                                      <strong><i class="fa fa-clock-o" aria-hidden="true"></i><b id="user_security_last_login">&mdash;</b><small title="<?=htmlspecialchars(oneid_translate('dashboard.security_summary.last_login_help'), ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars(oneid_translate('dashboard.security_summary.last_login_help'), ENT_QUOTES, 'UTF-8')?></small></strong>
+                                                   </article>
+                                                   <article class="user-security-summary__card" id="user_security_device_card">
+                                                      <span><?=htmlspecialchars(oneid_translate('dashboard.security_summary.device_review'), ENT_QUOTES, 'UTF-8')?></span>
+                                                      <strong><i class="fa fa-check-circle" id="user_security_device_icon" aria-hidden="true"></i><b id="user_security_device_status">&mdash;</b><small id="user_security_device_help" title="<?=htmlspecialchars(oneid_translate('dashboard.security_summary.loading'), ENT_QUOTES, 'UTF-8')?>"><?=htmlspecialchars(oneid_translate('dashboard.security_summary.loading'), ENT_QUOTES, 'UTF-8')?></small></strong>
+                                                   </article>
+                                                </div>
+                                                <?php if ($userMfaEnrollmentAvailable): ?><div class="user-security-context__footer"><a href="user-mfa-security"><i class="fa fa-lock" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('dashboard.security_summary.manage'), ENT_QUOTES, 'UTF-8')?></a></div><?php endif; ?>
+                                             </section>
                                              <section class="user-app-recent" id="user_app_recent" hidden role="dialog" aria-modal="false" aria-labelledby="user_app_recent_title">
                                                 <div class="user-app-recent__head">
                                                    <span id="user_app_recent_title"><i class="fa fa-history" aria-hidden="true"></i><?=htmlspecialchars(oneid_translate('dashboard.apps.recent'), ENT_QUOTES, 'UTF-8')?></span>
@@ -770,6 +815,14 @@
             'feedbackCode' => oneid_translate('dashboard.feedback.code'),
             'feedbackReference' => oneid_translate('dashboard.feedback.reference'),
             'sessionStatusUnavailable' => oneid_translate('user_session.request_failed'),
+            'securitySessionsCurrent' => oneid_translate('dashboard.security_summary.sessions_current'),
+            'securitySessionsOther' => oneid_translate('dashboard.security_summary.sessions_other', ['count' => '{count}']),
+            'securityDeviceOk' => oneid_translate('dashboard.security_summary.device_ok'),
+            'securityDeviceReview' => oneid_translate('dashboard.security_summary.device_review_needed'),
+            'securityDeviceOkHelp' => oneid_translate('dashboard.security_summary.device_ok_help'),
+            'securityDeviceUnknownHelp' => oneid_translate('dashboard.security_summary.device_unknown_help', ['count' => '{count}']),
+            'securityDeviceOtherHelp' => oneid_translate('dashboard.security_summary.device_other_help'),
+            'securityUnavailable' => oneid_translate('dashboard.security_summary.unavailable'),
             'asnbReminderTitle' => oneid_translate('dashboard.asnb_reminder.title'),
             'asnbReminderMessage' => oneid_translate('dashboard.asnb_reminder.message'),
             'asnbReminderOpen' => oneid_translate('dashboard.asnb_reminder.open'),
@@ -1353,11 +1406,29 @@
 
          $(document).on('click', '#user_app_recent_trigger', function(event){
             event.stopPropagation();
+            $('#user_security_context').prop('hidden', true);
+            $('#user_security_context_trigger').attr('aria-expanded', 'false');
             var $trigger = $(this);
             var open = $trigger.attr('aria-expanded') !== 'true';
             $trigger.attr('aria-expanded', open ? 'true' : 'false');
             $('#user_app_recent').prop('hidden', !open);
             if (open) $('#user_app_recent [data-recent-open]').first().trigger('focus');
+         });
+
+         $(document).on('click', '#user_security_context_trigger', function(event){
+            event.stopPropagation();
+            $('#user_app_recent').prop('hidden', true);
+            $('#user_app_recent_trigger').attr('aria-expanded', 'false');
+            var $trigger = $(this);
+            var open = $trigger.attr('aria-expanded') !== 'true';
+            $trigger.attr('aria-expanded', open ? 'true' : 'false');
+            $('#user_security_context').prop('hidden', !open);
+            if (open) $('#user_security_context [data-security-context-close]').trigger('focus');
+         });
+
+         $(document).on('click', '[data-security-context-close]', function(){
+            $('#user_security_context').prop('hidden', true);
+            $('#user_security_context_trigger').attr('aria-expanded', 'false').trigger('focus');
          });
 
          $(document).on('click', '[data-recent-close]', function(){
@@ -1377,12 +1448,19 @@
                $('#user_app_recent').prop('hidden', true);
                $('#user_app_recent_trigger').attr('aria-expanded', 'false');
             }
+            if (!$(event.target).closest('#user_security_context, #user_security_context_trigger').length) {
+               $('#user_security_context').prop('hidden', true);
+               $('#user_security_context_trigger').attr('aria-expanded', 'false');
+            }
          });
 
          $(document).on('keydown', function(event){
             if (event.key === 'Escape' && !$('#user_app_recent').prop('hidden')) {
                $('#user_app_recent').prop('hidden', true);
                $('#user_app_recent_trigger').attr('aria-expanded', 'false').trigger('focus');
+            } else if (event.key === 'Escape' && !$('#user_security_context').prop('hidden')) {
+               $('#user_security_context').prop('hidden', true);
+               $('#user_security_context_trigger').attr('aria-expanded', 'false').trigger('focus');
             }
          });
 
@@ -1462,7 +1540,8 @@
                  success: function (response) {
                    $('#app_security_session_loading').hide();
                    $('#app_security_session_list').fadeIn();   
-                 	var list_count = 0;
+                  var list_count = 0;
+                  updateUserSecuritySummary(Array.isArray(response) ? response : []);
                  	// if(response.length == 0){
                  	// 	$('#follo_data_list_count_text').html('');
                  	// }else{                		
@@ -1494,8 +1573,51 @@
          
              },
              error: function (xhr, error, thrown) {
+               $('#user_security_active_sessions, #user_security_last_login, #user_security_device_status').text('\u2014');
+               $('#user_security_sessions_help, #user_security_device_help').text(dashboardI18n.securityUnavailable).attr('title', dashboardI18n.securityUnavailable);
+               $('#user_security_device_card').addClass('is-warning');
+               $('#user_security_device_icon').attr('class', 'fa fa-exclamation-triangle');
              }
          });
+         }
+
+         function userSecurityDate(value){
+            var raw = String(value || '').trim();
+            if (!raw) return '\u2014';
+            var date = new Date(raw.replace(' ', 'T'));
+            if (isNaN(date.getTime())) return '\u2014';
+            try {
+               return new Intl.DateTimeFormat(document.documentElement.lang === 'en' ? 'en-MY' : 'ms-MY', {
+                  day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit'
+               }).format(date);
+            } catch (error) { return date.toLocaleString(); }
+         }
+
+         function updateUserSecuritySummary(sessions){
+            var active = Array.isArray(sessions) ? sessions : [];
+            var otherCount = active.filter(function(session){ return String(session.current_token) !== '1'; }).length;
+            var unknownCount = active.filter(function(session){
+               var device = String(session.device_info || '').trim().toLocaleLowerCase();
+               return device === '' || device === 'unknown' || device === 'unknown device';
+            }).length;
+            var latest = active.reduce(function(value, session){
+               var candidate = String(session.token_issued_at || '');
+               return candidate > value ? candidate : value;
+            }, '');
+            $('#user_security_active_sessions').text(active.length);
+            var sessionsHelp = otherCount > 0
+               ? dashboardI18n.securitySessionsOther.replace('{count}', otherCount)
+               : dashboardI18n.securitySessionsCurrent;
+            $('#user_security_sessions_help').text(sessionsHelp).attr('title', sessionsHelp);
+            $('#user_security_last_login').text(userSecurityDate(latest));
+            var warning = unknownCount > 0 || otherCount > 0;
+            $('#user_security_device_card').toggleClass('is-warning', warning);
+            $('#user_security_device_icon').attr('class', warning ? 'fa fa-exclamation-triangle' : 'fa fa-check-circle');
+            $('#user_security_device_status').text(warning ? dashboardI18n.securityDeviceReview : dashboardI18n.securityDeviceOk);
+            var deviceHelp = unknownCount > 0
+               ? dashboardI18n.securityDeviceUnknownHelp.replace('{count}', unknownCount)
+               : (otherCount > 0 ? dashboardI18n.securityDeviceOtherHelp : dashboardI18n.securityDeviceOkHelp);
+            $('#user_security_device_help').text(deviceHelp).attr('title', deviceHelp);
          }
          
          
@@ -1971,6 +2093,41 @@
         color: #087eaf;
       }
 
+      .user-app-category-tools { display:flex; align-items:center; gap:6px; }
+      body .user-security-context__trigger {
+        display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;
+        flex:0 0 26px; width:26px; min-width:26px!important; max-width:26px;
+        height:26px; min-height:26px!important; max-height:26px; padding:0;
+        border:1px solid #cfe1e9; border-radius:6px; background:#f5fafc;
+        color:#168fcb; font-size:11px!important; line-height:1;
+      }
+      .user-security-context__trigger:hover,.user-security-context__trigger:focus,
+      .user-security-context__trigger[aria-expanded="true"] { border-color:#75bdd5; background:#eaf7fc; color:#087ba7; outline:0; }
+      .user-security-context { position:absolute; z-index:21; top:46px; right:20px; width:460px; max-width:calc(100vw - 40px); max-height:calc(100vh - 110px); overflow:auto; border:1px solid #c9dee8; border-radius:12px; background:#fff; box-shadow:0 16px 38px rgba(25,66,86,.22); }
+      .user-security-context[hidden] { display:none!important; }
+      .user-security-context__head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 12px; border-bottom:1px solid #dcebf1; background:linear-gradient(135deg,#f5fbfd 0%,#edf8fc 100%); color:#183f54; font-size:11px; font-weight:700; }
+      .user-security-context__head span { display:flex; align-items:center; gap:7px; }
+      .user-security-context__head span i { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:7px; background:#159dcc; color:#fff; font-size:11px; box-shadow:0 4px 10px rgba(21,157,204,.20); }
+      body .user-security-context__head button { display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; width:25px; min-width:25px!important; height:25px; min-height:25px!important; padding:0; border:0; border-radius:6px; background:#eef7fa; color:#537281; font-size:17px!important; line-height:1; }
+      .user-security-context__head button:hover,.user-security-context__head button:focus { background:#dff1f7; color:#174f68; outline:0; }
+      .user-security-context__intro { margin:0; padding:9px 12px; border-bottom:1px solid #e6eff3; background:#fbfdfe; color:#637c89; font-size:9px; line-height:1.4; }
+      .user-security-summary__grid { display:grid; grid-template-columns:1fr; gap:7px; padding:9px; background:#f7fafc; }
+      .user-security-summary__card { display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:13px 24px; align-items:center; justify-items:start; box-sizing:border-box; min-width:0; min-height:53px; gap:2px; padding:7px 10px; text-align:left; border:1px solid #dfebf0; border-radius:8px; background:#fff; box-shadow:0 2px 7px rgba(40,84,103,.05); }
+      .user-security-summary__card > span { display:block; width:100%; overflow:hidden; color:#70838e; font-size:7px; font-weight:700; letter-spacing:.07em; line-height:1.25; text-align:left; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; }
+      .user-security-summary__card strong { display:flex; align-items:center; justify-content:flex-start; width:100%; min-width:0; gap:6px; overflow:hidden; margin:0; color:#1d465b; font-size:11px; line-height:1.25; text-align:left; white-space:nowrap; }
+      .user-security-summary__card strong i { display:inline-flex; align-items:center; justify-content:center; flex:0 0 22px; width:22px; height:22px; border-radius:6px; background:#e9f7fc; color:#1597c5; font-size:10px; }
+      .user-security-summary__card strong b { flex:0 0 auto; overflow:hidden; max-width:42%; padding:2px 6px; border-radius:10px; background:#edf7fb; color:#174b62; font:inherit; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }
+      .user-security-summary__card small { display:block; min-width:0; overflow:hidden; margin:0; color:#657d89; font-size:8px; font-weight:400; line-height:1.25; text-align:left; text-overflow:ellipsis; white-space:nowrap; }
+      .user-security-summary__card.is-active strong i { background:#e8f8ef; color:#168b4d; }
+      .user-security-summary__card.is-active strong b { background:#e8f8ef; color:#167546; }
+      .user-security-summary__card.is-inactive strong i,.user-security-summary__card.is-warning strong i { background:#fff3dd; color:#ad6d08; }
+      .user-security-summary__card.is-inactive strong b,.user-security-summary__card.is-warning strong b { background:#fff3dd; color:#8b590b; }
+      .user-security-summary__card.is-unavailable strong i { background:#f0f3f5; color:#758792; }
+      .user-security-summary__card.is-unavailable strong b { background:#f0f3f5; color:#526a77; }
+      .user-security-context__footer { display:flex; justify-content:flex-end; padding:8px 9px 9px; border-top:1px solid #e7eef2; }
+      .user-security-context__footer a { display:inline-flex; align-items:center; gap:6px; min-height:30px; padding:5px 9px; border:1px solid #cfe1e9; border-radius:7px; color:#087ba7; font-size:9px; font-weight:700; }
+      .user-security-context__footer a:hover,.user-security-context__footer a:focus { border-color:#75bdd5; background:#eaf7fc; outline:0; }
+
       .user-app-category-card,
       .user-app-directory,
       .user-app-state {
@@ -1990,7 +2147,7 @@
       body .user-app-recent__trigger { display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; flex:0 0 26px; width:26px; min-width:26px!important; max-width:26px; height:26px; min-height:26px!important; max-height:26px; padding:0; border:1px solid #cfe1e9; border-radius:6px; background:#f5fafc; color:#168fcb; font-size:11px!important; line-height:1; }
       .user-app-recent__trigger[hidden] { display:none!important; }
       .user-app-recent__trigger:hover,.user-app-recent__trigger:focus,.user-app-recent__trigger[aria-expanded="true"] { border-color:#75bdd5; background:#eaf7fc; color:#087ba7; outline:0; }
-      .user-app-recent { position:absolute; z-index:20; top:46px; right:20px; width:430px; max-width:calc(100vw - 40px); padding:0; border:1px solid #cfe0e8; border-radius:10px; background:#fff; box-shadow:0 13px 32px rgba(25,66,86,.20); }
+      .user-app-recent { position:absolute; z-index:20; top:46px; right:20px; width:460px; max-width:calc(100vw - 40px); padding:0; border:1px solid #cfe0e8; border-radius:10px; background:#fff; box-shadow:0 13px 32px rgba(25,66,86,.20); }
       .user-app-recent[hidden] { display:none!important; }
       .user-app-recent__head { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 12px; border-bottom:1px solid #e5edf1; color:#294b5d; font-size:11px; font-weight:700; }
       .user-app-recent__head span { display:flex; align-items:center; gap:7px; }
@@ -2588,6 +2745,13 @@
         }
 
         body .user-app-recent__trigger { flex-basis:28px; width:28px; min-width:28px!important; max-width:28px; height:28px; min-height:28px!important; max-height:28px; }
+        body .user-security-context__trigger { flex-basis:28px; width:28px; min-width:28px!important; max-width:28px; height:28px; min-height:28px!important; max-height:28px; }
+        .user-security-context { left:10px; right:10px; top:48px; width:auto; max-width:none; }
+        .user-security-summary__grid { gap:6px; padding:8px; }
+        .user-security-summary__card { grid-template-columns:minmax(0,1fr); grid-template-rows:13px 24px; min-height:51px; gap:2px; padding:6px 8px; }
+        .user-security-summary__card strong b { max-width:46%; }
+        .user-security-summary__card strong { font-size:11px; }
+        .user-security-summary__card small { font-size:8px; }
         .user-app-recent { left:10px; right:10px; top:48px; width:auto; max-width:none; }
         .user-app-recent__head { padding:10px 11px; }
         .user-app-recent__grid { grid-template-columns:1fr; padding:8px; }

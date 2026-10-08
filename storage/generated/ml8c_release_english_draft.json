@@ -7,6 +7,31 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.19.2",
+            "version": "2.19.2",
+            "date": "2026-10-08",
+            "items": [
+                {
+                    "identity": "release:2.19.2:item:001",
+                    "bm": "Ringkasan Keselamatan Akaun kini tersedia melalui ikon khusus bersebelahan Recently Used tanpa memanjangkan kategori aplikasi.",
+                    "en_draft": "Account Security is now available through a dedicated icon beside Recently Used without extending the application categories.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.19.2:item:002",
+                    "bm": "Panel responsif memaparkan status MFA, sesi aktif, login terakhir dan semakan peranti dalam kad satu kolum yang ringkas, kemas dan mudah dibaca pada web serta telefon.",
+                    "en_draft": "The responsive panel presents MFA status, active sessions, last login and device review in concise single-column cards designed for clear reading on desktop and mobile.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.19.2:item:003",
+                    "bm": "Maklumat keselamatan menggunakan data sesi pengguna sedia ada dan semakan MFA baca sahaja, tanpa mendedahkan token, cookie atau maklumat sensitif dan tanpa perubahan database.",
+                    "en_draft": "Security information uses the existing user-session response and a read-only MFA check without exposing tokens, cookies or sensitive information and without database changes.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.19.1",
             "version": "2.19.1",
             "date": "2026-10-08",
@@ -4689,5 +4714,5 @@
             ]
         }
     ],
-    "manifest_digest": "05d13de0423fd4572578477b40df363d8559a7932f905c69676b3b541d5b8b23"
+    "manifest_digest": "b1bfdf1b2bbcb587097ee029fb8ebc2de3712ada37f2569e186ddd4d5d2eb9f8"
 }
