@@ -7,6 +7,7 @@ class Database {
     protected $pdo;
     private ?bool $userProvenanceSupported = null;
     private ?bool $userAppFavouritesSupported = null;
+    private ?bool $userAppRecentSupported = null;
     private ?bool $userProductTourProgressSupported = null;
     private string $environment;
     private ?\OneId\App\Audit\AuditIdentityResolver $auditIdentityResolver = null;
@@ -920,6 +921,50 @@ class Database {
         return $this->userAppFavouritesSupported;
     }
 
+    public function supportsUserAppRecent(): bool{
+        if ($this->userAppRecentSupported !== null) return $this->userAppRecentSupported;
+        $R=$this->pdo->prepare("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='user_app_recent'");
+        $R->execute();
+        return $this->userAppRecentSupported=(int)$R->fetchColumn()===1;
+    }
+
+    /** @return array<int,array{sp_id:string,last_used_at:string}> */
+    public function getUserAppRecent(string $userId): array{
+        if(!$this->supportsUserAppRecent()) return [];
+        $Q="SELECT R.sp_id,R.last_used_at
+              FROM user_app_recent R
+              JOIN user_tbl U ON U.u_id=R.u_id AND U.avail_status=1
+              JOIN sp_list S ON S.sp_id=R.sp_id AND S.avail_status=1
+             WHERE R.u_id=:u_id
+               AND NOT EXISTS(SELECT 1 FROM acl_blacklist B WHERE B.u_id=R.u_id AND B.sp_id=R.sp_id)
+               AND (EXISTS(SELECT 1 FROM acl_group G WHERE G.uc_id=U.u_category AND G.sp_id=R.sp_id)
+                    OR EXISTS(SELECT 1 FROM acl_single A WHERE A.u_id=R.u_id AND A.sp_id=R.sp_id))
+          ORDER BY R.last_used_at DESC,R.sp_id DESC LIMIT 6";
+        $R=$this->pdo->prepare($Q);$R->execute([':u_id'=>$userId]);
+        return $R->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function rememberUserAppRecent(string $userId,string $spId): string{
+        if(!$this->supportsUserAppRecent()) throw new RuntimeException('Recently used storage is unavailable.');
+        $this->pdo->beginTransaction();
+        try{
+            $upsert=$this->pdo->prepare("INSERT INTO user_app_recent(u_id,sp_id,last_used_at) VALUES(:u_id,:sp_id,NOW()) ON DUPLICATE KEY UPDATE last_used_at=NOW()");
+            $upsert->execute([':u_id'=>$userId,':sp_id'=>$spId]);
+            $trim=$this->pdo->prepare("DELETE FROM user_app_recent WHERE u_id=:delete_uid AND sp_id NOT IN (SELECT sp_id FROM (SELECT sp_id FROM user_app_recent WHERE u_id=:keep_uid ORDER BY last_used_at DESC,sp_id DESC LIMIT 6) K)");
+            $trim->execute([':delete_uid'=>$userId,':keep_uid'=>$userId]);
+            $read=$this->pdo->prepare("SELECT last_used_at FROM user_app_recent WHERE u_id=:u_id AND sp_id=:sp_id LIMIT 1");
+            $read->execute([':u_id'=>$userId,':sp_id'=>$spId]);
+            $lastUsed=(string)$read->fetchColumn();
+            $this->pdo->commit();
+            return $lastUsed;
+        }catch(Throwable $exception){if($this->pdo->inTransaction())$this->pdo->rollBack();throw $exception;}
+    }
+
+    public function clearUserAppRecent(string $userId): void{
+        if(!$this->supportsUserAppRecent()) throw new RuntimeException('Recently used storage is unavailable.');
+        $R=$this->pdo->prepare('DELETE FROM user_app_recent WHERE u_id=:u_id');$R->execute([':u_id'=>$userId]);
+    }
+
     public function supportsUserProductTourProgress(): bool{
         if ($this->userProductTourProgressSupported !== null) return $this->userProductTourProgressSupported;
         $R=$this->pdo->prepare("SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='user_product_tour_progress'");
@@ -1541,6 +1586,7 @@ class Database {
                   (SELECT COUNT(*) FROM acl_single A WHERE A.sp_id=S.sp_id) acl_single_count,
                   (SELECT COUNT(*) FROM acl_blacklist A WHERE A.sp_id=S.sp_id) blacklist_count,
                   (SELECT COUNT(*) FROM user_app_favourite A WHERE A.sp_id=S.sp_id) favourite_count,
+                  (SELECT COUNT(*) FROM user_app_recent A WHERE A.sp_id=S.sp_id) recent_count,
                   (SELECT COUNT(*) FROM sp_api_credential A WHERE A.sp_id=S.sp_id) credential_count,
                   (SELECT COUNT(*) FROM sp_app_asset A WHERE A.sp_id=S.sp_id) asset_count,
                   (SELECT COUNT(*) FROM sp_app_translation A WHERE A.sp_id=S.sp_id) translation_count
@@ -1561,18 +1607,20 @@ class Database {
             AND NOT EXISTS(SELECT 1 FROM acl_single A WHERE A.sp_id=sp_list.sp_id)
             AND NOT EXISTS(SELECT 1 FROM acl_blacklist A WHERE A.sp_id=sp_list.sp_id)
             AND NOT EXISTS(SELECT 1 FROM user_app_favourite A WHERE A.sp_id=sp_list.sp_id)
+            AND NOT EXISTS(SELECT 1 FROM user_app_recent A WHERE A.sp_id=sp_list.sp_id)
             AND NOT EXISTS(SELECT 1 FROM sp_api_credential A WHERE A.sp_id=sp_list.sp_id)";
         $R=$this->pdo->prepare($Q);$R->execute([':app_id'=>$appId]);return $R->rowCount();
     }
 
     public function admin_delete_app_access_references(string $table, string $appId): int{
-        $allowed = ['acl_group','acl_single','acl_blacklist','user_app_favourite'];
+        $allowed = ['acl_group','acl_single','acl_blacklist','user_app_favourite','user_app_recent'];
         if (!in_array($table, $allowed, true)) {
             throw new InvalidArgumentException('Unsupported app access table.');
         }
         if ($table === 'user_app_favourite' && !$this->supportsUserAppFavourites()) {
             return 0;
         }
+        if ($table === 'user_app_recent' && !$this->supportsUserAppRecent()) return 0;
         $R = $this->pdo->prepare("DELETE FROM `{$table}` WHERE sp_id=:app_id");
         $R->execute([':app_id'=>$appId]);
         return $R->rowCount();
@@ -2324,6 +2372,28 @@ class Database {
         $R->execute();
         $result = $R->fetchAll(PDO::FETCH_ASSOC);
         return $result;
+    }
+
+    public function get_previous_login_for_specific_user($user_id, $current_token){
+        $tokenHash = oneid_token_hash((string) $current_token);
+        $Q = "SELECT COALESCE(P.token_issued_at,P.token_datetime)
+                FROM token_tbl P
+                JOIN token_tbl C
+                  ON C.user_id=P.user_id
+                 AND (C.token_id=:current_hash OR C.token_id=:current_token)
+               WHERE P.user_id=:user_id
+                 AND P.token_id<>C.token_id
+                 AND COALESCE(P.token_issued_at,P.token_datetime)<COALESCE(C.token_issued_at,C.token_datetime)
+            ORDER BY COALESCE(P.token_issued_at,P.token_datetime) DESC,P.token_id DESC
+               LIMIT 1";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([
+            ':user_id' => $user_id,
+            ':current_hash' => $tokenHash,
+            ':current_token' => $current_token,
+        ]);
+        $result = $R->fetchColumn();
+        return is_string($result) && $result !== '' ? $result : null;
     }
 
     /** @param array<string, mixed> $filters */

@@ -292,7 +292,7 @@ return [
     'dashboard.security_summary.sessions_current' => 'Hanya sesi browser ini sedang aktif.',
     'dashboard.security_summary.sessions_other' => '{count} sesi lain perlu disemak.',
     'dashboard.security_summary.last_login' => 'Login terakhir',
-    'dashboard.security_summary.last_login_help' => 'Masa mula sesi OneID terkini yang direkodkan.',
+    'dashboard.security_summary.last_login_help' => 'Login terdahulu sebelum sesi ini.',
     'dashboard.security_summary.device_review' => 'Semakan peranti',
     'dashboard.security_summary.device_ok' => 'Tiada amaran',
     'dashboard.security_summary.device_review_needed' => 'Perlu disemak',

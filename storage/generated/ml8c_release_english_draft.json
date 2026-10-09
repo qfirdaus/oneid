@@ -7,6 +7,31 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.19.3",
+            "version": "2.19.3",
+            "date": "2026-10-09",
+            "items": [
+                {
+                    "identity": "release:2.19.3:item:001",
+                    "bm": "Recently Used kini disimpan secara selamat mengikut akaun pada server supaya enam aplikasi terakhir tersedia selepas logout serta apabila pengguna bertukar browser atau peranti.",
+                    "en_draft": "Recently Used is now stored securely per account on the server so the latest six applications remain available after logout and when users change browsers or devices.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.19.3:item:002",
+                    "bm": "Tindakan Clear Recently Used memadam sejarah pengguna pada server, manakala bacaan sentiasa menapis aplikasi menggunakan ACL semasa dan tidak memberi sebarang hak akses baharu.",
+                    "en_draft": "Clear Recently Used removes the user history from the server, while every read applies the current application ACL and never grants new access.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.19.3:item:003",
+                    "bm": "Ringkasan Keselamatan Akaun kini memaparkan login terdahulu sebelum sesi semasa dan mengecualikan masa login bagi sesi browser yang sedang digunakan.",
+                    "en_draft": "The Account Security summary now presents the previous sign-in before the current session and excludes the sign-in time of the browser session in use.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.19.2",
             "version": "2.19.2",
             "date": "2026-10-08",
@@ -4714,5 +4739,5 @@
             ]
         }
     ],
-    "manifest_digest": "b1bfdf1b2bbcb587097ee029fb8ebc2de3712ada37f2569e186ddd4d5d2eb9f8"
+    "manifest_digest": "ec50e6418f897d1045a8aba28dd7a83c3f2c26c72b69ff366fc000aacdab6af1"
 }

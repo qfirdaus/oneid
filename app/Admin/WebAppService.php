@@ -307,11 +307,11 @@ final class WebAppService
             }
 
             $removed = [];
-            foreach (['acl_group','acl_single','acl_blacklist','user_app_favourite'] as $table) {
+            foreach (['acl_group','acl_single','acl_blacklist','user_app_favourite','user_app_recent'] as $table) {
                 $removed[$table] = $this->operation->admin_delete_app_access_references($table, $appId);
             }
             $detail = sprintf(
-                'admin=%s action=archive_app app=%s old_category=%s acl_group=%d acl_single=%d blacklist=%d favourites=%d correlation=%s',
+                'admin=%s action=archive_app app=%s old_category=%s acl_group=%d acl_single=%d blacklist=%d favourites=%d recent=%d correlation=%s',
                 $adminId,
                 $appId,
                 (string) $app['sp_group_id'],
@@ -319,6 +319,7 @@ final class WebAppService
                 $removed['acl_single'],
                 $removed['acl_blacklist'],
                 $removed['user_app_favourite'],
+                $removed['user_app_recent'],
                 $correlationId
             );
             if ($this->operation->syslog_record(15, $detail, $ipAddress) !== 1) {

@@ -2530,6 +2530,14 @@ function string_sanitize($s) {
 
       if(isset( $_POST['admin_get_all_token_for_specific_user'])){
         $results = $operation->get_all_token_for_specific_user($_SESSION['login_user']);
+        $rawCookieToken=(string)($_COOKIE['sso_cre']??'');
+        $decodedCookieToken=json_decode($rawCookieToken);
+        $currentBrowserToken=is_object($decodedCookieToken)&&isset($decodedCookieToken->sso_cre)
+          ? (string)$decodedCookieToken->sso_cre
+          : $rawCookieToken;
+        $previousLoginAt=$currentBrowserToken!==''
+          ? $operation->get_previous_login_for_specific_user($_SESSION['login_user'],$currentBrowserToken)
+          : null;
         $unset_flag = 0;
         foreach ($results as $i => $ii) {
           $results[$i]['device_info'] = oneid_normalize_device_info($results[$i]['device_info'] ?? '');
@@ -2545,10 +2553,11 @@ function string_sanitize($s) {
           }
           // echo json_encode(array_values($acl_merged_keyed),JSON_PRETTY_PRINT);
           if(isset($_COOKIE['sso_cre'])) {
-            $cookieTokenHash = oneid_token_hash((string) $_COOKIE['sso_cre']);
+            $cookieTokenHash = oneid_token_hash($currentBrowserToken);
             if(hash_equals((string) $results[$i]['token_id'], $cookieTokenHash)
-              || hash_equals((string) $results[$i]['token_id'], (string) $_COOKIE['sso_cre'])){
+              || hash_equals((string) $results[$i]['token_id'], $currentBrowserToken)){
               $results[$i]['current_token'] = "1";
+              $results[$i]['previous_login_at'] = $previousLoginAt;
             }else{
               $results[$i]['current_token'] = "0";
             }
@@ -2702,8 +2711,12 @@ function string_sanitize($s) {
         $acl_merged_keyed[$i]['sp_sso_support'] = $idp_info['sp_sso_support'];
       }
       $favouriteIds = array_flip($operation->getUserAppFavouriteIds((string) $_SESSION['login_user']));
+      $recentRows = $operation->getUserAppRecent((string) $_SESSION['login_user']);
+      $recentById = [];
+      foreach ($recentRows as $recentRow) $recentById[(string)$recentRow['sp_id']] = (string)$recentRow['last_used_at'];
       foreach ($acl_merged_keyed as $i => $ii) {
         $acl_merged_keyed[$i]['is_favourite'] = isset($favouriteIds[(string) $ii['sp_id']]) ? 1 : 0;
+        $acl_merged_keyed[$i]['recently_used_at'] = $recentById[(string)$ii['sp_id']] ?? null;
       }
       $sp_list = array_values($acl_merged_keyed);
       $sp_group = array_unique(array_column($acl_merged_keyed, 'sp_group_id'));
@@ -2827,7 +2840,19 @@ function string_sanitize($s) {
     //Preparing for redirect to SP
      if(isset( $_POST['go_to_service_provider'])){
       $result = check_specific_sp_allowed($operation,$_POST['sp_id']);
+      if((int)($result['status']??0)===1&&trim((string)($result['domain']??''))!==''&&$operation->supportsUserAppRecent()){
+        $result['recently_used_at']=$operation->rememberUserAppRecent((string)$_SESSION['login_user'],(string)$_POST['sp_id']);
+      }
       echo json_encode($result);
+     }
+
+     if(isset($_POST['user_clear_app_recent'])){
+      if(!$operation->supportsUserAppRecent()){
+        http_response_code(503);echo json_encode(['status'=>0,'code'=>'RECENT_STORAGE_UNAVAILABLE']);
+      }else{
+        $operation->clearUserAppRecent((string)$_SESSION['login_user']);
+        echo json_encode(['status'=>1,'recent'=>[]]);
+      }
      }
 
      function check_specific_sp_allowed($operation,$sp_id){

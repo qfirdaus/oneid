@@ -16,13 +16,13 @@ $report(str_contains($ui,'open_manage_webapp_categories')&&str_contains($ui,'ass
 $report(str_contains($categoryService,"'W1_SYSTEM_CATEGORY_PROTECTED'")&&str_contains($categoryService,"'W1_CATEGORY_NOT_EMPTY'"),'category deletion is default-protected and empty-only');
 $report(str_contains($categoryService,"'W4_CATEGORY_DUPLICATE'")&&str_contains($categoryService,'mb_strlen($name) > 100'),'category creation validates duplicate and length');
 $report(substr_count($db,'AND B.avail_status=1')>=2,'effective group and direct ACL exclude inactive apps');
-$report(str_contains($appService,"['acl_group','acl_single','acl_blacklist','user_app_favourite']")&&str_contains($appService,'syslog_record(15'),'app archive atomically cleans references and audits');
+$report(str_contains($appService,"['acl_group','acl_single','acl_blacklist','user_app_favourite','user_app_recent']")&&str_contains($appService,'syslog_record(15'),'app archive atomically cleans references and presentation history then audits');
 $report(str_contains($endpoint,'WebAppService($operation)')&&str_contains($endpoint,'WebAppCategoryService($operation)'),'runtime mutations use hardened services');
 
 $pdo=new PDO(DB_DSN,DB_USERNAME,DB_PASSWORD,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
 $orphan=(int)$pdo->query("SELECT COUNT(*) FROM sp_list s LEFT JOIN sp_group g ON g.sp_group_id=s.sp_group_id WHERE g.sp_group_id IS NULL")->fetchColumn();
 $inactiveRefs=0;
-foreach(['acl_group','acl_single','acl_blacklist','user_app_favourite'] as $table){$inactiveRefs+=(int)$pdo->query("SELECT COUNT(*) FROM `{$table}` r INNER JOIN sp_list s ON s.sp_id=r.sp_id WHERE s.avail_status=0")->fetchColumn();}
+foreach(['acl_group','acl_single','acl_blacklist','user_app_favourite','user_app_recent'] as $table){$inactiveRefs+=(int)$pdo->query("SELECT COUNT(*) FROM `{$table}` r INNER JOIN sp_list s ON s.sp_id=r.sp_id WHERE s.avail_status=0")->fetchColumn();}
 $fk=(int)$pdo->query("SELECT COUNT(*) FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE() AND TABLE_NAME='sp_list' AND CONSTRAINT_NAME='fk_sp_list_sp_group'")->fetchColumn();
 $unique=(int)$pdo->query("SELECT COUNT(*) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='sp_group' AND INDEX_NAME='uq_sp_group_name' AND NON_UNIQUE=0")->fetchColumn();
 $report($orphan===0,'database contains zero orphan app category reference');

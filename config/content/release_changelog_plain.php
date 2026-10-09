@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.19.3' =>
+  array (
+    'version' => '2.19.3',
+    'date' => '2026-10-09',
+    'bm' =>
+    array (
+      0 => 'Recently Used kini disimpan secara selamat mengikut akaun pada server supaya enam aplikasi terakhir tersedia selepas logout serta apabila pengguna bertukar browser atau peranti.',
+      1 => 'Tindakan Clear Recently Used memadam sejarah pengguna pada server, manakala bacaan sentiasa menapis aplikasi menggunakan ACL semasa dan tidak memberi sebarang hak akses baharu.',
+      2 => 'Ringkasan Keselamatan Akaun kini memaparkan login terdahulu sebelum sesi semasa dan mengecualikan masa login bagi sesi browser yang sedang digunakan.',
+    ),
+    'en' =>
+    array (
+      0 => 'Recently Used is now stored securely per account on the server so the latest six applications remain available after logout and when users change browsers or devices.',
+      1 => 'Clear Recently Used removes the user history from the server, while every read applies the current application ACL and never grants new access.',
+      2 => 'The Account Security summary now presents the previous sign-in before the current session and excludes the sign-in time of the browser session in use.',
+    ),
+  ),
   'release-2.19.2' =>
   array (
     'version' => '2.19.2',

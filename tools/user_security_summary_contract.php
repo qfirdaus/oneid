@@ -17,7 +17,12 @@ $checks = [
         && str_contains($page, '$userMfaSummaryMethod'),
     'session summary reuses the authenticated session response' => str_contains($page, 'updateUserSecuritySummary(Array.isArray(response) ? response : [])')
         && str_contains($page, 'session.current_token')
-        && str_contains($page, 'session.token_issued_at'),
+        && str_contains($page, 'currentSession.previous_login_at'),
+    'last login excludes the current session and selects its immediate predecessor' => str_contains((string) file_get_contents($root . '/lib/Database.php'), 'get_previous_login_for_specific_user')
+        && str_contains((string) file_get_contents($root . '/lib/Database.php'), 'P.token_id<>C.token_id')
+        && str_contains((string) file_get_contents($root . '/lib/Database.php'), 'COALESCE(P.token_issued_at,P.token_datetime)<COALESCE(C.token_issued_at,C.token_datetime)')
+        && str_contains((string) file_get_contents($root . '/lib/q_func.php'), "['previous_login_at'] = \$previousLoginAt")
+        && !str_contains($page, 'var latest = active.reduce'),
     'device warning uses evidence without claiming device recognition' => str_contains($page, "device === 'unknown device'")
         && str_contains($page, 'unknownCount > 0 || otherCount > 0')
         && str_contains($en['dashboard.security_summary.device_other_help'] ?? '', 'if you do not recognise them'),

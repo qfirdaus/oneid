@@ -904,17 +904,14 @@
          var userAppActiveTab = '#user_app_favourites_tab';
          var userAppHealth = {};
          var userAppHealthRequest = null;
-         var userAppRecentStorageKey = 'oneid.recent-apps.v1';
          var userAppSearchStorageKey = 'oneid.app-search.v1';
 
          function userAppRecentEntries(){
-            try {
-               var value = JSON.parse(localStorage.getItem(userAppRecentStorageKey) || '[]');
-               return Array.isArray(value) ? value.map(function(item){
-                  if (item && typeof item === 'object') return {id:String(item.id || ''),at:Number(item.at || 0)};
-                  return {id:String(item || ''),at:0};
-               }).filter(function(item){ return item.id !== ''; }).slice(0, 6) : [];
-            } catch (error) { return []; }
+            return userAppUniqueApplications().filter(function(application){
+               return String(application.recently_used_at || '') !== '';
+            }).map(function(application){
+               return {id:String(application.sp_id || ''),at:String(application.recently_used_at || '')};
+            }).sort(function(a,b){ return b.at.localeCompare(a.at); }).slice(0,6);
          }
 
          function userAppRecentIds(){ return userAppRecentEntries().map(function(item){ return item.id; }); }
@@ -925,16 +922,19 @@
             try {
                return new Intl.DateTimeFormat(document.documentElement.lang === 'en' ? 'en-MY' : 'ms-MY', {
                   day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'
-               }).format(new Date(entry.at));
+               }).format(new Date(String(entry.at).replace(' ', 'T')));
             } catch (error) { return new Date(entry.at).toLocaleString(); }
          }
 
-         function rememberUserApp(appId){
+         function rememberUserApp(appId,lastUsedAt){
             var id = String(appId || '');
             if (!id) return;
-            var entries = userAppRecentEntries().filter(function(item){ return item.id !== id; });
-            entries.unshift({id:id,at:Date.now()});
-            try { localStorage.setItem(userAppRecentStorageKey, JSON.stringify(entries.slice(0, 6))); } catch (error) {}
+            $.each(userAppDirectoryGroups,function(_,group){
+               $.each(Array.isArray(group.data)?group.data:[],function(__,application){
+                  if(String(application.sp_id)===id)application.recently_used_at=String(lastUsedAt||'');
+               });
+            });
+            renderUserAppDirectory();
          }
 
          function userAppStatusText(state){
@@ -1437,10 +1437,15 @@
          });
 
          $(document).on('click', '[data-recent-clear]', function(){
-            try { localStorage.removeItem(userAppRecentStorageKey); } catch (error) {}
-            $('#user_app_recent_grid').html('');
-            $('#user_app_recent').prop('hidden', true);
-            $('#user_app_recent_trigger').prop('hidden', true).attr('aria-expanded', 'false');
+            var $button=$(this).prop('disabled',true);
+            $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',data:{user_clear_app_recent:''}})
+              .done(function(response){
+                 if(Number(response.status)!==1)return;
+                 $.each(userAppDirectoryGroups,function(_,group){$.each(Array.isArray(group.data)?group.data:[],function(__,application){application.recently_used_at=null;});});
+                 renderUserAppDirectory();
+                 $('#user_app_recent').prop('hidden',true);
+                 $('#user_app_recent_trigger').prop('hidden',true).attr('aria-expanded','false');
+              }).always(function(){$button.prop('disabled',false);});
          });
 
          $(document).on('click', function(event){
@@ -1600,16 +1605,14 @@
                var device = String(session.device_info || '').trim().toLocaleLowerCase();
                return device === '' || device === 'unknown' || device === 'unknown device';
             }).length;
-            var latest = active.reduce(function(value, session){
-               var candidate = String(session.token_issued_at || '');
-               return candidate > value ? candidate : value;
-            }, '');
+            var currentSession = active.find(function(session){ return String(session.current_token) === '1'; }) || {};
+            var previousLogin = String(currentSession.previous_login_at || '');
             $('#user_security_active_sessions').text(active.length);
             var sessionsHelp = otherCount > 0
                ? dashboardI18n.securitySessionsOther.replace('{count}', otherCount)
                : dashboardI18n.securitySessionsCurrent;
             $('#user_security_sessions_help').text(sessionsHelp).attr('title', sessionsHelp);
-            $('#user_security_last_login').text(userSecurityDate(latest));
+            $('#user_security_last_login').text(userSecurityDate(previousLogin));
             var warning = unknownCount > 0 || otherCount > 0;
             $('#user_security_device_card').toggleClass('is-warning', warning);
             $('#user_security_device_icon').attr('class', warning ? 'fa fa-exclamation-triangle' : 'fa fa-check-circle');
@@ -1629,7 +1632,7 @@
                data: {go_to_service_provider: '', sp_id: sp_id},
                success: function(response){
                   if (Number(response.status) === 1 && String(response.domain || '').trim() !== '') {
-                     rememberUserApp(sp_id);
+                     rememberUserApp(sp_id, response.recently_used_at);
                      var destination = String(response.domain).trim();
                      if (applicationWindow && !applicationWindow.closed) {
                         applicationWindow.location.replace(destination);

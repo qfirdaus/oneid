@@ -129,6 +129,7 @@ function oneid_q_func_action_map(): array
             'get_specific_user_app_list',
             'user_downstream_status',
             'user_set_app_favourite',
+            'user_clear_app_recent',
             'user_set_product_tour_status',
             'go_to_service_provider',
             'user_signoff_security_sessions',

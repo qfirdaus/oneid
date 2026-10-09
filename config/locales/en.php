@@ -292,7 +292,7 @@ return [
     'dashboard.security_summary.sessions_current' => 'Only this browser session is active.',
     'dashboard.security_summary.sessions_other' => '{count} other session(s) should be reviewed.',
     'dashboard.security_summary.last_login' => 'Last login',
-    'dashboard.security_summary.last_login_help' => 'Latest recorded OneID session start.',
+    'dashboard.security_summary.last_login_help' => 'Previous sign-in before this session.',
     'dashboard.security_summary.device_review' => 'Device review',
     'dashboard.security_summary.device_ok' => 'No warning',
     'dashboard.security_summary.device_review_needed' => 'Review needed',
