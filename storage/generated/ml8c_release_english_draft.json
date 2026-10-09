@@ -7,6 +7,31 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.19.4",
+            "version": "2.19.4",
+            "date": "2026-10-09",
+            "items": [
+                {
+                    "identity": "release:2.19.4:item:001",
+                    "bm": "Cadangan carian aplikasi kini menjajarkan nama sistem dan penerangan pada tepi kiri yang sama untuk paparan yang lebih kemas serta konsisten.",
+                    "en_draft": "Application search suggestions now align system names and descriptions to the same left edge for a cleaner and more consistent presentation.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.19.4:item:002",
+                    "bm": "Safe diagnostics menggunakan satu saiz teks yang seragam bagi tajuk, label, nilai dan nota supaya hierarki maklumat tidak kelihatan bercampur.",
+                    "en_draft": "Safe diagnostics uses one consistent text size for its heading, labels, values and note so the information hierarchy no longer appears mixed.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.19.4:item:003",
+                    "bm": "Pautan PTMK Support dikekalkan pada satu baris bersama ikonnya dalam paparan telefon dan versi cache aset dikemas kini.",
+                    "en_draft": "The PTMK Support link remains on one line with its icon on mobile displays, and the asset cache version has been updated.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.19.3",
             "version": "2.19.3",
             "date": "2026-10-09",
@@ -4739,5 +4764,5 @@
             ]
         }
     ],
-    "manifest_digest": "ec50e6418f897d1045a8aba28dd7a83c3f2c26c72b69ff366fc000aacdab6af1"
+    "manifest_digest": "c2686415065ddf1fbbfa698d9c07fec255e00b8380a823bc8df8657c54666d57"
 }

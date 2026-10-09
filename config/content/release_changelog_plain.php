@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.19.4' =>
+  array (
+    'version' => '2.19.4',
+    'date' => '2026-10-09',
+    'bm' =>
+    array (
+      0 => 'Cadangan carian aplikasi kini menjajarkan nama sistem dan penerangan pada tepi kiri yang sama untuk paparan yang lebih kemas serta konsisten.',
+      1 => 'Safe diagnostics menggunakan satu saiz teks yang seragam bagi tajuk, label, nilai dan nota supaya hierarki maklumat tidak kelihatan bercampur.',
+      2 => 'Pautan PTMK Support dikekalkan pada satu baris bersama ikonnya dalam paparan telefon dan versi cache aset dikemas kini.',
+    ),
+    'en' =>
+    array (
+      0 => 'Application search suggestions now align system names and descriptions to the same left edge for a cleaner and more consistent presentation.',
+      1 => 'Safe diagnostics uses one consistent text size for its heading, labels, values and note so the information hierarchy no longer appears mixed.',
+      2 => 'The PTMK Support link remains on one line with its icon on mobile displays, and the asset cache version has been updated.',
+    ),
+  ),
   'release-2.19.3' =>
   array (
     'version' => '2.19.3',

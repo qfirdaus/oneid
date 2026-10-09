@@ -12,7 +12,7 @@ $ms = require $root . '/config/locales/ms.php';
 
 $checks = [
     'coloured high-gauge trigger is beside the user session indicator' => str_contains($top, 'oneid_user_health_trigger') && str_contains($top, 'fa-gauge-high') && str_contains($top, 'oneid-gauge-icon__needle'),
-    'versioned panel assets are loaded' => str_contains($page, 'oneid-user-health.css?v=20261008-4') && str_contains($page, 'oneid-user-health.js?v=20261008-4'),
+    'versioned panel assets are loaded' => str_contains($page, 'oneid-user-health.css?v=20261009-1') && str_contains($page, 'oneid-user-health.js?v=20261009-1'),
     'gauge state follows response and connectivity' => str_contains($js, "gaugeState = !online") && str_contains($css, '.oneid-gauge-icon.is-fast') && str_contains($css, '.oneid-gauge-icon.is-offline'),
     'diagnostic environment follows runtime configuration' => str_contains($page, "oneid_config('ONEID_ENVIRONMENT', 'unknown')"),
     'desktop panel uses four balanced metric and action columns' => substr_count($css, 'grid-template-columns:repeat(4,minmax(0,1fr))') === 2,
@@ -26,6 +26,8 @@ $checks = [
     'diagnostics show approved operational fields and reference ID' => str_contains($js, 'data-diagnostic-environment') && str_contains($js, 'data-diagnostic-browser') && str_contains($js, 'data-diagnostic-viewport') && str_contains($js, 'data-diagnostic-response') && str_contains($js, 'data-diagnostic-reference') && str_contains($js, 'ONEID-UI-'),
     'view and copy diagnostics share the same safe values' => str_contains($js, 'var values = updateDiagnostics()') && str_contains($js, "'Reference ID: ' + values.reference"),
     'PTMK support is an icon link beside the footer email' => str_contains($js, 'oneid-health-support__right') && str_contains($js, 'oneid-health-support__link') && str_contains($js, 'fa fa-life-ring') && !str_contains($js, 'class="oneid-health-action" href="mailto:'),
+    'diagnostic information uses one consistent text size' => str_contains($css, '.oneid-health-diagnostics{background:#f7fafc;border:1px solid #d7e6ed;border-radius:10px;font-size:10px;') && str_contains($css, '.oneid-health-diagnostics dt{color:#708590;font-size:10px;') && str_contains($css, '.oneid-health-diagnostics dd{color:#173f56;font-size:10px;') && str_contains($css, '.oneid-health-diagnostics>p{background:#fff;color:#6e828d;font-size:10px;'),
+    'mobile PTMK support remains on one line' => str_contains($css, '.oneid-health-support__link{align-items:center;display:inline-flex;flex:0 0 auto;gap:5px;white-space:nowrap}'),
     'panel never clears browser storage broadly' => !str_contains($js, 'localStorage.clear') && !str_contains($js, 'sessionStorage.clear'),
     'panel never reads or writes cookies' => !str_contains($js, 'document.cookie'),
     'diagnostics exclude URL query and identity values' => !str_contains($js, 'location.search') && !str_contains($js, 'location.href') && !str_contains($js, 'login_user'),

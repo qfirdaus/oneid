@@ -135,7 +135,7 @@
       <link href="../dist/css/oneid-header-motion.css?v=20260823-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-profile-role.css?v=20260824-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-session-indicators.css?v=20260930-1" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-user-health.css?v=20261008-4" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-health.css?v=20261009-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260916-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-accessibility-baseline.css?v=20260915-1" rel="stylesheet" type="text/css">
@@ -708,7 +708,7 @@
             ],
          ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
       </script>
-      <script src="../dist/js/oneid-user-health.js?v=20261008-4"></script>
+      <script src="../dist/js/oneid-user-health.js?v=20261009-1"></script>
       <?php if ($productTourEnabled): ?>
       <script>
          window.OneIdProductTourConfig = <?=json_encode([
@@ -2288,11 +2288,11 @@
       }
 
       .user-app-search-suggestion img { width:32px; height:32px; border:1px solid #d4dee5; border-radius:7px; object-fit:cover; }
-      .user-app-search-suggestion span { min-width:0; }
+      .user-app-search-suggestion span { display:flex; flex-direction:column; align-items:flex-start; min-width:0; text-align:left; }
       .user-app-search-suggestion strong,
       .user-app-search-suggestion small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-      .user-app-search-suggestion strong { font-size:11px; line-height:16px; }
-      .user-app-search-suggestion small { color:#73869a; font-size:10px; line-height:15px; }
+      .user-app-search-suggestion strong { width:100%; margin:0!important; padding:0!important; font-size:11px; line-height:16px; text-align:left; }
+      .user-app-search-suggestion small { width:100%; margin:0!important; padding:0!important; color:#73869a; font-size:10px; line-height:15px; text-align:left; }
       .user-app-search-suggestion > i { color:#7ea0b6; }
 
       .user-app-skeleton {
