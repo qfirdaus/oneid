@@ -7,6 +7,31 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.20.0",
+            "version": "2.20.0",
+            "date": "2026-10-15",
+            "items": [
+                {
+                    "identity": "release:2.20.0:item:001",
+                    "bm": "Pengesahan tambahan administrator kini mengikut risiko: sesi MFA pentadbir yang masih baharu digunakan semula untuk tindakan kritikal, manakala kerja pentadbiran biasa tidak lagi meminta pengesahan berulang.",
+                    "en_draft": "Administrator step-up now follows risk: a recent administrator MFA verification is reused for critical actions, while routine administration no longer requests repeated verification.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.20.0:item:002",
+                    "bm": "Pengurusan aplikasi mengikut kategori kini menggunakan carian, penapis, semakan perubahan dan satu simpanan batch bertransaksi dengan audit ber-ID rujukan.",
+                    "en_draft": "Category application management now provides search, filters, change review and one transactional batch save with reference-based auditing.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.20.0:item:003",
+                    "bm": "Skrin Manage User baharu memisahkan profil dan akses aplikasi, menerangkan akses Inherited, Direct, Denied atau Available serta menyimpan perubahan secara atomik dengan pengesanan konflik dan pembatalan sesi sekali sahaja.",
+                    "en_draft": "The redesigned Manage User screen separates profile and application access, explains Inherited, Direct, Denied or Available access, and saves atomically with conflict detection and a single session revocation.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.19.4",
             "version": "2.19.4",
             "date": "2026-10-09",
@@ -4764,5 +4789,5 @@
             ]
         }
     ],
-    "manifest_digest": "c2686415065ddf1fbbfa698d9c07fec255e00b8380a823bc8df8657c54666d57"
+    "manifest_digest": "062a68fa2b8221cb4325647d4d61ddc41a5dbaccc803630683fb4a595ad330e3"
 }

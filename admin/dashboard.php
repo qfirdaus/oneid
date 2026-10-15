@@ -91,6 +91,8 @@
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-site-api-rotation.css?v=20260812-6" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-web-app-modal.css?v=20260910-1" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-category-app-access.css?v=20261015-2" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-profile-access.css?v=20261015-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-maintenance-admin.css?v=20260908-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-maintenance-developer-admin.css?v=20260904-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-maintenance-developer-layout.css?v=20260904-5" rel="stylesheet" type="text/css">
@@ -108,121 +110,79 @@
          <?php include __DIR__ . '/const/top.php'; ?>
          <!--  <?php //include 'const/left.php'; ?> -->
          <div id="modal_user_profile" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_edit_app" aria-hidden="true">
-            <div class="modal-dialog">
-               <div class="modal-content">
-                  <div class="modal-header">
-                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_edit_app">User Info</h5>
+            <div class="modal-dialog oneid-user-profile-dialog">
+               <div class="modal-content oneid-user-profile-modal">
+                  <div class="modal-header oneid-user-profile-header">
+                     <span class="oneid-user-profile-heading-icon" aria-hidden="true"><i class="fa fa-user"></i></span>
+                     <div><h5 class="modal-title" id="aria_modal_edit_app">Manage User</h5><p id="user_profile_heading_summary">Review profile information and application access.</p></div>
+                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">×</button>
                   </div>
-                  <form id="form_editXss_app">
-                     <div class="modal-body">
-                        <!-- Row -->
-                        <div class="row">
-                           <div class="col-lg-12">
-						   <button type="button" class="btn  btn-danger btn-outline btn-rounded btn-xs pull-right" onclick="modal_user_profile_resetPwd()" id="btn_user_profile_reset_password"><i class="fa  fa-refresh"></i> Reset Password</button>
-                              <button type="button" class="btn btn-primary btn-outline btn-rounded btn-xs pull-right" onclick="modal_user_profile_resync()" id="btn_user_profile_resync"><i class="fa fa-refresh"></i> Resync User Info</button>
-                              <span class="text_primary txt-grey font-12 ">User info last sync:  <small id="modal_user_profile_lastupdate_text"></small></span>
-                              <!-- <span class="block txt-grey font-12 capitalize-font">yesterday</span> -->
-                              <div class="panel-wrapper collapse in">
-                                 <div class="panel-body row">
-                                    <div class="user-others-details pl-15 pr-15">
-                                       <div class="container">
-                                          <div class="row  mr-10">
-                                             <div class="form-group">
-                                                <label class="control-label mr-10" for="modal_user_profile_id">User ID:</label>
-                                                <input type="text" class="form-control modal_user_profile_input" id="modal_user_profile_id" disabled="">
-                                             </div>
-                                             <div class="progress modal_user_profile_loading_text" class="col-sm-7" >
-                                                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                                                </div>
-                                             </div>
-                                          </div>
-                                          <div class="row mr-10">
-                                             <div class="form-group">
-                                                <label class="control-label mr-10" for="modal_user_profile_name">Name</label>
-                                                <input type="text" class="form-control modal_user_profile_input modal_user_profile_input_enable" id="modal_user_profile_name">
-                                             </div>
-                                             <!-- <span class="col-sm-3"><i class="zmdi zmdi-accounts-list inline-block"> User ID:</i></span> -->
-                                             <div class="progress modal_user_profile_loading_text" class="col-sm-7" >
-                                                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                                                </div>
-                                             </div>
-                                             <!-- <span class="inline-block txt-dark" id="modal_user_profile_id">-</span> -->
-                                          </div>
-                                          <div class="row mr-10">
-                                             <div class="form-group">
-                                                <label class="control-label mr-10" for="modal_user_profile_category">Category</label>
-                                                <select class="form-control modal_user_profile_input modal_user_profile_input_enable" id="modal_user_profile_category">
-                                                   <option>1</option>
-                                                </select>
-                                             </div>
-                                          </div>
-                                          <div class="row mr-10">
-                                             <div class="form-group" id="modal_user_profile_status">
-                                                <div class="alert alert-success alert-dismissable mt-10">-
-                                                </div>
-                                             </div>
-                                             <div class="progress modal_user_profile_loading_text" class="col-sm-7" >
-                                                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                                                </div>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </div>
-                                    <hr class="light-grey-hr mt-20 mb-20">
-                                 </div>
-                              </div>
-                              <div class="panel-heading">
-                                 <div class="pull-left">
-                                    <h6 class="panel-title txt-dark" id="text_lst_of_accible_app">List of Accessible apps</h6>
-                                 </div>
-                                 <div class="pull-right">
-                                    <a class="pull-left inline-block mr-15" data-toggle="collapse" href="#collapse_1" aria-expanded="true">
-                                    <button class="btn  btn-primary btn-outline btn-rounded btn-xs" onclick="add_new_specific_apps_to_accessible()" id="btn_add_new_specific_apps_to_accessible">+ Add Accessible Apps</button>
-                                    <button class="btn  btn-primary btn-outline btn-rounded btn-xs" onclick="close_add_new_specific_apps_to_accessible()" id="btn_close_add_new_specific_apps_to_accessible"><i class="fa  fa-reply"></i> Back to Accessible Apps</button>
-                                    </a>
-                                 </div>
-                                 <div class="clearfix"></div>
-                              </div>
-                              <div class="panel-wrapper collapse in">
-                                 <div class="panel-body pa-0">
-                                    <div class="col-sm-12 col-xs-12" id="modal_user_profile_sp_add_new_list_div">
-                                       <div class="form-wrap">
-                                          <div class="form-body overflow-hide">
-                                             <div class="list-group mb-0"  id="modal_user_profile_sp_add_new_list">
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </div>
-                                    <div class="col-sm-12 col-xs-12" id="modal_user_profile_sp_list_div">
-                                       <div class="form-wrap">
-                                          <div class="form-body overflow-hide">
-                                             <div class="list-group mb-0"  id="modal_user_profile_sp_list">
-                                             </div>
-                                             <div class="progress" id="modal_user_profile_sp_list_loading" class="col-sm-7" >
-                                                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-                                                </div>
-                                             </div>
-                                          </div>
-                                       </div>
-                                    </div>
-                                 </div>
-                              </div>
+                  <input type="hidden" id="modal_user_profile_user_id" name="modal_user_profile_user_id">
+                  <nav class="oneid-user-profile-tabs" aria-label="User management sections">
+                     <button type="button" class="is-active" data-user-profile-tab="profile"><i class="fa fa-id-card-o"></i> Profile</button>
+                     <button type="button" data-user-profile-tab="access"><i class="fa fa-th-large"></i> Application Access <span id="user_access_tab_count">0</span></button>
+                  </nav>
+                  <div class="modal-body oneid-user-profile-body">
+                     <section id="user_profile_tab_profile" class="oneid-user-profile-pane">
+                        <div class="oneid-user-profile-overview">
+                           <div class="oneid-user-profile-field"><label for="modal_user_profile_id">User ID</label><input type="text" class="form-control modal_user_profile_input" id="modal_user_profile_id" disabled></div>
+                           <div class="oneid-user-profile-field"><label for="modal_user_profile_name">Name</label><input type="text" class="form-control modal_user_profile_input modal_user_profile_input_enable" id="modal_user_profile_name"></div>
+                           <div class="oneid-user-profile-field"><label for="modal_user_profile_category">Category</label><select class="form-control modal_user_profile_input modal_user_profile_input_enable" id="modal_user_profile_category"><option value="">Select category</option></select></div>
+                           <div class="oneid-user-profile-facts">
+                              <div><small>Account status</small><strong id="modal_user_profile_status">Loading…</strong></div>
+                              <div><small>Account source</small><strong id="modal_user_profile_source">—</strong></div>
+                              <div><small>Last synced</small><strong id="modal_user_profile_lastupdate_text">—</strong></div>
+                           </div>
+                           <div class="oneid-user-profile-loading modal_user_profile_loading_text"><i class="fa fa-circle-o-notch fa-spin"></i><span>Loading user profile…</span></div>
+                        </div>
+                        <div id="user_profile_category_notice" class="oneid-user-profile-notice" hidden><i class="fa fa-info-circle"></i><span>Changing the category may change applications inherited by this user. Save the profile before reviewing application access.</span></div>
+                        <section class="oneid-user-profile-actions">
+                           <div><h6>Profile maintenance</h6><p>Refresh externally managed details or save validated profile changes.</p></div>
+                           <button type="button" class="btn btn-default user_info_btn" onclick="modal_user_profile_resync()" id="btn_user_profile_resync"><i class="fa fa-refresh"></i> Resync User Info</button>
+                           <button type="button" class="btn btn-primary user_info_btn" onclick="modal_user_profile_save()" id="btn_user_profile_save"><i class="fa fa-save"></i> Save Profile</button>
+                        </section>
+                        <section class="oneid-user-profile-security">
+                           <div><h6><i class="fa fa-shield"></i> Security actions</h6><p>These actions affect sign-in or account availability and require confirmation.</p></div>
+                           <div class="oneid-user-profile-security-buttons">
+                              <button type="button" class="btn btn-outline btn-warning user_info_btn" onclick="modal_user_profile_resetPwd()" id="btn_user_profile_reset_password"><i class="fa fa-key"></i> Reset Password</button>
+                              <button type="button" class="btn btn-outline btn-danger user_info_btn" onclick="user_info_deactivate_user()" id="btn_user_profile_deactivate"><i class="fa fa-user-times"></i> Deactivate User</button>
+                              <button type="button" class="btn btn-primary user_info_btn_reactivate" onclick="user_info_reactivate_user()" id="btn_user_profile_reactivate"><i class="fa fa-user-plus"></i> Reactivate User</button>
+                           </div>
+                        </section>
+                     </section>
+                     <section id="user_profile_tab_access" class="oneid-user-profile-pane" hidden>
+                        <div class="oneid-user-access-summary">
+                           <div><span id="user_access_effective_count">0</span><small>Effective access</small></div>
+                           <div><span id="user_access_direct_count">0</span><small>Direct</small></div>
+                           <div><span id="user_access_denied_count">0</span><small>Denied</small></div>
+                           <div class="is-pending"><span id="user_access_pending_count">0</span><small>Pending changes</small></div>
+                        </div>
+                        <div class="oneid-user-access-tools">
+                           <label class="oneid-user-access-search"><i class="fa fa-search"></i><input id="user_access_search" type="search" placeholder="Search application name, description or domain" autocomplete="off"></label>
+                           <div class="oneid-user-access-filters" role="group" aria-label="Application filters">
+                              <button type="button" class="is-active" data-user-access-filter="all">All</button><button type="button" data-user-access-filter="allowed">Allowed</button><button type="button" data-user-access-filter="direct">Direct</button><button type="button" data-user-access-filter="inherited">Inherited</button><button type="button" data-user-access-filter="denied">Denied</button><button type="button" data-user-access-filter="available">Available</button><button type="button" data-user-access-filter="sso">OneID SSO</button><button type="button" data-user-access-filter="non-sso">Non SSO</button>
                            </div>
                         </div>
-                     </div>
-                     <input type="hidden" id="modal_user_profile_user_id" name="modal_user_profile_user_id">
-                     <div class="modal-footer">
-                        <button type="button" class="btn btn-danger waves-effect user_info_btn" onclick="user_info_deactivate_user();" id="btn_user_profile_deactivate">Remove User</button>
-                        <button type="button" class="btn btn-primary waves-effect user_info_btn_reactivate" onclick="user_info_reactivate_user();" id="btn_user_profile_reactivate">Reactivate User</button>
-                        <button type="button" class="btn btn-primary waves-effect user_info_btn" onclick="modal_user_profile_save();" id="btn_user_profile_save"><i class="fa fa-save"></i> Save Profile</button>
-                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
-                     </div>
-                  </form>
+                        <div class="oneid-user-access-selectionbar"><span id="user_access_result_count">0 results</span><span id="user_access_pending_text">No pending changes</span></div>
+                        <div id="user_access_list" class="oneid-user-access-list" role="list"></div>
+                        <div id="user_access_loading" class="oneid-user-access-state"><i class="fa fa-circle-o-notch fa-spin"></i><strong>Loading applications…</strong></div>
+                        <div id="user_access_error" class="oneid-user-access-state is-error" hidden><i class="fa fa-exclamation-circle"></i><strong>Applications could not be loaded.</strong><button type="button" onclick="userAccessLoad()">Try again</button></div>
+                        <div id="user_access_empty" class="oneid-user-access-state" hidden><i class="fa fa-search"></i><strong>No matching applications</strong><span>Try another search or filter.</span></div>
+                     </section>
+                     <section id="user_profile_tab_review" class="oneid-user-profile-pane" hidden>
+                        <div class="oneid-user-access-review-heading"><i class="fa fa-check-square-o"></i><div><h6>Review application access changes</h6><p>Sessions will be revoked once after all changes are saved successfully.</p></div></div>
+                        <div id="user_access_review_list" class="oneid-user-access-review-list"></div>
+                     </section>
+                  </div>
+                  <div class="modal-footer oneid-user-profile-footer">
+                     <span id="user_profile_footer_status">Profile information</span>
+                     <button type="button" class="btn btn-default" id="user_profile_close" data-dismiss="modal">Close</button>
+                     <button type="button" class="btn btn-default" id="user_access_back" hidden>Back to applications</button>
+                     <button type="button" class="btn btn-primary" id="user_access_review" hidden disabled><i class="fa fa-list"></i> Review changes</button>
+                     <button type="button" class="btn btn-primary" id="user_access_save" hidden><i class="fa fa-check"></i> Confirm and save</button>
+                  </div>
                </div>
-               <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
          </div>
          <div id="modal_add_new_app" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_add_new_app" aria-hidden="true">
             <div class="modal-dialog modal-lg oneid-app-info-dialog">
@@ -1081,95 +1041,60 @@
             <!-- /.modal-dialog -->
          </div>
          <div id="modal_category_user_list_view" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="aria_modal_category_user_list_view" aria-hidden="true">
-            <div class="modal-dialog">
-               <div class="modal-content">
-                  <div class="modal-header">
-                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                     <h5 class="modal-title" id="aria_modal_category_user_list_view">App List - <span id="modal_category_user_list_view_title"></span></h5>
+            <div class="modal-dialog oneid-category-access-dialog">
+               <div class="modal-content oneid-category-access-modal">
+                  <div class="modal-header oneid-category-access-header">
+                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                     <span class="oneid-category-access-icon"><i class="fa fa-th-large" aria-hidden="true"></i></span>
+                     <div>
+                        <h5 class="modal-title" id="aria_modal_category_user_list_view">Manage Application Access</h5>
+                        <p>Assign applications for <strong id="modal_category_user_list_view_title"></strong>.</p>
+                     </div>
                   </div>
-                  <form id="form_blacklist_app">
-                     <div class="modal-body">
-                        <div  class="tab-struct custom-tab-1">
-                           <ul role="tablist" class="nav nav-tabs" id="myTabs_7">
-                              <!-- <li role="presentation"><a aria-expanded="true"  data-toggle="tab" role="tab" id="modal_category_tab_1" href="#category_tab_1">User Listing</a></li> -->
-                              <li class="active" role="presentation" class=""><a  data-toggle="tab" id="modal_category_tab_2" role="tab" href="#category_tab_2" aria-expanded="false">Allowed Site (ACL)</a></li>
-                           </ul>
-                           <div class="tab-content" id="myTabContent_7">
-                              <!-- <div  id="category_tab_1" class="tab-pane fade active in" role="tabpanel">
-                                 <div class="table-responsive">
-                                 	<table class="table mb-0 table-hover">
-                                 		<thead>
-                                 		  <tr>
-                                 			<th>#</th>
-                                 			<th>User Id</th>
-                                 			<th>Name</th>
-                                 			<th>Action</th>
-                                 		  </tr>
-                                 		</thead>
-                                 		<tbody id="tbody_category_listing">
-                                 		</tbody>
-                                 	</table>
-                                 </div>
-                                 </div> -->
-                              <div  id="category_tab_2" class="tab-pane fade active in" role="tabpanel">
-                                 <div class="panel-heading">
-                                    <div class="pull-left">
-                                       <h6 class="panel-title txt-dark" id="text_lst_of_accible_category_app">List of Accessible apps</h6>
-                                    </div>
-                                    <div class="pull-right">
-                                       <a class="pull-left inline-block mr-15" data-toggle="collapse" href="#collapse_1" aria-expanded="true">
-                                       <button class="btn  btn-primary btn-outline btn-rounded btn-xs" onclick="add_new_apps_to_category()" id="btn_add_new_apps_to_category">+ Add Accessible Apps</button>
-                                       <button class="btn  btn-primary btn-outline btn-rounded btn-xs" onclick="close_add_new_apps_to_category()" id="btn_close_add_new_apps_to_category" style="display: none;"><i class="fa  fa-reply"></i> Back to accessible app list</button>
-                                       </a>
-                                    </div>
-                                    <div class="clearfix"></div>
-                                 </div>
-                                 <div class="progress progress-lg" id="tbl_category_site_listing_loading">
-                                    <div class="progress-bar progress-bar-primary active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%" role="progressbar"> Loading App list.. Wait a moment..</div>
-                                 </div>
-                                 <div class="table-responsive" id="tbl_category_site_listing">
-                                    <table class="table mb-0 table-hover">
-                                       <thead>
-                                          <tr>
-                                             <th>#</th>
-                                             <th>Site</th>
-                                             <th style="text-align:right">Action</th>
-                                          </tr>
-                                       </thead>
-                                       <tbody id="tbody_category_site_listing">
-                                       </tbody>
-                                    </table>
-                                 </div>
-                                 <div class="progress progress-lg" id="tbl_category_site_listing_add_new_loading">
-                                    <div class="progress-bar progress-bar-primary active progress-bar-striped" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%" role="progressbar"> Loading App list.. Wait a moment..</div>
-                                 </div>
-                                 <div class="table-responsive" id="tbl_category_site_listing_add_new">
-                                    <table class="table mb-0 table-hover">
-                                       <thead>
-                                          <tr>
-                                             <th>#</th>
-                                             <th>Site</th>
-                                             <th style="text-align:right">Action</th>
-                                          </tr>
-                                       </thead>
-                                       <tbody id="tbody_category_site_listing_add_new">
-                                       </tbody>
-                                    </table>
-                                 </div>
-                              </div>
+                  <div class="modal-body oneid-category-access-body">
+                     <input type="hidden" id="modal_category_user_list_view_id">
+                     <div id="category_access_workspace">
+                        <div class="oneid-category-access-summary" aria-live="polite">
+                           <div><span id="category_access_assigned_count">0</span><small>Assigned</small></div>
+                           <div><span id="category_access_available_count">0</span><small>Available</small></div>
+                           <div class="is-pending"><span id="category_access_pending_count">0</span><small>Pending changes</small></div>
+                        </div>
+                        <div class="oneid-category-access-tools">
+                           <label class="oneid-category-access-search" for="category_access_search"><i class="fa fa-search" aria-hidden="true"></i><input id="category_access_search" type="search" placeholder="Search application name, description or domain" autocomplete="off"></label>
+                           <div class="oneid-category-access-filters" role="group" aria-label="Filter applications">
+                              <button type="button" class="is-active" data-access-filter="all">All <span id="category_access_all_badge">0</span></button>
+                              <button type="button" data-access-filter="assigned">Assigned</button>
+                              <button type="button" data-access-filter="available">Available</button>
+                              <button type="button" data-access-filter="sso">OneID SSO</button>
+                              <button type="button" data-access-filter="non-sso">Non SSO</button>
                            </div>
                         </div>
+                        <div class="oneid-category-access-selectionbar">
+                           <label><input type="checkbox" id="category_access_select_visible"> Select all visible available applications</label>
+                           <span id="category_access_result_count"></span>
+                        </div>
+                        <div id="category_access_loading" class="oneid-category-access-state"><i class="fa fa-circle-o-notch fa-spin"></i><strong>Loading applications…</strong></div>
+                        <div id="category_access_error" class="oneid-category-access-state is-error" hidden><i class="fa fa-exclamation-circle"></i><strong>Applications could not be loaded.</strong><button type="button" onclick="categoryAccessLoad()">Try again</button></div>
+                        <div id="category_access_empty" class="oneid-category-access-state" hidden><i class="fa fa-search"></i><strong>No matching applications</strong><span>Try another search or filter.</span></div>
+                        <div id="category_access_list" class="oneid-category-access-list" role="list"></div>
                      </div>
-                     <input type="hidden" id="modal_category_user_list_view_id" name="modal_category_user_list_view_id">
-                     <div class="modal-footer">
-                        <button type="button" class="btn btn-danger waves-effect" id="btn_remove_category" onclick="remove_category();">Remove Category</button>
-                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                     <div id="category_access_review" class="oneid-category-access-review" hidden>
+                        <div class="oneid-category-access-review-heading"><i class="fa fa-check-square-o"></i><div><h6>Review changes</h6><p>Confirm these changes before application access is updated.</p></div></div>
+                        <div class="oneid-category-access-review-grid">
+                           <section><h6><i class="fa fa-plus-circle"></i> Applications to add <span id="category_access_add_count">0</span></h6><div id="category_access_add_list"></div></section>
+                           <section><h6><i class="fa fa-minus-circle"></i> Applications to remove <span id="category_access_remove_count">0</span></h6><div id="category_access_remove_list"></div></section>
+                        </div>
                      </div>
-                  </form>
+                  </div>
+                  <div class="modal-footer oneid-category-access-footer">
+                     <div class="oneid-category-access-footer-status" id="category_access_footer_status">No pending changes</div>
+                     <button type="button" class="btn btn-default" id="category_access_cancel_review" hidden>Back</button>
+                     <button type="button" class="btn btn-default" id="category_access_close" data-dismiss="modal">Close</button>
+                     <button type="button" class="btn btn-primary" id="category_access_review_button" disabled>Review changes</button>
+                     <button type="button" class="btn btn-primary" id="category_access_save_button" hidden><i class="fa fa-check"></i> Confirm and save</button>
+                  </div>
                </div>
-               <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
          </div>
          <!-- Main Content -->
          <div class="page-wrapper">
@@ -2048,7 +1973,7 @@
                                                             </div>
                                                          </section>
                                                          <section class="tab-pane fade" id="configuration_login_banner" role="tabpanel" aria-labelledby="configuration_login_banner_tab">
-                                                            <div class="sso-config-panel login-banner-admin" data-api="../lib/q_func" data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>" data-step-up-url="../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&amp;return=configuration_login_banner">
+                                                            <div class="sso-config-panel login-banner-admin" data-api="../lib/q_func" data-csrf="<?=htmlspecialchars(oneid_csrf_token(), ENT_QUOTES, 'UTF-8')?>" data-step-up-url="../page/admin-step-up?purpose=ADMIN_ACCESS&amp;return=configuration_login_banner">
                                                                <div class="sso-config-header">
                                                                   <div><span class="sso-config-eyebrow"><?=htmlspecialchars(oneid_translate('admin.banner.eyebrow'), ENT_QUOTES, 'UTF-8')?></span><h4 class="sso-config-title"><?=htmlspecialchars(oneid_translate('admin.banner.title'), ENT_QUOTES, 'UTF-8')?></h4><p class="sso-config-intro"><?=htmlspecialchars(oneid_translate('admin.banner.intro'), ENT_QUOTES, 'UTF-8')?></p></div>
                                                                   <button type="button" class="sso-config-save" id="login_banner_refresh"><i class="fa fa-refresh"></i><span><?=htmlspecialchars(oneid_translate('admin.common.refresh'), ENT_QUOTES, 'UTF-8')?></span></button>
@@ -2418,7 +2343,7 @@
                var response=xhr.responseJSON||{};
                if(xhr.status===403&&(response.code==='STEP_UP_REQUIRED'||response.code==='STEP_UP_EXPIRED'||response.code==='STEP_UP_PURPOSE_MISMATCH')){
                   storePendingMetadataSave(snapshot);
-                  window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_metadata';
+                  window.location.href='../page/admin-step-up?purpose=ADMIN_ACCESS&return=admin_metadata';
                   return;
                }
                $('#metadata_translation_status')
@@ -2604,7 +2529,7 @@
                   var response=xhr.responseJSON||{};
                   if(xhr.status===403&&(response.code==='STEP_UP_REQUIRED'||response.code==='STEP_UP_EXPIRED'||response.code==='STEP_UP_PURPOSE_MISMATCH')){
                      storePendingMetadataSave(saveSnapshot);
-                     window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=admin_metadata';
+                     window.location.href='../page/admin-step-up?purpose=ADMIN_ACCESS&return=admin_metadata';
                      return;
                   }
                   if(xhr.status===403&&response.code==='CSRF_INVALID'&&adoptMetadataCsrfToken(response)){
@@ -2706,7 +2631,7 @@
                if(xhr.status===403&&(response.code==='STEP_UP_REQUIRED'||response.code==='STEP_UP_EXPIRED'||response.code==='STEP_UP_PURPOSE_MISMATCH')){
                   sessionStorage.setItem('oneid_ml5_default_locale',locale);
                   sessionStorage.setItem('oneid_ml5_default_locale_reason',reason);
-                  window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=configuration_locale';
+                  window.location.href='../page/admin-step-up?purpose=ADMIN_ACCESS&return=configuration_locale';
                   return;
                }
                $('#system_default_locale_status').text(localizedResponseMessage(response,adminI18n.localeFailed));
@@ -3459,7 +3384,7 @@
                   var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';
                   if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){
                      sessionStorage.setItem('oneid_password_recovery_test_email',recipient);
-                     swal({title:adminText('admin.configuration.auth_required'),text:'Security Configuration Change',type:'warning',confirmButtonText:adminText('admin.configuration.authenticate_now'),closeOnConfirm:true},function(){window.location.href='../page/admin-step-up?purpose=SECURITY_CONFIGURATION_CHANGE&return=configuration_account_recovery';});
+                     swal({title:adminText('admin.configuration.auth_required'),text:'Administrator Access',type:'warning',confirmButtonText:adminText('admin.configuration.authenticate_now'),closeOnConfirm:true},function(){window.location.href='../page/admin-step-up?purpose=ADMIN_ACCESS&return=configuration_account_recovery';});
                   }else{
                      swal('Test failed','Server request failed. HTTP '+xhr.status+(code?'\nCode: '+code:''),'error');
                   }
@@ -3535,226 +3460,250 @@
                }).always(function(){adminMfaPreferenceSaving=false;$('#admin_mfa_preference_save_button').prop('disabled',false);$('#admin_mfa_preference_save_label').text(adminText('admin.configuration.save_preference'));});
          }
          
+         var categoryAccessState = {
+            apps: [],
+            original: {},
+            selected: {},
+            filter: 'all',
+            saving: false,
+            allowClose: false
+         };
+
          function open_category_listing(uc_id,uc_text){
-         
-         $('#text_lst_of_accible_category_app').text('LIST OF ACCESSIBLE APPS');
-         $('#tbl_category_site_listing').show();
-         $('#tbl_category_site_listing_add_new').hide();
-         $('#btn_add_new_apps_to_category').show();
-         $('#btn_close_add_new_apps_to_category').hide();
-         
-         
-         
-         
-         $('#modal_category_user_list_view_id').val(uc_id);
-         $('#modal_category_user_list_view_title').text(uc_text);
-         $('#modal_category_user_list_view').modal('show');
-           	// admin_get_category_user_listing(uc_id);	
-           	admin_get_category_site_listing(uc_id);
-           }
-         
-         
-           function add_new_apps_to_category(){
-           	admin_get_category_site_listing_add_new_site($('#modal_category_user_list_view_id').val());
-           	$('#btn_add_new_apps_to_category').hide();
-           	$('#btn_close_add_new_apps_to_category').show();
-           	$('#text_lst_of_accible_category_app').text('Add New App Access');
-           	$('#tbl_category_site_listing').hide();
-           	$('#tbl_category_site_listing_add_new').show();
-           }
-         
-           function close_add_new_apps_to_category(){
-           	admin_get_category_site_listing($('#modal_category_user_list_view_id').val());
-           	$('#btn_add_new_apps_to_category').show();
-           	$('#btn_close_add_new_apps_to_category').hide();
-           	$('#text_lst_of_accible_category_app').text('LIST OF ACCESSIBLE APPS');
-           	// $('#tbl_category_site_listing').show();
-           	$('#tbl_category_site_listing_add_new').hide();
-           }
-         
-           
-         
-         
-         
-           function admin_get_category_user_listing(uc_id){
-           	$.ajax({
-           		type: 'POST',
-           		url: '../lib/q_func',
-           		dataType: "json",
-           		data: {admin_get_specific_category_user_listing:"",uc_id:uc_id},
-           		beforeSend: function(){
-                         // $('#login_status').html('<div class="alert alert-info alert-dismissable alert-style-1"><i class="zmdi zmdi-info-outline"></i>Signing on. Checking info. Wait a moment.</div>');
-                     },
-                     success: function (response) {
-                     	if(uc_id == 0){
-                     		$('#btn_remove_category').hide();
-                     	}else{                		
-                     		$('#btn_remove_category').show();
-                     	}
-                     	var tr ='';
-                     	if(response.length==0){
-                     		$('#tbody_category_listing').html('<tr><td colspan="4">No record</td></tr>');
-                     		return;
-                     	}else{
-         
-                     	}
-                     	$.each( response, function( i, value ) {
-                     		tr += '<tr>';
-                     		tr += '<td>'+(i+1)+'. </td>';
-                     		tr += '<td>'+response[i]['u_id']+'</td>';
-                     		tr += '<td>'+response[i]['data1']+'</td>';
-                     		tr += '<td><button class="btn btn-primary pull-right btn-xs fixed-btn" type="button" onclick="view_user_profile_from_category_listing(&quot;'+response[i]['u_id']+'&quot;)"><span class="btn-text">View</span></button></td>';
-                     		tr += '</tr>';
-                     	});
-                     	$('#tbody_category_listing').html(tr);
-                     },
-                     error: function (xhr, error, thrown) {
+            $('#modal_category_user_list_view_id').val(uc_id);
+            $('#modal_category_user_list_view_title').text(uc_text);
+            categoryAccessState.allowClose = false;
+            categoryAccessResetView();
+            $('#modal_category_user_list_view').modal('show');
+            categoryAccessLoad();
+         }
+
+         function categoryAccessResetView(){
+            $('#category_access_workspace').prop('hidden',false);
+            $('#category_access_review').prop('hidden',true);
+            $('#category_access_cancel_review,#category_access_save_button').prop('hidden',true);
+            $('#category_access_close,#category_access_review_button').prop('hidden',false);
+            $('#category_access_search').val('');
+            categoryAccessState.filter='all';
+            $('[data-access-filter]').removeClass('is-active').filter('[data-access-filter="all"]').addClass('is-active');
+         }
+
+         function categoryAccessLoad(){
+            var categoryId=$('#modal_category_user_list_view_id').val();
+            $('#category_access_loading').prop('hidden',false);
+            $('#category_access_error,#category_access_empty').prop('hidden',true);
+            $('#category_access_list').empty();
+            $.ajax({
+               type:'POST',
+               url:'../lib/q_func',
+               dataType:'json',
+               data:{admin_get_category_app_access_state:'',uc_id:categoryId},
+               success:function(response){
+                  if(!response||Number(response.status)!==1||!Array.isArray(response.apps)){
+                     categoryAccessShowLoadError();
+                     return;
+                  }
+                  categoryAccessState.apps=response.apps.map(function(app){
+                     return {
+                        id:String(app.sp_id),
+                        name:String(app.sp_name||'Unnamed application'),
+                        description:String(app.sp_description||app.sp_domain||'No description available'),
+                        domain:String(app.sp_domain||''),
+                        sso:Number(app.sp_sso_support)===0,
+                        active:Number(app.avail_status)===1,
+                        assigned:Number(app.assigned)===1
+                     };
+                  });
+                  categoryAccessState.original={};
+                  categoryAccessState.selected={};
+                  categoryAccessState.allowClose=false;
+                  categoryAccessState.apps.forEach(function(app){
+                     if(app.assigned){
+                        categoryAccessState.original[app.id]=true;
+                        categoryAccessState.selected[app.id]=true;
                      }
-                 });
-           }
-         
-         
-           function admin_get_category_site_listing(uc_id){
-           	$.ajax({
-           		type: 'POST',
-           		url: '../lib/q_func',
-           		dataType: "json",
-           		data: {admin_get_category_site_listing:"",uc_id:uc_id},
-           		beforeSend: function(){
-           			$('#tbl_category_site_listing_add_new_loading').hide();
-           			$('#tbl_category_site_listing').hide();
-           			$('#tbl_category_site_listing_loading').show();
-           			
-           		},
-           		success: function (response) {
-           			$('#tbl_category_site_listing').show();
-           			$('#tbl_category_site_listing_loading').hide();
-           			var tr ='';
-           			if(response.length==0){
-           				$('#tbody_category_site_listing').html('<tr><td colspan="3">No record</td></tr>');
-           				return;
-           			}else{
-         
-           			}
-           			$.each( response, function( i, value ) {
-           				tr += '<tr>';
-           				tr += '<td>'+(i+1)+'. </td>';
-           				tr += '<td>'+response[i]['sp_name']+'</td>';
-           				tr += '<td><button class="btn btn-danger pull-right btn-xs fixed-btn" type="button" onclick="remove_acl_category(&quot;'+response[i]['aclgp_id']+'&quot;)"><i class="fa fa-trash"></i></button></td>';
-           				tr += '</tr>';
-           			});
-           			$('#tbody_category_site_listing').html(tr);
-           		},
-           		error: function (xhr, error, thrown) {
-           		}
-           	});
-           }
-         
-         
-           function admin_get_category_site_listing_add_new_site(uc_id){
-           	$.ajax({
-           		type: 'POST',
-           		url: '../lib/q_func',
-           		dataType: "json",
-           		data: {admin_get_category_site_listing_add_new_site:"",uc_id:uc_id},
-           		beforeSend: function(){
-           			$('#tbl_category_site_listing_loading').hide();
-           			$('#tbl_category_site_listing_add_new_loading').show();
-           			$('#tbody_category_site_listing_add_new').hide();
-           		},
-           		success: function (response) {
-           			$('#tbl_category_site_listing_add_new_loading').hide();
-           			$('#tbody_category_site_listing_add_new').show();
-           			var tr ='';
-           			if(response.length==0){
-           				$('#tbody_category_site_listing_add_new').html('<tr><td colspan="3">No site available</td></tr>');
-           				return;
-           			}else{
-         
-           			}
-           			$.each( response, function( i, value ) {
-           				tr += '<tr>';
-           				tr += '<td>'+(i+1)+'. </td>';
-           				tr += '<td>'+response[i]['sp_name']+'</td>';
-           				tr += '<td><button class="btn btn-primary pull-right btn-xs fixed-btn" type="button" onclick="add_acl_category(&quot;'+response[i]['sp_id']+'&quot;)"><i class="fa fa-plus"></i> Add</button></td>';
-           				tr += '</tr>';
-           			});
-           			$('#tbody_category_site_listing_add_new').html(tr);
-           		},
-           		error: function (xhr, error, thrown) {
-           		}
-           	});
-           }
-         
-         
-           function add_acl_category(sp_id){
-           	swal({   
-           		title: "Add Allowed Site",   
-           		text: "Are you sure you want to Add this site to this category?",   
-           		type: "warning",   
-           		confirmButtonColor: "#DD6B55",   
-           		confirmButtonText: "Yes!",   
-           		showCancelButton: true,   
-           		closeOnConfirm: false 
-           	}, function(){   
-         
-           		$.ajax({
-           			type: 'POST',
-           			url: '../lib/q_func',
-           			dataType: "json",
-           			data: {add_acl_category:'',sp_id:sp_id,uc_id:$('#modal_category_user_list_view_id').val()},     
-           			beforeSend: function(){
-           			},
-           			success: function (response) {
-           				if (response == 1){
-           					admin_get_category_site_listing_add_new_site($('#modal_category_user_list_view_id').val())
-           					admin_get_category_site_listing($('#modal_category_user_list_view_id').val());
-           					swal("Add Allowed Site", "Success", "success"); 
-           				}else{
-           					swal("Add Allowed Site", "Error", "error"); 
-           				}
-         
-           			},
-           			error: function (xhr, error, thrown) {
-           			}
-           		});
-           	});
-           }
-         
-           function remove_acl_category(aclgp_id){
-           	swal({   
-           		title: "Remove Allowed Site",   
-           		text: "Are you sure you want to remove this site from this category?",   
-           		type: "warning",   
-           		confirmButtonColor: "#DD6B55",   
-           		confirmButtonText: "Yes!",   
-           		showCancelButton: true,   
-           		closeOnConfirm: false 
-           	}, function(){   
-         
-           		$.ajax({
-           			type: 'POST',
-           			url: '../lib/q_func',
-           			dataType: "json",
-           			data: {remove_acl_category:'',aclgp_id:aclgp_id},     
-           			beforeSend: function(){
-           			},
-           			success: function (response) {
-           				if (response == 1){
-           					admin_get_category_site_listing($('#modal_category_user_list_view_id').val());
-           					swal("Remove Allowed Site", "Success", "success"); 
-           				}else{
-           					swal("Remove Allowed Site", "Error", "error"); 
-           				}
-         
-           			},
-           			error: function (xhr, error, thrown) {
-           			}
-           		});
-           	});
-           }
-         
-         
+                  });
+                  $('#modal_category_user_list_view_title').text(response.category&&response.category.name?response.category.name:$('#modal_category_user_list_view_title').text());
+                  categoryAccessRender();
+               },
+               error:function(){ categoryAccessShowLoadError(); },
+               complete:function(){ $('#category_access_loading').prop('hidden',true); }
+            });
+         }
+
+         function categoryAccessShowLoadError(){
+            $('#category_access_loading').prop('hidden',true);
+            $('#category_access_error').prop('hidden',false);
+            $('#category_access_list').empty();
+         }
+
+         function categoryAccessFilteredApps(){
+            var query=$.trim($('#category_access_search').val()).toLowerCase();
+            return categoryAccessState.apps.filter(function(app){
+               var matchesText=!query||[app.name,app.description,app.domain].join(' ').toLowerCase().indexOf(query)!==-1;
+               var matchesFilter=categoryAccessState.filter==='all'
+                  ||(categoryAccessState.filter==='assigned'&&!!categoryAccessState.selected[app.id])
+                  ||(categoryAccessState.filter==='available'&&!categoryAccessState.selected[app.id])
+                  ||(categoryAccessState.filter==='sso'&&app.sso)
+                  ||(categoryAccessState.filter==='non-sso'&&!app.sso);
+               return matchesText&&matchesFilter;
+            });
+         }
+
+         function categoryAccessRender(){
+            var visible=categoryAccessFilteredApps();
+            var $list=$('#category_access_list').empty();
+            visible.forEach(function(app){
+               var checked=!!categoryAccessState.selected[app.id];
+               var unavailable=!app.active&&!checked;
+               var $row=$('<label>',{'class':'oneid-category-access-row'+(checked?' is-assigned':'')+(unavailable?' is-disabled':''),'role':'listitem'});
+               var $check=$('<input>',{type:'checkbox','class':'category-access-checkbox','data-app-id':app.id}).prop('checked',checked).prop('disabled',unavailable);
+               var initials=app.name.replace(/[^A-Za-z0-9 ]/g,'').split(/\s+/).filter(Boolean).slice(0,2).map(function(part){return part.charAt(0);}).join('').toUpperCase()||'APP';
+               var $icon=$('<span>',{'class':'oneid-category-access-appicon','aria-hidden':'true'}).text(initials);
+               var $copy=$('<span>',{'class':'oneid-category-access-copy'});
+               $('<strong>').text(app.name).appendTo($copy);
+               $('<span>').text(app.description).appendTo($copy);
+               var $meta=$('<span>',{'class':'oneid-category-access-meta'});
+               $('<small>',{'class':app.sso?'is-sso':'is-non-sso'}).text(app.sso?'OneID SSO':'Non SSO').appendTo($meta);
+               $('<small>',{'class':app.active?'is-active':'is-inactive'}).text(app.active?'Active':'Inactive').appendTo($meta);
+               $('<small>',{'class':'assignment-state'}).text(checked?'Assigned':'Not assigned').appendTo($meta);
+               $row.append($check,$icon,$copy,$meta).appendTo($list);
+            });
+            $('#category_access_empty').prop('hidden',visible.length!==0);
+            $('#category_access_result_count').text(visible.length+' result'+(visible.length===1?'':'s'));
+            categoryAccessUpdateSummary();
+         }
+
+         function categoryAccessDiff(){
+            var added=[],removed=[];
+            categoryAccessState.apps.forEach(function(app){
+               var was=!!categoryAccessState.original[app.id],now=!!categoryAccessState.selected[app.id];
+               if(now&&!was) added.push(app);
+               if(was&&!now) removed.push(app);
+            });
+            return {added:added,removed:removed};
+         }
+
+         function categoryAccessUpdateSummary(){
+            var assigned=Object.keys(categoryAccessState.selected).length;
+            var activeAvailable=categoryAccessState.apps.filter(function(app){return app.active&&!categoryAccessState.selected[app.id];}).length;
+            var diff=categoryAccessDiff(),pending=diff.added.length+diff.removed.length;
+            $('#category_access_assigned_count').text(assigned);
+            $('#category_access_available_count').text(activeAvailable);
+            $('#category_access_pending_count').text(pending);
+            $('#category_access_all_badge').text(categoryAccessState.apps.length);
+            $('#category_access_review_button').prop('disabled',pending===0);
+            $('#category_access_footer_status').text(pending===0?'No pending changes':diff.added.length+' to add · '+diff.removed.length+' to remove');
+            var visibleSelectable=categoryAccessFilteredApps().filter(function(app){return app.active&&!categoryAccessState.selected[app.id];});
+            $('#category_access_select_visible').prop('checked',false).prop('disabled',visibleSelectable.length===0);
+         }
+
+         function categoryAccessReview(){
+            var diff=categoryAccessDiff();
+            if(diff.added.length+diff.removed.length===0) return;
+            function fill(selector,items,emptyText){
+               var $target=$(selector).empty();
+               if(!items.length){$('<p>',{'class':'is-empty'}).text(emptyText).appendTo($target);return;}
+               items.forEach(function(app){$('<div>').append($('<i>',{'class':'fa fa-check-circle','aria-hidden':'true'}),$('<span>').text(app.name)).appendTo($target);});
+            }
+            $('#category_access_add_count').text(diff.added.length);
+            $('#category_access_remove_count').text(diff.removed.length);
+            fill('#category_access_add_list',diff.added,'No applications will be added.');
+            fill('#category_access_remove_list',diff.removed,'No applications will be removed.');
+            $('#category_access_workspace').prop('hidden',true);
+            $('#category_access_review').prop('hidden',false);
+            $('#category_access_cancel_review,#category_access_save_button').prop('hidden',false);
+            $('#category_access_close,#category_access_review_button').prop('hidden',true);
+         }
+
+         function categoryAccessBackToList(){
+            $('#category_access_workspace').prop('hidden',false);
+            $('#category_access_review').prop('hidden',true);
+            $('#category_access_cancel_review,#category_access_save_button').prop('hidden',true);
+            $('#category_access_close,#category_access_review_button').prop('hidden',false);
+         }
+
+         function categoryAccessSave(){
+            if(categoryAccessState.saving) return;
+            var assigned=Object.keys(categoryAccessState.selected).sort();
+            categoryAccessState.saving=true;
+            $('#category_access_save_button,#category_access_cancel_review').prop('disabled',true);
+            $('#category_access_save_button').html('<i class="fa fa-circle-o-notch fa-spin"></i> Saving…');
+            $.ajax({
+               type:'POST',
+               url:'../lib/q_func',
+               dataType:'json',
+               data:{admin_apply_category_app_access:'',uc_id:$('#modal_category_user_list_view_id').val(),assigned_sp_ids:JSON.stringify(assigned)},
+               success:function(response){
+                  if(response&&Number(response.status)===1){
+                     categoryAccessState.allowClose=true;
+                     swal('Application access updated',response.added+' added · '+response.removed+' removed\nReference: '+response.correlation_id,'success');
+                     categoryAccessResetView();
+                     categoryAccessLoad();
+                  }else{
+                     swal('Access not updated','Code: '+(response&&response.code?response.code:'CATEGORY_ACL_RESPONSE_INVALID')+'\nReference: '+(response&&response.correlation_id?response.correlation_id:'Not available'),'error');
+                  }
+               },
+               error:function(xhr){
+                  var response=xhr.responseJSON||{},code=response.code||'HTTP_'+xhr.status;
+                  if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){
+                     swal('Authentication required','Your administrator step-up has expired. Reopen the admin dashboard after authentication.','warning');
+                  }else{
+                     swal('Access not updated','The server did not confirm the update.\nCode: '+code,'error');
+                  }
+               },
+               complete:function(){
+                  categoryAccessState.saving=false;
+                  $('#category_access_save_button,#category_access_cancel_review').prop('disabled',false);
+                  $('#category_access_save_button').html('<i class="fa fa-check"></i> Confirm and save');
+               }
+            });
+         }
+
+         $(document).on('input','#category_access_search',categoryAccessRender);
+         $(document).on('click','[data-access-filter]',function(){
+            categoryAccessState.filter=$(this).data('access-filter');
+            $('[data-access-filter]').removeClass('is-active');
+            $(this).addClass('is-active');
+            categoryAccessRender();
+         });
+         $(document).on('change','.category-access-checkbox',function(){
+            var id=String($(this).attr('data-app-id'));
+            if(this.checked) categoryAccessState.selected[id]=true;
+            else delete categoryAccessState.selected[id];
+            categoryAccessRender();
+         });
+         $(document).on('change','#category_access_select_visible',function(){
+            if(!this.checked) return;
+            categoryAccessFilteredApps().forEach(function(app){if(app.active) categoryAccessState.selected[app.id]=true;});
+            categoryAccessRender();
+         });
+         $(document).on('click','#category_access_review_button',categoryAccessReview);
+         $(document).on('click','#category_access_cancel_review',categoryAccessBackToList);
+         $(document).on('click','#category_access_save_button',categoryAccessSave);
+         $('#modal_category_user_list_view').on('hide.bs.modal',function(event){
+            var diff=categoryAccessDiff();
+            if(!categoryAccessState.allowClose&&!categoryAccessState.saving&&(diff.added.length+diff.removed.length)>0){
+               event.preventDefault();
+               swal({
+                  title:'Discard pending changes?',
+                  text:diff.added.length+' addition(s) and '+diff.removed.length+' removal(s) have not been saved.',
+                  type:'warning',
+                  showCancelButton:true,
+                  confirmButtonText:'Discard changes',
+                  closeOnConfirm:true
+               },function(){
+                  categoryAccessState.allowClose=true;
+                  $('#modal_category_user_list_view').modal('hide');
+               });
+            }
+         }).on('hidden.bs.modal',function(){
+            categoryAccessState.apps=[];
+            categoryAccessState.original={};
+            categoryAccessState.selected={};
+            categoryAccessState.allowClose=false;
+         });
+
            function remove_category(){
            	swal({   
            		title: "Remove Cateogry",   
@@ -4698,279 +4647,95 @@
            }
          
          
-           function view_user_profile(user_id,status){
-           	$('#text_lst_of_accible_app').text('List of Accessible apps');
-           	$('#btn_add_new_specific_apps_to_accessible').show();
-           	$('#btn_close_add_new_specific_apps_to_accessible').hide();
-               // $('#modal_user_profile_sp_add_new_list_div').hide();
-         
-               $('#modal_user_profile_sp_list_div').show();
-               $('#modal_user_profile_sp_add_new_list_div').hide();
-               $('#modal_user_profile').modal('show');
-               get_specific_user_profile_info(user_id,status);
-               get_specific_user_sp_access_list(user_id);
-           	// $('#modal_user_profile_sp_list_loading').hide();
-           }
-         
-         
            var temp_prev_category = "";
            var m3ProfileSource = "legacy";
+           var userAccessState={apps:[],original:{},selected:{},revision:'',filter:'all',saving:false,allowClose:false,profileDirty:false};
 
-           function m3EscapeHtml(value){
-            return $('<div>').text(value == null ? '' : String(value)).html();
+           function m3EscapeHtml(value){return $('<div>').text(value==null?'':String(value)).html();}
+           function m3FailureText(response,fallback){var code=response&&response.code?String(response.code):'M3_REQUEST_FAILED';var reference=response&&response.correlation_id?String(response.correlation_id):'';return localizedResponseMessage(response,fallback||'The request was not completed.')+'\nCode: '+code+(reference?'\nReference: '+reference:'');}
+           function m3TransportFailure(xhr,fallback){var detail=xhr&&xhr.status?' HTTP '+xhr.status+'.':'';swal('Request failed',(fallback||'The server could not complete the request.')+detail,'error');}
+
+           function view_user_profile(user_id,status){
+              userAccessState.allowClose=false;
+              userAccessState.profileDirty=false;
+              userProfileShowTab('profile');
+              $('#modal_user_profile').modal('show');
+              get_specific_user_profile_info(user_id,status);
+              userAccessLoad(user_id);
            }
 
-           function m3FailureText(response, fallback){
-            var code = response && response.code ? String(response.code) : 'M3_REQUEST_FAILED';
-            var reference = response && response.correlation_id ? String(response.correlation_id) : '';
-            return localizedResponseMessage(response,fallback || 'The request was not completed.') + '\nCode: ' + code + (reference ? '\nReference: ' + reference : '');
-           }
-
-           function m3TransportFailure(xhr, fallback){
-            var detail = xhr && xhr.status ? ' HTTP ' + xhr.status + '.' : '';
-            swal('Request failed', (fallback || 'The server could not complete the request.') + detail, 'error');
+           function userProfileShowTab(tab){
+              $('[data-user-profile-tab]').removeClass('is-active').filter('[data-user-profile-tab="'+tab+'"]').addClass('is-active');
+              $('.oneid-user-profile-pane').prop('hidden',true);
+              $('#user_profile_tab_'+tab).prop('hidden',false);
+              var access=tab==='access';
+              $('#user_access_review').prop('hidden',!access);
+              $('#user_access_back,#user_access_save').prop('hidden',true);
+              $('#user_profile_close').prop('hidden',false);
+              $('#user_profile_footer_status').text(access?userAccessPendingText():'Profile information');
            }
 
            function modal_user_profile_save(){
-            var userId = $('#modal_user_profile_user_id').val();
-            var categoryId = $('#modal_user_profile_category').val();
-            var name = $('#modal_user_profile_name').val();
-            if(!userId || categoryId === ''){
-              swal('Profile not ready', 'Select an active category before saving.', 'warning');
-              return;
-            }
-            swal({
-              title: 'Save profile?',
-              text: 'This saves the validated profile and category. Administrator role is not changed by category.',
-              type: 'warning',
-              showCancelButton: true,
-              confirmButtonText: 'Save profile',
-              closeOnConfirm: false
-            }, function(){
-              $.ajax({
-                type: 'POST',
-                url: '../lib/q_func',
-                dataType: 'json',
-                data: {admin_save_user_profile:'', user_id:userId, name:name, category_id:categoryId},
-                beforeSend: function(){ $('#btn_user_profile_save').prop('disabled', true); },
-                complete: function(){ $('#btn_user_profile_save').prop('disabled', false); },
-                success: function(response){
-                  if(Number(response.status) === 1){
-                    temp_prev_category = categoryId;
-                    $('#btn_user_profile_save').addClass('btn-primary').removeClass('btn-warning');
-                    get_specific_user_sp_access_list(userId);
-                    admin_get_all_user_category(1);
-                    var unchanged = response.code === 'M3_PROFILE_UNCHANGED';
-                    swal(unchanged ? 'No changes' : 'Profile saved', (unchanged ? 'The profile already matches the saved values.' : 'Profile and category policy were applied.') + '\nReference: ' + response.correlation_id, 'success');
-                  }else{
-                    swal('Profile not saved', m3FailureText(response, 'The profile failed validation or policy checks.'), 'error');
-                  }
-                },
-                error: function(xhr){ m3TransportFailure(xhr, 'The profile was not saved.'); }
+              var userId=$('#modal_user_profile_user_id').val(),categoryId=$('#modal_user_profile_category').val(),name=$('#modal_user_profile_name').val();
+              if(!userId||categoryId===''){swal('Profile not ready','Select an active category before saving.','warning');return;}
+              swal({title:'Save profile?',text:'This saves the validated profile and category. Administrator role is not changed by category.',type:'warning',showCancelButton:true,confirmButtonText:'Save profile',closeOnConfirm:false},function(){
+                 $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',data:{admin_save_user_profile:'',user_id:userId,name:name,category_id:categoryId},beforeSend:function(){$('#btn_user_profile_save').prop('disabled',true);},complete:function(){$('#btn_user_profile_save').prop('disabled',false);},success:function(response){
+                    if(Number(response.status)===1){temp_prev_category=categoryId;userAccessState.profileDirty=false;$('#user_profile_category_notice').prop('hidden',true);admin_get_all_user_category(1);userAccessLoad(userId);var unchanged=response.code==='M3_PROFILE_UNCHANGED';swal(unchanged?'No changes':'Profile saved',(unchanged?'The profile already matches the saved values.':'Profile and category policy were applied.')+'\nReference: '+response.correlation_id,'success');}
+                    else swal('Profile not saved',m3FailureText(response,'The profile failed validation or policy checks.'),'error');
+                 },error:function(xhr){m3TransportFailure(xhr,'The profile was not saved.');}});
               });
-            });
            }
+
            function get_specific_user_profile_info(user_id,status){
-              $.ajax({
-                 type: 'POST',
-                 url: '../lib/q_func',
-                 dataType: "json",
-                 data: {admin_get_get_specific_user_profile_info:"",user_id,source:status},
-                 beforeSend: function(){
-                    $('.modal_user_profile_loading_text').show();
-                    $('.modal_user_profile_input').hide();
-
-                    $('#modal_user_profile_name').val('');
-                    $('#modal_user_profile_id').val('');
-                    $('#modal_user_profile_status').html('-');
-                 },
-                 success: function (response) {
-
-                    $('.modal_user_profile_loading_text').hide();
-                    $('.modal_user_profile_input').show();
-                    $('#btn_user_profile_save').addClass('btn-primary').removeClass('btn-warning');
-                    switch(response['source']){
-                     case "1": //reg
-                     var u_id_text=String(response['data3']||'').trim()||String(response['data4']||'').trim()||String(response['u_id']||'').trim();
-                      $('#modal_user_profile_name').val(response['data1']);
-                        m3ProfileSource = String(response['account_source'] || 'legacy').toLowerCase();
-                     $('#modal_user_profile_id').val(u_id_text);
-                     if(response['u_category'] == "0"){
-                        $('#modal_user_profile_category').val('');
-                        temp_prev_category = '';
-                      }else{
-                        $('#modal_user_profile_category').val(response['u_category']);
-                        temp_prev_category = response['u_category'];
-                     }
-                     $('#modal_user_profile_user_id').val(response['u_id']);
-                     if(response['avail_status']=="0"){
-                        $('#modal_user_profile_status').html('<div class="alert alert-warning mt-10"><strong>'+adminUserSearchText(adminI18n.userHistoricalRecord)+'</strong><br><small>'+adminUserSearchText(adminI18n.userHistoricalHelp)+'</small></div>');
-                        $('.user_info_btn').hide();
-                        $('.user_info_btn_reactivate').show();
-                        $(".modal_user_profile_input_enable").prop('disabled', true);
-                     }else{
-                        $('#modal_user_profile_status').html('<div class="alert alert-success alert-dismissable mt-10">Status : Registered</div></div>');
-                        $('.user_info_btn').show();
-                        $('.user_info_btn_reactivate').hide();
-                        $('#modal_user_profile_category').prop('disabled', false);
-                              $('#modal_user_profile_name').prop('disabled', m3ProfileSource !== 'manual')
-                                .attr('title', m3ProfileSource === 'manual' ? 'Manual account name may be edited.' : 'External account name is maintained through Safe Resync.');
-                        $('#modal_user_profile_lastupdate_text').text(admin_format_datetime(response['u_update_datetime']));
-                     }
-                     break;
-                     case "2": //unreg
-                     $('#modal_user_profile_status').html('<div class="alert alert-danger alert-dismissable mt-10">Status: Unregistered</div></div>');
-                     $('#modal_user_profile_name').val(response['data1']);
-                     $('#modal_user_profile_id').val(u_id_text);
-                     $('#modal_user_profile_category').val('');
-                     $('#modal_user_profile_user_id').val(response['u_id']);
-                     temp_prev_category = '';
-                     break;
-                  }
-               },
-                  error: function (xhr, error, thrown) {
-                              m3TransportFailure(xhr, 'The user profile could not be loaded.');
-                  }
-            });
+              $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',data:{admin_get_get_specific_user_profile_info:'',user_id:user_id,source:status},beforeSend:function(){
+                 $('.modal_user_profile_loading_text').prop('hidden',false);$('.modal_user_profile_input').prop('disabled',true);$('#modal_user_profile_name,#modal_user_profile_id').val('');$('#modal_user_profile_status').text('Loading…');
+              },success:function(response){
+                 $('.modal_user_profile_loading_text').prop('hidden',true);var idText=String(response.data3||'').trim()||String(response.data4||'').trim()||String(response.u_id||'').trim();
+                 $('#modal_user_profile_name').val(response.data1||'');$('#modal_user_profile_id').val(idText);$('#modal_user_profile_user_id').val(response.u_id||user_id);
+                 if(String(response.source)==='1'){
+                    m3ProfileSource=String(response.account_source||'legacy').toLowerCase();temp_prev_category=String(response.u_category)==='0'?'':String(response.u_category);$('#modal_user_profile_category').val(temp_prev_category);
+                    var active=String(response.avail_status)==='1';$('#modal_user_profile_status').text(active?'Registered':'Historical record').toggleClass('is-positive',active).toggleClass('is-warning',!active);
+                    $('#modal_user_profile_source').text(m3ProfileSource==='external'?'External Sync':(m3ProfileSource==='manual'?'Manual':'Legacy'));
+                    $('#modal_user_profile_lastupdate_text').text(response.u_update_datetime?admin_format_datetime(response.u_update_datetime):'Not available');
+                    $('.user_info_btn').toggle(active);$('.user_info_btn_reactivate').toggle(!active);$('#modal_user_profile_category').prop('disabled',!active);$('#modal_user_profile_name').prop('disabled',!active||m3ProfileSource!=='manual').attr('title',m3ProfileSource==='manual'?'Manual account name may be edited.':'External account name is maintained through Safe Resync.');
+                 }else{
+                    temp_prev_category='';$('#modal_user_profile_category').val('').prop('disabled',true);$('#modal_user_profile_status').text('Unregistered').removeClass('is-positive').addClass('is-warning');$('#modal_user_profile_source').text('Not registered');$('#modal_user_profile_lastupdate_text').text('Not available');$('.user_info_btn,.user_info_btn_reactivate').hide();
+                 }
+                 $('#user_profile_heading_summary').text((response.data1||'User')+' · '+idText);
+              },error:function(xhr){$('.modal_user_profile_loading_text').prop('hidden',true);m3TransportFailure(xhr,'The user profile could not be loaded.');}});
            }
 
-           function get_specific_user_sp_access_list(user_id){
-              $.ajax({
-                 type: 'POST',
-                 url: '../lib/q_func',
-                 dataType: "json",
-                 data: {get_specific_user_sp_access_list:"",u_id:user_id},
-                 beforeSend: function(){
-                    $('#modal_user_profile_sp_list_loading').show();
-                    $('#modal_user_profile_sp_list').html('');
-                         // $('#login_status').html('<div class="alert alert-info alert-dismissable alert-style-1"><i class="zmdi zmdi-info-outline"></i>Signing on. Checking info. Wait a moment.</div>');
-                     },
-                     success: function (response) {
-
-                        var tr = '';
-                        $.each( response, function( i, value ) {
-                           var checked = '';
-                           var disable_label = "";
-                       var safeName = m3EscapeHtml(response[i]['sp_name']);
-                       if(response[i]['status']!=1){ //blockedv
-                          tr += '<a href="#" class="list-group-item" onclick="uplift_blacklist(&quot;'+response[i]['aclblk_id']+'&quot;)">';
-                          tr += '<span class="badge transparent-badge badge-success capitalize-font"><span class="label label-danger">Denied</span></span>';
-                          tr += '<p class=" pull-left">'+(Number(i)+Number(1))+'. '+safeName+'</p>';
-                          tr += '<div class="clearfix"></div>';
-                          tr += '</a>';
-                       }else{
-                          tr += '<a href="#" class="list-group-item" onclick="deny_access(&quot;'+response[i]['sp_id']+'&quot;)">';
-                          tr += '<span class="badge transparent-badge badge-success capitalize-font"><span class="label label-success">Allowed</span></span>';
-                          tr += '<p class=" pull-left">'+(Number(i)+Number(1))+'. '+safeName+'</p>';
-                          tr += '<div class="clearfix"></div>';
-                          tr += '</a>';
-                       }
-                    });
-
-                        $('#modal_user_profile_sp_list_loading').hide();
-                        $('#modal_user_profile_sp_list').html(tr);
-
-                     },
-                     error: function (xhr, error, thrown) {
-                        $('#modal_user_profile_sp_list_loading').hide();
-                        m3TransportFailure(xhr, 'Application access could not be loaded.');
-                     }
-                 });
+           function userAccessLoad(userId){
+              userId=userId||$('#modal_user_profile_user_id').val();if(!userId)return;
+              $('#user_access_loading').prop('hidden',false);$('#user_access_error,#user_access_empty').prop('hidden',true);$('#user_access_list').empty();
+              $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',data:{admin_get_user_app_access_state:'',user_id:userId},success:function(r){
+                 if(!r||Number(r.status)!==1||!Array.isArray(r.apps)){userAccessLoadError();return;}
+                 userAccessState.revision=String(r.revision||'');userAccessState.apps=r.apps.map(function(a){var inherited=Number(a.category_allow)===1,direct=Number(a.direct_allow)===1,denied=Number(a.denied)===1;return{id:String(a.sp_id),name:String(a.sp_name||'Unnamed application'),description:String(a.sp_description||a.sp_domain||'No description available'),domain:String(a.sp_domain||''),sso:Number(a.sp_sso_support)===0,active:Number(a.avail_status)===1,inherited:inherited,direct:direct,denied:denied,allowed:(inherited||direct)&&!denied};});
+                 userAccessState.original={};userAccessState.selected={};userAccessState.apps.forEach(function(a){userAccessState.original[a.id]=a.allowed;if(a.allowed)userAccessState.selected[a.id]=true;});userAccessState.allowClose=false;userAccessRender();
+              },error:userAccessLoadError,complete:function(){$('#user_access_loading').prop('hidden',true);}});
            }
-
-
-           function add_new_specific_apps_to_accessible(){
-
-              $('#text_lst_of_accible_app').text('Add new app access');
-              get_add_new_specific_apps_to_accissible_list();
-              $('#btn_add_new_specific_apps_to_accessible').hide();
-              $('#btn_close_add_new_specific_apps_to_accessible').show();
-              $('#modal_user_profile_sp_list_div').fadeOut();
-              $('#modal_user_profile_sp_add_new_list_div').fadeIn();
-           }
-
-           function close_add_new_specific_apps_to_accessible(){
-              $('#text_lst_of_accible_app').text('LIST OF ACCESSIBLE APPS');
-              $('#btn_add_new_specific_apps_to_accessible').show();
-              $('#btn_close_add_new_specific_apps_to_accessible').hide();
-              $('#modal_user_profile_sp_list_div').fadeIn();
-              $('#modal_user_profile_sp_add_new_list_div').fadeOut();
-           }
-
-
-           function get_add_new_specific_apps_to_accissible_list(){
-              $.ajax({
-                 type: 'POST',
-                 url: '../lib/q_func',
-                 dataType: "json",
-                 data:{get_add_new_specific_apps_to_accissible_list:"",u_id:$('#modal_user_profile_user_id').val()},
-                 beforeSend: function(){
-                    $('#modal_user_profile_sp_list_loading').show();
-                 },
-                 success: function (response) {
-                    var tr = '';
-                    if(response.length == 0){
-
-                       $('#modal_user_profile_sp_add_new_list_div').html('No Available Apps');
-                       $('#modal_user_profile_sp_list_loading').hide();
-                       return;
-                    }
-                    $.each( response, function( i, value ) {
-                       tr += '<a href="#" class="list-group-item" onclick="add_new_specific_apps_to_user(&quot;'+response[i]['sp_id']+'&quot;)">';
-                       tr += '<span class="badge transparent-badge badge-success capitalize-font"><span class="label label-success">+ Add</span></span>';
-                     tr += '<p class=" pull-left">'+(i+1)+'. '+m3EscapeHtml(response[i]['sp_name'])+'</p>';
-                       tr += '<div class="clearfix"></div>';
-                       tr += '</a>';
-                    });
-                    $('#modal_user_profile_sp_list_loading').hide();
-                    $('#modal_user_profile_sp_add_new_list_div').html(tr);
-
-                 },
-                  error: function (xhr, error, thrown) {
-                              $('#modal_user_profile_sp_list_loading').hide();
-                              m3TransportFailure(xhr, 'Available applications could not be loaded.');
-                  }
+           function userAccessLoadError(){$('#user_access_loading').prop('hidden',true);$('#user_access_error').prop('hidden',false);$('#user_access_list').empty();}
+           function userAccessFiltered(){var q=$.trim($('#user_access_search').val()).toLowerCase();return userAccessState.apps.filter(function(a){var selected=!!userAccessState.selected[a.id];var match=!q||[a.name,a.description,a.domain].join(' ').toLowerCase().indexOf(q)!==-1;var f=userAccessState.filter;return match&&(f==='all'||(f==='allowed'&&selected)||(f==='direct'&&a.direct)||(f==='inherited'&&a.inherited)||(f==='denied'&&a.denied)||(f==='available'&&!selected&&a.active)||(f==='sso'&&a.sso)||(f==='non-sso'&&!a.sso));});}
+           function userAccessRender(){
+              var visible=userAccessFiltered(),$list=$('#user_access_list').empty();visible.forEach(function(a){var checked=!!userAccessState.selected[a.id],unavailable=!a.active&&!checked;var source=a.denied?'Denied':(a.inherited?'Inherited':(a.direct?'Direct':'Available'));var cls=a.denied?'is-denied':(a.inherited?'is-inherited':(a.direct?'is-direct':'is-available'));
+                 var $row=$('<label>',{'class':'oneid-user-access-row'+(checked?' is-allowed':'')+(unavailable?' is-disabled':''),'role':'listitem'});var $check=$('<input>',{type:'checkbox','class':'user-access-checkbox','data-app-id':a.id}).prop('checked',checked).prop('disabled',unavailable);var initials=a.name.replace(/[^A-Za-z0-9 ]/g,'').split(/\s+/).filter(Boolean).slice(0,2).map(function(x){return x.charAt(0)}).join('').toUpperCase()||'APP';var $icon=$('<span>',{'class':'oneid-user-access-appicon'}).text(initials);var $copy=$('<span>',{'class':'oneid-user-access-copy'}).append($('<strong>').text(a.name),$('<span>').text(a.description));var $meta=$('<span>',{'class':'oneid-user-access-meta'}).append($('<small>',{'class':a.sso?'is-sso':'is-non-sso'}).text(a.sso?'OneID SSO':'Non SSO'),$('<small>',{'class':cls}).text(source),$('<small>').text(a.active?'Active':'Inactive'));$row.append($check,$icon,$copy,$meta).appendTo($list);
               });
+              $('#user_access_empty').prop('hidden',visible.length!==0);$('#user_access_result_count').text(visible.length+' result'+(visible.length===1?'':'s'));userAccessUpdateSummary();
            }
+           function userAccessDiff(){var changes=[];userAccessState.apps.forEach(function(a){var before=!!userAccessState.original[a.id],after=!!userAccessState.selected[a.id];if(before===after)return;var type=after?(a.denied?'Restore access':'Grant direct access'):(a.inherited?'Deny inherited access':'Remove direct access');changes.push({app:a,type:type,after:after});});return changes;}
+           function userAccessPendingText(){var n=userAccessDiff().length;return n?n+' pending change'+(n===1?'':'s'):'No pending changes';}
+           function userAccessUpdateSummary(){var selected=Object.keys(userAccessState.selected).length,direct=userAccessState.apps.filter(function(a){return a.direct}).length,denied=userAccessState.apps.filter(function(a){return a.denied}).length,pending=userAccessDiff().length;$('#user_access_effective_count,#user_access_tab_count').text(selected);$('#user_access_direct_count').text(direct);$('#user_access_denied_count').text(denied);$('#user_access_pending_count').text(pending);$('#user_access_pending_text').text(userAccessPendingText());$('#user_access_review').prop('disabled',pending===0);if(!$('#user_profile_tab_access').prop('hidden'))$('#user_profile_footer_status').text(userAccessPendingText());}
+           function userAccessReview(){var changes=userAccessDiff();if(!changes.length)return;var $list=$('#user_access_review_list').empty();changes.forEach(function(c){$('<div>',{'class':c.after?'is-grant':'is-remove'}).append($('<i>',{'class':'fa '+(c.after?'fa-check-circle':'fa-minus-circle')}),$('<span>').append($('<strong>').text(c.app.name),$('<small>').text(c.type))).appendTo($list);});$('.oneid-user-profile-pane').prop('hidden',true);$('#user_profile_tab_review').prop('hidden',false);$('#user_access_review,#user_profile_close').prop('hidden',true);$('#user_access_back,#user_access_save').prop('hidden',false);$('#user_profile_footer_status').text(changes.length+' change'+(changes.length===1?'':'s')+' ready to save');}
+           function userAccessBack(){userProfileShowTab('access');}
+           function userAccessSave(){if(userAccessState.saving)return;var allowed=Object.keys(userAccessState.selected).sort();userAccessState.saving=true;$('#user_access_save,#user_access_back').prop('disabled',true);$('#user_access_save').html('<i class="fa fa-circle-o-notch fa-spin"></i> Saving…');$.ajax({type:'POST',url:'../lib/q_func',dataType:'json',data:{admin_apply_user_app_access:'',user_id:$('#modal_user_profile_user_id').val(),allowed_sp_ids:JSON.stringify(allowed),revision:userAccessState.revision},success:function(r){if(r&&Number(r.status)===1){userAccessState.allowClose=true;swal('Application access updated',r.changed+' access change'+(Number(r.changed)===1?'':'s')+' saved. User sessions were revoked once.\nReference: '+r.correlation_id,'success');userProfileShowTab('access');userAccessLoad();}else{var changed=r&&r.code==='USER_ACL_STATE_CHANGED';swal(changed?'Access changed elsewhere':'Access not updated',(changed?'Reload the application list and review the latest access before saving.':'Code: '+(r&&r.code?r.code:'USER_ACL_RESPONSE_INVALID'))+'\nReference: '+(r&&r.correlation_id?r.correlation_id:'Not available'),'error');if(changed){userProfileShowTab('access');userAccessLoad();}}},error:function(xhr){m3TransportFailure(xhr,'Application access was not saved.');},complete:function(){userAccessState.saving=false;$('#user_access_save,#user_access_back').prop('disabled',false);$('#user_access_save').html('<i class="fa fa-check"></i> Confirm and save');}});}
 
-
-           function add_new_specific_apps_to_user(sp_id){
-              swal({
-                 title: "Add Access",
-                 text: "Are you sure you want to add access to this user?",
-                 type: "warning",
-                 showCancelButton: true,
-                 confirmButtonColor: "#DD6B55",
-                 confirmButtonText: "Yes!",
-                 closeOnConfirm: false
-              }, function(){
-
-                 $.ajax({
-                    type: 'POST',
-                    url: '../lib/q_func',
-                    dataType: "json",
-                    data: {add_new_specific_apps_to_user:'',sp_id:sp_id,u_id:$('#modal_user_profile_user_id').val()},
-                  beforeSend: function(){ $('#btn_add_new_specific_apps_to_accessible').prop('disabled', true); },
-                              complete: function(){ $('#btn_add_new_specific_apps_to_accessible').prop('disabled', false); },
-                  success: function (response) {
-                     if (Number(response.status) === 1){
-                          get_specific_user_sp_access_list($('#modal_user_profile_user_id').val());
-                          $('#text_lst_of_accible_app').text('LIST OF ACCESSIBLE APPS');
-                          $('#btn_add_new_specific_apps_to_accessible').show();
-                          $('#btn_close_add_new_specific_apps_to_accessible').hide();
-                          $('#modal_user_profile_sp_list_div').fadeIn();
-                          $('#modal_user_profile_sp_add_new_list_div').fadeOut();
-                        swal("Access added", "The user sessions were revoked so the ACL takes effect immediately.\nReference: " + response.correlation_id, "success");
-                     }else{
-                        swal("Access not added", m3FailureText(response, "The ACL change was rejected."), "error");
-                       }
-
-                    },
-                  error: function (xhr, error, thrown) { m3TransportFailure(xhr, 'Application access was not added.'); }
-                 });
-              });
-           }
-
+           $(document).on('click','[data-user-profile-tab]',function(){var tab=$(this).data('user-profile-tab');if(tab==='access'&&String($('#modal_user_profile_category').val())!==String(temp_prev_category)){swal('Save profile first','Save the category change before reviewing application access.','warning');return;}userProfileShowTab(tab);});
+           $(document).on('change','#modal_user_profile_category',function(){$('#user_profile_category_notice').prop('hidden',String($(this).val())===String(temp_prev_category));});
+           $(document).on('input','#user_access_search',userAccessRender);
+           $(document).on('click','[data-user-access-filter]',function(){userAccessState.filter=String($(this).data('user-access-filter'));$('[data-user-access-filter]').removeClass('is-active');$(this).addClass('is-active');userAccessRender();});
+           $(document).on('change','.user-access-checkbox',function(){var id=String($(this).data('app-id'));if(this.checked)userAccessState.selected[id]=true;else delete userAccessState.selected[id];userAccessRender();});
+           $(document).on('click','#user_access_review',userAccessReview);$(document).on('click','#user_access_back',userAccessBack);$(document).on('click','#user_access_save',userAccessSave);
+           $('#modal_user_profile').on('hide.bs.modal',function(e){if(userAccessState.allowClose||(!userAccessState.profileDirty&&userAccessDiff().length===0)||userAccessState.saving)return;e.preventDefault();swal({title:'Discard pending changes?',text:'Profile or application access changes have not been saved.',type:'warning',showCancelButton:true,confirmButtonText:'Discard changes',closeOnConfirm:true},function(){userAccessState.allowClose=true;$('#modal_user_profile').modal('hide');});});
 
            function open_blacklist_modal(){
               admin_get_all_blacklist_record();
@@ -5032,7 +4797,7 @@
                      beforeSend: function(){},
                      success: function (response) {
                         if (Number(response.status) === 1){
-                           get_specific_user_sp_access_list($('#modal_user_profile_user_id').val());
+                           userAccessLoad($('#modal_user_profile_user_id').val());
                            swal("Access denied", "The user sessions were revoked so the deny takes effect immediately.\nReference: " + response.correlation_id, "success");
                         }else{
                            swal("Access not denied", m3FailureText(response, "The ACL change was rejected."), "error");
@@ -5066,7 +4831,7 @@
                     success: function (response) {
                         if (Number(response.status) === 1){
                           admin_get_all_blacklist_record();
-                          get_specific_user_sp_access_list($('#modal_user_profile_user_id').val());
+                          userAccessLoad($('#modal_user_profile_user_id').val());
                            swal("Deny uplifted", "Access policy was updated and existing sessions were revoked.\nReference: " + response.correlation_id, "success");
                         }else{
                            swal("Deny not uplifted", m3FailureText(response, "The ACL change was rejected."), "error");
@@ -5137,6 +4902,7 @@
          // M3 stages category edits locally. Persistence occurs only through
          // the explicit Save Profile confirmation above.
          $('body').on('change input', '#modal_user_profile_category, #modal_user_profile_name', function () {
+            userAccessState.profileDirty=true;
             $('#btn_user_profile_save').addClass('btn-warning').removeClass('btn-primary');
          });
          
@@ -6214,7 +5980,7 @@
                success: function(response){
                   if (response && Number(response.status) === 1) {
                      get_specific_user_profile_info(user_info_id,response.source_status);
-                     get_specific_user_sp_access_list(user_info_id);
+                     userAccessLoad(user_info_id);
                      get_service_provider_list();
                      admin_get_all_user_category(1);
                      swal('User reactivated', 'Sessions and active OTP were revoked.\nReference: ' + response.correlation_id, 'success');
@@ -6247,7 +6013,7 @@
                success: function(response){
                   if (response && Number(response.status) === 1) {
                      get_specific_user_profile_info(user_info_id,response.source_status);
-                     get_specific_user_sp_access_list(user_info_id);
+                     userAccessLoad(user_info_id);
                      get_service_provider_list();
                      admin_get_all_user_category(1);
                      swal('User removed', 'Account access, sessions and active OTP were revoked.\nReference: ' + response.correlation_id, 'success');
@@ -6307,7 +6073,7 @@
                      return;
                   }
                   get_specific_user_profile_info(user_id, 1);
-                  get_specific_user_sp_access_list(user_id);
+                  userAccessLoad(user_id);
                   swal('Resync complete', 'The approved fields were updated and the action was recorded in the audit log.\nReference: ' + response.correlation_id, 'success');
                },
                error: function(xhr){
@@ -6523,7 +6289,7 @@
                show_active_session_revocation_modal(response);
             }).fail(function(xhr){
                var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'';
-               if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){sessionStorage.setItem('oneid_as3_pending_target',targetId);window.location.href='../page/admin-step-up?purpose=ACTIVE_SESSION_REVOCATION&return=active_sessions';return;}
+               if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){sessionStorage.setItem('oneid_as3_pending_target',targetId);window.location.href='../page/admin-step-up?purpose=ADMIN_ACCESS&return=active_sessions';return;}
                swal(adminText('admin.sessions.revoke_preview'),'Code: '+(code||'AS3_PREVIEW_FAILED'),'error');
             });
          }
@@ -6552,7 +6318,15 @@
                $error.text('');$('#as3_revocation_apply').prop('disabled',true);
                $.ajax({type:'POST',url:'../lib/q_func',dataType:'json',headers:{'X-CSRF-Token':<?php echo json_encode(oneid_csrf_token()); ?>},data:{admin_apply_active_session_revocation:'',approval_id:response.approval_id,reason:reason,confirmation:confirmation}})
                .done(function(result){if(result&&Number(result.status)===1){$modal.modal('hide');swal(adminText('admin.sessions.revoke'),adminText('admin.sessions.revoked')+'\nReference: '+result.correlation_id,'success');get_all_user_activ_session(activeSessionPage);}else{$error.text('Code: '+(result&&result.code?result.code:'AS3_APPLY_FAILED'));}})
-               .fail(function(xhr){$error.text('Code: '+(xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'AS3_APPLY_FAILED'));})
+               .fail(function(xhr){
+                  var code=xhr.responseJSON&&xhr.responseJSON.code?xhr.responseJSON.code:'AS3_APPLY_FAILED';
+                  if(xhr.status===403&&(code==='STEP_UP_REQUIRED'||code==='STEP_UP_EXPIRED'||code==='STEP_UP_PURPOSE_MISMATCH')){
+                     sessionStorage.setItem('oneid_as3_pending_apply',JSON.stringify({preview:response,reason:reason,confirmation:confirmation,stored_at:Date.now()}));
+                     window.location.href='../page/admin-step-up?purpose=ACTIVE_SESSION_REVOCATION&return=active_sessions';
+                     return;
+                  }
+                  $error.text('Code: '+code);
+               })
                .always(function(){$('#as3_revocation_apply').prop('disabled',false);});
             });
             $modal.on('hidden.bs.modal',function(){$modal.remove();}).modal({backdrop:'static',keyboard:true,show:true});
@@ -6565,6 +6339,14 @@
          $(document).on('click', '.active-session-revoke', function(){active_session_revocation_preview(String($(this).data('revocation-target')||''));});
          document.addEventListener('oneid:step-up-context-ready',function(event){
             if(!event.detail||event.detail.context!=='active_sessions')return;
+            var pendingApply=null;
+            try{pendingApply=JSON.parse(sessionStorage.getItem('oneid_as3_pending_apply')||'null');}catch(ignore){}
+            sessionStorage.removeItem('oneid_as3_pending_apply');
+            if(pendingApply&&pendingApply.preview&&Number(pendingApply.stored_at)>Date.now()-300000){
+               show_active_session_revocation_modal(pendingApply.preview);
+               setTimeout(function(){$('#as3_revocation_reason').val(pendingApply.reason||'');$('#as3_revocation_confirmation').val(pendingApply.confirmation||'');},0);
+               return;
+            }
             var pending=sessionStorage.getItem('oneid_as3_pending_target');
             if(!pending)return;
             sessionStorage.removeItem('oneid_as3_pending_target');

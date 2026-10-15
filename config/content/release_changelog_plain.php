@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.20.0' =>
+  array (
+    'version' => '2.20.0',
+    'date' => '2026-10-15',
+    'bm' =>
+    array (
+      0 => 'Pengesahan tambahan administrator kini mengikut risiko: sesi MFA pentadbir yang masih baharu digunakan semula untuk tindakan kritikal, manakala kerja pentadbiran biasa tidak lagi meminta pengesahan berulang.',
+      1 => 'Pengurusan aplikasi mengikut kategori kini menggunakan carian, penapis, semakan perubahan dan satu simpanan batch bertransaksi dengan audit ber-ID rujukan.',
+      2 => 'Skrin Manage User baharu memisahkan profil dan akses aplikasi, menerangkan akses Inherited, Direct, Denied atau Available serta menyimpan perubahan secara atomik dengan pengesanan konflik dan pembatalan sesi sekali sahaja.',
+    ),
+    'en' =>
+    array (
+      0 => 'Administrator step-up now follows risk: a recent administrator MFA verification is reused for critical actions, while routine administration no longer requests repeated verification.',
+      1 => 'Category application management now provides search, filters, change review and one transactional batch save with reference-based auditing.',
+      2 => 'The redesigned Manage User screen separates profile and application access, explains Inherited, Direct, Denied or Available access, and saves atomically with conflict detection and a single session revocation.',
+    ),
+  ),
   'release-2.19.4' =>
   array (
     'version' => '2.19.4',

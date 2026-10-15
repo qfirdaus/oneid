@@ -20,6 +20,8 @@ final class As3Operation {
  public function beginTransaction(){return true;} public function commit(){$this->commits++;return true;} public function rollback(){$this->rollbacks++;return true;}
  public function admin_revoke_exact_session(){return ++$this->updates===1?1:0;}
  public function syslog_record($event,$detail,$ip){if($event!==66||str_contains($detail,'target-token'))return 0;$this->audits++;return 1;}
+ public function admin_email_notification_recipient($userId){return false;}
+ public function admin_email_notification_enqueue(array $entry){return 1;}
 }
 putenv('ONEID_ACTIVE_SESSION_REVOCATION_ENABLED=true');putenv('ONEID_ACTIVE_SESSION_REVOCATION_PILOT_STATES=due,expired');putenv('ONEID_ACTIVE_SESSION_REVOCATION_ALLOW_ADMIN_TARGET=false');putenv('ONEID_ACTIVE_SESSION_REVOCATION_ALLOW_REVOKE_ALL=false');
 if(session_status()!==PHP_SESSION_ACTIVE){session_id('as3controlledcontract');session_start();}$_SESSION=[];

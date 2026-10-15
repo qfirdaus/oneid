@@ -198,6 +198,10 @@ function oneid_q_func_action_map(): array
             'admin_get_specific_category_user_listing',
             'admin_get_category_site_listing',
             'admin_get_category_site_listing_add_new_site',
+            'admin_get_category_app_access_state',
+            'admin_apply_category_app_access',
+            'admin_get_user_app_access_state',
+            'admin_apply_user_app_access',
             'add_acl_category',
             'remove_acl_category',
             'admin_remove_category',
@@ -251,33 +255,29 @@ function oneid_q_func_action_map(): array
 
 function oneid_admin_action_purpose(string $action): string
 {
-    if (in_array($action, ['admin_preview_active_session_revocation','admin_apply_active_session_revocation'], true)) {
+    if ($action === 'admin_apply_active_session_revocation') {
         return 'ACTIVE_SESSION_REVOCATION';
     }
-    $securityConfiguration = [
+    $criticalSecurityChanges = [
         'update_password_recovery',
-        'test_password_recovery_email',
-        'preview_configuration_update',
         'update_configuration',
-        'admin_update_default_locale',
-        'admin_save_metadata_translation',
         'admin_request_user_mfa_policy_change',
         'admin_decide_user_mfa_policy_change',
         'admin_restore_user_mfa_emergency_bypass',
         'admin_update_user_mfa_category_policy',
         'admin_create_user_mfa_exemption',
         'admin_revoke_user_mfa_exemption',
-        'admin_login_banner_create_draft',
-        'admin_login_banner_update_draft',
-        'admin_login_banner_publish',
-        'admin_login_banner_inactivate',
-        'admin_login_banner_reorder',
-        'admin_login_banner_rollback',
+        'user_mfa_admin_recovery',
         'admin_update_maintenance_configuration',
         'admin_grant_maintenance_developer_access',
         'admin_revoke_maintenance_developer_access',
+        'admin_rotate_site_api_code',
+        'admin_apply_full_sync',
+        'admin_apply_operational_sync',
+        'admin_purge_archived_app',
+        'admin_remove_category',
     ];
-    return in_array($action, $securityConfiguration, true)
+    return in_array($action, $criticalSecurityChanges, true)
         ? 'SECURITY_CONFIGURATION_CHANGE'
         : 'ADMIN_ACCESS';
 }
@@ -315,6 +315,14 @@ function oneid_admin_step_up_decision(object $operation, string $purpose): array
         return ['allowed'=>true,'reason'=>'STEP_UP_DISABLED','feature_enabled'=>false];
     }
     if ((int)($state['exact_valid']??0)>0) {return ['allowed'=>true,'reason'=>'STEP_UP_GRANTED','feature_enabled'=>true,'remaining_seconds'=>max(0,(int)($state['exact_remaining_seconds']??0))];}
+    if ($purpose !== 'ADMIN_ACCESS' && (int)($state['fresh_admin_access_valid']??0)>0) {
+        return [
+            'allowed'=>true,
+            'reason'=>'FRESH_ADMIN_ACCESS',
+            'feature_enabled'=>true,
+            'remaining_seconds'=>max(0,(int)($state['fresh_admin_access_remaining_seconds']??0)),
+        ];
+    }
     if ((int)($state['exact_expired']??0)>0) {return ['allowed'=>false,'reason'=>'STEP_UP_EXPIRED','feature_enabled'=>true];}
     if ((int)($state['other_valid']??0)>0) {return ['allowed'=>false,'reason'=>'STEP_UP_PURPOSE_MISMATCH','feature_enabled'=>true];}
     return ['allowed'=>false,'reason'=>'STEP_UP_REQUIRED','feature_enabled'=>true];

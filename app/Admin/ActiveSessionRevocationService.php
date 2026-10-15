@@ -18,7 +18,7 @@ final class ActiveSessionRevocationService
 
     public function preview(array $input, string $actor, string $currentToken): array
     {
-        $this->assertEnabled($actor);
+        $this->assertEnabled($actor, false);
         $this->exactFields($input, ['admin_preview_active_session_revocation', 'target_id']);
         $targetId = strtolower(trim((string)($input['target_id'] ?? '')));
         if (preg_match('/\A[a-f0-9]{48}\z/', $targetId) !== 1) throw new ActiveSessionRevocationException('AS3_TARGET_INVALID');
@@ -35,7 +35,7 @@ final class ActiveSessionRevocationService
 
     public function apply(array $input, string $actor, string $currentToken, string $ip): array
     {
-        $this->assertEnabled($actor);
+        $this->assertEnabled($actor, true);
         $this->exactFields($input, ['admin_apply_active_session_revocation', 'approval_id', 'reason', 'confirmation']);
         $approvalId = strtolower(trim((string)($input['approval_id'] ?? '')));
         if (preg_match('/\A[a-f0-9]{64}\z/', $approvalId) !== 1) throw new ActiveSessionRevocationException('AS3_APPROVAL_INVALID');
@@ -66,13 +66,16 @@ final class ActiveSessionRevocationService
         }
     }
 
-    private function assertEnabled(string $actor): void
+    private function assertEnabled(string $actor, bool $critical): void
     {
         if (!ActiveSessionRevocationConfig::enabled()) throw new ActiveSessionRevocationException('AS3_FEATURE_DISABLED');
         $session=session_id();$browser=hash('sha256',substr((string)($_SERVER['HTTP_USER_AGENT']??''),0,1000));
         if ($session==='' || !method_exists($this->operation,'admin_step_up_authorization_state')) throw new ActiveSessionRevocationException('AS3_STEP_UP_REQUIRED');
-        $state=$this->operation->admin_step_up_authorization_state($actor,hash('sha256',$session),$browser,'ACTIVE_SESSION_REVOCATION');
-        if (!is_array($state)||(int)($state['admin_2fa_enabled']??0)!==1||(int)($state['u_type']??0)!==1||(int)($state['avail_status']??0)!==1||(int)($state['exact_valid']??0)<1) throw new ActiveSessionRevocationException('AS3_STEP_UP_REQUIRED');
+        $purpose=$critical?'ACTIVE_SESSION_REVOCATION':'ADMIN_ACCESS';
+        $state=$this->operation->admin_step_up_authorization_state($actor,hash('sha256',$session),$browser,$purpose);
+        if (!is_array($state)) throw new ActiveSessionRevocationException('AS3_STEP_UP_REQUIRED');
+        $valid=(int)($state['exact_valid']??0)>0||($critical&&(int)($state['fresh_admin_access_valid']??0)>0);
+        if ((int)($state['admin_2fa_enabled']??0)!==1||(int)($state['u_type']??0)!==1||(int)($state['avail_status']??0)!==1||!$valid) throw new ActiveSessionRevocationException('AS3_STEP_UP_REQUIRED');
     }
     private function exactFields(array $input, array $allowed): void { if (array_diff(array_keys($input), $allowed) !== []) throw new ActiveSessionRevocationException('AS3_UNEXPECTED_FIELD'); }
     private function assertTarget(mixed $row): void

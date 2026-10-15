@@ -30,9 +30,13 @@ require_once dirname(__DIR__) . '/app/User/InitialPasswordSetupService.php';
 require_once dirname(__DIR__) . '/app/User/UserManagementException.php';
 require_once dirname(__DIR__) . '/app/User/UserProfilePolicyService.php';
 require_once dirname(__DIR__) . '/app/User/UserAclManagementService.php';
+require_once dirname(__DIR__) . '/app/User/UserAppAccessBatchException.php';
+require_once dirname(__DIR__) . '/app/User/UserAppAccessBatchService.php';
 require_once dirname(__DIR__) . '/app/Monitoring/UserDownstreamHealthService.php';
 require_once dirname(__DIR__) . '/app/Admin/WebAppManagementException.php';
 require_once dirname(__DIR__) . '/app/Admin/WebAppCategoryService.php';
+require_once dirname(__DIR__) . '/app/Admin/UserCategoryAppAccessException.php';
+require_once dirname(__DIR__) . '/app/Admin/UserCategoryAppAccessService.php';
 require_once dirname(__DIR__) . '/app/Admin/WebAppService.php';
 require_once dirname(__DIR__) . '/app/Admin/SiteApiCodeCipher.php';
 require_once dirname(__DIR__) . '/app/Admin/SsoConfigurationException.php';
@@ -441,7 +445,7 @@ if(str_starts_with($oneidGuardedAction,'admin_step_up_')||str_starts_with($oneid
   $admin=(string)$_SESSION['login_user'];$session=session_id();$ua=(string)($_SERVER['HTTP_USER_AGENT']??'');$ip=(string)($_SERVER['REMOTE_ADDR']??'');
   try{
     $preference=new \OneId\App\Auth\AdminMfaPreferenceService($operation);
-    if($oneidGuardedAction==='admin_step_up_status'){$purpose=strtoupper(trim((string)($_POST['purpose']??'ADMIN_ACCESS')));$results=$preference->status($admin);$decision=oneid_admin_step_up_decision($operation,$purpose);$results['purpose']=$purpose;$results['grant_valid']=$decision['allowed']&&($decision['reason']??'')==='STEP_UP_GRANTED';$results['grant_remaining_seconds']=(int)($decision['remaining_seconds']??0);$base=oneid_current_session_deadline_state($operation);$results+=$base;$results['effective_remaining_seconds']=min((int)$base['effective_remaining_seconds'],(int)$results['grant_remaining_seconds']);}
+    if($oneidGuardedAction==='admin_step_up_status'){$purpose=strtoupper(trim((string)($_POST['purpose']??'ADMIN_ACCESS')));$results=$preference->status($admin);$decision=oneid_admin_step_up_decision($operation,$purpose);$results['purpose']=$purpose;$results['grant_valid']=$decision['allowed']&&in_array(($decision['reason']??''),['STEP_UP_GRANTED','FRESH_ADMIN_ACCESS'],true);$results['grant_source']=$decision['reason']??'';$results['grant_remaining_seconds']=(int)($decision['remaining_seconds']??0);$base=oneid_current_session_deadline_state($operation);$results+=$base;$results['effective_remaining_seconds']=min((int)$base['effective_remaining_seconds'],(int)$results['grant_remaining_seconds']);}
     elseif($oneidGuardedAction==='admin_step_up_renew'){$results=(new \OneId\App\Auth\AdminStepUpSessionService($operation))->renew($admin,$session,$ua,$ip);if(isset($_SESSION['oneid_maintenance_admin_verified_until'])){$_SESSION['oneid_maintenance_admin_verified_until']=time()+(int)$results['grant_remaining_seconds'];}oneid_refresh_session_activity();oneid_refresh_configured_sso_cookie($operation);$base=oneid_current_session_deadline_state($operation);$results+=$base;$results['effective_remaining_seconds']=min((int)$base['effective_remaining_seconds'],(int)$results['grant_remaining_seconds']);}
     elseif($oneidGuardedAction==='admin_step_up_request_email'){$results=(new \OneId\App\Auth\AdminStepUpEmailOtpService($operation,new \OneId\App\Auth\AdminStepUpPhpMailerSender()))->request($admin,(string)($_POST['purpose']??''),$session,$ua,$ip);}
     elseif($oneidGuardedAction==='admin_step_up_verify_email'){$results=(new \OneId\App\Auth\AdminStepUpEmailOtpService($operation,new \OneId\App\Auth\AdminStepUpPhpMailerSender()))->verify($admin,(string)($_POST['purpose']??''),(string)($_POST['challenge_id']??''),(string)($_POST['code']??''),$session,$ua,$ip);$results+=oneid_complete_step_up_rotation($operation,$results['purpose'],$results['correlation_id']);}
@@ -2362,6 +2366,41 @@ function string_sanitize($s) {
         echo json_encode($results);
       }
 
+      if(isset($_POST['admin_get_category_app_access_state'])){
+        $categoryId = filter_var($_POST['uc_id'] ?? null, FILTER_VALIDATE_INT, ['options'=>['min_range'=>1]]);
+        if($categoryId===false){
+          echo json_encode(['status'=>0,'code'=>'CATEGORY_ACL_CATEGORY_INVALID','apps'=>[]]);
+        }else{
+          $category = $operation->admin_get_user_category_for_acl_action((int)$categoryId, false);
+          if(!is_array($category)||$category===[]||(int)($category['avail_status']??0)!==1){
+            echo json_encode(['status'=>0,'code'=>'CATEGORY_ACL_CATEGORY_NOT_FOUND','apps'=>[]]);
+          }else{
+            echo json_encode([
+              'status'=>1,
+              'code'=>'CATEGORY_ACL_STATE_READY',
+              'category'=>['id'=>(int)$category['uc_id'],'name'=>(string)$category['uc_name']],
+              'apps'=>$operation->admin_get_category_app_access_catalog((int)$categoryId),
+            ]);
+          }
+        }
+      }
+
+      if(isset($_POST['admin_apply_category_app_access'])){
+        try{
+          $categoryId=filter_var($_POST['uc_id']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+          $decoded=json_decode((string)($_POST['assigned_sp_ids']??''),true,512,JSON_THROW_ON_ERROR);
+          if($categoryId===false||!is_array($decoded)){
+            throw new \OneId\App\Admin\UserCategoryAppAccessException('CATEGORY_ACL_REQUEST_INVALID',bin2hex(random_bytes(8)));
+          }
+          $service=new \OneId\App\Admin\UserCategoryAppAccessService($operation);
+          echo json_encode($service->apply((int)$categoryId,$decoded,(string)$_SESSION['login_user'],getUserIP()));
+        }catch(\JsonException){
+          echo json_encode(['status'=>0,'code'=>'CATEGORY_ACL_REQUEST_INVALID','message'=>'Application access was not changed.','correlation_id'=>bin2hex(random_bytes(8))]);
+        }catch(\OneId\App\Admin\UserCategoryAppAccessException $exception){
+          echo json_encode(['status'=>0,'code'=>$exception->reason,'message'=>'Application access was not changed.','correlation_id'=>$exception->correlationId]);
+        }
+      }
+
 
       if(isset( $_POST['add_acl_category'])){
         $results = $operation->add_acl_category($_POST['uc_id'],$_POST['sp_id']);
@@ -2417,6 +2456,28 @@ function string_sanitize($s) {
           ));
         } catch (\OneId\App\User\UserManagementException $exception) {
           echo json_encode(['status'=>0,'code'=>$exception->reason,'msg'=>'Application access was not added.','correlation_id'=>$exception->correlationId]);
+        }
+      }
+
+      if(isset($_POST['admin_get_user_app_access_state'])){
+        try{
+          echo json_encode((new \OneId\App\User\UserAppAccessBatchService($operation))->state((string)($_POST['user_id']??'')));
+        }catch(\OneId\App\User\UserAppAccessBatchException $exception){
+          echo json_encode(['status'=>0,'code'=>$exception->reason,'message'=>'User application access could not be loaded.','correlation_id'=>$exception->correlationId]);
+        }
+      }
+
+      if(isset($_POST['admin_apply_user_app_access'])){
+        try{
+          $decoded=json_decode((string)($_POST['allowed_sp_ids']??''),true,512,JSON_THROW_ON_ERROR);
+          if(!is_array($decoded))throw new \JsonException('invalid list');
+          echo json_encode((new \OneId\App\User\UserAppAccessBatchService($operation))->apply(
+            (string)($_POST['user_id']??''),$decoded,(string)($_POST['revision']??''),(string)$_SESSION['login_user'],getUserIP()
+          ));
+        }catch(\JsonException){
+          echo json_encode(['status'=>0,'code'=>'USER_ACL_REQUEST_INVALID','message'=>'User application access was not changed.','correlation_id'=>bin2hex(random_bytes(8))]);
+        }catch(\OneId\App\User\UserAppAccessBatchException $exception){
+          echo json_encode(['status'=>0,'code'=>$exception->reason,'message'=>'User application access was not changed.','correlation_id'=>$exception->correlationId]);
         }
       }
 

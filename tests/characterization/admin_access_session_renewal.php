@@ -8,11 +8,12 @@ use OneId\App\Auth\AdminStepUpSessionService;
 $checks=0;$failed=0;$report=static function(bool $ok,string $label)use(&$checks,&$failed):void{$checks++;$failed+=$ok?0:1;echo($ok?'PASS ':'FAIL ').$label.PHP_EOL;};
 $operation=new class{
  public bool $committed=false,$rolledBack=false;public int $revoked=1,$created=0,$auditEvent=0;
- public array|false $context=['u_type'=>1,'avail_status'=>1,'admin_2fa_enabled'=>1,'admin_step_up_lifetime_minutes'=>15,'verified_factor'=>'TOTP'];
+ public array|false $context=['u_type'=>1,'avail_status'=>1,'admin_2fa_enabled'=>1,'admin_step_up_lifetime_minutes'=>15,'verified_factor'=>'TOTP','issued_at'=>'2026-01-01 00:00:00'];
+ public ?string $verifiedAt=null;
  public function beginTransaction():void{} public function commit():void{$this->committed=true;} public function rollback():void{$this->rolledBack=true;}
  public function admin_step_up_renewal_context_for_update(...$args):array|false{return $this->context;}
  public function admin_step_up_revoke_active_access_grants(...$args):int{return $this->revoked;}
- public function admin_step_up_create_grant(array $entry):int{$this->created++;return $entry['verified_factor']==='TOTP'?1:0;}
+ public function admin_step_up_create_grant(array $entry):int{$this->created++;$this->verifiedAt=$entry['verified_at']??null;return $entry['verified_factor']==='TOTP'?1:0;}
  public function syslog_record(int $event,string $detail,string $ip):int{$this->auditEvent=$event;return str_contains($detail,'lifetime_minutes=15')?1:0;}
 };
 $result=(new AdminStepUpSessionService($operation))->renew('530','session-id','browser','127.0.0.1');
@@ -20,6 +21,7 @@ $report($result['code']==='ADMIN_ACCESS_RENEWED','valid current grant is renewed
 $report($result['grant_remaining_seconds']===900,'renewal uses configured lifetime');
 $report($operation->revoked===1&&$operation->created===1&&$operation->committed,'old grant is replaced atomically');
 $report($operation->auditEvent===67,'renewal writes dedicated audit event');
+$report($operation->verifiedAt==='2026-01-01 00:00:00','renewal preserves original MFA verification time');
 $expired=clone $operation;$expired->committed=false;$expired->rolledBack=false;$expired->revoked=0;$thrown=null;
 try{(new AdminStepUpSessionService($expired))->renew('530','session-id','browser','127.0.0.1');}catch(AdminStepUpException $exception){$thrown=$exception->reason;}
 $report($thrown==='STEP_UP_EXPIRED','expired grant cannot be renewed');
@@ -30,7 +32,7 @@ $report(str_contains($client,"post('admin_step_up_renew')")&&str_contains($secur
 $report(str_contains($client,'BroadcastChannel')&&str_contains($client,"addEventListener('storage'"),'renewed deadline is synchronized across tabs');
 $report(str_contains($client,"document.addEventListener('visibilitychange'")&&str_contains($client,'admin_step_up_status'),'visible tab revalidates against server state');
 $report(str_contains($session,"['admin_step_up_status', 'purpose']"),'status polling is a technical heartbeat');
-$report(str_contains($dashboard,'oneid-admin-session.js?v=20260908-3')&&str_contains($dashboard,'oneid-admin-session.css?v=20260806-1'),'Administrator dashboard loads cache-busted session presentation assets');
+$report(str_contains($dashboard,'oneid-admin-session.js?v=20260910-1')&&str_contains($dashboard,'oneid-admin-session.css?v=20260806-1'),'Administrator dashboard loads cache-busted session presentation assets');
 $report(is_file($root.'/public/dist/js/oneid-admin-session.js')&&!is_file($root.'/dist/js/oneid-admin-session.js'),'session controller is stored under the public web asset root');
 $sessionCss=file_get_contents($root.'/public/dist/css/oneid-admin-session.css')?:'';
 $report(str_contains($client,'applyProfessionalLayout')&&str_contains($client,'oneid-session-countdown')&&str_contains($sessionCss,'.oneid-admin-session-alert'),'session warning has isolated professional layout and countdown styling');

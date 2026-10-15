@@ -29,8 +29,8 @@ $report(str_contains($acl,'M3_ACL_ALREADY_ALLOWED')&&str_contains($acl,'M3_ACL_A
 $report(str_contains($acl,'M3_DENY_RECORD_OWNER_MISMATCH'),'uplift verifies deny-record ownership');
 $report(str_contains($acl,'update_whole_token_status'),'ACL mutations revoke existing sessions');
 $report(substr_count($q,'UserAclManagementService')>=4&&str_contains($q,'UserProfilePolicyService'),'legacy handlers route through M3 services');
-$report(str_contains($ui,'modal_user_profile_save();')&&str_contains($ui,'id="btn_user_profile_save"'),'Save Profile has an explicit handler');
-$report(!str_contains($ui,'admin_change_user_category')&&str_contains($ui,"data: {admin_save_user_profile:''"),'category dropdown no longer mutates immediately');
+$report(str_contains($ui,'modal_user_profile_save()')&&str_contains($ui,'id="btn_user_profile_save"'),'Save Profile has an explicit handler');
+$report(!str_contains($ui,'admin_change_user_category')&&preg_match("/data:\\s*\\{admin_save_user_profile:''/",$ui)===1,'category dropdown no longer mutates immediately');
 $report(str_contains($ui,'m3EscapeHtml(response[i][\'sp_name\'])'),'dynamic application names are HTML encoded');
 $report(str_contains($ui,'m3TransportFailure')&&str_contains($ui,'m3FailureText'),'M3 UI exposes transport and policy failures');
 $fixture=[];$exit=1;exec(escapeshellarg(PHP_BINARY).' '.escapeshellarg($root.'/tests/characterization/m3_profile_acl_hardening.php').' 2>&1',$fixture,$exit);

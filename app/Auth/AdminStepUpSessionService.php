@@ -56,6 +56,10 @@ final class AdminStepUpSessionService
             if (!in_array($factor, ['EMAIL_OTP', 'TOTP'], true)) {
                 throw new AdminStepUpException('STEP_UP_RENEWAL_UNAVAILABLE', $correlationId);
             }
+            $verifiedAt = (string) ($context['issued_at'] ?? '');
+            if (\DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $verifiedAt) === false) {
+                throw new AdminStepUpException('STEP_UP_RENEWAL_UNAVAILABLE', $correlationId);
+            }
 
             if ($this->operation->admin_step_up_revoke_active_access_grants(
                 $adminId,
@@ -71,6 +75,9 @@ final class AdminStepUpSessionService
                 'browser_digest' => $browserDigest,
                 'purpose' => 'ADMIN_ACCESS',
                 'verified_factor' => $factor,
+                // Renewal extends dashboard access but must never look like a
+                // new MFA verification to critical-action freshness checks.
+                'verified_at' => $verifiedAt,
                 'lifetime_minutes' => $lifetimeMinutes,
                 'correlation_id' => $correlationId,
             ]) !== 1) {

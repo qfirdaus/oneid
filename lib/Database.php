@@ -1751,6 +1751,102 @@ class Database {
         return $result;
     }
 
+    public function admin_get_user_category_for_acl_action(int $uc_id, bool $forUpdate = false){
+        $Q = "SELECT uc_id,uc_name,avail_status FROM user_category WHERE uc_id=:uc_id LIMIT 1";
+        if ($forUpdate) $Q .= " FOR UPDATE";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':uc_id'=>$uc_id]);
+        return $R->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_get_category_app_access_catalog(int $uc_id): array{
+        $Q = "SELECT S.sp_id,S.sp_name,S.sp_description,S.sp_domain,S.sp_image,S.sp_sso_support,S.avail_status,
+                     CASE WHEN A.aclgp_id IS NULL THEN 0 ELSE 1 END AS assigned
+                FROM sp_list S
+                LEFT JOIN acl_group A ON A.sp_id=S.sp_id AND A.uc_id=:uc_id
+               ORDER BY S.sp_name ASC,S.sp_id ASC";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':uc_id'=>$uc_id]);
+        return $R->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_get_user_app_access_catalog(string $u_id, int $uc_id): array{
+        $Q = "SELECT S.sp_id,S.sp_name,S.sp_description,S.sp_domain,S.sp_image,S.sp_sso_support,S.avail_status,
+                     CASE WHEN G.sp_id IS NULL THEN 0 ELSE 1 END AS category_allow,
+                     CASE WHEN D.sp_id IS NULL THEN 0 ELSE 1 END AS direct_allow,
+                     CASE WHEN B.sp_id IS NULL THEN 0 ELSE 1 END AS denied
+                FROM sp_list S
+                LEFT JOIN (SELECT DISTINCT sp_id FROM acl_group WHERE uc_id=:uc_id) G ON G.sp_id=S.sp_id
+                LEFT JOIN (SELECT DISTINCT sp_id FROM acl_single WHERE u_id=:direct_user) D ON D.sp_id=S.sp_id
+                LEFT JOIN (SELECT DISTINCT sp_id FROM acl_blacklist WHERE u_id=:deny_user) B ON B.sp_id=S.sp_id
+               ORDER BY S.sp_name ASC,S.sp_id ASC";
+        $R=$this->pdo->prepare($Q);$R->execute([':uc_id'=>$uc_id,':direct_user'=>$u_id,':deny_user'=>$u_id]);
+        return $R->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_get_user_direct_acl_ids(string $u_id, bool $forUpdate=false): array{
+        $Q="SELECT sp_id FROM acl_single WHERE u_id=:u_id ORDER BY sp_id".($forUpdate?' FOR UPDATE':'');
+        $R=$this->pdo->prepare($Q);$R->execute([':u_id'=>$u_id]);return array_map('strval',$R->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    public function admin_get_user_blacklist_rows(string $u_id, bool $forUpdate=false): array{
+        $Q="SELECT aclblk_id,sp_id FROM acl_blacklist WHERE u_id=:u_id ORDER BY sp_id".($forUpdate?' FOR UPDATE':'');
+        $R=$this->pdo->prepare($Q);$R->execute([':u_id'=>$u_id]);return $R->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function admin_add_user_direct_acl_batch(string $u_id,array $spIds): int{
+        if($spIds===[])return 0;$R=$this->pdo->prepare("INSERT INTO acl_single(u_id,sp_id) VALUES(:u_id,:sp_id)");$count=0;
+        foreach($spIds as $spId){$R->execute([':u_id'=>$u_id,':sp_id'=>(string)$spId]);$count+=$R->rowCount();}return $count;
+    }
+
+    public function admin_remove_user_direct_acl_batch(string $u_id,array $spIds): int{
+        if($spIds===[])return 0;$p=implode(',',array_fill(0,count($spIds),'?'));$R=$this->pdo->prepare("DELETE FROM acl_single WHERE u_id=? AND sp_id IN ($p)");$R->execute(array_merge([$u_id],array_values($spIds)));return $R->rowCount();
+    }
+
+    public function admin_add_user_blacklist_batch(string $u_id,array $spIds): int{
+        if($spIds===[])return 0;$R=$this->pdo->prepare("INSERT INTO acl_blacklist(u_id,sp_id) VALUES(:u_id,:sp_id)");$count=0;
+        foreach($spIds as $spId){$R->execute([':u_id'=>$u_id,':sp_id'=>(string)$spId]);$count+=$R->rowCount();}return $count;
+    }
+
+    public function admin_remove_user_blacklist_batch(string $u_id,array $spIds): int{
+        if($spIds===[])return 0;$p=implode(',',array_fill(0,count($spIds),'?'));$R=$this->pdo->prepare("DELETE FROM acl_blacklist WHERE u_id=? AND sp_id IN ($p)");$R->execute(array_merge([$u_id],array_values($spIds)));return $R->rowCount();
+    }
+
+    public function admin_get_category_acl_sp_ids(int $uc_id, bool $forUpdate = false): array{
+        $Q = "SELECT sp_id FROM acl_group WHERE uc_id=:uc_id ORDER BY sp_id";
+        if ($forUpdate) $Q .= " FOR UPDATE";
+        $R = $this->pdo->prepare($Q);
+        $R->execute([':uc_id'=>$uc_id]);
+        return array_map('strval', $R->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    public function admin_get_active_service_provider_ids(array $spIds): array{
+        if ($spIds === []) return [];
+        $placeholders = implode(',', array_fill(0, count($spIds), '?'));
+        $R = $this->pdo->prepare("SELECT sp_id FROM sp_list WHERE avail_status=1 AND sp_id IN ($placeholders) ORDER BY sp_id");
+        $R->execute(array_values($spIds));
+        return array_map('strval', $R->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    public function admin_add_category_acl_batch(int $uc_id, array $spIds): int{
+        if ($spIds === []) return 0;
+        $R = $this->pdo->prepare("INSERT INTO acl_group(uc_id,sp_id) VALUES (:uc_id,:sp_id)");
+        $count = 0;
+        foreach ($spIds as $spId) {
+            $R->execute([':uc_id'=>$uc_id,':sp_id'=>(string)$spId]);
+            $count += $R->rowCount();
+        }
+        return $count;
+    }
+
+    public function admin_remove_category_acl_batch(int $uc_id, array $spIds): int{
+        if ($spIds === []) return 0;
+        $placeholders = implode(',', array_fill(0, count($spIds), '?'));
+        $R = $this->pdo->prepare("DELETE FROM acl_group WHERE uc_id=? AND sp_id IN ($placeholders)");
+        $R->execute(array_merge([$uc_id], array_values($spIds)));
+        return $R->rowCount();
+    }
+
    public function add_acl_category($uc_id,$sp_id){
         $Q = "INSERT INTO  acl_group(uc_id,sp_id) VALUES (:uc_id,:sp_id)";
         $R = $this->pdo->prepare($Q);
@@ -2735,18 +2831,19 @@ class Database {
             (grant_id,admin_user_id,session_binding_hash,browser_digest,purpose,verified_factor,
              issued_at,expires_at,revoked_at,correlation_id)
             VALUES(:grant_id,:admin_user_id,:session_binding_hash,:browser_digest,:purpose,
-                   :verified_factor,NOW(),DATE_ADD(NOW(),INTERVAL {$minutes} MINUTE),NULL,:correlation_id)";
+                   :verified_factor,COALESCE(:verified_at,NOW()),DATE_ADD(NOW(),INTERVAL {$minutes} MINUTE),NULL,:correlation_id)";
         $R=$this->pdo->prepare($Q);$R->execute([
             ':grant_id'=>$entry['grant_id'],':admin_user_id'=>$entry['admin_user_id'],
             ':session_binding_hash'=>$entry['session_binding_hash'],':browser_digest'=>$entry['browser_digest'],
             ':purpose'=>$entry['purpose'],':verified_factor'=>$entry['verified_factor'],
+            ':verified_at'=>$entry['verified_at']??null,
             ':correlation_id'=>$entry['correlation_id'],
         ]);return $R->rowCount();
     }
 
     public function admin_step_up_renewal_context_for_update($adminId,$sessionHash,$browserDigest){
         $Q="SELECT u.u_type,u.avail_status,c.admin_2fa_enabled,c.admin_step_up_lifetime_minutes,
-                   g.grant_id,g.verified_factor,g.expires_at
+                   g.grant_id,g.verified_factor,g.issued_at,g.expires_at
             FROM user_tbl u CROSS JOIN sys_config c
             JOIN admin_step_up_grants g ON g.admin_user_id=u.u_id
             WHERE u.u_id=:admin_id AND c.singleton_key=1
@@ -2832,7 +2929,13 @@ class Database {
               MAX(CASE WHEN g.purpose=:purpose_remaining AND g.revoked_at IS NULL AND g.expires_at>NOW()
                        THEN TIMESTAMPDIFF(SECOND,NOW(),g.expires_at) ELSE 0 END) exact_remaining_seconds,
               SUM(g.purpose=:purpose AND g.revoked_at IS NULL AND g.expires_at<=NOW()) exact_expired,
-              SUM(g.purpose<>:purpose_other AND g.revoked_at IS NULL AND g.expires_at>NOW()) other_valid
+              SUM(g.purpose<>:purpose_other AND g.revoked_at IS NULL AND g.expires_at>NOW()) other_valid,
+              SUM(g.purpose='ADMIN_ACCESS' AND g.revoked_at IS NULL AND g.expires_at>NOW()
+                  AND g.issued_at>=DATE_SUB(NOW(),INTERVAL 5 MINUTE)) fresh_admin_access_valid,
+              MAX(CASE WHEN g.purpose='ADMIN_ACCESS' AND g.revoked_at IS NULL AND g.expires_at>NOW()
+                            AND g.issued_at>=DATE_SUB(NOW(),INTERVAL 5 MINUTE)
+                       THEN TIMESTAMPDIFF(SECOND,NOW(),DATE_ADD(g.issued_at,INTERVAL 5 MINUTE)) ELSE 0 END)
+                  fresh_admin_access_remaining_seconds
             FROM user_tbl u CROSS JOIN sys_config c
             LEFT JOIN admin_step_up_grants g ON g.admin_user_id=u.u_id
               AND g.session_binding_hash=:session_hash AND g.browser_digest=:browser_digest
