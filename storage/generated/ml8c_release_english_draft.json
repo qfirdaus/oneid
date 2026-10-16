@@ -7,6 +7,19 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.21.0",
+            "version": "2.21.0",
+            "date": "2026-10-16",
+            "items": [
+                {
+                    "identity": "release:2.21.0:item:001",
+                    "bm": "Arah gauge prestasi kini mengikuti susunan baharu: Fast pada zon hijau kanan, Moderate pada zon kuning tengah dan Slow atau Offline pada zon merah kiri.",
+                    "en_draft": "The performance gauge now follows the revised order: Fast in the green right zone, Moderate in the amber centre, and Slow or Offline in the red left zone.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.20.4",
             "version": "2.20.4",
             "date": "2026-10-16",
@@ -4841,5 +4854,5 @@
             ]
         }
     ],
-    "manifest_digest": "e875901d1cfa10b9baebeaf8d48bd814a34bd4d55a7767a4d1dfcb496b17b714"
+    "manifest_digest": "a8439c1a65246f8018aac738d45d2174f84c97ce882ed65afd48105ab2aa0113"
 }

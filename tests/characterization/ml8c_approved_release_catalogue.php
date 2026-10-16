@@ -20,9 +20,9 @@ $report = static function (bool $ok, string $label) use (&$checks, &$failed): vo
     }
 };
 $report(
-    $preview['release_count'] === 106
-    && $preview['bm_item_count'] === 682
-    && $preview['en_item_count'] === 682,
+    $preview['release_count'] === 107
+    && $preview['bm_item_count'] === 683
+    && $preview['en_item_count'] === 683,
     'approved repository exposes exact BM and English parity'
 );
 $report(
@@ -39,8 +39,8 @@ $report(
 );
 $report(
     $preview['approved_manifest_digest']
-        === 'e875901d1cfa10b9baebeaf8d48bd814a34bd4d55a7767a4d1dfcb496b17b714'
-    && $preview['evidence_reference'] === 'ONEID-V2204-GAUGE-FULL-ARC-20261016-01',
+        === 'a8439c1a65246f8018aac738d45d2174f84c97ce882ed65afd48105ab2aa0113'
+    && $preview['evidence_reference'] === 'ONEID-V2210-GAUGE-DIRECTION-20261016-01',
     'catalogue is bound to exact owner approval'
 );
 $report(

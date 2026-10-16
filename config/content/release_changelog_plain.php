@@ -6,6 +6,19 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.21.0' =>
+  array (
+    'version' => '2.21.0',
+    'date' => '2026-10-16',
+    'bm' =>
+    array (
+      0 => 'Arah gauge prestasi kini mengikuti susunan baharu: Fast pada zon hijau kanan, Moderate pada zon kuning tengah dan Slow atau Offline pada zon merah kiri.',
+    ),
+    'en' =>
+    array (
+      0 => 'The performance gauge now follows the revised order: Fast in the green right zone, Moderate in the amber centre, and Slow or Offline in the red left zone.',
+    ),
+  ),
   'release-2.20.4' =>
   array (
     'version' => '2.20.4',
