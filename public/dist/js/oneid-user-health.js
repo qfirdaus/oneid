@@ -26,7 +26,7 @@
   function gaugeAngle(ms, online) {
     if (!online) return 0;
     var bounded = Math.max(0, Math.min(3000, Number(ms) || 0));
-    return Math.round(-68 + (bounded / 3000) * 68);
+    return Math.round(-90 + (bounded / 3000) * 90);
   }
 
   function localTime(date) {

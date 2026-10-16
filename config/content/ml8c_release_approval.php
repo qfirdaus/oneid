@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 return [
     'environment' => 'Local WSL',
-    'approved_manifest_digest' => 'a529425a21a84510bef42d4fae1d059d3aaca68d3598e162245343c42af5b9c9',
-    'expected_release_count' => 105,
-    'expected_item_count' => 681,
+    'approved_manifest_digest' => 'e875901d1cfa10b9baebeaf8d48bd814a34bd4d55a7767a4d1dfcb496b17b714',
+    'expected_release_count' => 106,
+    'expected_item_count' => 682,
     'content_status' => 'APPROVED',
-    'evidence_reference' => 'ONEID-V2203-DYNAMIC-PERFORMANCE-GAUGE-20261016-01',
+    'evidence_reference' => 'ONEID-V2204-GAUGE-FULL-ARC-20261016-01',
     'live_activation_authorized' => true,
-    'activation_change_reference' => 'ONEID-V2203-DYNAMIC-PERFORMANCE-GAUGE-20261016-01',
+    'activation_change_reference' => 'ONEID-V2204-GAUGE-FULL-ARC-20261016-01',
     'english_manual_publication_authorized' => false,
     'automatic_approval' => false,
 ];

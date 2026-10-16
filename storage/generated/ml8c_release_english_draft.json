@@ -7,6 +7,19 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.20.4",
+            "version": "2.20.4",
+            "date": "2026-10-16",
+            "items": [
+                {
+                    "identity": "release:2.20.4:item:001",
+                    "bm": "Skala gauge prestasi kini menggunakan keseluruhan lengkok meter supaya bacaan Fast jelas berada di zon hijau, Moderate di zon kuning dan Slow atau Offline di zon merah.",
+                    "en_draft": "The performance gauge now uses the full meter arc so Fast readings sit clearly in the green zone, Moderate in amber, and Slow or Offline in red.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.20.3",
             "version": "2.20.3",
             "date": "2026-10-16",
@@ -4828,5 +4841,5 @@
             ]
         }
     ],
-    "manifest_digest": "a529425a21a84510bef42d4fae1d059d3aaca68d3598e162245343c42af5b9c9"
+    "manifest_digest": "e875901d1cfa10b9baebeaf8d48bd814a34bd4d55a7767a4d1dfcb496b17b714"
 }

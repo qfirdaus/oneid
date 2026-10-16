@@ -6,6 +6,19 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.20.4' =>
+  array (
+    'version' => '2.20.4',
+    'date' => '2026-10-16',
+    'bm' =>
+    array (
+      0 => 'Skala gauge prestasi kini menggunakan keseluruhan lengkok meter supaya bacaan Fast jelas berada di zon hijau, Moderate di zon kuning dan Slow atau Offline di zon merah.',
+    ),
+    'en' =>
+    array (
+      0 => 'The performance gauge now uses the full meter arc so Fast readings sit clearly in the green zone, Moderate in amber, and Slow or Offline in red.',
+    ),
+  ),
   'release-2.20.3' =>
   array (
     'version' => '2.20.3',
