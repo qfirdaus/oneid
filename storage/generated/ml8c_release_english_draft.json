@@ -7,6 +7,19 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.20.2",
+            "version": "2.20.2",
+            "date": "2026-10-16",
+            "items": [
+                {
+                    "identity": "release:2.20.2:item:001",
+                    "bm": "Kemas kini akses aplikasi pada akaun administrator sendiri kini mengekalkan sesi browser semasa sambil membatalkan sesi lain, mengelakkan logout serta-merta selepas simpan.",
+                    "en_draft": "Updating application access for the administrator’s own account now preserves the current browser session while revoking other sessions, preventing an immediate logout after saving.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.20.1",
             "version": "2.20.1",
             "date": "2026-10-16",
@@ -4802,5 +4815,5 @@
             ]
         }
     ],
-    "manifest_digest": "80bc7027edeb7a5edacef8fe3239098ada23c53ecd7f67d1a58533131c080691"
+    "manifest_digest": "9753027d7a912a06be8d7956f4c8a617f68205cf549cbf5c5a1948f950cb572d"
 }

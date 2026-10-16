@@ -2472,7 +2472,7 @@ function string_sanitize($s) {
           $decoded=json_decode((string)($_POST['allowed_sp_ids']??''),true,512,JSON_THROW_ON_ERROR);
           if(!is_array($decoded))throw new \JsonException('invalid list');
           echo json_encode((new \OneId\App\User\UserAppAccessBatchService($operation))->apply(
-            (string)($_POST['user_id']??''),$decoded,(string)($_POST['revision']??''),(string)$_SESSION['login_user'],getUserIP()
+            (string)($_POST['user_id']??''),$decoded,(string)($_POST['revision']??''),(string)$_SESSION['login_user'],getUserIP(),oneid_sso_cookie_token()
           ));
         }catch(\JsonException){
           echo json_encode(['status'=>0,'code'=>'USER_ACL_REQUEST_INVALID','message'=>'User application access was not changed.','correlation_id'=>bin2hex(random_bytes(8))]);

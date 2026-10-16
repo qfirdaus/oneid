@@ -6,6 +6,19 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.20.2' =>
+  array (
+    'version' => '2.20.2',
+    'date' => '2026-10-16',
+    'bm' =>
+    array (
+      0 => 'Kemas kini akses aplikasi pada akaun administrator sendiri kini mengekalkan sesi browser semasa sambil membatalkan sesi lain, mengelakkan logout serta-merta selepas simpan.',
+    ),
+    'en' =>
+    array (
+      0 => 'Updating application access for the administrator’s own account now preserves the current browser session while revoking other sessions, preventing an immediate logout after saving.',
+    ),
+  ),
   'release-2.20.1' =>
   array (
     'version' => '2.20.1',

@@ -32,7 +32,7 @@ final class UserAppAccessBatchService
     }
 
     /** @return array<string,mixed> */
-    public function apply(string $userId, array $desiredAllowedIds, string $expectedRevision, string $adminId, string $ipAddress): array
+    public function apply(string $userId, array $desiredAllowedIds, string $expectedRevision, string $adminId, string $ipAddress, string $currentToken = ''): array
     {
         $correlationId = bin2hex(random_bytes(8));
         $userId = $this->validId($userId, 'USER_ACL_USER_ID_INVALID', $correlationId);
@@ -94,17 +94,30 @@ final class UserAppAccessBatchService
             if (array_values($counts) !== $expectedCounts) throw new UserAppAccessBatchException('USER_ACL_MUTATION_MISMATCH', $correlationId);
 
             $changed = array_sum($counts);
-            if ($changed > 0) $this->operation->update_whole_token_status($userId, 0, 'SECURITY_ACTION');
+            $preserveCurrentSession = $changed > 0
+                && hash_equals($adminId, $userId)
+                && trim($currentToken) !== '';
+            $sessionsRevoked = 0;
+            if ($changed > 0) {
+                $sessionsRevoked = $preserveCurrentSession
+                    ? $this->operation->update_other_token_status($userId, $currentToken, 0, 'SECURITY_ACTION')
+                    : $this->operation->update_whole_token_status($userId, 0, 'SECURITY_ACTION');
+            }
             $detail = sprintf(
-                'admin=%s action=user_acl_batch user=%s direct_add=%s direct_remove=%s deny_add=%s deny_remove=%s correlation=%s',
+                'admin=%s action=user_acl_batch user=%s direct_add=%s direct_remove=%s deny_add=%s deny_remove=%s sessions_revoked=%d current_session_preserved=%d correlation=%s',
                 $adminId, $userId, $this->idSummary($addDirect), $this->idSummary($removeDirect),
-                $this->idSummary($addDeny), $this->idSummary($removeDeny), $correlationId
+                $this->idSummary($addDeny), $this->idSummary($removeDeny), $sessionsRevoked,
+                $preserveCurrentSession ? 1 : 0, $correlationId
             );
             if ($this->operation->syslog_record(28, $detail, $ipAddress) !== 1) {
                 throw new UserAppAccessBatchException('USER_ACL_AUDIT_NOT_WRITTEN', $correlationId);
             }
             $this->operation->commit();
-            return ['status'=>1,'code'=>$changed > 0 ? 'USER_ACL_UPDATED' : 'USER_ACL_UNCHANGED','changed'=>$changed] + $counts + ['correlation_id'=>$correlationId];
+            return ['status'=>1,'code'=>$changed > 0 ? 'USER_ACL_UPDATED' : 'USER_ACL_UNCHANGED','changed'=>$changed] + $counts + [
+                'sessions_revoked'=>$sessionsRevoked,
+                'current_session_preserved'=>$preserveCurrentSession,
+                'correlation_id'=>$correlationId,
+            ];
         } catch (Throwable $exception) {
             if ($started) {
                 try { $this->operation->rollback(); } catch (Throwable) { error_log('User ACL batch rollback failed correlation_id='.$correlationId); }

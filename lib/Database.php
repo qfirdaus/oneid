@@ -2424,6 +2424,23 @@ class Database {
         return $result;
     }
 
+    public function update_other_token_status($user_id,$preserved_token,$status,$reason='UNKNOWN'){
+        $tokenHash = oneid_token_hash((string) $preserved_token);
+        $ending=(int)$status===0&&$this->token_end_metadata_available();
+        $Q = "UPDATE token_tbl SET status = :status".($ending?",ended_at=COALESCE(ended_at,NOW()),end_reason=COALESCE(end_reason,:reason)":"")."
+              WHERE user_id = :user_id AND status<>:status_same
+                AND token_id<>:token_hash AND token_id<>:legacy_token";
+        $R = $this->pdo->prepare($Q);
+        $R->bindParam(':status', $status);
+        $R->bindParam(':status_same', $status);
+        $R->bindParam(':user_id', $user_id);
+        $R->bindParam(':token_hash', $tokenHash);
+        $R->bindParam(':legacy_token', $preserved_token);
+        if($ending)$R->bindValue(':reason',$reason);
+        $R->execute();
+        return $R->rowCount();
+    }
+
     private function token_end_metadata_available():bool{
         static $available=null;if($available!==null)return $available;
         try{$q=$this->pdo->query("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='token_tbl' AND column_name IN ('ended_at','end_reason')");return $available=(int)$q->fetchColumn()===2;}catch(\Throwable){return $available=false;}
