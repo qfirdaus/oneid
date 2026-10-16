@@ -12,8 +12,10 @@ $ms = require $root . '/config/locales/ms.php';
 
 $checks = [
     'coloured high-gauge trigger is beside the user session indicator' => str_contains($top, 'oneid_user_health_trigger') && str_contains($top, 'fa-gauge-high') && str_contains($top, 'oneid-gauge-icon__needle'),
-    'versioned panel assets are loaded' => str_contains($page, 'oneid-user-health.css?v=20261009-1') && str_contains($page, 'oneid-user-health.js?v=20261009-1'),
+    'versioned panel assets are loaded' => str_contains($page, 'oneid-user-health.css?v=20261016-1') && str_contains($page, 'oneid-user-health.js?v=20261016-1'),
     'gauge state follows response and connectivity' => str_contains($js, "gaugeState = !online") && str_contains($css, '.oneid-gauge-icon.is-fast') && str_contains($css, '.oneid-gauge-icon.is-offline'),
+    'gauge sweeps while measuring then settles on response-derived angle' => str_contains($js, 'function gaugeAngle(ms, online)') && str_contains($js, 'setGaugeMeasuring(true)') && str_contains($css, '@keyframes oneid-gauge-sweep') && str_contains($css, 'rotate(var(--oneid-gauge-angle))'),
+    'opening the gauge starts a current performance measurement' => str_contains($js, "window.setTimeout(function () { runRefresh(text.refreshed); }, 0);"),
     'diagnostic environment follows runtime configuration' => str_contains($page, "oneid_config('ONEID_ENVIRONMENT', 'unknown')"),
     'desktop panel uses four balanced metric and action columns' => substr_count($css, 'grid-template-columns:repeat(4,minmax(0,1fr))') === 2,
     'mobile panel remains inside viewport with two columns' => str_contains($css, 'left:9px;max-height:calc(100vh - 90px);right:9px') && str_contains($css, '.oneid-health-grid,.oneid-health-actions{grid-template-columns:1fr 1fr}'),

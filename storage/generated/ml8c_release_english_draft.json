@@ -7,6 +7,19 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.20.3",
+            "version": "2.20.3",
+            "date": "2026-10-16",
+            "items": [
+                {
+                    "identity": "release:2.20.3:item:001",
+                    "bm": "Gauge prestasi kini melakukan animasi sweep semasa pengukuran dan berhenti pada sudut yang dikira daripada masa respons sebenar apabila panel dibuka atau data disegarkan.",
+                    "en_draft": "The performance gauge now sweeps while measuring and settles at an angle calculated from the actual response time whenever the panel opens or data is refreshed.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.20.2",
             "version": "2.20.2",
             "date": "2026-10-16",
@@ -4815,5 +4828,5 @@
             ]
         }
     ],
-    "manifest_digest": "9753027d7a912a06be8d7956f4c8a617f68205cf549cbf5c5a1948f950cb572d"
+    "manifest_digest": "a529425a21a84510bef42d4fae1d059d3aaca68d3598e162245343c42af5b9c9"
 }

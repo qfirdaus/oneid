@@ -6,6 +6,19 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.20.3' =>
+  array (
+    'version' => '2.20.3',
+    'date' => '2026-10-16',
+    'bm' =>
+    array (
+      0 => 'Gauge prestasi kini melakukan animasi sweep semasa pengukuran dan berhenti pada sudut yang dikira daripada masa respons sebenar apabila panel dibuka atau data disegarkan.',
+    ),
+    'en' =>
+    array (
+      0 => 'The performance gauge now sweeps while measuring and settles at an angle calculated from the actual response time whenever the panel opens or data is refreshed.',
+    ),
+  ),
   'release-2.20.2' =>
   array (
     'version' => '2.20.2',

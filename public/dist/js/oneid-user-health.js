@@ -23,6 +23,12 @@
     return text.slow;
   }
 
+  function gaugeAngle(ms, online) {
+    if (!online) return 0;
+    var bounded = Math.max(0, Math.min(3000, Number(ms) || 0));
+    return Math.round(-68 + (bounded / 3000) * 68);
+  }
+
   function localTime(date) {
     try { return new Intl.DateTimeFormat(document.documentElement.lang === 'en' ? 'en-MY' : 'ms-MY', {dateStyle:'short',timeStyle:'medium'}).format(date); }
     catch (error) { return date.toLocaleString(); }
@@ -89,6 +95,14 @@
     var clear = panel.querySelector('[data-health-clear]');
     var view = panel.querySelector('[data-health-view]');
     var diagnostics = panel.querySelector('[data-health-diagnostics]');
+    var measuring = false;
+
+    function setGaugeMeasuring(active) {
+      measuring = active;
+      Array.prototype.forEach.call(document.querySelectorAll('.oneid-gauge-icon'), function (gauge) {
+        gauge.classList.toggle('is-measuring', active);
+      });
+    }
 
     function diagnosticValues() {
       return {
@@ -129,9 +143,17 @@
       Array.prototype.forEach.call(document.querySelectorAll('.oneid-gauge-icon'), function (gauge) {
         gauge.classList.remove('is-fast', 'is-moderate', 'is-slow', 'is-offline');
         gauge.classList.add('is-' + gaugeState);
+        gauge.style.setProperty('--oneid-gauge-angle', gaugeAngle(responseMs, online) + 'deg');
+        gauge.classList.toggle('is-measuring', measuring);
       });
     }
-    function open() { panel.hidden = false; trigger.setAttribute('aria-expanded', 'true'); panel.querySelector('[data-health-close]').focus(); sync(); }
+    function open() {
+      panel.hidden = false;
+      trigger.setAttribute('aria-expanded', 'true');
+      panel.querySelector('[data-health-close]').focus();
+      sync();
+      window.setTimeout(function () { runRefresh(text.refreshed); }, 0);
+    }
     function close(restore) { panel.hidden = true; trigger.setAttribute('aria-expanded', 'false'); if (restore) trigger.focus(); }
     function formatMessage(template, date) { return String(template || '').replace('{time}', localTime(date)); }
     function setStatus(message, state, canRetry) {
@@ -151,6 +173,7 @@
     }
     function runRefresh(message) {
       var refreshStartedAt = window.performance && performance.now ? performance.now() : Date.now();
+      setGaugeMeasuring(true);
       setStatus(text.refreshing, 'working', false);
       setActionsBusy(true);
       document.dispatchEvent(new CustomEvent('oneid:dashboard-health-refresh'));
@@ -158,9 +181,15 @@
       try { if (typeof window.get_specific_user_app_list === 'function') requests.push(window.get_specific_user_app_list()); } catch (error) { /* handled below */ }
       try { if (typeof window.get_specific_user_activ_session === 'function') requests.push(window.get_specific_user_activ_session()); } catch (error) { /* handled below */ }
       var complete = function (successful) {
-        responseMs = Math.max(0, Math.round((window.performance && performance.now ? performance.now() : Date.now()) - refreshStartedAt));
-        updatedAt = new Date(); sync(); setActionsBusy(false);
-        setStatus(successful ? formatMessage(message, updatedAt) : text.failed, successful ? 'success' : 'error', !successful);
+        var elapsed = Math.max(0, Math.round((window.performance && performance.now ? performance.now() : Date.now()) - refreshStartedAt));
+        window.setTimeout(function () {
+          responseMs = elapsed;
+          updatedAt = new Date();
+          setGaugeMeasuring(false);
+          sync();
+          setActionsBusy(false);
+          setStatus(successful ? formatMessage(message, updatedAt) : text.failed, successful ? 'success' : 'error', !successful);
+        }, Math.max(0, 650 - elapsed));
       };
       if (window.jQuery && requests.length) {
         window.jQuery.when.apply(window.jQuery, requests)
@@ -205,7 +234,9 @@
       if (!diagnostics.hidden) toggleDiagnostics(false); else close(true);
     });
     document.addEventListener('click', function (event) { if (!panel.hidden && !panel.contains(event.target) && !trigger.contains(event.target)) close(false); });
+    setGaugeMeasuring(true);
     sync();
+    window.setTimeout(function () { setGaugeMeasuring(false); sync(); }, 850);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready);

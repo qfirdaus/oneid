@@ -20,9 +20,9 @@ $report = static function (bool $ok, string $label) use (&$checks, &$failed): vo
     }
 };
 $report(
-    $preview['release_count'] === 104
-    && $preview['bm_item_count'] === 680
-    && $preview['en_item_count'] === 680,
+    $preview['release_count'] === 105
+    && $preview['bm_item_count'] === 681
+    && $preview['en_item_count'] === 681,
     'approved repository exposes exact BM and English parity'
 );
 $report(
@@ -39,8 +39,8 @@ $report(
 );
 $report(
     $preview['approved_manifest_digest']
-        === '9753027d7a912a06be8d7956f4c8a617f68205cf549cbf5c5a1948f950cb572d'
-    && $preview['evidence_reference'] === 'ONEID-V2202-SELF-ACL-SESSION-PRESERVATION-20261016-01',
+        === 'a529425a21a84510bef42d4fae1d059d3aaca68d3598e162245343c42af5b9c9'
+    && $preview['evidence_reference'] === 'ONEID-V2203-DYNAMIC-PERFORMANCE-GAUGE-20261016-01',
     'catalogue is bound to exact owner approval'
 );
 $report(
