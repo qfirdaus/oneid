@@ -16,17 +16,17 @@ $report = static function (bool $passed, string $label) use (&$checks, &$failed)
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $label);
 };
 
-$report(ONEID_APP_VERSION === '2.20.0', 'central application version is 2.20.0');
+$report(ONEID_APP_VERSION === '2.20.1', 'central application version is 2.20.1');
 $report(
-    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.20.0',
+    oneid_application_footer() === '2026 © PTMK | Aplikasi Digital. Version 2.20.1',
     'central copyright and footer text match the approved release'
 );
 $approvedCatalogue = new \OneId\App\Documentation\ApprovedReleaseCatalogue($projectRoot);
 $approvedEnglish = $approvedCatalogue->forLocale('en')['releases'];
 $report(
-    ($approvedEnglish[0]['version'] ?? null) === '2.20.0'
-        && str_starts_with((string)($approvedEnglish[0]['changes'][0] ?? ''), 'Administrator step-up now follows'),
-    'approved English release catalogue is bound to v2.20.0 content'
+    ($approvedEnglish[0]['version'] ?? null) === '2.20.1'
+        && str_starts_with((string)($approvedEnglish[0]['changes'][0] ?? ''), 'Valid routine administration now renews'),
+    'approved English release catalogue is bound to v2.20.1 content'
 );
 
 foreach (['index.php', 'page/dashboard.php', 'admin/dashboard.php'] as $page) {
@@ -40,9 +40,9 @@ $latestPlainRelease = array_values($plainCatalogue)[0] ?? [];
 $report(array_is_list($plainCatalogue), 'canonical release catalogue is a JavaScript-compatible list');
 $report(
     ($latestPlainRelease['version'] ?? null) === ONEID_APP_VERSION
-        && count($latestPlainRelease['bm'] ?? []) === 3
-        && count($latestPlainRelease['en'] ?? []) === 3,
-    'latest admin release card reads shared v2.20.0 bilingual metadata'
+        && count($latestPlainRelease['bm'] ?? []) === 1
+        && count($latestPlainRelease['en'] ?? []) === 1,
+    'latest admin release card reads shared v2.20.1 bilingual metadata'
 );
 $expectedHistory = [
     '2.8.1','2.8.0','2.7.4','2.7.3','2.7.2','2.7.1','2.7.0','2.6.4','2.6.3','2.6.2','2.6.1','2.6.0',
@@ -65,15 +65,15 @@ foreach ($expectedHistory as $version) {
 }
 $report(
     $historyValid
-        && count($plainCatalogue) === 102,
-    'release history preserves all 102 releases in order'
+        && count($plainCatalogue) === 103,
+    'release history preserves all 103 releases in order'
 );
 $policy = (string) file_get_contents($projectRoot . '/docs/VERSION_NUMBERING_POLICY.md');
 $package = json_decode((string) file_get_contents($projectRoot . '/package.json'), true);
 $report(($package['version'] ?? '') === ONEID_APP_VERSION, 'package metadata matches the central application version');
 $report(
-    array_column(array_slice($plainCatalogue, 0, 6), 'version') === ['2.20.0', '2.19.4', '2.19.3', '2.19.2', '2.19.1', '2.19.0'],
-    'v2.20.0 follows v2.19.4 according to the patch-cap policy'
+    array_column(array_slice($plainCatalogue, 0, 6), 'version') === ['2.20.1', '2.20.0', '2.19.4', '2.19.3', '2.19.2', '2.19.1'],
+    'v2.20.1 follows v2.20.0 according to the patch-cap policy'
 );
 $report(
     preg_match('/^\d+\.\d+\.[0-4]$/', ONEID_APP_VERSION) === 1

@@ -6,6 +6,19 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.20.1' =>
+  array (
+    'version' => '2.20.1',
+    'date' => '2026-10-16',
+    'bm' =>
+    array (
+      0 => 'Aktiviti pentadbiran rutin yang sah kini memperbaharui akses admin apabila hampir tamat dan menyelaraskan countdown selepas permintaan berjaya, tanpa mengubah masa MFA asal untuk tindakan kritikal.',
+    ),
+    'en' =>
+    array (
+      0 => 'Valid routine administration now renews near-expiry admin access and resynchronizes the countdown after successful requests, without changing the original MFA time used for critical actions.',
+    ),
+  ),
   'release-2.20.0' =>
   array (
     'version' => '2.20.0',

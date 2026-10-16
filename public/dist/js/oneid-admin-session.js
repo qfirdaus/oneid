@@ -18,6 +18,7 @@
     var synchronizationPending = false;
     var portalRenewalPending = false;
     var portalRenewalCooldownTimer = null;
+    var postActionSynchronizationTimer = null;
     var channel = typeof window.BroadcastChannel === 'function'
         ? new window.BroadcastChannel('oneid-admin-access-session')
         : null;
@@ -344,6 +345,11 @@
     });
     window.setInterval(synchronize, 30000);
     if (window.jQuery) {
+        window.jQuery(document).ajaxSuccess(function (_event, _xhr, settings) {
+            if (!settings || String(settings.type || '').toUpperCase() !== 'POST') return;
+            window.clearTimeout(postActionSynchronizationTimer);
+            postActionSynchronizationTimer = window.setTimeout(synchronize, 100);
+        });
         window.jQuery(document).ajaxError(function (_event, xhr) {
             var payload = xhr.responseJSON || {};
             if (xhr.status === 403 && ['STEP_UP_EXPIRED', 'STEP_UP_REQUIRED'].indexOf(payload.code) !== -1) {

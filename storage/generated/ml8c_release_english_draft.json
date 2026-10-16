@@ -7,6 +7,19 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.20.1",
+            "version": "2.20.1",
+            "date": "2026-10-16",
+            "items": [
+                {
+                    "identity": "release:2.20.1:item:001",
+                    "bm": "Aktiviti pentadbiran rutin yang sah kini memperbaharui akses admin apabila hampir tamat dan menyelaraskan countdown selepas permintaan berjaya, tanpa mengubah masa MFA asal untuk tindakan kritikal.",
+                    "en_draft": "Valid routine administration now renews near-expiry admin access and resynchronizes the countdown after successful requests, without changing the original MFA time used for critical actions.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.20.0",
             "version": "2.20.0",
             "date": "2026-10-15",
@@ -4789,5 +4802,5 @@
             ]
         }
     ],
-    "manifest_digest": "062a68fa2b8221cb4325647d4d61ddc41a5dbaccc803630683fb4a595ad330e3"
+    "manifest_digest": "80bc7027edeb7a5edacef8fe3239098ada23c53ecd7f67d1a58533131c080691"
 }

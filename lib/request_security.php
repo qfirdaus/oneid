@@ -337,9 +337,9 @@ function oneid_audit_step_up_rejection(object $operation,string $purpose,string 
     return $correlation;
 }
 
-function oneid_require_admin_step_up(object $operation,string $purpose,bool $json=true): void
+function oneid_require_admin_step_up(object $operation,string $purpose,bool $json=true): array
 {
-    $decision=oneid_admin_step_up_decision($operation,$purpose);if($decision['allowed']){return;}
+    $decision=oneid_admin_step_up_decision($operation,$purpose);if($decision['allowed']){return $decision;}
     $correlation=oneid_audit_step_up_rejection($operation,$purpose,(string)$decision['reason']);
     if($correlation===''){oneid_json_deny(503,'Step-up authorization unavailable');}
     if($json){if(!headers_sent()){http_response_code(403);header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');}echo json_encode(['status'=>403,'code'=>$decision['reason'],'error'=>'Administrator step-up authentication required','purpose'=>$purpose,'correlation_id'=>$correlation]);exit;}
@@ -348,6 +348,33 @@ function oneid_require_admin_step_up(object $operation,string $purpose,bool $jso
         header('Location: '.APP_URL.'/page/dashboard',true,302);
     }
     exit;
+}
+
+function oneid_keep_active_admin_access_alive(
+    object $operation,
+    string $purpose,
+    array $decision
+): void {
+    if ($purpose !== 'ADMIN_ACCESS'
+        || ($decision['reason'] ?? '') !== 'STEP_UP_GRANTED'
+        || (int) ($decision['remaining_seconds'] ?? 0) > 180
+        || !class_exists(\OneId\App\Auth\AdminStepUpSessionService::class)
+    ) {
+        return;
+    }
+
+    try {
+        (new \OneId\App\Auth\AdminStepUpSessionService($operation))->renew(
+            (string) ($_SESSION['login_user'] ?? ''),
+            session_id(),
+            (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''),
+            (string) ($_SERVER['REMOTE_ADDR'] ?? '')
+        );
+    } catch (\Throwable $exception) {
+        // The request already passed authorization. A failed keep-alive must
+        // not convert an otherwise valid routine admin action into a failure.
+        error_log('Admin access keep-alive failed exception=' . get_class($exception));
+    }
 }
 
 function oneid_complete_step_up_rotation(object $operation,string $purpose,string $correlation): array
@@ -420,7 +447,15 @@ function oneid_guard_q_func_request(array $post, ?object $operation = null): str
             echo json_encode(['status'=>403,'code'=>'UC3_PASSWORD_CHANGE_REQUIRED','error'=>'Password change required before this action']);exit;
         }
         if($matchedLevel==='admin'){
-            oneid_require_admin_step_up($operation,oneid_admin_action_purpose($matchedActions[0]),true);
+            $adminPurpose=oneid_admin_action_purpose($matchedActions[0]);
+            $adminDecision=oneid_require_admin_step_up($operation,$adminPurpose,true);
+            oneid_keep_active_admin_access_alive($operation,$adminPurpose,$adminDecision);
+            if (function_exists('oneid_refresh_session_activity')) {
+                oneid_refresh_session_activity();
+            }
+            if (function_exists('oneid_refresh_configured_sso_cookie')) {
+                oneid_refresh_configured_sso_cookie($operation);
+            }
         }
         if($matchedLevel==='mfa_setup'){
             oneid_require_admin_step_up($operation,'SECURITY_CONFIGURATION_CHANGE',true);
