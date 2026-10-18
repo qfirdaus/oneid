@@ -136,7 +136,7 @@
       <link href="../dist/css/oneid-user-profile-role.css?v=20260824-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-session-indicators.css?v=20260930-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-health.css?v=20261016-3" rel="stylesheet" type="text/css">
-      <link href="../dist/css/oneid-user-weather.css?v=20261018-2" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-weather.css?v=20261018-3" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260916-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-accessibility-baseline.css?v=20260915-1" rel="stylesheet" type="text/css">

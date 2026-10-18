@@ -6,6 +6,19 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.21.2' =>
+  array (
+    'version' => '2.21.2',
+    'date' => '2026-10-18',
+    'bm' =>
+    array (
+      0 => 'Masa Bacaan dan Disemak dalam panel cuaca kini dipaparkan sebagai metadata kecil dalam dua baris yang sejajar, padat dan mudah dibaca pada desktop serta telefon.',
+    ),
+    'en' =>
+    array (
+      0 => 'Observed and Checked times in the weather panel now appear as compact metadata on two aligned rows that remain easy to read on desktop and mobile.',
+    ),
+  ),
   'release-2.21.1' =>
   array (
     'version' => '2.21.1',

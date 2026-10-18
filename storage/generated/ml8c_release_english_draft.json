@@ -7,6 +7,19 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.21.2",
+            "version": "2.21.2",
+            "date": "2026-10-18",
+            "items": [
+                {
+                    "identity": "release:2.21.2:item:001",
+                    "bm": "Masa Bacaan dan Disemak dalam panel cuaca kini dipaparkan sebagai metadata kecil dalam dua baris yang sejajar, padat dan mudah dibaca pada desktop serta telefon.",
+                    "en_draft": "Observed and Checked times in the weather panel now appear as compact metadata on two aligned rows that remain easy to read on desktop and mobile.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.21.1",
             "version": "2.21.1",
             "date": "2026-10-18",
@@ -4885,5 +4898,5 @@
             ]
         }
     ],
-    "manifest_digest": "e634f8af97ddc4b8e30238b409d9b87aa8e031d97ab4a14efd2ce760faef2d40"
+    "manifest_digest": "674e4d9388c5d12498d6ed4a1c6db75f0a9fdb4dbd211382c508e7d3c6207b8b"
 }
