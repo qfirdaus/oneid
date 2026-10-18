@@ -148,6 +148,7 @@
       });
     }
     function open() {
+      document.dispatchEvent(new CustomEvent('oneid:context-panel-open', {detail:{id:panel.id}}));
       panel.hidden = false;
       trigger.setAttribute('aria-expanded', 'true');
       panel.querySelector('[data-health-close]').focus();
@@ -234,6 +235,7 @@
       if (!diagnostics.hidden) toggleDiagnostics(false); else close(true);
     });
     document.addEventListener('click', function (event) { if (!panel.hidden && !panel.contains(event.target) && !trigger.contains(event.target)) close(false); });
+    document.addEventListener('oneid:context-panel-open', function (event) { if (event.detail && event.detail.id !== panel.id && !panel.hidden) close(false); });
     setGaugeMeasuring(true);
     sync();
     window.setTimeout(function () { setGaugeMeasuring(false); sync(); }, 850);

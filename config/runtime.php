@@ -78,6 +78,9 @@ function oneid_config(string $key, mixed $fallback = null): mixed
         'ONEID_USER_SESSION_WARNING_ENABLED' => 'false',
         // User dashboard guided tour is activated per environment for controlled UAT.
         'ONEID_PRODUCT_TOUR_ENABLED' => 'false',
+        // Fixed institutional weather location; no browser geolocation is collected.
+        'ONEID_WEATHER_LATITUDE' => '3.0506',
+        'ONEID_WEATHER_LONGITUDE' => '101.7243',
         // Scheduled DB-token lifecycle cleanup remains deployment opt-in.
         'ONEID_SESSION_HOUSEKEEPING_SCHEDULED_ENABLED' => 'false',
         // Administrative notification delivery is activated only after the

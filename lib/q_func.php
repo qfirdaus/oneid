@@ -33,6 +33,7 @@ require_once dirname(__DIR__) . '/app/User/UserAclManagementService.php';
 require_once dirname(__DIR__) . '/app/User/UserAppAccessBatchException.php';
 require_once dirname(__DIR__) . '/app/User/UserAppAccessBatchService.php';
 require_once dirname(__DIR__) . '/app/Monitoring/UserDownstreamHealthService.php';
+require_once dirname(__DIR__) . '/app/Monitoring/UserWeatherService.php';
 require_once dirname(__DIR__) . '/app/Admin/WebAppManagementException.php';
 require_once dirname(__DIR__) . '/app/Admin/WebAppCategoryService.php';
 require_once dirname(__DIR__) . '/app/Admin/UserCategoryAppAccessException.php';
@@ -158,6 +159,24 @@ if(in_array($oneidGuardedAction,['user_session_status','user_session_renew','use
     $known=['USER_SESSION_EXPIRED'=>401,'SESSION_STATUS_UNAVAILABLE'=>503];$code=$e->getMessage();
     if(!isset($known[$code])){$code='SESSION_STATUS_UNAVAILABLE';}
     http_response_code($known[$code]);$results=['status'=>0,'authenticated'=>false,'code'=>$code,'error'=>'OneID portal session request was not completed.'];
+  }
+  header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
+}
+
+if($oneidGuardedAction==='user_weather_status'){
+  try{
+    $weatherService=new \OneId\App\Monitoring\UserWeatherService(
+      dirname(__DIR__).'/storage/cache/weather/upnm-weather-air-v3.json',
+      (float)oneid_config('ONEID_WEATHER_LATITUDE','3.0506'),
+      (float)oneid_config('ONEID_WEATHER_LONGITUDE','101.7243')
+    );
+    $forceRefresh=isset($_POST['force_refresh'])&&(string)$_POST['force_refresh']==='1';
+    $results=['status'=>1,'weather'=>$weatherService->current($forceRefresh)];
+    http_response_code(200);
+  }catch(\Throwable $e){
+    error_log('OneID weather request failed type='.get_class($e));
+    $results=['status'=>0,'code'=>'WEATHER_UNAVAILABLE'];
+    http_response_code(503);
   }
   header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');echo json_encode($results);return;
 }

@@ -6,6 +6,25 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.21.1' =>
+  array (
+    'version' => '2.21.1',
+    'date' => '2026-10-18',
+    'bm' =>
+    array (
+      0 => 'Panel Cuaca di UPNM kini memaparkan suhu, keadaan cuaca, suhu terasa, kelembapan, hujan dan angin bagi lokasi tetap kampus tanpa mengumpul lokasi pengguna.',
+      1 => 'Kualiti udara melengkapkan panel dengan US AQI, PM2.5, PM10, warna tahap standard dan tooltip yang menjelaskan bahawa bacaan model CAMS bukan IPU rasmi JAS.',
+      2 => 'Cache bersama, refresh terkawal, perlindungan permintaan serentak dan fallback bacaan enam jam memastikan panel kekal responsif ketika pembekal luar perlahan atau terganggu.',
+      3 => 'Paparan BM dan English kini menggunakan panel responsif, animasi ikon refresh yang ringkas serta masa Bacaan dan Disemak dalam dua baris yang kemas.',
+    ),
+    'en' =>
+    array (
+      0 => 'The Weather at UPNM panel now shows temperature, conditions, feels-like temperature, humidity, rainfall and wind for the fixed campus location without collecting user location.',
+      1 => 'Air quality completes the panel with US AQI, PM2.5, PM10, standard level colours and a tooltip explaining that the CAMS model reading is not an official Malaysian DOE API reading.',
+      2 => 'Shared caching, controlled refresh, concurrent-request protection and a six-hour saved-reading fallback keep the panel responsive when the external provider is slow or unavailable.',
+      3 => 'The Malay and English views now use a responsive panel, a concise refresh-icon animation, and neatly aligned Observed and Checked times on two rows.',
+    ),
+  ),
   'release-2.21.0' =>
   array (
     'version' => '2.21.0',

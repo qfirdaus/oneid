@@ -128,6 +128,7 @@ function oneid_q_func_action_map(): array
             'admin_get_all_token_for_specific_user',
             'get_specific_user_app_list',
             'user_downstream_status',
+            'user_weather_status',
             'user_set_app_favourite',
             'user_clear_app_recent',
             'user_set_product_tour_status',

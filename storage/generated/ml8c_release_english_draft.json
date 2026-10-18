@@ -7,6 +7,37 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.21.1",
+            "version": "2.21.1",
+            "date": "2026-10-18",
+            "items": [
+                {
+                    "identity": "release:2.21.1:item:001",
+                    "bm": "Panel Cuaca di UPNM kini memaparkan suhu, keadaan cuaca, suhu terasa, kelembapan, hujan dan angin bagi lokasi tetap kampus tanpa mengumpul lokasi pengguna.",
+                    "en_draft": "The Weather at UPNM panel now shows temperature, conditions, feels-like temperature, humidity, rainfall and wind for the fixed campus location without collecting user location.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.21.1:item:002",
+                    "bm": "Kualiti udara melengkapkan panel dengan US AQI, PM2.5, PM10, warna tahap standard dan tooltip yang menjelaskan bahawa bacaan model CAMS bukan IPU rasmi JAS.",
+                    "en_draft": "Air quality completes the panel with US AQI, PM2.5, PM10, standard level colours and a tooltip explaining that the CAMS model reading is not an official Malaysian DOE API reading.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.21.1:item:003",
+                    "bm": "Cache bersama, refresh terkawal, perlindungan permintaan serentak dan fallback bacaan enam jam memastikan panel kekal responsif ketika pembekal luar perlahan atau terganggu.",
+                    "en_draft": "Shared caching, controlled refresh, concurrent-request protection and a six-hour saved-reading fallback keep the panel responsive when the external provider is slow or unavailable.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.21.1:item:004",
+                    "bm": "Paparan BM dan English kini menggunakan panel responsif, animasi ikon refresh yang ringkas serta masa Bacaan dan Disemak dalam dua baris yang kemas.",
+                    "en_draft": "The Malay and English views now use a responsive panel, a concise refresh-icon animation, and neatly aligned Observed and Checked times on two rows.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.21.0",
             "version": "2.21.0",
             "date": "2026-10-16",
@@ -4854,5 +4885,5 @@
             ]
         }
     ],
-    "manifest_digest": "a8439c1a65246f8018aac738d45d2174f84c97ce882ed65afd48105ab2aa0113"
+    "manifest_digest": "e634f8af97ddc4b8e30238b409d9b87aa8e031d97ab4a14efd2ce760faef2d40"
 }

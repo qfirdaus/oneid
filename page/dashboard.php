@@ -136,6 +136,7 @@
       <link href="../dist/css/oneid-user-profile-role.css?v=20260824-4" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-session-indicators.css?v=20260930-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-health.css?v=20261016-3" rel="stylesheet" type="text/css">
+      <link href="../dist/css/oneid-user-weather.css?v=20261018-2" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-user-session.css?v=20260916-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-environment-banner.css?v=20260810-1" rel="stylesheet" type="text/css">
       <link href="../dist/css/oneid-accessibility-baseline.css?v=20260915-1" rel="stylesheet" type="text/css">
@@ -708,7 +709,61 @@
             ],
          ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
       </script>
-      <script src="../dist/js/oneid-user-health.js?v=20261016-3"></script>
+      <script src="../dist/js/oneid-user-health.js?v=20261018-1"></script>
+      <script>
+         window.OneIdUserWeatherConfig = <?=json_encode([
+            'apiUrl' => APP_URL . '/lib/q_func.php',
+            'csrfToken' => oneid_csrf_token(),
+            'text' => [
+               'open' => oneid_translate('dashboard.weather.open'),
+               'title' => oneid_translate('dashboard.weather.title'),
+               'location' => oneid_translate('dashboard.weather.location'),
+               'loading' => oneid_translate('dashboard.weather.loading'),
+               'feelsLike' => oneid_translate('dashboard.weather.feels_like'),
+               'humidity' => oneid_translate('dashboard.weather.humidity'),
+               'precipitation' => oneid_translate('dashboard.weather.precipitation'),
+               'wind' => oneid_translate('dashboard.weather.wind'),
+               'airQuality' => oneid_translate('dashboard.weather.air_quality'),
+               'airQualityNote' => oneid_translate('dashboard.weather.air_quality_note'),
+               'weatherUnavailable' => oneid_translate('dashboard.weather.weather_unavailable'),
+               'airUnavailable' => oneid_translate('dashboard.weather.air_unavailable'),
+               'observed' => oneid_translate('dashboard.weather.observed'),
+               'checked' => oneid_translate('dashboard.weather.checked'),
+               'refresh' => oneid_translate('dashboard.weather.refresh'),
+               'updated' => oneid_translate('dashboard.weather.updated'),
+               'stale' => oneid_translate('dashboard.weather.stale'),
+               'unavailable' => oneid_translate('dashboard.weather.unavailable'),
+               'retry' => oneid_translate('dashboard.weather.retry'),
+               'source' => oneid_translate('dashboard.weather.source'),
+               'locationNote' => oneid_translate('dashboard.weather.location_note'),
+               'notAvailable' => oneid_translate('dashboard.weather.not_available'),
+               'close' => oneid_translate('dashboard.weather.close'),
+               'conditions' => [
+                  'clear' => oneid_translate('dashboard.weather.condition.clear'),
+                  'mainlyClear' => oneid_translate('dashboard.weather.condition.mainly_clear'),
+                  'partlyCloudy' => oneid_translate('dashboard.weather.condition.partly_cloudy'),
+                  'overcast' => oneid_translate('dashboard.weather.condition.overcast'),
+                  'fog' => oneid_translate('dashboard.weather.condition.fog'),
+                  'drizzle' => oneid_translate('dashboard.weather.condition.drizzle'),
+                  'rain' => oneid_translate('dashboard.weather.condition.rain'),
+                  'snow' => oneid_translate('dashboard.weather.condition.snow'),
+                  'showers' => oneid_translate('dashboard.weather.condition.showers'),
+                  'thunderstorm' => oneid_translate('dashboard.weather.condition.thunderstorm'),
+                  'unknown' => oneid_translate('dashboard.weather.condition.unknown'),
+               ],
+               'airConditions' => [
+                  'good' => oneid_translate('dashboard.weather.air.good'),
+                  'moderate' => oneid_translate('dashboard.weather.air.moderate'),
+                  'sensitive' => oneid_translate('dashboard.weather.air.sensitive'),
+                  'unhealthy' => oneid_translate('dashboard.weather.air.unhealthy'),
+                  'veryUnhealthy' => oneid_translate('dashboard.weather.air.very_unhealthy'),
+                  'hazardous' => oneid_translate('dashboard.weather.air.hazardous'),
+                  'unknown' => oneid_translate('dashboard.weather.air.unknown'),
+               ],
+            ],
+         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)?>;
+      </script>
+      <script src="../dist/js/oneid-user-weather.js?v=20261018-3"></script>
       <?php if ($productTourEnabled): ?>
       <script>
          window.OneIdProductTourConfig = <?=json_encode([
