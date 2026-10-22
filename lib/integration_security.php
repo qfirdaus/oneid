@@ -80,15 +80,58 @@ function oneid_integration_client_ip()
     return (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
 }
 
+function oneid_integration_audit_log_path(): string
+{
+    $configured = trim(oneid_secret('ONEID_INTEGRATION_AUDIT_LOG', false));
+    return $configured !== ''
+        ? $configured
+        : dirname(__DIR__) . '/storage/logs/integration-audit.log';
+}
+
+function oneid_integration_safe_audit_context(array $context): array
+{
+    $allowed = [
+        'endpoint', 'scope', 'client_id', 'auth_result', 'mode', 'identity',
+        'count', 'limit', 'enforced', 'method',
+    ];
+    return array_intersect_key($context, array_flip($allowed));
+}
+
 function oneid_integration_audit($event, array $context = [])
 {
     $record = array_merge([
         'component' => 'oneid_integration',
         'event' => $event,
+        'recorded_at' => date(DATE_ATOM),
         'request_id' => oneid_integration_request_id(),
         'ip' => oneid_integration_client_ip(),
-    ], $context);
-    error_log(json_encode($record, JSON_UNESCAPED_SLASHES));
+    ], oneid_integration_safe_audit_context($context));
+    $encoded = json_encode($record, JSON_UNESCAPED_SLASHES);
+    if (!is_string($encoded)) {
+        error_log('OneID integration audit encoding failed.');
+        return;
+    }
+
+    $path = oneid_integration_audit_log_path();
+    $newFile = !is_file($path);
+    $handle = @fopen($path, 'ab');
+    $written = false;
+    if (is_resource($handle)) {
+        if ($newFile) {
+            @chmod($path, 0640);
+        }
+        if (flock($handle, LOCK_EX)) {
+            $line = $encoded . PHP_EOL;
+            $written = fwrite($handle, $line) === strlen($line);
+            fflush($handle);
+            flock($handle, LOCK_UN);
+        }
+        fclose($handle);
+    }
+    if (!$written) {
+        // Preserve the audit trail if the dedicated destination is unavailable.
+        error_log($encoded);
+    }
 }
 
 function oneid_integration_json_error($status, $code, $message)

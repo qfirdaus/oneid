@@ -1,0 +1,10 @@
+/var/www/oneid-uat/storage/logs/integration-audit.log {
+    daily
+    rotate 30
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 iqs www-data
+    su iqs www-data
+}
