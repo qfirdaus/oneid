@@ -31,6 +31,10 @@ $checks['post_csrf'] = str_contains($endpoint, "!== 'POST'")
 $checks['official_logout'] = str_contains($endpoint, 'MyDigitalIdLogoutUrl')
     && str_contains($endpoint, 'session_regenerate_id(true)')
     && str_contains($endpoint, 'Referrer-Policy: no-referrer');
+$checks['configured_fallback_url'] = str_contains(
+    $endpoint,
+    "oneid_config('ONEID_APP_URL', '')"
+) && !str_contains($endpoint, '\\APP_URL');
 $checks['thin_endpoint'] = str_contains(
     $publicEndpoint,
     'MyDigitalIdSwitchAccountEndpoint::run();'

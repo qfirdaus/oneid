@@ -15,6 +15,7 @@ final class MyDigitalIdSwitchAccountEndpoint
         require_once $root . '/lib/secrets.php';
         require_once $root . '/vendor/autoload.php';
 
+        $appUrl = rtrim((string) \oneid_config('ONEID_APP_URL', ''), '/');
         $config = MyDigitalIdConfig::fromRuntime();
         if (!$config->enabled) {
             self::finish(404, 'Not Found');
@@ -45,7 +46,7 @@ final class MyDigitalIdSwitchAccountEndpoint
         if (!is_string($idToken)) {
             $_SESSION['oneid_login_flash'] = 'mydigitalid_temporary';
             session_write_close();
-            self::redirect(\APP_URL . '/');
+            self::redirect($appUrl . '/');
         }
 
         try {
@@ -53,7 +54,7 @@ final class MyDigitalIdSwitchAccountEndpoint
         } catch (\Throwable) {
             $_SESSION['oneid_login_flash'] = 'mydigitalid_temporary';
             session_write_close();
-            self::redirect(\APP_URL . '/');
+            self::redirect($appUrl . '/');
         }
 
         session_regenerate_id(true);
