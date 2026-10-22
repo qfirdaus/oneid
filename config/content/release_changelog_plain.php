@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.21.4' =>
+  array (
+    'version' => '2.21.4',
+    'date' => '2026-10-23',
+    'bm' =>
+    array (
+      0 => 'Panel cuaca kini menyediakan ramalan 12 jam dan tujuh hari bagi lokasi tetap UPNM tanpa mengumpul lokasi pengguna.',
+      1 => 'Ramalan setiap jam menggunakan grid responsif tanpa scroll mendatar, menandakan jam semasa dan memberi maklum balas visual apabila kad dituding.',
+      2 => 'Ramalan tujuh hari memaparkan keadaan, suhu minimum dan maksimum serta kebarangkalian hujan dalam baris padat yang tidak memotong nilai peratus.',
+    ),
+    'en' =>
+    array (
+      0 => 'The weather panel now provides 12-hour and seven-day forecasts for the fixed UPNM location without collecting user location.',
+      1 => 'The hourly forecast uses a responsive grid without horizontal scrolling, highlights the current hour and provides visual feedback when a card is hovered.',
+      2 => 'The seven-day forecast presents conditions, minimum and maximum temperatures, and rain probability in compact rows without clipping percentage values.',
+    ),
+  ),
   'release-2.21.3' =>
   array (
     'version' => '2.21.3',

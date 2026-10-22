@@ -73,6 +73,38 @@ $normalized = $normalize->invoke(
         'wind_speed_10m' => 1.5,
     ]]
 );
+$forecastHour = (new DateTimeImmutable('now', new DateTimeZone('Asia/Kuala_Lumpur')))->format('Y-m-d\TH:00');
+$forecastDate = substr($forecastHour, 0, 10);
+$normalizedForecast = $normalize->invoke(
+    new UserWeatherService(sys_get_temp_dir() . '/unused-weather-forecast-cache.json', 3.0506, 101.7243),
+    'weather',
+    [
+        'current' => [
+            'time' => $forecastHour,
+            'temperature_2m' => 29.1,
+            'apparent_temperature' => 34.2,
+            'relative_humidity_2m' => 80,
+            'precipitation' => 0.2,
+            'weather_code' => 61,
+            'wind_speed_10m' => 6.5,
+        ],
+        'hourly' => [
+            'time' => [$forecastHour],
+            'temperature_2m' => [29.1],
+            'precipitation_probability' => [70],
+            'precipitation' => [0.2],
+            'weather_code' => [61],
+        ],
+        'daily' => [
+            'time' => [$forecastDate],
+            'weather_code' => [80],
+            'temperature_2m_max' => [32.5],
+            'temperature_2m_min' => [24.8],
+            'precipitation_probability_max' => [85],
+            'precipitation_sum' => [8.4],
+        ],
+    ]
+);
 
 $checks = [
     'weather endpoint requires an authenticated user action' => str_contains($securitySource, "'user_weather_status'") && str_contains($endpointSource, "if(\$oneidGuardedAction==='user_weather_status')"),
@@ -86,10 +118,14 @@ $checks = [
     'AQI uses all six standard US AQI display bands' => str_contains($javascript, 'if (aqi <= 50)') && str_contains($javascript, 'if (aqi <= 300)') && str_contains($stylesheet, '.oneid-weather-air.is-hazardous'),
     'AQI explanation distinguishes the model from official DOE readings' => str_contains((string) ($english['dashboard.weather.air_quality_note'] ?? ''), 'US AQI') && str_contains((string) ($malay['dashboard.weather.air_quality_note'] ?? ''), 'US AQI'),
     'partial provider failures have separate weather and air messages' => isset($english['dashboard.weather.weather_unavailable'], $english['dashboard.weather.air_unavailable'], $malay['dashboard.weather.weather_unavailable'], $malay['dashboard.weather.air_unavailable']),
-    'weather trigger and versioned assets are loaded' => str_contains($top, 'oneid_user_weather_trigger') && str_contains($page, 'oneid-user-weather.css?v=20261018-3') && str_contains($page, 'oneid-user-weather.js?v=20261018-3'),
+    'weather trigger and versioned assets are loaded' => str_contains($top, 'oneid_user_weather_trigger') && str_contains($page, 'oneid-user-weather.css?v=20261023-3') && str_contains($page, 'oneid-user-weather.js?v=20261023-1'),
     'refresh icon is the only loading indicator and existing data remains visible' => !str_contains($javascript, 'data-weather-loading') && str_contains($javascript, "classList.toggle('fa-spin', busy)") && str_contains($javascript, "setAttribute('aria-busy'") && !str_contains($javascript, 'if (!lastLoadedAt) content.hidden = true'),
     'observed and checked times use compact aligned metadata rows' => str_contains($stylesheet, 'grid-template-columns:auto 1fr') && str_contains($stylesheet, 'font-size:9px!important') && str_contains($stylesheet, '.oneid-weather-times span{font-size:9px!important;grid-column:2') && str_contains($stylesheet, '.oneid-weather-times span+span::before{content:none'),
     'mobile layout and reduced-motion mode are present' => str_contains($stylesheet, '@media(max-width:767px)') && str_contains($stylesheet, '@media(prefers-reduced-motion:reduce)'),
+    'provider request asks for bounded hourly and seven-day forecast data' => str_contains($serviceSource, "'hourly' => 'temperature_2m,precipitation_probability,precipitation,weather_code'") && str_contains($serviceSource, "'forecast_days' => 7"),
+    'forecast payload is normalized into compact safe records' => count($normalizedForecast['hourly_forecast'] ?? []) === 1 && count($normalizedForecast['daily_forecast'] ?? []) === 1 && ($normalizedForecast['daily_forecast'][0]['precipitation_probability_percent'] ?? null) === 85,
+    'forecast tabs support BM English and wrapped responsive layouts' => isset($english['dashboard.weather.hourly'], $english['dashboard.weather.seven_days'], $malay['dashboard.weather.hourly'], $malay['dashboard.weather.seven_days']) && str_contains($javascript, 'data-weather-tab="hourly"') && str_contains($stylesheet, '.oneid-weather-hourly{display:grid') && str_contains($stylesheet, 'grid-template-columns:repeat(3,minmax(0,1fr))'),
+    'hourly forecast highlights the current hour and pointer hover' => str_contains($javascript, 'isCurrentHour(item.at)') && str_contains($stylesheet, '.oneid-weather-hour.is-current') && str_contains($stylesheet, '.oneid-weather-hour:hover'),
 ];
 
 $failed = 0;

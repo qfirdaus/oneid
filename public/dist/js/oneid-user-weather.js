@@ -53,6 +53,29 @@
     catch (error) { return date.toLocaleString(); }
   }
 
+  function hourLabel(value) {
+    var date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '--';
+    return new Intl.DateTimeFormat(document.documentElement.lang === 'en' ? 'en-MY' : 'ms-MY', {hour:'numeric'}).format(date);
+  }
+
+  function dayLabel(value, index) {
+    if (index === 0) return text.today;
+    var date = new Date(value + 'T12:00:00+08:00');
+    if (Number.isNaN(date.getTime())) return value;
+    return new Intl.DateTimeFormat(document.documentElement.lang === 'en' ? 'en-MY' : 'ms-MY', {weekday:'short'}).format(date);
+  }
+
+  function isCurrentHour(value) {
+    var forecast = new Date(value);
+    var now = new Date();
+    return !Number.isNaN(forecast.getTime())
+      && forecast.getFullYear() === now.getFullYear()
+      && forecast.getMonth() === now.getMonth()
+      && forecast.getDate() === now.getDate()
+      && forecast.getHours() === now.getHours();
+  }
+
   function ready() {
     var trigger = document.getElementById('oneid_user_weather_trigger');
     if (!trigger || !config.apiUrl) return;
@@ -70,12 +93,16 @@
       '<button type="button" class="oneid-weather-panel__close" data-weather-close aria-label="' + escapeHtml(text.close) + '">&times;</button></div>' +
       '<div class="oneid-weather-panel__body" aria-live="polite">' +
       '<div data-weather-content hidden>' +
+      '<div class="oneid-weather-tabs" role="tablist" aria-label="' + escapeHtml(text.forecast) + '"><button type="button" role="tab" aria-selected="true" data-weather-tab="now">' + escapeHtml(text.now) + '</button><button type="button" role="tab" aria-selected="false" data-weather-tab="hourly">' + escapeHtml(text.hourly) + '</button><button type="button" role="tab" aria-selected="false" data-weather-tab="daily">' + escapeHtml(text.sevenDays) + '</button></div>' +
+      '<div class="oneid-weather-tab-panel" role="tabpanel" data-weather-tab-panel="now">' +
       '<section data-weather-section><div class="oneid-weather-current"><span class="oneid-weather-current__icon"><i class="fa fa-cloud-sun" data-weather-main-icon aria-hidden="true"></i></span><span class="oneid-weather-current__reading"><strong data-weather-temperature>--°C</strong><small data-weather-condition></small></span></div>' +
       '<dl class="oneid-weather-details"><div><dt><i class="fa fa-temperature-high" aria-hidden="true"></i>' + escapeHtml(text.feelsLike) + '</dt><dd data-weather-apparent></dd></div><div><dt><i class="fa fa-tint" aria-hidden="true"></i>' + escapeHtml(text.humidity) + '</dt><dd data-weather-humidity></dd></div><div><dt><i class="fa fa-cloud-rain" aria-hidden="true"></i>' + escapeHtml(text.precipitation) + '</dt><dd data-weather-precipitation></dd></div><div><dt><i class="fa fa-wind" aria-hidden="true"></i>' + escapeHtml(text.wind) + '</dt><dd data-weather-wind></dd></div></dl></section>' +
       '<p class="oneid-weather-section-error" data-weather-section-error hidden><i class="fa fa-cloud" aria-hidden="true"></i>' + escapeHtml(text.weatherUnavailable) + '</p>' +
       '<section class="oneid-weather-air" data-weather-air-card><div class="oneid-weather-air__top"><strong><i class="fa fa-smog" aria-hidden="true"></i>' + escapeHtml(text.airQuality) + '</strong><span class="oneid-weather-air__aqi-wrap"><span class="oneid-weather-air__aqi" data-weather-aqi></span><button type="button" class="oneid-weather-air__info" aria-label="' + escapeHtml(text.airQualityNote) + '" data-air-info="' + escapeHtml(text.airQualityNote) + '"><i class="fa fa-info-circle" aria-hidden="true"></i></button></span></div><small class="oneid-weather-air__status" data-weather-air-label></small><div class="oneid-weather-air__particles"><span><b>PM2.5</b><strong data-weather-pm25></strong></span><span><b>PM10</b><strong data-weather-pm10></strong></span></div></section>' +
       '<p class="oneid-weather-section-error" data-air-error hidden><i class="fa fa-smog" aria-hidden="true"></i>' + escapeHtml(text.airUnavailable) + '</p>' +
       '<p class="oneid-weather-times"><i class="fa fa-clock-o" aria-hidden="true"></i><span data-weather-observed></span><span data-weather-checked></span></p><p class="oneid-weather-stale" data-weather-stale hidden><i class="fa fa-exclamation-circle" aria-hidden="true"></i>' + escapeHtml(text.stale) + '</p></div>' +
+      '<div class="oneid-weather-tab-panel" role="tabpanel" data-weather-tab-panel="hourly" hidden><div class="oneid-weather-hourly" data-weather-hourly></div><p class="oneid-weather-forecast-empty" data-weather-hourly-empty hidden>' + escapeHtml(text.forecastUnavailable) + '</p></div>' +
+      '<div class="oneid-weather-tab-panel" role="tabpanel" data-weather-tab-panel="daily" hidden><div class="oneid-weather-daily" data-weather-daily></div><p class="oneid-weather-forecast-empty" data-weather-daily-empty hidden>' + escapeHtml(text.forecastUnavailable) + '</p></div></div>' +
       '<div class="oneid-weather-error" data-weather-error hidden><i class="fa fa-cloud" aria-hidden="true"></i><strong>' + escapeHtml(text.unavailable) + '</strong><button type="button" data-weather-retry>' + escapeHtml(text.retry) + '</button></div></div>' +
       '<div class="oneid-weather-panel__footer"><span>' + escapeHtml(text.source) + ' <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> · <a href="https://atmosphere.copernicus.eu/" target="_blank" rel="noopener noreferrer">CAMS ENSEMBLE</a></span><span>' + escapeHtml(text.locationNote) + '</span></div>';
     document.body.appendChild(panel);
@@ -90,6 +117,24 @@
     var activeRequest = null;
 
     function setIcon(element, kind) { if (element) element.className = 'fa ' + iconClass(kind); }
+
+    function renderForecast(weather) {
+      var hourly = Array.isArray(weather && weather.hourly_forecast) ? weather.hourly_forecast : [];
+      var hourlyBox = panel.querySelector('[data-weather-hourly]');
+      hourlyBox.innerHTML = hourly.map(function (item) {
+        var kind = weatherKind(item.weather_code);
+        return '<article class="oneid-weather-hour' + (isCurrentHour(item.at) ? ' is-current' : '') + '"><time>' + escapeHtml(hourLabel(item.at)) + '</time><i class="fa ' + iconClass(kind) + '" aria-hidden="true"></i><strong>' + escapeHtml(number(item.temperature_c, 0)) + '°</strong><small><i class="fa fa-tint" aria-hidden="true"></i>' + escapeHtml(number(item.precipitation_probability_percent, 0)) + '%</small></article>';
+      }).join('');
+      panel.querySelector('[data-weather-hourly-empty]').hidden = hourly.length > 0;
+
+      var daily = Array.isArray(weather && weather.daily_forecast) ? weather.daily_forecast : [];
+      var dailyBox = panel.querySelector('[data-weather-daily]');
+      dailyBox.innerHTML = daily.map(function (item, index) {
+        var kind = weatherKind(item.weather_code);
+        return '<article class="oneid-weather-day"><time>' + escapeHtml(dayLabel(item.date, index)) + '</time><i class="fa ' + iconClass(kind) + '" aria-hidden="true"></i><span class="oneid-weather-day__condition">' + escapeHtml(text.conditions[kind] || text.conditions.unknown) + '</span><strong>' + escapeHtml(number(item.temperature_min_c, 0)) + '° / ' + escapeHtml(number(item.temperature_max_c, 0)) + '°</strong><small><i class="fa fa-tint" aria-hidden="true"></i>' + escapeHtml(number(item.precipitation_probability_percent, 0)) + '%</small></article>';
+      }).join('');
+      panel.querySelector('[data-weather-daily-empty]').hidden = daily.length > 0;
+    }
 
     function render(payload) {
       var weather = payload.weather;
@@ -113,8 +158,9 @@
         panel.querySelector('[data-weather-humidity]').textContent = number(weather.humidity_percent, 0) + '%';
         panel.querySelector('[data-weather-precipitation]').textContent = number(weather.precipitation_mm, 1) + ' mm';
         panel.querySelector('[data-weather-wind]').textContent = number(weather.wind_speed_kmh, 1) + ' km/h';
+        renderForecast(weather);
       } else {
-        triggerTemperature.textContent = '--°'; setIcon(triggerIcon, 'unknown');
+        triggerTemperature.textContent = '--°'; setIcon(triggerIcon, 'unknown'); renderForecast(null);
       }
       if (payload.air_quality_available && air) {
         var airKind = airQualityKind(air.air_quality_aqi);
@@ -148,6 +194,13 @@
 
     function open() { document.dispatchEvent(new CustomEvent('oneid:context-panel-open', {detail:{id:panel.id}})); panel.hidden = false; trigger.setAttribute('aria-expanded', 'true'); panel.querySelector('[data-weather-close]').focus(); load(false); }
     function close(restore) { panel.hidden = true; trigger.setAttribute('aria-expanded', 'false'); if (restore) trigger.focus(); }
+    panel.querySelectorAll('[data-weather-tab]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var selected = button.getAttribute('data-weather-tab');
+        panel.querySelectorAll('[data-weather-tab]').forEach(function (tab) { tab.setAttribute('aria-selected', tab === button ? 'true' : 'false'); });
+        panel.querySelectorAll('[data-weather-tab-panel]').forEach(function (tabPanel) { tabPanel.hidden = tabPanel.getAttribute('data-weather-tab-panel') !== selected; });
+      });
+    });
     trigger.addEventListener('click', function () { panel.hidden ? open() : close(true); });
     panel.querySelector('[data-weather-close]').addEventListener('click', function () { close(true); });
     refresh.addEventListener('click', function () { load(true); });

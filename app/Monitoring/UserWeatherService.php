@@ -162,6 +162,9 @@ final class UserWeatherService
         return [
             'weather' => self::WEATHER_ENDPOINT . '?' . http_build_query($common + [
                 'current' => 'temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m',
+                'hourly' => 'temperature_2m,precipitation_probability,precipitation,weather_code',
+                'daily' => 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum',
+                'forecast_days' => 7,
             ], '', '&', PHP_QUERY_RFC3986),
             'air_quality' => self::AIR_ENDPOINT . '?' . http_build_query($common + [
                 'current' => 'pm10,pm2_5,us_aqi',
@@ -247,6 +250,7 @@ final class UserWeatherService
         }
         $base = ['observed_at' => $observedAt, 'checked_at' => gmdate(DATE_ATOM), 'stale' => false];
         if ($section === 'weather') {
+            $forecast = $this->normalizeForecast($payload);
             return $base + [
                 'temperature_c' => round((float) $current['temperature_2m'], 1),
                 'apparent_temperature_c' => round((float) $current['apparent_temperature'], 1),
@@ -254,6 +258,8 @@ final class UserWeatherService
                 'precipitation_mm' => max(0, round((float) $current['precipitation'], 1)),
                 'weather_code' => (int) $current['weather_code'],
                 'wind_speed_kmh' => max(0, round((float) $current['wind_speed_10m'], 1)),
+                'hourly_forecast' => $forecast['hourly'],
+                'daily_forecast' => $forecast['daily'],
             ];
         }
         return $base + [
@@ -261,6 +267,81 @@ final class UserWeatherService
             'pm2_5' => max(0, round((float) $current['pm2_5'], 1)),
             'pm10' => max(0, round((float) $current['pm10'], 1)),
         ];
+    }
+
+    /** @param array<string,mixed> $payload @return array{hourly:list<array<string,mixed>>,daily:list<array<string,mixed>>} */
+    private function normalizeForecast(array $payload): array
+    {
+        $result = ['hourly' => [], 'daily' => []];
+        $hourly = is_array($payload['hourly'] ?? null) ? $payload['hourly'] : [];
+        $hourlyFields = ['time', 'temperature_2m', 'precipitation_probability', 'precipitation', 'weather_code'];
+        $hourlyCount = is_array($hourly['time'] ?? null) ? count($hourly['time']) : 0;
+        $hourlyValid = $hourlyCount > 0;
+        foreach ($hourlyFields as $field) {
+            $hourlyValid = $hourlyValid
+                && is_array($hourly[$field] ?? null)
+                && count($hourly[$field]) === $hourlyCount;
+        }
+        if ($hourlyValid) {
+            $timezone = new DateTimeZone('Asia/Kuala_Lumpur');
+            $currentHour = (new DateTimeImmutable('now', $timezone))->format('Y-m-d\TH:00');
+            for ($index = 0; $index < $hourlyCount && count($result['hourly']) < 12; $index++) {
+                $time = (string) $hourly['time'][$index];
+                if ($time < $currentHour
+                    || !is_numeric($hourly['temperature_2m'][$index])
+                    || !is_numeric($hourly['precipitation_probability'][$index])
+                    || !is_numeric($hourly['precipitation'][$index])
+                    || !is_numeric($hourly['weather_code'][$index])) {
+                    continue;
+                }
+                try {
+                    $at = (new DateTimeImmutable($time, $timezone))->format(DATE_ATOM);
+                } catch (Throwable) {
+                    continue;
+                }
+                $result['hourly'][] = [
+                    'at' => $at,
+                    'temperature_c' => round((float) $hourly['temperature_2m'][$index], 1),
+                    'precipitation_probability_percent' => max(0, min(100, (int) round((float) $hourly['precipitation_probability'][$index]))),
+                    'precipitation_mm' => max(0, round((float) $hourly['precipitation'][$index], 1)),
+                    'weather_code' => (int) $hourly['weather_code'][$index],
+                ];
+            }
+        }
+
+        $daily = is_array($payload['daily'] ?? null) ? $payload['daily'] : [];
+        $dailyFields = ['time', 'weather_code', 'temperature_2m_max', 'temperature_2m_min', 'precipitation_probability_max', 'precipitation_sum'];
+        $dailyCount = is_array($daily['time'] ?? null) ? count($daily['time']) : 0;
+        $dailyValid = $dailyCount > 0;
+        foreach ($dailyFields as $field) {
+            $dailyValid = $dailyValid
+                && is_array($daily[$field] ?? null)
+                && count($daily[$field]) === $dailyCount;
+        }
+        if ($dailyValid) {
+            for ($index = 0; $index < min(7, $dailyCount); $index++) {
+                if (!is_numeric($daily['weather_code'][$index])
+                    || !is_numeric($daily['temperature_2m_max'][$index])
+                    || !is_numeric($daily['temperature_2m_min'][$index])
+                    || !is_numeric($daily['precipitation_probability_max'][$index])
+                    || !is_numeric($daily['precipitation_sum'][$index])) {
+                    continue;
+                }
+                $date = (string) $daily['time'][$index];
+                if (preg_match('/^\d{4}-\d{2}-\d{2}$/D', $date) !== 1) {
+                    continue;
+                }
+                $result['daily'][] = [
+                    'date' => $date,
+                    'temperature_max_c' => round((float) $daily['temperature_2m_max'][$index], 1),
+                    'temperature_min_c' => round((float) $daily['temperature_2m_min'][$index], 1),
+                    'precipitation_probability_percent' => max(0, min(100, (int) round((float) $daily['precipitation_probability_max'][$index]))),
+                    'precipitation_sum_mm' => max(0, round((float) $daily['precipitation_sum'][$index], 1)),
+                    'weather_code' => (int) $daily['weather_code'][$index],
+                ];
+            }
+        }
+        return $result;
     }
 
     /** @return array<string,mixed> */
