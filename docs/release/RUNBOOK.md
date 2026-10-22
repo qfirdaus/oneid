@@ -27,6 +27,19 @@ kepada PHP 8.3 untuk membina candidate baharu.
 
 `post-install-cmd` menjalankan patch dengan hash/struktur disemak. Jangan guna `--no-scripts` tanpa menjalankan patch berasingan. Semak vendor provenance dan Composer audit pada masa release; keadaan advisory boleh berubah. Archive candidate tidak mengandungi vendor. Simpan vendor yang dibina sebagai sebahagian deployment/rollback snapshot, jangan overwrite vendor live separuh siap.
 
+Pasang rotation untuk log audit integrasi sebelum mengaktifkan source release:
+
+```sh
+sudo install -o root -g root -m 0644 \
+  deployment/cron/oneid-production-integration-audit.logrotate \
+  /etc/logrotate.d/oneid-integration-audit
+sudo logrotate -d /etc/logrotate.d/oneid-integration-audit
+```
+
+`logrotate -d` hanya membuat simulasi. Pastikan fail destinasi wujud sebelum
+menjalankan health check production dan masukkan konfigurasi ini ke dalam
+baseline konfigurasi hanya selepas kandungannya disemak serta diluluskan.
+
 ## 3. Runtime selari dan provider dormant
 
 - Semak package version/repository/ext yang tersedia ketika pemasangan. Pin PHP 8.4.26 dan semua extension diperlukan berdasarkan perbandingan **FPM production**, termasuk PDO MySQL, mysqli, mbstring, curl, openssl, sodium, XML, intl dan connector ODBC/SQL Server jika digunakan. Jangan memasang `php` meta-package atau menaik taraf pool lain.

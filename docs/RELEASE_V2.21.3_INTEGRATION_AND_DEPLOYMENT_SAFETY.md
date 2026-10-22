@@ -13,3 +13,8 @@ Direktori `vendors/`, runtime, upload dan `public/diagnostic/` dipelihara daripa
 
 Skrip migrasi PHP 8.3 ke PHP 8.4 yang telah selesai diarkibkan sebagai rekod
 sejarah. Template aktif dan runbook kini merujuk runtime PHP 8.4 sahaja.
+
+Sebelum deployment production, pasang
+`deployment/cron/oneid-production-integration-audit.logrotate` sebagai
+`/etc/logrotate.d/oneid-integration-audit` dan sahkan dengan `logrotate -d`.
+Health check `2.21.3` akan gagal jika kawalan rotation ini belum tersedia.

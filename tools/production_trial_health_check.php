@@ -138,6 +138,10 @@ $report(
     is_file('/etc/logrotate.d/oneid-app') ? 'PASS' : 'FAIL',
     'OneID application logrotate configuration exists'
 );
+$report(
+    is_file('/etc/logrotate.d/oneid-integration-audit') ? 'PASS' : 'FAIL',
+    'OneID integration audit logrotate configuration exists'
+);
 
 printf(
     "RESULT checks=%d failures=%d observations=%d mutation_statements=0 authentication_attempts=0\n",
