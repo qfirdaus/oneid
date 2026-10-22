@@ -28,8 +28,8 @@ $inc = (string) file_get_contents(dirname(__DIR__, 2) . '/lib/SSO_IDP_INC.php');
 
 foreach (['index' => $index, 'sub' => $sub, 'inc' => $inc] as $name => $source) {
     $report(
-        str_contains($source, 'oneid_internal_integration_headers()'),
-        $name . ' internal API caller sends configured authentication headers'
+        str_contains($source, 'oneid_internal_integration_post_json('),
+        $name . ' internal API caller uses the authenticated shared client'
     );
     $report(
         !str_contains($source, 'CURLOPT_SSL_VERIFYHOST, false')
@@ -38,10 +38,18 @@ foreach (['index' => $index, 'sub' => $sub, 'inc' => $inc] as $name => $source) 
     );
 }
 
+$integrationSecurity = (string) file_get_contents(
+    dirname(__DIR__, 2) . '/lib/integration_security.php'
+);
+$report(
+    str_contains($integrationSecurity, 'CURLOPT_HTTPHEADER => oneid_internal_integration_headers()'),
+    'shared client sends configured authentication headers'
+);
+
 $report(
     preg_match('/^[ \t]*echo\s+\$_COOKIE\[[^]]+\]/m', $index) !== 1,
     'legacy compatibility route does not output an SSO cookie'
 );
 
-printf("RESULT checks=8 failures=%d network_calls=0 secret_output=0\n", $failures);
+printf("RESULT checks=9 failures=%d network_calls=0 secret_output=0\n", $failures);
 exit($failures === 0 ? 0 : 1);

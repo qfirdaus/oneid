@@ -52,7 +52,6 @@ if(!isset($_COOKIE['sso_cre'])) {
 				}
 			break;
 			case "2": //Auto Reissue token
-			echo "X";
 			break;
 			default:
 				if($SSO_IDP_DOMAIN == $SP_current_page){
@@ -165,31 +164,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 }
 
 function API_REQUEST($API_DATA,$SSO_IDP_DOMAIN){
-    $API_URII = $SSO_IDP_DOMAIN.'api.php';
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $API_URII);
-    curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-    curl_setopt($ch,CURLOPT_HEADER, false);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 12);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, oneid_internal_integration_headers());
-    curl_setopt($ch, CURLOPT_POSTFIELDS, ($API_DATA));
-
-    $result = curl_exec($ch);
-
-    // also get the error and response code
-    $errors = curl_error($ch);
-    $response = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    if ($result === false || $response < 200 || $response >= 300) {
-        error_log(sprintf('SSO internal API failed http=%d error=%s', $response, $errors));
-        return json_encode(['respond_flag' => '0', 'respond' => '0']);
-    }
-    return ($result);
+	return oneid_internal_integration_post_json((string) $API_DATA, (string) $SSO_IDP_DOMAIN);
 }
 //--------- END OF SSO Checker
 
@@ -247,7 +222,6 @@ function GET_CURRENT_PAGE_URI(){
      }
 
 function SSO_logOut_IDP($operation){
-	echo "X";
 	return;
 	if (isset($_COOKIE['sso_cre'])) {		
 		$cookie = LOCAL_COOKIES_HANDLER();

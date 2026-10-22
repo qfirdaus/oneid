@@ -27,7 +27,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 					break;
 					case "1": //Valid
 						//Set the sso_cre token to cookies
-						setcookie('sso_cre', $_GET['new_sso_cre'], time() + (86400 * 30),'/',''); // 86400 = 1 day (this is default 1 day)						
+							oneid_set_sso_cookie((string) $_GET['new_sso_cre'], 86400 * 30);
 			            $_SESSION['user'] = $API_REQUEST_RESULT['respond_user_packet']['u_name'];
 			            $_SESSION['login_user']=$API_REQUEST_RESULT['respond_user_packet']['u_id'];
 			            $_SESSION['login_status']="true";
@@ -37,8 +37,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 					break; 
 				}
 			break;
-			case "2": //Auto Reissue token
-			echo "X";
+				case "2": //Auto Reissue token
 			break;
 			default:
 	  			// header('Location: '.SSO_IDP_DOMAIN.'?site_id='.$site_id); 			
@@ -53,11 +52,6 @@ if(!isset($_COOKIE['sso_cre'])) {
 		$API_post_fields['flag'] = 1;
 		$API_post_fields['data'] = array("site_id"=>$site_id,"token"=>$_COOKIE['sso_cre']);
 		$API_REQUEST_RESULT = json_decode(API_REQUEST(json_encode($API_post_fields),SSO_IDP_DOMAIN),true);
-		// echo $_COOKIE['sso_cre'];
-		// return;
-		// echo API_REQUEST(json_encode($API_post_fields),SSO_IDP_DOMAIN);
-							// echo json_encode($API_REQUEST_RESULT);
-							// return;
 		switch($API_REQUEST_RESULT['respond_flag']){
 			case "1": //normal
 						
@@ -82,7 +76,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 										break;
 										case "1": //Valid
 											//Set the sso_cre token to cookies
-											setcookie('sso_cre', $_GET['new_sso_cre'], time() + (86400 * 30),'/',''); // 86400 = 1 day (this is default 1 day)
+												oneid_set_sso_cookie((string) $_GET['new_sso_cre'], 86400 * 30);
 								            $_SESSION['user'] = $API_REQUEST_RESULT['respond_user_packet']['u_name'];
 								            $_SESSION['login_user']=$API_REQUEST_RESULT['respond_user_packet']['u_id'];
 								            $_SESSION['login_status']="true";
@@ -93,8 +87,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 										break; 
 									}
 								break;
-								case "2": //Auto Reissue token
-								echo "X";
+									case "2": //Auto Reissue token
 								break;
 								default:
 						  			// header('Location: '.SSO_IDP_DOMAIN.'?site_id='.$site_id); 			
@@ -110,7 +103,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 					case "1": //Valid
 							// echo json_encode($API_REQUEST_RESULT);
 						//Update the sso_cre token to cookies
-						setcookie('sso_cre', $_COOKIE['sso_cre'], time() + (86400 * 30),'/',''); // 86400 = 1 day (this is default 1 day)	
+							oneid_set_sso_cookie((string) $_COOKIE['sso_cre'], 86400 * 30);
 			            $_SESSION['user'] = $API_REQUEST_RESULT['respond_user_packet']['u_name'];
 			            $_SESSION['login_user']=$API_REQUEST_RESULT['respond_user_packet']['u_id'];
 			            $_SESSION['login_status']="true";
@@ -123,7 +116,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 			break;
 			case "2": //Auto Reissue token
 			// echo "X";
-				setcookie('sso_cre', $API_REQUEST_RESULT['respond_new_token'], time() + (86400 * 30),'/',''); // 86400 = 1 day (this is default 1 day)
+					oneid_set_sso_cookie((string) $API_REQUEST_RESULT['respond_new_token'], 86400 * 30);
 				$_SESSION['user'] = $API_REQUEST_RESULT['respond_user_packet']['u_name'];
 				$_SESSION['login_user']=$API_REQUEST_RESULT['respond_user_packet']['u_id'];
 				$_SESSION['login_status']="true";
@@ -141,25 +134,7 @@ if(!isset($_COOKIE['sso_cre'])) {
 }
 
 function API_REQUEST($API_DATA,$SSO_IDP_DOMAIN){
-    $API_URII = SSO_IDP_DOMAIN.'api.php';
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $API_URII);
-    curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-    curl_setopt($ch,CURLOPT_HEADER, false);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
-    curl_setopt($ch, CURLOPT_HTTPHEADER, oneid_internal_integration_headers());
-    curl_setopt($ch, CURLOPT_POSTFIELDS, ($API_DATA));
-
-    $result = curl_exec($ch);
-
-    // also get the error and response code
-    $errors = curl_error($ch);
-    $response = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-    return ($result);
+	return oneid_internal_integration_post_json((string) $API_DATA, (string) $SSO_IDP_DOMAIN);
 }
 //--------- END OF SSO Checker
 
@@ -170,13 +145,11 @@ function GET_CURRENT_PAGE_URI(){
 }
 
 function SSO_logOut_IDP($operation){
-	echo "X";
 	return;
 	if (isset($_COOKIE['sso_cre'])) {		
         $results = $operation->check_token($_COOKIE['sso_cre']);
         $operation->update_specific_token_status($results['user_id'],$_COOKIE['sso_cre'],0,'SESSION_EXPIRED'); //expired specific token for specific site & user
-    	unset($_COOKIE['sso_cre']); 
-    	setcookie('sso_cre', null, -1, '/'); 
+		oneid_clear_sso_cookie();
 	}	
 	header('Location: '.SSO_IDP_DOMAIN); 
 }

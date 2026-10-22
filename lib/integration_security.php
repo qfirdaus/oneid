@@ -73,6 +73,69 @@ function oneid_internal_integration_headers(string $contentType = 'text/plain'):
     return $headers;
 }
 
+function oneid_internal_integration_failure_response(): string
+{
+    return '{"respond_flag":"0","respond":"0"}';
+}
+
+function oneid_internal_integration_response_is_valid(string $response): bool
+{
+    $decoded = json_decode($response, true);
+    $flag = is_array($decoded) ? (string) ($decoded['respond_flag'] ?? '') : '';
+    return $flag !== ''
+        && ($flag !== '1' || array_key_exists('respond', $decoded))
+        && ($flag !== '2'
+            || (isset($decoded['respond_new_token']) && is_array($decoded['respond_user_packet'] ?? null)));
+}
+
+function oneid_internal_integration_post_json(string $payload, string $baseUrl): string
+{
+    $handle = curl_init();
+    if ($handle === false) {
+        oneid_integration_audit('internal_api_failure', [
+            'endpoint' => 'sso_token',
+            'failure' => 'curl_initialization',
+        ]);
+        return oneid_internal_integration_failure_response();
+    }
+
+    curl_setopt_array($handle, [
+        CURLOPT_URL => rtrim($baseUrl, '/') . '/api.php',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HEADER => false,
+        CURLOPT_POST => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT => 12,
+        CURLOPT_HTTPHEADER => oneid_internal_integration_headers(),
+        CURLOPT_POSTFIELDS => $payload,
+    ]);
+    $result = curl_exec($handle);
+    $status = (int) curl_getinfo($handle, CURLINFO_HTTP_CODE);
+    curl_close($handle);
+
+    if (!is_string($result) || $status < 200 || $status >= 300) {
+        oneid_integration_audit('internal_api_failure', [
+            'endpoint' => 'sso_token',
+            'failure' => is_string($result) ? 'http_status' : 'transport',
+            'http_status' => $status,
+        ]);
+        return oneid_internal_integration_failure_response();
+    }
+
+    if (!oneid_internal_integration_response_is_valid($result)) {
+        oneid_integration_audit('internal_api_failure', [
+            'endpoint' => 'sso_token',
+            'failure' => 'invalid_response',
+            'http_status' => $status,
+        ]);
+        return oneid_internal_integration_failure_response();
+    }
+    return $result;
+}
+
 function oneid_integration_client_ip()
 {
     // REMOTE_ADDR is intentionally used. Forwarded headers are only safe when
@@ -92,7 +155,7 @@ function oneid_integration_safe_audit_context(array $context): array
 {
     $allowed = [
         'endpoint', 'scope', 'client_id', 'auth_result', 'mode', 'identity',
-        'count', 'limit', 'enforced', 'method',
+        'count', 'limit', 'enforced', 'method', 'failure', 'http_status',
     ];
     return array_intersect_key($context, array_flip($allowed));
 }
