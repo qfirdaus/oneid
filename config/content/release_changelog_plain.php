@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.21.3' =>
+  array (
+    'version' => '2.21.3',
+    'date' => '2026-10-22',
+    'bm' =>
+    array (
+      0 => 'Keserasian SSO legacy kini menggunakan pengendalian cookie dan ralat yang lebih selamat tanpa mengubah kontrak integrasi downstream sedia ada.',
+      1 => 'Rekod audit integrasi kini diasingkan daripada log ralat PHP supaya insiden aplikasi sebenar lebih mudah dikenal pasti sambil mengekalkan mod pemerhatian semasa.',
+      2 => 'Kawalan release kini mengunci candidate kepada commit main yang telah dipush serta melindungi dependency legacy, data runtime dan kandungan diagnostik semasa deployment.',
+    ),
+    'en' =>
+    array (
+      0 => 'Legacy SSO compatibility now uses safer cookie and error handling without changing the existing downstream integration contract.',
+      1 => 'Integration audit records are now separated from the PHP error log so application incidents are easier to identify while the current observation mode remains in place.',
+      2 => 'Release controls now bind a candidate to a pushed main commit and preserve legacy dependencies, runtime data and diagnostic content during deployment.',
+    ),
+  ),
   'release-2.21.2' =>
   array (
     'version' => '2.21.2',

@@ -40,6 +40,13 @@ python3 -B tools/release/build-package.py --output /path/di-luar-worktree/releas
 python3 -B tools/release/verify-package.py /path/di-luar-worktree/release-candidate
 ```
 
-Builder tidak mengubah index Git, commit, push atau target server. Ia mengambil semua fail Git serta fail untracked yang tidak diabaikan; fail ignored yang diperlukan mesti didokumenkan/dimasukkan secara sengaja. Archive deterministic bagi snapshot yang sama. Checksum ialah pengesanan perubahan, bukan tandatangan kepercayaan; hantar nilai hash melalui saluran dipercayai.
+Builder tidak mengubah index Git, commit, push atau target server. Ia hanya menerima
+branch `main` yang bersih dan HEAD yang sama dengan rujukan tempatan `origin/main`,
+kemudian mengambil fail tracked daripada commit tersebut. Jalankan `git fetch origin`
+sebelum build supaya rujukan remote semasa. Archive deterministic bagi snapshot yang
+sama. Checksum ialah pengesanan perubahan, bukan tandatangan kepercayaan; hantar nilai
+hash melalui saluran dipercayai.
 
-Perubahan diserahkan melalui branch release berasingan atas arahan pemilik; main dan production kekal. Artifact awal ialah snapshot sebelum commit/checkpoint, maka bina semula pakej final daripada commit yang telah direview sebelum deployment. Rujuk RESUME-HERE.md untuk cara mengenal pasti HEAD checkpoint dan keadaan working tree UAT.
+Pakej final mesti dibina semula selepas commit direview dan dipush. Semasa deployment,
+berikan laluan candidate dan SHA penuh yang sama kepada
+`deploy-production-code-staged.py`; skrip akan menolak manifest yang tidak sepadan.

@@ -1,10 +1,14 @@
-# Deployment bersepadu production — belum dijalankan
+# Deployment OneID production — runtime semasa PHP 8.4
+
+> Dokumen ini telah dikemas kini selepas cutover PHP 8.4 selesai. Skrip
+> persediaan/cutover sekali guna berada di `tools/release/archive/php83-to-php84/`
+> sebagai bukti sejarah dan tidak boleh dijalankan untuk deployment baharu.
 
 Satu release boleh merangkumi web, Android dan PHP 8.4. Pelaksanaan tetap berurutan supaya titik pemulihan jelas. Jangan jalankan tool `*staging*`, `php84_uat_cutover.py` atau installer UAT pada production.
 
 ## 1. Bekukan candidate dan tutup input
 
-Lengkapkan `INPUTS.md`. Verify SHA256/tar sebelum extract ke direktori candidate **di luar `/var/www/oneid`**; bukan terus overwrite live. Semak Git production masih bersih pada base manifest. Backup penuh source production termasuk vendor dan private config secara sulit. Simpan salinan `/etc/nginx`, `/etc/php/8.3`, senarai unit/timers/crontab dan alternative PHP/phar semasa. Backup uploads/runtime yang perlu dikekalkan. Backup MySQL dengan schema/triggers dan uji restore secara terasing; sebarang database provider sedia ada juga perlu backup.
+Lengkapkan `INPUTS.md`. Verify SHA256/tar sebelum extract ke direktori candidate **di luar `/var/www/oneid`**; bukan terus overwrite live. Semak Git production masih bersih pada base manifest. Backup penuh source production termasuk vendor dan private config secara sulit. Simpan salinan `/etc/nginx`, `/etc/php/8.4`, senarai unit/timers/crontab dan alternative PHP/phar semasa. Backup uploads/runtime yang perlu dikekalkan. Backup MySQL dengan schema/triggers dan uji restore secara terasing; sebarang database provider sedia ada juga perlu backup.
 
 Deployment root mobile dipin `/var/www/oneid`; jangan menukar kepada symlink release yang realpath berbeza tanpa menyesuaikan guard dan menjalankan ujian semula. Gunakan maintenance window untuk pertukaran source in-place daripada inventory fail, dengan code backup tersedia.
 
@@ -13,12 +17,13 @@ Deployment root mobile dipin `/var/www/oneid`; jangan menukar kepada symlink rel
 Jalankan Composer menggunakan binary PHP eksplisit; jangan update lock:
 
 ```sh
-php8.3 /usr/bin/composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+php8.4 /usr/bin/composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
 php8.4 /usr/bin/composer check-platform-reqs --no-dev
 php8.4 tools/patch_openid_php84.php --check
 ```
 
-Composer sistem lama mengeluarkan deprecation pada PHP 8.4; sebab itu build boleh menggunakan CLI 8.3 yang dikekalkan, manakala platform dan runtime tetap disemak dengan 8.4 (atau gunakan Composer baharu yang telah diverifikasi). Ini warning tool Composer, bukan warning aplikasi.
+Gunakan Composer yang telah diverifikasi serasi dengan PHP 8.4. Jangan kembali
+kepada PHP 8.3 untuk membina candidate baharu.
 
 `post-install-cmd` menjalankan patch dengan hash/struktur disemak. Jangan guna `--no-scripts` tanpa menjalankan patch berasingan. Semak vendor provenance dan Composer audit pada masa release; keadaan advisory boleh berubah. Archive candidate tidak mengandungi vendor. Simpan vendor yang dibina sebagai sebahagian deployment/rollback snapshot, jangan overwrite vendor live separuh siap.
 

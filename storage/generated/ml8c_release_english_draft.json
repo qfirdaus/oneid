@@ -7,6 +7,31 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.21.3",
+            "version": "2.21.3",
+            "date": "2026-10-22",
+            "items": [
+                {
+                    "identity": "release:2.21.3:item:001",
+                    "bm": "Keserasian SSO legacy kini menggunakan pengendalian cookie dan ralat yang lebih selamat tanpa mengubah kontrak integrasi downstream sedia ada.",
+                    "en_draft": "Legacy SSO compatibility now uses safer cookie and error handling without changing the existing downstream integration contract.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.21.3:item:002",
+                    "bm": "Rekod audit integrasi kini diasingkan daripada log ralat PHP supaya insiden aplikasi sebenar lebih mudah dikenal pasti sambil mengekalkan mod pemerhatian semasa.",
+                    "en_draft": "Integration audit records are now separated from the PHP error log so application incidents are easier to identify while the current observation mode remains in place.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.21.3:item:003",
+                    "bm": "Kawalan release kini mengunci candidate kepada commit main yang telah dipush serta melindungi dependency legacy, data runtime dan kandungan diagnostik semasa deployment.",
+                    "en_draft": "Release controls now bind a candidate to a pushed main commit and preserve legacy dependencies, runtime data and diagnostic content during deployment.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.21.2",
             "version": "2.21.2",
             "date": "2026-10-18",
@@ -4898,5 +4923,5 @@
             ]
         }
     ],
-    "manifest_digest": "674e4d9388c5d12498d6ed4a1c6db75f0a9fdb4dbd211382c508e7d3c6207b8b"
+    "manifest_digest": "16255aac4b8935383c0c452596a5b716fc0243c09bce9795911c93e14119d83b"
 }

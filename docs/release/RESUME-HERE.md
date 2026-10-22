@@ -120,12 +120,12 @@ Ayat sambungan:
 
 Fasa 2 sudah bermula tetapi **pemasangan sebenar belum dilakukan**. Dry-run package PHP 8.4.26 di production lulus: 12 package baharu + 2 upgrade, 0 removal. Punca berhenti: pemasangan memerlukan kata laluan `sudo` operator. Tiada production runtime berubah.
 
-Skrip: `tools/release/prepare-production-php84.py`.
+Skrip: `tools/release/archive/php83-to-php84/prepare-production-php84.py`.
 
 Untuk sambung, semak dahulu backup/approval kemudian jalankan di production:
 
 ```sh
-scp tools/release/prepare-production-php84.py iqs@172.16.2.109:/home/iqs/
+scp tools/release/archive/php83-to-php84/prepare-production-php84.py iqs@172.16.2.109:/home/iqs/
 ssh iqs@172.16.2.109
 sudo python3 -B /home/iqs/prepare-production-php84.py --apply
 ```
@@ -336,7 +336,7 @@ Fasa 4 web production kekal validated, tetapi audit admin selepas cutover menemu
 
 Fasa 5 (CLI, `phar`, `phar.phar`, cron dan timer ke PHP 8.4.26) berstatus **PREPARED, NOT SWITCHED**. Pada 15:33 +08, hanya kira-kira tujuh jam berlalu sejak cutover web 08:17; minimum monitoring 24 jam belum dipenuhi. Ketiga-tiga cron entrypoint lulus PHP 8.4 lint. Session housekeeping dan MFA lifecycle turut lulus read-only `--check` pada PHP 8.4 tanpa mutasi. External sync tidak dijalankan manual kerana berpotensi menulis data.
 
-Pelan: `docs/release/PHASE-5-CLI-CRON-PHP84.md`. Skrip backup-only disediakan di `tools/release/prepare-production-cli-cron84.py` dan disalin ke production sebagai `/home/iqs/prepare-production-cli-cron84.py`. Jalankan dengan `sudo ... --apply` untuk membuat snapshot sahaja; skrip tidak menukar runtime. Jangan buat CLI/cron switch sehingga monitoring gate diterima. Mobile kekal OFF dan database tidak diubah.
+Pelan: `docs/release/PHASE-5-CLI-CRON-PHP84.md`. Skrip backup-only disediakan di `tools/release/archive/php83-to-php84/prepare-production-cli-cron84.py` dan disalin ke production sebagai `/home/iqs/prepare-production-cli-cron84.py`. Jalankan dengan `sudo ... --apply` untuk membuat snapshot sahaja; skrip tidak menukar runtime. Jangan buat CLI/cron switch sehingga monitoring gate diterima. Mobile kekal OFF dan database tidak diubah.
 
 ### Fasa 5 backup checkpoint — 2026-10-05 15:37 +08
 
