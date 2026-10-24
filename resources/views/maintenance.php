@@ -10,7 +10,7 @@ $supportIntro = $locale === 'en' ? 'Contact the official OneID support service.'
 $serviceEyebrow = $locale === 'en' ? 'OneID Service Status' : 'Status Perkhidmatan OneID';
 $supportService = $locale === 'en' ? 'OneID@UPNM Support Service' : 'Perkhidmatan Sokongan OneID@UPNM';
 $supportDivision = $locale === 'en'
-    ? 'Information and Communication Technology Division, National Defence University of Malaysia (UPNM)'
+    ? 'Pusat Teknologi Maklumat dan Komunikasi, Universiti Pertahanan Nasional Malaysia (UPNM)'
     : 'Pusat Teknologi Maklumat dan Komunikasi, Universiti Pertahanan Nasional Malaysia (UPNM)';
 $applicationFooter = function_exists('oneid_application_footer')
     ? oneid_application_footer()

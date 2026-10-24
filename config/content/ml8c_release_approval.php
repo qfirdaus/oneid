@@ -3,13 +3,13 @@ declare(strict_types=1);
 
 return [
     'environment' => 'Local WSL',
-    'approved_manifest_digest' => 'f9c12ddc8228549742d3f203803b8978646275e634d84eff88cda0696ca995ab',
-    'expected_release_count' => 111,
-    'expected_item_count' => 694,
+    'approved_manifest_digest' => 'f96bb51553b8be3768a6fa02fa7eda095cfdffd76f0356fd3aef9e92ab614342',
+    'expected_release_count' => 112,
+    'expected_item_count' => 697,
     'content_status' => 'APPROVED',
-    'evidence_reference' => 'ONEID-V2214-WEATHER-FORECAST-20261023-01',
+    'evidence_reference' => 'ONEID-V2220-PTMK-IDENTITY-20261024-01',
     'live_activation_authorized' => true,
-    'activation_change_reference' => 'ONEID-V2214-WEATHER-FORECAST-20261023-01',
+    'activation_change_reference' => 'ONEID-V2220-PTMK-IDENTITY-20261024-01',
     'english_manual_publication_authorized' => false,
     'automatic_approval' => false,
 ];

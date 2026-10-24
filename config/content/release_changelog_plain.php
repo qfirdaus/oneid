@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.22.0' =>
+  array (
+    'version' => '2.22.0',
+    'date' => '2026-10-24',
+    'bm' =>
+    array (
+      0 => 'Nama organisasi rasmi kini diseragamkan sebagai Pusat Teknologi Maklumat dan Komunikasi pada halaman login, MFA, maintenance, laporan dan e-mel OneID.',
+      1 => 'Akronim lama dalam panduan kegagalan aplikasi telah digantikan dengan PTMK untuk paparan BM dan English.',
+      2 => 'Kontrak identiti organisasi baharu menghalang nama bahagian lama, akronim tidak rasmi dan variasi nama yang salah daripada digunakan semula pada paparan aktif.',
+    ),
+    'en' =>
+    array (
+      0 => 'The official organisation name is now consistently presented as Pusat Teknologi Maklumat dan Komunikasi across OneID login, MFA, maintenance, reports and email.',
+      1 => 'The former acronym in application failure guidance has been replaced with PTMK in both Malay and English views.',
+      2 => 'A new organisation identity contract prevents the former division name, unofficial acronym and incorrect name variants from returning to active surfaces.',
+    ),
+  ),
   'release-2.21.4' =>
   array (
     'version' => '2.21.4',

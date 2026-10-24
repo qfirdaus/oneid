@@ -30,7 +30,7 @@ $qFunc = (string) file_get_contents($root . '/lib/q_func.php');
 
 $checks['brand_shell'] = str_contains($otp, 'OneID<span style="color:#087ca8">@UPNM</span>')
     && str_contains($otp, 'src="cid:oneid-upnm-logo"')
-    && str_contains($otp, 'Pusat Teknologi Maklumat &amp; Komunikasi, UPNM')
+    && str_contains($otp, 'Pusat Teknologi Maklumat dan Komunikasi, UPNM')
     && str_contains($otp, 'role="presentation"');
 $checks['otp_content'] = str_contains($otp, '123456')
     && str_contains($otp, 'Sah selama 5 minit | Satu kali penggunaan')

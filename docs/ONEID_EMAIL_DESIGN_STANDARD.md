@@ -26,7 +26,7 @@ PHPMailer library/vendor. Semua flow aktif menggunakan
 - headline, greeting dan hierarki maklumat yang konsisten;
 - OTP enam digit menonjol, tempoh sah dan single-use;
 - amaran jangan kongsi OTP;
-- footer `Pusat Teknologi Maklumat & Komunikasi, UPNM`;
+- footer `Pusat Teknologi Maklumat dan Komunikasi, UPNM`;
 - tiada JavaScript, form, iframe, tracking pixel atau remote image;
 - semua kandungan dinamik di-HTML-escape;
 - plain-text fallback bagi setiap variasi; dan
@@ -86,7 +86,7 @@ All active flows use `app/Mail/OneIdEmailTemplate.php`.
 - consistent headline, greeting and information hierarchy;
 - prominent six-digit OTP with validity and single-use information;
 - warning not to share the OTP;
-- `Pusat Teknologi Maklumat & Komunikasi, UPNM` footer;
+- `Pusat Teknologi Maklumat dan Komunikasi, UPNM` footer;
 - no JavaScript, form, iframe, tracking pixel or remote image;
 - all dynamic content is HTML-escaped;
 - plain-text fallback for every variation; and

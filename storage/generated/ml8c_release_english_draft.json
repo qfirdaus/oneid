@@ -7,6 +7,31 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.22.0",
+            "version": "2.22.0",
+            "date": "2026-10-24",
+            "items": [
+                {
+                    "identity": "release:2.22.0:item:001",
+                    "bm": "Nama organisasi rasmi kini diseragamkan sebagai Pusat Teknologi Maklumat dan Komunikasi pada halaman login, MFA, maintenance, laporan dan e-mel OneID.",
+                    "en_draft": "The official organisation name is now consistently presented as Pusat Teknologi Maklumat dan Komunikasi across OneID login, MFA, maintenance, reports and email.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.22.0:item:002",
+                    "bm": "Akronim lama dalam panduan kegagalan aplikasi telah digantikan dengan PTMK untuk paparan BM dan English.",
+                    "en_draft": "The former acronym in application failure guidance has been replaced with PTMK in both Malay and English views.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.22.0:item:003",
+                    "bm": "Kontrak identiti organisasi baharu menghalang nama bahagian lama, akronim tidak rasmi dan variasi nama yang salah daripada digunakan semula pada paparan aktif.",
+                    "en_draft": "A new organisation identity contract prevents the former division name, unofficial acronym and incorrect name variants from returning to active surfaces.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.21.4",
             "version": "2.21.4",
             "date": "2026-10-23",
@@ -4948,5 +4973,5 @@
             ]
         }
     ],
-    "manifest_digest": "f9c12ddc8228549742d3f203803b8978646275e634d84eff88cda0696ca995ab"
+    "manifest_digest": "f96bb51553b8be3768a6fa02fa7eda095cfdffd76f0356fd3aef9e92ab614342"
 }

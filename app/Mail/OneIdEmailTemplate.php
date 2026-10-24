@@ -185,7 +185,7 @@ final class OneIdEmailTemplate
             . '<p style="margin:14px 0 0;font-size:15px;line-height:24px;color:#4b5563">' . self::escape(\oneid_translate('email.greeting', ['name' => $rawName], $locale)) . '<br>' . $intro . '</p></td></tr>'
             . $codeBlock
             . '<tr><td style="padding:0 34px 28px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff8e7;border-left:4px solid #e3a008;border-radius:6px"><tr><td style="padding:14px 16px;font-size:13px;line-height:20px;color:#5f4b16">' . $noticeHtml . '</td></tr></table></td></tr>'
-            . '<tr><td style="padding:22px 34px;background:#f8fafc;border-top:1px solid #edf0f4;font-size:12px;line-height:19px;color:#737d8c">' . self::escape(\oneid_translate('email.ignore', [], $locale)) . '<br><br><strong style="color:#4b5563">Portal OneID@UPNM</strong><br>Pusat Teknologi Maklumat &amp; Komunikasi, UPNM<br>ask.oneid@upnm.edu.my</td></tr>'
+            . '<tr><td style="padding:22px 34px;background:#f8fafc;border-top:1px solid #edf0f4;font-size:12px;line-height:19px;color:#737d8c">' . self::escape(\oneid_translate('email.ignore', [], $locale)) . '<br><br><strong style="color:#4b5563">Portal OneID@UPNM</strong><br>Pusat Teknologi Maklumat dan Komunikasi, UPNM<br>ask.oneid@upnm.edu.my</td></tr>'
             . '</table><div style="max-width:760px;padding:16px 8px 0;text-align:center;font-size:11px;line-height:17px;color:#8a94a3">' . self::escape(\oneid_translate('email.automated', [], $locale)) . '</div>'
             . '</td></tr></table></body></html>';
     }
