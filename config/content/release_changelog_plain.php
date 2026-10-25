@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.22.1' =>
+  array (
+    'version' => '2.22.1',
+    'date' => '2026-10-25',
+    'bm' =>
+    array (
+      0 => 'Halaman ralat OneID kini menggunakan paparan berjenama yang generik tanpa mendedahkan nombor kod, nama server, path dalaman atau butiran teknikal kepada pengguna.',
+      1 => 'Permintaan tidak sah atau terhad, had kadar dan gangguan perkhidmatan menggunakan mesej dwibahasa yang sesuai sambil mengekalkan status HTTP sebenar.',
+      2 => 'Respons API dan SSO kekal dalam format JSON kerana ralat FastCGI tidak dipintas oleh halaman HTML Nginx.',
+    ),
+    'en' =>
+    array (
+      0 => 'OneID error pages now use a generic branded presentation without disclosing status numbers, server names, internal paths or technical details to users.',
+      1 => 'Invalid or restricted requests, rate limits and service interruptions use appropriate bilingual messages while preserving the actual HTTP status.',
+      2 => 'API and SSO responses remain in JSON format because FastCGI errors are not intercepted by the Nginx HTML pages.',
+    ),
+  ),
   'release-2.22.0' =>
   array (
     'version' => '2.22.0',

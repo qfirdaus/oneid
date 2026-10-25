@@ -7,6 +7,31 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.22.1",
+            "version": "2.22.1",
+            "date": "2026-10-25",
+            "items": [
+                {
+                    "identity": "release:2.22.1:item:001",
+                    "bm": "Halaman ralat OneID kini menggunakan paparan berjenama yang generik tanpa mendedahkan nombor kod, nama server, path dalaman atau butiran teknikal kepada pengguna.",
+                    "en_draft": "OneID error pages now use a generic branded presentation without disclosing status numbers, server names, internal paths or technical details to users.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.22.1:item:002",
+                    "bm": "Permintaan tidak sah atau terhad, had kadar dan gangguan perkhidmatan menggunakan mesej dwibahasa yang sesuai sambil mengekalkan status HTTP sebenar.",
+                    "en_draft": "Invalid or restricted requests, rate limits and service interruptions use appropriate bilingual messages while preserving the actual HTTP status.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.22.1:item:003",
+                    "bm": "Respons API dan SSO kekal dalam format JSON kerana ralat FastCGI tidak dipintas oleh halaman HTML Nginx.",
+                    "en_draft": "API and SSO responses remain in JSON format because FastCGI errors are not intercepted by the Nginx HTML pages.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.22.0",
             "version": "2.22.0",
             "date": "2026-10-24",
@@ -4973,5 +4998,5 @@
             ]
         }
     ],
-    "manifest_digest": "f96bb51553b8be3768a6fa02fa7eda095cfdffd76f0356fd3aef9e92ab614342"
+    "manifest_digest": "84d0d4bb1bf655605e1f214b9ab9bb922ebeec3f7bc78b8c0c93950237324a87"
 }

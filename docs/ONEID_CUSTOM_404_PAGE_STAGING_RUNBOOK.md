@@ -1,76 +1,72 @@
-# Halaman khas 404 OneID
+# Halaman ralat selamat OneID
 
 ## Tujuan
 
-Halaman statik `public/errors/404.html` menggantikan badan respons lalai
-`404 Not Found nginx` dengan paparan OneID yang kemas. Status HTTP mesti kekal
-`404`; halaman ini bukan redirect dan bukan respons berjaya `200`.
+Halaman statik dalam `public/errors/` menggantikan badan respons lalai Nginx
+dengan paparan OneID yang generik dan dwibahasa:
 
-Halaman sengaja statik dan mempunyai suis BM/English supaya masih tersedia jika
-PHP atau aplikasi menghadapi masalah. Pertukaran bahasa menggunakan fragment
-`#ms`/`#en` pada browser tanpa request tambahan, JavaScript atau aset luaran.
-Ia tidak memaparkan URL yang diminta.
+- `404.html`: permintaan tidak sah, dilarang atau tidak ditemui;
+- `429.html`: permintaan terlalu kerap;
+- `50x.html`: gangguan perkhidmatan atau upstream.
 
-## Konfigurasi Nginx staging
+Nombor kod tidak dipaparkan kepada pengguna, tetapi status HTTP sebenar mesti
+dikekalkan untuk pemantauan, caching dan tingkah laku client yang betul. Halaman
+tidak memaparkan URL, exception, stack trace, path fail atau nama upstream.
 
-Dalam blok HTTPS bagi `server_name oneid-uat.upnm.edu.my`, tambah arahan berikut
-berhampiran tetapan log:
+## Konfigurasi Nginx
+
+Dalam blok HTTPS OneID, tambah:
 
 ```nginx
-error_page 404 /errors/404.html;
+error_page 400 401 403 404 405 408 413 414 /errors/404.html;
+error_page 429 /errors/429.html;
+error_page 500 502 503 504 /errors/50x.html;
 
-location = /errors/404.html {
-    internal;
-}
+location = /errors/404.html { internal; }
+location = /errors/429.html { internal; }
+location = /errors/50x.html { internal; }
 ```
 
-`internal` menghalang fail handler daripada digunakan sebagai halaman biasa.
-Request terus ke `/errors/404.html` akan menerima `404`.
+Kekalkan arahan berikut dalam PHP location:
 
-Arahan `error_page` hendaklah diletakkan pada aras `server`, bukan di dalam
-blok `location`. Blok `location = /errors/404.html` hendaklah berada sebelum
-blok PHP generik.
-
-## Apply dan pengesahan
-
-```bash
-sudo nginx -t
-sudo systemctl reload nginx
-sudo systemctl is-active nginx
+```nginx
+fastcgi_intercept_errors off;
 ```
 
-Gunakan URL canary yang pasti tidak wujud:
+Ini memastikan endpoint API/SSO terus mengeluarkan JSON dan status asalnya.
+Halaman HTML ini hanya menggantikan ralat yang dijana oleh Nginx. Jangan hidupkan
+interception FastCGI secara menyeluruh.
+
+## Urutan staging
+
+1. Salin source halaman ralat ke UAT.
+2. Tambah pemetaan di atas pada virtual host HTTPS UAT.
+3. Jalankan `sudo nginx -t`.
+4. Hanya jika ujian sintaks lulus, jalankan `sudo systemctl reload nginx`.
+5. Sahkan halaman utama, URL tidak wujud dan endpoint API.
+
+Contoh semakan selamat:
 
 ```bash
-CANARY_PATH="/oneid-404-test-$(date +%s)"
-
-curl -sS -D /tmp/oneid-404.headers \
-  -o /tmp/oneid-404.body \
+CANARY_PATH="/oneid-error-test-$(date +%s).php"
+curl -sS -D /tmp/oneid-error.headers -o /tmp/oneid-error.body \
   "https://oneid-uat.upnm.edu.my${CANARY_PATH}"
-
-head -n 1 /tmp/oneid-404.headers
-grep -F "Halaman tidak ditemui" /tmp/oneid-404.body
-grep -F "The address may be incorrect" /tmp/oneid-404.body
+head -n 1 /tmp/oneid-error.headers
+grep -F "Halaman ini tidak tersedia" /tmp/oneid-error.body
+curl -sS -o /dev/null -w '%{http_code}\n' https://oneid-uat.upnm.edu.my/
 ```
 
-Expected:
+Expected: canary kekal HTTP 404 dengan paparan OneID, dan halaman utama kekal
+HTTP 200. Uji endpoint API menggunakan payload ujian sedia ada dan pastikan
+`Content-Type` kekal JSON.
 
-- status ialah `HTTP/2 404`;
-- kandungan halaman khas tersedia;
-- tiada teks badan lalai `404 Not Found nginx`;
-- halaman utama dan aliran login kekal berfungsi.
+## Batasan WAF
 
-Padam fail ujian tempatan selepas semakan:
-
-```bash
-rm /tmp/oneid-404.headers /tmp/oneid-404.body
-```
+Ralat yang ditolak oleh WAF sebelum sampai ke origin tidak boleh disesuaikan oleh
+Nginx OneID. Pemetaan halaman generik pada WAF perlu dibuat oleh pemilik WAF dalam
+perubahan berasingan selepas semakan pusat data.
 
 ## Rollback
 
-Buang dua konfigurasi `error_page`/`location` di atas, kemudian:
-
-```bash
-sudo nginx -t
-sudo systemctl reload nginx
-```
+Pulihkan backup virtual host, jalankan `sudo nginx -t`, kemudian graceful reload.
+Rollback konfigurasi tidak memerlukan perubahan aplikasi, database atau PHP-FPM.
