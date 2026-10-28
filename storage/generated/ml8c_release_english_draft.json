@@ -7,6 +7,31 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.22.2",
+            "version": "2.22.2",
+            "date": "2026-10-28",
+            "items": [
+                {
+                    "identity": "release:2.22.2:item:001",
+                    "bm": "Log masuk MyDigital ID yang dimulakan oleh aplikasi berdaftar kini kembali ke aplikasi asal selepas pengesahan berjaya.",
+                    "en_draft": "MyDigital ID sign-in initiated by a registered application now returns to the originating application after successful authentication.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.22.2:item:002",
+                    "bm": "OneID mengekalkan pengenal service provider yang sah sepanjang aliran MyDigital ID tanpa mengubah log masuk terus ke dashboard OneID.",
+                    "en_draft": "OneID preserves the valid service provider identifier throughout the MyDigital ID flow without changing direct sign-in to the OneID dashboard.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.22.2:item:003",
+                    "bm": "Destinasi pulang dihadkan kepada path dalaman dan pengenal yang dibenarkan bagi menghalang open redirect serta parameter tambahan yang tidak sah.",
+                    "en_draft": "Return destinations are restricted to internal paths and permitted identifiers to prevent open redirects and invalid additional parameters.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.22.1",
             "version": "2.22.1",
             "date": "2026-10-25",
@@ -4998,5 +5023,5 @@
             ]
         }
     ],
-    "manifest_digest": "84d0d4bb1bf655605e1f214b9ab9bb922ebeec3f7bc78b8c0c93950237324a87"
+    "manifest_digest": "badaf149df791fb92c506b61bd4653c7201abc3f16fc4b766714e0edf25292ad"
 }

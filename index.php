@@ -32,6 +32,12 @@ $myDigitalIdEnabled = filter_var(
   oneid_config('ONEID_MYDID_ENABLED', 'false'),
   FILTER_VALIDATE_BOOLEAN
 );
+$myDigitalIdReturnPath = '/page/dashboard';
+$requestedServiceProvider = trim((string) ($_GET['site_id'] ?? ''));
+if (preg_match('/^[A-Za-z0-9_-]{1,128}$/D', $requestedServiceProvider) === 1) {
+  $myDigitalIdReturnPath = '/?site_id=' . rawurlencode($requestedServiceProvider);
+}
+$myDigitalIdLoginUrl = 'auth/mydigitalid/login.php?return=' . rawurlencode($myDigitalIdReturnPath);
 $loginFlashCode = is_string($_SESSION['oneid_login_flash'] ?? null)
   ? $_SESSION['oneid_login_flash']
   : '';
@@ -191,7 +197,7 @@ if (filter_var(oneid_config('ONEID_LOGIN_BANNER_ENABLED', 'false'), FILTER_VALID
             <div class="mydigitalid-card">
               <a
                 class="mydigitalid-button"
-                href="auth/mydigitalid/login.php"
+                href="<?=htmlspecialchars($myDigitalIdLoginUrl, ENT_QUOTES, 'UTF-8')?>"
                 aria-label="<?=htmlspecialchars(oneid_translate('login.mydigitalid.submit'), ENT_QUOTES, 'UTF-8')?>"
               >
                 <span class="mydigitalid-brand">

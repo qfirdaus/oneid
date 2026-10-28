@@ -105,12 +105,12 @@ $check = static function (bool $passed, string $description) use (&$checks, &$fa
     $failures += $passed ? 0 : 1;
     printf("%s %s\n", $passed ? 'PASS' : 'FAIL', $description);
 };
-$makeSession = static function (): array {
+$makeSession = static function (string $returnPath = '/page/dashboard'): array {
     $session = [];
     (new MyDigitalIdAuthorizationTransactionStore())->create(
         $session,
         1_700_000_000,
-        '/page/dashboard',
+        $returnPath,
         static fn(int $length): string => str_repeat("\x55", $length)
     );
     return $session;
@@ -156,8 +156,25 @@ $check(
     'successful callback consumes the transaction'
 );
 
+$serviceProviderSession = $makeSession('/?site_id=emoticare_uat');
+$serviceProviderResult = $orchestrator->handle(
+    'GET',
+    $queryFor($serviceProviderSession),
+    $serviceProviderSession,
+    1_700_000_010,
+    '192.0.2.1',
+    'Fixture Browser',
+    'Fixture Device'
+);
+$check(
+    ($serviceProviderResult['allowed'] ?? false) === true
+        && ($serviceProviderResult['redirect_path'] ?? '') === '/?site_id=emoticare_uat',
+    'successful MyDigital ID callback returns to the originating service provider hand-off'
+);
+
 $accounts->allow = false;
 $session = $makeSession();
+$finalizerCallsBeforeRejection = $finalizer->calls;
 $rejected = $orchestrator->handle(
     'GET',
     $queryFor($session),
@@ -170,7 +187,7 @@ $rejected = $orchestrator->handle(
 $check(
     !$rejected['allowed']
         && $rejected['reason'] === 'MYDID_USER_NOT_FOUND'
-        && $finalizer->calls === 1
+        && $finalizer->calls === $finalizerCallsBeforeRejection
         && ($session[MyDigitalIdRejectedLogoutState::ID_TOKEN_SESSION_KEY] ?? '') === 'a.b.c'
         && ($session[MyDigitalIdRejectedLogoutState::REJECTED_AT_SESSION_KEY] ?? 0)
             === 1_700_000_010,

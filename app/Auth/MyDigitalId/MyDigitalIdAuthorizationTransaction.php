@@ -18,7 +18,10 @@ final class MyDigitalIdAuthorizationTransaction
             || preg_match('/^[a-f0-9]{64}$/D', $nonce) !== 1
             || preg_match('/^[A-Za-z0-9_-]{43,128}$/D', $codeVerifier) !== 1
             || $createdAt < 1
-            || $returnPath !== '/page/dashboard'
+            || (
+                $returnPath !== '/page/dashboard'
+                && preg_match('#^/\?site_id=[A-Za-z0-9_-]{1,128}$#D', $returnPath) !== 1
+            )
         ) {
             throw new MyDigitalIdConfigurationException('MYDID_AUTH_TRANSACTION_INVALID');
         }

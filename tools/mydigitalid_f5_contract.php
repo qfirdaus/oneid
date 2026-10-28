@@ -19,7 +19,8 @@ $logoutHandler = $read('app/Auth/LogoutHandler.php');
 $runtime = $read('config/runtime.php');
 $checks = [];
 $checks['flagged_ui'] = str_contains($index, 'if ($myDigitalIdEnabled')
-    && str_contains($index, 'href="auth/mydigitalid/login.php"')
+    && str_contains($index, 'auth/mydigitalid/login.php?return=')
+    && str_contains($index, 'href="<?=htmlspecialchars($myDigitalIdLoginUrl')
     && str_contains($index, 'mydigitalid-preview')
     && str_contains($runtime, "'ONEID_MYDID_ENABLED' => 'false'");
 $checks['accessible_ui'] = str_contains($index, 'aria-live="polite"')

@@ -73,6 +73,33 @@ final class MyDigitalIdAuthorizationTransactionStore
 
     private function safeReturnPath(string $returnPath): string
     {
-        return $returnPath === '/page/dashboard' ? $returnPath : '/page/dashboard';
+        if ($returnPath === '/page/dashboard') {
+            return $returnPath;
+        }
+
+        $parts = parse_url($returnPath);
+        if (
+            !is_array($parts)
+            || ($parts['path'] ?? '') !== '/'
+            || !isset($parts['query'])
+            || isset($parts['scheme'])
+            || isset($parts['host'])
+            || isset($parts['user'])
+            || isset($parts['pass'])
+            || isset($parts['port'])
+            || isset($parts['fragment'])
+        ) {
+            return '/page/dashboard';
+        }
+        parse_str((string) $parts['query'], $query);
+        if (
+            count($query) !== 1
+            || !is_string($query['site_id'] ?? null)
+            || preg_match('/^[A-Za-z0-9_-]{1,128}$/D', $query['site_id']) !== 1
+        ) {
+            return '/page/dashboard';
+        }
+
+        return '/?site_id=' . rawurlencode($query['site_id']);
     }
 }

@@ -63,6 +63,51 @@ $check(
     'state, nonce and PKCE verifier have cryptographic lengths'
 );
 
+$validServiceProviderSession = [];
+$validServiceProviderOffset = 0;
+$validServiceProviderRandom = static function (int $length) use (&$fixture, &$validServiceProviderOffset): string {
+    $value = substr($fixture, $validServiceProviderOffset, $length);
+    $validServiceProviderOffset += $length;
+    return $value;
+};
+$serviceProviderTransaction = $store->create(
+    $validServiceProviderSession,
+    1_700_000_000,
+    '/?site_id=emoticare_uat',
+    $validServiceProviderRandom
+);
+$check(
+    $serviceProviderTransaction->returnPath === '/?site_id=emoticare_uat',
+    'authorization transaction preserves an allowlisted local service-provider return path'
+);
+
+$unsafeReturnPaths = [
+    'https://evil.invalid/?site_id=emoticare_uat',
+    '//evil.invalid/?site_id=emoticare_uat',
+    '/?site_id=emoticare_uat&next=https%3A%2F%2Fevil.invalid',
+    '/?site_id=emoticare%2F..%2Fevil',
+    '/?site_id=',
+];
+foreach ($unsafeReturnPaths as $unsafeReturnPath) {
+    $unsafeSession = [];
+    $unsafeOffset = 0;
+    $unsafeRandom = static function (int $length) use (&$fixture, &$unsafeOffset): string {
+        $value = substr($fixture, $unsafeOffset, $length);
+        $unsafeOffset += $length;
+        return $value;
+    };
+    $unsafeTransaction = $store->create(
+        $unsafeSession,
+        1_700_000_000,
+        $unsafeReturnPath,
+        $unsafeRandom
+    );
+    $check(
+        $unsafeTransaction->returnPath === '/page/dashboard',
+        'unsafe service-provider return path falls back to the OneID dashboard: ' . $unsafeReturnPath
+    );
+}
+
 $url = (new MyDigitalIdAuthorizationRequest($config))->url($transaction);
 parse_str((string) parse_url($url, PHP_URL_QUERY), $params);
 $check(
@@ -168,6 +213,14 @@ $check(
     str_contains($callbackEndpoint, "'/app/Notification/AdminEmailNotificationPdoComposer.php'")
         && str_contains($callbackEndpoint, "'/app/Notification/AdminEmailNotificationDispatcher.php'"),
     'first-time link notification dependencies do not rely on a stale optimized class map'
+);
+
+$loginPage = (string) file_get_contents(dirname(__DIR__, 2) . '/index.php');
+$check(
+    str_contains($loginPage, "\$_GET['site_id']")
+        && str_contains($loginPage, "auth/mydigitalid/login.php?return=")
+        && str_contains($loginPage, '$myDigitalIdLoginUrl'),
+    'OneID login preserves the originating service provider when MyDigital ID is selected'
 );
 
 printf(

@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.22.2' =>
+  array (
+    'version' => '2.22.2',
+    'date' => '2026-10-28',
+    'bm' =>
+    array (
+      0 => 'Log masuk MyDigital ID yang dimulakan oleh aplikasi berdaftar kini kembali ke aplikasi asal selepas pengesahan berjaya.',
+      1 => 'OneID mengekalkan pengenal service provider yang sah sepanjang aliran MyDigital ID tanpa mengubah log masuk terus ke dashboard OneID.',
+      2 => 'Destinasi pulang dihadkan kepada path dalaman dan pengenal yang dibenarkan bagi menghalang open redirect serta parameter tambahan yang tidak sah.',
+    ),
+    'en' =>
+    array (
+      0 => 'MyDigital ID sign-in initiated by a registered application now returns to the originating application after successful authentication.',
+      1 => 'OneID preserves the valid service provider identifier throughout the MyDigital ID flow without changing direct sign-in to the OneID dashboard.',
+      2 => 'Return destinations are restricted to internal paths and permitted identifiers to prevent open redirects and invalid additional parameters.',
+    ),
+  ),
   'release-2.22.1' =>
   array (
     'version' => '2.22.1',
