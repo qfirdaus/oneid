@@ -126,6 +126,11 @@ def main() -> None:
     rsync.extend(f"--exclude={path}" for path in PRESERVED_PATHS)
     rsync.extend([str(candidate) + "/", str(LIVE) + "/"])
     subprocess.run(rsync, check=True)
+    # The candidate directory is deliberately mode 0700 while it is reviewed.
+    # rsync -a copies that root mode to LIVE, so restore the production traversal
+    # boundary before Nginx/PHP-FPM serve the staged application.
+    subprocess.run(["chown", "iqs:www-data", str(LIVE)], check=True)
+    subprocess.run(["chmod", "2775", str(LIVE)], check=True)
     subprocess.run([
         "rsync", "-a", "--delete", str(candidate / "vendor") + "/", str(LIVE / "vendor") + "/",
     ], check=True)
