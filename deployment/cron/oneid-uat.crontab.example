@@ -4,3 +4,5 @@
 #
 # Staging hourly sync selepas private runtime dan source connectivity disahkan:
 # 15 * * * * /usr/bin/flock -n /var/www/oneid-uat/.private/locks/external-sync.lock /usr/bin/php /var/www/oneid-uat/cron/run_conditional_external_sync.php >> /var/www/oneid-uat/storage/logs/external-sync-cron.log 2>&1
+# APEL remains an independent dry-run-only observation at minute 15:
+# 15 * * * * /usr/bin/flock -n /var/www/oneid-uat/.private/locks/apel-sync-dry-run.lock /usr/bin/php8.4 /var/www/oneid-uat/cron/run_apel_external_sync_dry_run.php >> /var/www/oneid-uat/storage/logs/external-sync-cron.log 2>&1

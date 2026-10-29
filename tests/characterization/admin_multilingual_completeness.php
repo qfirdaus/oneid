@@ -32,7 +32,7 @@ $assert(str_contains($dashboard, "adminText('admin.synclog.loading')"), 'Sync Au
 $assert(str_contains($dashboard, "adminText('admin.configuration.saving')"), 'Configuration dynamic states localized');
 $assert(str_contains($userList, "oneid_translate('admin.user_list.title')"), 'category user list localized');
 
-foreach (['STAFF_HR', 'STUDENT_UG', 'STUDENT_ODL_PG', 'MANUAL'] as $sourceCode) {
+foreach (['STAFF_HR', 'STUDENT_UG', 'STUDENT_ODL_PG', 'STUDENT_APEL', 'MANUAL'] as $sourceCode) {
     $assert(str_contains($dashboard, $sourceCode), 'canonical source retained: ' . $sourceCode);
 }
 

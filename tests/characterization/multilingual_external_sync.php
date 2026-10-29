@@ -31,8 +31,9 @@ $report(
 $report(
     str_contains($admin, "STAFF_HR: externalSyncText.staff")
     && str_contains($admin, "STUDENT_UG: externalSyncText.ug")
-    && str_contains($admin, "STUDENT_ODL_PG: externalSyncText.odl"),
-    'all three source views have localized display labels'
+    && str_contains($admin, "STUDENT_ODL_PG: externalSyncText.odl")
+    && str_contains($admin, "STUDENT_APEL: externalSyncText.apel"),
+    'all four source views have localized display labels'
 );
 $report(
     str_contains($admin, 'operationalConfirmation = response.operational_confirmation')

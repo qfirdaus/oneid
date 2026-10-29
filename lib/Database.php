@@ -399,7 +399,7 @@ class Database {
 
    public function action_add_new_ext_header($ext_head_type, ?string $source_code = null){
         $source_code = $source_code !== null ? trim($source_code) : null;
-        if ($source_code !== null && !in_array($source_code, ['STAFF_HR','STUDENT_UG','STUDENT_ODL_PG'], true)) {
+        if ($source_code !== null && !in_array($source_code, ['STAFF_HR','STUDENT_UG','STUDENT_ODL_PG','STUDENT_APEL'], true)) {
             throw new RuntimeException('SYNC_SOURCE_INVALID');
         }
         $hasSourceCode = $this->sync_header_source_code_available();
@@ -496,7 +496,7 @@ class Database {
     }
 
     public function sync_latest_source_header_id(string $sourceCode):int{
-        if (!in_array($sourceCode, ['STAFF_HR','STUDENT_UG','STUDENT_ODL_PG'], true)) {
+        if (!in_array($sourceCode, ['STAFF_HR','STUDENT_UG','STUDENT_ODL_PG','STUDENT_APEL'], true)) {
             throw new InvalidArgumentException('SYNC_SOURCE_INVALID');
         }
         $R=$this->pdo->prepare(
@@ -510,7 +510,7 @@ class Database {
     public function sync_completed_source_result_after(
         string $sourceCode,int $afterHeaderId,string $triggeredBy
     ):array|false{
-        if (!in_array($sourceCode, ['STAFF_HR','STUDENT_UG','STUDENT_ODL_PG'], true)
+        if (!in_array($sourceCode, ['STAFF_HR','STUDENT_UG','STUDENT_ODL_PG','STUDENT_APEL'], true)
             ||$afterHeaderId<0||trim($triggeredBy)===''
         )throw new InvalidArgumentException('SYNC_RECOVERY_CONTEXT_INVALID');
         $R=$this->pdo->prepare(

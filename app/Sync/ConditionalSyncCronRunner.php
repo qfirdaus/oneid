@@ -10,6 +10,7 @@ use OneId\App\Sync\Adapters\LegacySyncPolicy;
 use OneId\App\Sync\Adapters\SourceScopedSyncPersistenceAdapter;
 use OneId\App\Sync\Odl\OdlStudentSource;
 use OneId\App\Sync\Odl\StaffSource;
+use OneId\App\Sync\Apel\ApelStudentSource;
 use RuntimeException;
 
 final class ConditionalSyncCronRunner
@@ -54,7 +55,10 @@ final class ConditionalSyncCronRunner
             new SyncPlanner(
                 new LegacySyncPolicy(),
                 $scope->preserveExistingEmailOnBlank,
-                $sourceCode === OdlStudentSource::SOURCE_CODE
+                in_array($sourceCode, [
+                    OdlStudentSource::SOURCE_CODE,
+                    ApelStudentSource::SOURCE_CODE,
+                ], true)
             ),
             300,
             5.0,

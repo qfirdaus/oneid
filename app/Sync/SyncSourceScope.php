@@ -8,6 +8,9 @@ use OneId\App\Sync\Odl\OdlOperationalConfig;
 use OneId\App\Sync\Odl\OdlSourceConfig;
 use OneId\App\Sync\Odl\OdlStudentSource;
 use OneId\App\Sync\Odl\UgStudentSource;
+use OneId\App\Sync\Apel\ApelOperationalConfig;
+use OneId\App\Sync\Apel\ApelSourceConfig;
+use OneId\App\Sync\Apel\ApelStudentSource;
 
 final class SyncSourceScope
 {
@@ -49,6 +52,11 @@ final class SyncSourceScope
                 [10],
                 'ONEID_ODL_SHADOW_ODL_BASELINE_ROWS',
             ],
+            ApelStudentSource::SOURCE_CODE => [
+                self::apelSource($cron),
+                [10],
+                'ONEID_APEL_SHADOW_BASELINE_ROWS',
+            ],
             default => throw new \RuntimeException('SYNC_SOURCE_INVALID'),
         };
         $rawBaseline = (string) \oneid_config($baselineKey, '');
@@ -69,9 +77,11 @@ final class SyncSourceScope
             (int) $rawBaseline,
             $sourceCode === UgStudentSource::SOURCE_CODE
                 || $sourceCode === OdlStudentSource::SOURCE_CODE
+                || $sourceCode === ApelStudentSource::SOURCE_CODE
                 || ($sourceCode === StaffSource::SOURCE_CODE
                     && $staffProvenance === 'true'),
             $sourceCode === OdlStudentSource::SOURCE_CODE
+                || $sourceCode === ApelStudentSource::SOURCE_CODE
         );
     }
 
@@ -81,5 +91,22 @@ final class SyncSourceScope
             OdlOperationalConfig::fromPrivateRuntime()->assertPreviewEnabled();
         }
         return new OdlStudentSource(OdlSourceConfig::fromPrivateRuntime());
+    }
+
+    private static function apelSource(bool $cron): ApelStudentSource
+    {
+        if ($cron) {
+            $enabled = 'false';
+            try {
+                $enabled = trim((string) \oneid_secret('ONEID_APEL_CRON_APPLY_ENABLED'));
+            } catch (\Throwable) {
+            }
+            if ($enabled !== 'true') {
+                throw new \RuntimeException('APEL_CRON_APPLY_DISABLED');
+            }
+        } else {
+            ApelOperationalConfig::fromPrivateRuntime()->assertPreviewEnabled();
+        }
+        return new ApelStudentSource(ApelSourceConfig::fromPrivateRuntime());
     }
 }

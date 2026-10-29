@@ -69,6 +69,7 @@ final class SyncSafetyPolicy
                 || in_array($this->requiredSourceCode, [
                     'STUDENT_UG',
                     'STUDENT_ODL_PG',
+                    'STUDENT_APEL',
                 ], true))
             && $studentRows === 0
         ) {

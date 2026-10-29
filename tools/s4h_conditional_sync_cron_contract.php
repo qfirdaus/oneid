@@ -67,9 +67,9 @@ $report(
     'successful mutation has source-specific audit marker and uncertainty outcome'
 );
 $report(
-    str_contains($database, "['STAFF_HR','STUDENT_UG','STUDENT_ODL_PG']")
-        && !str_contains($database, "['STAFF_HR','STUDENT_UG_SMP','STUDENT_ODL_PG']"),
-    'cron writer accepts the canonical UG source code used by the runner'
+    str_contains($database, "['STAFF_HR','STUDENT_UG','STUDENT_ODL_PG','STUDENT_APEL']")
+        && str_contains($source['app/Sync/SyncCronConfig.php'], 'ApelStudentSource'),
+    'writer and cron catalogue accept canonical APEL source'
 );
 exec(
     escapeshellarg(PHP_BINARY) . ' '

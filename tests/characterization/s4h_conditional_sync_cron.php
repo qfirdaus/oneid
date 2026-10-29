@@ -9,6 +9,7 @@ use OneId\App\Sync\DTO\SyncApproval;
 use OneId\App\Sync\Odl\OdlStudentSource;
 use OneId\App\Sync\Odl\StaffSource;
 use OneId\App\Sync\Odl\UgStudentSource;
+use OneId\App\Sync\Apel\ApelStudentSource;
 use OneId\App\Sync\SyncCronConfig;
 
 $checks = [];
@@ -16,6 +17,7 @@ $limits = [
     StaffSource::SOURCE_CODE => ['New'=>'50','Update'=>'250','Reactivate'=>'20','Total'=>'300'],
     UgStudentSource::SOURCE_CODE => ['New'=>'50','Update'=>'250','Reactivate'=>'20','Total'=>'300'],
     OdlStudentSource::SOURCE_CODE => ['New'=>'20','Update'=>'100','Reactivate'=>'10','Total'=>'120'],
+    ApelStudentSource::SOURCE_CODE => ['New'=>'5','Update'=>'10','Reactivate'=>'3','Total'=>'15'],
 ];
 $config = SyncCronConfig::fromValues(
     'true', 'true', implode(',', SyncCronConfig::SOURCE_CODES), '0', $limits
@@ -46,6 +48,10 @@ $checks['all_safe_changes_allows_deactivation_and_volume'] = $unrestricted->bloc
     OdlStudentSource::SOURCE_CODE,
     ['New'=>99999,'Update'=>99999,'Deactivate'=>99999,'Reactivate'=>99999]
 ) === null;
+$checks['apel_limits_survive_allow_all'] = $unrestricted->blockingCode(
+    ApelStudentSource::SOURCE_CODE,
+    ['New'=>6,'Update'=>0,'Deactivate'=>0,'Reactivate'=>0]
+) === 'SYNC_CRON_NEW_LIMIT_EXCEEDED';
 
 $invalid = static function (callable $call, string $code): bool {
     try { $call(); } catch (RuntimeException $exception) {

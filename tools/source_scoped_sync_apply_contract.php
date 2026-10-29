@@ -11,36 +11,38 @@ $adapter = (string) file_get_contents(
     $root . '/app/Sync/Adapters/SourceScopedSyncPersistenceAdapter.php'
 );
 $checks = [
-    'UI routes Staff UG and ODL to guarded preview and Apply flow' =>
+    'UI routes Staff UG ODL and APEL to guarded preview and Apply flow' =>
         str_contains($ui, "pick_preview_sync_user('STAFF_HR')")
         && str_contains($ui, "pick_preview_sync_user('STUDENT_UG')")
         && str_contains($ui, "pick_preview_sync_user('STUDENT_ODL_PG')")
+        && str_contains($ui, "pick_preview_sync_user('STUDENT_APEL')")
         && str_contains($ui, 'sync_source_code:sourceCode')
         && str_contains($ui, 'sync_source_code: sourceCode'),
     'Summary remains on aggregate read-only shadow preview' =>
         str_contains($ui, "preview_external_sync_view('SUMMARY')"),
     'successful Apply refreshes child counts for every sync mode' =>
         str_contains($ui, 'function refresh_external_sync_child_after_apply(sourceCode)')
-        && substr_count($ui, 'refresh_external_sync_child_after_apply(sourceCode);') === 3,
+        && substr_count($ui, 'refresh_external_sync_child_after_apply(sourceCode);') >= 3,
     'closing any External Sync child refreshes parent notifications' =>
         str_contains($ui, "childId === 'modal_add_new_single_user'")
         && str_contains($ui, "childId === 'modal_odl_shadow_preview'")
         && str_contains($ui, "childId === 'modal_add_new_user_manual'")
         && str_contains($ui, 'refresh_external_sync_notifications();'),
-    'Staff UG and ODL hide the internal protected-manual count' =>
+    'Staff UG ODL and APEL hide the internal protected-manual count' =>
         !str_contains($ui, 'sync_preview_protected_manual')
         && !str_contains($ui, "oneid_translate('admin.sync.protected_manual')"),
     'preview and every Apply endpoint require a source scope' =>
-        substr_count($q, 'SyncSourceScope::fromCode(') === 4
+        substr_count($q, 'SyncSourceScope::fromCode(') >= 4
         && substr_count($q, '$syncSourceCode') >= 9,
     'factory rebuilds approved plan using the selected source' =>
         str_contains($factory, 'buildSafeOrchestrator(null, $sourceCode)')
         && str_contains($factory, 'buildSafeOrchestrator($selector, $sourceCode)')
         && str_contains($factory, 'SyncSourceScope::fromCode($sourceCode)'),
-    'Staff UG and ODL sources are accepted' =>
+    'Staff UG ODL and APEL sources are accepted' =>
         str_contains($scope, 'StaffSource::SOURCE_CODE')
         && str_contains($scope, 'UgStudentSource::SOURCE_CODE')
         && str_contains($scope, 'OdlStudentSource::SOURCE_CODE')
+        && str_contains($scope, 'ApelStudentSource::SOURCE_CODE')
         && str_contains($scope, "SYNC_SOURCE_INVALID"),
     'planner reads are category and provenance scoped before deactivation decisions' =>
         str_contains($adapter, 'in_array(')

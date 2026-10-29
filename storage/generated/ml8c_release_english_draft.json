@@ -7,6 +7,31 @@
     "automatic_approval": false,
     "releases": [
         {
+            "identity": "release:2.22.3",
+            "version": "2.22.3",
+            "date": "2026-10-29",
+            "items": [
+                {
+                    "identity": "release:2.22.3:item:001",
+                    "bm": "Integrasi pelajar APEL menggunakan sumber berasingan STUDENT_APEL dengan sambungan TLS, provenance, audit kualiti data dan perlindungan konflik identiti.",
+                    "en_draft": "The APEL student integration uses the separate STUDENT_APEL source with TLS connectivity, provenance, data-quality auditing and identity-conflict protection.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.22.3:item:002",
+                    "bm": "Admin Sync dan ringkasan read-only kini memaparkan APEL bersama Staff, pelajar prasiswazah dan ODL dengan preview selamat, label dwibahasa serta Sync Log khusus.",
+                    "en_draft": "Admin Sync and its read-only summary now show APEL alongside Staff, undergraduate and ODL sources with safe previews, bilingual labels and a dedicated Sync Log identity.",
+                    "review_status": "APPROVED"
+                },
+                {
+                    "identity": "release:2.22.3:item:003",
+                    "bm": "Sync APEL menyokong fresh one-time approval, transaksi, reconciliation dan rollback guard, manakala cron staging menggunakan gate khusus serta had konservatif tanpa membenarkan deactivation.",
+                    "en_draft": "APEL synchronization supports fresh one-time approval, transactions, reconciliation and rollback guards, while the staging cron uses a separate gate and conservative limits with deactivation disabled.",
+                    "review_status": "APPROVED"
+                }
+            ]
+        },
+        {
             "identity": "release:2.22.2",
             "version": "2.22.2",
             "date": "2026-10-28",
@@ -5023,5 +5048,5 @@
             ]
         }
     ],
-    "manifest_digest": "badaf149df791fb92c506b61bd4653c7201abc3f16fc4b766714e0edf25292ad"
+    "manifest_digest": "4607dbee863f81202b90471422e8b69b6aafd815b530f37f2b35a401a9e09250"
 }

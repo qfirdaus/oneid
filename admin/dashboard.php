@@ -717,6 +717,15 @@
                            <span id="external_notice_odl" class="external-action-notice" style="display:none"></span>
                            <i class="fa fa-chevron-right oneid-sync-menu-arrow"></i>
                         </button>
+                        <button class="btn btn-block oneid-sync-choice oneid-sync-menu-card oneid-sync-menu-source external-source-preview-button" type="button" onclick="pick_preview_sync_user('STUDENT_APEL');">
+                           <span class="oneid-sync-menu-icon"><i class="fa fa-university"></i></span>
+                           <span class="oneid-sync-menu-copy">
+                              <strong><?=htmlspecialchars(oneid_translate('admin.sync.apel_title'), ENT_QUOTES, 'UTF-8')?></strong>
+                              <small><?=htmlspecialchars(oneid_translate('admin.sync.apel_intro'), ENT_QUOTES, 'UTF-8')?></small>
+                           </span>
+                           <span id="external_notice_apel" class="external-action-notice" style="display:none"></span>
+                           <i class="fa fa-chevron-right oneid-sync-menu-arrow"></i>
+                        </button>
                      </div>
 
                      <div class="oneid-sync-menu-section oneid-sync-menu-section-last">
@@ -891,6 +900,7 @@
                                     <td id="external_summary_ug_actions">-</td><td id="external_summary_ug_status">-</td>
                                  </tr>
                                  <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.odl'), ENT_QUOTES, 'UTF-8')?></td><td id="external_summary_odl_rows">-</td><td id="external_summary_odl_actions">-</td><td id="external_summary_odl_status">-</td></tr>
+                                 <tr><td><?=htmlspecialchars(oneid_translate('admin.sync.apel'), ENT_QUOTES, 'UTF-8')?></td><td id="external_summary_apel_rows">-</td><td id="external_summary_apel_actions">-</td><td id="external_summary_apel_status">-</td></tr>
                               </tbody>
                            </table>
                         </div>
@@ -4973,6 +4983,7 @@
             'staff' => oneid_translate('admin.sync.staff_title'),
             'ug' => oneid_translate('admin.sync.ug_title'),
             'odl' => oneid_translate('admin.sync.odl_title'),
+            'apel' => oneid_translate('admin.sync.apel_title'),
             'reviewOnly' => oneid_translate('admin.sync.review_only'),
             'reviewApply' => oneid_translate('admin.sync.review_apply'),
             'generating' => oneid_translate('admin.sync.generating'),
@@ -5166,6 +5177,7 @@
                   var staff = external_action_total(actions, 'STAFF_HR');
                   var ug = external_action_total(actions, 'STUDENT_UG');
                   var odl = external_action_total(actions, 'STUDENT_ODL_PG');
+                  var apel = external_action_total(actions, 'STUDENT_APEL');
                   var staffBlocked = blocks.some(function(code){
                      return String(code).indexOf('STAFF_HR_') === 0;
                   });
@@ -5175,12 +5187,16 @@
                   var odlBlocked = blocks.some(function(code){
                      return String(code).indexOf('ODL_') === 0;
                   });
+                  var apelBlocked = blocks.some(function(code){
+                     return String(code).indexOf('STUDENT_APEL_') === 0;
+                  });
                   show_external_action_notice('#external_notice_staff', staff, staffBlocked);
                   show_external_action_notice('#external_notice_ug', ug, ugBlocked);
                   show_external_action_notice('#external_notice_odl', odl, odlBlocked);
+                  show_external_action_notice('#external_notice_apel', apel, apelBlocked);
                   show_external_action_notice(
                      '#external_notice_summary',
-                     staff + ug + odl,
+                     staff + ug + odl + apel,
                      blocks.length > 0
                   );
                },
@@ -5226,7 +5242,8 @@
             var sourceLabels = {
                STAFF_HR: externalSyncText.staff,
                STUDENT_UG: externalSyncText.ug,
-               STUDENT_ODL_PG: externalSyncText.odl
+               STUDENT_ODL_PG: externalSyncText.odl,
+               STUDENT_APEL: externalSyncText.apel
             };
             if(!sourceLabels[sourceCode]){
                return;
@@ -5714,6 +5731,7 @@
                      {code: 'STAFF_HR', row: 'staff', blockPrefix: 'STAFF_HR_'},
                      {code: 'STUDENT_UG', row: 'ug', blockPrefix: 'STUDENT_UG_'},
                      {code: 'STUDENT_ODL_PG', row: 'odl', blockPrefix: 'ODL_'}
+                     ,{code: 'STUDENT_APEL', row: 'apel', blockPrefix: 'STUDENT_APEL_'}
                   ];
                   var totalSummaryActions = 0;
                   var blockedSourceCount = 0;
@@ -5757,6 +5775,7 @@
                         Number(rows.STAFF_HR || 0) + ' / '
                         + Number(rows.STUDENT_UG || 0) + ' / '
                         + Number(rows.STUDENT_ODL_PG || 0)
+                        + ' / ' + Number(rows.STUDENT_APEL || 0)
                      );
                      $('#external_preview_health').text(
                         'Staff ' + String((sourceMetrics.STAFF_HR || {}).status || 'unknown').toUpperCase()
@@ -5765,6 +5784,8 @@
                         + ' (' + Number((sourceMetrics.STUDENT_UG || {}).shrink_percent || 0) + '%)'
                         + ' / ODL ' + String((sourceMetrics.STUDENT_ODL_PG || {}).status || 'unknown').toUpperCase()
                         + ' (' + Number((sourceMetrics.STUDENT_ODL_PG || {}).shrink_percent || 0) + '%)'
+                        + ' / APEL ' + String((sourceMetrics.STUDENT_APEL || {}).status || 'unknown').toUpperCase()
+                        + ' (' + Number((sourceMetrics.STUDENT_APEL || {}).shrink_percent || 0) + '%)'
                      );
                   } else {
                      var selectedMetrics = sourceMetrics[selectedView] || {};
@@ -6575,7 +6596,8 @@
                STAFF_HR: [adminText('admin.synclog.source_staff'), 'sync-source-staff'],
                STUDENT_UG: [adminText('admin.synclog.source_ug'), 'sync-source-ug'],
                STUDENT_UG_SMP: [adminText('admin.synclog.source_ug'), 'sync-source-ug'],
-               STUDENT_ODL_PG: [adminText('admin.synclog.source_odl'), 'sync-source-odl']
+               STUDENT_ODL_PG: [adminText('admin.synclog.source_odl'), 'sync-source-odl'],
+               STUDENT_APEL: [adminText('admin.synclog.source_apel'), 'sync-source-apel']
             };
             return sources[String(sourceCode || '')]
                || [adminText('admin.synclog.source_legacy'), 'sync-source-legacy'];
@@ -10892,6 +10914,7 @@ $(document).on('click', '.dropify-wrapper .dropify-clear', function (e) {
       #tab_synclog .sync-source-staff { background: #eaf8f1; border-color: #bfe6d2; color: #146c46; }
       #tab_synclog .sync-source-ug { background: #eef6ff; border-color: #c9def6; color: #245b91; }
       #tab_synclog .sync-source-odl { background: #fff5e9; border-color: #f2d5ad; color: #945713; }
+      #tab_synclog .sync-source-apel { background: #eef8f5; border-color: #b8dfd3; color: #176b59; }
       #tab_synclog .sync-source-legacy { background: #f2f4f7; border-color: #dfe4ea; color: #697586; }
 
       #tab_synclog .sync-session-time {

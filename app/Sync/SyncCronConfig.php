@@ -7,6 +7,7 @@ namespace OneId\App\Sync;
 use OneId\App\Sync\Odl\OdlStudentSource;
 use OneId\App\Sync\Odl\StaffSource;
 use OneId\App\Sync\Odl\UgStudentSource;
+use OneId\App\Sync\Apel\ApelStudentSource;
 use RuntimeException;
 
 final class SyncCronConfig
@@ -15,6 +16,7 @@ final class SyncCronConfig
         StaffSource::SOURCE_CODE,
         UgStudentSource::SOURCE_CODE,
         OdlStudentSource::SOURCE_CODE,
+        ApelStudentSource::SOURCE_CODE,
     ];
 
     /** @param list<string> $sources @param array<string,array<string,int>> $limits */
@@ -41,6 +43,7 @@ final class SyncCronConfig
             StaffSource::SOURCE_CODE => [50, 250, 20, 300],
             UgStudentSource::SOURCE_CODE => [50, 250, 20, 300],
             OdlStudentSource::SOURCE_CODE => [20, 100, 10, 120],
+            ApelStudentSource::SOURCE_CODE => [5, 10, 3, 15],
         ];
         foreach ($defaults as $source => [$new, $update, $reactivate, $total]) {
             $limits[$source] = [
@@ -134,7 +137,9 @@ final class SyncCronConfig
                 throw new RuntimeException('SYNC_CRON_COUNTS_INVALID');
             }
         }
-        if ($this->allowAllSafeChanges) return null;
+        // APEL remains within its conservative limits even when staging uses
+        // the legacy allow-all switch for established sources.
+        if ($this->allowAllSafeChanges && $source !== 'STUDENT_APEL') return null;
         if ($counts['Deactivate'] > $this->maxDeactivate) {
             return 'SYNC_CRON_DEACTIVATION_LIMIT_EXCEEDED';
         }

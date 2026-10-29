@@ -133,8 +133,14 @@ final class SyncEngineFactory
             new DatabaseSyncRunLock($this->operation),
             new SyncPlanner(
                 new LegacySyncPolicy(),
-                $sourceCode === \OneId\App\Sync\Odl\OdlStudentSource::SOURCE_CODE,
-                $sourceCode === \OneId\App\Sync\Odl\OdlStudentSource::SOURCE_CODE
+                in_array($sourceCode, [
+                    \OneId\App\Sync\Odl\OdlStudentSource::SOURCE_CODE,
+                    \OneId\App\Sync\Apel\ApelStudentSource::SOURCE_CODE,
+                ], true),
+                in_array($sourceCode, [
+                    \OneId\App\Sync\Odl\OdlStudentSource::SOURCE_CODE,
+                    \OneId\App\Sync\Apel\ApelStudentSource::SOURCE_CODE,
+                ], true)
             ),
             new SyncSafetyPolicy(
                 requiredSourceCode: $sourceCode

@@ -30,8 +30,8 @@ $report(
     'all source-scoped safe coordinators persist the canonical source code'
 );
 $report(
-    str_contains($database, "['STAFF_HR','STUDENT_UG','STUDENT_ODL_PG']")
-        && !str_contains($database, "['STAFF_HR','STUDENT_UG_SMP','STUDENT_ODL_PG']")
+    str_contains($database, "['STAFF_HR','STUDENT_UG','STUDENT_ODL_PG','STUDENT_APEL']")
+        && !str_contains($database, 'STUDENT_UG_SMP')
         && str_contains($database, 'h.source_code'),
     'database accepts only canonical sources and projects source in Sync Log'
 );
@@ -44,6 +44,7 @@ $report(
     str_contains($dashboard, "adminText('admin.synclog.source_staff')")
         && str_contains($dashboard, "adminText('admin.synclog.source_ug')")
         && str_contains($dashboard, "adminText('admin.synclog.source_odl')")
+        && str_contains($dashboard, "adminText('admin.synclog.source_apel')")
         && str_contains($dashboard, "adminText('admin.synclog.source_legacy')"),
     'Admin Sync Log renders explicit source badges and a legacy fallback'
 );
@@ -55,7 +56,7 @@ $report(
         && str_contains($dashboard, 'sync_escape_html(identity)'),
     'cron and manual trigger labels remain safe and distinct'
 );
-$keys = ['source','source_staff','source_ug','source_odl','source_legacy','trigger_cron','trigger_manual'];
+$keys = ['source','source_staff','source_ug','source_odl','source_apel','source_legacy','trigger_cron','trigger_manual'];
 $localized = true;
 foreach ($keys as $key) {
     $full = 'admin.synclog.' . $key;

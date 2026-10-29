@@ -6,6 +6,23 @@ declare(strict_types=1);
  * Kekalkan setiap item sejarah; mudahkan bahasa tanpa menggabung atau membuang item.
  */
 return array_values(array (
+  'release-2.22.3' =>
+  array (
+    'version' => '2.22.3',
+    'date' => '2026-10-29',
+    'bm' =>
+    array (
+      0 => 'Integrasi pelajar APEL menggunakan sumber berasingan STUDENT_APEL dengan sambungan TLS, provenance, audit kualiti data dan perlindungan konflik identiti.',
+      1 => 'Admin Sync dan ringkasan read-only kini memaparkan APEL bersama Staff, pelajar prasiswazah dan ODL dengan preview selamat, label dwibahasa serta Sync Log khusus.',
+      2 => 'Sync APEL menyokong fresh one-time approval, transaksi, reconciliation dan rollback guard, manakala cron staging menggunakan gate khusus serta had konservatif tanpa membenarkan deactivation.',
+    ),
+    'en' =>
+    array (
+      0 => 'The APEL student integration uses the separate STUDENT_APEL source with TLS connectivity, provenance, data-quality auditing and identity-conflict protection.',
+      1 => 'Admin Sync and its read-only summary now show APEL alongside Staff, undergraduate and ODL sources with safe previews, bilingual labels and a dedicated Sync Log identity.',
+      2 => 'APEL synchronization supports fresh one-time approval, transactions, reconciliation and rollback guards, while the staging cron uses a separate gate and conservative limits with deactivation disabled.',
+    ),
+  ),
   'release-2.22.2' =>
   array (
     'version' => '2.22.2',

@@ -1467,7 +1467,45 @@ function string_sanitize($s) {
                         new \OneId\App\Sync\SourceAware\SourceAwareSafetyPolicy()
                     )
                 );
-                echo json_encode($shadowService->preview());
+                $aggregate = $shadowService->preview();
+                $apelPreview = (new \OneId\App\Sync\Apel\ApelShadowPreviewService(
+                    \OneId\App\Sync\Apel\ApelShadowPreviewConfig::fromPrivateRuntime(),
+                    new \OneId\App\Sync\Apel\ApelStudentSource(
+                        \OneId\App\Sync\Apel\ApelSourceConfig::fromPrivateRuntime()
+                    ),
+                    new \OneId\App\Sync\Odl\OdlShadowPreviewReader($readPdo),
+                    new \OneId\App\Sync\SourceAware\SourceAwareStudentPlanner(
+                        new \OneId\App\Sync\SourceAware\SourceAwareSafetyPolicy()
+                    )
+                ))->preview();
+                $apelSource = \OneId\App\Sync\Apel\ApelSourceDefinition::SOURCE_CODE;
+                $aggregate['source_rows'][$apelSource] =
+                    (int) ($apelPreview['source_rows'] ?? 0);
+                $aggregate['metrics']['sources'][$apelSource] =
+                    $apelPreview['metrics']['sources'][$apelSource] ?? [];
+                foreach (['membership', 'account'] as $actionType) {
+                    $counts = $apelPreview['action_counts'][$actionType] ?? [];
+                    $aggregate['action_counts'][$actionType]['by_source'][$apelSource] = $counts;
+                    foreach ($counts as $action => $count) {
+                        $aggregate['action_counts'][$actionType]['total'][$action] =
+                            (int) ($aggregate['action_counts'][$actionType]['total'][$action] ?? 0)
+                            + (int) $count;
+                    }
+                }
+                $aggregate['sync_action_counts'][$apelSource] =
+                    $apelPreview['action_counts']['account'] ?? [];
+                $aggregate['blocking_codes'] = array_values(array_unique(array_merge(
+                    $aggregate['blocking_codes'] ?? [],
+                    $apelPreview['blocking_codes'] ?? []
+                )));
+                $aggregate['allowed'] = ($aggregate['allowed'] ?? false)
+                    && ($apelPreview['allowed'] ?? false);
+                $aggregate['risk_level'] = $aggregate['allowed'] ? 'normal' : 'blocked';
+                $aggregate['preview_digest'] = hash(
+                    'sha256',
+                    json_encode($aggregate, JSON_UNESCAPED_SLASHES) ?: ''
+                );
+                echo json_encode($aggregate);
             } catch (\Throwable $exception) {
                 $correlationId = bin2hex(random_bytes(8));
                 $known = [
@@ -1481,6 +1519,13 @@ function string_sanitize($s) {
                     'ODBC_EXTENSION_UNAVAILABLE',
                     'EXTERNAL_STUDENT_CONNECTION_FAILED',
                     'EXTERNAL_STUDENT_QUERY_FAILED',
+                    'APEL_SHADOW_PREVIEW_DISABLED',
+                    'APEL_SHADOW_PREVIEW_FLAG_INVALID',
+                    'APEL_SHADOW_BASELINE_INVALID',
+                    'APEL_PDO_MYSQL_TLS_UNAVAILABLE',
+                    'APEL_SOURCE_CONNECTION_FAILED',
+                    'APEL_TLS_NOT_ACTIVE',
+                    'APEL_SOURCE_QUERY_FAILED',
                 ];
                 $code = in_array($exception->getMessage(), $known, true)
                     ? $exception->getMessage()
@@ -1513,6 +1558,11 @@ function string_sanitize($s) {
                 $odlOperationalConfig = $isOdlOperational
                     ? \OneId\App\Sync\Odl\OdlOperationalConfig::fromPrivateRuntime()
                     : null;
+                $isApelOperational = $syncScope->sourceCode
+                    === \OneId\App\Sync\Apel\ApelStudentSource::SOURCE_CODE;
+                $apelOperationalConfig = $isApelOperational
+                    ? \OneId\App\Sync\Apel\ApelOperationalConfig::fromPrivateRuntime()
+                    : null;
                 $syncPersistence = new \OneId\App\Sync\Adapters\SourceScopedSyncPersistenceAdapter(
                     new \OneId\App\Sync\Adapters\DatabaseSyncPersistenceAdapter($operation),
                     $syncScope->categoryIds,
@@ -1540,7 +1590,7 @@ function string_sanitize($s) {
                     new \OneId\App\Sync\SyncPlanner(
                         new \OneId\App\Sync\Adapters\LegacySyncPolicy(),
                         $syncScope->preserveExistingEmailOnBlank,
-                        $isOdlOperational
+                        $isOdlOperational || $isApelOperational
                     ),
                     300,
                     5.0,
@@ -1625,6 +1675,8 @@ function string_sanitize($s) {
                     && $runtimeConfig->canApply()
                     && (!$isOdlOperational
                         || $odlOperationalConfig->canApply())
+                    && (!$isApelOperational
+                        || $apelOperationalConfig->canApply())
                     && ($previewResponse['approval_ready'] ?? false) === true
                     && array_sum($previewCounts) > 0;
                 if ($previewResponse['operational_apply_available']
@@ -1637,6 +1689,18 @@ function string_sanitize($s) {
                             $previewCounts,
                             (string) ($previewResponse['plan_hash'] ?? '')
                         );
+                    } catch (\RuntimeException $exception) {
+                        $previewResponse['operational_apply_available'] = false;
+                        $previewResponse['blocking_codes'][] = $exception->getMessage();
+                        $previewResponse['warnings'][] = $exception->getMessage();
+                        $previewResponse['risk_level'] = 'blocked';
+                    }
+                }
+                if ($previewResponse['operational_apply_available']
+                    && $isApelOperational
+                ) {
+                    try {
+                        $apelOperationalConfig->assertApplyEnabled();
                     } catch (\RuntimeException $exception) {
                         $previewResponse['operational_apply_available'] = false;
                         $previewResponse['blocking_codes'][] = $exception->getMessage();
@@ -1676,6 +1740,9 @@ function string_sanitize($s) {
                     'ODL_OPERATIONAL_PREVIEW_DISABLED',
                     'ODL_OPERATIONAL_FLAG_INVALID',
                     'ODL_OPERATIONAL_FLAG_COMBINATION_INVALID',
+                    'APEL_OPERATIONAL_PREVIEW_DISABLED',
+                    'APEL_OPERATIONAL_FLAG_INVALID',
+                    'APEL_OPERATIONAL_FLAG_COMBINATION_INVALID',
                     'SYNC_CROSS_SOURCE_IDENTITY_COLLISION',
                     'SYNC_SOURCE_MEMBERSHIP_CONFLICT',
                     'ODL_OPERATIONAL_EXPECTED_COUNTS_INVALID',
@@ -1755,6 +1822,12 @@ function string_sanitize($s) {
                         \OneId\App\Sync\Odl\OdlOperationalConfig::fromPrivateRuntime();
                     $odlOperationalConfig->assertApplyEnabled();
                     $odlOperationalConfig->assertWithinChangeWindow();
+                }
+                if ($syncSourceCode
+                    === \OneId\App\Sync\Apel\ApelStudentSource::SOURCE_CODE
+                ) {
+                    \OneId\App\Sync\Apel\ApelOperationalConfig::fromPrivateRuntime()
+                        ->assertApplyEnabled();
                 }
                 $runtimeConfig = \OneId\App\Sync\SyncRuntimeConfig::fromEnvironment();
                 $pilotConfig = \OneId\App\Sync\SyncPilotConfig::fromEnvironment();
@@ -1875,6 +1948,9 @@ function string_sanitize($s) {
                     'ODL_OPERATIONAL_APPLY_DISABLED',
                     'ODL_OPERATIONAL_FLAG_INVALID',
                     'ODL_OPERATIONAL_FLAG_COMBINATION_INVALID',
+                    'APEL_OPERATIONAL_APPLY_DISABLED',
+                    'APEL_OPERATIONAL_FLAG_INVALID',
+                    'APEL_OPERATIONAL_FLAG_COMBINATION_INVALID',
                     'ODL_OPERATIONAL_EXPECTED_COUNTS_INVALID',
                     'ODL_OPERATIONAL_AUTHORIZATION_INVALID',
                     'ODL_OPERATIONAL_WINDOW_INVALID',
